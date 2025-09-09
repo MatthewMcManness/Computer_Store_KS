@@ -13,7 +13,7 @@ if (toggle && nav) {
 const y = document.getElementById('year'); if (y) y.textContent = new Date().getFullYear();
 
 // Contact form handling
-const CONTACT_API_URL = "https://tcs-contact-api.onrender.com/api/contact"; // UPDATE after backend is live
+const CONTACT_API_URL = "https://tcs-contact-api.onrender.com"; // UPDATE after backend is live
 const form = document.getElementById('contactForm');
 const statusEl = document.getElementById('formStatus');
 async function submitForm(e){

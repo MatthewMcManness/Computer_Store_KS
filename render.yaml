@@ -1,8 +1,9 @@
 services:
+  # API (Express + Nodemailer)
   - type: web
     name: tcs-contact-api
     rootDir: api
-    env: node
+    runtime: node        # was: env: node
     plan: starter
     buildCommand: "npm install"
     startCommand: "npm start"
@@ -26,9 +27,12 @@ services:
       - key: CORS_ORIGINS
         sync: false
 
-  - type: static_site
+  # Frontend (static site)
+  - type: web
     name: tcs-frontend
     rootDir: frontend
-    buildCommand: ""
+    runtime: static       # <- this is the key bit
+    buildCommand: "echo 'no build step'"
     staticPublishPath: "."
     autoDeploy: true
+

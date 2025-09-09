@@ -36,14 +36,15 @@
     <div class="container">
       <h2>Inquire About Protection Plans</h2>
       <p>Fill out the form below to enquire about our Computer Protection Plans. A three‑month agreement is required.</p>
-      <form action="#" method="post">
+      <form id="contactForm" method="post">
         <label for="name">Name</label>
-        <input type="text" id="name" name="name" placeholder="Your name">
+        <input type="text" id="name" name="name" placeholder="Your name" required>
         <label for="email">Email</label>
-        <input type="email" id="email" name="email" placeholder="Your email">
+        <input type="email" id="email" name="email" placeholder="Your email" required>
         <label for="message">Message</label>
-        <textarea id="message" name="message" rows="5" placeholder="Tell us how we can help"></textarea>
+        <textarea id="message" name="message" rows="5" placeholder="Tell us how we can help" required></textarea>
         <button type="submit" class="btn">Send Message</button>
+        <div id="formStatus" class="status"></div>
       </form>
       <div class="contact-info">
         <p><strong>Phone:</strong> 785‑267‑3223</p>
@@ -72,6 +73,38 @@
         });
       }
     });
+
+    // Contact form submission using backend API
+    const contactForm = document.getElementById('contactForm');
+    const statusEl = document.getElementById('formStatus');
+    const CONTACT_API_URL = "https://YOUR-BACKEND.onrender.com/api/contact";
+    if (contactForm) {
+      contactForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        statusEl.textContent = 'Sending...';
+        const data = {
+          name: contactForm.name.value,
+          email: contactForm.email.value,
+          message: contactForm.message.value
+        };
+        try {
+          const res = await fetch(CONTACT_API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+          const payload = await res.json().catch(() => ({}));
+          if (res.ok) {
+            statusEl.textContent = 'Thanks! We’ll be in touch soon.';
+            contactForm.reset();
+          } else {
+            statusEl.textContent = payload.error || 'Something went wrong. Please try again.';
+          }
+        } catch (err) {
+          statusEl.textContent = 'Network error. Please try again.';
+        }
+      });
+    }
   </script>
 </body>
 </html>

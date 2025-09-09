@@ -339,6 +339,13 @@ footer {
   font-size: 0.9rem;
 }
 
+/* Status message styling for contact form */
+.status {
+  margin-top: 0.5rem;
+  font-size: 0.95rem;
+  color: var(--primary-color);
+}
+
 @media (max-width: 768px) {
   header .container {
     flex-direction: column;

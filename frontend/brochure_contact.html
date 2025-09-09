@@ -1,110 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Computer Repair – Contact Us</title>
-  <link rel="stylesheet" href="brochure_template.css">
-  <!-- Use the small logo as a favicon so the tab icon matches the branding -->
-  <link rel="icon" href="images/logo.png" type="image/png">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Computer Store Kansas — Contact</title>
+  <link rel="icon" href="assets/favicon.png">
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/brochure.css">
+
 </head>
 <body>
-  <header>
-    <div class="container">
-      <h1 class="logo"><img src="images/title.png" alt="Computer Store Kansas"></h1>
-      <!-- Hamburger button for mobile navigation -->
-      <button class="hamburger" id="hamburger-button">&#9776;</button>
-      <nav>
-        <ul>
-          <li><a href="brochure_home.html">Home</a></li>
-          <li><a href="brochure_about.html">About</a></li>
-          <li><a href="brochure_services.html">Services</a></li>
-          <li><a href="brochure_contact.html" class="active">Contact</a></li>
-        </ul>
-      </nav>
-    </div>
-  </header>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="brochure_home.html">
+      <img class="logo" src="assets/logo-mark.svg" alt="Computer Store Kansas">
+      <span class="brand-text">Computer Store Kansas</span>
+    </a>
+    <button id="navToggle" class="hamburger" aria-expanded="false" aria-controls="siteNav" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+    <nav id="siteNav" class="nav-drawer" aria-hidden="true">
+      <a href="brochure_home.html">Home</a>
+      <a href="brochure_about.html">About</a>
+      <a href="brochure_services.html">Services</a>
+      <a href="brochure_contact.html">Contact</a>
+    </nav>
+  </div>
+</header>
 
-  <section class="hero">
-    <div class="container">
-      <h2>Inquire About Protection Plans</h2>
+
+<section class="hero">
+  <div class="wrap hero-inner">
+    <div class="hero-copy">
+      <h1>Inquire About Protection Plans</h1>
       <p>Fill out the form below to enquire about our Computer Protection Plans. A three‑month agreement is required.</p>
     </div>
-  </section>
+  </div>
+</section>
 
-  <section class="contact">
-    <div class="container">
-      <h2>Inquire About Protection Plans</h2>
-      <p>Fill out the form below to enquire about our Computer Protection Plans. A three‑month agreement is required.</p>
-      <form id="contactForm" method="post">
+<section class="section contact">
+  <div class="wrap grid2">
+    <form id="contactForm" class="contact-form card">
+      <div class="row">
         <label for="name">Name</label>
-        <input type="text" id="name" name="name" placeholder="Your name" required>
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" placeholder="Your email" required>
-        <label for="message">Message</label>
-        <textarea id="message" name="message" rows="5" placeholder="Tell us how we can help" required></textarea>
-        <button type="submit" class="btn">Send Message</button>
-        <div id="formStatus" class="status"></div>
-      </form>
-      <div class="contact-info">
-        <p><strong>Phone:</strong> 785‑267‑3223</p>
-        <p><strong>Email:</strong> contact@thecomputerstoreks.com</p>
-        <p><strong>Address:</strong> 2008 SW Gage Blvd, Topeka, KS 66604</p>
-        <p><strong>Hours:</strong> Monday&nbsp;–&nbsp;Friday 10:00&nbsp;am&nbsp;–&nbsp;6:00&nbsp;pm<br>Saturday 10:00&nbsp;am&nbsp;–&nbsp;2:00&nbsp;pm</p>
-        <p class="note">*Three‑month agreement required</p>
+        <input id="name" name="name" type="text" required placeholder="Your name">
       </div>
-    </div>
-  </section>
+      <div class="row">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" required placeholder="you@example.com">
+      </div>
+      <div class="row">
+        <label for="message">Message</label>
+        <textarea id="message" name="message" required placeholder="How can we help?"></textarea>
+      </div>
+      <button class="btn btn-primary" type="submit">Send</button>
+      <div id="formStatus" class="status" aria-live="polite"></div>
+    </form>
 
-  <footer>
-    <div class="container">
-      <p>&copy; 2025 Computer Store Kansas All rights reserved.</p>
-    </div>
-  </footer>
+    <aside class="card contact-aside">
+      <h3>Contact</h3>
+      <p><strong>Email:</strong> <a href="mailto:contact@thecomputerstoreks.com">contact@thecomputerstoreks.com</a></p>
+      <p><strong>Location:</strong> Topeka, Kansas</p>
+      <h4>Hours</h4>
+      <ul class="bullets">
+        <li>Mon–Fri: 9am–6pm</li>
+        <li>Sat: 10am–2pm</li>
+        <li>Sun: Closed</li>
+      </ul>
+    </aside>
+  </div>
+</section>
 
-  <!-- Script to toggle mobile navigation -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const hamburger = document.getElementById('hamburger-button');
-      const navList = document.querySelector('header nav ul');
-      if (hamburger && navList) {
-        hamburger.addEventListener('click', function () {
-          navList.classList.toggle('show');
-        });
-      }
-    });
+<footer class="site-footer">
+  <div class="wrap">
+    <div>© <span id="year"></span> Computer Store Kansas</div>
+    <div><a href="mailto:contact@thecomputerstoreks.com">contact@thecomputerstoreks.com</a></div>
+  </div>
+</footer>
+<script src="js/site.js"></script>
 
-    // Contact form submission using backend API
-    const contactForm = document.getElementById('contactForm');
-    const statusEl = document.getElementById('formStatus');
-    const CONTACT_API_URL = "https://YOUR-BACKEND.onrender.com/api/contact";
-    if (contactForm) {
-      contactForm.addEventListener('submit', async function (e) {
-        e.preventDefault();
-        statusEl.textContent = 'Sending...';
-        const data = {
-          name: contactForm.name.value,
-          email: contactForm.email.value,
-          message: contactForm.message.value
-        };
-        try {
-          const res = await fetch(CONTACT_API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-          });
-          const payload = await res.json().catch(() => ({}));
-          if (res.ok) {
-            statusEl.textContent = 'Thanks! We’ll be in touch soon.';
-            contactForm.reset();
-          } else {
-            statusEl.textContent = payload.error || 'Something went wrong. Please try again.';
-          }
-        } catch (err) {
-          statusEl.textContent = 'Network error. Please try again.';
-        }
-      });
-    }
-  </script>
 </body>
 </html>

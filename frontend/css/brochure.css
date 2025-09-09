@@ -1,0 +1,4 @@
+/* Small page-level tweaks for brochure vibe */
+.hero .btn-ghost{color:#fff;border-color:rgba(255,255,255,.3)}
+.section-title.center{text-align:center}
+.contact-aside h3{margin-top:0}

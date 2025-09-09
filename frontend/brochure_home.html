@@ -1,165 +1,111 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Computer Store Kansas – Home</title>
-  <link rel="stylesheet" href="brochure_template.css">
-  <!-- Use the small logo as a favicon so the tab icon matches the branding -->
-  <link rel="icon" href="images/logo.png" type="image/png">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Computer Store Kansas — Home</title>
+  <link rel="icon" href="assets/favicon.png">
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/brochure.css">
+
 </head>
 <body>
-  <header>
-    <div class="container">
-      <h1 class="logo"><img src="images/title.png" alt="Computer Store Kansas"></h1>
-      <!-- Hamburger button for mobile navigation -->
-      <button class="hamburger" id="hamburger-button">&#9776;</button>
-      <nav>
-        <ul>
-          <li><a href="brochure_home.html" class="active">Home</a></li>
-          <li><a href="brochure_about.html">About</a></li>
-          <li><a href="brochure_services.html">Services</a></li>
-          <li><a href="brochure_contact.html">Contact</a></li>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="brochure_home.html">
+      <img class="logo" src="assets/logo-mark.svg" alt="Computer Store Kansas">
+      <span class="brand-text">Computer Store Kansas</span>
+    </a>
+    <button id="navToggle" class="hamburger" aria-expanded="false" aria-controls="siteNav" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+    <nav id="siteNav" class="nav-drawer" aria-hidden="true">
+      <a href="brochure_home.html">Home</a>
+      <a href="brochure_about.html">About</a>
+      <a href="brochure_services.html">Services</a>
+      <a href="brochure_contact.html">Contact</a>
+    </nav>
+  </div>
+</header>
+
+
+<section class="hero">
+  <div class="wrap hero-inner">
+    <div class="hero-copy">
+      <h1>Friendly, Local Computer Repair</h1>
+      <p>Honest diagnostics, fast turnaround, and options that match your budget. We keep your tech running so you can get back to work.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="brochure_contact.html">Request Service</a>
+        <a class="btn btn-ghost" href="brochure_services.html">See Services</a>
+      </div>
+    </div>
+    <img class="hero-art" src="assets/hero-illustration.svg" alt="Technician working on a PC">
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2 class="section-title center">Why Choose Us</h2>
+    <div class="cards three">
+      <article class="card">
+        <h3>Fast Turnaround</h3>
+        <p>Most fixes completed within 24–48 hours. Rush options available.</p>
+      </article>
+      <article class="card">
+        <h3>Transparent Pricing</h3>
+        <p>Upfront quotes—no surprises. You approve before we proceed.</p>
+      </article>
+      <article class="card">
+        <h3>Small‑Business Ready</h3>
+        <p>On‑site support and maintenance plans that keep teams productive.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section alt">
+  <div class="wrap">
+    <h2 class="section-title center">Protection Plans</h2>
+    <div class="plans-grid">
+      <article class="plan">
+        <header><h3>Silver</h3></header>
+        <ul class="bullets">
+          <li>Diagnostics & basic maintenance</li>
+          <li>Email support</li>
+          <li>Best for home users</li>
         </ul>
-      </nav>
-    </div>
-  </header>
-
-  <!-- Home page hero -->
-  <section class="hero">
-    <div class="container">
-      <!-- Large title graphic on the home page hero -->
-      <div class="hero-title">
-        <img src="images/title.png" alt="Computer Store Kansas">
-      </div>
-      <!-- Updated tagline to reflect the messaging on the original site -->
-      <h2>Your Go‑To Technology Center Since 2003</h2>
-      <p>Count on The Computer Store for all your computer service needs.</p>
-      <a href="brochure_contact.html" class="btn">Get in Touch</a>
-    </div>
-  </section>
-
-
-  <!-- Founder section -->
-  <section class="founder">
-    <div class="container founder-container">
-      <div class="founder-image">
-        <!-- Use the provided photo of Jim Driggers rather than the generated placeholder -->
-        <img src="images/jim.png" alt="Jim Driggers - Founder">
-      </div>
-      <div class="founder-text">
-        <h2>Locally Owned Since 2003</h2>
-        <p>I had seen computer stores come and go and some not run very professionally; I wanted to make sure to build on the best practices learned from my consulting business to offer better and faster service while remaining local. With this business model in place, The Computer Store opened its doors to customers in 2003 and we are the oldest locally owned professional computer retail store in Topeka.</p>
-        <p class="founder-name">– Jim Driggers, Computer Store Founder</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Highlights section showcasing key facts from the original site -->
-  <section class="highlights">
-    <div class="container highlights-container">
-      <div class="highlight">
-        <h3>Friendly, Reliable Service</h3>
-      </div>
-      <div class="highlight">
-        <h3>Locally Owned Since 2003</h3>
-      </div>
-      <div class="highlight">
-        <h3>20+ Years in Business</h3>
-      </div>
-    </div>
-  </section>
-
-  <!-- Highlighted services summary -->
-  <section class="services">
-    <div class="container">
-      <h2>What We Do</h2>
-      <div class="cards">
-        <div class="card">
-          <h3>Computer Service</h3>
-          <p>Comprehensive diagnostics, repairs and upgrades for desktops and laptops.</p>
-        </div>
-        <div class="card">
-          <h3>Protection Plans</h3>
-          <p>Flexible plans to safeguard your system from viruses, malware and identity theft.</p>
-        </div>
-        <div class="card">
-          <h3>New Computer Sales</h3>
-          <p>Let our non‑commissioned team help you build or choose the perfect PC for your needs.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Protection plan membership section with image and benefits -->
-  <section class="membership">
-    <div class="container membership-container">
-      <div class="membership-image">
-        <img src="images/silver_plan.png" alt="Silver Plan Membership">
-      </div>
-      <div class="membership-text">
-        <h2>Unlock All the Benefits with Our Protection Plans</h2>
-        <p>Our Silver Plan provides comprehensive care for your computer. For only $24.99 per month (with a three‑month commitment), you’ll receive:</p>
-        <ul class="membership-features">
-          <li>Anti‑virus software</li>
-          <li>50% off virus removal services</li>
-          <li>Preventive maintenance service</li>
-          <li>Limited help desk/remote support</li>
-          <li>Free in‑store diagnostics and estimates</li>
-          <li>Performance monitoring and alert service</li>
-          <li>5% discount on labour, hardware and software</li>
+        <a class="btn btn-outline" href="brochure_contact.html">Ask About Silver</a>
+      </article>
+      <article class="plan featured">
+        <header><h3>Gold</h3></header>
+        <ul class="bullets">
+          <li>Everything in Silver</li>
+          <li>Priority support & on‑site visits</li>
+          <li>Best for small offices</li>
         </ul>
-        <p class="membership-note"><strong>Ready to get protected?</strong> Contact us at <a href="mailto:sales@thecomputerstoreks.com">sales@thecomputerstoreks.com</a> or call 785‑267‑3223 to sign up today!</p>
-      </div>
+        <a class="btn btn-primary" href="brochure_contact.html">Ask About Gold</a>
+      </article>
+      <article class="plan">
+        <header><h3>Platinum</h3></header>
+        <ul class="bullets">
+          <li>Everything in Gold</li>
+          <li>24/7 monitoring</li>
+          <li>Quarterly tune‑ups</li>
+        </ul>
+        <a class="btn btn-outline" href="brochure_contact.html">Ask About Platinum</a>
+      </article>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- Testimonials section -->
-  <section class="testimonials">
-    <div class="container">
-      <h2>Client Testimonials</h2>
-      <div class="testimonial">
-        <p>"Signing up for a Computer Protection Plan from The Computer Store was the best decision I've made in years. My computer has never run better and no more worries about spyware stealing my identity while online!"</p>
-        <h4>– Kristina Jones, Topeka</h4>
-      </div>
-      <div class="testimonial">
-        <p>"When the Big Store told me they’d have to send my PC in and it would be 2–3 weeks, I decided to try a local store. Not only did The Computer Store fix my problem a lot faster, they did so at just under half the cost."</p>
-        <h4>– Matt, Topeka</h4>
-      </div>
-      <div class="testimonial">
-        <p>"My hard drive stopped working all together and I had no backup. I thought all was lost but the technician managed to get my drive working long enough to get the data onto another drive saving me a lot of headache and money – thank you Computer Store!"</p>
-        <h4>– Andrew, Topeka</h4>
-      </div>
-    </div>
-  </section>
+<footer class="site-footer">
+  <div class="wrap">
+    <div>© <span id="year"></span> Computer Store Kansas</div>
+    <div><a href="mailto:contact@thecomputerstoreks.com">contact@thecomputerstoreks.com</a></div>
+  </div>
+</footer>
+<script src="js/site.js"></script>
 
-  <!-- Call to action encouraging visitors to sign up for a protection plan -->
-  <section class="cta">
-    <div class="container">
-      <h2>Sign Up for a Protection Plan</h2>
-      <p>Fill out the form on our contact page to enquire about our Computer Protection Plans.</p>
-      <a href="brochure_contact.html" class="btn">Get Protected</a>
-      <p class="note">*Three‑month agreement required</p>
-    </div>
-  </section>
-
-  <footer>
-    <div class="container">
-      <p>&copy; 2025 Computer Store Kansas All rights reserved.</p>
-    </div>
-  </footer>
-
-  <!-- Script to toggle mobile navigation -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const hamburger = document.getElementById('hamburger-button');
-      const navList = document.querySelector('header nav ul');
-      if (hamburger && navList) {
-        hamburger.addEventListener('click', function () {
-          navList.classList.toggle('show');
-        });
-      }
-    });
-  </script>
 </body>
 </html>

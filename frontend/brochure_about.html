@@ -1,64 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Computer Store Kansas — About</title>
-  <link rel="icon" href="assets/favicon.png">
-  <link rel="stylesheet" href="css/reset.css">
-  <link rel="stylesheet" href="css/theme.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Computer Repair – About Us</title>
   <link rel="stylesheet" href="css/brochure.css">
-
+  <!-- Use the small logo as a favicon so the tab icon matches the branding -->
+  <link rel="icon" href="assets/logo.png" type="image/png">
 </head>
 <body>
-<header class="site-header">
-  <div class="wrap">
-    <a class="brand" href="index.html">
-      <img class="logo" src="assets/logo-mark.svg" alt="Computer Store Kansas">
-      <span class="brand-text">Computer Store Kansas</span>
-    </a>
-    <button id="navToggle" class="hamburger" aria-expanded="false" aria-controls="siteNav" aria-label="Open menu">
-      <span></span><span></span><span></span>
-    </button>
-    <nav id="siteNav" class="nav-drawer" aria-hidden="true">
-      <a href="index.html">Home</a>
-      <a href="brochure_about.html">About</a>
-      <a href="brochure_services.html">Services</a>
-      <a href="brochure_contact.html">Contact</a>
-    </nav>
-  </div>
-</header>
-
-
-<section class="hero tight">
-  <div class="wrap">
-    <h1>About Us</h1>
-    <p class="lede">We’ve served Topeka with honest repairs and practical advice for years. Our mission is simple: treat people right and fix their tech fast.</p>
-  </div>
-</section>
-
-<section class="section">
-  <div class="wrap">
-    <div class="cards two">
-      <article class="card">
-        <h3>Our Philosophy</h3>
-        <p>We focus on clear communication and options that fit your budget. No pressure—just solid recommendations.</p>
-      </article>
-      <article class="card">
-        <h3>Our Roots</h3>
-        <p>Locally owned and operated in Topeka, we’re proud to support our community’s homes and small businesses.</p>
-      </article>
+  <header>
+    <div class="container">
+      <h1 class="logo"><img src="assets/title.png" alt="Computer Store Kansas"></h1>
+      <!-- Hamburger button for mobile navigation -->
+      <button class="hamburger" id="hamburger-button">&#9776;</button>
+      <nav>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="brochure_about.html" class="active">About</a></li>
+          <li><a href="brochure_services.html">Services</a></li>
+          <li><a href="brochure_contact.html">Contact</a></li>
+        </ul>
+      </nav>
     </div>
-  </div>
-</section>
+  </header>
 
-<footer class="site-footer">
-  <div class="wrap">
-    <div>© <span id="year"></span> Computer Store Kansas</div>
-    <div><a href="mailto:contact@thecomputerstoreks.com">contact@thecomputerstoreks.com</a></div>
-  </div>
-</footer>
-<script src="js/site.js"></script>
+  <section class="hero">
+    <div class="container">
+      <h2>About Us</h2>
+      <p>Who we are and why we love fixing computers.</p>
+    </div>
+  </section>
 
+  <section class="about">
+    <div class="container">
+      <h2>Our Story</h2>
+      <p>The Computer Store has been proudly serving the Topeka community since 2003.
+        We’re passionate about helping our customers get the most out of their technology with fast, friendly and honest service. 
+        Our technicians are certified and experienced in working with all major brands and systems. From virus removal and data recovery 
+        to upgrades and custom PC builds, we provide a full range of computer services for homes and small businesses. 
+        When you work with us, you’re not just another ticket – you’re part of our community.</p>
+
+  <!-- Why Choose US? -->
+  <section class="services">
+    <div class="container">
+      <h2>Why Choose Us?</h2>
+      <div class="cards">
+        <div class="card">
+          <h3>Reliability</h3>
+          <p>count on us for dependable repairs and support</p>
+        </div>
+        <div class="card">
+          <h3>Personalized approach</h3>
+          <p>solutions tailored to your unique needs</p>
+        </div>
+        <div class="card">
+          <h3>Timely delivery</h3>
+          <p>quick turnaround so you’re back up and running</p>
+        </div>
+        <div class="card">
+          <h3>High Standards</h3>
+          <p>quality workmanship backed by decades of experience</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="cta">
+    <div class="container">
+      <h2>Ready to Experience the Difference?</h2>
+      <p>Contact us today to schedule an appointment or drop by our
+      shop. We look forward to serving you.</p>
+      <a href="brochure_contact.html" class="btn">Get in Touch</a>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 Computer Store Kansas All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Script to toggle mobile navigation -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const hamburger = document.getElementById('hamburger-button');
+      const navList = document.querySelector('header nav ul');
+      if (hamburger && navList) {
+        hamburger.addEventListener('click', function () {
+          navList.classList.toggle('show');
+        });
+      }
+    });
+  </script>
 </body>
 </html>

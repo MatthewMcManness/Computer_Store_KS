@@ -36,8 +36,7 @@
     <div class="container">
       <h2>Inquire About Protection Plans</h2>
       <p>Fill out the form below to enquire about our Computer Protection Plans. A three‑month agreement is required.</p>
-      <!-- Updated form to work with our JavaScript-powered contact handler. -->
-      <form id="contactForm" action="javascript:void(0)">
+      <form action="#" method="post">
         <label for="name">Name</label>
         <input type="text" id="name" name="name" placeholder="Your name">
         <label for="email">Email</label>
@@ -45,8 +44,6 @@
         <label for="message">Message</label>
         <textarea id="message" name="message" rows="5" placeholder="Tell us how we can help"></textarea>
         <button type="submit" class="btn">Send Message</button>
-        <!-- Placeholder for status messages (success or error) from site.js -->
-        <div id="formStatus" aria-live="polite" style="margin-top: 10px;"></div>
       </form>
       <div class="contact-info">
         <p><strong>Phone:</strong> 785‑267‑3223</p>
@@ -76,7 +73,5 @@
       }
     });
   </script>
-  <!-- Load our site.js for contact form submission handling -->
-  <script src="js/site.js"></script>
 </body>
 </html>

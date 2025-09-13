@@ -590,3 +590,67 @@ footer {
   left: 0;
   color: var(--primary-color);
 }
+
+/* --- Header nav action buttons --- */
+header nav ul {
+  display: flex;              /* if not already set */
+  gap: 1rem;                  /* space between links */
+  align-items: center;
+}
+
+/* Base button look for nav actions */
+header nav ul .nav-action a {
+  display: inline-block;
+  padding: .55rem .9rem;
+  border-radius: .5rem;
+  border: 2px solid #c0c8d1;  /* silver outline */
+  color: #e6eef7;             /* light text */
+  text-decoration: none;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Hover for outline button */
+header nav ul .nav-action a:hover {
+  background: rgba(255,255,255,.06);
+}
+
+/* Primary (blue filled) button */
+header nav ul .nav-action.primary a {
+  background: #2a5bd7;        /* brand blue */
+  border-color: #1f48ad;
+  color: #ffffff;
+}
+
+header nav ul .nav-action.primary a:hover {
+  filter: brightness(1.06);
+}
+
+/* Keep buttons aligned to the right on wide screens.
+   If your header .container isn't flex yet, this won't harm anything. */
+header .container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+header .container .logo {
+  margin: 0;
+}
+
+/* Push nav to the right of the logo + hamburger */
+header nav { margin-left: auto; }
+
+/* Mobile: when your hamburger reveals the UL, stacking is fine */
+@media (max-width: 768px) {
+  header nav ul {
+    /* your existing mobile rules likely stack items; this ensures no overflow */
+    gap: .5rem;
+  }
+
+  /* Make full-width buttons on mobile if desired */
+  header nav ul .nav-action a {
+    width: 100%;
+    text-align: center;
+  }
+}

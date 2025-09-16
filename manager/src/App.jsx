@@ -1,5 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 
+const API = (typeof import.meta !== "undefined" && import.meta.env.VITE_API_URL)
+  || window.API
+  || "http://localhost:4000";
+
 /** ====== helpers (NEW) ====== */
 // Very small, no-deps JWT payload decode (no signature verification — not needed client-side)
 function decodeJwtPayload(token) {
@@ -259,7 +263,7 @@ function Admin() {
     }
     setBusy(true);
     try {
-      const res = await fetch("http://localhost:4000/api/admin/createOrgWithOwner", {
+      const res = await fetch("${APE_URL}/.../api/admin/createOrgWithOwner", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

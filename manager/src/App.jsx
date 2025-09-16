@@ -1,5 +1,26 @@
 import { useEffect, useMemo, useState } from "react";
 
+/** ====== helpers (NEW) ====== */
+// Very small, no-deps JWT payload decode (no signature verification — not needed client-side)
+function decodeJwtPayload(token) {
+  try {
+    const [, payload] = token.split(".");
+    const json = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
+    return JSON.parse(json);
+  } catch {
+    return null;
+  }
+}
+function getToken() {
+  return sessionStorage.getItem("csk_token");
+}
+function getUserFromToken() {
+  const t = getToken();
+  if (!t) return { email: null, roles: [] };
+  const p = decodeJwtPayload(t);
+  return { email: p?.email || null, roles: p?.roles || [] };
+}
+
 /** --- simple hash router (no deps) --- */
 const useRoute = () => {
   const [path, setPath] = useState(() => window.location.hash.slice(1) || "/");
@@ -27,12 +48,19 @@ const load = (k, fallback) => {
 const save = (k, v) => sessionStorage.setItem(k, JSON.stringify(v));
 const uid = () => Math.random().toString(36).slice(2, 9);
 
+/** ========= APP ========= */
 export default function App() {
   const [authed, setAuthed] = useState(false);
+  const [user, setUser] = useState({ email:null, roles:[] }); // NEW
   const { path, navigate } = useRoute();
 
   // auth bootstrap
-  useEffect(() => setAuthed(Boolean(sessionStorage.getItem(TOKEN_KEY))), []);
+  useEffect(() => {
+    const token = sessionStorage.getItem(TOKEN_KEY);
+    const isAuthed = Boolean(token);
+    setAuthed(isAuthed);
+    setUser(isAuthed ? getUserFromToken() : {email:null, roles:[]});
+  }, []);
 
   // seed demo data once per session if empty
   useEffect(() => {
@@ -56,13 +84,17 @@ export default function App() {
   function handleLoginSuccess(token) {
     sessionStorage.setItem(TOKEN_KEY, token);
     setAuthed(true);
+    setUser(getUserFromToken());        // NEW
     navigate("/"); // go home
   }
   function handleLogout() {
     sessionStorage.removeItem(TOKEN_KEY);
     setAuthed(false);
+    setUser({email:null, roles:[]});    // NEW
     navigate("/login");
   }
+
+  const isPlatform = user.roles?.includes("platform"); // NEW
 
   // route switch
   let content = null;
@@ -79,6 +111,9 @@ export default function App() {
       case path.startsWith("/tickets"):
         content = <Tickets />;
         break;
+      case path.startsWith("/admin") && isPlatform:   // NEW guarded route
+        content = <Admin />;
+        break;
       default:
         content = <NotFound />;
     }
@@ -86,244 +121,201 @@ export default function App() {
 
   return (
     <div className="app-wrap">
-      <Header authed={authed} path={path} onLogout={handleLogout} onNav={(to)=>navigate(to)} />
+      <Header
+        authed={authed}
+        path={path}
+        onLogout={handleLogout}
+        onNav={(to)=>navigate(to)}
+        isPlatform={isPlatform}         // NEW
+      />
       <main className="app-main">{content}</main>
       <footer className="app-footer"><small>POC — data is session-only</small></footer>
     </div>
   );
 }
 
-function Header({ authed, path, onLogout, onNav }) {
-  return (
-    <header className="app-header">
-      <div className="brand">
-        <span className="dot" />
-        <strong>Repair Manager</strong><span className="muted"> POC</span>
-      </div>
-      <nav className="top-tabs">
+/** ========= HEADER (show Admin if platform) ========= */
+function Header({ authed, path, onLogout, onNav, isPlatform }) {
+  const [open, setOpen] = useState(false);
+  const is = (p) => path === p || path.startsWith(p + "/");
+
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => (document.body.style.overflow = "");
+  }, [open]);
+
+  function MobileLinks() {
+    return (
+      <nav className="mobile-menu-nav" role="menu" aria-label="Primary mobile">
         {authed ? (
           <>
-            <a href="#/"        className={path === "/" ? "active" : ""}>Dashboard</a>
-            <a href="#/customers" className={path.startsWith("/customers") ? "active" : ""}>Customers</a>
-            <a href="#/tickets"   className={path.startsWith("/tickets")   ? "active" : ""}>Tickets</a>
+            <a role="menuitem" href="#/"          className={is("/") ? "active" : ""}          onClick={() => setOpen(false)}>Dashboard</a>
+            <a role="menuitem" href="#/customers" className={is("/customers") ? "active" : ""} onClick={() => setOpen(false)}>Customers</a>
+            <a role="menuitem" href="#/tickets"   className={is("/tickets") ? "active" : ""}   onClick={() => setOpen(false)}>Tickets</a>
+            {isPlatform && (
+              <a role="menuitem" href="#/admin"  className={is("/admin") ? "active" : ""}      onClick={() => setOpen(false)}>Admin</a>
+            )}
           </>
         ) : (
-          <a href="#/login" className="active">Login</a>
+          <a role="menuitem" href="#/login" className="active" onClick={() => setOpen(false)}>Login</a>
         )}
       </nav>
-      <div className="header-actions">
-        {!authed ? <span className="tag">guest</span> : <button className="btn btn-outline" onClick={onLogout}>Logout</button>}
-      </div>
-    </header>
+    );
+  }
+
+  return (
+    <>
+      <header className="app-header app-header--blue">
+        <div className="brand">
+          <span className="dot" />
+          <strong>Repair Manager</strong>
+          <span className="muted"> POC</span>
+        </div>
+
+        {/* Desktop tabs */}
+        <nav className="top-tabs" role="tablist" aria-label="Primary">
+          {authed ? (
+            <>
+              <a role="tab" aria-selected={is("/")}         className={`tab ${is("/") ? "active" : ""}`}         href="#/">Dashboard</a>
+              <a role="tab" aria-selected={is("/customers")} className={`tab ${is("/customers") ? "active" : ""}`} href="#/customers">Customers</a>
+              <a role="tab" aria-selected={is("/tickets")}   className={`tab ${is("/tickets") ? "active" : ""}`}   href="#/tickets">Tickets</a>
+              {isPlatform && (
+                <a role="tab" aria-selected={is("/admin")} className={`tab ${is("/admin") ? "active" : ""}`} href="#/admin">Admin</a>
+              )}
+            </>
+          ) : (
+            <a role="tab" aria-selected className="tab active" href="#/login">Login</a>
+          )}
+        </nav>
+
+        <div className="header-right">
+          {authed ? (
+            <button className="btn btn-outline btn-outline--light hide-sm" onClick={onLogout}>
+              Logout
+            </button>
+          ) : (
+            <span className="tag tag--light hide-sm">guest</span>
+          )}
+
+          <button
+            className="hamburger"
+            aria-label="Open menu"
+            aria-expanded={open}
+            aria-controls="mobile-menu"
+            onClick={() => setOpen(true)}
+          >
+            <span /><span /><span />
+          </button>
+        </div>
+      </header>
+
+      <div className={`backdrop ${open ? "open" : ""}`} onClick={() => setOpen(false)} aria-hidden={!open} />
+      <aside id="mobile-menu" className={`mobile-menu ${open ? "open" : ""}`} aria-hidden={!open}>
+        <div className="mobile-menu-header">
+          <div className="brand brand--light">
+            <span className="dot" />
+            <strong>Repair Manager</strong>
+          </div>
+          <button className="close-x" aria-label="Close menu" onClick={() => setOpen(false)}>×</button>
+        </div>
+        <MobileLinks />
+        <div className="mobile-menu-footer">
+          {authed ? (
+            <button className="btn btn-primary" onClick={() => { setOpen(false); onLogout(); }}>
+              Logout
+            </button>
+          ) : (
+            <span className="tag tag--light">guest</span>
+          )}
+        </div>
+      </aside>
+    </>
   );
 }
 
-/** ----------------- Pages ----------------- */
+/** ----------------- Pages you already have (Dashboard/Customers/Tickets/NotFound) -----------------
+ *  (… keep your existing implementations …)
+ *  Below we add the Admin page only.
+ */
 
-function Login({ onSuccess }) {
-  const [email, setEmail] = useState("");
-  const [pass, setPass] = useState("");
-  const [err, setErr] = useState("");
+/** ========= Admin (NEW) =========
+ *  Create org + owner from the UI (platform only)
+ */
+function Admin() {
+  const token = getToken();
+  const [orgName, setOrgName] = useState("");
+  const [ownerName, setOwnerName] = useState("");
+  const [ownerEmail, setOwnerEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState(null);
 
   async function submit(e) {
-    e.preventDefault(); setErr("");
-    if (!/^[^@]+@[^@]+\.[^@]+$/.test(email)) return setErr("Enter a valid email.");
-    if (pass.length < 4) return setErr("Password must be at least 4 characters.");
-    await new Promise(r => setTimeout(r, 250));
-    onSuccess("mock-jwt-token");
-  }
-
-  return (
-    <section className="card login-card">
-      <h2>Repair Shop Login</h2>
-      {err && <div className="alert">{err}</div>}
-      <form onSubmit={submit} className="form">
-        <label>Email<input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@yourstore.com" required /></label>
-        <label>Password<input type="password" value={pass} onChange={e=>setPass(e.target.value)} placeholder="••••••••" required /></label>
-        <button className="btn btn-primary" type="submit">Sign in</button>
-      </form>
-    </section>
-  );
-}
-
-function Dashboard() {
-  const customers = load(K_CUSTOMERS, []);
-  const tickets = load(K_TICKETS, []);
-  const openCount = tickets.filter(t=>t.status!=="Closed").length;
-
-  return (
-    <section className="grid2">
-      <div className="card">
-        <h2>At a glance</h2>
-        <div className="metrics">
-          <Metric label="Customers" value={customers.length} />
-          <Metric label="Tickets (open)" value={openCount} />
-          <Metric label="Tickets (total)" value={tickets.length} />
-        </div>
-        <p className="tiny-note">Role-specific dashboards (technician/receptionist/admin) coming soon.</p>
-      </div>
-      <div className="card">
-        <h3>Recent Tickets</h3>
-        <TicketsTable tickets={tickets.slice().sort((a,b)=>b.createdAt-a.createdAt).slice(0,5)} compact />
-      </div>
-    </section>
-  );
-}
-
-function Customers() {
-  const [list, setList] = useState(() => load(K_CUSTOMERS, []));
-  const [q, setQ] = useState("");
-  const [form, setForm] = useState({ name:"", phone:"", email:"" });
-
-  const filtered = useMemo(() => {
-    if (!q) return list;
-    const s = q.toLowerCase();
-    return list.filter(c =>
-      c.name.toLowerCase().includes(s) ||
-      c.phone.toLowerCase().includes(s) ||
-      c.email.toLowerCase().includes(s)
-    );
-  }, [q, list]);
-
-  function addCustomer(e){
     e.preventDefault();
-    if (!form.name.trim()) return;
-    const next = [{ id: uid(), ...form }, ...list];
-    setList(next); save(K_CUSTOMERS, next);
-    setForm({ name:"", phone:"", email:"" });
+    setMsg(null);
+    if (!orgName || !ownerEmail || !password) {
+      setMsg({ type:"error", text:"org name, owner email and password are required."});
+      return;
+    }
+    setBusy(true);
+    try {
+      const res = await fetch("http://localhost:4000/api/admin/createOrgWithOwner", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ orgName, ownerName, ownerEmail, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || "Request failed");
+      setMsg({ type:"ok", text:`Created org "${data.org.name}" and owner "${data.owner.email}".` });
+      setOrgName(""); setOwnerName(""); setOwnerEmail(""); setPassword("");
+    } catch (err) {
+      setMsg({ type:"error", text: err.message });
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
     <section className="stack">
       <div className="card">
-        <h2>Customers</h2>
-        <div className="toolbar">
-          <input className="input" placeholder="Search name, phone, email…" value={q} onChange={e=>setQ(e.target.value)} />
+        <div className="card-title-row">
+          <h2>Platform Admin</h2>
+          <span className="sub">Create organization & owner</span>
         </div>
-        <CustomersTable customers={filtered} />
-      </div>
 
-      <div className="card">
-        <h3>Add Customer</h3>
-        <form className="form grid2" onSubmit={addCustomer}>
-          <label>Name<input value={form.name} onChange={e=>setForm(f=>({...f, name:e.target.value}))} required /></label>
-          <label>Phone<input value={form.phone} onChange={e=>setForm(f=>({...f, phone:e.target.value}))} /></label>
-          <label>Email<input type="email" value={form.email} onChange={e=>setForm(f=>({...f, email:e.target.value}))} /></label>
-          <div><button className="btn btn-primary" type="submit">Add</button></div>
+        {msg && (
+          <div className={`alert ${msg.type === "ok" ? "success" : ""}`}>
+            {msg.text}
+          </div>
+        )}
+
+        <form className="form grid2" onSubmit={submit}>
+          <label>Organization name
+            <input value={orgName} onChange={e=>setOrgName(e.target.value)} placeholder="Computer Store KS" required />
+          </label>
+          <label>Owner name
+            <input value={ownerName} onChange={e=>setOwnerName(e.target.value)} placeholder="Max" />
+          </label>
+          <label>Owner email
+            <input type="email" value={ownerEmail} onChange={e=>setOwnerEmail(e.target.value)} placeholder="max@company.com" required />
+          </label>
+          <label>Temporary password
+            <input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="OwnerTemp123" required />
+          </label>
+          <div>
+            <button className="btn btn-primary" type="submit" disabled={busy}>
+              {busy ? "Creating…" : "Create"}
+            </button>
+          </div>
         </form>
+
+        <p className="tiny-note">
+          This calls <code>POST /api/admin/createOrgWithOwner</code> with your Bearer token.
+        </p>
       </div>
     </section>
-  );
-}
-
-function Tickets() {
-  const [customers] = useState(() => load(K_CUSTOMERS, []));
-  const [tickets, setTickets] = useState(() => load(K_TICKETS, []));
-  const [q, setQ] = useState("");
-  const [form, setForm] = useState({
-    title:"", customerId: customers[0]?.id || "", priority:"Normal", status:"Open"
-  });
-
-  const filtered = useMemo(() => {
-    const s = q.toLowerCase();
-    return tickets.filter(t => {
-      const c = customers.find(x=>x.id===t.customerId);
-      const custName = c?.name ?? "";
-      return !q || t.title.toLowerCase().includes(s) || custName.toLowerCase().includes(s) || t.status.toLowerCase().includes(s);
-    });
-  }, [q, tickets, customers]);
-
-  function addTicket(e){
-    e.preventDefault();
-    if (!form.title.trim() || !form.customerId) return;
-    const next = [{ id: uid(), createdAt: Date.now(), ...form }, ...tickets];
-    setTickets(next); save(K_TICKETS, next);
-    setForm(f=>({ ...f, title:"" }));
-  }
-  function updateStatus(id, status){
-    const next = tickets.map(t => t.id===id ? { ...t, status } : t);
-    setTickets(next); save(K_TICKETS, next);
-  }
-
-  return (
-    <section className="stack">
-      <div className="card">
-        <h2>Tickets</h2>
-        <div className="toolbar">
-          <input className="input" placeholder="Search tickets…" value={q} onChange={e=>setQ(e.target.value)} />
-        </div>
-        <TicketsTable
-          tickets={filtered}
-          customers={customers}
-          onStatusChange={updateStatus}
-        />
-      </div>
-
-      <div className="card">
-        <h3>New Ticket</h3>
-        <form className="form grid2" onSubmit={addTicket}>
-          <label>Title<input value={form.title} onChange={e=>setForm(f=>({...f, title:e.target.value}))} required /></label>
-          <label>Customer
-            <select value={form.customerId} onChange={e=>setForm(f=>({...f, customerId:e.target.value}))}>
-              {customers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </select>
-          </label>
-          <label>Priority
-            <select value={form.priority} onChange={e=>setForm(f=>({...f, priority:e.target.value}))}>
-              <option>Low</option><option>Normal</option><option>High</option>
-            </select>
-          </label>
-          <label>Status
-            <select value={form.status} onChange={e=>setForm(f=>({...f, status:e.target.value}))}>
-              <option>Open</option><option>In Progress</option><option>Closed</option>
-            </select>
-          </label>
-          <div><button className="btn btn-primary" type="submit">Create</button></div>
-        </form>
-      </div>
-    </section>
-  );
-}
-
-function NotFound(){ return <div className="card"><h2>Not found</h2></div>; }
-
-/** -------- small components -------- */
-
-function Metric({ label, value }){
-  return <div className="metric"><div className="metric-value">{value}</div><div className="metric-label">{label}</div></div>;
-}
-function CustomersTable({ customers }){
-  return (
-    <div className="table">
-      <div className="t-head"><span>Name</span><span>Phone</span><span>Email</span></div>
-      {customers.map(c=>(
-        <div className="t-row" key={c.id}><span>{c.name}</span><span>{c.phone}</span><span>{c.email}</span></div>
-      ))}
-      {!customers.length && <div className="empty">No customers yet.</div>}
-    </div>
-  );
-}
-function TicketsTable({ tickets, customers=[], onStatusChange=()=>{}, compact=false }){
-  const nameOf = (id)=> customers.find(c=>c.id===id)?.name ?? "—";
-  return (
-    <div className={`table ${compact ? "compact" : ""}`}>
-      <div className="t-head">
-        <span>Title</span><span>Customer</span><span>Status</span><span>Priority</span><span>Created</span>
-      </div>
-      {tickets.map(t=>(
-        <div className="t-row" key={t.id}>
-          <span>{t.title}</span>
-          <span>{nameOf(t.customerId)}</span>
-          <span>
-            <select className="pill" value={t.status} onChange={e=>onStatusChange(t.id, e.target.value)}>
-              <option>Open</option><option>In Progress</option><option>Closed</option>
-            </select>
-          </span>
-          <span><span className={`badge ${t.priority.toLowerCase()}`}>{t.priority}</span></span>
-          <span>{new Date(t.createdAt).toLocaleDateString()}</span>
-        </div>
-      ))}
-      {!tickets.length && <div className="empty">No tickets yet.</div>}
-    </div>
   );
 }

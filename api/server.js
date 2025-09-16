@@ -14,27 +14,46 @@ import { signToken, requireAuth, requirePlatform } from "./middleware/auth.js";
 dotenv.config();
 
 const app = express();
-app.use(cors({ origin: true, credentials: true }));
+app.use(cors({
+  origin: [
+    "http://localhost:5173",        // dev vite (if you use it)
+    "http://localhost:8080",        // your local static
+    "https://tcs-frontend-zli3.onrender.com", 
+  ],
+  credentials: false
+}));
 app.use(express.json());
 
 const PORT = process.env.PORT || 4000;
 
+app.listen(PORT, async () => {
+  console.log(`[api] listening on http://localhost:${PORT}`);
+  try {
+    await initDb();                  // warm up on boot
+  } catch (e) {
+    console.error("[db] init error:", e.message);
+  }
+});
+
 
 
 // ---- health ----
+// --- Health check: MAKE SURE WE INIT FIRST ---
 app.get("/api/health", async (req, res) => {
   try {
+    await initDb();                   // <— important
     const db = getDb();
+    // optional: ping
     await db.command({ ping: 1 });
     res.json({ ok: true, dbConnected: true });
   } catch (e) {
     res.status(500).json({ ok: false, error: e.message });
   }
 });
-
 // ---- orgs (your existing examples) ----
 app.get("/api/orgs", async (req, res) => {
   try {
+    await initDb();  
     const db = getDb();
     const orgs = await db.collection("orgs").find().toArray();
     res.json(orgs);
@@ -46,6 +65,7 @@ app.get("/api/orgs", async (req, res) => {
 
 app.post("/api/orgs", async (req, res) => {
   try {
+    await initDb();  
     const db = getDb();
     const { name } = req.body;
     if (!name) return res.status(400).json({ error: "Name is required" });

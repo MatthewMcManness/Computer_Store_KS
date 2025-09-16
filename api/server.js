@@ -26,14 +26,7 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 4000;
 
-app.listen(PORT, async () => {
-  console.log(`[api] listening on http://localhost:${PORT}`);
-  try {
-    await initDb();                  // warm up on boot
-  } catch (e) {
-    console.error("[db] init error:", e.message);
-  }
-});
+
 
 
 

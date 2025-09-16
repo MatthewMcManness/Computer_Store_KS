@@ -24,7 +24,11 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// ---- start server (single listen only) ----
 const PORT = process.env.PORT || 4000;
+app.listen(PORT, () => {
+  console.log(`[api] listening on http://localhost:${PORT}`);
+});
 
 
 
@@ -32,17 +36,18 @@ const PORT = process.env.PORT || 4000;
 
 // ---- health ----
 // --- Health check: MAKE SURE WE INIT FIRST ---
+// --- health ---
 app.get("/api/health", async (req, res) => {
   try {
-    await initDb();                   // <— important
-    const db = getDb();
-    // optional: ping
-    await db.command({ ping: 1 });
+    await initDb();               // ensure connection
     res.json({ ok: true, dbConnected: true });
   } catch (e) {
-    res.status(500).json({ ok: false, error: e.message });
+    res.status(500).json({ ok: false, error: String(e.message || e) });
   }
 });
+
+
+
 // ---- orgs (your existing examples) ----
 app.get("/api/orgs", async (req, res) => {
   try {
@@ -174,8 +179,4 @@ app.get("/api/admin/orgs", requireAuth, requirePlatform, async (req, res) => {
 });
 
 
-// ---- start ----
-app.listen(PORT, async () => {
-  console.log(`[api] listening on http://localhost:${PORT}`);
-  await initDb();
-});
+

@@ -173,9 +173,10 @@ header nav ul .nav-action.primary a:hover {
 /* ================================================
    MOBILE HAMBURGER MENU
    Collapsible navigation for small screens with animated hamburger/close toggle
+   IMPORTANT: Hidden on desktop, only visible on mobile (768px and below)
    ================================================ */
 .hamburger {
-  display: none;                  /* Hidden on desktop */
+  display: none;                  /* HIDDEN ON DESKTOP - only show on mobile */
   background: none;               /* No background */
   border: none;                   /* No border */
   color: #fff;                    /* White color to match nav */
@@ -185,9 +186,8 @@ header nav ul .nav-action.primary a:hover {
   transition: transform 0.3s ease; /* Smooth rotation transition */
   width: 44px;                    /* Fixed width for consistent layout */
   height: 44px;                   /* Fixed height for consistent layout */
-  display: flex;                  /* Use flex for centering */
-  align-items: center;            /* Center vertically */
-  justify-content: center;        /* Center horizontally */
+  align-items: center;            /* Center vertically (when displayed) */
+  justify-content: center;        /* Center horizontally (when displayed) */
 }
 
 /* Hamburger menu icon state - showing three lines (☰) */
@@ -208,13 +208,13 @@ header nav ul .nav-action.primary a:hover {
   transform: rotate(90deg);        /* Rotate the entire button slightly */
 }
 
-/* Hover effects for better user feedback */
+/* Hover effects for better user feedback - only when visible */
 .hamburger:hover {
   background-color: rgba(255, 255, 255, 0.1); /* Subtle white background on hover */
   border-radius: 4px;             /* Rounded corners on hover */
 }
 
-/* Active/pressed state for better touch feedback */
+/* Active/pressed state for better touch feedback - only when visible */
 .hamburger:active {
   background-color: rgba(255, 255, 255, 0.2); /* Slightly more visible when pressed */
   transform: scale(0.95);         /* Slight scale down when pressed */

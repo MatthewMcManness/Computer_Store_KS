@@ -18,10 +18,10 @@
  * 10. Event Listeners & Initialization
  * ================================================ */
 
-console.log('[site.js] loaded');
+console.log('[script.js] loaded');
 
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('[site.js] DOM ready');
+  console.log('[script.js] DOM ready');
 
   /* ================================================
      1. ELEMENT REFERENCES & INITIAL SETUP
@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   const config = window.siteConfig;                           // Reference to configuration data
-  console.log('[site.js] Configuration loaded successfully');
+  console.log('[config.js] Configuration loaded successfully');
 
   /* ================================================
      3. DYNAMIC CONTENT POPULATION

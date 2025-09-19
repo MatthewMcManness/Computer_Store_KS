@@ -1,0 +1,729 @@
+/*
+ * ================================================
+ * COMPUTER STORE KANSAS - CONSOLIDATED STYLESHEET
+ * ================================================
+ * Combines brochure.css, reset.css, and theme.css with optimizations
+ * Contains all styles for single-page application navigation
+ * 
+ * Table of Contents:
+ * 1. CSS Variables & Root Styles
+ * 2. Reset & Base Styles
+ * 3. Layout & Container Utilities
+ * 4. Page Management (Single-Page App)
+ * 5. Header & Navigation
+ * 6. Hero Sections
+ * 7. Buttons & Interactive Elements
+ * 8. Content Sections (Services, About, etc.)
+ * 9. Contact Form
+ * 10. Specialized Sections (Founder, Testimonials, etc.)
+ * 11. Login Modal
+ * 12. Footer
+ * 13. Mobile Responsive Styles
+ * ================================================
+ */
+
+/* ================================================
+   1. CSS VARIABLES & ROOT STYLES
+   Define global color palette and design tokens
+   ================================================ */
+:root {
+  --primary-color: #0d6efd;      /* Main blue brand color */
+  --secondary-color: #c0c0c0;    /* Silver accent color */
+  --text-color: #343a40;         /* Main text color */
+  --background-color: #f8f9fa;   /* Page background */
+  --light-grey: #f5f5f5;         /* Light section backgrounds */
+}
+
+/* ================================================
+   2. RESET & BASE STYLES
+   Normalize browser defaults and set base typography
+   ================================================ */
+* {
+  box-sizing: border-box;         /* Include padding/border in element width */
+  margin: 0;                      /* Remove default margins */
+  padding: 0;                     /* Remove default padding */
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  line-height: 1.6;               /* Improve text readability */
+}
+
+/* ================================================
+   3. LAYOUT & CONTAINER UTILITIES
+   Reusable layout components and responsive containers
+   ================================================ */
+.container {
+  width: 90%;                     /* Responsive width with margins */
+  max-width: 1200px;              /* Maximum content width for large screens */
+  margin-left: auto;              /* Center horizontally */
+  margin-right: auto;             /* Center horizontally */
+}
+
+/* ================================================
+   4. PAGE MANAGEMENT (SINGLE-PAGE APP)
+   Controls visibility of different page sections
+   ================================================ */
+.page-section {
+  display: none;                  /* Hide all page sections by default */
+}
+
+.page-section.active {
+  display: block;                 /* Show only the active page section */
+}
+
+/* ================================================
+   5. HEADER & NAVIGATION
+   Sticky header with logo, hamburger menu, and navigation
+   ================================================ */
+
+/* Main header container */
+header {
+  background-color: #081e5b;      /* Dark blue background for contrast */
+  padding: 0.75rem 0;             /* Vertical padding */
+  position: sticky;               /* Stick to top when scrolling */
+  top: 0;                         /* Position at very top */
+  z-index: 1000;                  /* Ensure header stays above other content */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+/* Header layout container */
+header .container {
+  display: flex;                  /* Flexible layout */
+  justify-content: space-between; /* Space between logo and nav */
+  align-items: center;            /* Vertically center items */
+}
+
+/* Company logo styling */
+header .logo {
+  display: flex;                  /* Flex container for logo image */
+  align-items: center;            /* Center logo vertically */
+  font-size: 0;                   /* Hide any text (image-only logo) */
+}
+
+header .logo img {
+  height: 55px;                   /* Fixed logo height for consistency */
+  margin-right: 0;                /* No right margin needed */
+}
+
+/* Navigation menu styling */
+header nav ul {
+  list-style: none;               /* Remove bullet points */
+  display: flex;                  /* Horizontal layout */
+  flex-wrap: wrap;                /* Allow wrapping on smaller screens */
+  gap: 1rem;                      /* Space between navigation items */
+  align-items: center;            /* Vertically center nav items */
+}
+
+header nav ul li {
+  margin-left: 1.25rem;           /* Additional spacing between items */
+}
+
+/* Navigation link styling */
+header nav ul li a {
+  color: #fff;                    /* White text for visibility on dark background */
+  text-decoration: none;          /* Remove underlines */
+  font-weight: 500;               /* Medium font weight */
+  padding: 0.35rem 0.75rem;       /* Padding for click target */
+  border-radius: 4px;             /* Rounded corners */
+  transition: background-color 0.3s ease, color 0.3s ease; /* Smooth hover effects */
+  cursor: pointer;                /* Show pointer cursor */
+}
+
+/* Active navigation link (current page) */
+header nav ul li a.active {
+  background-color: #ffffff33;    /* Semi-transparent white background */
+  color: #fff;                    /* Ensure text stays white */
+}
+
+/* Navigation link hover effects */
+header nav ul li a:hover {
+  background-color: #ffffff33;    /* Same background as active state */
+}
+
+/* Navigation action buttons (Employee Login) */
+header nav ul .nav-action a {
+  display: inline-block;          /* Block-level styling with inline flow */
+  padding: .55rem .9rem;          /* Larger padding for button appearance */
+  border-radius: .5rem;           /* More rounded corners for button look */
+  border: 2px solid #c0c8d1;      /* Silver outline border */
+  color: #e6eef7;                 /* Light text color */
+  text-decoration: none;          /* Remove underlines */
+  font-weight: 600;               /* Bold text */
+  white-space: nowrap;            /* Prevent text wrapping */
+}
+
+header nav ul .nav-action a:hover {
+  background: rgba(255,255,255,.06); /* Subtle white background on hover */
+}
+
+/* Primary action button styling (Employee Login) */
+header nav ul .nav-action.primary a {
+  background: #2a5bd7;            /* Blue background for primary button */
+  border-color: #1f48ad;          /* Darker blue border */
+  color: #ffffff;                 /* White text for contrast */
+}
+
+header nav ul .nav-action.primary a:hover {
+  filter: brightness(1.06);       /* Slightly brighter on hover */
+}
+
+/* ================================================
+   MOBILE HAMBURGER MENU
+   Collapsible navigation for small screens
+   ================================================ */
+.hamburger {
+  display: none;                  /* Hidden on desktop */
+  background: none;               /* No background */
+  border: none;                   /* No border */
+  color: #fff;                    /* White color to match nav */
+  font-size: 1.75rem;             /* Large enough for touch targets */
+  cursor: pointer;                /* Show it's clickable */
+}
+
+/* ================================================
+   6. HERO SECTIONS
+   Large banner sections with gradient backgrounds
+   ================================================ */
+.hero {
+  background: linear-gradient(135deg, var(--primary-color) 0%, #06277a 100%); /* Blue gradient */
+  color: #fff;                    /* White text for contrast on blue */
+  padding: 4rem 0;                /* Large vertical padding */
+  text-align: center;             /* Center all content */
+}
+
+/* Hero title container for large logo/graphic */
+.hero .hero-title {
+  margin-bottom: 1.5rem;          /* Space below title graphic */
+}
+
+.hero .hero-title img {
+  display: block;                 /* Block layout for centering */
+  max-width: 400px;               /* Maximum size limit */
+  width: 60%;                     /* Responsive width */
+  margin: 0 auto;                 /* Center horizontally */
+}
+
+/* Hero headline styling */
+.hero h2 {
+  font-size: 2.3rem;              /* Large, impactful text */
+  margin-bottom: 1rem;            /* Space below headline */
+}
+
+/* Hero description text */
+.hero p {
+  font-size: 1.1rem;              /* Slightly larger than body text */
+  margin-bottom: 2rem;            /* Space before call-to-action */
+  max-width: 600px;               /* Limit line length for readability */
+  margin-left: auto;              /* Center the text block */
+  margin-right: auto;             /* Center the text block */
+}
+
+/* ================================================
+   7. BUTTONS & INTERACTIVE ELEMENTS
+   Styled buttons and interactive components
+   ================================================ */
+.btn {
+  display: inline-block;          /* Block-level styling with inline flow */
+  background-color: #fff;         /* White background */
+  color: var(--primary-color);    /* Blue text */
+  padding: 0.7rem 1.4rem;         /* Comfortable padding for clicks */
+  border-radius: 4px;             /* Rounded corners */
+  text-decoration: none;          /* Remove underlines */
+  font-weight: 600;               /* Bold text */
+  transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transitions */
+  cursor: pointer;                /* Show it's clickable */
+  border: none;                   /* Remove default button borders */
+  font-size: 1rem;                /* Standard font size */
+}
+
+.btn:hover {
+  background-color: var(--secondary-color); /* Silver background on hover */
+  color: #fff;                    /* White text on hover */
+}
+
+/* ================================================
+   8. CONTENT SECTIONS (SERVICES, CARDS, ETC.)
+   Reusable content layouts and card components
+   ================================================ */
+
+/* Services section container */
+.services {
+  padding: 4rem 0;                /* Large vertical padding */
+  background-color: #fff;         /* White background */
+}
+
+.services h2 {
+  text-align: center;             /* Center section headings */
+  margin-bottom: 2rem;            /* Space below heading */
+  color: var(--primary-color);    /* Blue heading color */
+}
+
+/* Card grid layout */
+.cards {
+  display: flex;                  /* Flexible layout */
+  flex-wrap: wrap;                /* Allow cards to wrap to new lines */
+  gap: 1.5rem;                    /* Space between cards */
+  justify-content: center;        /* Center cards horizontally */
+}
+
+/* Individual card styling */
+.card {
+  background-color: var(--light-grey); /* Light grey background */
+  border-radius: 6px;             /* Rounded corners */
+  padding: 1.5rem;                /* Internal spacing */
+  width: 280px;                   /* Fixed width for consistency */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  text-align: center;             /* Center card content */
+}
+
+.card h3 {
+  margin-bottom: 0.5rem;          /* Space below card title */
+  color: var(--primary-color);    /* Blue title color */
+  font-size: 1.3rem;              /* Larger title text */
+}
+
+.card p {
+  font-size: 0.95rem;             /* Slightly smaller body text */
+  color: var(--text-color);       /* Standard text color */
+}
+
+/* About page content styling */
+.about {
+  padding: 4rem 0;                /* Large vertical padding */
+  background-color: #fff;         /* White background */
+}
+
+.about h2 {
+  text-align: center;             /* Center heading */
+  margin-bottom: 2rem;            /* Space below heading */
+  color: var(--primary-color);    /* Blue heading color */
+}
+
+.about p {
+  max-width: 800px;               /* Limit line length for readability */
+  margin: 0 auto 1.5rem auto;     /* Center text block with bottom margin */
+  font-size: 1rem;                /* Standard font size */
+  line-height: 1.8;               /* Increased line height for readability */
+  text-align: center;             /* Center text */
+}
+
+/* ================================================
+   CALL-TO-ACTION (CTA) SECTIONS
+   Prominent sections designed to drive user action
+   ================================================ */
+.cta {
+  background-color: var(--primary-color); /* Blue background */
+  color: #fff;                    /* White text for contrast */
+  padding: 3rem 0;                /* Vertical padding */
+  text-align: center;             /* Center all content */
+}
+
+.cta h2 {
+  font-size: 2rem;                /* Large heading */
+  margin-bottom: 0.5rem;          /* Small space below heading */
+}
+
+.cta p {
+  font-size: 1.1rem;              /* Larger description text */
+  margin-bottom: 1.5rem;          /* Space before button */
+}
+
+/* CTA button styling (inverse colors) */
+.cta .btn {
+  background-color: #fff;         /* White background */
+  color: var(--primary-color);    /* Blue text */
+}
+
+.cta .btn:hover {
+  background-color: var(--secondary-color); /* Silver on hover */
+  color: #fff;                    /* White text on hover */
+}
+
+/* ================================================
+   9. CONTACT FORM
+   Contact form styling and layout
+   ================================================ */
+
+/* Contact section container */
+.contact {
+  padding: 4rem 0;                /* Large vertical padding */
+  background-color: var(--light-grey); /* Light grey background */
+}
+
+.contact h2 {
+  text-align: center;             /* Center heading */
+  margin-bottom: 1rem;            /* Space below heading */
+  color: var(--primary-color);    /* Blue heading color */
+}
+
+.contact p {
+  text-align: center;             /* Center description text */
+  margin-bottom: 2rem;            /* Space before form */
+}
+
+/* Contact form styling */
+form {
+  max-width: 600px;               /* Limit form width */
+  margin: 0 auto 2rem auto;       /* Center form with bottom margin */
+  display: flex;                  /* Flexible layout */
+  flex-direction: column;         /* Stack form elements vertically */
+}
+
+form label {
+  margin-bottom: 0.5rem;          /* Space below labels */
+  font-weight: 600;               /* Bold label text */
+}
+
+/* Form input and textarea styling */
+form input,
+form textarea {
+  padding: 0.75rem;               /* Comfortable padding */
+  margin-bottom: 1rem;            /* Space below each field */
+  border: 1px solid #ccc;         /* Light border */
+  border-radius: 4px;             /* Rounded corners */
+  font-size: 1rem;                /* Standard font size */
+}
+
+form button {
+  align-self: flex-start;         /* Align button to left */
+  cursor: pointer;                /* Show it's clickable */
+}
+
+/* Contact information display */
+.contact-info {
+  max-width: 600px;               /* Match form width */
+  margin: 0 auto;                 /* Center information block */
+  text-align: center;             /* Center text */
+  font-size: 0.95rem;             /* Slightly smaller text */
+}
+
+.contact-info p {
+  margin-bottom: 0.3rem;          /* Small space between info lines */
+}
+
+/* ================================================
+   10. SPECIALIZED SECTIONS
+   Unique layouts for founder, testimonials, etc.
+   ================================================ */
+
+/* Founder section styling */
+.founder {
+  background-color: var(--light-grey); /* Light grey background */
+  padding: 4rem 0;                /* Large vertical padding */
+}
+
+.founder-container {
+  display: flex;                  /* Side-by-side layout */
+  flex-wrap: wrap;                /* Allow wrapping on small screens */
+  align-items: center;            /* Vertically center content */
+  gap: 2rem;                      /* Space between image and text */
+}
+
+.founder-image img {
+  max-width: 300px;               /* Limit image size */
+  width: 100%;                    /* Responsive width */
+  border-radius: 6px;             /* Rounded corners */
+}
+
+.founder-text {
+  flex: 1;                        /* Take remaining space */
+}
+
+.founder-text h2 {
+  margin-bottom: 1rem;            /* Space below heading */
+  color: var(--primary-color);    /* Blue heading color */
+}
+
+.founder-text p {
+  margin-bottom: 0.75rem;         /* Space between paragraphs */
+  line-height: 1.6;               /* Good readability */
+}
+
+.founder-text .founder-name {
+  font-style: italic;             /* Italicize attribution */
+  color: var(--primary-color);    /* Blue color for attribution */
+}
+
+/* Testimonials section */
+.testimonials {
+  background-color: #fff;         /* White background */
+  padding: 4rem 0;                /* Large vertical padding */
+}
+
+.testimonials h2 {
+  text-align: center;             /* Center heading */
+  margin-bottom: 2rem;            /* Space below heading */
+  color: var(--primary-color);    /* Blue heading color */
+}
+
+.testimonial {
+  max-width: 800px;               /* Limit testimonial width */
+  margin: 0 auto 2rem auto;       /* Center with bottom margin */
+  text-align: center;             /* Center content */
+}
+
+.testimonial p {
+  font-size: 1rem;                /* Standard font size */
+  font-style: italic;             /* Italicize quote text */
+  margin-bottom: 0.5rem;          /* Small space before attribution */
+}
+
+.testimonial h4 {
+  font-size: 0.95rem;             /* Slightly smaller attribution */
+  color: var(--primary-color);    /* Blue color for attribution */
+}
+
+/* Highlights section - key selling points */
+.highlights {
+  background-color: var(--background-color); /* Page background color */
+  padding: 3rem 0;                /* Moderate vertical padding */
+}
+
+.highlights-container {
+  display: flex;                  /* Side-by-side layout */
+  flex-wrap: wrap;                /* Allow wrapping on small screens */
+  justify-content: center;        /* Center highlights */
+  gap: 2rem;                      /* Space between highlights */
+}
+
+.highlight {
+  flex: 1 1 200px;                /* Flexible width with minimum */
+  text-align: center;             /* Center highlight content */
+}
+
+.highlight h3 {
+  font-size: 1.2rem;              /* Moderately large text */
+  color: var(--primary-color);    /* Blue color */
+}
+
+/* Membership/protection plan section */
+.membership {
+  background-color: var(--light-grey); /* Light grey background */
+  padding: 4rem 0;                /* Large vertical padding */
+}
+
+.membership-container {
+  display: flex;                  /* Side-by-side layout */
+  flex-wrap: wrap;                /* Allow wrapping on small screens */
+  align-items: center;            /* Vertically center content */
+  gap: 2rem;                      /* Space between image and text */
+}
+
+.membership-image img {
+  max-width: 400px;               /* Limit image size */
+  width: 100%;                    /* Responsive width */
+  border-radius: 6px;             /* Rounded corners */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+.membership-text {
+  flex: 1;                        /* Take remaining space */
+}
+
+.membership-text h2 {
+  margin-bottom: 1rem;            /* Space below heading */
+  color: var(--primary-color);    /* Blue heading color */
+}
+
+.membership-text p {
+  margin-bottom: 1rem;            /* Space between paragraphs */
+  line-height: 1.6;               /* Good readability */
+}
+
+/* Features list styling */
+.membership-features {
+  list-style: none;               /* Remove default bullets */
+  padding-left: 0;                /* Remove default padding */
+  margin: 0 0 1rem 0;             /* Bottom margin only */
+}
+
+.membership-features li {
+  margin-bottom: 0.5rem;          /* Space between features */
+  padding-left: 1.5rem;           /* Space for custom bullet */
+  position: relative;             /* For custom bullet positioning */
+  font-size: 1rem;                /* Standard font size */
+}
+
+/* Custom checkmark bullets */
+.membership-features li::before {
+  content: '✓';                   /* Checkmark character */
+  position: absolute;             /* Position relative to list item */
+  left: 0;                        /* Align to left edge */
+  color: var(--primary-color);    /* Blue checkmark */
+}
+
+.membership-note {
+  font-size: 0.95rem;             /* Slightly smaller note text */
+}
+
+/* Note styling for disclaimers */
+.note {
+  font-size: 0.85rem;             /* Small text */
+  margin-top: 0.5rem;             /* Small top margin */
+  color: var(--text-color);       /* Standard text color */
+  opacity: 0.8;                   /* Slightly faded */
+}
+
+/* Note styling within CTA sections */
+.cta .note {
+  color: #f5f5f5;                 /* Light color for dark background */
+}
+
+/* ================================================
+   11. LOGIN MODAL
+   Modal overlay for employee login functionality
+   ================================================ */
+
+/* Modal backdrop */
+.modal {
+  display: none;                  /* Hidden by default */
+  position: fixed;                /* Fixed position over entire viewport */
+  z-index: 2000;                  /* Ensure modal appears above all content */
+  left: 0;                        /* Cover full width */
+  top: 0;                         /* Cover full height */
+  width: 100%;                    /* Full viewport width */
+  height: 100%;                   /* Full viewport height */
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black backdrop */
+  backdrop-filter: blur(4px);     /* Blur background content */
+}
+
+/* Active modal state */
+.modal.active {
+  display: flex;                  /* Show modal with flex layout */
+  align-items: center;            /* Center vertically */
+  justify-content: center;        /* Center horizontally */
+}
+
+/* Modal content container */
+.modal-content {
+  background-color: #fff;         /* White background */
+  padding: 2rem;                  /* Internal spacing */
+  border-radius: 8px;             /* Rounded corners */
+  max-width: 500px;               /* Maximum width */
+  width: 90%;                     /* Responsive width */
+  position: relative;             /* For close button positioning */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); /* Strong shadow for depth */
+}
+
+/* Modal close button */
+.modal-close {
+  position: absolute;             /* Position relative to modal content */
+  top: 1rem;                      /* Distance from top */
+  right: 1rem;                    /* Distance from right */
+  background: none;               /* No background */
+  border: none;                   /* No border */
+  font-size: 1.5rem;              /* Large close icon */
+  cursor: pointer;                /* Show it's clickable */
+  color: #666;                    /* Grey color */
+}
+
+.modal-close:hover {
+  color: #000;                    /* Darker on hover */
+}
+
+/* ================================================
+   12. FOOTER
+   Site footer with copyright information
+   ================================================ */
+footer {
+  background-color: var(--primary-color); /* Blue background */
+  color: #fff;                    /* White text */
+  text-align: center;             /* Center content */
+  padding: 1rem 0;                /* Vertical padding */
+  font-size: 0.9rem;              /* Slightly smaller text */
+}
+
+/* ================================================
+   13. MOBILE RESPONSIVE STYLES
+   Responsive design for tablets and mobile devices
+   ================================================ */
+@media (max-width: 768px) {
+  /* Show hamburger menu on mobile */
+  .hamburger {
+    display: block;               /* Make hamburger visible */
+  }
+  
+  /* Mobile navigation styling */
+  header nav ul {
+    display: none;                /* Hide navigation by default */
+    flex-direction: column;       /* Stack nav items vertically */
+    width: 100%;                  /* Full width */
+    background-color: #081e5b;    /* Same background as header */
+    margin-top: 0.5rem;           /* Space below hamburger */
+    padding: 0.5rem 0;            /* Vertical padding */
+    position: absolute;           /* Position over content */
+    top: 100%;                    /* Below header */
+    left: 0;                      /* Align to left */
+    right: 0;                     /* Align to right */
+  }
+  
+  /* Show navigation when toggled */
+  header nav ul.show {
+    display: flex;                /* Show navigation */
+  }
+  
+  /* Mobile navigation item styling */
+  header nav ul li {
+    margin: 0.5rem 0;             /* Vertical margin only */
+    text-align: left;             /* Left-align text */
+    padding-left: 1rem;           /* Left padding */
+  }
+
+  /* Stack cards vertically on mobile */
+  .cards {
+    flex-direction: column;       /* Stack cards vertically */
+    align-items: center;          /* Center cards */
+  }
+
+  /* Mobile founder section layout */
+  .founder-container {
+    flex-direction: column;       /* Stack image and text vertically */
+    text-align: center;           /* Center content */
+  }
+  .founder-image,
+  .founder-text {
+    width: 100%;                  /* Full width for both sections */
+  }
+
+  /* Mobile highlights layout */
+  .highlights-container {
+    flex-direction: column;       /* Stack highlights vertically */
+    align-items: center;          /* Center highlights */
+  }
+
+  /* Mobile membership section layout */
+  .membership-container {
+    flex-direction: column;       /* Stack image and text vertically */
+    text-align: center;           /* Center content */
+  }
+  .membership-image img {
+    max-width: 300px;             /* Smaller image on mobile */
+    margin: 0 auto;               /* Center image */
+  }
+
+  /* Mobile hero adjustments */
+  .hero .hero-title img {
+    width: 80%;                   /* Larger relative width */
+    max-width: 280px;             /* Smaller absolute maximum */
+  }
+  .hero h2 {
+    font-size: 1.7rem;            /* Smaller heading */
+  }
+  .hero p {
+    font-size: 1rem;              /* Smaller text */
+  }
+  .card {
+    width: 100%;                  /* Full width cards */
+  }
+}
+
+/* Extra small mobile devices */
+@media (max-width: 480px) {
+  header nav ul .nav-action a {
+    width: 100%;                  /* Full width action buttons */
+    text-align: center;           /* Center button text */
+  }
+}

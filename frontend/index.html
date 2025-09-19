@@ -1,166 +1,382 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- ================================================
+       DOCUMENT HEAD SECTION
+       Sets up page metadata, title, and external resources
+       ================================================ -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Computer Store Kansas – Home</title>
-  <link rel="stylesheet" href="css/brochure.css">
-  <!-- Use the small logo as a favicon so the tab icon matches the branding -->
+  <title>Computer Store Kansas</title>
+  
+  <!-- External stylesheet containing all consolidated styles -->
+  <link rel="stylesheet" href="css/style.css">
+  
+  <!-- Favicon for browser tab icon -->
   <link rel="icon" href="assets/logo.png" type="image/png">
 </head>
 <body>
+
+  <!-- ================================================
+       SITE HEADER - NAVIGATION SECTION
+       Contains logo, hamburger menu, and navigation links
+       Sticky header that remains at top when scrolling
+       ================================================ -->
   <header>
     <div class="container">
+      <!-- Company logo/branding - clickable title graphic -->
       <h1 class="logo"><img src="assets/title.png" alt="Computer Store Kansas"></h1>
-      <!-- Hamburger button for mobile navigation -->
+      
+      <!-- Mobile hamburger menu button - only visible on small screens -->
       <button class="hamburger" id="hamburger-button">&#9776;</button>
+      
+      <!-- Main navigation menu -->
       <nav>
         <ul>
-          <li><a href="index.html" class="active">Home</a></li>
-          <li><a href="brochure_about.html">About</a></li>
-          <li><a href="brochure_services.html">Services</a></li>
-          <li><a href="brochure_contact.html">Contact</a></li>
-          <li class="nav-action primary"><a href="login.html">Employee Login</a></li>
+          <!-- Main page navigation links - use data-page attribute for JavaScript routing -->
+          <li><a href="#" data-page="home" class="nav-link active">Home</a></li>
+          <li><a href="#" data-page="about" class="nav-link">About</a></li>
+          <li><a href="#" data-page="services" class="nav-link">Services</a></li>
+          <li><a href="#" data-page="contact" class="nav-link">Contact</a></li>
+          
+          <!-- Special action button for employee login modal -->
+          <li class="nav-action primary"><a href="#" id="login-btn">Employee Login</a></li>
         </ul>
       </nav>
     </div>
   </header>
 
-  <!-- Home page hero -->
-  <section class="hero">
-    <div class="container">
-      <!-- Large title graphic on the home page hero -->
-      <div class="hero-title">
-        <img src="assets/title.png" alt="Computer Store Kansas">
-      </div>
-      <!-- Updated tagline to reflect the messaging on the original site -->
-      <h2>Your Go‑To Technology Center Since 2003</h2>
-      <p>Count on The Computer Store for all your computer service needs.</p>
-      <a href="brochure_contact.html" class="btn">Get in Touch</a>
-    </div>
-  </section>
-
-
-  <!-- Founder section -->
-  <section class="founder">
-    <div class="container founder-container">
-      <div class="founder-image">
-        <!-- Use the provided photo of Jim Driggers rather than the generated placeholder -->
-        <img src="assets/jim.png" alt="Jim Driggers - Founder">
-      </div>
-      <div class="founder-text">
-        <h2>Locally Owned Since 2003</h2>
-        <p>I had seen computer stores come and go and some not run very professionally; I wanted to make sure to build on the best practices learned from my consulting business to offer better and faster service while remaining local. With this business model in place, The Computer Store opened its doors to customers in 2003 and we are the oldest locally owned professional computer retail store in Topeka.</p>
-        <p class="founder-name">– Jim Driggers, Computer Store Founder</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Highlights section showcasing key facts from the original site -->
-  <section class="highlights">
-    <div class="container highlights-container">
-      <div class="highlight">
-        <h3>Friendly, Reliable Service</h3>
-      </div>
-      <div class="highlight">
-        <h3>Locally Owned Since 2003</h3>
-      </div>
-      <div class="highlight">
-        <h3>20+ Years in Business</h3>
-      </div>
-    </div>
-  </section>
-
-  <!-- Highlighted services summary -->
-  <section class="services">
-    <div class="container">
-      <h2>What We Do</h2>
-      <div class="cards">
-        <div class="card">
-          <h3>Computer Service</h3>
-          <p>Comprehensive diagnostics, repairs and upgrades for desktops and laptops.</p>
+  <!-- ================================================
+       HOME PAGE SECTION
+       Main landing page content - shown by default
+       Contains hero, founder, highlights, services, membership, testimonials, and CTA
+       ================================================ -->
+  <div id="home-page" class="page-section active">
+    
+    <!-- HOME PAGE HERO SECTION - Main banner with company title and tagline -->
+    <section class="hero">
+      <div class="container">
+        <!-- Large title graphic for branding impact -->
+        <div class="hero-title">
+          <img src="assets/title.png" alt="Computer Store Kansas">
         </div>
-        <div class="card">
-          <h3>Protection Plans</h3>
-          <p>Flexible plans to safeguard your system from viruses, malware and identity theft.</p>
+        
+        <!-- Main headline and call-to-action -->
+        <h2>Your Go‑To Technology Center Since 2003</h2>
+        <p>Count on The Computer Store for all your computer service needs.</p>
+        <a href="#" data-page="contact" class="btn nav-link">Get in Touch</a>
+      </div>
+    </section>
+
+    <!-- FOUNDER SECTION - Story and photo of company founder -->
+    <section class="founder">
+      <div class="container founder-container">
+        <!-- Founder photo -->
+        <div class="founder-image">
+          <img src="assets/jim.png" alt="Jim Driggers - Founder">
         </div>
-        <div class="card">
-          <h3>New Computer Sales</h3>
-          <p>Let our non‑commissioned team help you build or choose the perfect PC for your needs.</p>
+        
+        <!-- Founder story and quote -->
+        <div class="founder-text">
+          <h2>Locally Owned Since 2003</h2>
+          <p>I had seen computer stores come and go and some not run very professionally; I wanted to make sure to build on the best practices learned from my consulting business to offer better and faster service while remaining local. With this business model in place, The Computer Store opened its doors to customers in 2003 and we are the oldest locally owned professional computer retail store in Topeka.</p>
+          <p class="founder-name">– Jim Driggers, Computer Store Founder</p>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Protection plan membership section with image and benefits -->
-  <section class="membership">
-    <div class="container membership-container">
-      <div class="membership-image">
-        <img src="assets/silver_plan.png" alt="Silver Plan Membership">
+    <!-- HIGHLIGHTS SECTION - Key selling points displayed prominently -->
+    <section class="highlights">
+      <div class="container highlights-container">
+        <!-- Highlight content populated dynamically from configuration data -->
+        <!-- Individual highlights are created by JavaScript from config.js -->
       </div>
-      <div class="membership-text">
-        <h2>Unlock All the Benefits with Our Protection Plans</h2>
-        <p>Our Silver Plan provides comprehensive care for your computer. For only $24.99 per month (with a three‑month commitment), you’ll receive:</p>
-        <ul class="membership-features">
-          <li>Anti‑virus software</li>
-          <li>50% off virus removal services</li>
-          <li>Preventive maintenance service</li>
-          <li>Limited help desk/remote support</li>
-          <li>Free in‑store diagnostics and estimates</li>
-          <li>Performance monitoring and alert service</li>
-          <li>5% discount on labour, hardware and software</li>
-        </ul>
-        <p class="membership-note"><strong>Ready to get protected?</strong> Contact us at <a href="mailto:contact@computerstoreks.com">contact@computerstoreks.com</a> or call 785‑267‑3223 to sign up today!</p>
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Testimonials section -->
-  <section class="testimonials">
-    <div class="container">
-      <h2>Client Testimonials</h2>
-      <div class="testimonial">
-        <p>"Signing up for a Computer Protection Plan from The Computer Store was the best decision I've made in years. My computer has never run better and no more worries about spyware stealing my identity while online!"</p>
-        <h4>– Kristina Jones, Topeka</h4>
+    <!-- SERVICES OVERVIEW SECTION - Main service offerings in card format -->
+    <section class="services">
+      <div class="container">
+        <h2>What We Do</h2>
+        <div class="cards">
+          <!-- Service cards populated dynamically from configuration data -->
+          <!-- Individual service cards are created by JavaScript from config.js -->
+          <!-- This allows easy updating of services without modifying HTML -->
+        </div>
       </div>
-      <div class="testimonial">
-        <p>"When the Big Store told me they’d have to send my PC in and it would be 2–3 weeks, I decided to try a local store. Not only did The Computer Store fix my problem a lot faster, they did so at just under half the cost."</p>
-        <h4>– Matt, Topeka</h4>
-      </div>
-      <div class="testimonial">
-        <p>"My hard drive stopped working all together and I had no backup. I thought all was lost but the technician managed to get my drive working long enough to get the data onto another drive saving me a lot of headache and money – thank you Computer Store!"</p>
-        <h4>– Andrew, Topeka</h4>
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Call to action encouraging visitors to sign up for a protection plan -->
-  <section class="cta">
-    <div class="container">
-      <h2>Sign Up for a Protection Plan</h2>
-      <p>Fill out the form on our contact page to enquire about our Computer Protection Plans.</p>
-      <a href="brochure_contact.html" class="btn">Get Protected</a>
-      <p class="note">*Three‑month agreement required</p>
-    </div>
-  </section>
+    <!-- MEMBERSHIP/PROTECTION PLAN SECTION - Detailed plan information with image -->
+    <section class="membership">
+      <div class="container membership-container">
+        <!-- Plan promotional image -->
+        <div class="membership-image">
+          <img src="assets/silver_plan.png" alt="Silver Plan Membership">
+        </div>
+        
+        <!-- Plan details and benefits list -->
+        <div class="membership-text">
+          <h2>Unlock All the Benefits with Our Protection Plans</h2>
+          <p>Our Silver Plan provides comprehensive care for your computer. For only $24.99 per month (with a three‑month commitment), you'll receive:</p>
+          
+          <!-- Bulleted list of plan features -->
+          <ul class="membership-features">
+            <li>Anti‑virus software</li>
+            <li>50% off virus removal services</li>
+            <li>Preventive maintenance service</li>
+            <li>Limited help desk/remote support</li>
+            <li>Free in‑store diagnostics and estimates</li>
+            <li>Performance monitoring and alert service</li>
+            <li>5% discount on labour, hardware and software</li>
+          </ul>
+          
+          <!-- Contact information for plan signup -->
+          <p class="membership-note"><strong>Ready to get protected?</strong> Contact us at <a href="mailto:contact@computerstoreks.com">contact@computerstoreks.com</a> or call 785‑267‑3223 to sign up today!</p>
+        </div>
+      </div>
+    </section>
 
+    <!-- TESTIMONIALS SECTION - Customer reviews and feedback -->
+    <section class="testimonials">
+      <div class="container">
+        <h2>Client Testimonials</h2>
+        <!-- Testimonial content populated dynamically from configuration data -->
+        <!-- Individual testimonials are created by JavaScript from config.js -->
+      </div>
+    </section>
+
+    <!-- HOME PAGE CALL-TO-ACTION SECTION - Final conversion push -->
+    <section class="cta">
+      <div class="container">
+        <h2>Sign Up for a Protection Plan</h2>
+        <p>Fill out the form on our contact page to enquire about our Computer Protection Plans.</p>
+        <a href="#" data-page="contact" class="btn nav-link">Get Protected</a>
+        <p class="note">*Three‑month agreement required</p>
+      </div>
+    </section>
+  </div>
+
+  <!-- ================================================
+       ABOUT PAGE SECTION
+       Company information, story, and why choose us
+       Hidden by default - shown when About nav is clicked
+       ================================================ -->
+  <div id="about-page" class="page-section">
+    
+    <!-- ABOUT PAGE HERO SECTION -->
+    <section class="hero">
+      <div class="container">
+        <h2>About Us</h2>
+        <p>Who we are and why we love fixing computers.</p>
+      </div>
+    </section>
+
+    <!-- COMPANY STORY SECTION -->
+    <section class="about">
+      <div class="container">
+        <h2>Our Story</h2>
+        <p>The Computer Store has been proudly serving the Topeka community since 2003.
+          We're passionate about helping our customers get the most out of their technology with fast, friendly and honest service. 
+          Our technicians are certified and experienced in working with all major brands and systems. From virus removal and data recovery 
+          to upgrades and custom PC builds, we provide a full range of computer services for homes and small businesses. 
+          When you work with us, you're not just another ticket – you're part of our community.</p>
+      </div>
+    </section>
+
+    <!-- WHY CHOOSE US SECTION - Key differentiators -->
+    <section class="services">
+      <div class="container">
+        <h2>Why Choose Us?</h2>
+        <div class="cards">
+          <!-- Differentiator 1 -->
+          <div class="card">
+            <h3>Reliability</h3>
+            <p>count on us for dependable repairs and support</p>
+          </div>
+          
+          <!-- Differentiator 2 -->
+          <div class="card">
+            <h3>Personalized approach</h3>
+            <p>solutions tailored to your unique needs</p>
+          </div>
+          
+          <!-- Differentiator 3 -->
+          <div class="card">
+            <h3>Timely delivery</h3>
+            <p>quick turnaround so you're back up and running</p>
+          </div>
+          
+          <!-- Differentiator 4 -->
+          <div class="card">
+            <h3>High Standards</h3>
+            <p>quality workmanship backed by decades of experience</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT PAGE CALL-TO-ACTION SECTION -->
+    <section class="cta">
+      <div class="container">
+        <h2>Ready to Experience the Difference?</h2>
+        <p>Contact us today to schedule an appointment or drop by our
+        shop. We look forward to serving you.</p>
+        <a href="#" data-page="contact" class="btn nav-link">Get in Touch</a>
+      </div>
+    </section>
+  </div>
+
+  <!-- ================================================
+       SERVICES PAGE SECTION
+       Detailed breakdown of all services offered
+       Hidden by default - shown when Services nav is clicked
+       ================================================ -->
+  <div id="services-page" class="page-section">
+    
+    <!-- SERVICES PAGE HERO SECTION -->
+    <section class="hero">
+      <div class="container">
+        <h2>Our Services</h2>
+        <p>Comprehensive support for your computers and devices.</p>
+      </div>
+    </section>
+
+    <!-- DETAILED SERVICES SECTION - All service offerings -->
+    <section class="services">
+      <div class="container">
+        <h2>What We Offer</h2>
+        <div class="cards">
+          <!-- Service 1 -->
+          <div class="card">
+            <h3>Diagnostics</h3>
+            <p>Thorough troubleshooting to identify issues quickly and accurately.</p>
+          </div>
+          
+          <!-- Service 2 -->
+          <div class="card">
+            <h3>Virus & Malware Removal</h3>
+            <p>Deep cleaning and protection against viruses, spyware and other malware.</p>
+          </div>
+          
+          <!-- Service 3 -->
+          <div class="card">
+            <h3>Hardware Repair</h3>
+            <p>Replacement of failing components such as hard drives, screens and power supplies.</p>
+          </div>
+          
+          <!-- Service 4 -->
+          <div class="card">
+            <h3>Upgrades & Builds</h3>
+            <p>Performance upgrades and custom PC builds tailored to your needs and budget.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SERVICES PAGE CALL-TO-ACTION SECTION -->
+    <section class="cta">
+      <div class="container">
+        <h2>Not Sure What You Need?</h2>
+        <p>Contact us for a free consultation and we'll help you find the right solution.</p>
+        <a href="#" data-page="contact" class="btn nav-link">Talk to an Expert</a>
+      </div>
+    </section>
+  </div>
+
+  <!-- ================================================
+       CONTACT PAGE SECTION
+       Contact form and business information
+       Hidden by default - shown when Contact nav is clicked
+       ================================================ -->
+  <div id="contact-page" class="page-section">
+    
+    <!-- CONTACT PAGE HERO SECTION -->
+    <section class="hero">
+      <div class="container">
+        <h2>Inquire About Protection Plans</h2>
+        <p>Fill out the form below to enquire about our Computer Protection Plans. A three‑month agreement is required.</p>
+      </div>
+    </section>
+
+    <!-- CONTACT FORM AND INFO SECTION -->
+    <section class="contact">
+      <div class="container">
+        <h2>Inquire About Protection Plans</h2>
+        <p>Fill out the form below to enquire about our Computer Protection Plans. A three‑month agreement is required.</p>
+        
+        <!-- CONTACT FORM - Handles API submission via JavaScript -->
+        <form id="contactForm" action="javascript:void(0)">
+          <!-- Name input field -->
+          <label for="name">Name</label>
+          <input type="text" id="name" name="name" placeholder="Your name">
+          
+          <!-- Email input field -->
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="Your email">
+          
+          <!-- Message textarea field -->
+          <label for="message">Message</label>
+          <textarea id="message" name="message" rows="5" placeholder="Tell us how we can help"></textarea>
+          
+          <!-- Submit button -->
+          <button type="submit" class="btn">Send Message</button>
+          
+          <!-- Status message area - populated by JavaScript after form submission -->
+          <div id="formStatus" aria-live="polite" style="margin-top: 10px;"></div>
+        </form>
+        
+        <!-- BUSINESS CONTACT INFORMATION -->
+        <!-- Contact details populated dynamically from configuration data -->
+        <div class="contact-info">
+          <!-- This content is populated by JavaScript from config.js -->
+          <p><strong>Phone:</strong> <span class="loading">Loading...</span></p>
+          <p><strong>Email:</strong> <span class="loading">Loading...</span></p>
+          <p><strong>Address:</strong> <span class="loading">Loading...</span></p>
+          <p><strong>Hours:</strong> <span class="loading">Loading...</span></p>
+          <p class="note">*Three‑month agreement required</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ================================================
+       LOGIN MODAL SECTION
+       Modal overlay for employee login
+       Hidden by default - shown when Employee Login is clicked
+       ================================================ -->
+  <div id="login-modal" class="modal">
+    <div class="modal-content">
+      <!-- Close button for modal -->
+      <button class="modal-close" id="modal-close">&times;</button>
+      
+      <!-- Modal content -->
+      <h1>Repair Shop Login</h1>
+      <p>This page will redirect to our secure login soon.</p>
+      
+      <!-- Return to home button -->
+      <p><a class="btn" href="#" data-page="home" id="back-to-home">← Back to Home</a></p>
+    </div>
+  </div>
+
+  <!-- ================================================
+       SITE FOOTER SECTION
+       Copyright and legal information
+       ================================================ -->
   <footer>
     <div class="container">
+      <!-- Copyright text - populated dynamically from configuration -->
       <p>&copy; 2025 Computer Store Kansas All rights reserved.</p>
     </div>
   </footer>
 
-  <!-- Script to toggle mobile navigation -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const hamburger = document.getElementById('hamburger-button');
-      const navList = document.querySelector('header nav ul');
-      if (hamburger && navList) {
-        hamburger.addEventListener('click', function () {
-          navList.classList.toggle('show');
-        });
-      }
-    });
-  </script>
+  <!-- ================================================
+       EXTERNAL JAVASCRIPT FILES
+       Load configuration first, then main functionality
+       ================================================ -->
+  
+  <!-- Website configuration data - MUST load before main script -->
+  <script src="js/config.js"></script>
+  
+  <!-- Main JavaScript functionality - requires config.js to be loaded first -->
+  <script src="js/script.js"></script>
 </body>
 </html>

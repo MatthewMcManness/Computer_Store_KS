@@ -18,10 +18,10 @@
  * 10. Event Listeners & Initialization
  * ================================================ */
 
-console.log('[script.js] loaded');
+console.log('[site.js] loaded');
 
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('[script.js] DOM ready');
+  console.log('[site.js] DOM ready');
 
   /* ================================================
      1. ELEMENT REFERENCES & INITIAL SETUP
@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   const config = window.siteConfig;                           // Reference to configuration data
-  console.log('[config.js] Configuration loaded successfully');
+  console.log('[site.js] Configuration loaded successfully');
 
   /* ================================================
      3. DYNAMIC CONTENT POPULATION
@@ -243,13 +243,42 @@ document.addEventListener('DOMContentLoaded', function() {
   
   /* ================================================
      4. MOBILE NAVIGATION TOGGLE
-     Handle hamburger menu for mobile devices
+     Handle hamburger menu for mobile devices with icon switching
      ================================================ */
   if (hamburger && navList) {
     hamburger.addEventListener('click', function() {
-      // Toggle the 'show' class to display/hide mobile navigation
-      navList.classList.toggle('show');
+      // STEP 1: Toggle the mobile navigation menu visibility
+      const isMenuOpen = navList.classList.toggle('show');
+      
+      // STEP 2: Toggle hamburger icon between ☰ (hamburger) and ✕ (close)
+      if (isMenuOpen) {
+        // Menu is now open - change hamburger to close (X) icon
+        hamburger.classList.add('active');
+        hamburger.setAttribute('aria-label', 'Close menu'); // Accessibility
+        hamburger.setAttribute('aria-expanded', 'true');    // Screen reader support
+      } else {
+        // Menu is now closed - change back to hamburger icon
+        hamburger.classList.remove('active');
+        hamburger.setAttribute('aria-label', 'Open menu');  // Accessibility
+        hamburger.setAttribute('aria-expanded', 'false');   // Screen reader support
+      }
     });
+  }
+
+  /**
+   * Close mobile menu and reset hamburger icon
+   * Called when navigation links are clicked or when needed to programmatically close menu
+   */
+  function closeMobileMenu() {
+    if (navList && hamburger) {
+      // STEP 1: Hide the mobile navigation menu
+      navList.classList.remove('show');
+      
+      // STEP 2: Reset hamburger icon back to hamburger (☰) state
+      hamburger.classList.remove('active');
+      hamburger.setAttribute('aria-label', 'Open menu');    // Reset accessibility label
+      hamburger.setAttribute('aria-expanded', 'false');     // Reset screen reader state
+    }
   }
 
   /* ================================================
@@ -292,10 +321,8 @@ document.addEventListener('DOMContentLoaded', function() {
       document.title = config.site.name; // Fallback to site name
     }
     
-    // STEP 6: Close mobile menu if it's open
-    if (navList) {
-      navList.classList.remove('show');
-    }
+    // STEP 6: Close mobile menu if it's open (using our helper function)
+    closeMobileMenu();
     
     // STEP 7: Scroll to top for better user experience
     window.scrollTo(0, 0);
@@ -476,14 +503,40 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   /* ================================================
-     10. KEYBOARD EVENT HANDLERS
-     Handle keyboard shortcuts and accessibility
+     10. KEYBOARD EVENT HANDLERS & ADDITIONAL MOBILE MENU FEATURES
+     Handle keyboard shortcuts, accessibility, and enhanced mobile menu behavior
      ================================================ */
   
-  // Handle escape key to close modal
+  // Handle escape key to close modal AND mobile menu
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && loginModal && loginModal.classList.contains('active')) {
-      closeModal();                               // Close modal when Escape is pressed
+    if (e.key === 'Escape') {
+      // Close login modal if open
+      if (loginModal && loginModal.classList.contains('active')) {
+        closeModal();
+      }
+      // Close mobile menu if open
+      if (navList && navList.classList.contains('show')) {
+        closeMobileMenu();
+      }
+    }
+  });
+
+  // Close mobile menu when clicking outside of it (improved user experience)
+  document.addEventListener('click', function(e) {
+    // Check if mobile menu is open
+    if (navList && navList.classList.contains('show')) {
+      // Check if click was outside the navigation and hamburger button
+      if (!navList.contains(e.target) && !hamburger.contains(e.target)) {
+        closeMobileMenu();
+      }
+    }
+  });
+
+  // Close mobile menu when screen is resized to desktop size (prevents menu staying open)
+  window.addEventListener('resize', function() {
+    // If screen becomes wider than mobile breakpoint, close mobile menu
+    if (window.innerWidth > 768) {
+      closeMobileMenu();
     }
   });
 

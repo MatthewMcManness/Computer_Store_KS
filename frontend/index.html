@@ -10,10 +10,10 @@
   <title>Computer Store Kansas</title>
   
   <!-- External stylesheet containing all consolidated styles -->
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="./css/style.css">
   
   <!-- Favicon for browser tab icon -->
-  <link rel="icon" href="assets/logo.png" type="image/png">
+  <link rel="icon" href="./assets/logo.png" type="image/png">
 </head>
 <body>
 
@@ -25,10 +25,14 @@
   <header>
     <div class="container">
       <!-- Company logo/branding - clickable title graphic -->
-      <h1 class="logo"><img src="assets/title.png" alt="Computer Store Kansas"></h1>
+      <h1 class="logo"><img src="./assets/title.png" alt="Computer Store Kansas"></h1>
       
       <!-- Mobile hamburger menu button - only visible on small screens -->
-      <button class="hamburger" id="hamburger-button">&#9776;</button>
+      <!-- Transforms between hamburger (☰) and close (✕) icons when clicked -->
+      <button class="hamburger" id="hamburger-button" 
+              aria-label="Open menu" 
+              aria-expanded="false" 
+              type="button"></button>
       
       <!-- Main navigation menu -->
       <nav>
@@ -58,7 +62,7 @@
       <div class="container">
         <!-- Large title graphic for branding impact -->
         <div class="hero-title">
-          <img src="assets/title.png" alt="Computer Store Kansas">
+          <img src="./assets/title.png" alt="Computer Store Kansas">
         </div>
         
         <!-- Main headline and call-to-action -->
@@ -73,7 +77,7 @@
       <div class="container founder-container">
         <!-- Founder photo -->
         <div class="founder-image">
-          <img src="assets/jim.png" alt="Jim Driggers - Founder">
+          <img src="./assets/jim.png" alt="Jim Driggers - Founder">
         </div>
         
         <!-- Founder story and quote -->
@@ -90,6 +94,16 @@
       <div class="container highlights-container">
         <!-- Highlight content populated dynamically from configuration data -->
         <!-- Individual highlights are created by JavaScript from config.js -->
+        <!-- Fallback content for when JavaScript is disabled -->
+        <div class="highlight">
+          <h3>Friendly, Reliable Service</h3>
+        </div>
+        <div class="highlight">
+          <h3>Locally Owned Since 2003</h3>
+        </div>
+        <div class="highlight">
+          <h3>20+ Years in Business</h3>
+        </div>
       </div>
     </section>
 
@@ -101,6 +115,19 @@
           <!-- Service cards populated dynamically from configuration data -->
           <!-- Individual service cards are created by JavaScript from config.js -->
           <!-- This allows easy updating of services without modifying HTML -->
+          <!-- Fallback content for when JavaScript is disabled -->
+          <div class="card">
+            <h3>Computer Service</h3>
+            <p>Comprehensive diagnostics, repairs and upgrades for desktops and laptops.</p>
+          </div>
+          <div class="card">
+            <h3>Protection Plans</h3>
+            <p>Flexible plans to safeguard your system from viruses, malware and identity theft.</p>
+          </div>
+          <div class="card">
+            <h3>New Computer Sales</h3>
+            <p>Let our non‑commissioned team help you build or choose the perfect PC for your needs.</p>
+          </div>
         </div>
       </div>
     </section>
@@ -110,7 +137,7 @@
       <div class="container membership-container">
         <!-- Plan promotional image -->
         <div class="membership-image">
-          <img src="assets/silver_plan.png" alt="Silver Plan Membership">
+          <img src="./assets/silver_plan.png" alt="Silver Plan Membership">
         </div>
         
         <!-- Plan details and benefits list -->
@@ -141,6 +168,19 @@
         <h2>Client Testimonials</h2>
         <!-- Testimonial content populated dynamically from configuration data -->
         <!-- Individual testimonials are created by JavaScript from config.js -->
+        <!-- Fallback content for when JavaScript is disabled -->
+        <div class="testimonial">
+          <p>"Signing up for a Computer Protection Plan from The Computer Store was the best decision I've made in years. My computer has never run better and no more worries about spyware stealing my identity while online!"</p>
+          <h4>– Kristina Jones, Topeka</h4>
+        </div>
+        <div class="testimonial">
+          <p>"When the Big Store told me they'd have to send my PC in and it would be 2–3 weeks, I decided to try a local store. Not only did The Computer Store fix my problem a lot faster, they did so at just under half the cost."</p>
+          <h4>– Matt, Topeka</h4>
+        </div>
+        <div class="testimonial">
+          <p>"My hard drive stopped working all together and I had no backup. I thought all was lost but the technician managed to get my drive working long enough to get the data onto another drive saving me a lot of headache and money – thank you Computer Store!"</p>
+          <h4>– Andrew, Topeka</h4>
+        </div>
       </div>
     </section>
 
@@ -187,25 +227,19 @@
       <div class="container">
         <h2>Why Choose Us?</h2>
         <div class="cards">
-          <!-- Differentiator 1 -->
+          <!-- Differentiator content populated dynamically or fallback content -->
           <div class="card">
             <h3>Reliability</h3>
             <p>count on us for dependable repairs and support</p>
           </div>
-          
-          <!-- Differentiator 2 -->
           <div class="card">
             <h3>Personalized approach</h3>
             <p>solutions tailored to your unique needs</p>
           </div>
-          
-          <!-- Differentiator 3 -->
           <div class="card">
             <h3>Timely delivery</h3>
             <p>quick turnaround so you're back up and running</p>
           </div>
-          
-          <!-- Differentiator 4 -->
           <div class="card">
             <h3>High Standards</h3>
             <p>quality workmanship backed by decades of experience</p>
@@ -245,25 +279,19 @@
       <div class="container">
         <h2>What We Offer</h2>
         <div class="cards">
-          <!-- Service 1 -->
+          <!-- Service content populated dynamically or fallback content -->
           <div class="card">
             <h3>Diagnostics</h3>
             <p>Thorough troubleshooting to identify issues quickly and accurately.</p>
           </div>
-          
-          <!-- Service 2 -->
           <div class="card">
             <h3>Virus & Malware Removal</h3>
             <p>Deep cleaning and protection against viruses, spyware and other malware.</p>
           </div>
-          
-          <!-- Service 3 -->
           <div class="card">
             <h3>Hardware Repair</h3>
             <p>Replacement of failing components such as hard drives, screens and power supplies.</p>
           </div>
-          
-          <!-- Service 4 -->
           <div class="card">
             <h3>Upgrades & Builds</h3>
             <p>Performance upgrades and custom PC builds tailored to your needs and budget.</p>
@@ -328,10 +356,10 @@
         <!-- Contact details populated dynamically from configuration data -->
         <div class="contact-info">
           <!-- This content is populated by JavaScript from config.js -->
-          <p><strong>Phone:</strong> <span class="loading">Loading...</span></p>
-          <p><strong>Email:</strong> <span class="loading">Loading...</span></p>
-          <p><strong>Address:</strong> <span class="loading">Loading...</span></p>
-          <p><strong>Hours:</strong> <span class="loading">Loading...</span></p>
+          <p><strong>Phone:</strong> 785‑267‑3223</p>
+          <p><strong>Email:</strong> contact@computerstoreks.com</p>
+          <p><strong>Address:</strong> 2008 SW Gage Blvd, Topeka, KS 66604</p>
+          <p><strong>Hours:</strong> Monday&nbsp;–&nbsp;Friday 10:00&nbsp;am&nbsp;–&nbsp;6:00&nbsp;pm<br>Saturday 10:00&nbsp;am&nbsp;–&nbsp;2:00&nbsp;pm</p>
           <p class="note">*Three‑month agreement required</p>
         </div>
       </div>
@@ -369,14 +397,72 @@
   </footer>
 
   <!-- ================================================
+       ERROR DETECTION AND FALLBACK SCRIPT
+       Detects if main JavaScript fails and provides fallback
+       ================================================ -->
+  <script>
+    // Simple error detection
+    window.addEventListener('error', function(e) {
+      console.error('JavaScript Error:', e.error);
+    });
+    
+    // Check if scripts load properly
+    let scriptsLoaded = 0;
+    function checkScripts() {
+      scriptsLoaded++;
+      if (scriptsLoaded >= 2) {
+        console.log('All scripts loaded successfully');
+      }
+    }
+  </script>
+
+  <!-- ================================================
        EXTERNAL JAVASCRIPT FILES
        Load configuration first, then main functionality
        ================================================ -->
   
   <!-- Website configuration data - MUST load before main script -->
-  <script src="js/config.js"></script>
+  <script src="./js/config.js" onload="checkScripts()"></script>
   
   <!-- Main JavaScript functionality - requires config.js to be loaded first -->
-  <script src="js/script.js"></script>
+  <script src="./js/script.js" onload="checkScripts()"></script>
+
+  <!-- ================================================
+       FALLBACK NAVIGATION SCRIPT
+       Basic navigation if main scripts fail
+       ================================================ -->
+  <script>
+    // Fallback navigation if main script fails
+    setTimeout(function() {
+      if (typeof window.siteConfig === 'undefined') {
+        console.warn('Configuration not loaded, using fallback navigation');
+        
+        // Simple fallback navigation
+        document.querySelectorAll('.nav-link').forEach(function(link) {
+          link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const pageId = this.getAttribute('data-page');
+            
+            // Hide all pages
+            document.querySelectorAll('.page-section').forEach(function(page) {
+              page.classList.remove('active');
+            });
+            
+            // Show target page
+            const targetPage = document.getElementById(pageId + '-page');
+            if (targetPage) {
+              targetPage.classList.add('active');
+            }
+            
+            // Update nav active states
+            document.querySelectorAll('.nav-link').forEach(function(navLink) {
+              navLink.classList.remove('active');
+            });
+            this.classList.add('active');
+          });
+        });
+      }
+    }, 2000);
+  </script>
 </body>
 </html>

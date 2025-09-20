@@ -4,28 +4,189 @@
 ===============================================
 COMPUTER STORE KANSAS - CONSOLIDATED HTML
 ===============================================
-VERSION: 25
+VERSION: 26
 LAST UPDATED: 2025-09-20
-CHANGES: Converted Silver Plan from modal to dedicated page, moved membership section 
-         from home page to new silver-plan-page, updated navigation to use data-page attribute
+CHANGES: Added Google Analytics 4, comprehensive SEO meta tags, structured data,
+         Open Graph tags, and search engine optimization
 DESCRIPTION: Single-page application with dynamic navigation and content management
 DEPENDENCIES: css/style.css, js/config.js, js/script.js
 ===============================================
 -->
 <head>
   <!-- ================================================
-       DOCUMENT HEAD SECTION
-       Sets up page metadata, title, and external resources
+       GOOGLE ANALYTICS 4 TRACKING
+       Tracks page views and user interactions for better insights
+       ================================================ -->
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-EQ3ML3VTCZ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-EQ3ML3VTCZ');
+</script>
+
+  <!-- ================================================
+       BASIC META TAGS & SEO OPTIMIZATION
+       Essential meta tags for search engines and browsers
        ================================================ -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Computer Store Kansas</title>
+  <meta name="description" content="Computer Store Kansas - Your trusted computer repair and protection plan provider since 2003. Expert computer services, virus removal, hardware repair, and Silver Plan protection in Topeka, KS.">
+  <meta name="keywords" content="computer repair, computer service, Topeka Kansas, virus removal, hardware repair, protection plans, Silver Plan, computer store, PC repair, laptop repair">
+  <meta name="author" content="Computer Store Kansas">
+  <meta name="robots" content="index, follow">
   
-  <!-- External stylesheet containing all consolidated styles -->
+  <!-- Business Information -->
+  <meta name="geo.region" content="US-KS">
+  <meta name="geo.placename" content="Topeka">
+  <meta name="geo.position" content="39.0473;-95.6890">
+  <meta name="ICBM" content="39.0473, -95.6890">
+  
+  <!-- Mobile Optimization -->
+  <meta name="format-detection" content="telephone=yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#081e5b">
+
+  <!-- ================================================
+       OPEN GRAPH TAGS (FACEBOOK, LINKEDIN)
+       Social media sharing optimization
+       ================================================ -->
+  <meta property="og:title" content="Computer Store Kansas - Expert Computer Repair & Protection Plans">
+  <meta property="og:description" content="Trusted computer repair and protection services in Topeka, KS since 2003. Professional diagnostics, virus removal, hardware repair, and comprehensive Silver Plan protection.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://tcs-frontend-uf5q.onrender.com">
+  <meta property="og:image" content="https://tcs-frontend-uf5q.onrender.com/assets/title.png">
+  <meta property="og:site_name" content="Computer Store Kansas">
+  <meta property="og:locale" content="en_US">
+  
+  <!-- Business Open Graph -->
+  <meta property="business:contact_data:locality" content="Topeka">
+  <meta property="business:contact_data:region" content="Kansas">
+  <meta property="business:contact_data:postal_code" content="66604">
+  <meta property="business:contact_data:country_name" content="United States">
+
+  <!-- ================================================
+       TWITTER CARD TAGS
+       Twitter sharing optimization
+       ================================================ -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Computer Store Kansas - Expert Computer Repair & Protection Plans">
+  <meta name="twitter:description" content="Trusted computer repair and protection services in Topeka, KS since 2003. Professional diagnostics, virus removal, hardware repair, and comprehensive Silver Plan protection.">
+  <meta name="twitter:image" content="https://tcs-frontend-uf5q.onrender.com/assets/title.png">
+
+  <!-- ================================================
+       CANONICAL URL & ALTERNATE VERSIONS
+       SEO optimization for duplicate content prevention
+       ================================================ -->
+  <link rel="canonical" href="https://tcs-frontend-uf5q.onrender.com">
+  
+  <!-- ================================================
+       PAGE TITLE & FAVICON
+       Dynamic title updated by JavaScript, favicon for browsers
+       ================================================ -->
+  <title>Computer Store Kansas - Expert Computer Repair & Protection Plans Since 2003</title>
+  
+  <!-- Favicon and Apple Touch Icons -->
+  <link rel="icon" href="./assets/logo.png" type="image/png">
+  <link rel="apple-touch-icon" href="./assets/logo.png">
+  <link rel="shortcut icon" href="./assets/logo.png">
+
+  <!-- ================================================
+       EXTERNAL STYLESHEETS
+       CSS files for styling and layout
+       ================================================ -->
   <link rel="stylesheet" href="./css/style.css">
   
-  <!-- Favicon for browser tab icon -->
-  <link rel="icon" href="./assets/logo.png" type="image/png">
+  <!-- ================================================
+       STRUCTURED DATA (JSON-LD)
+       Rich snippets for search engines - business information
+       ================================================ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "Computer Store Kansas",
+    "description": "Professional computer repair, diagnostics, virus removal, and protection plans serving Topeka, Kansas since 2003.",
+    "url": "https://computerstoreks.com",
+    "telephone": "785-267-3223",
+    "email": "contact@computerstoreks.com",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "2008 SW Gage Blvd",
+      "addressLocality": "Topeka",
+      "addressRegion": "KS",
+      "postalCode": "66604",
+      "addressCountry": "US"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": 39.0473,
+      "longitude": -95.6890
+    },
+    "openingHours": [
+      "Mo-Fr 10:00-18:00",
+      "Sa 10:00-14:00"
+    ],
+    "foundingDate": "2003",
+    "founder": {
+      "@type": "Person",
+      "name": "Jim Driggers"
+    },
+    "areaServed": {
+      "@type": "City",
+      "name": "Topeka",
+      "addressRegion": "KS",
+      "addressCountry": "US"
+    },
+    "serviceType": [
+      "Computer Repair",
+      "Virus Removal",
+      "Hardware Repair",
+      "Computer Diagnostics",
+      "Protection Plans",
+      "Computer Sales"
+    ],
+    "priceRange": "$",
+    "paymentAccepted": ["Cash", "Credit Card"],
+    "image": "https://tcs-frontend-uf5q.onrender.com/assets/title.png",
+    "logo": "https://tcs-frontend-uf5q.onrender.com/assets/logo.png"
+  }
+  </script>
+
+  <!-- ================================================
+       ADDITIONAL STRUCTURED DATA - SERVICES
+       Rich snippets for services offered
+       ================================================ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "Silver Plan Computer Protection",
+    "description": "Comprehensive computer protection plan including anti-virus software, virus removal discounts, preventive maintenance, help desk support, and hardware/software discounts.",
+    "provider": {
+      "@type": "LocalBusiness",
+      "name": "Computer Store Kansas"
+    },
+    "areaServed": {
+      "@type": "City",
+      "name": "Topeka",
+      "addressRegion": "KS"
+    },
+    "offers": {
+      "@type": "Offer",
+      "price": "24.99",
+      "priceCurrency": "USD",
+      "priceSpecification": {
+        "@type": "RecurringPaymentFrequency",
+        "frequency": "monthly"
+      }
+    }
+  }
+  </script>
 </head>
 <body>
 
@@ -82,7 +243,7 @@ DEPENDENCIES: css/style.css, js/config.js, js/script.js
       <div class="container membership-container">
         <!-- Plan promotional image -->
         <div class="membership-image">
-          <img src="./assets/silver_plan.png" alt="Silver Plan Membership">
+          <img src="./assets/silver_plan.png" alt="Silver Plan Membership - Computer Protection Plan">
         </div>
         
         <!-- Plan details and benefits list -->
@@ -129,7 +290,7 @@ DEPENDENCIES: css/style.css, js/config.js, js/script.js
       <div class="container">
         <!-- Large title graphic for branding impact -->
         <div class="hero-title">
-          <img src="./assets/title.png" alt="Computer Store Kansas">
+          <img src="./assets/title.png" alt="Computer Store Kansas - Expert Computer Repair Since 2003">
         </div>
         
         <!-- Main headline and call-to-action -->
@@ -144,7 +305,7 @@ DEPENDENCIES: css/style.css, js/config.js, js/script.js
       <div class="container founder-container">
         <!-- Founder photo -->
         <div class="founder-image">
-          <img src="./assets/jim.png" alt="Jim Driggers - Founder">
+          <img src="./assets/jim.png" alt="Jim Driggers - Computer Store Kansas Founder">
         </div>
         
         <!-- Founder story and quote -->

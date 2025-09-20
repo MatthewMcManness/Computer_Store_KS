@@ -32,7 +32,7 @@
    Define global color palette and design tokens
    ================================================ */
 :root {
-  --primary-color: #0d6efd;      /* Main blue brand color */
+  --primary-color: #081e5b;      /* Main blue brand color */
   --secondary-color: #c0c0c0;    /* Silver accent color */
   --text-color: #343a40;         /* Main text color */
   --background-color: #f8f9fa;   /* Page background */

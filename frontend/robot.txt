@@ -1,0 +1,24 @@
+# robots.txt for Computer Store Kansas
+# This file tells search engines which parts of the site they can crawl
+
+# Allow all search engines to crawl the entire site
+User-agent: *
+Allow: /
+
+# Sitemap location for search engines
+Sitemap: https://tcs-frontend-uf5q.onrender.com/sitemap.xml
+
+# Optional: Crawl delay (time in seconds between requests)
+# Crawl-delay: 1
+
+# Block access to any sensitive or admin areas (add as needed)
+# Disallow: /admin/
+# Disallow: /.env
+# Disallow: /config/
+
+# Allow social media crawlers for better sharing
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Twitterbot
+Allow: /

@@ -2,25 +2,26 @@
  * ================================================
  * COMPUTER STORE KANSAS - CONSOLIDATED JAVASCRIPT
  * ================================================
- * VERSION: 6
+ * VERSION: 7
  * LAST UPDATED: 2025-09-20
- * CHANGES: Added Silver Plan page navigation support, removed Silver Plan modal functionality,
- *          updated navigation system to handle silver-plan as regular page
+ * CHANGES: Added Google Analytics 4 page tracking for single-page application,
+ *          enhanced SEO with page view events and user interaction tracking
  * DESCRIPTION: Combines mobile navigation, page switching, modal handling, contact form,
- *              and dynamic content management from configuration data
- * DEPENDENCIES: config.js (must be loaded first)
+ *              dynamic content management, and Google Analytics tracking
+ * DEPENDENCIES: config.js (must be loaded first), Google Analytics gtag
  * 
  * Table of Contents:
  * 1. Initialization & DOM Ready Setup
  * 2. Configuration Data Management
- * 3. Dynamic Content Population
- * 4. Mobile Navigation Toggle
- * 5. Single-Page App Navigation System
- * 6. Login Modal Functionality
- * 7. Contact Form Handling
- * 8. Browser History Management
- * 9. Utility Functions
- * 10. Event Listeners & Initialization
+ * 3. Google Analytics Integration
+ * 4. Dynamic Content Population
+ * 5. Mobile Navigation Toggle
+ * 6. Single-Page App Navigation System
+ * 7. Login Modal Functionality
+ * 8. Contact Form Handling
+ * 9. Browser History Management
+ * 10. Utility Functions
+ * 11. Event Listeners & Initialization
  * ================================================
  */
 
@@ -53,7 +54,83 @@ document.addEventListener('DOMContentLoaded', function() {
   console.log('[site.js] Configuration loaded successfully');
 
   /* ================================================
-     3. DYNAMIC CONTENT POPULATION
+     3. GOOGLE ANALYTICS INTEGRATION
+     Track page views and user interactions for single-page application
+     ================================================ */
+
+  /**
+   * Track a page view in Google Analytics
+   * @param {string} pageId - The page identifier (home, about, services, etc.)
+   * @param {string} pageTitle - The page title for analytics
+   */
+  function trackPageView(pageId, pageTitle) {
+    // Check if Google Analytics is loaded
+    if (typeof gtag === 'function') {
+      console.log('[Analytics] Tracking page view:', pageId);
+      
+      // Send page view event to Google Analytics
+      gtag('config', 'G-EQ3ML3VTCZ', {
+        page_title: pageTitle,
+        page_location: window.location.href,
+        page_path: pageId === 'home' ? '/' : `/#${pageId}`
+      });
+      
+      // Send custom event for page navigation
+      gtag('event', 'page_view', {
+        page_title: pageTitle,
+        page_location: window.location.href,
+        page_path: pageId === 'home' ? '/' : `/#${pageId}`,
+        custom_page_id: pageId
+      });
+    } else {
+      console.warn('[Analytics] Google Analytics not loaded');
+    }
+  }
+
+  /**
+   * Track user interactions and events
+   * @param {string} eventName - Name of the event
+   * @param {string} category - Event category
+   * @param {string} label - Event label (optional)
+   * @param {number} value - Event value (optional)
+   */
+  function trackEvent(eventName, category, label = '', value = null) {
+    if (typeof gtag === 'function') {
+      console.log('[Analytics] Tracking event:', eventName, category, label);
+      
+      const eventData = {
+        event_category: category,
+        event_label: label
+      };
+      
+      if (value !== null) {
+        eventData.value = value;
+      }
+      
+      gtag('event', eventName, eventData);
+    }
+  }
+
+  /**
+   * Track contact form interactions
+   * @param {string} action - The action taken (form_start, form_submit, form_success, form_error)
+   * @param {string} formType - Type of form (contact_modal, etc.)
+   */
+  function trackContactForm(action, formType = 'contact_modal') {
+    trackEvent(action, 'contact_form', formType);
+    
+    // Special tracking for form completion
+    if (action === 'form_success') {
+      gtag('event', 'conversion', {
+        send_to: 'G-EQ3ML3VTCZ',
+        event_category: 'contact_form',
+        event_label: 'lead_generated'
+      });
+    }
+  }
+
+  /* ================================================
+     4. DYNAMIC CONTENT POPULATION
      Functions to populate website content from configuration data
      ================================================ */
 
@@ -248,7 +325,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   /* ================================================
-     4. MOBILE NAVIGATION TOGGLE
+     5. MOBILE NAVIGATION TOGGLE
      Handle hamburger menu for mobile devices with icon switching
      ================================================ */
   if (hamburger && navList) {
@@ -262,11 +339,17 @@ document.addEventListener('DOMContentLoaded', function() {
         hamburger.classList.add('active');
         hamburger.setAttribute('aria-label', 'Close menu'); // Accessibility
         hamburger.setAttribute('aria-expanded', 'true');    // Screen reader support
+        
+        // Track mobile menu open event
+        trackEvent('mobile_menu_open', 'navigation', 'hamburger_menu');
       } else {
         // Menu is now closed - change back to hamburger icon
         hamburger.classList.remove('active');
         hamburger.setAttribute('aria-label', 'Open menu');  // Accessibility
         hamburger.setAttribute('aria-expanded', 'false');   // Screen reader support
+        
+        // Track mobile menu close event
+        trackEvent('mobile_menu_close', 'navigation', 'hamburger_menu');
       }
     });
   }
@@ -288,7 +371,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   /* ================================================
-     5. SINGLE-PAGE APP NAVIGATION SYSTEM
+     6. SINGLE-PAGE APP NAVIGATION SYSTEM
      Core function to switch between different page sections
      ================================================ */
   
@@ -323,18 +406,25 @@ document.addEventListener('DOMContentLoaded', function() {
     const pageConfig = config.navigation.pages.find(page => page.id === pageId);
     if (pageConfig) {
       document.title = pageConfig.display_title;
+      
+      // STEP 6: Track page view in Google Analytics
+      trackPageView(pageId, pageConfig.display_title);
     } else {
       document.title = config.site.name; // Fallback to site name
+      trackPageView(pageId, config.site.name);
     }
     
-    // STEP 6: Close mobile menu if it's open (using our helper function)
+    // STEP 7: Close mobile menu if it's open (using our helper function)
     closeMobileMenu();
     
-    // STEP 7: Scroll to top for better user experience
+    // STEP 8: Scroll to top for better user experience
     window.scrollTo(0, 0);
     
-    // STEP 8: Update browser history for back/forward button support
+    // STEP 9: Update browser history for back/forward button support
     history.pushState({page: pageId}, '', window.location.pathname + (pageId !== 'home' ? '#' + pageId : ''));
+    
+    // STEP 10: Track navigation event
+    trackEvent('page_navigation', 'navigation', pageId);
   }
 
   /* ================================================
@@ -349,6 +439,7 @@ document.addEventListener('DOMContentLoaded', function() {
       // Special handling for contact link - open modal instead of page navigation
       if (pageId === 'contact') {
         contactModal.classList.add('active');       // Open contact modal
+        trackEvent('contact_modal_open', 'contact_form', 'navigation_link');
         return;                                     // Don't navigate to contact page
       }
       
@@ -359,7 +450,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   /* ================================================
-     6. MODAL FUNCTIONALITY (LOGIN & CONTACT)
+     7. MODAL FUNCTIONALITY (LOGIN & CONTACT)
      Handle login modal and contact form modal display and interaction
      ================================================ */
   
@@ -379,6 +470,7 @@ document.addEventListener('DOMContentLoaded', function() {
     loginBtn.addEventListener('click', function(e) {
       e.preventDefault();                       // Prevent default link behavior
       loginModal.classList.add('active');      // Show the login modal
+      trackEvent('admin_login_modal_open', 'administration', 'footer_button');
     });
   }
 
@@ -387,6 +479,10 @@ document.addEventListener('DOMContentLoaded', function() {
     button.addEventListener('click', function(e) {
       e.preventDefault();                       // Prevent default behavior
       contactModal.classList.add('active');    // Show the contact modal
+      
+      // Track which button was clicked
+      const buttonText = this.textContent.trim();
+      trackEvent('contact_modal_open', 'contact_form', buttonText);
     });
   });
 
@@ -396,6 +492,7 @@ document.addEventListener('DOMContentLoaded', function() {
   function closeLoginModal() {
     if (loginModal) {
       loginModal.classList.remove('active');   // Hide the login modal
+      trackEvent('admin_login_modal_close', 'administration', 'modal_close');
     }
   }
 
@@ -405,6 +502,7 @@ document.addEventListener('DOMContentLoaded', function() {
   function closeContactModal() {
     if (contactModal) {
       contactModal.classList.remove('active'); // Hide the contact modal
+      trackEvent('contact_modal_close', 'contact_form', 'modal_close');
       
       // Reset form if it exists
       const form = document.getElementById('contactForm');
@@ -456,7 +554,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   /* ================================================
-     7. CONTACT FORM HANDLING
+     8. CONTACT FORM HANDLING
      Handle contact form submission and API communication using config data
      Form is now in a modal for better UX
      ================================================ */
@@ -473,6 +571,9 @@ document.addEventListener('DOMContentLoaded', function() {
     async function submitForm(e) {
       e.preventDefault();                       // Prevent default form submission
       console.log('[site.js] submit fired');
+      
+      // Track form start
+      trackContactForm('form_start');
 
       // STEP 1: Get form elements with modal-specific IDs
       const nameField = document.getElementById('modal-name');
@@ -496,6 +597,7 @@ document.addEventListener('DOMContentLoaded', function() {
         statusEl.style.backgroundColor = '#f8d7da'; // Light red background
         statusEl.style.padding = '0.5rem';
         statusEl.style.borderRadius = '6px';
+        trackContactForm('form_error', 'validation_error');
         return;
       }
       
@@ -505,6 +607,9 @@ document.addEventListener('DOMContentLoaded', function() {
       submitBtn.disabled = true;                // Disable submit button
       btnText.style.display = 'none';           // Hide submit text
       btnLoading.style.display = 'inline';     // Show loading text
+      
+      // Track form submission attempt
+      trackContactForm('form_submit');
 
       try {
         // STEP 5: Send data to API using endpoint from configuration
@@ -534,6 +639,9 @@ document.addEventListener('DOMContentLoaded', function() {
           statusEl.style.borderRadius = '6px';
           form.reset();                         // Clear form fields
           
+          // Track successful form submission
+          trackContactForm('form_success');
+          
           // Auto-close modal after 3 seconds
           setTimeout(() => {
             closeContactModal();
@@ -545,6 +653,7 @@ document.addEventListener('DOMContentLoaded', function() {
           statusEl.style.backgroundColor = '#f8d7da'; // Light red background
           statusEl.style.padding = '0.5rem';
           statusEl.style.borderRadius = '6px';
+          trackContactForm('form_error', 'api_error');
         }
       } catch (err) {
         // NETWORK ERROR: Handle fetch failures
@@ -554,6 +663,7 @@ document.addEventListener('DOMContentLoaded', function() {
         statusEl.style.backgroundColor = '#f8d7da'; // Light red background
         statusEl.style.padding = '0.5rem';
         statusEl.style.borderRadius = '6px';
+        trackContactForm('form_error', 'network_error');
       } finally {
         // STEP 8: Reset button state
         submitBtn.disabled = false;             // Re-enable submit button
@@ -569,7 +679,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   /* ================================================
-     8. BROWSER HISTORY MANAGEMENT
+     9. BROWSER HISTORY MANAGEMENT
      Handle browser back/forward buttons and URL hash navigation
      ================================================ */
   
@@ -581,7 +691,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   /* ================================================
-     9. UTILITY FUNCTIONS
+     10. UTILITY FUNCTIONS
      Helper functions for URL parsing and page initialization
      ================================================ */
   
@@ -607,7 +717,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   /* ================================================
-     10. KEYBOARD EVENT HANDLERS & ADDITIONAL MOBILE MENU FEATURES
+     11. KEYBOARD EVENT HANDLERS & ADDITIONAL MOBILE MENU FEATURES
      Handle keyboard shortcuts, accessibility, and enhanced mobile menu behavior
      ================================================ */
   
@@ -649,7 +759,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   /* ================================================
-     11. ADDITIONAL FEATURES & UTILITIES
+     12. ADDITIONAL FEATURES & UTILITIES
      Optional features and compatibility functions
      ================================================ */
   
@@ -658,9 +768,19 @@ document.addEventListener('DOMContentLoaded', function() {
   if (yearElement) {
     yearElement.textContent = new Date().getFullYear(); // Set current year
   }
+  
+  // Track scroll depth for user engagement
+  let maxScrollDepth = 0;
+  window.addEventListener('scroll', function() {
+    const scrollDepth = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
+    if (scrollDepth > maxScrollDepth && scrollDepth % 25 === 0) {
+      maxScrollDepth = scrollDepth;
+      trackEvent('scroll_depth', 'engagement', `${scrollDepth}%`, scrollDepth);
+    }
+  });
 
   /* ================================================
-     12. INITIALIZATION & STARTUP
+     13. INITIALIZATION & STARTUP
      Initialize the page and complete setup
      ================================================ */
   
@@ -669,6 +789,9 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Initialize the page based on current URL
   initializePage();
+  
+  // Track initial page load
+  trackEvent('site_loaded', 'engagement', 'initial_load');
 
   console.log('[site.js] initialization complete');
 });

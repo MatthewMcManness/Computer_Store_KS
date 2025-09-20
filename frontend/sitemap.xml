@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+================================================
+COMPUTER STORE KANSAS - XML SITEMAP
+================================================
+VERSION: 1
+LAST UPDATED: 2025-09-20
+DESCRIPTION: XML sitemap for search engine optimization
+             Lists all pages and their update frequencies
+DEPENDENCIES: None (standalone XML file)
+================================================
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+        
+  <!-- Home Page - Main landing page -->
+  <url>
+    <loc>https://tcs-frontend-uf5q.onrender.com/</loc>
+    <lastmod>2025-09-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  
+  <!-- Silver Plan Page - Protection plan details -->
+  <url>
+    <loc>https://tcs-frontend-uf5q.onrender.com/#silver-plan</loc>
+    <lastmod>2025-09-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
+  <!-- About Page - Company information -->
+  <url>
+    <loc>https://tcs-frontend-uf5q.onrender.com/#about</loc>
+    <lastmod>2025-09-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- Services Page - Service offerings -->
+  <url>
+    <loc>https://tcs-frontend-uf5q.onrender.com/#services</loc>
+    <lastmod>2025-09-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- Contact Page - Contact information -->
+  <url>
+    <loc>https://tcs-frontend-uf5q.onrender.com/#contact</loc>
+    <lastmod>2025-09-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+</urlset>

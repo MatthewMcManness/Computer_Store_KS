@@ -2,11 +2,14 @@
  * ================================================
  * COMPUTER STORE KANSAS - WEBSITE CONFIGURATION
  * ================================================
- * Centralized configuration and content management
- * 
- * This file contains all website content, business information,
- * and configuration settings. Update this file to change
- * website content without modifying HTML/CSS files.
+ * VERSION: 5
+ * LAST UPDATED: 2025-09-19
+ * CHANGES: Initial configuration system for centralized content management
+ * DESCRIPTION: Centralized configuration and content management
+ *              This file contains all website content, business information,
+ *              and configuration settings. Update this file to change
+ *              website content without modifying HTML/CSS files.
+ * DEPENDENCIES: None (standalone configuration file, loaded by script.js)
  * 
  * Table of Contents:
  * 1. Site Information & Branding

@@ -2,8 +2,13 @@
  * ================================================
  * COMPUTER STORE KANSAS - CONSOLIDATED STYLESHEET
  * ================================================
- * Combines brochure.css, reset.css, and theme.css with optimizations
- * Contains all styles for single-page application navigation
+ * VERSION: 14
+ * LAST UPDATED: 2025-09-19
+ * CHANGES: Enhanced mobile hamburger menu with animated hamburger ↔ X toggle,
+ *          fixed hamburger visibility on desktop (hidden), improved mobile UX
+ * DESCRIPTION: Combines brochure.css, reset.css, and theme.css with optimizations
+ *              Contains all styles for single-page application navigation
+ * DEPENDENCIES: None (standalone CSS file)
  * 
  * Table of Contents:
  * 1. CSS Variables & Root Styles

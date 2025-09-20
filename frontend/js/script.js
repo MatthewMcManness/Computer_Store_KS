@@ -2,8 +2,13 @@
  * ================================================
  * COMPUTER STORE KANSAS - CONSOLIDATED JAVASCRIPT
  * ================================================
- * Combines mobile navigation, page switching, modal handling, contact form,
- * and dynamic content management from configuration data
+ * VERSION: 6
+ * LAST UPDATED: 2025-09-20
+ * CHANGES: Added Silver Plan page navigation support, removed Silver Plan modal functionality,
+ *          updated navigation system to handle silver-plan as regular page
+ * DESCRIPTION: Combines mobile navigation, page switching, modal handling, contact form,
+ *              and dynamic content management from configuration data
+ * DEPENDENCIES: config.js (must be loaded first)
  * 
  * Table of Contents:
  * 1. Initialization & DOM Ready Setup
@@ -16,7 +21,8 @@
  * 8. Browser History Management
  * 9. Utility Functions
  * 10. Event Listeners & Initialization
- * ================================================ */
+ * ================================================
+ */
 
 console.log('[site.js] loaded');
 
@@ -288,7 +294,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
   /**
    * Show a specific page and update navigation states
-   * @param {string} pageId - The ID of the page to show (home, about, services, contact)
+   * @param {string} pageId - The ID of the page to show (silver-plan, home, about, services, contact)
    */
   function showPage(pageId) {
     // STEP 1: Hide all page sections
@@ -368,9 +374,6 @@ document.addEventListener('DOMContentLoaded', function() {
   const contactModalClose = document.getElementById('contact-modal-close'); // Contact modal close button
   const contactModalBtns = document.querySelectorAll('.contact-modal-btn'); // All contact modal trigger buttons
 
-  // Silver Plan button element
-  const silverPlanBtn = document.getElementById('silver-plan-btn'); // Silver Plan navigation button
-
   // Show login modal when Administrator Login is clicked (button now in footer)
   if (loginBtn) {
     loginBtn.addEventListener('click', function(e) {
@@ -386,18 +389,6 @@ document.addEventListener('DOMContentLoaded', function() {
       contactModal.classList.add('active');    // Show the contact modal
     });
   });
-
-  // Silver Plan button click handler (placeholder for future functionality)
-  if (silverPlanBtn) {
-    silverPlanBtn.addEventListener('click', function(e) {
-      e.preventDefault();                       // Prevent default link behavior
-      console.log('[site.js] Silver Plan button clicked - functionality coming soon!');
-      
-      // TODO: Add Silver Plan page/modal functionality
-      // For now, show a temporary alert
-      alert('Silver Plan page coming soon! 🎉');
-    });
-  }
 
   /**
    * Close the login modal and remove from display

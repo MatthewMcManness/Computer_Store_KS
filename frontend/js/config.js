@@ -2,9 +2,9 @@
  * ================================================
  * COMPUTER STORE KANSAS - WEBSITE CONFIGURATION
  * ================================================
- * VERSION: 5
- * LAST UPDATED: 2025-09-19
- * CHANGES: Initial configuration system for centralized content management
+ * VERSION: 6
+ * LAST UPDATED: 2025-09-20
+ * CHANGES: Added Silver Plan page to navigation structure, added silver plan page content
  * DESCRIPTION: Centralized configuration and content management
  *              This file contains all website content, business information,
  *              and configuration settings. Update this file to change
@@ -82,6 +82,11 @@ window.siteConfig = {
      ================================================ */
   navigation: {
     pages: [
+      {
+        id: "silver-plan",                           // Silver Plan page identifier
+        title: "Silver Plan",                       // Display name in navigation
+        display_title: "Computer Protection – Silver Plan" // Browser tab title
+      },
       {
         id: "home",                                   // Page identifier used in JavaScript
         title: "Home",                               // Display name in navigation
@@ -243,6 +248,14 @@ window.siteConfig = {
      Specific content for different pages
      ================================================ */
   pageContent: {
+    // Silver Plan page content
+    silverPlan: {
+      hero: {
+        title: "Silver Plan Protection",
+        description: "Comprehensive computer protection and maintenance for peace of mind."
+      }
+    },
+    
     // Home page hero section
     home: {
       hero: {

@@ -4,10 +4,10 @@
 ===============================================
 COMPUTER STORE KANSAS - CONSOLIDATED HTML
 ===============================================
-VERSION: 24
-LAST UPDATED: 2025-09-19
-CHANGES: Fixed CTA button styling (removed .btn class, kept .contact-modal-btn for blue styling),
-         unified all CTA button labels to "Talk to an Expert" for consistency
+VERSION: 25
+LAST UPDATED: 2025-09-20
+CHANGES: Converted Silver Plan from modal to dedicated page, moved membership section 
+         from home page to new silver-plan-page, updated navigation to use data-page attribute
 DESCRIPTION: Single-page application with dynamic navigation and content management
 DEPENDENCIES: css/style.css, js/config.js, js/script.js
 ===============================================
@@ -49,8 +49,8 @@ DEPENDENCIES: css/style.css, js/config.js, js/script.js
       <!-- Main navigation menu -->
       <nav>
         <ul>
-          <!-- Silver Plan animated button - FIRST position for prominence -->
-          <li class="nav-action silver"><a href="#" id="silver-plan-btn">Silver Plan</a></li>
+          <!-- Silver Plan navigation link - FIRST position for prominence -->
+          <li class="nav-action silver"><a href="#" data-page="silver-plan" class="nav-link">Silver Plan</a></li>
           
           <!-- Main page navigation links - use data-page attribute for JavaScript routing -->
           <li><a href="#" data-page="home" class="nav-link active">Home</a></li>
@@ -63,9 +63,64 @@ DEPENDENCIES: css/style.css, js/config.js, js/script.js
   </header>
 
   <!-- ================================================
+       SILVER PLAN PAGE SECTION
+       Dedicated page for Silver Plan protection plan details
+       Hidden by default - shown when Silver Plan nav is clicked
+       ================================================ -->
+  <div id="silver-plan-page" class="page-section">
+    
+    <!-- SILVER PLAN PAGE HERO SECTION -->
+    <section class="hero">
+      <div class="container">
+        <h2>Silver Plan Protection</h2>
+        <p>Comprehensive computer protection and maintenance for peace of mind.</p>
+      </div>
+    </section>
+
+    <!-- SILVER PLAN DETAILED INFORMATION SECTION - Moved from home page -->
+    <section class="membership">
+      <div class="container membership-container">
+        <!-- Plan promotional image -->
+        <div class="membership-image">
+          <img src="./assets/silver_plan.png" alt="Silver Plan Membership">
+        </div>
+        
+        <!-- Plan details and benefits list -->
+        <div class="membership-text">
+          <h2>Unlock All the Benefits with Our Protection Plans</h2>
+          <p>Our Silver Plan provides comprehensive care for your computer. For only $24.99 per month (with a three‑month commitment), you'll receive:</p>
+          
+          <!-- Bulleted list of plan features -->
+          <ul class="membership-features">
+            <li>Anti‑virus software</li>
+            <li>50% off virus removal services</li>
+            <li>Preventive maintenance service</li>
+            <li>Limited help desk/remote support</li>
+            <li>Free in‑store diagnostics and estimates</li>
+            <li>Performance monitoring and alert service</li>
+            <li>5% discount on labour, hardware and software</li>
+          </ul>
+          
+          <!-- Contact information for plan signup -->
+          <p class="membership-note"><strong>Ready to get protected?</strong> Contact us at <a href="mailto:contact@computerstoreks.com">contact@computerstoreks.com</a> or call 785‑267‑3223 to sign up today!</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SILVER PLAN CALL-TO-ACTION SECTION -->
+    <section class="cta">
+      <div class="container">
+        <h2>Ready to Get Protected?</h2>
+        <p>Sign up for our Silver Plan today and enjoy comprehensive computer protection.</p>
+        <button class="contact-modal-btn">Sign Up Now</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- ================================================
        HOME PAGE SECTION
        Main landing page content - shown by default
-       Contains hero, founder, highlights, services, membership, testimonials, and CTA
+       Contains hero, founder, highlights, services, testimonials, and CTA
        ================================================ -->
   <div id="home-page" class="page-section active">
     
@@ -140,36 +195,6 @@ DEPENDENCIES: css/style.css, js/config.js, js/script.js
             <h3>New Computer Sales</h3>
             <p>Let our non‑commissioned team help you build or choose the perfect PC for your needs.</p>
           </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- MEMBERSHIP/PROTECTION PLAN SECTION - Detailed plan information with image -->
-    <section class="membership">
-      <div class="container membership-container">
-        <!-- Plan promotional image -->
-        <div class="membership-image">
-          <img src="./assets/silver_plan.png" alt="Silver Plan Membership">
-        </div>
-        
-        <!-- Plan details and benefits list -->
-        <div class="membership-text">
-          <h2>Unlock All the Benefits with Our Protection Plans</h2>
-          <p>Our Silver Plan provides comprehensive care for your computer. For only $24.99 per month (with a three‑month commitment), you'll receive:</p>
-          
-          <!-- Bulleted list of plan features -->
-          <ul class="membership-features">
-            <li>Anti‑virus software</li>
-            <li>50% off virus removal services</li>
-            <li>Preventive maintenance service</li>
-            <li>Limited help desk/remote support</li>
-            <li>Free in‑store diagnostics and estimates</li>
-            <li>Performance monitoring and alert service</li>
-            <li>5% discount on labour, hardware and software</li>
-          </ul>
-          
-          <!-- Contact information for plan signup -->
-          <p class="membership-note"><strong>Ready to get protected?</strong> Contact us at <a href="mailto:contact@computerstoreks.com">contact@computerstoreks.com</a> or call 785‑267‑3223 to sign up today!</p>
         </div>
       </div>
     </section>

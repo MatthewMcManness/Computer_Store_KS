@@ -333,12 +333,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
   /* ================================================
      NAVIGATION LINK EVENT LISTENERS
-     Attach click handlers to all navigation links
+     Attach click handlers to all navigation links with special contact handling
      ================================================ */
   navLinks.forEach(link => {
     link.addEventListener('click', function(e) {
       e.preventDefault();                           // Prevent default link behavior
       const pageId = this.getAttribute('data-page'); // Get target page ID
+      
+      // Special handling for contact link - open modal instead of page navigation
+      if (pageId === 'contact') {
+        contactModal.classList.add('active');       // Open contact modal
+        return;                                     // Don't navigate to contact page
+      }
+      
       if (pageId) {
         showPage(pageId);                           // Switch to target page
       }
@@ -346,52 +353,113 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   /* ================================================
-     6. LOGIN MODAL FUNCTIONALITY
-     Handle employee login modal display and interaction
+     6. MODAL FUNCTIONALITY (LOGIN & CONTACT)
+     Handle login modal and contact form modal display and interaction
      ================================================ */
   
   // Get references to modal elements
-  const loginBtn = document.getElementById('login-btn');        // Employee Login button
-  const loginModal = document.getElementById('login-modal');    // Modal container
-  const modalClose = document.getElementById('modal-close');    // Close button (X)
+  const loginBtn = document.getElementById('login-btn');        // Administrator Login button (now in footer)
+  const loginModal = document.getElementById('login-modal');    // Login modal container
+  const modalClose = document.getElementById('modal-close');    // Login modal close button
   const backToHome = document.getElementById('back-to-home');   // Back to Home button
 
-  // Show modal when Employee Login is clicked
+  // Contact modal elements
+  const contactModal = document.getElementById('contact-modal'); // Contact modal container
+  const contactModalClose = document.getElementById('contact-modal-close'); // Contact modal close button
+  const contactModalBtns = document.querySelectorAll('.contact-modal-btn'); // All contact modal trigger buttons
+
+  // Silver Plan button element
+  const silverPlanBtn = document.getElementById('silver-plan-btn'); // Silver Plan navigation button
+
+  // Show login modal when Administrator Login is clicked (button now in footer)
   if (loginBtn) {
     loginBtn.addEventListener('click', function(e) {
       e.preventDefault();                       // Prevent default link behavior
-      loginModal.classList.add('active');      // Show the modal
+      loginModal.classList.add('active');      // Show the login modal
+    });
+  }
+
+  // Show contact modal when any contact button is clicked
+  contactModalBtns.forEach(button => {
+    button.addEventListener('click', function(e) {
+      e.preventDefault();                       // Prevent default behavior
+      contactModal.classList.add('active');    // Show the contact modal
+    });
+  });
+
+  // Silver Plan button click handler (placeholder for future functionality)
+  if (silverPlanBtn) {
+    silverPlanBtn.addEventListener('click', function(e) {
+      e.preventDefault();                       // Prevent default link behavior
+      console.log('[site.js] Silver Plan button clicked - functionality coming soon!');
+      
+      // TODO: Add Silver Plan page/modal functionality
+      // For now, show a temporary alert
+      alert('Silver Plan page coming soon! 🎉');
     });
   }
 
   /**
    * Close the login modal and remove from display
    */
-  function closeModal() {
+  function closeLoginModal() {
     if (loginModal) {
-      loginModal.classList.remove('active');   // Hide the modal
+      loginModal.classList.remove('active');   // Hide the login modal
     }
   }
 
-  // Close modal when X button is clicked
-  if (modalClose) {
-    modalClose.addEventListener('click', closeModal);
+  /**
+   * Close the contact modal and remove from display
+   */
+  function closeContactModal() {
+    if (contactModal) {
+      contactModal.classList.remove('active'); // Hide the contact modal
+      
+      // Reset form if it exists
+      const form = document.getElementById('contactForm');
+      const statusEl = document.getElementById('formStatus');
+      if (form) {
+        form.reset();                          // Clear form fields
+      }
+      if (statusEl) {
+        statusEl.textContent = '';             // Clear status message
+        statusEl.className = 'form-status';    // Reset status styling
+      }
+    }
   }
 
-  // Close modal and return to home when "Back to Home" is clicked
+  // Close login modal when X button is clicked
+  if (modalClose) {
+    modalClose.addEventListener('click', closeLoginModal);
+  }
+
+  // Close contact modal when X button is clicked
+  if (contactModalClose) {
+    contactModalClose.addEventListener('click', closeContactModal);
+  }
+
+  // Close login modal and return to home when "Back to Home" is clicked
   if (backToHome) {
     backToHome.addEventListener('click', function(e) {
       e.preventDefault();                       // Prevent default link behavior
-      closeModal();                             // Close the modal first
+      closeLoginModal();                        // Close the login modal first
       showPage('home');                         // Navigate to home page
     });
   }
 
-  // Close modal when clicking outside the modal content (on backdrop)
+  // Close modals when clicking outside the modal content (on backdrop)
   if (loginModal) {
     loginModal.addEventListener('click', function(e) {
       if (e.target === loginModal) {            // Check if click was on backdrop
-        closeModal();                           // Close the modal
+        closeLoginModal();                      // Close the login modal
+      }
+    });
+  }
+
+  if (contactModal) {
+    contactModal.addEventListener('click', function(e) {
+      if (e.target === contactModal) {          // Check if click was on backdrop
+        closeContactModal();                    // Close the contact modal
       }
     });
   }
@@ -399,10 +467,11 @@ document.addEventListener('DOMContentLoaded', function() {
   /* ================================================
      7. CONTACT FORM HANDLING
      Handle contact form submission and API communication using config data
+     Form is now in a modal for better UX
      ================================================ */
   
   // Get references to form elements
-  const form = document.getElementById('contactForm');          // Contact form
+  const form = document.getElementById('contactForm');          // Contact form (in modal)
   const statusEl = document.getElementById('formStatus');       // Status message display
 
   if (form && statusEl) {
@@ -414,22 +483,47 @@ document.addEventListener('DOMContentLoaded', function() {
       e.preventDefault();                       // Prevent default form submission
       console.log('[site.js] submit fired');
 
-      // STEP 1: Extract form data
-      const data = Object.fromEntries(new FormData(form).entries());
+      // STEP 1: Get form elements with modal-specific IDs
+      const nameField = document.getElementById('modal-name');
+      const emailField = document.getElementById('modal-email');
+      const messageField = document.getElementById('modal-message');
+      const submitBtn = form.querySelector('.btn-primary');
+      const btnText = submitBtn.querySelector('.btn-text');
+      const btnLoading = submitBtn.querySelector('.btn-loading');
+
+      // STEP 2: Extract form data
+      const data = {
+        name: nameField.value.trim(),
+        email: emailField.value.trim(),
+        message: messageField.value.trim()
+      };
+
+      // STEP 3: Basic validation
+      if (!data.name || !data.email || !data.message) {
+        statusEl.textContent = 'Please fill in all fields.';
+        statusEl.style.color = '#dc3545';       // Red color for error
+        statusEl.style.backgroundColor = '#f8d7da'; // Light red background
+        statusEl.style.padding = '0.5rem';
+        statusEl.style.borderRadius = '6px';
+        return;
+      }
       
-      // STEP 2: Show loading state
-      statusEl.textContent = 'Sending...';
-      statusEl.style.color = '#666';            // Grey color for loading state
+      // STEP 4: Show loading state
+      statusEl.textContent = '';                // Clear previous status
+      statusEl.style.backgroundColor = '';      // Clear previous styling
+      submitBtn.disabled = true;                // Disable submit button
+      btnText.style.display = 'none';           // Hide submit text
+      btnLoading.style.display = 'inline';     // Show loading text
 
       try {
-        // STEP 3: Send data to API using endpoint from configuration
+        // STEP 5: Send data to API using endpoint from configuration
         const res = await fetch(config.api.contact_endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)
         });
 
-        // STEP 4: Handle API response
+        // STEP 6: Handle API response
         // Read raw text first to surface non-JSON errors
         const text = await res.text();
         let payload;
@@ -439,22 +533,41 @@ document.addEventListener('DOMContentLoaded', function() {
           payload = { errorText: text };        // Fallback for non-JSON responses
         }
 
-        // STEP 5: Display result to user
+        // STEP 7: Display result to user
         if (res.ok) {
           // SUCCESS: Show success message and reset form
-          statusEl.textContent = 'Thanks! We\'ll be in touch soon.';
-          statusEl.style.color = '#28a745';     // Green color for success
+          statusEl.textContent = '✅ Thanks! We\'ll be in touch soon.';
+          statusEl.style.color = '#155724';     // Green color for success
+          statusEl.style.backgroundColor = '#d4edda'; // Light green background
+          statusEl.style.padding = '0.5rem';
+          statusEl.style.borderRadius = '6px';
           form.reset();                         // Clear form fields
+          
+          // Auto-close modal after 3 seconds
+          setTimeout(() => {
+            closeContactModal();
+          }, 3000);
         } else {
           // ERROR: Show error message
-          statusEl.textContent = payload?.error || payload?.errorText || 'Something went wrong. Please try again.';
-          statusEl.style.color = '#dc3545';     // Red color for error
+          statusEl.textContent = '❌ ' + (payload?.error || payload?.errorText || 'Something went wrong. Please try again.');
+          statusEl.style.color = '#721c24';     // Red color for error
+          statusEl.style.backgroundColor = '#f8d7da'; // Light red background
+          statusEl.style.padding = '0.5rem';
+          statusEl.style.borderRadius = '6px';
         }
       } catch (err) {
         // NETWORK ERROR: Handle fetch failures
         console.error('[site.js] fetch error', err);
-        statusEl.textContent = 'Network error. Please try again.';
-        statusEl.style.color = '#dc3545';       // Red color for error
+        statusEl.textContent = '❌ Network error. Please check your connection and try again.';
+        statusEl.style.color = '#721c24';       // Red color for error
+        statusEl.style.backgroundColor = '#f8d7da'; // Light red background
+        statusEl.style.padding = '0.5rem';
+        statusEl.style.borderRadius = '6px';
+      } finally {
+        // STEP 8: Reset button state
+        submitBtn.disabled = false;             // Re-enable submit button
+        btnText.style.display = 'inline';       // Show submit text
+        btnLoading.style.display = 'none';     // Hide loading text
       }
 
       return false;                             // Extra guard against navigation
@@ -507,12 +620,16 @@ document.addEventListener('DOMContentLoaded', function() {
      Handle keyboard shortcuts, accessibility, and enhanced mobile menu behavior
      ================================================ */
   
-  // Handle escape key to close modal AND mobile menu
+  // Handle escape key to close modals AND mobile menu
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
       // Close login modal if open
       if (loginModal && loginModal.classList.contains('active')) {
-        closeModal();
+        closeLoginModal();
+      }
+      // Close contact modal if open
+      if (contactModal && contactModal.classList.contains('active')) {
+        closeContactModal();
       }
       // Close mobile menu if open
       if (navList && navList.classList.contains('show')) {

@@ -2,10 +2,10 @@
  * ================================================
  * COMPUTER STORE KANSAS - CONSOLIDATED STYLESHEET
  * ================================================
- * VERSION: 14
+ * VERSION: 18
  * LAST UPDATED: 2025-09-19
- * CHANGES: Enhanced mobile hamburger menu with animated hamburger ↔ X toggle,
- *          fixed hamburger visibility on desktop (hidden), improved mobile UX
+ * CHANGES: Added footer layout for Administrator Login button, created admin-login-btn styling,
+ *          improved mobile footer responsiveness, enhanced button consistency
  * DESCRIPTION: Combines brochure.css, reset.css, and theme.css with optimizations
  *              Contains all styles for single-page application navigation
  * DEPENDENCIES: None (standalone CSS file)
@@ -21,7 +21,7 @@
  * 8. Content Sections (Services, About, etc.)
  * 9. Contact Form
  * 10. Specialized Sections (Founder, Testimonials, etc.)
- * 11. Login Modal
+ * 11. Login & Contact Modals
  * 12. Footer
  * 13. Mobile Responsive Styles
  * ================================================
@@ -32,11 +32,11 @@
    Define global color palette and design tokens
    ================================================ */
 :root {
-  --primary-color: #081e5b;      /* Main blue brand color */
-  --secondary-color: #c0c0c0;    /* Silver accent color */
-  --text-color: #343a40;         /* Main text color */
-  --background-color: #f8f9fa;   /* Page background */
-  --light-grey: #f5f5f5;         /* Light section backgrounds */
+  --primary-color: #081e5b;       /* Dark navy blue to match header */
+  --secondary-color: #c0c0c0;     /* Silver accent color */
+  --text-color: #343a40;          /* Main text color */
+  --background-color: #f8f9fa;    /* Page background */
+  --light-grey: #f5f5f5;          /* Light section backgrounds */
 }
 
 /* ================================================
@@ -173,6 +173,65 @@ header nav ul .nav-action.primary a {
 
 header nav ul .nav-action.primary a:hover {
   filter: brightness(1.06);       /* Slightly brighter on hover */
+}
+
+/* Silver Plan action button styling - animated shiny silver effect */
+header nav ul .nav-action.silver a {
+  background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 25%, #f5f5f5 50%, #e8e8e8 75%, #c0c0c0 100%);
+  background-size: 200% 200%;     /* Make gradient larger for animation */
+  border-color: #a8a8a8;          /* Darker silver border */
+  color: #2c2c2c;                 /* Dark text for contrast on silver */
+  font-weight: 700;               /* Bolder text for premium feel */
+  text-shadow: 0 1px 1px rgba(255,255,255,0.5); /* Subtle white text shadow */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.3); /* Metallic depth */
+  animation: silverShine 3s ease-in-out infinite; /* Continuous shiny animation */
+  position: relative;             /* For pseudo-element positioning */
+  overflow: hidden;               /* Hide overflow for shine effect */
+}
+
+/* Silver button hover effect */
+header nav ul .nav-action.silver a:hover {
+  background: linear-gradient(135deg, #d4d4d4 0%, #f0f0f0 25%, #ffffff 50%, #f0f0f0 75%, #d4d4d4 100%);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.4); /* Enhanced depth on hover */
+  transform: translateY(-1px);    /* Subtle lift effect */
+}
+
+/* Shiny silver animation keyframes */
+@keyframes silverShine {
+  0% {
+    background-position: -200% center;
+  }
+  50% {
+    background-position: 200% center;
+  }
+  100% {
+    background-position: -200% center;
+  }
+}
+
+/* Additional shine overlay effect for silver button */
+header nav ul .nav-action.silver a::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  animation: shineSweep 2s ease-in-out infinite; /* Sweeping shine effect */
+}
+
+/* Shine sweep animation */
+@keyframes shineSweep {
+  0% {
+    left: -100%;
+  }
+  50% {
+    left: 100%;
+  }
+  100% {
+    left: -100%;
+  }
 }
 
 /* ================================================
@@ -615,11 +674,11 @@ form button {
 }
 
 /* ================================================
-   11. LOGIN MODAL
-   Modal overlay for employee login functionality
+   11. LOGIN & CONTACT MODALS
+   Modal overlays for employee login and contact form functionality
    ================================================ */
 
-/* Modal backdrop */
+/* Modal backdrop - shared by all modals */
 .modal {
   display: none;                  /* Hidden by default */
   position: fixed;                /* Fixed position over entire viewport */
@@ -632,22 +691,145 @@ form button {
   backdrop-filter: blur(4px);     /* Blur background content */
 }
 
-/* Active modal state */
+/* Active modal state - shared by all modals */
 .modal.active {
   display: flex;                  /* Show modal with flex layout */
   align-items: center;            /* Center vertically */
   justify-content: center;        /* Center horizontally */
+  animation: fadeIn 0.3s ease;    /* Smooth fade in animation */
 }
 
-/* Modal content container */
+/* Modal content container - base styling for all modals */
 .modal-content {
   background-color: #fff;         /* White background */
   padding: 2rem;                  /* Internal spacing */
-  border-radius: 8px;             /* Rounded corners */
+  border-radius: 12px;            /* Rounded corners */
   max-width: 500px;               /* Maximum width */
   width: 90%;                     /* Responsive width */
   position: relative;             /* For close button positioning */
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); /* Strong shadow for depth */
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); /* Strong shadow for depth */
+  animation: slideUp 0.3s ease;   /* Smooth slide up animation */
+}
+
+/* Contact modal specific styling - larger and more form-friendly */
+.contact-modal-content {
+  max-width: 600px;               /* Wider for form content */
+  max-height: 90vh;               /* Limit height on small screens */
+  overflow-y: auto;               /* Scroll if content is too tall */
+}
+
+/* Modal header styling */
+.modal-header {
+  text-align: center;             /* Center header content */
+  margin-bottom: 1.5rem;          /* Space below header */
+  padding-bottom: 1rem;           /* Padding below header */
+  border-bottom: 1px solid #eee;  /* Subtle separator line */
+}
+
+.modal-header h1 {
+  color: var(--primary-color);    /* Blue heading color */
+  margin-bottom: 0.5rem;          /* Space below heading */
+  font-size: 1.8rem;              /* Large heading */
+}
+
+.modal-header p {
+  color: #666;                    /* Muted description text */
+  margin: 0;                      /* No additional margin */
+}
+
+/* Modal form styling */
+.modal-form {
+  margin-bottom: 1.5rem;          /* Space below form */
+}
+
+.form-group {
+  margin-bottom: 1rem;            /* Space between form fields */
+}
+
+.form-group label {
+  display: block;                 /* Full width labels */
+  margin-bottom: 0.5rem;          /* Space below labels */
+  font-weight: 600;               /* Bold labels */
+  color: var(--text-color);       /* Standard text color */
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;                    /* Full width inputs */
+  padding: 0.75rem;               /* Comfortable padding */
+  border: 2px solid #e1e5e9;      /* Light border */
+  border-radius: 8px;             /* Rounded corners */
+  font-size: 1rem;                /* Standard font size */
+  transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Smooth focus transitions */
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;                  /* Remove default outline */
+  border-color: var(--primary-color); /* Blue border on focus */
+  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1); /* Subtle blue glow */
+}
+
+/* Form actions area */
+.form-actions {
+  text-align: center;             /* Center form buttons */
+  margin-top: 1.5rem;             /* Space above actions */
+}
+
+.btn-primary {
+  background-color: var(--primary-color); /* Blue background */
+  color: white;                   /* White text */
+  border: none;                   /* No border */
+  padding: 0.75rem 2rem;          /* Generous padding */
+  font-size: 1rem;                /* Standard font size */
+  font-weight: 600;               /* Bold text */
+  border-radius: 8px;             /* Rounded corners */
+  cursor: pointer;                /* Pointer cursor */
+  transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transitions */
+  min-width: 140px;               /* Minimum width for loading states */
+}
+
+.btn-primary:hover {
+  background-color: #0b5ed7;      /* Darker blue on hover */
+  transform: translateY(-1px);    /* Subtle lift effect */
+}
+
+.btn-primary:active {
+  transform: translateY(0);       /* Reset on click */
+}
+
+/* Form status messages */
+.form-status {
+  margin-top: 1rem;               /* Space above status */
+  padding: 0.5rem;                /* Padding around status */
+  border-radius: 6px;             /* Rounded corners */
+  text-align: center;             /* Center status text */
+  font-weight: 500;               /* Medium font weight */
+  min-height: 24px;               /* Reserve space for messages */
+}
+
+/* Success and error state colors are set by JavaScript */
+
+/* Modal footer */
+.modal-footer {
+  text-align: center;             /* Center footer content */
+  padding-top: 1rem;              /* Padding above footer */
+  border-top: 1px solid #eee;     /* Subtle separator line */
+  font-size: 0.9rem;              /* Slightly smaller text */
+  color: #666;                    /* Muted text color */
+}
+
+.modal-footer p {
+  margin: 0.25rem 0;              /* Small margin between footer lines */
+}
+
+.modal-footer a {
+  color: var(--primary-color);    /* Blue links */
+  text-decoration: none;          /* No underlines */
+}
+
+.modal-footer a:hover {
+  text-decoration: underline;     /* Underline on hover */
 }
 
 /* Modal close button */
@@ -659,16 +841,62 @@ form button {
   border: none;                   /* No border */
   font-size: 1.5rem;              /* Large close icon */
   cursor: pointer;                /* Show it's clickable */
-  color: #666;                    /* Grey color */
+  color: #999;                    /* Grey color */
+  width: 30px;                    /* Fixed width */
+  height: 30px;                   /* Fixed height */
+  display: flex;                  /* Flex for centering */
+  align-items: center;            /* Center vertically */
+  justify-content: center;        /* Center horizontally */
+  border-radius: 50%;             /* Circular close button */
+  transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transitions */
 }
 
 .modal-close:hover {
-  color: #000;                    /* Darker on hover */
+  background-color: #f5f5f5;      /* Light background on hover */
+  color: #333;                    /* Darker color on hover */
+}
+
+/* Contact modal button styling - styled like primary navigation buttons (blue) */
+.contact-modal-btn {
+  display: inline-block;          /* Block-level styling with inline flow */
+  padding: .55rem .9rem;          /* Larger padding for button appearance */
+  border-radius: .5rem;           /* More rounded corners for button look */
+  border: 2px solid #1f48ad;      /* Darker blue border to match primary */
+  background: #2a5bd7;            /* Blue background to match primary button */
+  color: #ffffff;                 /* White text for contrast */
+  text-decoration: none;          /* Remove underlines */
+  font-weight: 600;               /* Bold text */
+  white-space: nowrap;            /* Prevent text wrapping */
+  cursor: pointer;                /* Pointer cursor */
+  transition: all 0.3s ease;      /* Smooth transitions */
+}
+
+.contact-modal-btn:hover {
+  filter: brightness(1.06);       /* Slightly brighter on hover (matches primary) */
+  transform: translateY(-1px);    /* Subtle lift effect */
+  box-shadow: 0 4px 12px rgba(42, 91, 215, 0.3); /* Blue shadow */
+}
+
+/* Modal animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ================================================
    12. FOOTER
-   Site footer with copyright information
+   Site footer with copyright information and admin access
    ================================================ */
 footer {
   background-color: var(--primary-color); /* Blue background */
@@ -676,6 +904,38 @@ footer {
   text-align: center;             /* Center content */
   padding: 1rem 0;                /* Vertical padding */
   font-size: 0.9rem;              /* Slightly smaller text */
+}
+
+footer .container {
+  display: flex;                  /* Flexible layout for footer content */
+  justify-content: space-between; /* Space between copyright and admin button */
+  align-items: center;            /* Vertically center items */
+  flex-wrap: wrap;                /* Allow wrapping on small screens */
+  gap: 1rem;                      /* Space between items */
+}
+
+footer p {
+  margin: 0;                      /* Remove default margin */
+  flex: 1;                        /* Take available space */
+}
+
+/* Administrator login button styling - smaller and discrete */
+.admin-login-btn {
+  background: rgba(255,255,255,0.1); /* Semi-transparent white background */
+  color: #fff;                    /* White text */
+  border: 1px solid rgba(255,255,255,0.3); /* Semi-transparent border */
+  padding: 0.4rem 0.8rem;         /* Smaller padding than regular buttons */
+  font-size: 0.8rem;              /* Smaller font size */
+  border-radius: 4px;             /* Rounded corners */
+  cursor: pointer;                /* Pointer cursor */
+  transition: all 0.3s ease;      /* Smooth transitions */
+  white-space: nowrap;            /* Prevent text wrapping */
+}
+
+.admin-login-btn:hover {
+  background: rgba(255,255,255,0.2); /* Slightly more visible on hover */
+  border-color: rgba(255,255,255,0.5); /* More visible border on hover */
+  transform: translateY(-1px);    /* Subtle lift effect */
 }
 
 /* ================================================

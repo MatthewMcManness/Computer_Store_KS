@@ -2,10 +2,10 @@
  * ================================================
  * COMPUTER STORE KANSAS - CONSOLIDATED STYLESHEET
  * ================================================
- * VERSION: 19
- * LAST UPDATED: 2025-09-20
- * CHANGES: Updated for Silver Plan page conversion - no style changes needed as existing 
- *          styles already support silver navigation button and page section layouts
+ * VERSION: 21
+ * LAST UPDATED: 2025-09-23
+ * CHANGES: Enhanced Silver Plan page layout - moved heading to blue hero section as large
+ *          silver text, removed image, enhanced features with larger blue text styling
  * DESCRIPTION: Combines brochure.css, reset.css, and theme.css with optimizations
  *              Contains all styles for single-page application navigation
  * DEPENDENCIES: None (standalone CSS file)
@@ -17,13 +17,14 @@
  * 4. Page Management (Single-Page App)
  * 5. Header & Navigation
  * 6. Hero Sections
- * 7. Buttons & Interactive Elements
- * 8. Content Sections (Services, About, etc.)
- * 9. Contact Form
- * 10. Specialized Sections (Founder, Testimonials, etc.)
- * 11. Login & Contact Modals
- * 12. Footer
- * 13. Mobile Responsive Styles
+ * 7. Silver Plan Badge (Shining Metallic Design)
+ * 8. Buttons & Interactive Elements
+ * 9. Content Sections (Services, About, etc.)
+ * 10. Contact Form
+ * 11. Specialized Sections (Founder, Testimonials, etc.)
+ * 12. Login & Contact Modals
+ * 13. Footer
+ * 14. Mobile Responsive Styles
  * ================================================
  */
 
@@ -37,6 +38,20 @@
   --text-color: #343a40;          /* Main text color */
   --background-color: #f8f9fa;    /* Page background */
   --light-grey: #f5f5f5;          /* Light section backgrounds */
+}
+
+/* Silver Hero Heading - Large silver text under the badge */
+.silver-hero-heading {
+  font-size: 2.2rem;              /* Large, prominent size */
+  font-weight: 700;               /* Bold font weight */
+  color: #e8e8e8;                 /* Light silver color for contrast on blue */
+  text-shadow: 
+    1px 1px 2px rgba(0, 0, 0, 0.3),          /* Dark shadow for depth */
+    0 0 8px rgba(255, 255, 255, 0.2);        /* Subtle white glow */
+  margin-bottom: 1.5rem;          /* Space below heading */
+  text-align: center;             /* Center the text */
+  letter-spacing: 0.02em;         /* Slight letter spacing for elegance */
+  line-height: 1.2;               /* Good line height for readability */
 }
 
 /* ================================================
@@ -323,7 +338,156 @@ header nav ul .nav-action.silver a::before {
 }
 
 /* ================================================
-   7. BUTTONS & INTERACTIVE ELEMENTS
+   SILVER PLAN BADGE - SHINING METALLIC DESIGN
+   Premium silver badge for Silver Plan page with animated shine effects
+   ================================================ */
+
+/* Main badge container - creates the silver metallic badge effect */
+.silver-plan-badge {
+  display: inline-block;          /* Center the badge */
+  position: relative;             /* For shine overlay positioning */
+  background: linear-gradient(145deg, #e8e8e8 0%, #b8b8b8 25%, #d4d4d4 50%, #a8a8a8 75%, #c0c0c0 100%);
+  border: 3px solid #999999;      /* Darker silver border for definition */
+  border-radius: 25px;            /* Rounded badge shape */
+  padding: 1.5rem 2.5rem;         /* Generous padding for badge feel */
+  margin: 0 auto 2rem auto;       /* Center and add bottom margin */
+  box-shadow: 
+    0 8px 16px rgba(0, 0, 0, 0.2),           /* Main shadow for depth */
+    inset 0 2px 4px rgba(255, 255, 255, 0.6), /* Inner highlight */
+    inset 0 -2px 4px rgba(0, 0, 0, 0.2);      /* Inner shadow for beveled look */
+  transform-style: preserve-3d;   /* Enable 3D transforms */
+  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover effects */
+  overflow: hidden;               /* Hide overflow for shine effects */
+  text-align: center;             /* Center text within badge */
+  cursor: default;                /* Default cursor - not clickable */
+}
+
+/* Badge hover effect - subtle lift and enhanced shadow */
+.silver-plan-badge:hover {
+  transform: translateY(-2px);    /* Subtle lift on hover */
+  box-shadow: 
+    0 12px 24px rgba(0, 0, 0, 0.25),         /* Enhanced main shadow */
+    inset 0 2px 4px rgba(255, 255, 255, 0.7), /* Brighter inner highlight */
+    inset 0 -2px 4px rgba(0, 0, 0, 0.25);     /* Deeper inner shadow */
+}
+
+/* Main badge text "Silver Plan" - large, bold, premium styling */
+.badge-text {
+  display: block;                 /* Stack vertically */
+  font-size: 2.8rem;              /* Large, impactful size */
+  font-weight: 900;               /* Extra bold for premium feel */
+  color: #2c2c2c;                 /* Dark text for contrast on silver */
+  text-shadow: 
+    1px 1px 2px rgba(255, 255, 255, 0.8),    /* White text shadow for metallic look */
+    0 0 4px rgba(0, 0, 0, 0.3);               /* Dark glow for depth */
+  letter-spacing: 0.05em;         /* Slight letter spacing for premium feel */
+  line-height: 1;                 /* Tight line height */
+  margin-bottom: 0.25rem;         /* Small space before subtext */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Match site font */
+}
+
+/* Subtext "Protected" - smaller, refined styling */
+.badge-subtext {
+  display: block;                 /* Stack below main text */
+  font-size: 1.4rem;              /* Smaller than main text */
+  font-weight: 600;               /* Semi-bold */
+  color: #404040;                 /* Slightly lighter than main text */
+  text-shadow: 
+    0 1px 1px rgba(255, 255, 255, 0.6),      /* Subtle white shadow */
+    0 0 2px rgba(0, 0, 0, 0.2);               /* Light dark glow */
+  letter-spacing: 0.1em;          /* More letter spacing for elegance */
+  text-transform: uppercase;      /* All caps for secondary text */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Match site font */
+}
+
+/* Animated shine overlay - creates sweeping metallic shine effect */
+.silver-plan-badge::before {
+  content: '';
+  position: absolute;
+  top: -50%;                      /* Start above badge */
+  left: -50%;                     /* Start to the left */
+  width: 200%;                    /* Large width to cover entire badge */
+  height: 200%;                   /* Large height to cover entire badge */
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.1) 40%,
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0.1) 60%,
+    transparent 70%
+  );
+  transform: rotate(45deg);       /* Diagonal shine direction */
+  animation: badgeShine 4s ease-in-out infinite; /* Continuous shine animation */
+  pointer-events: none;           /* Don't interfere with hover */
+}
+
+/* Secondary shine effect - adds depth with different timing */
+.silver-plan-badge::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;                    /* Start completely off-screen left */
+  width: 50%;                     /* Narrower shine beam */
+  height: 100%;                   /* Full height */
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  animation: badgeShineSweep 3s ease-in-out infinite 1.5s; /* Delayed sweep animation */
+  pointer-events: none;           /* Don't interfere with hover */
+}
+
+/* Badge shine animation keyframes - main diagonal shine */
+@keyframes badgeShine {
+  0% {
+    transform: translateX(-200%) translateY(-200%) rotate(45deg);
+  }
+  50% {
+    transform: translateX(200%) translateY(200%) rotate(45deg);
+  }
+  100% {
+    transform: translateX(-200%) translateY(-200%) rotate(45deg);
+  }
+}
+
+/* Badge shine sweep animation - horizontal sweep shine */
+@keyframes badgeShineSweep {
+  0% {
+    left: -100%;
+  }
+  50% {
+    left: 100%;
+  }
+  100% {
+    left: -100%;
+  }
+}
+
+/* Pulsing glow effect - subtle breathing animation for premium feel */
+.silver-plan-badge {
+  animation: badgeGlow 6s ease-in-out infinite;
+}
+
+@keyframes badgeGlow {
+  0%, 100% {
+    box-shadow: 
+      0 8px 16px rgba(0, 0, 0, 0.2),
+      inset 0 2px 4px rgba(255, 255, 255, 0.6),
+      inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+  }
+  50% {
+    box-shadow: 
+      0 8px 16px rgba(0, 0, 0, 0.2),
+      inset 0 2px 4px rgba(255, 255, 255, 0.8),
+      inset 0 -2px 4px rgba(0, 0, 0, 0.2),
+      0 0 20px rgba(192, 192, 192, 0.3);
+  }
+}
+
+/* ================================================
+   8. BUTTONS & INTERACTIVE ELEMENTS
    Styled buttons and interactive components
    ================================================ */
 .btn {
@@ -346,7 +510,7 @@ header nav ul .nav-action.silver a::before {
 }
 
 /* ================================================
-   8. CONTENT SECTIONS (SERVICES, CARDS, ETC.)
+   9. CONTENT SECTIONS (SERVICES, CARDS, ETC.)
    Reusable content layouts and card components
    ================================================ */
 
@@ -444,7 +608,7 @@ header nav ul .nav-action.silver a::before {
 }
 
 /* ================================================
-   9. CONTACT FORM
+   10. CONTACT FORM
    Contact form styling and layout
    ================================================ */
 
@@ -506,7 +670,7 @@ form button {
 }
 
 /* ================================================
-   10. SPECIALIZED SECTIONS
+   11. SPECIALIZED SECTIONS
    Unique layouts for founder, testimonials, etc.
    ================================================ */
 
@@ -606,54 +770,49 @@ form button {
   padding: 4rem 0;                /* Large vertical padding */
 }
 
-.membership-container {
-  display: flex;                  /* Side-by-side layout */
-  flex-wrap: wrap;                /* Allow wrapping on small screens */
-  align-items: center;            /* Vertically center content */
-  gap: 2rem;                      /* Space between image and text */
+/* Centered membership text layout - no side-by-side image */
+.membership-text-centered {
+  max-width: 800px;               /* Limit width for readability */
+  margin: 0 auto;                 /* Center the content */
+  text-align: center;             /* Center all text */
 }
 
-.membership-image img {
-  max-width: 400px;               /* Limit image size */
-  width: 100%;                    /* Responsive width */
-  border-radius: 6px;             /* Rounded corners */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-}
-
-.membership-text {
-  flex: 1;                        /* Take remaining space */
-}
-
-.membership-text h2 {
-  margin-bottom: 1rem;            /* Space below heading */
-  color: var(--primary-color);    /* Blue heading color */
-}
-
-.membership-text p {
-  margin-bottom: 1rem;            /* Space between paragraphs */
+/* Plan description styling */
+.plan-description {
+  font-size: 1.2rem;              /* Larger description text */
+  margin-bottom: 2rem;            /* Space before features list */
   line-height: 1.6;               /* Good readability */
+  color: var(--text-color);       /* Standard text color */
 }
 
-/* Features list styling */
-.membership-features {
+/* Enhanced features list styling - larger blue text */
+.membership-features-enhanced {
   list-style: none;               /* Remove default bullets */
   padding-left: 0;                /* Remove default padding */
-  margin: 0 0 1rem 0;             /* Bottom margin only */
+  margin: 0 0 2rem 0;             /* Bottom margin */
+  display: inline-block;          /* Center the list */
+  text-align: left;               /* Left-align list items within centered container */
 }
 
-.membership-features li {
-  margin-bottom: 0.5rem;          /* Space between features */
-  padding-left: 1.5rem;           /* Space for custom bullet */
+.membership-features-enhanced li {
+  margin-bottom: 1rem;            /* More space between features */
+  padding-left: 2rem;             /* Space for custom bullet */
   position: relative;             /* For custom bullet positioning */
-  font-size: 1rem;                /* Standard font size */
+  font-size: 1.3rem;              /* Larger font size for features */
+  font-weight: 600;               /* Semi-bold text */
+  color: var(--primary-color);    /* Blue text color for features */
+  line-height: 1.4;               /* Good line height */
 }
 
-/* Custom checkmark bullets */
-.membership-features li::before {
+/* Custom checkmark bullets - larger and more prominent */
+.membership-features-enhanced li::before {
   content: '✓';                   /* Checkmark character */
   position: absolute;             /* Position relative to list item */
   left: 0;                        /* Align to left edge */
   color: var(--primary-color);    /* Blue checkmark */
+  font-size: 1.4rem;              /* Larger checkmark */
+  font-weight: 700;               /* Bold checkmark */
+  text-shadow: 0 1px 2px rgba(8, 30, 91, 0.2); /* Subtle shadow for depth */
 }
 
 .membership-note {
@@ -674,7 +833,7 @@ form button {
 }
 
 /* ================================================
-   11. LOGIN & CONTACT MODALS
+   12. LOGIN & CONTACT MODALS
    Modal overlays for employee login and contact form functionality
    ================================================ */
 
@@ -895,7 +1054,7 @@ form button {
 }
 
 /* ================================================
-   12. FOOTER
+   13. FOOTER
    Site footer with copyright information and admin access
    ================================================ */
 footer {
@@ -939,7 +1098,7 @@ footer p {
 }
 
 /* ================================================
-   13. MOBILE RESPONSIVE STYLES
+   14. MOBILE RESPONSIVE STYLES
    Responsive design for tablets and mobile devices
    ================================================ */
 @media (max-width: 768px) {
@@ -1020,6 +1179,43 @@ footer p {
   .card {
     width: 100%;                  /* Full width cards */
   }
+  
+  /* Mobile Silver Plan Badge adjustments */
+  .silver-plan-badge {
+    padding: 1rem 1.8rem;         /* Reduced padding for mobile */
+    margin: 0 auto 1.5rem auto;   /* Reduced margin for mobile */
+    border-radius: 20px;          /* Slightly less rounded on mobile */
+  }
+  
+  .badge-text {
+    font-size: 2.2rem;            /* Smaller main text on mobile */
+  }
+  
+  .badge-subtext {
+    font-size: 1.1rem;            /* Smaller subtext on mobile */
+  }
+  
+  /* Mobile Silver Hero Heading adjustments */
+  .silver-hero-heading {
+    font-size: 1.8rem;            /* Smaller heading on mobile */
+    margin-bottom: 1rem;          /* Reduced margin */
+    line-height: 1.3;             /* Tighter line height */
+  }
+  
+  /* Mobile Enhanced Features adjustments */
+  .membership-features-enhanced li {
+    font-size: 1.1rem;            /* Smaller features text on mobile */
+    padding-left: 1.8rem;         /* Reduced padding */
+    margin-bottom: 0.8rem;        /* Reduced spacing */
+  }
+  
+  .membership-features-enhanced li::before {
+    font-size: 1.2rem;            /* Smaller checkmark on mobile */
+  }
+  
+  .plan-description {
+    font-size: 1.1rem;            /* Smaller description on mobile */
+  }
 }
 
 /* Extra small mobile devices */
@@ -1027,5 +1223,40 @@ footer p {
   header nav ul .nav-action a {
     width: 100%;                  /* Full width action buttons */
     text-align: center;           /* Center button text */
+  }
+  
+  /* Extra small mobile Silver Plan Badge adjustments */
+  .silver-plan-badge {
+    padding: 0.8rem 1.5rem;       /* Further reduced padding for very small screens */
+    margin: 0 auto 1rem auto;     /* Reduced margin */
+    border-radius: 16px;          /* Even less rounded on very small screens */
+  }
+  
+  .badge-text {
+    font-size: 1.8rem;            /* Even smaller main text on very small screens */
+    margin-bottom: 0.15rem;       /* Tighter spacing */
+  }
+  
+  .badge-subtext {
+    font-size: 0.95rem;           /* Smaller subtext on very small screens */
+  }
+  
+  /* Extra small Silver Hero Heading adjustments */
+  .silver-hero-heading {
+    font-size: 1.5rem;            /* Even smaller heading on very small screens */
+    margin-bottom: 0.8rem;        /* Tighter margin */
+    padding: 0 1rem;              /* Side padding to prevent text cutoff */
+  }
+  
+  /* Extra small Enhanced Features adjustments */
+  .membership-features-enhanced li {
+    font-size: 1rem;              /* Standard size on very small screens */
+    padding-left: 1.5rem;         /* Further reduced padding */
+    margin-bottom: 0.7rem;        /* Tighter spacing */
+  }
+  
+  .plan-description {
+    font-size: 1rem;              /* Standard size on very small screens */
+    padding: 0 0.5rem;            /* Side padding */
   }
 }

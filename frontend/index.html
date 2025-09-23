@@ -4,10 +4,10 @@
 ===============================================
 COMPUTER STORE KANSAS - CONSOLIDATED HTML
 ===============================================
-VERSION: 26
-LAST UPDATED: 2025-09-20
-CHANGES: Added Google Analytics 4, comprehensive SEO meta tags, structured data,
-         Open Graph tags, and search engine optimization
+VERSION: 29
+LAST UPDATED: 2025-09-23
+CHANGES: Cleaned up Silver Plan page - removed hero description, moved plan description 
+         to after benefits, added "Half-price house calls" feature
 DESCRIPTION: Single-page application with dynamic navigation and content management
 DEPENDENCIES: css/style.css, js/config.js, js/script.js
 ===============================================
@@ -17,15 +17,14 @@ DEPENDENCIES: css/style.css, js/config.js, js/script.js
        GOOGLE ANALYTICS 4 TRACKING
        Tracks page views and user interactions for better insights
        ================================================ -->
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-EQ3ML3VTCZ"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-EQ3ML3VTCZ');
-</script>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-EQ3ML3VTCZ"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-EQ3ML3VTCZ');
+  </script>
 
   <!-- ================================================
        BASIC META TAGS & SEO OPTIMIZATION
@@ -233,37 +232,36 @@ DEPENDENCIES: css/style.css, js/config.js, js/script.js
     <!-- SILVER PLAN PAGE HERO SECTION -->
     <section class="hero">
       <div class="container">
-        <h2>Silver Plan Protection</h2>
-        <p>Comprehensive computer protection and maintenance for peace of mind.</p>
+        <!-- Silver Plan Badge Title - Shining metallic badge design -->
+        <div class="silver-plan-badge">
+          <span class="badge-text">Silver Plan</span>
+          <span class="badge-subtext">Protected</span>
+        </div>
+        
+        <!-- Large silver heading under the badge -->
+        <h2 class="silver-hero-heading">Unlock All the Benefits with Our Protection Plans</h2>
       </div>
     </section>
 
-    <!-- SILVER PLAN DETAILED INFORMATION SECTION - Moved from home page -->
+    <!-- SILVER PLAN DETAILED INFORMATION SECTION - Features focused layout -->
     <section class="membership">
-      <div class="container membership-container">
-        <!-- Plan promotional image -->
-        <div class="membership-image">
-          <img src="./assets/silver_plan.png" alt="Silver Plan Membership - Computer Protection Plan">
-        </div>
-        
-        <!-- Plan details and benefits list -->
-        <div class="membership-text">
-          <h2>Unlock All the Benefits with Our Protection Plans</h2>
-          <p>Our Silver Plan provides comprehensive care for your computer. For only $24.99 per month (with a three‑month commitment), you'll receive:</p>
-          
-          <!-- Bulleted list of plan features -->
-          <ul class="membership-features">
+      <div class="container">
+        <!-- Plan details and benefits list - centered layout without image -->
+        <div class="membership-text-centered">
+          <!-- Bulleted list of plan features - enhanced styling -->
+          <ul class="membership-features-enhanced">
             <li>Anti‑virus software</li>
             <li>50% off virus removal services</li>
+            <li>Half-price house calls</li>
             <li>Preventive maintenance service</li>
             <li>Limited help desk/remote support</li>
             <li>Free in‑store diagnostics and estimates</li>
             <li>Performance monitoring and alert service</li>
-            <li>5% discount on labour, hardware and software</li>
+            <li>15% discount on labor</li>
           </ul>
           
-          <!-- Contact information for plan signup -->
-          <p class="membership-note"><strong>Ready to get protected?</strong> Contact us at <a href="mailto:contact@computerstoreks.com">contact@computerstoreks.com</a> or call 785‑267‑3223 to sign up today!</p>
+          <!-- Plan description moved to after benefits -->
+          <p class="plan-description">Our Silver Plan provides comprehensive care for your computer. For only $24.99 per month (with a three‑month commitment), you'll receive comprehensive computer protection and maintenance for peace of mind.</p>
         </div>
       </div>
     </section>
@@ -317,23 +315,6 @@ DEPENDENCIES: css/style.css, js/config.js, js/script.js
       </div>
     </section>
 
-    <!-- HIGHLIGHTS SECTION - Key selling points displayed prominently -->
-    <section class="highlights">
-      <div class="container highlights-container">
-        <!-- Highlight content populated dynamically from configuration data -->
-        <!-- Individual highlights are created by JavaScript from config.js -->
-        <!-- Fallback content for when JavaScript is disabled -->
-        <div class="highlight">
-          <h3>Friendly, Reliable Service</h3>
-        </div>
-        <div class="highlight">
-          <h3>Locally Owned Since 2003</h3>
-        </div>
-        <div class="highlight">
-          <h3>20+ Years in Business</h3>
-        </div>
-      </div>
-    </section>
 
     <!-- SERVICES OVERVIEW SECTION - Main service offerings in card format -->
     <section class="services">

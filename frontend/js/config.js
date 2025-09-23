@@ -2,9 +2,9 @@
  * ================================================
  * COMPUTER STORE KANSAS - WEBSITE CONFIGURATION
  * ================================================
- * VERSION: 6
- * LAST UPDATED: 2025-09-20
- * CHANGES: Added Silver Plan page to navigation structure, added silver plan page content
+ * VERSION: 8
+ * LAST UPDATED: 2025-09-23
+ * CHANGES: Added "Half-price house calls" feature to Silver Plan benefits list
  * DESCRIPTION: Centralized configuration and content management
  *              This file contains all website content, business information,
  *              and configuration settings. Update this file to change
@@ -189,11 +189,12 @@ window.siteConfig = {
       features: [
         "Anti‑virus software",
         "50% off virus removal services",
+        "Half-price house calls",
         "Preventive maintenance service",
         "Limited help desk/remote support",
         "Free in‑store diagnostics and estimates",
         "Performance monitoring and alert service",
-        "5% discount on labour, hardware and software"
+        "15% discount on labor"
       ]
     }
   },

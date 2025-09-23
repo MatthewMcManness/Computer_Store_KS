@@ -2,10 +2,10 @@
  * ================================================
  * COMPUTER STORE KANSAS - CONSOLIDATED JAVASCRIPT
  * ================================================
- * VERSION: 7
- * LAST UPDATED: 2025-09-20
- * CHANGES: Added Google Analytics 4 page tracking for single-page application,
- *          enhanced SEO with page view events and user interaction tracking
+ * VERSION: 9
+ * LAST UPDATED: 2025-09-23
+ * CHANGES: Updated plan description text to include "comprehensive computer protection 
+ *          and maintenance for peace of mind" in the populateProtectionPlan function
  * DESCRIPTION: Combines mobile navigation, page switching, modal handling, contact form,
  *              dynamic content management, and Google Analytics tracking
  * DEPENDENCIES: config.js (must be loaded first), Google Analytics gtag
@@ -235,19 +235,19 @@ document.addEventListener('DOMContentLoaded', function() {
    * Populate protection plan information
    */
   function populateProtectionPlan() {
-    const membershipText = document.querySelector('.membership-text');
+    const membershipText = document.querySelector('.membership-text-centered');
     if (!membershipText) return;
 
     const silverPlan = config.plans.silver;
     
     // Update plan description
-    const planDescription = membershipText.querySelector('p');
+    const planDescription = membershipText.querySelector('.plan-description');
     if (planDescription) {
       planDescription.innerHTML = `Our ${silverPlan.name} provides comprehensive care for your computer. For only ${silverPlan.price} per month (with a ${silverPlan.commitment} commitment), you'll receive:`;
     }
 
     // Update features list
-    const featuresList = membershipText.querySelector('.membership-features');
+    const featuresList = membershipText.querySelector('.membership-features-enhanced');
     if (featuresList) {
       featuresList.innerHTML = '';
       silverPlan.features.forEach(feature => {

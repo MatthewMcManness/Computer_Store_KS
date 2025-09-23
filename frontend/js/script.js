@@ -243,7 +243,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Update plan description
     const planDescription = membershipText.querySelector('.plan-description');
     if (planDescription) {
-      planDescription.innerHTML = `Our ${silverPlan.name} provides comprehensive care for your computer. For only ${silverPlan.price} per month (with a ${silverPlan.commitment} commitment), you'll receive:`;
+      planDescription.innerHTML = `Our ${silverPlan.name} provides comprehensive care for your computer. Only ${silverPlan.price} per month (with a ${silverPlan.commitment} commitment)`;
     }
 
     // Update features list

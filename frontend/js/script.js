@@ -130,6 +130,400 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   /* ================================================
+   TESTIMONIALS CAROUSEL CLASS DEFINITION
+   Add this entire section right after the trackContactForm function
+   ================================================ */
+
+/**
+ * Testimonials Carousel Class - handles all carousel functionality
+ */
+class TestimonialsCarousel {
+  /**
+   * Initialize the testimonials carousel
+   * @param {HTMLElement} container - The testimonials section container
+   * @param {Array} testimonials - Array of testimonial objects from config
+   */
+  constructor(container, testimonials) {
+    this.container = container;           // Main testimonials section
+    this.testimonials = testimonials;     // Testimonials data from config
+    this.currentIndex = 0;                // Currently displayed testimonial index
+    this.isTransitioning = false;         // Prevent multiple transitions
+    this.autoRotateInterval = null;       // Auto-rotation timer
+    this.autoRotateDelay = 6000;          // 6 seconds between auto-rotations
+    
+    // Touch/swipe detection variables
+    this.touchStartX = 0;                 // Starting X position for touch
+    this.touchEndX = 0;                   // Ending X position for touch
+    this.minSwipeDistance = 50;           // Minimum swipe distance to trigger navigation
+    
+    this.init();                          // Initialize the carousel
+  }
+
+  /**
+   * Initialize the carousel - create structure and bind events
+   */
+  init() {
+    console.log('[Carousel] Initializing testimonials carousel...');
+    
+    // Create the carousel HTML structure
+    this.createCarouselStructure();
+    
+    // Set up navigation controls
+    this.setupNavigation();
+    
+    // Add touch/swipe support
+    this.setupTouchNavigation();
+    
+    // Add keyboard navigation
+    this.setupKeyboardNavigation();
+    
+    // Start auto-rotation
+    this.startAutoRotation();
+    
+    // Pause auto-rotation when user hovers over carousel
+    this.setupHoverPause();
+    
+    console.log('[Carousel] Testimonials carousel initialized successfully');
+  }
+
+  /**
+   * Create the complete carousel HTML structure
+   */
+  createCarouselStructure() {
+    // Keep the existing heading
+    const heading = this.container.querySelector('h2');
+    
+    // Clear the container but preserve the heading
+    this.container.innerHTML = '';
+    if (heading) {
+      this.container.appendChild(heading);
+    }
+
+    // Create carousel wrapper
+    const carouselWrapper = document.createElement('div');
+    carouselWrapper.className = 'testimonials-carousel';
+    
+    // Create carousel track (holds all testimonials)
+    const carouselTrack = document.createElement('div');
+    carouselTrack.className = 'testimonials-track';
+    
+    // Create individual testimonial cards
+    this.testimonials.forEach((testimonial, index) => {
+      const testimonialCard = this.createTestimonialCard(testimonial, index);
+      carouselTrack.appendChild(testimonialCard);
+    });
+    
+    // Create navigation arrows
+    const prevArrow = this.createArrowButton('prev', '←');
+    const nextArrow = this.createArrowButton('next', '→');
+    
+    // Assemble the carousel structure
+    carouselWrapper.appendChild(prevArrow);
+    carouselWrapper.appendChild(carouselTrack);
+    carouselWrapper.appendChild(nextArrow);
+    
+    // Add to main container
+    this.container.appendChild(carouselWrapper);
+    
+    // Create indicators (dots)
+    if (this.testimonials.length > 1) {
+      const indicators = this.createIndicators();
+      this.container.appendChild(indicators);
+    }
+    
+    // Store references for later use
+    this.carouselWrapper = carouselWrapper;
+    this.carouselTrack = carouselTrack;
+    this.prevArrow = prevArrow;
+    this.nextArrow = nextArrow;
+  }
+
+  /**
+   * Create a single testimonial card element
+   */
+  createTestimonialCard(testimonial, index) {
+    const card = document.createElement('div');
+    card.className = 'testimonial';
+    card.setAttribute('data-index', index);
+    
+    card.innerHTML = `
+      <p>${testimonial.text}</p>
+      <h4>– ${testimonial.author}, ${testimonial.location}</h4>
+    `;
+    
+    return card;
+  }
+
+  /**
+   * Create arrow navigation button
+   */
+  createArrowButton(direction, symbol) {
+    const button = document.createElement('button');
+    button.className = `carousel-arrow ${direction}`;
+    button.setAttribute('aria-label', `${direction === 'prev' ? 'Previous' : 'Next'} testimonial`);
+    button.innerHTML = symbol;
+    
+    return button;
+  }
+
+  /**
+   * Create indicator dots container
+   */
+  createIndicators() {
+    const indicatorsContainer = document.createElement('div');
+    indicatorsContainer.className = 'carousel-indicators';
+    
+    this.testimonials.forEach((_, index) => {
+      const indicator = document.createElement('button');
+      indicator.className = `carousel-indicator ${index === 0 ? 'active' : ''}`;
+      indicator.setAttribute('data-index', index);
+      indicator.setAttribute('aria-label', `Go to testimonial ${index + 1}`);
+      indicatorsContainer.appendChild(indicator);
+    });
+    
+    return indicatorsContainer;
+  }
+
+  /**
+   * Set up all navigation event listeners
+   */
+  setupNavigation() {
+    // Arrow navigation
+    this.prevArrow.addEventListener('click', () => {
+      this.goToPrevious();
+      this.resetAutoRotation();
+    });
+    
+    this.nextArrow.addEventListener('click', () => {
+      this.goToNext();
+      this.resetAutoRotation();
+    });
+    
+    // Indicator navigation
+    const indicators = this.container.querySelectorAll('.carousel-indicator');
+    indicators.forEach(indicator => {
+      indicator.addEventListener('click', (e) => {
+        const index = parseInt(e.target.getAttribute('data-index'));
+        this.goToSlide(index);
+        this.resetAutoRotation();
+      });
+    });
+  }
+
+  /**
+   * Navigate to the previous testimonial
+   */
+  goToPrevious() {
+    if (this.isTransitioning) return;
+    
+    const newIndex = this.currentIndex === 0 
+      ? this.testimonials.length - 1 
+      : this.currentIndex - 1;
+    
+    this.goToSlide(newIndex);
+    
+    // Track user interaction for analytics
+    if (typeof trackEvent === 'function') {
+      trackEvent('testimonial_navigate', 'engagement', 'previous_button');
+    }
+  }
+
+  /**
+   * Navigate to the next testimonial
+   */
+  goToNext() {
+    if (this.isTransitioning) return;
+    
+    const newIndex = this.currentIndex === this.testimonials.length - 1 
+      ? 0 
+      : this.currentIndex + 1;
+    
+    this.goToSlide(newIndex);
+    
+    // Track user interaction for analytics
+    if (typeof trackEvent === 'function') {
+      trackEvent('testimonial_navigate', 'engagement', 'next_button');
+    }
+  }
+
+  /**
+   * Navigate to a specific testimonial by index
+   */
+  goToSlide(index) {
+    if (this.isTransitioning || index === this.currentIndex) return;
+    
+    this.isTransitioning = true;
+    this.currentIndex = index;
+    
+    // Calculate the transform value to show the correct testimonial
+    const translateX = -index * 100;
+    this.carouselTrack.style.transform = `translateX(${translateX}%)`;
+    
+    // Update indicators
+    this.updateIndicators();
+    
+    // Reset transition lock after animation completes
+    setTimeout(() => {
+      this.isTransitioning = false;
+    }, 500);
+    
+    // Track slide change for analytics
+    if (typeof trackEvent === 'function') {
+      trackEvent('testimonial_view', 'engagement', `slide_${index + 1}`);
+    }
+  }
+
+  /**
+   * Update the active state of indicator dots
+   */
+  updateIndicators() {
+    const indicators = this.container.querySelectorAll('.carousel-indicator');
+    indicators.forEach((indicator, index) => {
+      if (index === this.currentIndex) {
+        indicator.classList.add('active');
+      } else {
+        indicator.classList.remove('active');
+      }
+    });
+  }
+
+  /**
+   * Start automatic rotation through testimonials
+   */
+  startAutoRotation() {
+    if (this.testimonials.length <= 1) return;
+    
+    this.autoRotateInterval = setInterval(() => {
+      this.goToNext();
+    }, this.autoRotateDelay);
+  }
+
+  /**
+   * Stop automatic rotation
+   */
+  stopAutoRotation() {
+    if (this.autoRotateInterval) {
+      clearInterval(this.autoRotateInterval);
+      this.autoRotateInterval = null;
+    }
+  }
+
+  /**
+   * Reset the auto-rotation timer
+   */
+  resetAutoRotation() {
+    this.stopAutoRotation();
+    this.startAutoRotation();
+  }
+
+  /**
+   * Set up hover pause functionality
+   */
+  setupHoverPause() {
+    this.carouselWrapper.addEventListener('mouseenter', () => {
+      this.stopAutoRotation();
+    });
+    
+    this.carouselWrapper.addEventListener('mouseleave', () => {
+      this.startAutoRotation();
+    });
+  }
+
+  /**
+   * Set up touch event listeners for swipe navigation
+   */
+  setupTouchNavigation() {
+    this.carouselWrapper.addEventListener('touchstart', (e) => {
+      this.touchStartX = e.touches[0].clientX;
+    }, { passive: true });
+    
+    this.carouselWrapper.addEventListener('touchend', (e) => {
+      this.touchEndX = e.changedTouches[0].clientX;
+      this.handleSwipe();
+    }, { passive: true });
+  }
+
+  /**
+   * Process swipe gesture and navigate accordingly
+   */
+  handleSwipe() {
+    const swipeDistance = this.touchStartX - this.touchEndX;
+    const absSwipeDistance = Math.abs(swipeDistance);
+    
+    if (absSwipeDistance < this.minSwipeDistance) return;
+    
+    if (swipeDistance > 0) {
+      this.goToNext();
+    } else {
+      this.goToPrevious();
+    }
+    
+    this.resetAutoRotation();
+    
+    // Track swipe interaction for analytics
+    if (typeof trackEvent === 'function') {
+      trackEvent('testimonial_swipe', 'engagement', swipeDistance > 0 ? 'left' : 'right');
+    }
+  }
+
+  /**
+   * Set up keyboard event listeners
+   */
+  setupKeyboardNavigation() {
+    this.carouselWrapper.addEventListener('keydown', (e) => {
+      this.handleKeyPress(e);
+    });
+    
+    this.carouselWrapper.setAttribute('tabindex', '0');
+    this.carouselWrapper.setAttribute('role', 'region');
+    this.carouselWrapper.setAttribute('aria-label', 'Customer testimonials carousel');
+  }
+
+  /**
+   * Handle keyboard navigation
+   */
+  handleKeyPress(e) {
+    switch (e.key) {
+      case 'ArrowLeft':
+        e.preventDefault();
+        this.goToPrevious();
+        this.resetAutoRotation();
+        break;
+      case 'ArrowRight':
+        e.preventDefault();
+        this.goToNext();
+        this.resetAutoRotation();
+        break;
+      case 'Home':
+        e.preventDefault();
+        this.goToSlide(0);
+        this.resetAutoRotation();
+        break;
+      case 'End':
+        e.preventDefault();
+        this.goToSlide(this.testimonials.length - 1);
+        this.resetAutoRotation();
+        break;
+    }
+    
+    if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) {
+      if (typeof trackEvent === 'function') {
+        trackEvent('testimonial_keyboard', 'accessibility', e.key);
+      }
+    }
+  }
+
+  /**
+   * Destroy the carousel and clean up
+   */
+  destroy() {
+    this.stopAutoRotation();
+    console.log('[Carousel] Testimonials carousel destroyed');
+  }
+}
+
+
+  /* ================================================
      4. DYNAMIC CONTENT POPULATION
      Functions to populate website content from configuration data
      ================================================ */
@@ -164,28 +558,33 @@ document.addEventListener('DOMContentLoaded', function() {
   /**
    * Populate testimonials section with data from configuration
    */
+/**
+ * Enhanced testimonials population function - now creates a carousel
+ */
   function populateTestimonials() {
     const testimonialsContainer = document.querySelector('.testimonials .container');
-    if (!testimonialsContainer) return;
-
-    // Keep the heading, remove existing testimonials
-    const heading = testimonialsContainer.querySelector('h2');
-    testimonialsContainer.innerHTML = '';
-    if (heading) {
-      testimonialsContainer.appendChild(heading);
+    if (!testimonialsContainer) {
+      console.warn('[Carousel] Testimonials container not found');
+      return;
     }
 
-    // Create testimonial elements from configuration data
-    config.testimonials.forEach(testimonial => {
-      const testimonialElement = document.createElement('div');
-      testimonialElement.className = 'testimonial';
-      testimonialElement.innerHTML = `
-        <p>"${testimonial.text}"</p>
-        <h4>– ${testimonial.author}, ${testimonial.location}</h4>
-      `;
-      testimonialsContainer.appendChild(testimonialElement);
-    });
+    // Check if we have testimonials data
+    if (!config.testimonials || config.testimonials.length === 0) {
+      console.warn('[Carousel] No testimonials data found');
+      return;
+    }
+
+    console.log('[Carousel] Creating testimonials carousel with', config.testimonials.length, 'testimonials');
+
+    // Create and initialize the carousel
+    window.testimonialsCarousel = new TestimonialsCarousel(testimonialsContainer, config.testimonials);
+    
+    // Track carousel initialization for analytics
+    if (typeof trackEvent === 'function') {
+      trackEvent('testimonials_carousel_init', 'engagement', `${config.testimonials.length}_testimonials`);
+    }
   }
+
 
   /**
    * Populate highlights section with data from configuration
@@ -813,3 +1212,25 @@ if (toggle && nav) {
     nav.setAttribute('aria-hidden', String(!open));       // Update ARIA attribute
   });
 }
+
+
+/**
+ * Global carousel controls that can be called from outside
+ */
+window.nextTestimonial = function() {
+  if (window.testimonialsCarousel) {
+    window.testimonialsCarousel.goToNext();
+  }
+};
+
+window.previousTestimonial = function() {
+  if (window.testimonialsCarousel) {
+    window.testimonialsCarousel.goToPrevious();
+  }
+};
+
+window.goToTestimonial = function(index) {
+  if (window.testimonialsCarousel) {
+    window.testimonialsCarousel.goToSlide(index);
+  }
+};

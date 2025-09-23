@@ -712,33 +712,310 @@ form button {
   color: var(--primary-color);    /* Blue color for attribution */
 }
 
-/* Testimonials section */
+/* Testimonials section - enhanced for carousel */
 .testimonials {
   background-color: #fff;         /* White background */
   padding: 4rem 0;                /* Large vertical padding */
+  position: relative;             /* For arrow positioning */
 }
 
 .testimonials h2 {
   text-align: center;             /* Center heading */
-  margin-bottom: 2rem;            /* Space below heading */
+  margin-bottom: 3rem;            /* Increased space for better separation */
   color: var(--primary-color);    /* Blue heading color */
+  font-size: 2.2rem;              /* Larger heading */
 }
 
+/* ================================================
+   TESTIMONIALS CAROUSEL STYLING
+   Large card carousel with arrow navigation
+   ================================================ */
+
+/* Carousel wrapper - contains all testimonials */
+.testimonials-carousel {
+  position: relative;             /* For arrow positioning */
+  max-width: 900px;               /* Maximum width for large cards */
+  margin: 0 auto;                 /* Center the carousel */
+  overflow: hidden;               /* Hide overflowing cards */
+  border-radius: 12px;            /* Rounded carousel container */
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+  animation: fadeInCarousel 0.8s ease-out;
+}
+
+/* Carousel track - holds all testimonial cards */
+.testimonials-track {
+  display: flex;                  /* Horizontal layout for cards */
+  transition: transform 0.5s ease-in-out; /* Smooth sliding animation */
+  width: 100%;                    /* Full width container */
+}
+
+/* Individual testimonial card - large and prominent */
 .testimonial {
-  max-width: 800px;               /* Limit testimonial width */
-  margin: 0 auto 2rem auto;       /* Center with bottom margin */
-  text-align: center;             /* Center content */
+  min-width: 100%;                /* Each card takes full carousel width */
+  padding: 3rem 2.5rem;           /* Generous internal spacing */
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); /* Subtle gradient background */
+  border: 1px solid #e9ecef;      /* Light border for definition */
+  text-align: center;             /* Center all content */
+  position: relative;             /* For quote decorations */
+  margin: 0;                      /* Remove default margins */
+  box-sizing: border-box;         /* Include padding in width calculation */
 }
 
+/* Large quote text styling */
 .testimonial p {
-  font-size: 1rem;                /* Standard font size */
+  font-size: 1.4rem;              /* Large, readable quote text */
   font-style: italic;             /* Italicize quote text */
-  margin-bottom: 0.5rem;          /* Small space before attribution */
+  line-height: 1.6;               /* Good line spacing for readability */
+  margin-bottom: 2rem;            /* Space before attribution */
+  color: var(--text-color);       /* Standard text color */
+  position: relative;             /* For quote mark positioning */
+  max-width: 700px;               /* Limit line length for readability */
+  margin-left: auto;              /* Center the text block */
+  margin-right: auto;             /* Center the text block */
 }
 
+/* Decorative opening quote mark */
+.testimonial p::before {
+  content: '"';                   /* Opening quote character */
+  font-size: 4rem;                /* Large decorative size */
+  color: var(--primary-color);    /* Blue color to match theme */
+  position: absolute;             /* Position relative to paragraph */
+  top: -1rem;                     /* Slightly above text */
+  left: -2rem;                    /* To the left of text */
+  line-height: 1;                 /* Tight line height for positioning */
+  font-family: Georgia, serif;    /* Serif font for classic quote marks */
+}
+
+/* Decorative closing quote mark */
+.testimonial p::after {
+  content: '"';                   /* Closing quote character */
+  font-size: 4rem;                /* Large decorative size */
+  color: var(--primary-color);    /* Blue color to match theme */
+  position: absolute;             /* Position relative to paragraph */
+  bottom: -1.5rem;                /* Below the text */
+  right: -2rem;                   /* To the right of text */
+  line-height: 1;                 /* Tight line height for positioning */
+  font-family: Georgia, serif;    /* Serif font for classic quote marks */
+}
+
+/* Customer attribution styling */
 .testimonial h4 {
-  font-size: 0.95rem;             /* Slightly smaller attribution */
+  font-size: 1.1rem;              /* Moderately sized attribution */
   color: var(--primary-color);    /* Blue color for attribution */
+  font-weight: 600;               /* Semi-bold text */
+  margin: 0;                      /* No additional margin */
+  position: relative;             /* For decorative line */
+  padding-top: 1rem;              /* Space above attribution */
+}
+
+/* Decorative line above customer name */
+.testimonial h4::before {
+  content: '';                    /* Empty content for line */
+  position: absolute;             /* Position relative to attribution */
+  top: 0;                         /* At the very top */
+  left: 50%;                      /* Center horizontally */
+  transform: translateX(-50%);    /* Perfect centering */
+  width: 60px;                    /* Line width */
+  height: 3px;                    /* Line thickness */
+  background-color: var(--secondary-color); /* Silver color line */
+  border-radius: 2px;             /* Rounded line ends */
+}
+
+/* ================================================
+   CAROUSEL NAVIGATION ARROWS
+   ================================================ */
+
+/* Base arrow styling - shared by both left and right arrows */
+.carousel-arrow {
+  position: absolute;             /* Position relative to carousel container */
+  top: 50%;                       /* Center vertically */
+  transform: translateY(-50%);    /* Perfect vertical centering */
+  background: rgba(8, 30, 91, 0.8); /* Semi-transparent blue background */
+  color: white;                   /* White arrow icons */
+  border: none;                   /* No border */
+  width: 50px;                    /* Fixed button width */
+  height: 50px;                   /* Fixed button height (square) */
+  border-radius: 50%;             /* Perfect circle */
+  cursor: pointer;                /* Pointer cursor on hover */
+  font-size: 1.2rem;              /* Medium-sized arrow icons */
+  display: flex;                  /* Flex layout for centering icon */
+  align-items: center;            /* Center icon vertically */
+  justify-content: center;        /* Center icon horizontally */
+  transition: all 0.3s ease;      /* Smooth hover transitions */
+  z-index: 10;                    /* Ensure arrows appear above cards */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Subtle shadow for depth */
+}
+
+/* Arrow hover effects */
+.carousel-arrow:hover {
+  background: var(--primary-color); /* Solid blue background on hover */
+  transform: translateY(-50%) scale(1.1); /* Slight scale up on hover */
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25); /* Enhanced shadow on hover */
+}
+
+/* Arrow active/pressed state */
+.carousel-arrow:active {
+  transform: translateY(-50%) scale(0.95); /* Slight scale down when pressed */
+}
+
+/* Left arrow positioning */
+.carousel-arrow.prev {
+  left: -25px;                    /* Position to the left of carousel */
+}
+
+/* Right arrow positioning */
+.carousel-arrow.next {
+  right: -25px;                   /* Position to the right of carousel */
+}
+
+/* Arrow icons - using Unicode arrows for compatibility */
+.carousel-arrow.prev::before {
+  content: '←';                   /* Left arrow character */
+}
+
+.carousel-arrow.next::before {
+  content: '→';                   /* Right arrow character */
+}
+
+/* ================================================
+   CAROUSEL INDICATORS (DOTS)
+   ================================================ */
+
+/* Container for carousel dots/indicators */
+.carousel-indicators {
+  display: flex;                  /* Horizontal layout for dots */
+  justify-content: center;        /* Center the dots */
+  margin-top: 2rem;               /* Space above indicators */
+  gap: 0.5rem;                    /* Space between dots */
+}
+
+/* Individual indicator dot */
+.carousel-indicator {
+  width: 10px;                    /* Dot size */
+  height: 10px;                   /* Dot size */
+  border-radius: 50%;             /* Perfect circle */
+  background-color: #ccc;         /* Light gray by default */
+  cursor: pointer;                /* Pointer cursor for interaction */
+  transition: all 0.3s ease;      /* Smooth color transitions */
+  border: none;                   /* Remove button border */
+}
+
+/* Active indicator (current testimonial) */
+.carousel-indicator.active {
+  background-color: var(--primary-color); /* Blue for active testimonial */
+  transform: scale(1.2);          /* Slightly larger when active */
+}
+
+/* Indicator hover effect */
+.carousel-indicator:hover {
+  background-color: var(--secondary-color); /* Silver on hover */
+}
+
+/* Carousel animations */
+@keyframes fadeInCarousel {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ================================================
+   MOBILE RESPONSIVE ADJUSTMENTS FOR CAROUSEL
+   ================================================ */
+
+@media (max-width: 768px) {
+  /* Reduce testimonials section padding on mobile */
+  .testimonials {
+    padding: 3rem 0;              /* Smaller padding for mobile */
+  }
+  
+  /* Smaller heading on mobile */
+  .testimonials h2 {
+    font-size: 1.8rem;            /* Smaller heading text */
+    margin-bottom: 2rem;          /* Reduced spacing */
+  }
+  
+  /* Adjust carousel container for mobile */
+  .testimonials-carousel {
+    margin: 0 1rem;               /* Side margins on mobile */
+    border-radius: 8px;           /* Less rounded corners */
+  }
+  
+  /* Reduce card padding on mobile */
+  .testimonial {
+    padding: 2rem 1.5rem;         /* Smaller internal spacing */
+  }
+  
+  /* Smaller quote text on mobile */
+  .testimonial p {
+    font-size: 1.2rem;            /* Smaller quote text */
+    margin-bottom: 1.5rem;        /* Reduced spacing */
+  }
+  
+  /* Smaller decorative quote marks on mobile */
+  .testimonial p::before,
+  .testimonial p::after {
+    font-size: 3rem;              /* Smaller quote decorations */
+  }
+  
+  /* Adjust quote mark positioning for mobile */
+  .testimonial p::before {
+    left: -1rem;                  /* Closer to text on mobile */
+    top: -0.5rem;                 /* Adjusted vertical position */
+  }
+  
+  .testimonial p::after {
+    right: -1rem;                 /* Closer to text on mobile */
+    bottom: -1rem;                /* Adjusted vertical position */
+  }
+  
+  /* Smaller attribution text on mobile */
+  .testimonial h4 {
+    font-size: 1rem;              /* Smaller attribution */
+  }
+  
+  /* Adjust arrows for mobile - move them inside the carousel */
+  .carousel-arrow {
+    width: 40px;                  /* Smaller buttons */
+    height: 40px;                 /* Smaller buttons */
+    font-size: 1rem;              /* Smaller icons */
+  }
+  
+  .carousel-arrow.prev {
+    left: 10px;                   /* Move inside carousel on mobile */
+  }
+  
+  .carousel-arrow.next {
+    right: 10px;                  /* Move inside carousel on mobile */
+  }
+}
+
+/* Extra small mobile devices */
+@media (max-width: 480px) {
+  /* Further reduce padding for very small screens */
+  .testimonial {
+    padding: 1.5rem 1rem;         /* Minimal padding for small screens */
+  }
+  
+  /* Even smaller quote text for tiny screens */
+  .testimonial p {
+    font-size: 1.1rem;            /* Smaller text for readability */
+  }
+  
+  /* Hide decorative quote marks on very small screens */
+  .testimonial p::before,
+  .testimonial p::after {
+    display: none;                /* Remove decorations to save space */
+  }
+  
+  /* Adjust carousel for very small screens */
+  .testimonials-carousel {
+    margin: 0 0.5rem;             /* Minimal side margins */
+  }
 }
 
 /* Highlights section - key selling points */

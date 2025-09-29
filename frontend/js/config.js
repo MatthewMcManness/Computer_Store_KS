@@ -219,6 +219,11 @@ window.siteConfig = {
       text: "My hard drive stopped working all together and I had no backup. I thought all was lost but the technician managed to get my drive working long enough to get the data onto another drive saving me a lot of headache and money – thank you Computer Store!",
       author: "Andrew",
       location: "Topeka"
+    },
+    {
+      text: "Awesome! Fast, friendly, and efficient.  Thank you so much! We'll be back.",
+      author:"Claudia Daily",
+      location: "Topeka"
     }
   ],
 

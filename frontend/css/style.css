@@ -38,6 +38,22 @@
   --text-color: #343a40;          /* Main text color */
   --background-color: #f8f9fa;    /* Page background */
   --light-grey: #f5f5f5;          /* Light section backgrounds */
+  --bg-dark: oklch(0.1 0.095 244);
+  --bg: oklch(0.15 0.095 244);
+  --bg-light: oklch(0.2 0.095 244);
+  --text: oklch(0.96 0.1 244);
+  --text-muted: oklch(0.76 0.1 244);
+  --highlight: oklch(0.5 0.19 244);
+  --border: oklch(0.4 0.19 244);
+  --border-muted: oklch(0.3 0.19 244);
+  --primary: oklch(0.76 0.19 244);
+  --secondary: oklch(0.76 0.19 64);
+  --danger: oklch(0.7 0.19 30);
+  --warning: oklch(0.7 0.19 100);
+  --success: oklch(0.7 0.19 160);
+  --info: oklch(0.7 0.19 260);
+
+
 }
 
 /* Silver Hero Heading - Large silver text under the badge */
@@ -67,7 +83,7 @@
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: var(--text-color);
-  background-color: var(--background-color);
+  background-color: var(--bg);
   line-height: 1.6;               /* Improve text readability */
 }
 
@@ -101,7 +117,7 @@ body {
 
 /* Main header container */
 header {
-  background-color: #081e5b;      /* Dark blue background for contrast */
+  background-color: --bg;      /* Dark blue background for contrast */
   padding: 0.75rem 0;             /* Vertical padding */
   position: sticky;               /* Stick to top when scrolling */
   top: 0;                         /* Position at very top */
@@ -304,7 +320,7 @@ header nav ul .nav-action.silver a::before {
    Large banner sections with gradient backgrounds
    ================================================ */
 .hero {
-  background: linear-gradient(135deg, var(--primary-color) 0%, #06277a 100%); /* Blue gradient */
+  background: linear-gradient(135deg, var(--bg) 0%, --bg-light 100%); /* Blue gradient */
   color: #fff;                    /* White text for contrast on blue */
   padding: 4rem 0;                /* Large vertical padding */
   text-align: center;             /* Center all content */

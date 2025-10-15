@@ -117,7 +117,7 @@ body {
 
 /* Main header container */
 header {
-  background-color: --bg;      /* Dark blue background for contrast */
+  background-color: var(--bg);      /* Dark blue background for contrast */
   padding: 0.75rem 0;             /* Vertical padding */
   position: sticky;               /* Stick to top when scrolling */
   top: 0;                         /* Position at very top */

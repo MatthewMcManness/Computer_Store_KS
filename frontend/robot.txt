@@ -1,24 +1,67 @@
-# robots.txt for Computer Store Kansas
-# This file tells search engines which parts of the site they can crawl
+# ================================================
+# COMPUTER STORE KANSAS - ROBOTS.TXT
+# ================================================
+# VERSION: 2
+# LAST UPDATED: 2025-10-15
+# CHANGES: - Updated sitemap URL to correct domain
+#          - Added more detailed comments
+#          - Organized sections for clarity
+# DESCRIPTION: Robots exclusion file that tells search engines
+#              which parts of the site they can crawl
+# DEPENDENCIES: sitemap.xml
+# ================================================
 
+# ================================================
+# SECTION 1: GENERAL CRAWLING RULES
 # Allow all search engines to crawl the entire site
+# ================================================
 User-agent: *
 Allow: /
 
-# Sitemap location for search engines
+# ================================================
+# SECTION 2: SITEMAP LOCATION
+# Tells search engines where to find the sitemap
+# ================================================
 Sitemap: https://tcs-frontend-uf5q.onrender.com/sitemap.xml
 
-# Optional: Crawl delay (time in seconds between requests)
+# ================================================
+# SECTION 3: CRAWL RATE CONTROL (Optional)
+# Uncomment to set delay between crawler requests
+# ================================================
 # Crawl-delay: 1
 
-# Block access to any sensitive or admin areas (add as needed)
+# ================================================
+# SECTION 4: BLOCKED PATHS (Optional)
+# Add paths here that should not be crawled
+# Uncomment and customize as needed
+# ================================================
 # Disallow: /admin/
 # Disallow: /.env
 # Disallow: /config/
+# Disallow: /api/
 
-# Allow social media crawlers for better sharing
+# ================================================
+# SECTION 5: SOCIAL MEDIA CRAWLERS
+# Special rules for social media bots for better sharing
+# ================================================
 User-agent: facebookexternalhit
 Allow: /
 
 User-agent: Twitterbot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+# ================================================
+# SECTION 6: COMMON BOT SPECIFICATIONS
+# Allow other common good bots
+# ================================================
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
 Allow: /

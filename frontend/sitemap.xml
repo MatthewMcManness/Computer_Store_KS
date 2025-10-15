@@ -3,11 +3,21 @@
 ================================================
 COMPUTER STORE KANSAS - XML SITEMAP
 ================================================
-VERSION: 1
-LAST UPDATED: 2025-09-20
+VERSION: 2
+LAST UPDATED: 2025-10-15
+CHANGES: - Fixed missing HTTPS protocol in URLs
+         - Updated to correct domain (tcs-frontend-uf5q.onrender.com)
+         - Removed hash fragments (not indexed by search engines)
+         - Updated last modified date to current
+         - Simplified for single-page application structure
 DESCRIPTION: XML sitemap for search engine optimization
-             Lists all pages and their update frequencies
+             Lists all indexable pages for search engines
 DEPENDENCIES: None (standalone XML file)
+
+NOTE: This is a single-page application (SPA) with client-side
+      hash-based navigation. Search engines only index the main URL.
+      All content (home, about, services, contact, silver-plan) is
+      accessible from the main page through JavaScript navigation.
 ================================================
 -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
@@ -15,44 +25,16 @@ DEPENDENCIES: None (standalone XML file)
         xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
         
-  <!-- Home Page - Main landing page -->
+  <!-- 
+    MAIN PAGE - Single entry point for entire website
+    This page contains all sections: home, about, services, contact, and silver-plan
+    Accessible through client-side navigation (hash routing)
+  -->
   <url>
-    <loc>computerstoreks.com/</loc>
-    <lastmod>2025-09-20</lastmod>
+    <loc>https://tcs-frontend-uf5q.onrender.com/</loc>
+    <lastmod>2025-10-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
-  </url>
-  
-  <!-- Silver Plan Page - Protection plan details -->
-  <url>
-    <loc>computerstoreks.com/#silver-plan</loc>
-    <lastmod>2025-09-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  
-  <!-- About Page - Company information -->
-  <url>
-    <loc>computerstoreks.com/#about</loc>
-    <lastmod>2025-09-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
-  <!-- Services Page - Service offerings -->
-  <url>
-    <loc>computerstoreks.com/#services</loc>
-    <lastmod>2025-09-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
-  <!-- Contact Page - Contact information -->
-  <url>
-    <loc>computerstoreks.com/#contact</loc>
-    <lastmod>2025-09-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
   </url>
   
 </urlset>

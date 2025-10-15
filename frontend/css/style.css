@@ -2,13 +2,11 @@
  * ================================================
  * COMPUTER STORE KANSAS - MODERNIZED STYLESHEET
  * ================================================
- * VERSION: 31
+ * VERSION: 32
  * LAST UPDATED: 2025-10-15
- * CHANGES: - Fixed header transparency bug (added var() to --bg)
- *          - Removed founder image styling
- *          - Completely modernized testimonials carousel with card design
- *          - Enhanced color system with full light/dark variations
- *          - Improved glassmorphism and depth effects
+ * CHANGES: - Fixed carousel arrow visibility by adding container padding
+ *          - Arrows now fully visible outside carousel boundaries
+ *          - Improved responsive behavior for arrows
  * DESCRIPTION: Complete styling for single-page application with modern design
  * DEPENDENCIES: None (standalone CSS file)
  * 
@@ -861,6 +859,13 @@ form button {
   letter-spacing: -0.02em;             /* Tight letter spacing */
 }
 
+/* ===== CAROUSEL WRAPPER WITH ARROW SPACE ===== */
+.testimonials .container {
+  /* Add horizontal padding to accommodate arrows outside carousel */
+  padding-left: 80px;                  /* Space for left arrow - FIXED */
+  padding-right: 80px;                 /* Space for right arrow - FIXED */
+}
+
 /* ===== MODERN CAROUSEL CONTAINER ===== */
 .testimonials-carousel {
   /* Carousel wrapper with modern styling */
@@ -1029,13 +1034,13 @@ form button {
   transform: translateY(-50%) scale(0.95); /* Scale down when pressed */
 }
 
-/* Left arrow positioning */
+/* Left arrow positioning - OUTSIDE carousel */
 .carousel-arrow.prev {
   /* Position left arrow */
   left: -24px;                         /* Position to the left of carousel */
 }
 
-/* Right arrow positioning */
+/* Right arrow positioning - OUTSIDE carousel */
 .carousel-arrow.next {
   /* Position right arrow */
   right: -24px;                        /* Position to the right of carousel */
@@ -1517,6 +1522,12 @@ footer p {
   .testimonials h2 {
     font-size: 2rem;                   /* Smaller heading text */
     margin-bottom: 2rem;               /* Reduced spacing */
+  }
+  
+  /* Remove extra padding on mobile - arrows go inside */
+  .testimonials .container {
+    padding-left: 0;                   /* Remove left padding on mobile */
+    padding-right: 0;                  /* Remove right padding on mobile */
   }
   
   .testimonials-carousel {

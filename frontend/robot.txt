@@ -22,7 +22,7 @@ Allow: /
 # SECTION 2: SITEMAP LOCATION
 # Tells search engines where to find the sitemap
 # ================================================
-Sitemap: https://tcs-frontend-uf5q.onrender.com/sitemap.xml
+Sitemap: https://computerstoreks.com/sitemap.xml
 
 # ================================================
 # SECTION 3: CRAWL RATE CONTROL (Optional)

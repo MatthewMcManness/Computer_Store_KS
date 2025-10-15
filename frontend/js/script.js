@@ -1,1236 +1,728 @@
 /**
  * ================================================
- * COMPUTER STORE KANSAS - CONSOLIDATED JAVASCRIPT
+ * COMPUTER STORE KANSAS - MAIN JAVASCRIPT FILE
  * ================================================
- * VERSION: 9
- * LAST UPDATED: 2025-09-23
- * CHANGES: Updated plan description text to include "comprehensive computer protection 
- *          and maintenance for peace of mind" in the populateProtectionPlan function
- * DESCRIPTION: Combines mobile navigation, page switching, modal handling, contact form,
- *              dynamic content management, and Google Analytics tracking
- * DEPENDENCIES: config.js (must be loaded first), Google Analytics gtag
+ * VERSION: 31
+ * LAST UPDATED: 2025-10-15
+ * CHANGES: - Modernized testimonials carousel with smooth animations
+ *          - Added auto-play functionality for carousel
+ *          - Enhanced mobile touch support
+ *          - Improved modal interactions
+ * DESCRIPTION: Handles all interactive functionality for the website
+ * DEPENDENCIES: None (vanilla JavaScript)
  * 
  * Table of Contents:
- * 1. Initialization & DOM Ready Setup
- * 2. Configuration Data Management
- * 3. Google Analytics Integration
- * 4. Dynamic Content Population
- * 5. Mobile Navigation Toggle
- * 6. Single-Page App Navigation System
- * 7. Login Modal Functionality
- * 8. Contact Form Handling
- * 9. Browser History Management
- * 10. Utility Functions
- * 11. Event Listeners & Initialization
+ * 1. Page Navigation System
+ * 2. Mobile Hamburger Menu
+ * 3. Testimonials Carousel
+ * 4. Modal System (Login & Contact)
+ * 5. Contact Form Submission
+ * 6. Utility Functions
+ * 7. Initialization
  * ================================================
  */
 
-console.log('[site.js] loaded');
-
-document.addEventListener('DOMContentLoaded', function() {
-  console.log('[site.js] DOM ready');
-
-  /* ================================================
-     1. ELEMENT REFERENCES & INITIAL SETUP
-     Get references to key DOM elements for later use
-     ================================================ */
-  const navLinks = document.querySelectorAll('.nav-link');      // All navigation links
-  const pages = document.querySelectorAll('.page-section');    // All page sections
-  const hamburger = document.getElementById('hamburger-button'); // Mobile menu button
-  const navList = document.querySelector('header nav ul');     // Navigation menu list
-  
-  /* ================================================
-     2. CONFIGURATION DATA MANAGEMENT
-     Access and validate configuration data
-     ================================================ */
-  
-  // Check if configuration data is available
-  if (typeof window.siteConfig === 'undefined') {
-    console.error('[site.js] Configuration data not found! Make sure config.js is loaded before this script.');
-    return;
-  }
-  
-  const config = window.siteConfig;                           // Reference to configuration data
-  console.log('[site.js] Configuration loaded successfully');
-
-  /* ================================================
-     3. GOOGLE ANALYTICS INTEGRATION
-     Track page views and user interactions for single-page application
-     ================================================ */
-
-  /**
-   * Track a page view in Google Analytics
-   * @param {string} pageId - The page identifier (home, about, services, etc.)
-   * @param {string} pageTitle - The page title for analytics
-   */
-  function trackPageView(pageId, pageTitle) {
-    // Check if Google Analytics is loaded
-    if (typeof gtag === 'function') {
-      console.log('[Analytics] Tracking page view:', pageId);
-      
-      // Send page view event to Google Analytics
-      gtag('config', 'G-EQ3ML3VTCZ', {
-        page_title: pageTitle,
-        page_location: window.location.href,
-        page_path: pageId === 'home' ? '/' : `/#${pageId}`
-      });
-      
-      // Send custom event for page navigation
-      gtag('event', 'page_view', {
-        page_title: pageTitle,
-        page_location: window.location.href,
-        page_path: pageId === 'home' ? '/' : `/#${pageId}`,
-        custom_page_id: pageId
-      });
-    } else {
-      console.warn('[Analytics] Google Analytics not loaded');
-    }
-  }
-
-  /**
-   * Track user interactions and events
-   * @param {string} eventName - Name of the event
-   * @param {string} category - Event category
-   * @param {string} label - Event label (optional)
-   * @param {number} value - Event value (optional)
-   */
-  function trackEvent(eventName, category, label = '', value = null) {
-    if (typeof gtag === 'function') {
-      console.log('[Analytics] Tracking event:', eventName, category, label);
-      
-      const eventData = {
-        event_category: category,
-        event_label: label
-      };
-      
-      if (value !== null) {
-        eventData.value = value;
-      }
-      
-      gtag('event', eventName, eventData);
-    }
-  }
-
-  /**
-   * Track contact form interactions
-   * @param {string} action - The action taken (form_start, form_submit, form_success, form_error)
-   * @param {string} formType - Type of form (contact_modal, etc.)
-   */
-  function trackContactForm(action, formType = 'contact_modal') {
-    trackEvent(action, 'contact_form', formType);
-    
-    // Special tracking for form completion
-    if (action === 'form_success') {
-      gtag('event', 'conversion', {
-        send_to: 'G-EQ3ML3VTCZ',
-        event_category: 'contact_form',
-        event_label: 'lead_generated'
-      });
-    }
-  }
-
-  /* ================================================
-   TESTIMONIALS CAROUSEL CLASS DEFINITION
-   Add this entire section right after the trackContactForm function
-   ================================================ */
+// ================================================
+// 1. PAGE NAVIGATION SYSTEM
+// Handles single-page app navigation between sections
+// ================================================
 
 /**
- * Testimonials Carousel Class - handles all carousel functionality
+ * Navigate to a specific page section
+ * @param {string} pageId - The ID of the page to navigate to (e.g., 'home', 'about')
  */
-class TestimonialsCarousel {
-  /**
-   * Initialize the testimonials carousel
-   * @param {HTMLElement} container - The testimonials section container
-   * @param {Array} testimonials - Array of testimonial objects from config
-   */
-  constructor(container, testimonials) {
-    this.container = container;           // Main testimonials section
-    this.testimonials = testimonials;     // Testimonials data from config
-    this.currentIndex = 0;                // Currently displayed testimonial index
-    this.isTransitioning = false;         // Prevent multiple transitions
-    this.autoRotateInterval = null;       // Auto-rotation timer
-    this.autoRotateDelay = 6000;          // 6 seconds between auto-rotations
-    
-    // Touch/swipe detection variables
-    this.touchStartX = 0;                 // Starting X position for touch
-    this.touchEndX = 0;                   // Ending X position for touch
-    this.minSwipeDistance = 50;           // Minimum swipe distance to trigger navigation
-    
-    this.init();                          // Initialize the carousel
+function navigateToPage(pageId) {
+  // Hide all page sections
+  const allPages = document.querySelectorAll('.page-section');
+  allPages.forEach(page => {
+    page.classList.remove('active');
+  });
+  
+  // Show the target page section
+  const targetPage = document.getElementById(pageId + '-page');
+  if (targetPage) {
+    targetPage.classList.add('active');
   }
-
-  /**
-   * Initialize the carousel - create structure and bind events
-   */
-  init() {
-    console.log('[Carousel] Initializing testimonials carousel...');
-    
-    // Create the carousel HTML structure
-    this.createCarouselStructure();
-    
-    // Set up navigation controls
-    this.setupNavigation();
-    
-    // Add touch/swipe support
-    this.setupTouchNavigation();
-    
-    // Add keyboard navigation
-    this.setupKeyboardNavigation();
-    
-    // Start auto-rotation
-    this.startAutoRotation();
-    
-    // Pause auto-rotation when user hovers over carousel
-    this.setupHoverPause();
-    
-    console.log('[Carousel] Testimonials carousel initialized successfully');
+  
+  // Update navigation link active states
+  const allNavLinks = document.querySelectorAll('.nav-link');
+  allNavLinks.forEach(link => {
+    link.classList.remove('active');
+  });
+  
+  // Add active class to the clicked navigation link
+  const activeLink = document.querySelector(`.nav-link[data-page="${pageId}"]`);
+  if (activeLink) {
+    activeLink.classList.add('active');
   }
+  
+  // Scroll to top of page for better UX
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  
+  // Close mobile menu if open
+  closeMobileMenu();
+}
 
-  /**
-   * Create the complete carousel HTML structure
-   */
-  createCarouselStructure() {
-    // Keep the existing heading
-    const heading = this.container.querySelector('h2');
-    
-    // Clear the container but preserve the heading
-    this.container.innerHTML = '';
-    if (heading) {
-      this.container.appendChild(heading);
-    }
-
-    // Create carousel wrapper
-    const carouselWrapper = document.createElement('div');
-    carouselWrapper.className = 'testimonials-carousel';
-    
-    // Create carousel track (holds all testimonials)
-    const carouselTrack = document.createElement('div');
-    carouselTrack.className = 'testimonials-track';
-    
-    // Create individual testimonial cards
-    this.testimonials.forEach((testimonial, index) => {
-      const testimonialCard = this.createTestimonialCard(testimonial, index);
-      carouselTrack.appendChild(testimonialCard);
+/**
+ * Initialize page navigation listeners
+ * Sets up click handlers for all navigation links
+ */
+function initializeNavigation() {
+  // Get all navigation links with data-page attribute
+  const navLinks = document.querySelectorAll('.nav-link[data-page]');
+  
+  // Add click event listener to each navigation link
+  navLinks.forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault(); // Prevent default link behavior
+      const pageId = this.getAttribute('data-page');
+      navigateToPage(pageId);
     });
-    
-    // Create navigation arrows
-    const prevArrow = this.createArrowButton('prev', '←');
-    const nextArrow = this.createArrowButton('next', '→');
-    
-    // Assemble the carousel structure
-    carouselWrapper.appendChild(prevArrow);
-    carouselWrapper.appendChild(carouselTrack);
-    carouselWrapper.appendChild(nextArrow);
-    
-    // Add to main container
-    this.container.appendChild(carouselWrapper);
-    
-    // Create indicators (dots)
-    if (this.testimonials.length > 1) {
-      const indicators = this.createIndicators();
-      this.container.appendChild(indicators);
-    }
-    
-    // Store references for later use
-    this.carouselWrapper = carouselWrapper;
-    this.carouselTrack = carouselTrack;
-    this.prevArrow = prevArrow;
-    this.nextArrow = nextArrow;
-  }
-
-  /**
-   * Create a single testimonial card element
-   */
-  createTestimonialCard(testimonial, index) {
-    const card = document.createElement('div');
-    card.className = 'testimonial';
-    card.setAttribute('data-index', index);
-    
-    card.innerHTML = `
-      <p>${testimonial.text}</p>
-      <h4>– ${testimonial.author}, ${testimonial.location}</h4>
-    `;
-    
-    return card;
-  }
-
-  /**
-   * Create arrow navigation button
-   */
-  createArrowButton(direction, symbol) {
-    const button = document.createElement('button');
-    button.className = `carousel-arrow ${direction}`;
-    button.setAttribute('aria-label', `${direction === 'prev' ? 'Previous' : 'Next'} testimonial`);
-    button.innerHTML = symbol;
-    
-    return button;
-  }
-
-  /**
-   * Create indicator dots container
-   */
-  createIndicators() {
-    const indicatorsContainer = document.createElement('div');
-    indicatorsContainer.className = 'carousel-indicators';
-    
-    this.testimonials.forEach((_, index) => {
-      const indicator = document.createElement('button');
-      indicator.className = `carousel-indicator ${index === 0 ? 'active' : ''}`;
-      indicator.setAttribute('data-index', index);
-      indicator.setAttribute('aria-label', `Go to testimonial ${index + 1}`);
-      indicatorsContainer.appendChild(indicator);
+  });
+  
+  // Handle back-to-home link in login modal
+  const backToHomeLink = document.getElementById('back-to-home');
+  if (backToHomeLink) {
+    backToHomeLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      navigateToPage('home');
+      closeLoginModal();
     });
-    
-    return indicatorsContainer;
-  }
-
-  /**
-   * Set up all navigation event listeners
-   */
-  setupNavigation() {
-    // Arrow navigation
-    this.prevArrow.addEventListener('click', () => {
-      this.goToPrevious();
-      this.resetAutoRotation();
-    });
-    
-    this.nextArrow.addEventListener('click', () => {
-      this.goToNext();
-      this.resetAutoRotation();
-    });
-    
-    // Indicator navigation
-    const indicators = this.container.querySelectorAll('.carousel-indicator');
-    indicators.forEach(indicator => {
-      indicator.addEventListener('click', (e) => {
-        const index = parseInt(e.target.getAttribute('data-index'));
-        this.goToSlide(index);
-        this.resetAutoRotation();
-      });
-    });
-  }
-
-  /**
-   * Navigate to the previous testimonial
-   */
-  goToPrevious() {
-    if (this.isTransitioning) return;
-    
-    const newIndex = this.currentIndex === 0 
-      ? this.testimonials.length - 1 
-      : this.currentIndex - 1;
-    
-    this.goToSlide(newIndex);
-    
-    // Track user interaction for analytics
-    if (typeof trackEvent === 'function') {
-      trackEvent('testimonial_navigate', 'engagement', 'previous_button');
-    }
-  }
-
-  /**
-   * Navigate to the next testimonial
-   */
-  goToNext() {
-    if (this.isTransitioning) return;
-    
-    const newIndex = this.currentIndex === this.testimonials.length - 1 
-      ? 0 
-      : this.currentIndex + 1;
-    
-    this.goToSlide(newIndex);
-    
-    // Track user interaction for analytics
-    if (typeof trackEvent === 'function') {
-      trackEvent('testimonial_navigate', 'engagement', 'next_button');
-    }
-  }
-
-  /**
-   * Navigate to a specific testimonial by index
-   */
-  goToSlide(index) {
-    if (this.isTransitioning || index === this.currentIndex) return;
-    
-    this.isTransitioning = true;
-    this.currentIndex = index;
-    
-    // Calculate the transform value to show the correct testimonial
-    const translateX = -index * 100;
-    this.carouselTrack.style.transform = `translateX(${translateX}%)`;
-    
-    // Update indicators
-    this.updateIndicators();
-    
-    // Reset transition lock after animation completes
-    setTimeout(() => {
-      this.isTransitioning = false;
-    }, 500);
-    
-    // Track slide change for analytics
-    if (typeof trackEvent === 'function') {
-      trackEvent('testimonial_view', 'engagement', `slide_${index + 1}`);
-    }
-  }
-
-  /**
-   * Update the active state of indicator dots
-   */
-  updateIndicators() {
-    const indicators = this.container.querySelectorAll('.carousel-indicator');
-    indicators.forEach((indicator, index) => {
-      if (index === this.currentIndex) {
-        indicator.classList.add('active');
-      } else {
-        indicator.classList.remove('active');
-      }
-    });
-  }
-
-  /**
-   * Start automatic rotation through testimonials
-   */
-  startAutoRotation() {
-    if (this.testimonials.length <= 1) return;
-    
-    this.autoRotateInterval = setInterval(() => {
-      this.goToNext();
-    }, this.autoRotateDelay);
-  }
-
-  /**
-   * Stop automatic rotation
-   */
-  stopAutoRotation() {
-    if (this.autoRotateInterval) {
-      clearInterval(this.autoRotateInterval);
-      this.autoRotateInterval = null;
-    }
-  }
-
-  /**
-   * Reset the auto-rotation timer
-   */
-  resetAutoRotation() {
-    this.stopAutoRotation();
-    this.startAutoRotation();
-  }
-
-  /**
-   * Set up hover pause functionality
-   */
-  setupHoverPause() {
-    this.carouselWrapper.addEventListener('mouseenter', () => {
-      this.stopAutoRotation();
-    });
-    
-    this.carouselWrapper.addEventListener('mouseleave', () => {
-      this.startAutoRotation();
-    });
-  }
-
-  /**
-   * Set up touch event listeners for swipe navigation
-   */
-  setupTouchNavigation() {
-    this.carouselWrapper.addEventListener('touchstart', (e) => {
-      this.touchStartX = e.touches[0].clientX;
-    }, { passive: true });
-    
-    this.carouselWrapper.addEventListener('touchend', (e) => {
-      this.touchEndX = e.changedTouches[0].clientX;
-      this.handleSwipe();
-    }, { passive: true });
-  }
-
-  /**
-   * Process swipe gesture and navigate accordingly
-   */
-  handleSwipe() {
-    const swipeDistance = this.touchStartX - this.touchEndX;
-    const absSwipeDistance = Math.abs(swipeDistance);
-    
-    if (absSwipeDistance < this.minSwipeDistance) return;
-    
-    if (swipeDistance > 0) {
-      this.goToNext();
-    } else {
-      this.goToPrevious();
-    }
-    
-    this.resetAutoRotation();
-    
-    // Track swipe interaction for analytics
-    if (typeof trackEvent === 'function') {
-      trackEvent('testimonial_swipe', 'engagement', swipeDistance > 0 ? 'left' : 'right');
-    }
-  }
-
-  /**
-   * Set up keyboard event listeners
-   */
-  setupKeyboardNavigation() {
-    this.carouselWrapper.addEventListener('keydown', (e) => {
-      this.handleKeyPress(e);
-    });
-    
-    this.carouselWrapper.setAttribute('tabindex', '0');
-    this.carouselWrapper.setAttribute('role', 'region');
-    this.carouselWrapper.setAttribute('aria-label', 'Customer testimonials carousel');
-  }
-
-  /**
-   * Handle keyboard navigation
-   */
-  handleKeyPress(e) {
-    switch (e.key) {
-      case 'ArrowLeft':
-        e.preventDefault();
-        this.goToPrevious();
-        this.resetAutoRotation();
-        break;
-      case 'ArrowRight':
-        e.preventDefault();
-        this.goToNext();
-        this.resetAutoRotation();
-        break;
-      case 'Home':
-        e.preventDefault();
-        this.goToSlide(0);
-        this.resetAutoRotation();
-        break;
-      case 'End':
-        e.preventDefault();
-        this.goToSlide(this.testimonials.length - 1);
-        this.resetAutoRotation();
-        break;
-    }
-    
-    if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) {
-      if (typeof trackEvent === 'function') {
-        trackEvent('testimonial_keyboard', 'accessibility', e.key);
-      }
-    }
-  }
-
-  /**
-   * Destroy the carousel and clean up
-   */
-  destroy() {
-    this.stopAutoRotation();
-    console.log('[Carousel] Testimonials carousel destroyed');
   }
 }
 
+// ================================================
+// 2. MOBILE HAMBURGER MENU
+// Handles mobile navigation menu toggle
+// ================================================
 
-  /* ================================================
-     4. DYNAMIC CONTENT POPULATION
-     Functions to populate website content from configuration data
-     ================================================ */
-
-  /**
-   * Populate services section with data from configuration
-   * @param {string} containerSelector - CSS selector for the services container
-   * @param {Array} servicesData - Array of service objects
-   */
-  function populateServices(containerSelector, servicesData) {
-    const container = document.querySelector(containerSelector);
-    if (!container) return;
-
-    const cardsContainer = container.querySelector('.cards');
-    if (!cardsContainer) return;
-
-    // Clear existing content
-    cardsContainer.innerHTML = '';
-
-    // Create service cards from configuration data
-    servicesData.forEach(service => {
-      const cardElement = document.createElement('div');
-      cardElement.className = 'card';
-      cardElement.innerHTML = `
-        <h3>${service.name}</h3>
-        <p>${service.description}</p>
-      `;
-      cardsContainer.appendChild(cardElement);
-    });
-  }
-
-  /**
-   * Populate testimonials section with data from configuration
-   */
 /**
- * Enhanced testimonials population function - now creates a carousel
+ * Toggle mobile navigation menu open/closed
  */
-  function populateTestimonials() {
-    const testimonialsContainer = document.querySelector('.testimonials .container');
-    if (!testimonialsContainer) {
-      console.warn('[Carousel] Testimonials container not found');
-      return;
-    }
+function toggleMobileMenu() {
+  const hamburger = document.getElementById('hamburger-button');
+  const nav = document.querySelector('header nav ul');
+  
+  if (!hamburger || !nav) return;
+  
+  // Toggle active class on hamburger icon
+  hamburger.classList.toggle('active');
+  
+  // Toggle show class on navigation menu
+  nav.classList.toggle('show');
+  
+  // Update aria-expanded attribute for accessibility
+  const isExpanded = nav.classList.contains('show');
+  hamburger.setAttribute('aria-expanded', isExpanded);
+  
+  // Update aria-label for accessibility
+  hamburger.setAttribute('aria-label', isExpanded ? 'Close menu' : 'Open menu');
+}
 
-    // Check if we have testimonials data
-    if (!config.testimonials || config.testimonials.length === 0) {
-      console.warn('[Carousel] No testimonials data found');
-      return;
-    }
+/**
+ * Close mobile navigation menu
+ */
+function closeMobileMenu() {
+  const hamburger = document.getElementById('hamburger-button');
+  const nav = document.querySelector('header nav ul');
+  
+  if (!hamburger || !nav) return;
+  
+  // Remove active and show classes
+  hamburger.classList.remove('active');
+  nav.classList.remove('show');
+  
+  // Update accessibility attributes
+  hamburger.setAttribute('aria-expanded', 'false');
+  hamburger.setAttribute('aria-label', 'Open menu');
+}
 
-    console.log('[Carousel] Creating testimonials carousel with', config.testimonials.length, 'testimonials');
-
-    // Create and initialize the carousel
-    window.testimonialsCarousel = new TestimonialsCarousel(testimonialsContainer, config.testimonials);
-    
-    // Track carousel initialization for analytics
-    if (typeof trackEvent === 'function') {
-      trackEvent('testimonials_carousel_init', 'engagement', `${config.testimonials.length}_testimonials`);
-    }
-  }
-
-
-  /**
-   * Populate highlights section with data from configuration
-   */
-  function populateHighlights() {
-    const highlightsContainer = document.querySelector('.highlights-container');
-    if (!highlightsContainer) return;
-
-    // Clear existing content
-    highlightsContainer.innerHTML = '';
-
-    // Create highlight elements from configuration data
-    config.highlights.forEach(highlight => {
-      const highlightElement = document.createElement('div');
-      highlightElement.className = 'highlight';
-      highlightElement.innerHTML = `<h3>${highlight}</h3>`;
-      highlightsContainer.appendChild(highlightElement);
-    });
-  }
-
-  /**
-   * Populate contact information throughout the site
-   */
-  function populateContactInfo() {
-    // Update contact information in contact page
-    const contactInfo = document.querySelector('.contact-info');
-    if (contactInfo) {
-      contactInfo.innerHTML = `
-        <p><strong>Phone:</strong> ${config.contact.phone}</p>
-        <p><strong>Email:</strong> ${config.contact.email}</p>
-        <p><strong>Address:</strong> ${config.contact.address}</p>
-        <p><strong>Hours:</strong> ${config.contact.hoursDisplay}</p>
-        <p class="note">*Three‑month agreement required</p>
-      `;
-    }
-
-    // Update email links throughout the site
-    document.querySelectorAll('a[href*="mailto"]').forEach(emailLink => {
-      emailLink.href = `mailto:${config.contact.email}`;
-      if (emailLink.textContent.includes('@')) {
-        emailLink.textContent = config.contact.email;
-      }
-    });
-  }
-
-  /**
-   * Populate protection plan information
-   */
-  function populateProtectionPlan() {
-    const membershipText = document.querySelector('.membership-text-centered');
-    if (!membershipText) return;
-
-    const silverPlan = config.plans.silver;
-    
-    // Update plan description
-    const planDescription = membershipText.querySelector('.plan-description');
-    if (planDescription) {
-      planDescription.innerHTML = `Our ${silverPlan.name} provides comprehensive care for your computer. Only ${silverPlan.price} per month (with a ${silverPlan.commitment} commitment)`;
-    }
-
-    // Update features list
-    const featuresList = membershipText.querySelector('.membership-features-enhanced');
-    if (featuresList) {
-      featuresList.innerHTML = '';
-      silverPlan.features.forEach(feature => {
-        const listItem = document.createElement('li');
-        listItem.textContent = feature;
-        featuresList.appendChild(listItem);
-      });
-    }
-
-    // Update contact note
-    const membershipNote = membershipText.querySelector('.membership-note');
-    if (membershipNote) {
-      membershipNote.innerHTML = `<strong>Ready to get protected?</strong> Contact us at <a href="mailto:${config.contact.email}">${config.contact.email}</a> or call ${config.contact.phone} to sign up today!`;
-    }
-  }
-
-  /**
-   * Populate founder information
-   */
-  function populateFounderInfo() {
-    const founderText = document.querySelector('.founder-text');
-    if (!founderText) return;
-
-    // Update founder quote
-    const founderQuote = founderText.querySelector('p:not(.founder-name)');
-    if (founderQuote) {
-      founderQuote.textContent = config.founder.quote;
-    }
-
-    // Update founder attribution
-    const founderName = founderText.querySelector('.founder-name');
-    if (founderName) {
-      founderName.textContent = `– ${config.founder.name}, ${config.founder.title}`;
-    }
-  }
-
-  /**
-   * Update page titles and meta information
-   */
-  function updatePageTitles() {
-    // Update navigation page titles based on current page
-    const currentPage = document.querySelector('.page-section.active')?.id.replace('-page', '') || 'home';
-    const pageConfig = config.navigation.pages.find(page => page.id === currentPage);
-    
-    if (pageConfig) {
-      document.title = pageConfig.display_title;
-    }
-
-    // Update footer copyright
-    const footer = document.querySelector('footer p');
-    if (footer) {
-      footer.textContent = `© ${config.meta.copyright}`;
-    }
-  }
-
-  /**
-   * Master function to populate all dynamic content
-   */
-  function populateAllContent() {
-    console.log('[site.js] Populating dynamic content...');
-    
-    // Populate different sections with appropriate data
-    populateServices('#home-page .services', config.services.main);           // Home page services
-    populateServices('#services-page .services', config.services.detailed);   // Services page detailed services
-    populateServices('#about-page .services', config.services.differentiators); // About page differentiators
-    
-    populateTestimonials();          // Customer testimonials
-    populateHighlights();            // Key selling points
-    populateContactInfo();           // Contact information
-    populateProtectionPlan();        // Protection plan details
-    populateFounderInfo();           // Founder information
-    updatePageTitles();              // Page titles and meta info
-    
-    console.log('[site.js] Dynamic content population complete');
+/**
+ * Initialize hamburger menu listeners
+ */
+function initializeHamburgerMenu() {
+  const hamburger = document.getElementById('hamburger-button');
+  
+  if (hamburger) {
+    hamburger.addEventListener('click', toggleMobileMenu);
   }
   
-  /* ================================================
-     5. MOBILE NAVIGATION TOGGLE
-     Handle hamburger menu for mobile devices with icon switching
-     ================================================ */
-  if (hamburger && navList) {
-    hamburger.addEventListener('click', function() {
-      // STEP 1: Toggle the mobile navigation menu visibility
-      const isMenuOpen = navList.classList.toggle('show');
-      
-      // STEP 2: Toggle hamburger icon between ☰ (hamburger) and ✕ (close)
-      if (isMenuOpen) {
-        // Menu is now open - change hamburger to close (X) icon
-        hamburger.classList.add('active');
-        hamburger.setAttribute('aria-label', 'Close menu'); // Accessibility
-        hamburger.setAttribute('aria-expanded', 'true');    // Screen reader support
-        
-        // Track mobile menu open event
-        trackEvent('mobile_menu_open', 'navigation', 'hamburger_menu');
-      } else {
-        // Menu is now closed - change back to hamburger icon
-        hamburger.classList.remove('active');
-        hamburger.setAttribute('aria-label', 'Open menu');  // Accessibility
-        hamburger.setAttribute('aria-expanded', 'false');   // Screen reader support
-        
-        // Track mobile menu close event
-        trackEvent('mobile_menu_close', 'navigation', 'hamburger_menu');
-      }
-    });
-  }
-
-  /**
-   * Close mobile menu and reset hamburger icon
-   * Called when navigation links are clicked or when needed to programmatically close menu
-   */
-  function closeMobileMenu() {
-    if (navList && hamburger) {
-      // STEP 1: Hide the mobile navigation menu
-      navList.classList.remove('show');
-      
-      // STEP 2: Reset hamburger icon back to hamburger (☰) state
-      hamburger.classList.remove('active');
-      hamburger.setAttribute('aria-label', 'Open menu');    // Reset accessibility label
-      hamburger.setAttribute('aria-expanded', 'false');     // Reset screen reader state
-    }
-  }
-
-  /* ================================================
-     6. SINGLE-PAGE APP NAVIGATION SYSTEM
-     Core function to switch between different page sections
-     ================================================ */
-  
-  /**
-   * Show a specific page and update navigation states
-   * @param {string} pageId - The ID of the page to show (silver-plan, home, about, services, contact)
-   */
-  function showPage(pageId) {
-    // STEP 1: Hide all page sections
-    pages.forEach(page => {
-      page.classList.remove('active');
-    });
-    
-    // STEP 2: Show the target page section
-    const targetPage = document.getElementById(pageId + '-page');
-    if (targetPage) {
-      targetPage.classList.add('active');
-    }
-    
-    // STEP 3: Update navigation active states
-    navLinks.forEach(link => {
-      link.classList.remove('active');  // Remove active from all links
-    });
-    
-    // STEP 4: Set active state on current navigation link
-    const activeLink = document.querySelector(`[data-page="${pageId}"]`);
-    if (activeLink) {
-      activeLink.classList.add('active');
-    }
-    
-    // STEP 5: Update browser tab title using configuration data
-    const pageConfig = config.navigation.pages.find(page => page.id === pageId);
-    if (pageConfig) {
-      document.title = pageConfig.display_title;
-      
-      // STEP 6: Track page view in Google Analytics
-      trackPageView(pageId, pageConfig.display_title);
-    } else {
-      document.title = config.site.name; // Fallback to site name
-      trackPageView(pageId, config.site.name);
-    }
-    
-    // STEP 7: Close mobile menu if it's open (using our helper function)
-    closeMobileMenu();
-    
-    // STEP 8: Scroll to top for better user experience
-    window.scrollTo(0, 0);
-    
-    // STEP 9: Update browser history for back/forward button support
-    history.pushState({page: pageId}, '', window.location.pathname + (pageId !== 'home' ? '#' + pageId : ''));
-    
-    // STEP 10: Track navigation event
-    trackEvent('page_navigation', 'navigation', pageId);
-  }
-
-  /* ================================================
-     NAVIGATION LINK EVENT LISTENERS
-     Attach click handlers to all navigation links with special contact handling
-     ================================================ */
-  navLinks.forEach(link => {
-    link.addEventListener('click', function(e) {
-      e.preventDefault();                           // Prevent default link behavior
-      const pageId = this.getAttribute('data-page'); // Get target page ID
-      
-      // Special handling for contact link - open modal instead of page navigation
-      if (pageId === 'contact') {
-        contactModal.classList.add('active');       // Open contact modal
-        trackEvent('contact_modal_open', 'contact_form', 'navigation_link');
-        return;                                     // Don't navigate to contact page
-      }
-      
-      if (pageId) {
-        showPage(pageId);                           // Switch to target page
-      }
-    });
-  });
-
-  /* ================================================
-     7. MODAL FUNCTIONALITY (LOGIN & CONTACT)
-     Handle login modal and contact form modal display and interaction
-     ================================================ */
-  
-  // Get references to modal elements
-  const loginBtn = document.getElementById('login-btn');        // Administrator Login button (now in footer)
-  const loginModal = document.getElementById('login-modal');    // Login modal container
-  const modalClose = document.getElementById('modal-close');    // Login modal close button
-  const backToHome = document.getElementById('back-to-home');   // Back to Home button
-
-  // Contact modal elements
-  const contactModal = document.getElementById('contact-modal'); // Contact modal container
-  const contactModalClose = document.getElementById('contact-modal-close'); // Contact modal close button
-  const contactModalBtns = document.querySelectorAll('.contact-modal-btn'); // All contact modal trigger buttons
-
-  // Show login modal when Administrator Login is clicked (button now in footer)
-  if (loginBtn) {
-    loginBtn.addEventListener('click', function(e) {
-      e.preventDefault();                       // Prevent default link behavior
-      loginModal.classList.add('active');      // Show the login modal
-      trackEvent('admin_login_modal_open', 'administration', 'footer_button');
-    });
-  }
-
-  // Show contact modal when any contact button is clicked
-  contactModalBtns.forEach(button => {
-    button.addEventListener('click', function(e) {
-      e.preventDefault();                       // Prevent default behavior
-      contactModal.classList.add('active');    // Show the contact modal
-      
-      // Track which button was clicked
-      const buttonText = this.textContent.trim();
-      trackEvent('contact_modal_open', 'contact_form', buttonText);
-    });
-  });
-
-  /**
-   * Close the login modal and remove from display
-   */
-  function closeLoginModal() {
-    if (loginModal) {
-      loginModal.classList.remove('active');   // Hide the login modal
-      trackEvent('admin_login_modal_close', 'administration', 'modal_close');
-    }
-  }
-
-  /**
-   * Close the contact modal and remove from display
-   */
-  function closeContactModal() {
-    if (contactModal) {
-      contactModal.classList.remove('active'); // Hide the contact modal
-      trackEvent('contact_modal_close', 'contact_form', 'modal_close');
-      
-      // Reset form if it exists
-      const form = document.getElementById('contactForm');
-      const statusEl = document.getElementById('formStatus');
-      if (form) {
-        form.reset();                          // Clear form fields
-      }
-      if (statusEl) {
-        statusEl.textContent = '';             // Clear status message
-        statusEl.className = 'form-status';    // Reset status styling
-      }
-    }
-  }
-
-  // Close login modal when X button is clicked
-  if (modalClose) {
-    modalClose.addEventListener('click', closeLoginModal);
-  }
-
-  // Close contact modal when X button is clicked
-  if (contactModalClose) {
-    contactModalClose.addEventListener('click', closeContactModal);
-  }
-
-  // Close login modal and return to home when "Back to Home" is clicked
-  if (backToHome) {
-    backToHome.addEventListener('click', function(e) {
-      e.preventDefault();                       // Prevent default link behavior
-      closeLoginModal();                        // Close the login modal first
-      showPage('home');                         // Navigate to home page
-    });
-  }
-
-  // Close modals when clicking outside the modal content (on backdrop)
-  if (loginModal) {
-    loginModal.addEventListener('click', function(e) {
-      if (e.target === loginModal) {            // Check if click was on backdrop
-        closeLoginModal();                      // Close the login modal
-      }
-    });
-  }
-
-  if (contactModal) {
-    contactModal.addEventListener('click', function(e) {
-      if (e.target === contactModal) {          // Check if click was on backdrop
-        closeContactModal();                    // Close the contact modal
-      }
-    });
-  }
-
-  /* ================================================
-     8. CONTACT FORM HANDLING
-     Handle contact form submission and API communication using config data
-     Form is now in a modal for better UX
-     ================================================ */
-  
-  // Get references to form elements
-  const form = document.getElementById('contactForm');          // Contact form (in modal)
-  const statusEl = document.getElementById('formStatus');       // Status message display
-
-  if (form && statusEl) {
-    /**
-     * Handle contact form submission using API endpoint from configuration
-     * @param {Event} e - Form submit event
-     */
-    async function submitForm(e) {
-      e.preventDefault();                       // Prevent default form submission
-      console.log('[site.js] submit fired');
-      
-      // Track form start
-      trackContactForm('form_start');
-
-      // STEP 1: Get form elements with modal-specific IDs
-      const nameField = document.getElementById('modal-name');
-      const emailField = document.getElementById('modal-email');
-      const messageField = document.getElementById('modal-message');
-      const submitBtn = form.querySelector('.btn-primary');
-      const btnText = submitBtn.querySelector('.btn-text');
-      const btnLoading = submitBtn.querySelector('.btn-loading');
-
-      // STEP 2: Extract form data
-      const data = {
-        name: nameField.value.trim(),
-        email: emailField.value.trim(),
-        message: messageField.value.trim()
-      };
-
-      // STEP 3: Basic validation
-      if (!data.name || !data.email || !data.message) {
-        statusEl.textContent = 'Please fill in all fields.';
-        statusEl.style.color = '#dc3545';       // Red color for error
-        statusEl.style.backgroundColor = '#f8d7da'; // Light red background
-        statusEl.style.padding = '0.5rem';
-        statusEl.style.borderRadius = '6px';
-        trackContactForm('form_error', 'validation_error');
-        return;
-      }
-      
-      // STEP 4: Show loading state
-      statusEl.textContent = '';                // Clear previous status
-      statusEl.style.backgroundColor = '';      // Clear previous styling
-      submitBtn.disabled = true;                // Disable submit button
-      btnText.style.display = 'none';           // Hide submit text
-      btnLoading.style.display = 'inline';     // Show loading text
-      
-      // Track form submission attempt
-      trackContactForm('form_submit');
-
-      try {
-        // STEP 5: Send data to API using endpoint from configuration
-        const res = await fetch(config.api.contact_endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        });
-
-        // STEP 6: Handle API response
-        // Read raw text first to surface non-JSON errors
-        const text = await res.text();
-        let payload;
-        try {
-          payload = JSON.parse(text);           // Try to parse as JSON
-        } catch {
-          payload = { errorText: text };        // Fallback for non-JSON responses
-        }
-
-        // STEP 7: Display result to user
-        if (res.ok) {
-          // SUCCESS: Show success message and reset form
-          statusEl.textContent = '✅ Thanks! We\'ll be in touch soon.';
-          statusEl.style.color = '#155724';     // Green color for success
-          statusEl.style.backgroundColor = '#d4edda'; // Light green background
-          statusEl.style.padding = '0.5rem';
-          statusEl.style.borderRadius = '6px';
-          form.reset();                         // Clear form fields
-          
-          // Track successful form submission
-          trackContactForm('form_success');
-          
-          // Auto-close modal after 3 seconds
-          setTimeout(() => {
-            closeContactModal();
-          }, 3000);
-        } else {
-          // ERROR: Show error message
-          statusEl.textContent = '❌ ' + (payload?.error || payload?.errorText || 'Something went wrong. Please try again.');
-          statusEl.style.color = '#721c24';     // Red color for error
-          statusEl.style.backgroundColor = '#f8d7da'; // Light red background
-          statusEl.style.padding = '0.5rem';
-          statusEl.style.borderRadius = '6px';
-          trackContactForm('form_error', 'api_error');
-        }
-      } catch (err) {
-        // NETWORK ERROR: Handle fetch failures
-        console.error('[site.js] fetch error', err);
-        statusEl.textContent = '❌ Network error. Please check your connection and try again.';
-        statusEl.style.color = '#721c24';       // Red color for error
-        statusEl.style.backgroundColor = '#f8d7da'; // Light red background
-        statusEl.style.padding = '0.5rem';
-        statusEl.style.borderRadius = '6px';
-        trackContactForm('form_error', 'network_error');
-      } finally {
-        // STEP 8: Reset button state
-        submitBtn.disabled = false;             // Re-enable submit button
-        btnText.style.display = 'inline';       // Show submit text
-        btnLoading.style.display = 'none';     // Hide loading text
-      }
-
-      return false;                             // Extra guard against navigation
-    }
-
-    // Attach form submission handler
-    form.addEventListener('submit', submitForm);
-  }
-
-  /* ================================================
-     9. BROWSER HISTORY MANAGEMENT
-     Handle browser back/forward buttons and URL hash navigation
-     ================================================ */
-  
-  // Handle browser back/forward navigation
-  window.addEventListener('popstate', function(e) {
-    // Get page ID from browser history state or URL hash, fallback to home
-    const pageId = e.state?.page || getPageFromHash() || 'home';
-    showPage(pageId);                           // Navigate to the appropriate page
-  });
-
-  /* ================================================
-     10. UTILITY FUNCTIONS
-     Helper functions for URL parsing and page initialization
-     ================================================ */
-  
-  /**
-   * Extract page ID from URL hash fragment
-   * @returns {string|null} Page ID if valid, null otherwise
-   */
-  function getPageFromHash() {
-    const hash = window.location.hash.slice(1);  // Remove # from hash
-    const validPages = config.navigation.pages.map(page => page.id); // Get valid pages from config
-    return validPages.includes(hash) ? hash : null; // Return only if valid
-  }
-
-  /**
-   * Initialize the page based on URL hash or default to home
-   * Sets up initial browser history state
-   */
-  function initializePage() {
-    const pageId = getPageFromHash() || 'home';   // Get page from URL or default to home
-    showPage(pageId);                             // Display the appropriate page
-    // Set initial browser history state without triggering navigation
-    history.replaceState({page: pageId}, '', window.location.pathname + (pageId !== 'home' ? '#' + pageId : ''));
-  }
-
-  /* ================================================
-     11. KEYBOARD EVENT HANDLERS & ADDITIONAL MOBILE MENU FEATURES
-     Handle keyboard shortcuts, accessibility, and enhanced mobile menu behavior
-     ================================================ */
-  
-  // Handle escape key to close modals AND mobile menu
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-      // Close login modal if open
-      if (loginModal && loginModal.classList.contains('active')) {
-        closeLoginModal();
-      }
-      // Close contact modal if open
-      if (contactModal && contactModal.classList.contains('active')) {
-        closeContactModal();
-      }
-      // Close mobile menu if open
-      if (navList && navList.classList.contains('show')) {
-        closeMobileMenu();
-      }
-    }
-  });
-
-  // Close mobile menu when clicking outside of it (improved user experience)
+  // Close menu when clicking outside
   document.addEventListener('click', function(e) {
-    // Check if mobile menu is open
-    if (navList && navList.classList.contains('show')) {
-      // Check if click was outside the navigation and hamburger button
-      if (!navList.contains(e.target) && !hamburger.contains(e.target)) {
-        closeMobileMenu();
-      }
-    }
-  });
-
-  // Close mobile menu when screen is resized to desktop size (prevents menu staying open)
-  window.addEventListener('resize', function() {
-    // If screen becomes wider than mobile breakpoint, close mobile menu
-    if (window.innerWidth > 768) {
+    const nav = document.querySelector('header nav ul');
+    const hamburger = document.getElementById('hamburger-button');
+    
+    if (nav && hamburger && 
+        nav.classList.contains('show') && 
+        !nav.contains(e.target) && 
+        !hamburger.contains(e.target)) {
       closeMobileMenu();
     }
   });
+}
 
-  /* ================================================
-     12. ADDITIONAL FEATURES & UTILITIES
-     Optional features and compatibility functions
-     ================================================ */
+// ================================================
+// 3. TESTIMONIALS CAROUSEL
+// Modern carousel with auto-play and touch support
+// ================================================
+
+// Carousel state management
+let currentTestimonialIndex = 0;
+let testimonialAutoplayInterval = null;
+let isTestimonialAnimating = false;
+
+/**
+ * Move carousel to a specific testimonial
+ * @param {number} index - The index of the testimonial to show
+ */
+function showTestimonial(index) {
+  // Prevent multiple animations at once
+  if (isTestimonialAnimating) return;
   
-  // Footer year update (if you have a year element in your footer)
-  const yearElement = document.getElementById('year');
-  if (yearElement) {
-    yearElement.textContent = new Date().getFullYear(); // Set current year
+  const track = document.querySelector('.testimonials-track');
+  const testimonials = document.querySelectorAll('.testimonial');
+  const indicators = document.querySelectorAll('.carousel-indicator');
+  
+  if (!track || testimonials.length === 0) return;
+  
+  // Wrap around if index is out of bounds
+  if (index < 0) {
+    index = testimonials.length - 1;
+  } else if (index >= testimonials.length) {
+    index = 0;
   }
   
-  // Track scroll depth for user engagement
-  let maxScrollDepth = 0;
-  window.addEventListener('scroll', function() {
-    const scrollDepth = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
-    if (scrollDepth > maxScrollDepth && scrollDepth % 25 === 0) {
-      maxScrollDepth = scrollDepth;
-      trackEvent('scroll_depth', 'engagement', `${scrollDepth}%`, scrollDepth);
+  // Set animating flag
+  isTestimonialAnimating = true;
+  
+  // Update current index
+  currentTestimonialIndex = index;
+  
+  // Calculate the transform offset
+  const offset = -index * 100;
+  track.style.transform = `translateX(${offset}%)`;
+  
+  // Update indicator active states
+  indicators.forEach((indicator, i) => {
+    if (i === index) {
+      indicator.classList.add('active');
+    } else {
+      indicator.classList.remove('active');
     }
   });
-
-  /* ================================================
-     13. INITIALIZATION & STARTUP
-     Initialize the page and complete setup
-     ================================================ */
   
-  // Populate all dynamic content from configuration
-  populateAllContent();
+  // Reset animating flag after animation completes
+  setTimeout(() => {
+    isTestimonialAnimating = false;
+  }, 600); // Match CSS transition duration
+}
+
+/**
+ * Move to the next testimonial
+ */
+function nextTestimonial() {
+  showTestimonial(currentTestimonialIndex + 1);
+  resetTestimonialAutoplay(); // Reset autoplay timer when manually navigating
+}
+
+/**
+ * Move to the previous testimonial
+ */
+function previousTestimonial() {
+  showTestimonial(currentTestimonialIndex - 1);
+  resetTestimonialAutoplay(); // Reset autoplay timer when manually navigating
+}
+
+/**
+ * Start automatic carousel rotation
+ */
+function startTestimonialAutoplay() {
+  // Clear any existing interval
+  if (testimonialAutoplayInterval) {
+    clearInterval(testimonialAutoplayInterval);
+  }
   
-  // Initialize the page based on current URL
-  initializePage();
+  // Set up new interval (change slide every 5 seconds)
+  testimonialAutoplayInterval = setInterval(() => {
+    nextTestimonial();
+  }, 5000);
+}
+
+/**
+ * Stop automatic carousel rotation
+ */
+function stopTestimonialAutoplay() {
+  if (testimonialAutoplayInterval) {
+    clearInterval(testimonialAutoplayInterval);
+    testimonialAutoplayInterval = null;
+  }
+}
+
+/**
+ * Reset autoplay timer (restart from beginning)
+ */
+function resetTestimonialAutoplay() {
+  stopTestimonialAutoplay();
+  startTestimonialAutoplay();
+}
+
+/**
+ * Initialize testimonials carousel
+ */
+function initializeTestimonialsCarousel() {
+  // Get carousel elements
+  const prevButton = document.querySelector('.carousel-arrow.prev');
+  const nextButton = document.querySelector('.carousel-arrow.next');
+  const indicators = document.querySelectorAll('.carousel-indicator');
+  const carousel = document.querySelector('.testimonials-carousel');
   
-  // Track initial page load
-  trackEvent('site_loaded', 'engagement', 'initial_load');
+  // Add click listeners to navigation arrows
+  if (prevButton) {
+    prevButton.addEventListener('click', previousTestimonial);
+  }
+  
+  if (nextButton) {
+    nextButton.addEventListener('click', nextTestimonial);
+  }
+  
+  // Add click listeners to indicators (dots)
+  indicators.forEach((indicator, index) => {
+    indicator.addEventListener('click', () => {
+      showTestimonial(index);
+      resetTestimonialAutoplay();
+    });
+  });
+  
+  // Add keyboard navigation support
+  document.addEventListener('keydown', (e) => {
+    // Only handle keyboard navigation if carousel is visible
+    if (!carousel || !isElementInViewport(carousel)) return;
+    
+    if (e.key === 'ArrowLeft') {
+      previousTestimonial();
+    } else if (e.key === 'ArrowRight') {
+      nextTestimonial();
+    }
+  });
+  
+  // Add touch/swipe support for mobile
+  let touchStartX = 0;
+  let touchEndX = 0;
+  
+  if (carousel) {
+    carousel.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+    
+    carousel.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      handleSwipe();
+    }, { passive: true });
+  }
+  
+  /**
+   * Handle swipe gesture
+   */
+  function handleSwipe() {
+    const swipeThreshold = 50; // Minimum swipe distance in pixels
+    const difference = touchStartX - touchEndX;
+    
+    if (Math.abs(difference) > swipeThreshold) {
+      if (difference > 0) {
+        // Swiped left - show next
+        nextTestimonial();
+      } else {
+        // Swiped right - show previous
+        previousTestimonial();
+      }
+    }
+  }
+  
+  // Pause autoplay when user hovers over carousel (desktop)
+  if (carousel) {
+    carousel.addEventListener('mouseenter', stopTestimonialAutoplay);
+    carousel.addEventListener('mouseleave', startTestimonialAutoplay);
+  }
+  
+  // Start autoplay
+  startTestimonialAutoplay();
+  
+  // Show first testimonial
+  showTestimonial(0);
+}
 
-  console.log('[site.js] initialization complete');
-});
+// ================================================
+// 4. MODAL SYSTEM (LOGIN & CONTACT)
+// Handles opening and closing of modal dialogs
+// ================================================
 
-/* ================================================
-   LEGACY COMPATIBILITY
-   Support for older theme.css navigation patterns
-   ================================================ */
+/**
+ * Open the login modal
+ */
+function openLoginModal() {
+  const modal = document.getElementById('login-modal');
+  if (modal) {
+    modal.classList.add('active');
+    // Prevent body scroll when modal is open
+    document.body.style.overflow = 'hidden';
+  }
+}
 
-// Mobile nav drawer toggle for theme.css compatibility
-// This provides fallback support if using the older theme.css file
-const toggle = document.getElementById('navToggle');      // Alternative toggle button ID
-const nav = document.getElementById('siteNav');           // Alternative nav container ID
+/**
+ * Close the login modal
+ */
+function closeLoginModal() {
+  const modal = document.getElementById('login-modal');
+  if (modal) {
+    modal.classList.remove('active');
+    // Restore body scroll
+    document.body.style.overflow = '';
+  }
+}
 
-if (toggle && nav) {
-  toggle.addEventListener('click', () => {
-    const open = nav.classList.toggle('open');            // Toggle open class
-    toggle.setAttribute('aria-expanded', String(open));   // Update ARIA attribute
-    nav.setAttribute('aria-hidden', String(!open));       // Update ARIA attribute
+/**
+ * Open the contact modal
+ */
+function openContactModal() {
+  const modal = document.getElementById('contact-modal');
+  if (modal) {
+    modal.classList.add('active');
+    // Prevent body scroll when modal is open
+    document.body.style.overflow = 'hidden';
+    // Focus on first input field for better UX
+    const firstInput = modal.querySelector('input[type="text"]');
+    if (firstInput) {
+      setTimeout(() => firstInput.focus(), 100);
+    }
+  }
+}
+
+/**
+ * Close the contact modal
+ */
+function closeContactModal() {
+  const modal = document.getElementById('contact-modal');
+  if (modal) {
+    modal.classList.remove('active');
+    // Restore body scroll
+    document.body.style.overflow = '';
+    // Clear form status message
+    const formStatus = document.getElementById('formStatus');
+    if (formStatus) {
+      formStatus.textContent = '';
+      formStatus.style.color = '';
+    }
+  }
+}
+
+/**
+ * Initialize modal system
+ */
+function initializeModals() {
+  // Login modal triggers
+  const loginBtn = document.getElementById('login-btn');
+  const loginModalClose = document.getElementById('modal-close');
+  const loginModal = document.getElementById('login-modal');
+  
+  if (loginBtn) {
+    loginBtn.addEventListener('click', openLoginModal);
+  }
+  
+  if (loginModalClose) {
+    loginModalClose.addEventListener('click', closeLoginModal);
+  }
+  
+  // Close login modal when clicking outside content
+  if (loginModal) {
+    loginModal.addEventListener('click', function(e) {
+      if (e.target === loginModal) {
+        closeLoginModal();
+      }
+    });
+  }
+  
+  // Contact modal triggers
+  const contactModalBtns = document.querySelectorAll('.contact-modal-btn');
+  const contactModalClose = document.getElementById('contact-modal-close');
+  const contactModal = document.getElementById('contact-modal');
+  
+  contactModalBtns.forEach(btn => {
+    btn.addEventListener('click', openContactModal);
+  });
+  
+  if (contactModalClose) {
+    contactModalClose.addEventListener('click', closeContactModal);
+  }
+  
+  // Close contact modal when clicking outside content
+  if (contactModal) {
+    contactModal.addEventListener('click', function(e) {
+      if (e.target === contactModal) {
+        closeContactModal();
+      }
+    });
+  }
+  
+  // Close modals with Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closeLoginModal();
+      closeContactModal();
+    }
   });
 }
 
+// ================================================
+// 5. CONTACT FORM SUBMISSION
+// Handles contact form submission and validation
+// ================================================
 
 /**
- * Global carousel controls that can be called from outside
+ * Handle contact form submission
+ * @param {Event} e - The form submit event
  */
-window.nextTestimonial = function() {
-  if (window.testimonialsCarousel) {
-    window.testimonialsCarousel.goToNext();
+function handleContactFormSubmit(e) {
+  e.preventDefault(); // Prevent default form submission
+  
+  // Get form elements
+  const form = e.target;
+  const submitBtn = form.querySelector('button[type="submit"]');
+  const btnText = submitBtn.querySelector('.btn-text');
+  const btnLoading = submitBtn.querySelector('.btn-loading');
+  const formStatus = document.getElementById('formStatus');
+  
+  // Get form data
+  const formData = {
+    name: document.getElementById('modal-name').value,
+    email: document.getElementById('modal-email').value,
+    message: document.getElementById('modal-message').value
+  };
+  
+  // Basic validation
+  if (!formData.name || !formData.email || !formData.message) {
+    showFormStatus('Please fill in all fields', 'error');
+    return;
   }
-};
+  
+  // Email validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(formData.email)) {
+    showFormStatus('Please enter a valid email address', 'error');
+    return;
+  }
+  
+  // Show loading state
+  submitBtn.disabled = true;
+  btnText.style.display = 'none';
+  btnLoading.style.display = 'inline';
+  
+  // Simulate form submission (replace with actual API call)
+  setTimeout(() => {
+    // Success case
+    showFormStatus('Message sent successfully! We\'ll get back to you soon.', 'success');
+    
+    // Reset form
+    form.reset();
+    
+    // Reset button state
+    submitBtn.disabled = false;
+    btnText.style.display = 'inline';
+    btnLoading.style.display = 'none';
+    
+    // Close modal after 2 seconds
+    setTimeout(() => {
+      closeContactModal();
+    }, 2000);
+    
+    // In a real implementation, you would send the data to your backend:
+    /*
+    fetch('/api/contact', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+      showFormStatus('Message sent successfully!', 'success');
+      form.reset();
+      setTimeout(() => closeContactModal(), 2000);
+    })
+    .catch(error => {
+      showFormStatus('Error sending message. Please try again.', 'error');
+    })
+    .finally(() => {
+      submitBtn.disabled = false;
+      btnText.style.display = 'inline';
+      btnLoading.style.display = 'none';
+    });
+    */
+  }, 1500);
+}
 
-window.previousTestimonial = function() {
-  if (window.testimonialsCarousel) {
-    window.testimonialsCarousel.goToPrevious();
+/**
+ * Show form status message
+ * @param {string} message - The message to display
+ * @param {string} type - The type of message ('success' or 'error')
+ */
+function showFormStatus(message, type) {
+  const formStatus = document.getElementById('formStatus');
+  if (!formStatus) return;
+  
+  formStatus.textContent = message;
+  
+  if (type === 'success') {
+    formStatus.style.color = '#10b981'; // Green color
+    formStatus.style.backgroundColor = '#d1fae5'; // Light green background
+  } else if (type === 'error') {
+    formStatus.style.color = '#ef4444'; // Red color
+    formStatus.style.backgroundColor = '#fee2e2'; // Light red background
   }
-};
+  
+  formStatus.style.padding = '0.75rem';
+  formStatus.style.borderRadius = '6px';
+  formStatus.style.marginTop = '1rem';
+}
 
-window.goToTestimonial = function(index) {
-  if (window.testimonialsCarousel) {
-    window.testimonialsCarousel.goToSlide(index);
+/**
+ * Initialize contact form
+ */
+function initializeContactForm() {
+  const contactForm = document.getElementById('contactForm');
+  
+  if (contactForm) {
+    contactForm.addEventListener('submit', handleContactFormSubmit);
   }
+}
+
+// ================================================
+// 6. UTILITY FUNCTIONS
+// Helper functions used throughout the application
+// ================================================
+
+/**
+ * Check if an element is in the viewport
+ * @param {Element} element - The element to check
+ * @returns {boolean} - True if element is in viewport
+ */
+function isElementInViewport(element) {
+  if (!element) return false;
+  
+  const rect = element.getBoundingClientRect();
+  return (
+    rect.top >= 0 &&
+    rect.left >= 0 &&
+    rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+    rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+  );
+}
+
+/**
+ * Debounce function to limit how often a function can be called
+ * @param {Function} func - The function to debounce
+ * @param {number} wait - The wait time in milliseconds
+ * @returns {Function} - The debounced function
+ */
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+/**
+ * Smooth scroll to an element
+ * @param {string} selector - CSS selector for the target element
+ */
+function smoothScrollTo(selector) {
+  const element = document.querySelector(selector);
+  if (element) {
+    element.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
+    });
+  }
+}
+
+// ================================================
+// 7. INITIALIZATION
+// Initialize all components when DOM is ready
+// ================================================
+
+/**
+ * Initialize all website functionality
+ */
+function initializeWebsite() {
+  console.log('Initializing Computer Store Kansas website...');
+  
+  // Initialize core functionality
+  initializeNavigation();
+  initializeHamburgerMenu();
+  initializeModals();
+  initializeContactForm();
+  initializeTestimonialsCarousel();
+  
+  // Add smooth scroll behavior to anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+      const href = this.getAttribute('href');
+      if (href !== '#' && !this.hasAttribute('data-page')) {
+        e.preventDefault();
+        smoothScrollTo(href);
+      }
+    });
+  });
+  
+  // Handle browser back/forward buttons
+  window.addEventListener('popstate', function(e) {
+    // You can add URL-based navigation here if needed
+    // For now, always return to home page
+    navigateToPage('home');
+  });
+  
+  // Handle window resize (debounced for performance)
+  const handleResize = debounce(() => {
+    // Close mobile menu on resize to desktop
+    if (window.innerWidth > 768) {
+      closeMobileMenu();
+    }
+  }, 250);
+  
+  window.addEventListener('resize', handleResize);
+  
+  // Log success message
+  console.log('Website initialized successfully!');
+}
+
+// Wait for DOM to be fully loaded before initializing
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeWebsite);
+} else {
+  // DOM is already loaded
+  initializeWebsite();
+}
+
+// ================================================
+// EXPORT FUNCTIONS (if using modules)
+// Uncomment if you want to use ES6 modules
+// ================================================
+
+/*
+export {
+  navigateToPage,
+  toggleMobileMenu,
+  showTestimonial,
+  nextTestimonial,
+  previousTestimonial,
+  openContactModal,
+  closeContactModal,
+  openLoginModal,
+  closeLoginModal
 };
+*/

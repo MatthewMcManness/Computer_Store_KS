@@ -1,13 +1,15 @@
 /*
  * ================================================
- * COMPUTER STORE KANSAS - CONSOLIDATED STYLESHEET
+ * COMPUTER STORE KANSAS - MODERNIZED STYLESHEET
  * ================================================
- * VERSION: 21
- * LAST UPDATED: 2025-09-23
- * CHANGES: Enhanced Silver Plan page layout - moved heading to blue hero section as large
- *          silver text, removed image, enhanced features with larger blue text styling
- * DESCRIPTION: Combines brochure.css, reset.css, and theme.css with optimizations
- *              Contains all styles for single-page application navigation
+ * VERSION: 31
+ * LAST UPDATED: 2025-10-15
+ * CHANGES: - Fixed header transparency bug (added var() to --bg)
+ *          - Removed founder image styling
+ *          - Completely modernized testimonials carousel with card design
+ *          - Enhanced color system with full light/dark variations
+ *          - Improved glassmorphism and depth effects
+ * DESCRIPTION: Complete styling for single-page application with modern design
  * DEPENDENCIES: None (standalone CSS file)
  * 
  * Table of Contents:
@@ -20,24 +22,44 @@
  * 7. Silver Plan Badge (Shining Metallic Design)
  * 8. Buttons & Interactive Elements
  * 9. Content Sections (Services, About, etc.)
- * 10. Contact Form
- * 11. Specialized Sections (Founder, Testimonials, etc.)
- * 12. Login & Contact Modals
- * 13. Footer
- * 14. Mobile Responsive Styles
+ * 10. Founder Section (Text Only)
+ * 11. Testimonials Carousel (Modernized)
+ * 12. Membership/Silver Plan Sections
+ * 13. Login & Contact Modals
+ * 14. Footer
+ * 15. Mobile Responsive Styles
  * ================================================
  */
 
 /* ================================================
    1. CSS VARIABLES & ROOT STYLES
-   Define global color palette and design tokens
+   Define global color palette with light/dark variations
    ================================================ */
 :root {
-  --primary-color: #081e5b;       /* Dark navy blue to match header */
-  --secondary-color: #c0c0c0;     /* Silver accent color */
-  --text-color: #343a40;          /* Main text color */
-  --background-color: #f8f9fa;    /* Page background */
-  --light-grey: #f5f5f5;          /* Light section backgrounds */
+  /* ===== BACKGROUND COLORS ===== */
+  /* Primary background colors for main content areas */
+  --background: #0f1419;               /* Darkest - main background */
+  --background-light: #1a1f2e;         /* Lighter variation for sections */
+  --background-dark: #080c11;          /* Darker variation for contrast */
+  
+  /* ===== ACCENT COLORS ===== */
+  /* Silver accent colors for highlights and special elements */
+  --accent: #c0c0c0;                   /* Primary silver accent */
+  --accent-light: #e8e8e8;             /* Light silver for highlights */
+  --accent-dark: #a8a8a8;              /* Dark silver for borders */
+  
+  /* ===== THEME COLORS ===== */
+  /* Blue theme colors - main brand color palette */
+  --theme: #2563eb;                    /* Primary blue */
+  --theme-light: #60a5fa;              /* Light blue for hover states */
+  --theme-dark: #1e40af;               /* Dark blue for depth */
+  
+  /* ===== LEGACY COLORS ===== */
+  /* Maintained for backward compatibility */
+  --primary-color: #081e5b;            /* Dark navy blue */
+  --secondary-color: #c0c0c0;          /* Silver */
+  --text-color: #343a40;               /* Main text color */
+  --light-grey: #f5f5f5;               /* Light section backgrounds */
   --bg-dark: oklch(0.1 0.095 244);
   --bg: oklch(0.15 0.095 244);
   --bg-light: oklch(0.2 0.095 244);
@@ -52,22 +74,6 @@
   --warning: oklch(0.7 0.19 100);
   --success: oklch(0.7 0.19 160);
   --info: oklch(0.7 0.19 260);
-
-
-}
-
-/* Silver Hero Heading - Large silver text under the badge */
-.silver-hero-heading {
-  font-size: 2.2rem;              /* Large, prominent size */
-  font-weight: 700;               /* Bold font weight */
-  color: #e8e8e8;                 /* Light silver color for contrast on blue */
-  text-shadow: 
-    1px 1px 2px rgba(0, 0, 0, 0.3),          /* Dark shadow for depth */
-    0 0 8px rgba(255, 255, 255, 0.2);        /* Subtle white glow */
-  margin-bottom: 1.5rem;          /* Space below heading */
-  text-align: center;             /* Center the text */
-  letter-spacing: 0.02em;         /* Slight letter spacing for elegance */
-  line-height: 1.2;               /* Good line height for readability */
 }
 
 /* ================================================
@@ -75,16 +81,18 @@
    Normalize browser defaults and set base typography
    ================================================ */
 * {
-  box-sizing: border-box;         /* Include padding/border in element width */
-  margin: 0;                      /* Remove default margins */
-  padding: 0;                     /* Remove default padding */
+  /* Box model normalization */
+  box-sizing: border-box;              /* Include padding/border in element width */
+  margin: 0;                           /* Remove default margins */
+  padding: 0;                          /* Remove default padding */
 }
 
 body {
+  /* Base typography and colors */
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: var(--text-color);
-  background-color: var(--bg);
-  line-height: 1.6;               /* Improve text readability */
+  background-color: #f8f9fa;           /* Light gray page background */
+  line-height: 1.6;                    /* Improve text readability */
 }
 
 /* ================================================
@@ -92,10 +100,11 @@ body {
    Reusable layout components and responsive containers
    ================================================ */
 .container {
-  width: 90%;                     /* Responsive width with margins */
-  max-width: 1200px;              /* Maximum content width for large screens */
-  margin-left: auto;              /* Center horizontally */
-  margin-right: auto;             /* Center horizontally */
+  /* Responsive container with max width */
+  width: 90%;                          /* Responsive width with margins */
+  max-width: 1200px;                   /* Maximum content width for large screens */
+  margin-left: auto;                   /* Center horizontally */
+  margin-right: auto;                  /* Center horizontally */
 }
 
 /* ================================================
@@ -103,11 +112,13 @@ body {
    Controls visibility of different page sections
    ================================================ */
 .page-section {
-  display: none;                  /* Hide all page sections by default */
+  /* Hide all page sections by default */
+  display: none;
 }
 
 .page-section.active {
-  display: block;                 /* Show only the active page section */
+  /* Show only the active page section */
+  display: block;
 }
 
 /* ================================================
@@ -115,116 +126,125 @@ body {
    Sticky header with logo, hamburger menu, and navigation
    ================================================ */
 
-/* Main header container */
+/* ===== MAIN HEADER CONTAINER ===== */
 header {
-  background-color: var(--bg);      /* Dark blue background for contrast */
-  padding: 0.75rem 0;             /* Vertical padding */
-  position: sticky;               /* Stick to top when scrolling */
-  top: 0;                         /* Position at very top */
-  z-index: 1000;                  /* Ensure header stays above other content */
+  /* Header styling and positioning */
+  background-color: var(--bg);         /* FIXED: Now uses var() properly */
+  padding: 0.75rem 0;                  /* Vertical padding */
+  position: sticky;                    /* Stick to top when scrolling */
+  top: 0;                              /* Position at very top */
+  z-index: 1000;                       /* Ensure header stays above other content */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
 }
 
 /* Header layout container */
 header .container {
-  display: flex;                  /* Flexible layout */
-  justify-content: space-between; /* Space between logo and nav */
-  align-items: center;            /* Vertically center items */
+  display: flex;                       /* Flexible layout */
+  justify-content: space-between;      /* Space between logo and nav */
+  align-items: center;                 /* Vertically center items */
 }
 
-/* Company logo styling */
+/* ===== COMPANY LOGO STYLING ===== */
 header .logo {
-  display: flex;                  /* Flex container for logo image */
-  align-items: center;            /* Center logo vertically */
-  font-size: 0;                   /* Hide any text (image-only logo) */
+  /* Logo container */
+  display: flex;                       /* Flex container for logo image */
+  align-items: center;                 /* Center logo vertically */
+  font-size: 0;                        /* Hide any text (image-only logo) */
 }
 
 header .logo img {
-  height: 55px;                   /* Fixed logo height for consistency */
-  margin-right: 0;                /* No right margin needed */
+  /* Logo image sizing */
+  height: 55px;                        /* Fixed logo height for consistency */
+  margin-right: 0;                     /* No right margin needed */
 }
 
-/* Navigation menu styling */
+/* ===== NAVIGATION MENU STYLING ===== */
 header nav ul {
-  list-style: none;               /* Remove bullet points */
-  display: flex;                  /* Horizontal layout */
-  flex-wrap: wrap;                /* Allow wrapping on smaller screens */
-  gap: 1rem;                      /* Space between navigation items */
-  align-items: center;            /* Vertically center nav items */
+  /* Navigation list container */
+  list-style: none;                    /* Remove bullet points */
+  display: flex;                       /* Horizontal layout */
+  flex-wrap: wrap;                     /* Allow wrapping on smaller screens */
+  gap: 1rem;                           /* Space between navigation items */
+  align-items: center;                 /* Vertically center nav items */
 }
 
 header nav ul li {
-  margin-left: 1.25rem;           /* Additional spacing between items */
+  /* Individual navigation items */
+  margin-left: 1.25rem;                /* Additional spacing between items */
 }
 
-/* Navigation link styling */
+/* ===== NAVIGATION LINK STYLING ===== */
 header nav ul li a {
-  color: #fff;                    /* White text for visibility on dark background */
-  text-decoration: none;          /* Remove underlines */
-  font-weight: 500;               /* Medium font weight */
-  padding: 0.35rem 0.75rem;       /* Padding for click target */
-  border-radius: 4px;             /* Rounded corners */
+  /* Base link styling */
+  color: #fff;                         /* White text for visibility on dark background */
+  text-decoration: none;               /* Remove underlines */
+  font-weight: 500;                    /* Medium font weight */
+  padding: 0.35rem 0.75rem;            /* Padding for click target */
+  border-radius: 4px;                  /* Rounded corners */
   transition: background-color 0.3s ease, color 0.3s ease; /* Smooth hover effects */
-  cursor: pointer;                /* Show pointer cursor */
+  cursor: pointer;                     /* Show pointer cursor */
 }
 
 /* Active navigation link (current page) */
 header nav ul li a.active {
-  background-color: #ffffff33;    /* Semi-transparent white background */
-  color: #fff;                    /* Ensure text stays white */
+  background-color: #ffffff33;         /* Semi-transparent white background */
+  color: #fff;                         /* Ensure text stays white */
 }
 
 /* Navigation link hover effects */
 header nav ul li a:hover {
-  background-color: #ffffff33;    /* Same background as active state */
+  background-color: #ffffff33;         /* Same background as active state */
 }
 
-/* Navigation action buttons (Employee Login) */
+/* ===== NAVIGATION ACTION BUTTONS ===== */
+/* General action button styling */
 header nav ul .nav-action a {
-  display: inline-block;          /* Block-level styling with inline flow */
-  padding: .55rem .9rem;          /* Larger padding for button appearance */
-  border-radius: .5rem;           /* More rounded corners for button look */
-  border: 2px solid #c0c8d1;      /* Silver outline border */
-  color: #e6eef7;                 /* Light text color */
-  text-decoration: none;          /* Remove underlines */
-  font-weight: 600;               /* Bold text */
-  white-space: nowrap;            /* Prevent text wrapping */
+  display: inline-block;               /* Block-level styling with inline flow */
+  padding: .55rem .9rem;               /* Larger padding for button appearance */
+  border-radius: .5rem;                /* More rounded corners for button look */
+  border: 2px solid #c0c8d1;           /* Silver outline border */
+  color: #e6eef7;                      /* Light text color */
+  text-decoration: none;               /* Remove underlines */
+  font-weight: 600;                    /* Bold text */
+  white-space: nowrap;                 /* Prevent text wrapping */
 }
 
 header nav ul .nav-action a:hover {
-  background: rgba(255,255,255,.06); /* Subtle white background on hover */
+  background: rgba(255,255,255,.06);   /* Subtle white background on hover */
 }
 
-/* Primary action button styling (Employee Login) */
+/* Primary action button (Employee Login) */
 header nav ul .nav-action.primary a {
-  background: #2a5bd7;            /* Blue background for primary button */
-  border-color: #1f48ad;          /* Darker blue border */
-  color: #ffffff;                 /* White text for contrast */
+  background: #2a5bd7;                 /* Blue background for primary button */
+  border-color: #1f48ad;               /* Darker blue border */
+  color: #ffffff;                      /* White text for contrast */
 }
 
 header nav ul .nav-action.primary a:hover {
-  filter: brightness(1.06);       /* Slightly brighter on hover */
+  filter: brightness(1.06);            /* Slightly brighter on hover */
 }
 
-/* Silver Plan action button styling - animated shiny silver effect */
+/* ===== SILVER PLAN ACTION BUTTON ===== */
+/* Animated shiny silver effect */
 header nav ul .nav-action.silver a {
+  /* Silver gradient background */
   background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 25%, #f5f5f5 50%, #e8e8e8 75%, #c0c0c0 100%);
-  background-size: 200% 200%;     /* Make gradient larger for animation */
-  border-color: #a8a8a8;          /* Darker silver border */
-  color: #2c2c2c;                 /* Dark text for contrast on silver */
-  font-weight: 700;               /* Bolder text for premium feel */
+  background-size: 200% 200%;          /* Make gradient larger for animation */
+  border-color: #a8a8a8;               /* Darker silver border */
+  color: #2c2c2c;                      /* Dark text for contrast on silver */
+  font-weight: 700;                    /* Bolder text for premium feel */
   text-shadow: 0 1px 1px rgba(255,255,255,0.5); /* Subtle white text shadow */
   box-shadow: 0 2px 4px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.3); /* Metallic depth */
   animation: silverShine 3s ease-in-out infinite; /* Continuous shiny animation */
-  position: relative;             /* For pseudo-element positioning */
-  overflow: hidden;               /* Hide overflow for shine effect */
+  position: relative;                  /* For pseudo-element positioning */
+  overflow: hidden;                    /* Hide overflow for shine effect */
 }
 
 /* Silver button hover effect */
 header nav ul .nav-action.silver a:hover {
   background: linear-gradient(135deg, #d4d4d4 0%, #f0f0f0 25%, #ffffff 50%, #f0f0f0 75%, #d4d4d4 100%);
   box-shadow: 0 4px 8px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.4); /* Enhanced depth on hover */
-  transform: translateY(-1px);    /* Subtle lift effect */
+  transform: translateY(-1px);         /* Subtle lift effect */
 }
 
 /* Shiny silver animation keyframes */
@@ -265,54 +285,51 @@ header nav ul .nav-action.silver a::before {
   }
 }
 
-/* ================================================
-   MOBILE HAMBURGER MENU
-   Collapsible navigation for small screens with animated hamburger/close toggle
-   IMPORTANT: Hidden on desktop, only visible on mobile (768px and below)
-   ================================================ */
+/* ===== MOBILE HAMBURGER MENU ===== */
+/* Collapsible navigation for small screens with animated toggle */
 .hamburger {
-  display: none;                  /* HIDDEN ON DESKTOP - only show on mobile */
-  background: none;               /* No background */
-  border: none;                   /* No border */
-  color: #fff;                    /* White color to match nav */
-  font-size: 1.75rem;             /* Large enough for touch targets */
-  cursor: pointer;                /* Show it's clickable */
-  padding: 0.5rem;                /* Padding for larger touch target */
-  transition: transform 0.3s ease; /* Smooth rotation transition */
-  width: 44px;                    /* Fixed width for consistent layout */
-  height: 44px;                   /* Fixed height for consistent layout */
-  align-items: center;            /* Center vertically (when displayed) */
-  justify-content: center;        /* Center horizontally (when displayed) */
+  display: none;                       /* HIDDEN ON DESKTOP - only show on mobile */
+  background: none;                    /* No background */
+  border: none;                        /* No border */
+  color: #fff;                         /* White color to match nav */
+  font-size: 1.75rem;                  /* Large enough for touch targets */
+  cursor: pointer;                     /* Show it's clickable */
+  padding: 0.5rem;                     /* Padding for larger touch target */
+  transition: transform 0.3s ease;     /* Smooth rotation transition */
+  width: 44px;                         /* Fixed width for consistent layout */
+  height: 44px;                        /* Fixed height for consistent layout */
+  align-items: center;                 /* Center vertically (when displayed) */
+  justify-content: center;             /* Center horizontally (when displayed) */
 }
 
 /* Hamburger menu icon state - showing three lines (☰) */
 .hamburger::before {
-  content: "☰";                   /* Default hamburger icon (three lines) */
-  transition: opacity 0.2s ease;  /* Smooth transition when changing icons */
+  content: "☰";                        /* Default hamburger icon (three lines) */
+  transition: opacity 0.2s ease;       /* Smooth transition when changing icons */
 }
 
 /* Close menu icon state - showing X when menu is open */
 .hamburger.active::before {
-  content: "✕";                   /* Close icon (X) when menu is active */
-  transform: rotate(180deg);       /* Optional: rotate the X for extra effect */
+  content: "✕";                        /* Close icon (X) when menu is active */
+  transform: rotate(180deg);           /* Rotate the X for extra effect */
   transition: transform 0.3s ease, opacity 0.2s ease; /* Smooth icon change */
 }
 
-/* Optional: Add a subtle rotation to the entire button when active */
+/* Rotation effect for the entire button when active */
 .hamburger.active {
-  transform: rotate(90deg);        /* Rotate the entire button slightly */
+  transform: rotate(90deg);            /* Rotate the entire button slightly */
 }
 
-/* Hover effects for better user feedback - only when visible */
+/* Hover effects for better user feedback */
 .hamburger:hover {
   background-color: rgba(255, 255, 255, 0.1); /* Subtle white background on hover */
-  border-radius: 4px;             /* Rounded corners on hover */
+  border-radius: 4px;                  /* Rounded corners on hover */
 }
 
-/* Active/pressed state for better touch feedback - only when visible */
+/* Active/pressed state for better touch feedback */
 .hamburger:active {
   background-color: rgba(255, 255, 255, 0.2); /* Slightly more visible when pressed */
-  transform: scale(0.95);         /* Slight scale down when pressed */
+  transform: scale(0.95);              /* Slight scale down when pressed */
 }
 
 /* ================================================
@@ -320,110 +337,118 @@ header nav ul .nav-action.silver a::before {
    Large banner sections with gradient backgrounds
    ================================================ */
 .hero {
-  background: linear-gradient(135deg, var(--bg) 0%, --bg-light 100%); /* Blue gradient */
-  color: #fff;                    /* White text for contrast on blue */
-  padding: 4rem 0;                /* Large vertical padding */
-  text-align: center;             /* Center all content */
+  /* Hero section styling */
+  background: linear-gradient(135deg, var(--bg) 0%, var(--bg-light) 100%); /* Blue gradient */
+  color: #fff;                         /* White text for contrast on blue */
+  padding: 4rem 0;                     /* Large vertical padding */
+  text-align: center;                  /* Center all content */
 }
 
-/* Hero title container for large logo/graphic */
+/* ===== HERO TITLE CONTAINER ===== */
 .hero .hero-title {
-  margin-bottom: 1.5rem;          /* Space below title graphic */
+  /* Container for large logo/graphic */
+  margin-bottom: 1.5rem;               /* Space below title graphic */
 }
 
 .hero .hero-title img {
-  display: block;                 /* Block layout for centering */
-  max-width: 400px;               /* Maximum size limit */
-  width: 60%;                     /* Responsive width */
-  margin: 0 auto;                 /* Center horizontally */
+  /* Hero title image sizing */
+  display: block;                      /* Block layout for centering */
+  max-width: 400px;                    /* Maximum size limit */
+  width: 60%;                          /* Responsive width */
+  margin: 0 auto;                      /* Center horizontally */
 }
 
-/* Hero headline styling */
+/* ===== HERO HEADLINE STYLING ===== */
 .hero h2 {
-  font-size: 2.3rem;              /* Large, impactful text */
-  margin-bottom: 1rem;            /* Space below headline */
+  /* Main hero headline */
+  font-size: 2.3rem;                   /* Large, impactful text */
+  margin-bottom: 1rem;                 /* Space below headline */
 }
 
-/* Hero description text */
+/* ===== HERO DESCRIPTION TEXT ===== */
 .hero p {
-  font-size: 1.1rem;              /* Slightly larger than body text */
-  margin-bottom: 2rem;            /* Space before call-to-action */
-  max-width: 600px;               /* Limit line length for readability */
-  margin-left: auto;              /* Center the text block */
-  margin-right: auto;             /* Center the text block */
+  /* Hero description paragraph */
+  font-size: 1.1rem;                   /* Slightly larger than body text */
+  margin-bottom: 2rem;                 /* Space before call-to-action */
+  max-width: 600px;                    /* Limit line length for readability */
+  margin-left: auto;                   /* Center the text block */
+  margin-right: auto;                  /* Center the text block */
 }
 
 /* ================================================
-   SILVER PLAN BADGE - SHINING METALLIC DESIGN
+   7. SILVER PLAN BADGE (SHINING METALLIC DESIGN)
    Premium silver badge for Silver Plan page with animated shine effects
    ================================================ */
 
-/* Main badge container - creates the silver metallic badge effect */
+/* ===== MAIN BADGE CONTAINER ===== */
 .silver-plan-badge {
-  display: inline-block;          /* Center the badge */
-  position: relative;             /* For shine overlay positioning */
+  /* Badge container with metallic effect */
+  display: inline-block;               /* Center the badge */
+  position: relative;                  /* For shine overlay positioning */
   background: linear-gradient(145deg, #e8e8e8 0%, #b8b8b8 25%, #d4d4d4 50%, #a8a8a8 75%, #c0c0c0 100%);
-  border: 3px solid #999999;      /* Darker silver border for definition */
-  border-radius: 25px;            /* Rounded badge shape */
-  padding: 1.5rem 2.5rem;         /* Generous padding for badge feel */
-  margin: 0 auto 2rem auto;       /* Center and add bottom margin */
+  border: 3px solid #999999;           /* Darker silver border for definition */
+  border-radius: 25px;                 /* Rounded badge shape */
+  padding: 1.5rem 2.5rem;              /* Generous padding for badge feel */
+  margin: 0 auto 2rem auto;            /* Center and add bottom margin */
   box-shadow: 
-    0 8px 16px rgba(0, 0, 0, 0.2),           /* Main shadow for depth */
-    inset 0 2px 4px rgba(255, 255, 255, 0.6), /* Inner highlight */
-    inset 0 -2px 4px rgba(0, 0, 0, 0.2);      /* Inner shadow for beveled look */
-  transform-style: preserve-3d;   /* Enable 3D transforms */
+    0 8px 16px rgba(0, 0, 0, 0.2),
+    inset 0 2px 4px rgba(255, 255, 255, 0.6),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+  transform-style: preserve-3d;        /* Enable 3D transforms */
   transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover effects */
-  overflow: hidden;               /* Hide overflow for shine effects */
-  text-align: center;             /* Center text within badge */
-  cursor: default;                /* Default cursor - not clickable */
+  overflow: hidden;                    /* Hide overflow for shine effects */
+  text-align: center;                  /* Center text within badge */
+  cursor: default;                     /* Default cursor - not clickable */
 }
 
 /* Badge hover effect - subtle lift and enhanced shadow */
 .silver-plan-badge:hover {
-  transform: translateY(-2px);    /* Subtle lift on hover */
+  transform: translateY(-2px);         /* Subtle lift on hover */
   box-shadow: 
-    0 12px 24px rgba(0, 0, 0, 0.25),         /* Enhanced main shadow */
-    inset 0 2px 4px rgba(255, 255, 255, 0.7), /* Brighter inner highlight */
-    inset 0 -2px 4px rgba(0, 0, 0, 0.25);     /* Deeper inner shadow */
+    0 12px 24px rgba(0, 0, 0, 0.25),
+    inset 0 2px 4px rgba(255, 255, 255, 0.7),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.25);
 }
 
-/* Main badge text "Silver Plan" - large, bold, premium styling */
+/* ===== BADGE TEXT STYLING ===== */
+/* Main badge text "Silver Plan" */
 .badge-text {
-  display: block;                 /* Stack vertically */
-  font-size: 2.8rem;              /* Large, impactful size */
-  font-weight: 900;               /* Extra bold for premium feel */
-  color: #2c2c2c;                 /* Dark text for contrast on silver */
+  display: block;                      /* Stack vertically */
+  font-size: 2.8rem;                   /* Large, impactful size */
+  font-weight: 900;                    /* Extra bold for premium feel */
+  color: #2c2c2c;                      /* Dark text for contrast on silver */
   text-shadow: 
-    1px 1px 2px rgba(255, 255, 255, 0.8),    /* White text shadow for metallic look */
-    0 0 4px rgba(0, 0, 0, 0.3);               /* Dark glow for depth */
-  letter-spacing: 0.05em;         /* Slight letter spacing for premium feel */
-  line-height: 1;                 /* Tight line height */
-  margin-bottom: 0.25rem;         /* Small space before subtext */
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Match site font */
+    1px 1px 2px rgba(255, 255, 255, 0.8),
+    0 0 4px rgba(0, 0, 0, 0.3);
+  letter-spacing: 0.05em;              /* Slight letter spacing for premium feel */
+  line-height: 1;                      /* Tight line height */
+  margin-bottom: 0.25rem;              /* Small space before subtext */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Subtext "Protected" - smaller, refined styling */
+/* Subtext "Protected" */
 .badge-subtext {
-  display: block;                 /* Stack below main text */
-  font-size: 1.4rem;              /* Smaller than main text */
-  font-weight: 600;               /* Semi-bold */
-  color: #404040;                 /* Slightly lighter than main text */
+  display: block;                      /* Stack below main text */
+  font-size: 1.4rem;                   /* Smaller than main text */
+  font-weight: 600;                    /* Semi-bold */
+  color: #404040;                      /* Slightly lighter than main text */
   text-shadow: 
-    0 1px 1px rgba(255, 255, 255, 0.6),      /* Subtle white shadow */
-    0 0 2px rgba(0, 0, 0, 0.2);               /* Light dark glow */
-  letter-spacing: 0.1em;          /* More letter spacing for elegance */
-  text-transform: uppercase;      /* All caps for secondary text */
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Match site font */
+    0 1px 1px rgba(255, 255, 255, 0.6),
+    0 0 2px rgba(0, 0, 0, 0.2);
+  letter-spacing: 0.1em;               /* More letter spacing for elegance */
+  text-transform: uppercase;           /* All caps for secondary text */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+/* ===== BADGE SHINE ANIMATIONS ===== */
 /* Animated shine overlay - creates sweeping metallic shine effect */
 .silver-plan-badge::before {
   content: '';
   position: absolute;
-  top: -50%;                      /* Start above badge */
-  left: -50%;                     /* Start to the left */
-  width: 200%;                    /* Large width to cover entire badge */
-  height: 200%;                   /* Large height to cover entire badge */
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
   background: linear-gradient(
     45deg,
     transparent 30%,
@@ -432,9 +457,9 @@ header nav ul .nav-action.silver a::before {
     rgba(255, 255, 255, 0.1) 60%,
     transparent 70%
   );
-  transform: rotate(45deg);       /* Diagonal shine direction */
-  animation: badgeShine 4s ease-in-out infinite; /* Continuous shine animation */
-  pointer-events: none;           /* Don't interfere with hover */
+  transform: rotate(45deg);
+  animation: badgeShine 4s ease-in-out infinite;
+  pointer-events: none;
 }
 
 /* Secondary shine effect - adds depth with different timing */
@@ -442,17 +467,17 @@ header nav ul .nav-action.silver a::before {
   content: '';
   position: absolute;
   top: 0;
-  left: -100%;                    /* Start completely off-screen left */
-  width: 50%;                     /* Narrower shine beam */
-  height: 100%;                   /* Full height */
+  left: -100%;
+  width: 50%;
+  height: 100%;
   background: linear-gradient(
     90deg,
     transparent,
     rgba(255, 255, 255, 0.3),
     transparent
   );
-  animation: badgeShineSweep 3s ease-in-out infinite 1.5s; /* Delayed sweep animation */
-  pointer-events: none;           /* Don't interfere with hover */
+  animation: badgeShineSweep 3s ease-in-out infinite 1.5s;
+  pointer-events: none;
 }
 
 /* Badge shine animation keyframes - main diagonal shine */
@@ -502,27 +527,70 @@ header nav ul .nav-action.silver a::before {
   }
 }
 
+/* ===== SILVER HERO HEADING ===== */
+/* Large silver text under the badge */
+.silver-hero-heading {
+  font-size: 2.2rem;                   /* Large, prominent size */
+  font-weight: 700;                    /* Bold font weight */
+  color: #e8e8e8;                      /* Light silver color for contrast on blue */
+  text-shadow: 
+    1px 1px 2px rgba(0, 0, 0, 0.3),
+    0 0 8px rgba(255, 255, 255, 0.2);
+  margin-bottom: 1.5rem;               /* Space below heading */
+  text-align: center;                  /* Center the text */
+  letter-spacing: 0.02em;              /* Slight letter spacing for elegance */
+  line-height: 1.2;                    /* Good line height for readability */
+}
+
 /* ================================================
    8. BUTTONS & INTERACTIVE ELEMENTS
    Styled buttons and interactive components
    ================================================ */
+
+/* ===== BASE BUTTON STYLING ===== */
 .btn {
-  display: inline-block;          /* Block-level styling with inline flow */
-  background-color: #fff;         /* White background */
-  color: var(--primary-color);    /* Blue text */
-  padding: 0.7rem 1.4rem;         /* Comfortable padding for clicks */
-  border-radius: 4px;             /* Rounded corners */
-  text-decoration: none;          /* Remove underlines */
-  font-weight: 600;               /* Bold text */
-  transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transitions */
-  cursor: pointer;                /* Show it's clickable */
-  border: none;                   /* Remove default button borders */
-  font-size: 1rem;                /* Standard font size */
+  /* Standard button appearance */
+  display: inline-block;               /* Block-level styling with inline flow */
+  background-color: #fff;              /* White background */
+  color: var(--primary-color);         /* Blue text */
+  padding: 0.7rem 1.4rem;              /* Comfortable padding for clicks */
+  border-radius: 4px;                  /* Rounded corners */
+  text-decoration: none;               /* Remove underlines */
+  font-weight: 600;                    /* Bold text */
+  transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease; /* Smooth transitions */
+  cursor: pointer;                     /* Show it's clickable */
+  border: none;                        /* Remove default button borders */
+  font-size: 1rem;                     /* Standard font size */
 }
 
 .btn:hover {
+  /* Button hover state */
   background-color: var(--secondary-color); /* Silver background on hover */
-  color: #fff;                    /* White text on hover */
+  color: #fff;                         /* White text on hover */
+  transform: translateY(-1px);         /* Subtle lift effect */
+}
+
+/* ===== CONTACT MODAL BUTTON ===== */
+/* Styled like primary navigation buttons (blue) */
+.contact-modal-btn {
+  display: inline-block;               /* Block-level styling with inline flow */
+  padding: .55rem .9rem;               /* Larger padding for button appearance */
+  border-radius: .5rem;                /* More rounded corners for button look */
+  border: 2px solid #1f48ad;           /* Darker blue border */
+  background: #2a5bd7;                 /* Blue background */
+  color: #ffffff;                      /* White text for contrast */
+  text-decoration: none;               /* Remove underlines */
+  font-weight: 600;                    /* Bold text */
+  white-space: nowrap;                 /* Prevent text wrapping */
+  cursor: pointer;                     /* Pointer cursor */
+  transition: all 0.3s ease;           /* Smooth transitions */
+}
+
+.contact-modal-btn:hover {
+  /* Contact modal button hover state */
+  filter: brightness(1.06);            /* Slightly brighter on hover */
+  transform: translateY(-1px);         /* Subtle lift effect */
+  box-shadow: 0 4px 12px rgba(42, 91, 215, 0.3); /* Blue shadow */
 }
 
 /* ================================================
@@ -530,806 +598,754 @@ header nav ul .nav-action.silver a::before {
    Reusable content layouts and card components
    ================================================ */
 
-/* Services section container */
+/* ===== SERVICES SECTION CONTAINER ===== */
 .services {
-  padding: 4rem 0;                /* Large vertical padding */
-  background-color: #fff;         /* White background */
+  /* Services section styling */
+  padding: 4rem 0;                     /* Large vertical padding */
+  background-color: #fff;              /* White background */
 }
 
 .services h2 {
-  text-align: center;             /* Center section headings */
-  margin-bottom: 2rem;            /* Space below heading */
-  color: var(--primary-color);    /* Blue heading color */
+  /* Services section heading */
+  text-align: center;                  /* Center section headings */
+  margin-bottom: 2rem;                 /* Space below heading */
+  color: var(--primary-color);         /* Blue heading color */
 }
 
-/* Card grid layout */
+/* ===== CARD GRID LAYOUT ===== */
 .cards {
-  display: flex;                  /* Flexible layout */
-  flex-wrap: wrap;                /* Allow cards to wrap to new lines */
-  gap: 1.5rem;                    /* Space between cards */
-  justify-content: center;        /* Center cards horizontally */
+  /* Card container */
+  display: flex;                       /* Flexible layout */
+  flex-wrap: wrap;                     /* Allow cards to wrap to new lines */
+  gap: 1.5rem;                         /* Space between cards */
+  justify-content: center;             /* Center cards horizontally */
 }
 
-/* Individual card styling */
+/* ===== INDIVIDUAL CARD STYLING ===== */
 .card {
-  background-color: var(--light-grey); /* Light grey background */
-  border-radius: 6px;             /* Rounded corners */
-  padding: 1.5rem;                /* Internal spacing */
-  width: 280px;                   /* Fixed width for consistency */
+  /* Card appearance */
+  background-color: var(--light-grey);  /* Light grey background */
+  border-radius: 6px;                  /* Rounded corners */
+  padding: 1.5rem;                     /* Internal spacing */
+  width: 280px;                        /* Fixed width for consistency */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-  text-align: center;             /* Center card content */
+  text-align: center;                  /* Center card content */
+  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover effects */
+}
+
+.card:hover {
+  /* Card hover effect */
+  transform: translateY(-4px);         /* Lift card on hover */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
 }
 
 .card h3 {
-  margin-bottom: 0.5rem;          /* Space below card title */
-  color: var(--primary-color);    /* Blue title color */
-  font-size: 1.3rem;              /* Larger title text */
+  /* Card title */
+  margin-bottom: 0.5rem;               /* Space below card title */
+  color: var(--primary-color);         /* Blue title color */
+  font-size: 1.3rem;                   /* Larger title text */
 }
 
 .card p {
-  font-size: 0.95rem;             /* Slightly smaller body text */
-  color: var(--text-color);       /* Standard text color */
+  /* Card description */
+  font-size: 0.95rem;                  /* Slightly smaller body text */
+  color: var(--text-color);            /* Standard text color */
 }
 
-/* About page content styling */
+/* ===== ABOUT PAGE CONTENT STYLING ===== */
 .about {
-  padding: 4rem 0;                /* Large vertical padding */
-  background-color: #fff;         /* White background */
+  /* About section container */
+  padding: 4rem 0;                     /* Large vertical padding */
+  background-color: #fff;              /* White background */
 }
 
 .about h2 {
-  text-align: center;             /* Center heading */
-  margin-bottom: 2rem;            /* Space below heading */
-  color: var(--primary-color);    /* Blue heading color */
+  /* About section heading */
+  text-align: center;                  /* Center heading */
+  margin-bottom: 2rem;                 /* Space below heading */
+  color: var(--primary-color);         /* Blue heading color */
 }
 
 .about p {
-  max-width: 800px;               /* Limit line length for readability */
-  margin: 0 auto 1.5rem auto;     /* Center text block with bottom margin */
-  font-size: 1rem;                /* Standard font size */
-  line-height: 1.8;               /* Increased line height for readability */
-  text-align: center;             /* Center text */
+  /* About section paragraphs */
+  max-width: 800px;                    /* Limit line length for readability */
+  margin: 0 auto 1.5rem auto;          /* Center text block with bottom margin */
+  font-size: 1rem;                     /* Standard font size */
+  line-height: 1.8;                    /* Increased line height for readability */
+  text-align: center;                  /* Center text */
 }
 
-/* ================================================
-   CALL-TO-ACTION (CTA) SECTIONS
-   Prominent sections designed to drive user action
-   ================================================ */
+/* ===== CALL-TO-ACTION (CTA) SECTIONS ===== */
 .cta {
+  /* CTA section styling */
   background-color: var(--primary-color); /* Blue background */
-  color: #fff;                    /* White text for contrast */
-  padding: 3rem 0;                /* Vertical padding */
-  text-align: center;             /* Center all content */
+  color: #fff;                         /* White text for contrast */
+  padding: 3rem 0;                     /* Vertical padding */
+  text-align: center;                  /* Center all content */
 }
 
 .cta h2 {
-  font-size: 2rem;                /* Large heading */
-  margin-bottom: 0.5rem;          /* Small space below heading */
+  /* CTA heading */
+  font-size: 2rem;                     /* Large heading */
+  margin-bottom: 0.5rem;               /* Small space below heading */
 }
 
 .cta p {
-  font-size: 1.1rem;              /* Larger description text */
-  margin-bottom: 1.5rem;          /* Space before button */
+  /* CTA description */
+  font-size: 1.1rem;                   /* Larger description text */
+  margin-bottom: 1.5rem;               /* Space before button */
 }
 
 /* CTA button styling (inverse colors) */
 .cta .btn {
-  background-color: #fff;         /* White background */
-  color: var(--primary-color);    /* Blue text */
+  background-color: #fff;              /* White background */
+  color: var(--primary-color);         /* Blue text */
 }
 
 .cta .btn:hover {
   background-color: var(--secondary-color); /* Silver on hover */
-  color: #fff;                    /* White text on hover */
+  color: #fff;                         /* White text on hover */
 }
 
-/* ================================================
-   10. CONTACT FORM
-   Contact form styling and layout
-   ================================================ */
-
-/* Contact section container */
+/* ===== CONTACT FORM ===== */
 .contact {
-  padding: 4rem 0;                /* Large vertical padding */
-  background-color: var(--light-grey); /* Light grey background */
+  /* Contact section container */
+  padding: 4rem 0;                     /* Large vertical padding */
+  background-color: var(--light-grey);  /* Light grey background */
 }
 
 .contact h2 {
-  text-align: center;             /* Center heading */
-  margin-bottom: 1rem;            /* Space below heading */
-  color: var(--primary-color);    /* Blue heading color */
+  /* Contact section heading */
+  text-align: center;                  /* Center heading */
+  margin-bottom: 1rem;                 /* Space below heading */
+  color: var(--primary-color);         /* Blue heading color */
 }
 
 .contact p {
-  text-align: center;             /* Center description text */
-  margin-bottom: 2rem;            /* Space before form */
+  /* Contact section description */
+  text-align: center;                  /* Center description text */
+  margin-bottom: 2rem;                 /* Space before form */
 }
 
-/* Contact form styling */
+/* ===== FORM STYLING ===== */
 form {
-  max-width: 600px;               /* Limit form width */
-  margin: 0 auto 2rem auto;       /* Center form with bottom margin */
-  display: flex;                  /* Flexible layout */
-  flex-direction: column;         /* Stack form elements vertically */
+  /* Form container */
+  max-width: 600px;                    /* Limit form width */
+  margin: 0 auto 2rem auto;            /* Center form with bottom margin */
+  display: flex;                       /* Flexible layout */
+  flex-direction: column;              /* Stack form elements vertically */
 }
 
 form label {
-  margin-bottom: 0.5rem;          /* Space below labels */
-  font-weight: 600;               /* Bold label text */
+  /* Form labels */
+  margin-bottom: 0.5rem;               /* Space below labels */
+  font-weight: 600;                    /* Bold label text */
 }
 
 /* Form input and textarea styling */
 form input,
 form textarea {
-  padding: 0.75rem;               /* Comfortable padding */
-  margin-bottom: 1rem;            /* Space below each field */
-  border: 1px solid #ccc;         /* Light border */
-  border-radius: 4px;             /* Rounded corners */
-  font-size: 1rem;                /* Standard font size */
+  /* Input fields */
+  padding: 0.75rem;                    /* Comfortable padding */
+  margin-bottom: 1rem;                 /* Space below each field */
+  border: 1px solid #ccc;              /* Light border */
+  border-radius: 4px;                  /* Rounded corners */
+  font-size: 1rem;                     /* Standard font size */
+  transition: border-color 0.3s ease;  /* Smooth border color transition */
+}
+
+form input:focus,
+form textarea:focus {
+  /* Input focus state */
+  outline: none;                       /* Remove default outline */
+  border-color: var(--primary-color);  /* Blue border on focus */
 }
 
 form button {
-  align-self: flex-start;         /* Align button to left */
-  cursor: pointer;                /* Show it's clickable */
+  /* Form submit button */
+  align-self: flex-start;              /* Align button to left */
+  cursor: pointer;                     /* Show it's clickable */
 }
 
-/* Contact information display */
+/* ===== CONTACT INFORMATION DISPLAY ===== */
 .contact-info {
-  max-width: 600px;               /* Match form width */
-  margin: 0 auto;                 /* Center information block */
-  text-align: center;             /* Center text */
-  font-size: 0.95rem;             /* Slightly smaller text */
+  /* Contact info container */
+  max-width: 600px;                    /* Match form width */
+  margin: 0 auto;                      /* Center information block */
+  text-align: center;                  /* Center text */
+  font-size: 0.95rem;                  /* Slightly smaller text */
 }
 
 .contact-info p {
-  margin-bottom: 0.3rem;          /* Small space between info lines */
-}
-
-/* ================================================
-   11. SPECIALIZED SECTIONS
-   Unique layouts for founder, testimonials, etc.
-   ================================================ */
-
-/* Founder section styling */
-.founder {
-  background-color: var(--light-grey); /* Light grey background */
-  padding: 4rem 0;                /* Large vertical padding */
-}
-
-.founder-container {
-  display: flex;                  /* Side-by-side layout */
-  flex-wrap: wrap;                /* Allow wrapping on small screens */
-  align-items: center;            /* Vertically center content */
-  gap: 2rem;                      /* Space between image and text */
-}
-
-.founder-image img {
-  max-width: 300px;               /* Limit image size */
-  width: 100%;                    /* Responsive width */
-  border-radius: 6px;             /* Rounded corners */
-}
-
-.founder-text {
-  flex: 1;                        /* Take remaining space */
-}
-
-.founder-text h2 {
-  margin-bottom: 1rem;            /* Space below heading */
-  color: var(--primary-color);    /* Blue heading color */
-}
-
-.founder-text p {
-  margin-bottom: 0.75rem;         /* Space between paragraphs */
-  line-height: 1.6;               /* Good readability */
-}
-
-.founder-text .founder-name {
-  font-style: italic;             /* Italicize attribution */
-  color: var(--primary-color);    /* Blue color for attribution */
-}
-
-/* Testimonials section - enhanced for carousel */
-.testimonials {
-  background-color: #fff;         /* White background */
-  padding: 4rem 0;                /* Large vertical padding */
-  position: relative;             /* For arrow positioning */
-}
-
-.testimonials h2 {
-  text-align: center;             /* Center heading */
-  margin-bottom: 3rem;            /* Increased space for better separation */
-  color: var(--primary-color);    /* Blue heading color */
-  font-size: 2.2rem;              /* Larger heading */
-}
-
-/* ================================================
-   TESTIMONIALS CAROUSEL STYLING
-   Large card carousel with arrow navigation
-   ================================================ */
-
-/* Carousel wrapper - contains all testimonials */
-.testimonials-carousel {
-  position: relative;             /* For arrow positioning */
-  max-width: 900px;               /* Maximum width for large cards */
-  margin: 0 auto;                 /* Center the carousel */
-  overflow: hidden;               /* Hide overflowing cards */
-  border-radius: 12px;            /* Rounded carousel container */
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
-  animation: fadeInCarousel 0.8s ease-out;
-}
-
-/* Carousel track - holds all testimonial cards */
-.testimonials-track {
-  display: flex;                  /* Horizontal layout for cards */
-  transition: transform 0.5s ease-in-out; /* Smooth sliding animation */
-  width: 100%;                    /* Full width container */
-}
-
-/* Individual testimonial card - large and prominent */
-.testimonial {
-  min-width: 100%;                /* Each card takes full carousel width */
-  padding: 3rem 2.5rem;           /* Generous internal spacing */
-  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); /* Subtle gradient background */
-  border: 1px solid #e9ecef;      /* Light border for definition */
-  text-align: center;             /* Center all content */
-  position: relative;             /* For quote decorations */
-  margin: 0;                      /* Remove default margins */
-  box-sizing: border-box;         /* Include padding in width calculation */
-}
-
-/* Large quote text styling */
-.testimonial p {
-  font-size: 1.4rem;              /* Large, readable quote text */
-  font-style: italic;             /* Italicize quote text */
-  line-height: 1.6;               /* Good line spacing for readability */
-  margin-bottom: 2rem;            /* Space before attribution */
-  color: var(--text-color);       /* Standard text color */
-  position: relative;             /* For quote mark positioning */
-  max-width: 700px;               /* Limit line length for readability */
-  margin-left: auto;              /* Center the text block */
-  margin-right: auto;             /* Center the text block */
-}
-
-/* Decorative opening quote mark */
-.testimonial p::before {
-  content: '"';                   /* Opening quote character */
-  font-size: 4rem;                /* Large decorative size */
-  color: var(--primary-color);    /* Blue color to match theme */
-  position: absolute;             /* Position relative to paragraph */
-  top: -1rem;                     /* Slightly above text */
-  left: -2rem;                    /* To the left of text */
-  line-height: 1;                 /* Tight line height for positioning */
-  font-family: Georgia, serif;    /* Serif font for classic quote marks */
-}
-
-/* Decorative closing quote mark */
-.testimonial p::after {
-  content: '"';                   /* Closing quote character */
-  font-size: 4rem;                /* Large decorative size */
-  color: var(--primary-color);    /* Blue color to match theme */
-  position: absolute;             /* Position relative to paragraph */
-  bottom: -1.5rem;                /* Below the text */
-  right: -2rem;                   /* To the right of text */
-  line-height: 1;                 /* Tight line height for positioning */
-  font-family: Georgia, serif;    /* Serif font for classic quote marks */
-}
-
-/* Customer attribution styling */
-.testimonial h4 {
-  font-size: 1.1rem;              /* Moderately sized attribution */
-  color: var(--primary-color);    /* Blue color for attribution */
-  font-weight: 600;               /* Semi-bold text */
-  margin: 0;                      /* No additional margin */
-  position: relative;             /* For decorative line */
-  padding-top: 1rem;              /* Space above attribution */
-}
-
-/* Decorative line above customer name */
-.testimonial h4::before {
-  content: '';                    /* Empty content for line */
-  position: absolute;             /* Position relative to attribution */
-  top: 0;                         /* At the very top */
-  left: 50%;                      /* Center horizontally */
-  transform: translateX(-50%);    /* Perfect centering */
-  width: 60px;                    /* Line width */
-  height: 3px;                    /* Line thickness */
-  background-color: var(--secondary-color); /* Silver color line */
-  border-radius: 2px;             /* Rounded line ends */
-}
-
-/* ================================================
-   CAROUSEL NAVIGATION ARROWS
-   ================================================ */
-
-/* Base arrow styling - shared by both left and right arrows */
-.carousel-arrow {
-  position: absolute;             /* Position relative to carousel container */
-  top: 50%;                       /* Center vertically */
-  transform: translateY(-50%);    /* Perfect vertical centering */
-  background: rgba(8, 30, 91, 0.8); /* Semi-transparent blue background */
-  color: white;                   /* White arrow icons */
-  border: none;                   /* No border */
-  width: 50px;                    /* Fixed button width */
-  height: 50px;                   /* Fixed button height (square) */
-  border-radius: 50%;             /* Perfect circle */
-  cursor: pointer;                /* Pointer cursor on hover */
-  font-size: 1.2rem;              /* Medium-sized arrow icons */
-  display: flex;                  /* Flex layout for centering icon */
-  align-items: center;            /* Center icon vertically */
-  justify-content: center;        /* Center icon horizontally */
-  transition: all 0.3s ease;      /* Smooth hover transitions */
-  z-index: 10;                    /* Ensure arrows appear above cards */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Subtle shadow for depth */
-}
-
-/* Arrow hover effects */
-.carousel-arrow:hover {
-  background: var(--primary-color); /* Solid blue background on hover */
-  transform: translateY(-50%) scale(1.1); /* Slight scale up on hover */
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25); /* Enhanced shadow on hover */
-}
-
-/* Arrow active/pressed state */
-.carousel-arrow:active {
-  transform: translateY(-50%) scale(0.95); /* Slight scale down when pressed */
-}
-
-/* Left arrow positioning */
-.carousel-arrow.prev {
-  left: -25px;                    /* Position to the left of carousel */
-}
-
-/* Right arrow positioning */
-.carousel-arrow.next {
-  right: -25px;                   /* Position to the right of carousel */
-}
-
-/* Arrow icons - using Unicode arrows for compatibility */
-.carousel-arrow.prev::before {
-  content: '←';                   /* Left arrow character */
-}
-
-.carousel-arrow.next::before {
-  content: '→';                   /* Right arrow character */
-}
-
-/* ================================================
-   CAROUSEL INDICATORS (DOTS)
-   ================================================ */
-
-/* Container for carousel dots/indicators */
-.carousel-indicators {
-  display: flex;                  /* Horizontal layout for dots */
-  justify-content: center;        /* Center the dots */
-  margin-top: 2rem;               /* Space above indicators */
-  gap: 0.5rem;                    /* Space between dots */
-}
-
-/* Individual indicator dot */
-.carousel-indicator {
-  width: 10px;                    /* Dot size */
-  height: 10px;                   /* Dot size */
-  border-radius: 50%;             /* Perfect circle */
-  background-color: #ccc;         /* Light gray by default */
-  cursor: pointer;                /* Pointer cursor for interaction */
-  transition: all 0.3s ease;      /* Smooth color transitions */
-  border: none;                   /* Remove button border */
-}
-
-/* Active indicator (current testimonial) */
-.carousel-indicator.active {
-  background-color: var(--primary-color); /* Blue for active testimonial */
-  transform: scale(1.2);          /* Slightly larger when active */
-}
-
-/* Indicator hover effect */
-.carousel-indicator:hover {
-  background-color: var(--secondary-color); /* Silver on hover */
-}
-
-/* Carousel animations */
-@keyframes fadeInCarousel {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ================================================
-   MOBILE RESPONSIVE ADJUSTMENTS FOR CAROUSEL
-   ================================================ */
-
-@media (max-width: 768px) {
-  /* Reduce testimonials section padding on mobile */
-  .testimonials {
-    padding: 3rem 0;              /* Smaller padding for mobile */
-  }
-  
-  /* Smaller heading on mobile */
-  .testimonials h2 {
-    font-size: 1.8rem;            /* Smaller heading text */
-    margin-bottom: 2rem;          /* Reduced spacing */
-  }
-  
-  /* Adjust carousel container for mobile */
-  .testimonials-carousel {
-    margin: 0 1rem;               /* Side margins on mobile */
-    border-radius: 8px;           /* Less rounded corners */
-  }
-  
-  /* Reduce card padding on mobile */
-  .testimonial {
-    padding: 2rem 1.5rem;         /* Smaller internal spacing */
-  }
-  
-  /* Smaller quote text on mobile */
-  .testimonial p {
-    font-size: 1.2rem;            /* Smaller quote text */
-    margin-bottom: 1.5rem;        /* Reduced spacing */
-  }
-  
-  /* Smaller decorative quote marks on mobile */
-  .testimonial p::before,
-  .testimonial p::after {
-    font-size: 3rem;              /* Smaller quote decorations */
-  }
-  
-  /* Adjust quote mark positioning for mobile */
-  .testimonial p::before {
-    left: -1rem;                  /* Closer to text on mobile */
-    top: -0.5rem;                 /* Adjusted vertical position */
-  }
-  
-  .testimonial p::after {
-    right: -1rem;                 /* Closer to text on mobile */
-    bottom: -1rem;                /* Adjusted vertical position */
-  }
-  
-  /* Smaller attribution text on mobile */
-  .testimonial h4 {
-    font-size: 1rem;              /* Smaller attribution */
-  }
-  
-  /* Adjust arrows for mobile - move them inside the carousel */
-  .carousel-arrow {
-    width: 40px;                  /* Smaller buttons */
-    height: 40px;                 /* Smaller buttons */
-    font-size: 1rem;              /* Smaller icons */
-  }
-  
-  .carousel-arrow.prev {
-    left: 10px;                   /* Move inside carousel on mobile */
-  }
-  
-  .carousel-arrow.next {
-    right: 10px;                  /* Move inside carousel on mobile */
-  }
-}
-
-/* Extra small mobile devices */
-@media (max-width: 480px) {
-  /* Further reduce padding for very small screens */
-  .testimonial {
-    padding: 1.5rem 1rem;         /* Minimal padding for small screens */
-  }
-  
-  /* Even smaller quote text for tiny screens */
-  .testimonial p {
-    font-size: 1.1rem;            /* Smaller text for readability */
-  }
-  
-  /* Hide decorative quote marks on very small screens */
-  .testimonial p::before,
-  .testimonial p::after {
-    display: none;                /* Remove decorations to save space */
-  }
-  
-  /* Adjust carousel for very small screens */
-  .testimonials-carousel {
-    margin: 0 0.5rem;             /* Minimal side margins */
-  }
-}
-
-/* Highlights section - key selling points */
-.highlights {
-  background-color: var(--background-color); /* Page background color */
-  padding: 3rem 0;                /* Moderate vertical padding */
-}
-
-.highlights-container {
-  display: flex;                  /* Side-by-side layout */
-  flex-wrap: wrap;                /* Allow wrapping on small screens */
-  justify-content: center;        /* Center highlights */
-  gap: 2rem;                      /* Space between highlights */
-}
-
-.highlight {
-  flex: 1 1 200px;                /* Flexible width with minimum */
-  text-align: center;             /* Center highlight content */
-}
-
-.highlight h3 {
-  font-size: 1.2rem;              /* Moderately large text */
-  color: var(--primary-color);    /* Blue color */
-}
-
-/* Membership/protection plan section */
-.membership {
-  background-color: var(--light-grey); /* Light grey background */
-  padding: 4rem 0;                /* Large vertical padding */
-}
-
-/* Centered membership text layout - no side-by-side image */
-.membership-text-centered {
-  max-width: 800px;               /* Limit width for readability */
-  margin: 0 auto;                 /* Center the content */
-  text-align: center;             /* Center all text */
-}
-
-/* Plan description styling */
-.plan-description {
-  font-size: 1.2rem;              /* Larger description text */
-  margin-bottom: 2rem;            /* Space before features list */
-  line-height: 1.6;               /* Good readability */
-  color: var(--text-color);       /* Standard text color */
-}
-
-/* Enhanced features list styling - larger blue text */
-.membership-features-enhanced {
-  list-style: none;               /* Remove default bullets */
-  padding-left: 0;                /* Remove default padding */
-  margin: 0 0 2rem 0;             /* Bottom margin */
-  display: inline-block;          /* Center the list */
-  text-align: left;               /* Left-align list items within centered container */
-}
-
-.membership-features-enhanced li {
-  margin-bottom: 1rem;            /* More space between features */
-  padding-left: 2rem;             /* Space for custom bullet */
-  position: relative;             /* For custom bullet positioning */
-  font-size: 1.3rem;              /* Larger font size for features */
-  font-weight: 600;               /* Semi-bold text */
-  color: var(--primary-color);    /* Blue text color for features */
-  line-height: 1.4;               /* Good line height */
-}
-
-/* Custom checkmark bullets - larger and more prominent */
-.membership-features-enhanced li::before {
-  content: '✓';                   /* Checkmark character */
-  position: absolute;             /* Position relative to list item */
-  left: 0;                        /* Align to left edge */
-  color: var(--primary-color);    /* Blue checkmark */
-  font-size: 1.4rem;              /* Larger checkmark */
-  font-weight: 700;               /* Bold checkmark */
-  text-shadow: 0 1px 2px rgba(8, 30, 91, 0.2); /* Subtle shadow for depth */
-}
-
-.membership-note {
-  font-size: 0.95rem;             /* Slightly smaller note text */
+  /* Contact info paragraphs */
+  margin-bottom: 0.3rem;               /* Small space between info lines */
 }
 
 /* Note styling for disclaimers */
 .note {
-  font-size: 0.85rem;             /* Small text */
-  margin-top: 0.5rem;             /* Small top margin */
-  color: var(--text-color);       /* Standard text color */
-  opacity: 0.8;                   /* Slightly faded */
+  /* Note text styling */
+  font-size: 0.85rem;                  /* Small text */
+  margin-top: 0.5rem;                  /* Small top margin */
+  color: var(--text-color);            /* Standard text color */
+  opacity: 0.8;                        /* Slightly faded */
 }
 
 /* Note styling within CTA sections */
 .cta .note {
-  color: #f5f5f5;                 /* Light color for dark background */
+  color: #f5f5f5;                      /* Light color for dark background */
 }
 
 /* ================================================
-   12. LOGIN & CONTACT MODALS
-   Modal overlays for employee login and contact form functionality
+   10. FOUNDER SECTION (TEXT ONLY)
+   Company origin story without image - centered text layout
    ================================================ */
 
-/* Modal backdrop - shared by all modals */
+/* ===== FOUNDER SECTION CONTAINER ===== */
+.founder {
+  /* Founder section styling */
+  background-color: var(--light-grey);  /* Light grey background */
+  padding: 4rem 0;                     /* Large vertical padding */
+}
+
+/* ===== CENTERED TEXT LAYOUT ===== */
+.founder-text-full {
+  /* Full-width centered text container */
+  max-width: 800px;                    /* Limit width for readability */
+  margin: 0 auto;                      /* Center the container */
+  text-align: center;                  /* Center all text */
+}
+
+.founder-text-full h2 {
+  /* Founder section heading */
+  margin-bottom: 1.5rem;               /* Space below heading */
+  color: var(--primary-color);         /* Blue heading color */
+  font-size: 2rem;                     /* Large heading */
+}
+
+.founder-text-full p {
+  /* Founder section paragraphs */
+  margin-bottom: 1rem;                 /* Space between paragraphs */
+  line-height: 1.8;                    /* Increased line height for readability */
+  font-size: 1.05rem;                  /* Slightly larger text */
+  color: var(--text-color);            /* Standard text color */
+}
+
+.founder-text-full .founder-name {
+  /* Founder attribution styling */
+  font-style: italic;                  /* Italicize attribution */
+  color: var(--primary-color);         /* Blue color for attribution */
+  margin-top: 1.5rem;                  /* Extra space above attribution */
+  font-weight: 600;                    /* Semi-bold */
+}
+
+/* ================================================
+   11. TESTIMONIALS CAROUSEL (MODERNIZED)
+   Contemporary card-based carousel with glassmorphism effects
+   ================================================ */
+
+/* ===== TESTIMONIALS SECTION CONTAINER ===== */
+.testimonials {
+  /* Testimonials section styling */
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); /* Subtle gradient background */
+  padding: 5rem 0;                     /* Generous vertical padding */
+  position: relative;                  /* For arrow positioning */
+}
+
+.testimonials h2 {
+  /* Testimonials heading */
+  text-align: center;                  /* Center heading */
+  margin-bottom: 3.5rem;               /* Extra space for modern look */
+  color: var(--primary-color);         /* Blue heading color */
+  font-size: 2.5rem;                   /* Larger heading */
+  font-weight: 700;                    /* Bold weight */
+  letter-spacing: -0.02em;             /* Tight letter spacing */
+}
+
+/* ===== MODERN CAROUSEL CONTAINER ===== */
+.testimonials-carousel {
+  /* Carousel wrapper with modern styling */
+  position: relative;                  /* For arrow positioning */
+  max-width: 900px;                    /* Maximum width for large cards */
+  margin: 0 auto;                      /* Center the carousel */
+  overflow: hidden;                    /* Hide overflowing cards */
+  border-radius: 20px;                 /* Large rounded corners for modern look */
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08); /* Soft, large shadow */
+}
+
+/* ===== CAROUSEL TRACK ===== */
+.testimonials-track {
+  /* Track that holds all testimonial cards */
+  display: flex;                       /* Horizontal layout for cards */
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); /* Smooth, modern easing */
+  width: 100%;                         /* Full width container */
+}
+
+/* ===== INDIVIDUAL TESTIMONIAL CARD ===== */
+.testimonial {
+  /* Modern card styling */
+  min-width: 100%;                     /* Each card takes full carousel width */
+  padding: 0;                          /* No padding on card itself */
+  margin: 0;                           /* No margin */
+  box-sizing: border-box;              /* Include padding in width calculation */
+}
+
+/* ===== TESTIMONIAL CONTENT CONTAINER ===== */
+.testimonial-content {
+  /* Inner content wrapper with glassmorphism */
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 249, 250, 0.95) 100%);
+  backdrop-filter: blur(10px);         /* Glassmorphism blur effect */
+  -webkit-backdrop-filter: blur(10px); /* Safari support */
+  border: 1px solid rgba(255, 255, 255, 0.5); /* Semi-transparent border */
+  border-radius: 20px;                 /* Match carousel border radius */
+  padding: 3.5rem 3rem;                /* Generous padding */
+  margin: 2rem;                        /* Margin around card */
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06); /* Subtle inner shadow */
+  position: relative;                  /* For quote icon positioning */
+  transition: transform 0.3s ease;     /* Smooth hover effect */
+}
+
+.testimonial-content:hover {
+  /* Card hover effect */
+  transform: translateY(-4px);         /* Subtle lift on hover */
+}
+
+/* ===== DECORATIVE QUOTE ICON ===== */
+.quote-icon {
+  /* Large decorative quote mark */
+  font-size: 4rem;                     /* Very large size */
+  color: var(--theme);                 /* Blue theme color */
+  opacity: 0.15;                       /* Very subtle - almost watermark */
+  position: absolute;                  /* Position relative to card */
+  top: 1.5rem;                         /* Top positioning */
+  left: 2rem;                          /* Left positioning */
+  line-height: 1;                      /* Tight line height */
+  font-family: Georgia, serif;         /* Serif font for classic quote */
+  pointer-events: none;                /* Don't interfere with clicks */
+}
+
+/* ===== TESTIMONIAL TEXT ===== */
+.testimonial-text {
+  /* Quote text styling */
+  font-size: 1.25rem;                  /* Large, readable text */
+  line-height: 1.7;                    /* Generous line height */
+  color: #2c3e50;                      /* Dark blue-gray text */
+  margin-bottom: 2rem;                 /* Space before author */
+  font-weight: 400;                    /* Regular weight */
+  position: relative;                  /* Above quote icon */
+  z-index: 1;                          /* Ensure text is above quote icon */
+}
+
+/* ===== TESTIMONIAL AUTHOR SECTION ===== */
+.testimonial-author {
+  /* Author container - flex layout */
+  display: flex;                       /* Horizontal layout */
+  align-items: center;                 /* Center vertically */
+  gap: 1rem;                           /* Space between avatar and details */
+  margin-top: 2rem;                    /* Space above author section */
+  padding-top: 1.5rem;                 /* Padding above author section */
+  border-top: 2px solid rgba(37, 99, 235, 0.1); /* Subtle top border */
+}
+
+/* ===== AUTHOR AVATAR ===== */
+.author-avatar {
+  /* Circular avatar with initial */
+  width: 50px;                         /* Fixed width */
+  height: 50px;                        /* Fixed height (square) */
+  border-radius: 50%;                  /* Perfect circle */
+  background: linear-gradient(135deg, var(--theme) 0%, var(--theme-light) 100%); /* Blue gradient */
+  color: white;                        /* White text */
+  display: flex;                       /* Flex for centering */
+  align-items: center;                 /* Center vertically */
+  justify-content: center;             /* Center horizontally */
+  font-size: 1.3rem;                   /* Large initial */
+  font-weight: 600;                    /* Semi-bold */
+  flex-shrink: 0;                      /* Don't shrink */
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); /* Blue shadow */
+}
+
+/* ===== AUTHOR DETAILS ===== */
+.author-details {
+  /* Author name and location container */
+  flex: 1;                             /* Take remaining space */
+  text-align: left;                    /* Left-align text */
+}
+
+.author-details h4 {
+  /* Author name */
+  font-size: 1.1rem;                   /* Moderately sized */
+  color: var(--primary-color);         /* Blue color */
+  font-weight: 600;                    /* Semi-bold */
+  margin: 0 0 0.25rem 0;               /* Small bottom margin */
+}
+
+.author-location {
+  /* Author location text */
+  font-size: 0.9rem;                   /* Smaller text */
+  color: #6b7280;                      /* Muted gray */
+  margin: 0;                           /* No margin */
+}
+
+/* ===== CAROUSEL NAVIGATION ARROWS ===== */
+.carousel-arrow {
+  /* Modern arrow button styling */
+  position: absolute;                  /* Position relative to carousel */
+  top: 50%;                            /* Center vertically */
+  transform: translateY(-50%);         /* Perfect vertical centering */
+  background: linear-gradient(135deg, var(--theme) 0%, var(--theme-light) 100%); /* Blue gradient */
+  color: white;                        /* White arrow icons */
+  border: none;                        /* No border */
+  width: 48px;                         /* Fixed button width */
+  height: 48px;                        /* Fixed button height (square) */
+  border-radius: 50%;                  /* Perfect circle */
+  cursor: pointer;                     /* Pointer cursor on hover */
+  display: flex;                       /* Flex layout for centering icon */
+  align-items: center;                 /* Center icon vertically */
+  justify-content: center;             /* Center icon horizontally */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Smooth transitions */
+  z-index: 10;                         /* Ensure arrows appear above cards */
+  box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3); /* Blue shadow */
+  opacity: 0.9;                        /* Slightly transparent */
+}
+
+/* Arrow SVG styling */
+.carousel-arrow svg {
+  /* SVG icon sizing */
+  width: 20px;                         /* Icon width */
+  height: 20px;                        /* Icon height */
+  stroke-width: 2.5;                   /* Thicker stroke */
+}
+
+/* Arrow hover effects */
+.carousel-arrow:hover {
+  /* Arrow hover state */
+  opacity: 1;                          /* Full opacity on hover */
+  transform: translateY(-50%) scale(1.1); /* Scale up on hover */
+  box-shadow: 0 6px 30px rgba(37, 99, 235, 0.4); /* Enhanced shadow on hover */
+}
+
+/* Arrow active/pressed state */
+.carousel-arrow:active {
+  /* Arrow pressed state */
+  transform: translateY(-50%) scale(0.95); /* Scale down when pressed */
+}
+
+/* Left arrow positioning */
+.carousel-arrow.prev {
+  /* Position left arrow */
+  left: -24px;                         /* Position to the left of carousel */
+}
+
+/* Right arrow positioning */
+.carousel-arrow.next {
+  /* Position right arrow */
+  right: -24px;                        /* Position to the right of carousel */
+}
+
+/* ===== CAROUSEL INDICATORS (DOTS) ===== */
+.carousel-indicators {
+  /* Indicator container */
+  display: flex;                       /* Horizontal layout for dots */
+  justify-content: center;             /* Center the dots */
+  margin-top: 2.5rem;                  /* Space above indicators */
+  gap: 0.75rem;                        /* Space between dots */
+}
+
+/* Individual indicator dot */
+.carousel-indicator {
+  /* Dot styling */
+  width: 8px;                          /* Dot size */
+  height: 8px;                         /* Dot size */
+  border-radius: 50%;                  /* Perfect circle */
+  background-color: #d1d5db;           /* Light gray by default */
+  cursor: pointer;                     /* Pointer cursor for interaction */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Smooth transitions */
+  border: none;                        /* Remove button border */
+  padding: 0;                          /* No padding */
+}
+
+/* Active indicator (current testimonial) */
+.carousel-indicator.active {
+  /* Active dot styling */
+  background: linear-gradient(135deg, var(--theme) 0%, var(--theme-light) 100%); /* Blue gradient */
+  width: 24px;                         /* Wider when active */
+  border-radius: 4px;                  /* Rounded rectangle shape */
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3); /* Blue shadow */
+}
+
+/* Indicator hover effect */
+.carousel-indicator:hover {
+  /* Dot hover state */
+  background-color: var(--theme-light);  /* Light blue on hover */
+  transform: scale(1.2);               /* Scale up on hover */
+}
+
+/* ================================================
+   12. MEMBERSHIP/SILVER PLAN SECTIONS
+   Specialized sections for protection plan information
+   ================================================ */
+
+/* ===== MEMBERSHIP SECTION CONTAINER ===== */
+.membership {
+  /* Membership section styling */
+  background-color: var(--light-grey);  /* Light grey background */
+  padding: 4rem 0;                     /* Large vertical padding */
+}
+
+/* ===== CENTERED MEMBERSHIP TEXT LAYOUT ===== */
+.membership-text-centered {
+  /* Centered text container */
+  max-width: 800px;                    /* Limit width for readability */
+  margin: 0 auto;                      /* Center the content */
+  text-align: center;                  /* Center all text */
+}
+
+/* ===== PLAN DESCRIPTION ===== */
+.plan-description {
+  /* Plan description text */
+  font-size: 1.2rem;                   /* Larger description text */
+  margin-bottom: 2rem;                 /* Space before features list */
+  line-height: 1.6;                    /* Good readability */
+  color: var(--text-color);            /* Standard text color */
+}
+
+/* ===== ENHANCED FEATURES LIST ===== */
+.membership-features-enhanced {
+  /* Features list container */
+  list-style: none;                    /* Remove default bullets */
+  padding-left: 0;                     /* Remove default padding */
+  margin: 0 0 2rem 0;                  /* Bottom margin */
+  display: inline-block;               /* Center the list */
+  text-align: left;                    /* Left-align list items within centered container */
+}
+
+.membership-features-enhanced li {
+  /* Individual feature item */
+  margin-bottom: 1rem;                 /* More space between features */
+  padding-left: 2rem;                  /* Space for custom bullet */
+  position: relative;                  /* For custom bullet positioning */
+  font-size: 1.3rem;                   /* Larger font size for features */
+  font-weight: 600;                    /* Semi-bold text */
+  color: var(--primary-color);         /* Blue text color for features */
+  line-height: 1.4;                    /* Good line height */
+}
+
+/* Custom checkmark bullets */
+.membership-features-enhanced li::before {
+  /* Checkmark styling */
+  content: '✓';                        /* Checkmark character */
+  position: absolute;                  /* Position relative to list item */
+  left: 0;                             /* Align to left edge */
+  color: var(--primary-color);         /* Blue checkmark */
+  font-size: 1.4rem;                   /* Larger checkmark */
+  font-weight: 700;                    /* Bold checkmark */
+  text-shadow: 0 1px 2px rgba(8, 30, 91, 0.2); /* Subtle shadow for depth */
+}
+
+/* ================================================
+   13. LOGIN & CONTACT MODALS
+   Modal overlays for forms and login functionality
+   ================================================ */
+
+/* ===== MODAL BACKDROP ===== */
 .modal {
-  display: none;                  /* Hidden by default */
-  position: fixed;                /* Fixed position over entire viewport */
-  z-index: 2000;                  /* Ensure modal appears above all content */
-  left: 0;                        /* Cover full width */
-  top: 0;                         /* Cover full height */
-  width: 100%;                    /* Full viewport width */
-  height: 100%;                   /* Full viewport height */
+  /* Modal overlay styling */
+  display: none;                       /* Hidden by default */
+  position: fixed;                     /* Fixed position over entire viewport */
+  z-index: 2000;                       /* Ensure modal appears above all content */
+  left: 0;                             /* Cover full width */
+  top: 0;                              /* Cover full height */
+  width: 100%;                         /* Full viewport width */
+  height: 100%;                        /* Full viewport height */
   background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black backdrop */
-  backdrop-filter: blur(4px);     /* Blur background content */
+  backdrop-filter: blur(4px);          /* Blur background content */
 }
 
-/* Active modal state - shared by all modals */
+/* Active modal state */
 .modal.active {
-  display: flex;                  /* Show modal with flex layout */
-  align-items: center;            /* Center vertically */
-  justify-content: center;        /* Center horizontally */
-  animation: fadeIn 0.3s ease;    /* Smooth fade in animation */
+  /* Show modal */
+  display: flex;                       /* Show modal with flex layout */
+  align-items: center;                 /* Center vertically */
+  justify-content: center;             /* Center horizontally */
+  animation: fadeIn 0.3s ease;         /* Smooth fade in animation */
 }
 
-/* Modal content container - base styling for all modals */
+/* ===== MODAL CONTENT CONTAINER ===== */
 .modal-content {
-  background-color: #fff;         /* White background */
-  padding: 2rem;                  /* Internal spacing */
-  border-radius: 12px;            /* Rounded corners */
-  max-width: 500px;               /* Maximum width */
-  width: 90%;                     /* Responsive width */
-  position: relative;             /* For close button positioning */
+  /* Base modal content styling */
+  background-color: #fff;              /* White background */
+  padding: 2rem;                       /* Internal spacing */
+  border-radius: 12px;                 /* Rounded corners */
+  max-width: 500px;                    /* Maximum width */
+  width: 90%;                          /* Responsive width */
+  position: relative;                  /* For close button positioning */
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); /* Strong shadow for depth */
-  animation: slideUp 0.3s ease;   /* Smooth slide up animation */
+  animation: slideUp 0.3s ease;        /* Smooth slide up animation */
 }
 
-/* Contact modal specific styling - larger and more form-friendly */
+/* Contact modal specific styling */
 .contact-modal-content {
-  max-width: 600px;               /* Wider for form content */
-  max-height: 90vh;               /* Limit height on small screens */
-  overflow-y: auto;               /* Scroll if content is too tall */
+  /* Wider modal for forms */
+  max-width: 600px;                    /* Wider for form content */
+  max-height: 90vh;                    /* Limit height on small screens */
+  overflow-y: auto;                    /* Scroll if content is too tall */
 }
 
-/* Modal header styling */
+/* ===== MODAL HEADER ===== */
 .modal-header {
-  text-align: center;             /* Center header content */
-  margin-bottom: 1.5rem;          /* Space below header */
-  padding-bottom: 1rem;           /* Padding below header */
-  border-bottom: 1px solid #eee;  /* Subtle separator line */
+  /* Modal header styling */
+  text-align: center;                  /* Center header content */
+  margin-bottom: 1.5rem;               /* Space below header */
+  padding-bottom: 1rem;                /* Padding below header */
+  border-bottom: 1px solid #eee;       /* Subtle separator line */
 }
 
 .modal-header h1 {
-  color: var(--primary-color);    /* Blue heading color */
-  margin-bottom: 0.5rem;          /* Space below heading */
-  font-size: 1.8rem;              /* Large heading */
+  /* Modal heading */
+  color: var(--primary-color);         /* Blue heading color */
+  margin-bottom: 0.5rem;               /* Space below heading */
+  font-size: 1.8rem;                   /* Large heading */
 }
 
 .modal-header p {
-  color: #666;                    /* Muted description text */
-  margin: 0;                      /* No additional margin */
+  /* Modal description */
+  color: #666;                         /* Muted description text */
+  margin: 0;                           /* No additional margin */
 }
 
-/* Modal form styling */
+/* ===== MODAL FORM ===== */
 .modal-form {
-  margin-bottom: 1.5rem;          /* Space below form */
+  /* Form within modal */
+  margin-bottom: 1.5rem;               /* Space below form */
 }
 
 .form-group {
-  margin-bottom: 1rem;            /* Space between form fields */
+  /* Form field group */
+  margin-bottom: 1rem;                 /* Space between form fields */
 }
 
 .form-group label {
-  display: block;                 /* Full width labels */
-  margin-bottom: 0.5rem;          /* Space below labels */
-  font-weight: 600;               /* Bold labels */
-  color: var(--text-color);       /* Standard text color */
+  /* Form labels */
+  display: block;                      /* Full width labels */
+  margin-bottom: 0.5rem;               /* Space below labels */
+  font-weight: 600;                    /* Bold labels */
+  color: var(--text-color);            /* Standard text color */
 }
 
 .form-group input,
 .form-group textarea {
-  width: 100%;                    /* Full width inputs */
-  padding: 0.75rem;               /* Comfortable padding */
-  border: 2px solid #e1e5e9;      /* Light border */
-  border-radius: 8px;             /* Rounded corners */
-  font-size: 1rem;                /* Standard font size */
+  /* Form inputs */
+  width: 100%;                         /* Full width inputs */
+  padding: 0.75rem;                    /* Comfortable padding */
+  border: 2px solid #e1e5e9;           /* Light border */
+  border-radius: 8px;                  /* Rounded corners */
+  font-size: 1rem;                     /* Standard font size */
   transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Smooth focus transitions */
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
-  outline: none;                  /* Remove default outline */
-  border-color: var(--primary-color); /* Blue border on focus */
+  /* Input focus state */
+  outline: none;                       /* Remove default outline */
+  border-color: var(--primary-color);  /* Blue border on focus */
   box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1); /* Subtle blue glow */
 }
 
-/* Form actions area */
+/* ===== FORM ACTIONS ===== */
 .form-actions {
-  text-align: center;             /* Center form buttons */
-  margin-top: 1.5rem;             /* Space above actions */
+  /* Form button area */
+  text-align: center;                  /* Center form buttons */
+  margin-top: 1.5rem;                  /* Space above actions */
 }
 
 .btn-primary {
+  /* Primary form button */
   background-color: var(--primary-color); /* Blue background */
-  color: white;                   /* White text */
-  border: none;                   /* No border */
-  padding: 0.75rem 2rem;          /* Generous padding */
-  font-size: 1rem;                /* Standard font size */
-  font-weight: 600;               /* Bold text */
-  border-radius: 8px;             /* Rounded corners */
-  cursor: pointer;                /* Pointer cursor */
+  color: white;                        /* White text */
+  border: none;                        /* No border */
+  padding: 0.75rem 2rem;               /* Generous padding */
+  font-size: 1rem;                     /* Standard font size */
+  font-weight: 600;                    /* Bold text */
+  border-radius: 8px;                  /* Rounded corners */
+  cursor: pointer;                     /* Pointer cursor */
   transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transitions */
-  min-width: 140px;               /* Minimum width for loading states */
+  min-width: 140px;                    /* Minimum width for loading states */
 }
 
 .btn-primary:hover {
-  background-color: #0b5ed7;      /* Darker blue on hover */
-  transform: translateY(-1px);    /* Subtle lift effect */
+  /* Primary button hover state */
+  background-color: #0b5ed7;           /* Darker blue on hover */
+  transform: translateY(-1px);         /* Subtle lift effect */
 }
 
 .btn-primary:active {
-  transform: translateY(0);       /* Reset on click */
+  /* Primary button active state */
+  transform: translateY(0);            /* Reset on click */
 }
 
-/* Form status messages */
+/* ===== FORM STATUS MESSAGES ===== */
 .form-status {
-  margin-top: 1rem;               /* Space above status */
-  padding: 0.5rem;                /* Padding around status */
-  border-radius: 6px;             /* Rounded corners */
-  text-align: center;             /* Center status text */
-  font-weight: 500;               /* Medium font weight */
-  min-height: 24px;               /* Reserve space for messages */
+  /* Status message area */
+  margin-top: 1rem;                    /* Space above status */
+  padding: 0.5rem;                     /* Padding around status */
+  border-radius: 6px;                  /* Rounded corners */
+  text-align: center;                  /* Center status text */
+  font-weight: 500;                    /* Medium font weight */
+  min-height: 24px;                    /* Reserve space for messages */
 }
 
-/* Success and error state colors are set by JavaScript */
-
-/* Modal footer */
+/* ===== MODAL FOOTER ===== */
 .modal-footer {
-  text-align: center;             /* Center footer content */
-  padding-top: 1rem;              /* Padding above footer */
-  border-top: 1px solid #eee;     /* Subtle separator line */
-  font-size: 0.9rem;              /* Slightly smaller text */
-  color: #666;                    /* Muted text color */
+  /* Modal footer styling */
+  text-align: center;                  /* Center footer content */
+  padding-top: 1rem;                   /* Padding above footer */
+  border-top: 1px solid #eee;          /* Subtle separator line */
+  font-size: 0.9rem;                   /* Slightly smaller text */
+  color: #666;                         /* Muted text color */
 }
 
 .modal-footer p {
-  margin: 0.25rem 0;              /* Small margin between footer lines */
+  /* Footer paragraphs */
+  margin: 0.25rem 0;                   /* Small margin between footer lines */
 }
 
 .modal-footer a {
-  color: var(--primary-color);    /* Blue links */
-  text-decoration: none;          /* No underlines */
+  /* Footer links */
+  color: var(--primary-color);         /* Blue links */
+  text-decoration: none;               /* No underlines */
 }
 
 .modal-footer a:hover {
-  text-decoration: underline;     /* Underline on hover */
+  /* Footer link hover */
+  text-decoration: underline;          /* Underline on hover */
 }
 
-/* Modal close button */
+/* ===== MODAL CLOSE BUTTON ===== */
 .modal-close {
-  position: absolute;             /* Position relative to modal content */
-  top: 1rem;                      /* Distance from top */
-  right: 1rem;                    /* Distance from right */
-  background: none;               /* No background */
-  border: none;                   /* No border */
-  font-size: 1.5rem;              /* Large close icon */
-  cursor: pointer;                /* Show it's clickable */
-  color: #999;                    /* Grey color */
-  width: 30px;                    /* Fixed width */
-  height: 30px;                   /* Fixed height */
-  display: flex;                  /* Flex for centering */
-  align-items: center;            /* Center vertically */
-  justify-content: center;        /* Center horizontally */
-  border-radius: 50%;             /* Circular close button */
+  /* Close button styling */
+  position: absolute;                  /* Position relative to modal content */
+  top: 1rem;                           /* Distance from top */
+  right: 1rem;                         /* Distance from right */
+  background: none;                    /* No background */
+  border: none;                        /* No border */
+  font-size: 1.5rem;                   /* Large close icon */
+  cursor: pointer;                     /* Show it's clickable */
+  color: #999;                         /* Grey color */
+  width: 30px;                         /* Fixed width */
+  height: 30px;                        /* Fixed height */
+  display: flex;                       /* Flex for centering */
+  align-items: center;                 /* Center vertically */
+  justify-content: center;             /* Center horizontally */
+  border-radius: 50%;                  /* Circular close button */
   transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transitions */
 }
 
 .modal-close:hover {
-  background-color: #f5f5f5;      /* Light background on hover */
-  color: #333;                    /* Darker color on hover */
+  /* Close button hover */
+  background-color: #f5f5f5;           /* Light background on hover */
+  color: #333;                         /* Darker color on hover */
 }
 
-/* Contact modal button styling - styled like primary navigation buttons (blue) */
-.contact-modal-btn {
-  display: inline-block;          /* Block-level styling with inline flow */
-  padding: .55rem .9rem;          /* Larger padding for button appearance */
-  border-radius: .5rem;           /* More rounded corners for button look */
-  border: 2px solid #1f48ad;      /* Darker blue border to match primary */
-  background: #2a5bd7;            /* Blue background to match primary button */
-  color: #ffffff;                 /* White text for contrast */
-  text-decoration: none;          /* Remove underlines */
-  font-weight: 600;               /* Bold text */
-  white-space: nowrap;            /* Prevent text wrapping */
-  cursor: pointer;                /* Pointer cursor */
-  transition: all 0.3s ease;      /* Smooth transitions */
-}
-
-.contact-modal-btn:hover {
-  filter: brightness(1.06);       /* Slightly brighter on hover (matches primary) */
-  transform: translateY(-1px);    /* Subtle lift effect */
-  box-shadow: 0 4px 12px rgba(42, 91, 215, 0.3); /* Blue shadow */
-}
-
-/* Modal animations */
+/* ===== MODAL ANIMATIONS ===== */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -1347,209 +1363,275 @@ form button {
 }
 
 /* ================================================
-   13. FOOTER
+   14. FOOTER
    Site footer with copyright information and admin access
    ================================================ */
 footer {
+  /* Footer styling */
   background-color: var(--primary-color); /* Blue background */
-  color: #fff;                    /* White text */
-  text-align: center;             /* Center content */
-  padding: 1rem 0;                /* Vertical padding */
-  font-size: 0.9rem;              /* Slightly smaller text */
+  color: #fff;                         /* White text */
+  text-align: center;                  /* Center content */
+  padding: 1rem 0;                     /* Vertical padding */
+  font-size: 0.9rem;                   /* Slightly smaller text */
 }
 
 footer .container {
-  display: flex;                  /* Flexible layout for footer content */
-  justify-content: space-between; /* Space between copyright and admin button */
-  align-items: center;            /* Vertically center items */
-  flex-wrap: wrap;                /* Allow wrapping on small screens */
-  gap: 1rem;                      /* Space between items */
+  /* Footer layout */
+  display: flex;                       /* Flexible layout for footer content */
+  justify-content: space-between;      /* Space between copyright and admin button */
+  align-items: center;                 /* Vertically center items */
+  flex-wrap: wrap;                     /* Allow wrapping on small screens */
+  gap: 1rem;                           /* Space between items */
 }
 
 footer p {
-  margin: 0;                      /* Remove default margin */
-  flex: 1;                        /* Take available space */
+  /* Footer text */
+  margin: 0;                           /* Remove default margin */
+  flex: 1;                             /* Take available space */
 }
 
-/* Administrator login button styling - smaller and discrete */
+/* ===== ADMINISTRATOR LOGIN BUTTON ===== */
 .admin-login-btn {
-  background: rgba(255,255,255,0.1); /* Semi-transparent white background */
-  color: #fff;                    /* White text */
+  /* Admin button styling - smaller and discrete */
+  background: rgba(255,255,255,0.1);   /* Semi-transparent white background */
+  color: #fff;                         /* White text */
   border: 1px solid rgba(255,255,255,0.3); /* Semi-transparent border */
-  padding: 0.4rem 0.8rem;         /* Smaller padding than regular buttons */
-  font-size: 0.8rem;              /* Smaller font size */
-  border-radius: 4px;             /* Rounded corners */
-  cursor: pointer;                /* Pointer cursor */
-  transition: all 0.3s ease;      /* Smooth transitions */
-  white-space: nowrap;            /* Prevent text wrapping */
+  padding: 0.4rem 0.8rem;              /* Smaller padding than regular buttons */
+  font-size: 0.8rem;                   /* Smaller font size */
+  border-radius: 4px;                  /* Rounded corners */
+  cursor: pointer;                     /* Pointer cursor */
+  transition: all 0.3s ease;           /* Smooth transitions */
+  white-space: nowrap;                 /* Prevent text wrapping */
 }
 
 .admin-login-btn:hover {
-  background: rgba(255,255,255,0.2); /* Slightly more visible on hover */
+  /* Admin button hover */
+  background: rgba(255,255,255,0.2);   /* Slightly more visible on hover */
   border-color: rgba(255,255,255,0.5); /* More visible border on hover */
-  transform: translateY(-1px);    /* Subtle lift effect */
+  transform: translateY(-1px);         /* Subtle lift effect */
 }
 
 /* ================================================
-   14. MOBILE RESPONSIVE STYLES
+   15. MOBILE RESPONSIVE STYLES
    Responsive design for tablets and mobile devices
    ================================================ */
 @media (max-width: 768px) {
+  /* ===== MOBILE HEADER & NAVIGATION ===== */
   /* Show hamburger menu on mobile */
   .hamburger {
-    display: block;               /* Make hamburger visible */
+    display: flex;                     /* Make hamburger visible */
   }
   
   /* Mobile navigation styling */
   header nav ul {
-    display: none;                /* Hide navigation by default */
-    flex-direction: column;       /* Stack nav items vertically */
-    width: 100%;                  /* Full width */
-    background-color: #081e5b;    /* Same background as header */
-    margin-top: 0.5rem;           /* Space below hamburger */
-    padding: 0.5rem 0;            /* Vertical padding */
-    position: absolute;           /* Position over content */
-    top: 100%;                    /* Below header */
-    left: 0;                      /* Align to left */
-    right: 0;                     /* Align to right */
+    display: none;                     /* Hide navigation by default */
+    flex-direction: column;            /* Stack nav items vertically */
+    width: 100%;                       /* Full width */
+    background-color: var(--bg);       /* Match header background */
+    margin-top: 0.5rem;                /* Space below hamburger */
+    padding: 0.5rem 0;                 /* Vertical padding */
+    position: absolute;                /* Position over content */
+    top: 100%;                         /* Below header */
+    left: 0;                           /* Align to left */
+    right: 0;                          /* Align to right */
   }
   
   /* Show navigation when toggled */
   header nav ul.show {
-    display: flex;                /* Show navigation */
+    display: flex;                     /* Show navigation */
   }
   
   /* Mobile navigation item styling */
   header nav ul li {
-    margin: 0.5rem 0;             /* Vertical margin only */
-    text-align: left;             /* Left-align text */
-    padding-left: 1rem;           /* Left padding */
+    margin: 0.5rem 0;                  /* Vertical margin only */
+    text-align: left;                  /* Left-align text */
+    padding-left: 1rem;                /* Left padding */
   }
 
-  /* Stack cards vertically on mobile */
+  /* ===== MOBILE CARD LAYOUT ===== */
   .cards {
-    flex-direction: column;       /* Stack cards vertically */
-    align-items: center;          /* Center cards */
+    flex-direction: column;            /* Stack cards vertically */
+    align-items: center;               /* Center cards */
   }
 
-  /* Mobile founder section layout */
-  .founder-container {
-    flex-direction: column;       /* Stack image and text vertically */
-    text-align: center;           /* Center content */
-  }
-  .founder-image,
-  .founder-text {
-    width: 100%;                  /* Full width for both sections */
-  }
-
-  /* Mobile highlights layout */
-  .highlights-container {
-    flex-direction: column;       /* Stack highlights vertically */
-    align-items: center;          /* Center highlights */
-  }
-
-  /* Mobile membership section layout */
-  .membership-container {
-    flex-direction: column;       /* Stack image and text vertically */
-    text-align: center;           /* Center content */
-  }
-  .membership-image img {
-    max-width: 300px;             /* Smaller image on mobile */
-    margin: 0 auto;               /* Center image */
-  }
-
-  /* Mobile hero adjustments */
-  .hero .hero-title img {
-    width: 80%;                   /* Larger relative width */
-    max-width: 280px;             /* Smaller absolute maximum */
-  }
-  .hero h2 {
-    font-size: 1.7rem;            /* Smaller heading */
-  }
-  .hero p {
-    font-size: 1rem;              /* Smaller text */
-  }
   .card {
-    width: 100%;                  /* Full width cards */
+    width: 100%;                       /* Full width cards */
+    max-width: 400px;                  /* Maximum width for readability */
+  }
+
+  /* ===== MOBILE HERO ADJUSTMENTS ===== */
+  .hero .hero-title img {
+    width: 80%;                        /* Larger relative width */
+    max-width: 280px;                  /* Smaller absolute maximum */
   }
   
-  /* Mobile Silver Plan Badge adjustments */
+  .hero h2 {
+    font-size: 1.7rem;                 /* Smaller heading */
+  }
+  
+  .hero p {
+    font-size: 1rem;                   /* Smaller text */
+  }
+  
+  /* ===== MOBILE SILVER PLAN BADGE ===== */
   .silver-plan-badge {
-    padding: 1rem 1.8rem;         /* Reduced padding for mobile */
-    margin: 0 auto 1.5rem auto;   /* Reduced margin for mobile */
-    border-radius: 20px;          /* Slightly less rounded on mobile */
+    padding: 1rem 1.8rem;              /* Reduced padding for mobile */
+    margin: 0 auto 1.5rem auto;        /* Reduced margin for mobile */
+    border-radius: 20px;               /* Slightly less rounded on mobile */
   }
   
   .badge-text {
-    font-size: 2.2rem;            /* Smaller main text on mobile */
+    font-size: 2.2rem;                 /* Smaller main text on mobile */
   }
   
   .badge-subtext {
-    font-size: 1.1rem;            /* Smaller subtext on mobile */
+    font-size: 1.1rem;                 /* Smaller subtext on mobile */
   }
   
-  /* Mobile Silver Hero Heading adjustments */
   .silver-hero-heading {
-    font-size: 1.8rem;            /* Smaller heading on mobile */
-    margin-bottom: 1rem;          /* Reduced margin */
-    line-height: 1.3;             /* Tighter line height */
+    font-size: 1.8rem;                 /* Smaller heading on mobile */
+    margin-bottom: 1rem;               /* Reduced margin */
+    line-height: 1.3;                  /* Tighter line height */
   }
   
-  /* Mobile Enhanced Features adjustments */
+  /* ===== MOBILE ENHANCED FEATURES ===== */
   .membership-features-enhanced li {
-    font-size: 1.1rem;            /* Smaller features text on mobile */
-    padding-left: 1.8rem;         /* Reduced padding */
-    margin-bottom: 0.8rem;        /* Reduced spacing */
+    font-size: 1.1rem;                 /* Smaller features text on mobile */
+    padding-left: 1.8rem;              /* Reduced padding */
+    margin-bottom: 0.8rem;             /* Reduced spacing */
   }
   
   .membership-features-enhanced li::before {
-    font-size: 1.2rem;            /* Smaller checkmark on mobile */
+    font-size: 1.2rem;                 /* Smaller checkmark on mobile */
   }
   
   .plan-description {
-    font-size: 1.1rem;            /* Smaller description on mobile */
+    font-size: 1.1rem;                 /* Smaller description on mobile */
+  }
+
+  /* ===== MOBILE TESTIMONIALS CAROUSEL ===== */
+  .testimonials {
+    padding: 3rem 0;                   /* Smaller padding for mobile */
+  }
+  
+  .testimonials h2 {
+    font-size: 2rem;                   /* Smaller heading text */
+    margin-bottom: 2rem;               /* Reduced spacing */
+  }
+  
+  .testimonials-carousel {
+    margin: 0 1rem;                    /* Side margins on mobile */
+    border-radius: 16px;               /* Less rounded corners */
+  }
+  
+  .testimonial-content {
+    padding: 2.5rem 2rem;              /* Smaller internal spacing */
+    margin: 1rem;                      /* Reduced margin */
+  }
+  
+  .quote-icon {
+    font-size: 3rem;                   /* Smaller quote icon */
+    top: 1rem;                         /* Adjusted position */
+    left: 1rem;                        /* Adjusted position */
+  }
+  
+  .testimonial-text {
+    font-size: 1.1rem;                 /* Smaller quote text */
+    margin-bottom: 1.5rem;             /* Reduced spacing */
+  }
+  
+  .author-avatar {
+    width: 44px;                       /* Smaller avatar */
+    height: 44px;                      /* Smaller avatar */
+    font-size: 1.1rem;                 /* Smaller initial */
+  }
+  
+  .author-details h4 {
+    font-size: 1rem;                   /* Smaller name */
+  }
+  
+  .author-location {
+    font-size: 0.85rem;                /* Smaller location */
+  }
+  
+  /* Adjust arrows for mobile - move them inside the carousel */
+  .carousel-arrow {
+    width: 40px;                       /* Smaller buttons */
+    height: 40px;                      /* Smaller buttons */
+  }
+  
+  .carousel-arrow svg {
+    width: 16px;                       /* Smaller icons */
+    height: 16px;                      /* Smaller icons */
+  }
+  
+  .carousel-arrow.prev {
+    left: 10px;                        /* Move inside carousel on mobile */
+  }
+  
+  .carousel-arrow.next {
+    right: 10px;                       /* Move inside carousel on mobile */
   }
 }
 
-/* Extra small mobile devices */
+/* ===== EXTRA SMALL MOBILE DEVICES ===== */
 @media (max-width: 480px) {
+  /* Navigation action buttons full width */
   header nav ul .nav-action a {
-    width: 100%;                  /* Full width action buttons */
-    text-align: center;           /* Center button text */
+    width: 100%;                       /* Full width action buttons */
+    text-align: center;                /* Center button text */
   }
   
-  /* Extra small mobile Silver Plan Badge adjustments */
+  /* Extra small Silver Plan Badge adjustments */
   .silver-plan-badge {
-    padding: 0.8rem 1.5rem;       /* Further reduced padding for very small screens */
-    margin: 0 auto 1rem auto;     /* Reduced margin */
-    border-radius: 16px;          /* Even less rounded on very small screens */
+    padding: 0.8rem 1.5rem;            /* Further reduced padding */
+    margin: 0 auto 1rem auto;          /* Reduced margin */
+    border-radius: 16px;               /* Less rounded */
   }
   
   .badge-text {
-    font-size: 1.8rem;            /* Even smaller main text on very small screens */
-    margin-bottom: 0.15rem;       /* Tighter spacing */
+    font-size: 1.8rem;                 /* Even smaller main text */
+    margin-bottom: 0.15rem;            /* Tighter spacing */
   }
   
   .badge-subtext {
-    font-size: 0.95rem;           /* Smaller subtext on very small screens */
+    font-size: 0.95rem;                /* Smaller subtext */
   }
   
-  /* Extra small Silver Hero Heading adjustments */
   .silver-hero-heading {
-    font-size: 1.5rem;            /* Even smaller heading on very small screens */
-    margin-bottom: 0.8rem;        /* Tighter margin */
-    padding: 0 1rem;              /* Side padding to prevent text cutoff */
+    font-size: 1.5rem;                 /* Even smaller heading */
+    margin-bottom: 0.8rem;             /* Tighter margin */
+    padding: 0 1rem;                   /* Side padding */
   }
   
-  /* Extra small Enhanced Features adjustments */
   .membership-features-enhanced li {
-    font-size: 1rem;              /* Standard size on very small screens */
-    padding-left: 1.5rem;         /* Further reduced padding */
-    margin-bottom: 0.7rem;        /* Tighter spacing */
+    font-size: 1rem;                   /* Standard size */
+    padding-left: 1.5rem;              /* Further reduced padding */
+    margin-bottom: 0.7rem;             /* Tighter spacing */
   }
   
   .plan-description {
-    font-size: 1rem;              /* Standard size on very small screens */
-    padding: 0 0.5rem;            /* Side padding */
+    font-size: 1rem;                   /* Standard size */
+    padding: 0 0.5rem;                 /* Side padding */
+  }
+
+  /* Extra small testimonials adjustments */
+  .testimonial-content {
+    padding: 2rem 1.5rem;              /* Minimal padding */
+    margin: 0.5rem;                    /* Minimal margin */
+  }
+  
+  .testimonial-text {
+    font-size: 1rem;                   /* Smaller text */
+  }
+  
+  .quote-icon {
+    font-size: 2.5rem;                 /* Smaller quote icon */
+    opacity: 0.1;                      /* Even more subtle */
+  }
+  
+  .testimonials-carousel {
+    margin: 0 0.5rem;                  /* Minimal side margins */
+    border-radius: 12px;               /* Less rounded */
   }
 }

@@ -2,14 +2,13 @@
 <html lang="en">
 <!--
 ===============================================
-COMPUTER STORE KANSAS - CONSOLIDATED HTML
+COMPUTER STORE KANSAS - MAIN HTML FILE
 ===============================================
-VERSION: 29
-LAST UPDATED: 2025-09-23
-CHANGES: Cleaned up Silver Plan page - removed hero description, moved plan description 
-         to after benefits, added "Half-price house calls" feature
+VERSION: 30
+LAST UPDATED: 2025-10-15
+CHANGES: Removed founder image section, modernized testimonials carousel
 DESCRIPTION: Single-page application with dynamic navigation and content management
-DEPENDENCIES: css/style.css, js/config.js, js/script.js
+DEPENDENCIES: Styles.css, Scripts.js
 ===============================================
 -->
 <head>
@@ -98,7 +97,7 @@ DEPENDENCIES: css/style.css, js/config.js, js/script.js
        EXTERNAL STYLESHEETS
        CSS files for styling and layout
        ================================================ -->
-  <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="./css/Style.css">
   
   <!-- ================================================
        STRUCTURED DATA (JSON-LD)
@@ -250,18 +249,18 @@ DEPENDENCIES: css/style.css, js/config.js, js/script.js
         <div class="membership-text-centered">
           <!-- Bulleted list of plan features - enhanced styling -->
           <ul class="membership-features-enhanced">
-            <li>Anti‑virus software</li>
+            <li>Anti-virus software</li>
             <li>50% off virus removal services</li>
             <li>Half-price house calls</li>
             <li>Preventive maintenance service</li>
             <li>Limited help desk/remote support</li>
-            <li>Free in‑store diagnostics and estimates</li>
+            <li>Free in-store diagnostics and estimates</li>
             <li>Performance monitoring and alert service</li>
             <li>15% discount on labor</li>
           </ul>
           
           <!-- Plan description moved to after benefits -->
-          <p class="plan-description">Our Silver Plan provides comprehensive care for your computer. For only $24.99 per month (with a three‑month commitment), you'll receive comprehensive computer protection and maintenance for peace of mind.</p>
+          <p class="plan-description">Our Silver Plan provides comprehensive care for your computer. For only $24.99 per month (with a three-month commitment), you'll receive comprehensive computer protection and maintenance for peace of mind.</p>
         </div>
       </div>
     </section>
@@ -279,7 +278,7 @@ DEPENDENCIES: css/style.css, js/config.js, js/script.js
   <!-- ================================================
        HOME PAGE SECTION
        Main landing page content - shown by default
-       Contains hero, founder, highlights, services, testimonials, and CTA
+       Contains hero, founder story, services, testimonials, and CTA
        ================================================ -->
   <div id="home-page" class="page-section active">
     
@@ -292,29 +291,25 @@ DEPENDENCIES: css/style.css, js/config.js, js/script.js
         </div>
         
         <!-- Main headline and call-to-action -->
-        <h2>Your Go‑To Technology Center Since 2003</h2>
+        <h2>Your Go-To Technology Center Since 2003</h2>
         <p>Count on The Computer Store for all your computer service needs.</p>
         <button class="contact-modal-btn">Talk to an Expert</button>
       </div>
     </section>
 
-    <!-- FOUNDER SECTION - Story and photo of company founder -->
+    <!-- ================================================
+         FOUNDER STORY SECTION - TEXT ONLY
+         Company origin story without image
+         ================================================ -->
     <section class="founder">
-      <div class="container founder-container">
-        <!-- Founder photo -->
-        <div class="founder-image">
-          <img src="./assets/jim.png" alt="Jim Driggers - Computer Store Kansas Founder">
-        </div>
-        
-        <!-- Founder story and quote -->
-        <div class="founder-text">
+      <div class="container">
+        <div class="founder-text-full">
           <h2>Locally Owned Since 2003</h2>
           <p>I had seen computer stores come and go and some not run very professionally; I wanted to make sure to build on the best practices learned from my consulting business to offer better and faster service while remaining local. With this business model in place, The Computer Store opened its doors to customers in 2003 and we are the oldest locally owned professional computer retail store in Topeka.</p>
-          <p class="founder-name">– Jim Driggers, Computer Store Founder</p>
+          <p class="founder-name">— Jim Driggers, Computer Store Founder</p>
         </div>
       </div>
     </section>
-
 
     <!-- SERVICES OVERVIEW SECTION - Main service offerings in card format -->
     <section class="services">
@@ -323,7 +318,6 @@ DEPENDENCIES: css/style.css, js/config.js, js/script.js
         <div class="cards">
           <!-- Service cards populated dynamically from configuration data -->
           <!-- Individual service cards are created by JavaScript from config.js -->
-          <!-- This allows easy updating of services without modifying HTML -->
           <!-- Fallback content for when JavaScript is disabled -->
           <div class="card">
             <h3>Computer Service</h3>
@@ -335,30 +329,90 @@ DEPENDENCIES: css/style.css, js/config.js, js/script.js
           </div>
           <div class="card">
             <h3>New Computer Sales</h3>
-            <p>Let our non‑commissioned team help you build or choose the perfect PC for your needs.</p>
+            <p>Let our non-commissioned team help you build or choose the perfect PC for your needs.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- TESTIMONIALS SECTION - Customer reviews and feedback -->
+    <!-- ================================================
+         TESTIMONIALS SECTION - MODERNIZED CAROUSEL
+         Customer reviews in a contemporary card-based carousel
+         ================================================ -->
     <section class="testimonials">
       <div class="container">
-        <h2>Client Testimonials</h2>
-        <!-- Testimonial content populated dynamically from configuration data -->
-        <!-- Individual testimonials are created by JavaScript from config.js -->
-        <!-- Fallback content for when JavaScript is disabled -->
-        <div class="testimonial">
-          <p>"Signing up for a Computer Protection Plan from The Computer Store was the best decision I've made in years. My computer has never run better and no more worries about spyware stealing my identity while online!"</p>
-          <h4>– Kristina Jones, Topeka</h4>
+        <h2>What Our Clients Say</h2>
+        
+        <!-- Modern carousel container with glassmorphism effects -->
+        <div class="testimonials-carousel">
+          <!-- Carousel track - holds all testimonial cards -->
+          <div class="testimonials-track">
+            
+            <!-- Testimonial Card 1 -->
+            <div class="testimonial">
+              <div class="testimonial-content">
+                <div class="quote-icon">❝</div>
+                <p class="testimonial-text">Signing up for a Computer Protection Plan from The Computer Store was the best decision I've made in years. My computer has never run better and no more worries about spyware stealing my identity while online!</p>
+                <div class="testimonial-author">
+                  <div class="author-avatar">K</div>
+                  <div class="author-details">
+                    <h4>Kristina Jones</h4>
+                    <p class="author-location">Topeka, KS</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Testimonial Card 2 -->
+            <div class="testimonial">
+              <div class="testimonial-content">
+                <div class="quote-icon">❝</div>
+                <p class="testimonial-text">When the Big Store told me they'd have to send my PC in and it would be 2-3 weeks, I decided to try a local store. Not only did The Computer Store fix my problem a lot faster, they did so at just under half the cost.</p>
+                <div class="testimonial-author">
+                  <div class="author-avatar">M</div>
+                  <div class="author-details">
+                    <h4>Matt</h4>
+                    <p class="author-location">Topeka, KS</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Testimonial Card 3 -->
+            <div class="testimonial">
+              <div class="testimonial-content">
+                <div class="quote-icon">❝</div>
+                <p class="testimonial-text">My hard drive stopped working all together and I had no backup. I thought all was lost but the technician managed to get my drive working long enough to get the data onto another drive saving me a lot of headache and money — thank you Computer Store!</p>
+                <div class="testimonial-author">
+                  <div class="author-avatar">A</div>
+                  <div class="author-details">
+                    <h4>Andrew</h4>
+                    <p class="author-location">Topeka, KS</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+          
+          <!-- Carousel navigation arrows -->
+          <button class="carousel-arrow prev" aria-label="Previous testimonial">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+          <button class="carousel-arrow next" aria-label="Next testimonial">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
         </div>
-        <div class="testimonial">
-          <p>"When the Big Store told me they'd have to send my PC in and it would be 2–3 weeks, I decided to try a local store. Not only did The Computer Store fix my problem a lot faster, they did so at just under half the cost."</p>
-          <h4>– Matt, Topeka</h4>
-        </div>
-        <div class="testimonial">
-          <p>"My hard drive stopped working all together and I had no backup. I thought all was lost but the technician managed to get my drive working long enough to get the data onto another drive saving me a lot of headache and money – thank you Computer Store!"</p>
-          <h4>– Andrew, Topeka</h4>
+        
+        <!-- Carousel indicators (dots) -->
+        <div class="carousel-indicators">
+          <button class="carousel-indicator active" data-index="0" aria-label="Go to testimonial 1"></button>
+          <button class="carousel-indicator" data-index="1" aria-label="Go to testimonial 2"></button>
+          <button class="carousel-indicator" data-index="2" aria-label="Go to testimonial 3"></button>
         </div>
       </div>
     </section>
@@ -396,7 +450,7 @@ DEPENDENCIES: css/style.css, js/config.js, js/script.js
           We're passionate about helping our customers get the most out of their technology with fast, friendly and honest service. 
           Our technicians are certified and experienced in working with all major brands and systems. From virus removal and data recovery 
           to upgrades and custom PC builds, we provide a full range of computer services for homes and small businesses. 
-          When you work with us, you're not just another ticket – you're part of our community.</p>
+          When you work with us, you're not just another ticket — you're part of our community.</p>
       </div>
     </section>
 
@@ -405,7 +459,6 @@ DEPENDENCIES: css/style.css, js/config.js, js/script.js
       <div class="container">
         <h2>Why Choose Us?</h2>
         <div class="cards">
-          <!-- Differentiator content populated dynamically or fallback content -->
           <div class="card">
             <h3>Reliability</h3>
             <p>count on us for dependable repairs and support</p>
@@ -457,7 +510,6 @@ DEPENDENCIES: css/style.css, js/config.js, js/script.js
       <div class="container">
         <h2>What We Offer</h2>
         <div class="cards">
-          <!-- Service content populated dynamically or fallback content -->
           <div class="card">
             <h3>Diagnostics</h3>
             <p>Thorough troubleshooting to identify issues quickly and accurately.</p>
@@ -489,8 +541,8 @@ DEPENDENCIES: css/style.css, js/config.js, js/script.js
   </div>
 
   <!-- ================================================
-       CONTACT PAGE SECTION - SIMPLIFIED
-       Now just shows contact information since form is in modal
+       CONTACT PAGE SECTION
+       Contact information and call-to-action for messaging
        Hidden by default - shown when Contact nav is clicked
        ================================================ -->
   <div id="contact-page" class="page-section">
@@ -520,14 +572,12 @@ DEPENDENCIES: css/style.css, js/config.js, js/script.js
         </div>
         
         <!-- BUSINESS CONTACT INFORMATION -->
-        <!-- Contact details populated dynamically from configuration data -->
         <div class="contact-info">
-          <!-- This content is populated by JavaScript from config.js -->
-          <p><strong>Phone:</strong> 785‑267‑3223</p>
+          <p><strong>Phone:</strong> 785-267-3223</p>
           <p><strong>Email:</strong> contact@computerstoreks.com</p>
           <p><strong>Address:</strong> 2008 SW Gage Blvd, Topeka, KS 66604</p>
-          <p><strong>Hours:</strong> Monday&nbsp;–&nbsp;Friday 10:00&nbsp;am&nbsp;–&nbsp;6:00&nbsp;pm<br>Saturday 10:00&nbsp;am&nbsp;–&nbsp;2:00&nbsp;pm</p>
-          <p class="note">*Three‑month agreement required for protection plans</p>
+          <p><strong>Hours:</strong> Monday — Friday 10:00 am — 6:00 pm<br>Saturday 10:00 am — 2:00 pm</p>
+          <p class="note">*Three-month agreement required for protection plans</p>
         </div>
 
         <!-- ADDITIONAL CONTACT ACTIONS -->
@@ -618,7 +668,7 @@ DEPENDENCIES: css/style.css, js/config.js, js/script.js
       
       <!-- Quick contact info in modal -->
       <div class="modal-footer">
-        <p><strong>Prefer to call?</strong> 📞 <a href="tel:785-267-3223">785‑267‑3223</a></p>
+        <p><strong>Prefer to call?</strong> 📞 <a href="tel:785-267-3223">785-267-3223</a></p>
         <p><strong>Email us directly:</strong> ✉️ <a href="mailto:contact@computerstoreks.com">contact@computerstoreks.com</a></p>
       </div>
     </div>
@@ -630,7 +680,7 @@ DEPENDENCIES: css/style.css, js/config.js, js/script.js
        ================================================ -->
   <footer>
     <div class="container">
-      <!-- Copyright text - populated dynamically from configuration -->
+      <!-- Copyright text -->
       <p>&copy; 2025 Computer Store Kansas All rights reserved.</p>
       
       <!-- Administrator login button - smaller, discrete access -->
@@ -667,7 +717,7 @@ DEPENDENCIES: css/style.css, js/config.js, js/script.js
   <script src="./js/config.js" onload="checkScripts()"></script>
   
   <!-- Main JavaScript functionality - requires config.js to be loaded first -->
-  <script src="./js/script.js" onload="checkScripts()"></script>
+  <script src="./js/Script.js" onload="checkScripts()"></script>
 
   <!-- ================================================
        FALLBACK NAVIGATION SCRIPT

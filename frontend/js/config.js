@@ -189,6 +189,7 @@ window.siteConfig = {
       features: [
         "Anti‑virus software",
         "50% off virus removal services",
+        "50% off account recovery assistance", 
         "Half-price house calls",
         "Preventive maintenance service",
         "Limited help desk/remote support",

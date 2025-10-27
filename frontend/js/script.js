@@ -2,12 +2,11 @@
  * ================================================
  * COMPUTER STORE KANSAS - MAIN JAVASCRIPT FILE
  * ================================================
- * VERSION: 31
- * LAST UPDATED: 2025-10-15
- * CHANGES: - Modernized testimonials carousel with smooth animations
- *          - Added auto-play functionality for carousel
- *          - Enhanced mobile touch support
- *          - Improved modal interactions
+ * VERSION: 32
+ * LAST UPDATED: 2025-10-27
+ * CHANGES: - Integrated Formspree for contact form submissions
+ *          - Removed simulated form submission
+ *          - Added proper error handling for form submissions
  * DESCRIPTION: Handles all interactive functionality for the website
  * DEPENDENCIES: None (vanilla JavaScript)
  * 
@@ -473,8 +472,8 @@ function initializeModals() {
 }
 
 // ================================================
-// 5. CONTACT FORM SUBMISSION
-// Handles contact form submission and validation
+// 5. CONTACT FORM SUBMISSION - FORMSPREE
+// Handles contact form submission via Formspree API
 // ================================================
 
 /**
@@ -516,49 +515,43 @@ function handleContactFormSubmit(e) {
   btnText.style.display = 'none';
   btnLoading.style.display = 'inline';
   
-  // Simulate form submission (replace with actual API call)
-  setTimeout(() => {
-    // Success case
+  // Submit to Formspree
+  // Form ID: xjkpgovk
+  // Submissions visible at: https://formspree.io/forms/xjkpgovk/submissions
+  fetch('https://formspree.io/f/xjkpgovk', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(formData)
+  })
+  .then(response => {
+    if (response.ok) {
+      return response.json();
+    }
+    throw new Error('Network response was not ok');
+  })
+  .then(data => {
+    // Success!
     showFormStatus('Message sent successfully! We\'ll get back to you soon.', 'success');
-    
-    // Reset form
     form.reset();
-    
-    // Reset button state
-    submitBtn.disabled = false;
-    btnText.style.display = 'inline';
-    btnLoading.style.display = 'none';
     
     // Close modal after 2 seconds
     setTimeout(() => {
       closeContactModal();
     }, 2000);
-    
-    // In a real implementation, you would send the data to your backend:
-    /*
-    fetch('/api/contact', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(formData)
-    })
-    .then(response => response.json())
-    .then(data => {
-      showFormStatus('Message sent successfully!', 'success');
-      form.reset();
-      setTimeout(() => closeContactModal(), 2000);
-    })
-    .catch(error => {
-      showFormStatus('Error sending message. Please try again.', 'error');
-    })
-    .finally(() => {
-      submitBtn.disabled = false;
-      btnText.style.display = 'inline';
-      btnLoading.style.display = 'none';
-    });
-    */
-  }, 1500);
+  })
+  .catch(error => {
+    // Error handling
+    console.error('Form submission error:', error);
+    showFormStatus('Oops! Something went wrong. Please try again or call us at 785-267-3223.', 'error');
+  })
+  .finally(() => {
+    // Reset button state
+    submitBtn.disabled = false;
+    btnText.style.display = 'inline';
+    btnLoading.style.display = 'none';
+  });
 }
 
 /**

@@ -215,7 +215,7 @@ DEPENDENCIES: Styles.css, Scripts.js
           <li><a href="#" data-page="home" class="nav-link active">Home</a></li>
           <li><a href="#" data-page="about" class="nav-link">About</a></li>
           <li><a href="#" data-page="services" class="nav-link">Services</a></li>
-          <li><a href="#" data-page="contact" class="nav-link">Contact</a></li>
+          <li><a href="#" class="nav-link contact-modal-btn">Contact</a></li>
         </ul>
       </nav>
     </div>
@@ -541,65 +541,7 @@ DEPENDENCIES: Styles.css, Scripts.js
     </section>
   </div>
 
-  <!-- ================================================
-       CONTACT PAGE SECTION
-       Contact information and call-to-action for messaging
-       Hidden by default - shown when Contact nav is clicked
-       ================================================ -->
-  <div id="contact-page" class="page-section">
-    
-    <!-- CONTACT PAGE HERO SECTION -->
-    <section class="hero">
-      <div class="container">
-        <h2>Get in Touch</h2>
-        <p>Ready to protect your computer? Contact us today to learn about our services and protection plans.</p>
-      </div>
-    </section>
-
-    <!-- CONTACT INFORMATION SECTION -->
-    <section class="contact">
-      <div class="container">
-        <h2>Visit Us or Give Us a Call</h2>
-        <p>We're here to help with all your computer needs. Stop by our store or reach out to us directly.</p>
-        
-        <!-- CONTACT FORM CALL-TO-ACTION -->
-        <div style="text-align: center; margin: 2rem 0;">
-          <button class="btn contact-modal-btn" style="font-size: 1.1rem; padding: 1rem 2rem;">
-            Send Us a Message
-          </button>
-          <p style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;">
-            Quick and easy - no page reload required!
-          </p>
-        </div>
-        
-        <!-- BUSINESS CONTACT INFORMATION -->
-        <div class="contact-info">
-          <p><strong>Phone:</strong> 785-267-3223</p>
-          <p><strong>Email:</strong> contact@computerstoreks.com</p>
-          <p><strong>Address:</strong> 2008 SW Gage Blvd, Topeka, KS 66604</p>
-          <p><strong>Hours:</strong> Monday — Friday 10:00 am — 6:00 pm<br>Saturday 10:00 am — 2:00 pm</p>
-          <p class="note">*Three-month agreement required for protection plans</p>
-        </div>
-
-        <!-- ADDITIONAL CONTACT ACTIONS -->
-        <div style="text-align: center; margin-top: 3rem;">
-          <h3 style="color: var(--primary-color); margin-bottom: 1rem;">Ready to Get Started?</h3>
-          <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-            <button class="btn contact-modal-btn">
-              📞 Request a Call Back
-            </button>
-            <button class="btn contact-modal-btn">
-              💬 Ask a Question
-            </button>
-            <button class="btn contact-modal-btn">
-              🛡️ Get Protection Plan Info
-            </button>
-          </div>
-        </div>
-      </div>
-    </section>
-  </div>
-
+ 
   <!-- ================================================
        LOGIN MODAL SECTION
        Modal overlay for employee login
@@ -649,6 +591,12 @@ DEPENDENCIES: Styles.css, Scripts.js
           <input type="email" id="modal-email" name="email" placeholder="Your email" required>
         </div>
         
+        <!-- Phone number input field -->
+        <div class="form-group">
+          <label for="modal-phone">Phone Number</label>
+          <input type="tel" id="modal-phone" name="phone" placeholder="(555) 123-4567" required>
+        </div>
+
         <!-- Message textarea field -->
         <div class="form-group">
           <label for="modal-message">Message</label>

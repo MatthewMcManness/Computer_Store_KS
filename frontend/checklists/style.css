@@ -7,7 +7,7 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    line-height: 1.6;
+    line-height: 1.4;
     color: #2c3e50;
     background: linear-gradient(135deg, #1e90ff 0%, #0066cc 100%);
     min-height: 100vh;
@@ -22,36 +22,42 @@ body {
     border-radius: 12px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
     overflow: hidden;
+    /* Base font size will be set dynamically by JavaScript */
+    font-size: 14px;
 }
 
 /* Header section with title */
 .header {
     background: linear-gradient(135deg, #0066cc 0%, #004c99 100%);
     color: white;
-    padding: 20px;
+    padding: 15px;
     text-align: center;
 }
 
 .header h1 {
-    font-size: 2.2em;
+    /* Size will be set dynamically by JavaScript (1.5x base) */
+    font-size: 1.5em;
     font-weight: 700;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
 }
 
 .header p {
-    font-size: 1.1em;
+    /* Size will be set dynamically by JavaScript (0.85x base) */
+    font-size: 0.85em;
     opacity: 0.95;
 }
 
 /* Content area for checklist items */
 .content {
-    padding: 40px 35px;
+    /* Padding will be adjusted dynamically by JavaScript */
+    padding: 20px 25px;
 }
 
 /* Main checklist item styling */
 .checklist-item {
-    margin-bottom: 25px;
-    padding: 20px;
+    /* Margin and padding will be adjusted dynamically */
+    margin-bottom: 15px;
+    padding: 12px;
     border: 2px solid #e5e7eb;
     border-radius: 8px;
     background: #f9fafb;
@@ -67,10 +73,10 @@ body {
 .main-task {
     display: flex;
     align-items: flex-start;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
-/* Checkbox styling */
+/* Checkbox styling - size will be adjusted dynamically */
 .checkbox {
     width: 24px;
     height: 24px;
@@ -89,7 +95,7 @@ body {
     transform: scale(1.05);
 }
 
-/* Task number badge */
+/* Task number badge - size will be adjusted dynamically */
 .task-number {
     display: inline-block;
     background: linear-gradient(135deg, #0066cc, #004c99);
@@ -98,13 +104,14 @@ body {
     padding: 4px 12px;
     border-radius: 20px;
     margin-right: 10px;
-    font-size: 0.9em;
+    /* Font size will be set dynamically (0.8x base) */
+    font-size: 0.8em;
 }
 
 /* Task text styling */
 .task-text {
     flex: 1;
-    font-size: 1.1em;
+    font-size: 1em;
     font-weight: 600;
     color: #1f2937;
 }
@@ -112,8 +119,8 @@ body {
 /* Sub-task container */
 .sub-tasks {
     margin-left: 39px;
-    margin-top: 12px;
-    padding-left: 20px;
+    margin-top: 6px;
+    padding-left: 15px;
     border-left: 3px solid #66b3ff;
 }
 
@@ -121,11 +128,11 @@ body {
 .sub-task {
     display: flex;
     align-items: flex-start;
-    margin-bottom: 10px;
-    padding: 8px 0;
+    margin-bottom: 6px;
+    padding: 4px 0;
 }
 
-/* Sub-task checkbox - smaller than main */
+/* Sub-task checkbox - smaller than main, size will be adjusted dynamically */
 .sub-checkbox {
     width: 18px;
     height: 18px;
@@ -154,7 +161,7 @@ body {
 .sub-text {
     flex: 1;
     color: #4b5563;
-    font-size: 0.95em;
+    font-size: 0.9em;
 }
 
 /* Highlight text in italics */
@@ -167,32 +174,117 @@ body {
 /* Footer section */
 .footer {
     background: #f9fafb;
-    padding: 20px 35px;
+    padding: 12px 25px;
     border-top: 2px solid #e5e7eb;
     text-align: center;
     color: #6b7280;
     font-size: 0.9em;
 }
 
-/* Print-specific class for optimal printing */
+/* Priority List Specific Styles */
+.time-blocks {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+.time-badge {
+    background: #fff;
+    color: #0066cc;
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-size: 0.85em;
+    font-weight: 600;
+    border: 2px solid #0066cc;
+}
+
+.ongoing-indicator {
+    font-size: 1.5em;
+    margin-right: 10px;
+    min-width: 30px;
+    text-align: center;
+}
+
+.always-badge {
+    display: inline-block;
+    background: #dc2626;
+    color: white;
+    font-size: 0.7em;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-right: 8px;
+    font-weight: 700;
+    vertical-align: middle;
+}
+
+.priority-highest {
+    border: 3px solid #dc2626 !important;
+    background: #fef2f2 !important;
+}
+
+.priority-highest .task-number {
+    background: #dc2626 !important;
+    border-color: #dc2626 !important;
+}
+
+.priority-lowest {
+    border: 2px solid #9ca3af !important;
+    background: #f9fafb !important;
+}
+
+.no-checkbox .main-task .checkbox {
+    display: none;
+}
+
+.priority-1 {
+    background: #dc2626 !important;
+    color: white !important;
+    border: none !important;
+}
+
+.footer-note {
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+    font-size: 1em;
+}
+
+.footer-info {
+    font-size: 0.85em;
+    color: #6b7280;
+}
+
+/* Print-optimized class for optimal printing */
 .print-optimized {
     max-width: 7.5in !important;
     margin: 0.5in auto !important;
+}
+
+/* Hide font size indicator on print */
+#fontSizeIndicator {
+    display: block;
+}
+
+@media print {
+    #fontSizeIndicator {
+        display: none !important;
+    }
 }
 
 /* Print media query for printing */
 @media print {
     @page {
         size: letter;
-        margin: 0.25in;
+        margin: 0.5in;
     }
     
     body {
         background: white;
         padding: 0;
         margin: 0;
-        font-size: 11px !important;
-        line-height: 1.2 !important;
+        /* Let dynamic sizing control the font size */
     }
     
     .checklist-container {
@@ -202,118 +294,152 @@ body {
         max-width: 100%;
         margin: 0;
         page-break-after: avoid;
+        /* Dynamic font size will be preserved from screen */
     }
     
     .header {
         background: white !important;
         color: #2c3e50 !important;
         border-bottom: 2px solid #0066cc;
-        padding: 8px !important;
+        padding: 0.5em !important;
         page-break-after: avoid;
     }
     
     .header h1 {
         color: #2c3e50 !important;
-        font-size: 18px !important;
-        margin-bottom: 4px !important;
+        /* Dynamic sizing preserved */
+        margin-bottom: 0.3em !important;
     }
     
     .header p {
         color: #2c3e50 !important;
-        font-size: 11px !important;
+        /* Dynamic sizing preserved */
     }
     
     .content {
-        padding: 10px !important;
+        /* Dynamic padding preserved */
         page-break-after: avoid;
     }
     
     .checklist-item {
         page-break-inside: avoid;
         border: 1px solid #ddd;
-        margin-bottom: 8px !important;
-        padding: 8px !important;
+        /* Dynamic margins and padding preserved */
         background: white !important;
     }
     
     .main-task {
-        margin-bottom: 6px !important;
+        margin-bottom: 0.5em !important;
     }
     
     .task-number {
         background: white !important;
         color: #0066cc !important;
         border: 1px solid #0066cc;
-        padding: 1px 4px !important;
-        font-size: 10px !important;
+        padding: 0.1em 0.4em !important;
+        /* Dynamic font size preserved */
     }
     
     .task-text {
-        font-size: 11px !important;
+        /* Dynamic font size preserved */
         font-weight: 600;
     }
     
     .checkbox {
         border: 1.5px solid #333;
-        width: 14px !important;
-        height: 14px !important;
-        min-width: 14px !important;
-        margin-right: 8px !important;
+        /* Dynamic size preserved */
     }
     
     .sub-tasks {
-        margin-left: 22px !important;
-        padding-left: 10px !important;
+        /* Dynamic margins preserved */
         border-left: 2px solid #66b3ff;
-        margin-top: 6px !important;
     }
     
     .sub-task {
-        margin-bottom: 4px !important;
-        padding: 2px 0 !important;
+        margin-bottom: 0.3em !important;
+        padding: 0.15em 0 !important;
     }
     
     .sub-checkbox {
-        width: 10px !important;
-        height: 10px !important;
-        min-width: 10px !important;
-        margin-right: 6px !important;
+        /* Dynamic size preserved */
     }
     
     .sub-text {
-        font-size: 10px !important;
-        line-height: 1.2 !important;
+        /* Dynamic font size preserved */
+        line-height: 1.3 !important;
     }
     
     .highlight {
-        font-size: 10px !important;
+        /* Dynamic font size preserved */
     }
     
     .footer {
         page-break-inside: avoid;
-        padding: 8px !important;
+        padding: 0.5em !important;
         border-top: 1px solid #e5e7eb;
     }
     
     .footer-info {
-        font-size: 10px !important;
+        /* Dynamic font size preserved */
     }
     
-    #pageFitControl {
-        display: none !important;
+    .footer-note {
+        font-size: 0.9em !important;
+        margin-bottom: 0.3em !important;
+    }
+    
+    /* Priority list print styles */
+    .time-blocks {
+        gap: 6px !important;
+        margin-top: 6px !important;
+    }
+    
+    .time-badge {
+        padding: 2px 8px !important;
+        font-size: 0.75em !important;
+        border: 1px solid #0066cc !important;
+    }
+    
+    .ongoing-indicator {
+        font-size: 1.2em !important;
+        margin-right: 6px !important;
+    }
+    
+    .always-badge {
+        padding: 1px 5px !important;
+        font-size: 0.65em !important;
+    }
+    
+    .priority-highest {
+        border: 2px solid #dc2626 !important;
+    }
+    
+    .priority-lowest {
+        border: 1px solid #9ca3af !important;
     }
     
     /* Force everything on one page */
     .checklist-container {
-        max-height: 10.5in;
+        max-height: 10in;
         overflow: hidden;
+    }
+    
+    /* Prevent hover effects in print */
+    .checklist-item:hover {
+        border-color: #e5e7eb;
+        box-shadow: none;
+    }
+    
+    .checkbox:hover {
+        background: white;
+        transform: none;
     }
 }
 
 /* Responsive adjustments */
 @media screen and (max-width: 768px) {
     .header h1 {
-        font-size: 1.8em;
+        font-size: 1.6em;
     }
     
     .content {

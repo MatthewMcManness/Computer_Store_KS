@@ -4,11 +4,11 @@
 ===============================================
 COMPUTER STORE KANSAS - MAIN HTML FILE
 ===============================================
-VERSION: 30
-LAST UPDATED: 2025-10-15
-CHANGES: Removed founder image section, modernized testimonials carousel
-DESCRIPTION: Single-page application with dynamic navigation and content management
-DEPENDENCIES: Styles.css, Scripts.js
+VERSION: 31
+LAST UPDATED: 2025-10-29
+CHANGES: Modernized design with bright color scheme, added stats section, numbered benefits
+DESCRIPTION: Single-page application with dynamic navigation and modern content management
+DEPENDENCIES: style.css, script.js
 ===============================================
 -->
 <head>
@@ -47,7 +47,7 @@ DEPENDENCIES: Styles.css, Scripts.js
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="theme-color" content="#081e5b">
+  <meta name="theme-color" content="#2563eb">
 
   <!-- ================================================
        OPEN GRAPH TAGS (FACEBOOK, LINKEDIN)
@@ -56,8 +56,8 @@ DEPENDENCIES: Styles.css, Scripts.js
   <meta property="og:title" content="Computer Store Kansas - Expert Computer Repair & Protection Plans">
   <meta property="og:description" content="Trusted computer repair and protection services in Topeka, KS since 2003. Professional diagnostics, virus removal, hardware repair, and comprehensive Silver Plan protection.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://tcs-frontend-uf5q.onrender.com">
-  <meta property="og:image" content="https://tcs-frontend-uf5q.onrender.com/assets/title.png">
+  <meta property="og:url" content="https://computerstoreks.com">
+  <meta property="og:image" content="https://computerstoreks.com/assets/title.png">
   <meta property="og:site_name" content="Computer Store Kansas">
   <meta property="og:locale" content="en_US">
   
@@ -74,13 +74,13 @@ DEPENDENCIES: Styles.css, Scripts.js
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Computer Store Kansas - Expert Computer Repair & Protection Plans">
   <meta name="twitter:description" content="Trusted computer repair and protection services in Topeka, KS since 2003. Professional diagnostics, virus removal, hardware repair, and comprehensive Silver Plan protection.">
-  <meta name="twitter:image" content="https://tcs-frontend-uf5q.onrender.com/assets/title.png">
+  <meta property="twitter:image" content="https://computerstoreks.com/assets/title.png">
 
   <!-- ================================================
        CANONICAL URL & ALTERNATE VERSIONS
        SEO optimization for duplicate content prevention
        ================================================ -->
-  <link rel="canonical" href="https://tcs-frontend-uf5q.onrender.com">
+  <link rel="canonical" href="https://computerstoreks.com">
   
   <!-- ================================================
        PAGE TITLE & FAVICON
@@ -150,8 +150,8 @@ DEPENDENCIES: Styles.css, Scripts.js
     ],
     "priceRange": "$",
     "paymentAccepted": ["Cash", "Credit Card"],
-    "image": "https://tcs-frontend-uf5q.onrender.com/assets/title.png",
-    "logo": "https://tcs-frontend-uf5q.onrender.com/assets/logo.png"
+    "image": "https://computerstoreks.com/assets/title.png",
+    "logo": "https://computerstoreks.com/assets/logo.png"
   }
   </script>
 
@@ -199,7 +199,6 @@ DEPENDENCIES: Styles.css, Scripts.js
       <h1 class="logo"><img src="./assets/title.png" alt="Computer Store Kansas"></h1>
       
       <!-- Mobile hamburger menu button - only visible on small screens -->
-      <!-- Transforms between hamburger (☰) and close (✕) icons when clicked -->
       <button class="hamburger" id="hamburger-button" 
               aria-label="Open menu" 
               aria-expanded="false" 
@@ -208,14 +207,16 @@ DEPENDENCIES: Styles.css, Scripts.js
       <!-- Main navigation menu -->
       <nav>
         <ul>
-          <!-- Silver Plan navigation link - FIRST position for prominence -->
-          <li class="nav-action silver"><a href="#" data-page="silver-plan" class="nav-link">Silver Plan</a></li>
-          
-          <!-- Main page navigation links - use data-page attribute for JavaScript routing -->
+          <!-- Main page navigation links -->
           <li><a href="#" data-page="home" class="nav-link active">Home</a></li>
           <li><a href="#" data-page="about" class="nav-link">About</a></li>
           <li><a href="#" data-page="services" class="nav-link">Services</a></li>
-          <li><a href="#" class="nav-link contact-modal-btn">Contact</a></li>
+          
+          <!-- Silver Plan navigation link - special styling -->
+          <li class="nav-action silver"><a href="#" data-page="silver-plan" class="nav-link">Silver Plan</a></li>
+          
+          <!-- Contact button -->
+          <li class="nav-action primary"><a href="#" class="nav-link contact-modal-btn">Contact Us</a></li>
         </ul>
       </nav>
     </div>
@@ -231,23 +232,25 @@ DEPENDENCIES: Styles.css, Scripts.js
     <!-- SILVER PLAN PAGE HERO SECTION -->
     <section class="hero">
       <div class="container">
-        <!-- Silver Plan Badge Title - Shining metallic badge design -->
+        <!-- Silver Plan Badge Title -->
         <div class="silver-plan-badge">
           <span class="badge-text">Silver Plan</span>
           <span class="badge-subtext">Protected</span>
         </div>
         
-        <!-- Large silver heading under the badge -->
-        <h2 class="silver-hero-heading">Unlock All the Benefits with Our Protection Plans</h2>
+        <!-- Large heading under the badge -->
+        <h2 class="silver-hero-heading">Comprehensive Computer Protection & Peace of Mind</h2>
+        <p>Get complete care for your computer with our affordable monthly plan</p>
       </div>
     </section>
 
-    <!-- SILVER PLAN DETAILED INFORMATION SECTION - Features focused layout -->
+    <!-- SILVER PLAN FEATURES SECTION -->
     <section class="membership">
       <div class="container">
-        <!-- Plan details and benefits list - centered layout without image -->
         <div class="membership-text-centered">
-          <!-- Bulleted list of plan features - enhanced styling -->
+          <h2>Everything You Need to Keep Your Computer Running Smoothly</h2>
+          
+          <!-- Bulleted list of plan features -->
           <ul class="membership-features-enhanced">
             <li>Anti-virus software</li>
             <li>50% off virus removal services</li>
@@ -260,8 +263,8 @@ DEPENDENCIES: Styles.css, Scripts.js
             <li>15% discount on labor</li>
           </ul>
           
-          <!-- Plan description moved to after benefits -->
-          <p class="plan-description">Our Silver Plan provides comprehensive care for your computer. For only $24.99 per month (with a three-month commitment), you'll receive comprehensive computer protection and maintenance for peace of mind.</p>
+          <!-- Plan description -->
+          <p class="plan-description">Our Silver Plan provides comprehensive care for your computer. For only <strong>$24.99 per month</strong> (with a three-month commitment), you'll receive comprehensive computer protection and maintenance for peace of mind.</p>
         </div>
       </div>
     </section>
@@ -271,36 +274,58 @@ DEPENDENCIES: Styles.css, Scripts.js
       <div class="container">
         <h2>Ready to Get Protected?</h2>
         <p>Sign up for our Silver Plan today and enjoy comprehensive computer protection.</p>
-        <button class="contact-modal-btn">Sign Up Now</button>
+        <button class="btn btn-white contact-modal-btn">Sign Up Now</button>
       </div>
     </section>
   </div>
 
   <!-- ================================================
        HOME PAGE SECTION
-       Main landing page content - shown by default
-       Contains hero, founder story, services, testimonials, and CTA
+       Main landing page content
        ================================================ -->
   <div id="home-page" class="page-section active">
     
-    <!-- HOME PAGE HERO SECTION - Main banner with company title and tagline -->
+    <!-- HOME PAGE HERO SECTION -->
     <section class="hero">
       <div class="container">
-        <!-- Large title graphic for branding impact -->
+        <!-- Large title graphic for branding -->
         <div class="hero-title">
           <img src="./assets/title.png" alt="Computer Store Kansas - Expert Computer Repair Since 2003">
         </div>
         
         <!-- Main headline and call-to-action -->
         <h2>Your Go-To Technology Center Since 2003</h2>
-        <p>Count on The Computer Store for all your computer service needs.</p>
-        <button class="contact-modal-btn">Talk to an Expert</button>
+        <p>Count on The Computer Store for all your computer service needs. Fast, friendly, and reliable service you can trust.</p>
+        <button class="btn btn-white contact-modal-btn">Talk to an Expert</button>
       </div>
     </section>
 
     <!-- ================================================
-         FOUNDER STORY SECTION - TEXT ONLY
-         Company origin story without image
+         NEW: STATS SECTION
+         Display key metrics (like Tech Junkies)
+         ================================================ -->
+    <section class="stats-section">
+      <div class="container">
+        <div class="stats-grid">
+          <div class="stat-item">
+            <span class="stat-number">20+</span>
+            <span class="stat-label">Years of Experience</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number">2003</span>
+            <span class="stat-label">Locally Owned Since</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number">1000+</span>
+            <span class="stat-label">Satisfied Customers</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================
+         FOUNDER STORY SECTION
+         Company origin story
          ================================================ -->
     <section class="founder">
       <div class="container">
@@ -312,14 +337,12 @@ DEPENDENCIES: Styles.css, Scripts.js
       </div>
     </section>
 
-    <!-- SERVICES OVERVIEW SECTION - Main service offerings in card format -->
+    <!-- SERVICES OVERVIEW SECTION -->
     <section class="services">
       <div class="container">
         <h2>What We Do</h2>
+        <p class="text-center text-muted" style="max-width: 700px; margin: 0 auto 2rem;">From computer repairs to protection plans and custom builds, we've got everything you need to keep your technology running smoothly.</p>
         <div class="cards">
-          <!-- Service cards populated dynamically from configuration data -->
-          <!-- Individual service cards are created by JavaScript from config.js -->
-          <!-- Fallback content for when JavaScript is disabled -->
           <div class="card">
             <h3>Computer Service</h3>
             <p>Comprehensive diagnostics, repairs and upgrades for desktops and laptops.</p>
@@ -337,16 +360,68 @@ DEPENDENCIES: Styles.css, Scripts.js
     </section>
 
     <!-- ================================================
-         TESTIMONIALS SECTION - MODERNIZED CAROUSEL
-         Customer reviews in a contemporary card-based carousel
+         NEW: NUMBERED BENEFITS SECTION
+         Why choose us with numbers (like Tech Junkies' "5 Reasons")
+         ================================================ -->
+    <section class="benefits-section">
+      <div class="container">
+        <h2>5 Reasons to Choose Computer Store Kansas</h2>
+        <p>Your computer's an important part of your life—don't just trust it in the hands of anyone. Here's why we're the right choice:</p>
+        
+        <div class="benefits-grid">
+          <div class="benefit-item">
+            <div class="benefit-number">01</div>
+            <div class="benefit-content">
+              <h3>Expertise and Experience</h3>
+              <p>Over 20 years of experience diagnosing and fixing computer issues. We continue to expand our knowledge in different types of computer systems, software, and hardware.</p>
+            </div>
+          </div>
+          
+          <div class="benefit-item">
+            <div class="benefit-number">02</div>
+            <div class="benefit-content">
+              <h3>Fast and Reliable Service</h3>
+              <p>Quick response times, efficient processes, and quality assurance to ensure you always have the best service at your fingertips.</p>
+            </div>
+          </div>
+          
+          <div class="benefit-item">
+            <div class="benefit-number">03</div>
+            <div class="benefit-content">
+              <h3>Honest, Transparent Pricing</h3>
+              <p>No surprises. We provide clear estimates upfront so you know exactly what you'll be paying before we start any work.</p>
+            </div>
+          </div>
+          
+          <div class="benefit-item">
+            <div class="benefit-number">04</div>
+            <div class="benefit-content">
+              <h3>We Protect Your Data</h3>
+              <p>Our first priority is to backup and protect your data in case of hardware failure or accidental deletion during the repair process.</p>
+            </div>
+          </div>
+          
+          <div class="benefit-item">
+            <div class="benefit-number">05</div>
+            <div class="benefit-content">
+              <h3>Local & Personal</h3>
+              <p>As a locally-owned business, we treat every customer like family. You're not just another ticket—you're part of our community.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================
+         TESTIMONIALS SECTION
+         Customer reviews carousel
          ================================================ -->
     <section class="testimonials">
       <div class="container">
         <h2>What Our Clients Say</h2>
         
-        <!-- Modern carousel container with glassmorphism effects -->
+        <!-- Modern carousel container -->
         <div class="testimonials-carousel">
-          <!-- Carousel track - holds all testimonial cards -->
           <div class="testimonials-track">
             
             <!-- Testimonial Card 1 -->
@@ -418,20 +493,19 @@ DEPENDENCIES: Styles.css, Scripts.js
       </div>
     </section>
 
-    <!-- HOME PAGE CALL-TO-ACTION SECTION - Final conversion push -->
+    <!-- HOME PAGE CALL-TO-ACTION SECTION -->
     <section class="cta">
       <div class="container">
         <h2>Ready to Get Started?</h2>
-        <p>Contact us today for expert computer services and personalized solutions.</p>
-        <button class="contact-modal-btn">Talk to an Expert</button>
+        <p>Contact us today for expert computer services and personalized solutions tailored to your needs.</p>
+        <button class="btn btn-white contact-modal-btn">Talk to an Expert</button>
       </div>
     </section>
   </div>
 
   <!-- ================================================
        ABOUT PAGE SECTION
-       Company information, story, and why choose us
-       Hidden by default - shown when About nav is clicked
+       Company information and story
        ================================================ -->
   <div id="about-page" class="page-section">
     
@@ -447,34 +521,32 @@ DEPENDENCIES: Styles.css, Scripts.js
     <section class="about">
       <div class="container">
         <h2>Our Story</h2>
-        <p>The Computer Store has been proudly serving the Topeka community since 2003.
-          We're passionate about helping our customers get the most out of their technology with fast, friendly and honest service. 
-          Our technicians are certified and experienced in working with all major brands and systems. From virus removal and data recovery 
-          to upgrades and custom PC builds, we provide a full range of computer services for homes and small businesses. 
-          When you work with us, you're not just another ticket — you're part of our community.</p>
+        <p>The Computer Store has been proudly serving the Topeka community since 2003. We're passionate about helping our customers get the most out of their technology with fast, friendly and honest service.</p>
+        <p>Our technicians are certified and experienced in working with all major brands and systems. From virus removal and data recovery to upgrades and custom PC builds, we provide a full range of computer services for homes and small businesses.</p>
+        <p>When you work with us, you're not just another ticket — you're part of our community.</p>
       </div>
     </section>
 
-    <!-- WHY CHOOSE US SECTION - Key differentiators -->
+    <!-- WHY CHOOSE US SECTION -->
     <section class="services">
       <div class="container">
         <h2>Why Choose Us?</h2>
         <div class="cards">
           <div class="card">
             <h3>Reliability</h3>
-            <p>count on us for dependable repairs and support</p>
+            <p>Count on us for dependable repairs and support you can trust.</p>
           </div>
           <div class="card">
-            <h3>Personalized approach</h3>
-            <p>solutions tailored to your unique needs</p>
+            <h3>Personalized Approach</h3>
+            <p>Solutions tailored to your unique needs and budget.</p>
           </div>
           <div class="card">
-            <h3>Timely delivery</h3>
-            <p>quick turnaround so you're back up and running</p>
+            <h3>Timely Delivery</h3>
+            <p>Quick turnaround so you're back up and running fast.</p>
           </div>
           <div class="card">
             <h3>High Standards</h3>
-            <p>quality workmanship backed by decades of experience</p>
+            <p>Quality workmanship backed by decades of experience.</p>
           </div>
         </div>
       </div>
@@ -484,17 +556,15 @@ DEPENDENCIES: Styles.css, Scripts.js
     <section class="cta">
       <div class="container">
         <h2>Ready to Experience the Difference?</h2>
-        <p>Contact us today to schedule an appointment or drop by our
-        shop. We look forward to serving you.</p>
-        <button class="contact-modal-btn">Talk to an Expert</button>
+        <p>Contact us today to schedule an appointment or drop by our shop. We look forward to serving you.</p>
+        <button class="btn btn-white contact-modal-btn">Talk to an Expert</button>
       </div>
     </section>
   </div>
 
   <!-- ================================================
        SERVICES PAGE SECTION
-       Detailed breakdown of all services offered
-       Hidden by default - shown when Services nav is clicked
+       Detailed breakdown of all services
        ================================================ -->
   <div id="services-page" class="page-section">
     
@@ -506,7 +576,7 @@ DEPENDENCIES: Styles.css, Scripts.js
       </div>
     </section>
 
-    <!-- DETAILED SERVICES SECTION - All service offerings -->
+    <!-- DETAILED SERVICES SECTION -->
     <section class="services">
       <div class="container">
         <h2>What We Offer</h2>
@@ -536,39 +606,32 @@ DEPENDENCIES: Styles.css, Scripts.js
       <div class="container">
         <h2>Not Sure What You Need?</h2>
         <p>Contact us for a free consultation and we'll help you find the right solution.</p>
-        <button class="contact-modal-btn">Talk to an Expert</button>
+        <button class="btn btn-white contact-modal-btn">Talk to an Expert</button>
       </div>
     </section>
   </div>
 
- 
   <!-- ================================================
        LOGIN MODAL SECTION
        Modal overlay for employee login
-       Hidden by default - shown when Employee Login is clicked
        ================================================ -->
   <div id="login-modal" class="modal">
     <div class="modal-content">
-      <!-- Close button for modal -->
       <button class="modal-close" id="modal-close">&times;</button>
-      
-      <!-- Modal content -->
-      <h1>Repair Shop Login</h1>
-      <p>This page will redirect to our secure login soon.</p>
-      
-      <!-- Return to home button -->
-      <p><a class="btn" href="#" data-page="home" id="back-to-home">← Back to Home</a></p>
+      <div class="modal-header">
+        <h1>Repair Shop Login</h1>
+        <p>This page will redirect to our secure login soon.</p>
+      </div>
+      <p style="text-align: center;"><a class="btn btn-primary" href="#" data-page="home" id="back-to-home">← Back to Home</a></p>
     </div>
   </div>
 
   <!-- ================================================
        CONTACT FORM MODAL SECTION
-       Modal overlay for contact form - accessible from anywhere on site
-       Hidden by default - shown when Contact buttons are clicked
+       Modal overlay for contact form
        ================================================ -->
   <div id="contact-modal" class="modal">
     <div class="modal-content contact-modal-content">
-      <!-- Close button for modal -->
       <button class="modal-close" id="contact-modal-close">&times;</button>
       
       <!-- Modal header -->
@@ -577,40 +640,34 @@ DEPENDENCIES: Styles.css, Scripts.js
         <p>Send us a message and we'll get back to you as soon as possible!</p>
       </div>
       
-      <!-- CONTACT FORM - Handles API submission via JavaScript -->
+      <!-- CONTACT FORM -->
       <form id="contactForm" action="javascript:void(0)" class="modal-form">
-        <!-- Name input field -->
         <div class="form-group">
           <label for="modal-name">Name</label>
           <input type="text" id="modal-name" name="name" placeholder="Your name" required>
         </div>
         
-        <!-- Email input field -->
         <div class="form-group">
           <label for="modal-email">Email</label>
           <input type="email" id="modal-email" name="email" placeholder="Your email" required>
         </div>
         
-        <!-- Phone number input field -->
         <div class="form-group">
           <label for="modal-phone">Phone Number</label>
           <input type="tel" id="modal-phone" name="phone" placeholder="(555) 123-4567" required>
         </div>
 
-        <!-- Message textarea field -->
         <div class="form-group">
           <label for="modal-message">Message</label>
           <textarea id="modal-message" name="message" rows="4" placeholder="Tell us how we can help..." required></textarea>
         </div>
         
-        <!-- Submit button and status -->
         <div class="form-actions">
           <button type="submit" class="btn btn-primary">
             <span class="btn-text">Send Message</span>
             <span class="btn-loading" style="display: none;">Sending...</span>
           </button>
           
-          <!-- Status message area - populated by JavaScript after form submission -->
           <div id="formStatus" aria-live="polite" class="form-status"></div>
         </div>
       </form>
@@ -625,29 +682,23 @@ DEPENDENCIES: Styles.css, Scripts.js
 
   <!-- ================================================
        SITE FOOTER SECTION
-       Copyright and legal information with admin access
+       Copyright and legal information
        ================================================ -->
   <footer>
     <div class="container">
-      <!-- Copyright text -->
-      <p>&copy; 2025 Computer Store Kansas All rights reserved.</p>
-      
-      <!-- Administrator login button - smaller, discrete access -->
+      <p>&copy; 2025 Computer Store Kansas. All rights reserved.</p>
       <button class="btn admin-login-btn" id="login-btn">Administrator Login</button>
     </div>
   </footer>
 
   <!-- ================================================
        ERROR DETECTION AND FALLBACK SCRIPT
-       Detects if main JavaScript fails and provides fallback
        ================================================ -->
   <script>
-    // Simple error detection
     window.addEventListener('error', function(e) {
       console.error('JavaScript Error:', e.error);
     });
     
-    // Check if scripts load properly
     let scriptsLoaded = 0;
     function checkScripts() {
       scriptsLoaded++;
@@ -659,45 +710,32 @@ DEPENDENCIES: Styles.css, Scripts.js
 
   <!-- ================================================
        EXTERNAL JAVASCRIPT FILES
-       Load configuration first, then main functionality
        ================================================ -->
-  
-  <!-- Website configuration data - MUST load before main script -->
   <script src="./js/config.js" onload="checkScripts()"></script>
-  
-  <!-- Main JavaScript functionality - requires config.js to be loaded first -->
   <script src="./js/script.js" onload="checkScripts()"></script>
 
-
-   
   <!-- ================================================
        FALLBACK NAVIGATION SCRIPT
-       Basic navigation if main scripts fail
        ================================================ -->
   <script>
-    // Fallback navigation if main script fails
     setTimeout(function() {
       if (typeof window.siteConfig === 'undefined') {
         console.warn('Configuration not loaded, using fallback navigation');
         
-        // Simple fallback navigation
         document.querySelectorAll('.nav-link').forEach(function(link) {
           link.addEventListener('click', function(e) {
             e.preventDefault();
             const pageId = this.getAttribute('data-page');
             
-            // Hide all pages
             document.querySelectorAll('.page-section').forEach(function(page) {
               page.classList.remove('active');
             });
             
-            // Show target page
             const targetPage = document.getElementById(pageId + '-page');
             if (targetPage) {
               targetPage.classList.add('active');
             }
             
-            // Update nav active states
             document.querySelectorAll('.nav-link').forEach(function(navLink) {
               navLink.classList.remove('active');
             });

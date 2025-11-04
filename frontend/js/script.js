@@ -2,22 +2,22 @@
  * ================================================
  * COMPUTER STORE KANSAS - MAIN JAVASCRIPT FILE
  * ================================================
- * VERSION: 32
- * LAST UPDATED: 2025-10-27
- * CHANGES: - Integrated Formspree for contact form submissions
- *          - Removed simulated form submission
- *          - Added proper error handling for form submissions
+ * VERSION: 33
+ * LAST UPDATED: 2025-10-29
+ * CHANGES: - Added modern scrolling header effects
+ *          - Enhanced smooth transitions
  * DESCRIPTION: Handles all interactive functionality for the website
  * DEPENDENCIES: None (vanilla JavaScript)
  * 
  * Table of Contents:
  * 1. Page Navigation System
  * 2. Mobile Hamburger Menu
- * 3. Testimonials Carousel
- * 4. Modal System (Login & Contact)
- * 5. Contact Form Submission
- * 6. Utility Functions
- * 7. Initialization
+ * 3. Modern Scroll Effects (NEW)
+ * 4. Testimonials Carousel
+ * 5. Modal System (Login & Contact)
+ * 6. Contact Form Submission
+ * 7. Utility Functions
+ * 8. Initialization
  * ================================================
  */
 
@@ -28,58 +28,47 @@
 
 /**
  * Navigate to a specific page section
- * @param {string} pageId - The ID of the page to navigate to (e.g., 'home', 'about')
+ * @param {string} pageId - The ID of the page to navigate to
  */
 function navigateToPage(pageId) {
-  // Hide all page sections
   const allPages = document.querySelectorAll('.page-section');
   allPages.forEach(page => {
     page.classList.remove('active');
   });
   
-  // Show the target page section
   const targetPage = document.getElementById(pageId + '-page');
   if (targetPage) {
     targetPage.classList.add('active');
   }
   
-  // Update navigation link active states
   const allNavLinks = document.querySelectorAll('.nav-link');
   allNavLinks.forEach(link => {
     link.classList.remove('active');
   });
   
-  // Add active class to the clicked navigation link
   const activeLink = document.querySelector(`.nav-link[data-page="${pageId}"]`);
   if (activeLink) {
     activeLink.classList.add('active');
   }
   
-  // Scroll to top of page for better UX
   window.scrollTo({ top: 0, behavior: 'smooth' });
-  
-  // Close mobile menu if open
   closeMobileMenu();
 }
 
 /**
  * Initialize page navigation listeners
- * Sets up click handlers for all navigation links
  */
 function initializeNavigation() {
-  // Get all navigation links with data-page attribute
   const navLinks = document.querySelectorAll('.nav-link[data-page]');
   
-  // Add click event listener to each navigation link
   navLinks.forEach(link => {
     link.addEventListener('click', function(e) {
-      e.preventDefault(); // Prevent default link behavior
+      e.preventDefault();
       const pageId = this.getAttribute('data-page');
       navigateToPage(pageId);
     });
   });
   
-  // Handle back-to-home link in login modal
   const backToHomeLink = document.getElementById('back-to-home');
   if (backToHomeLink) {
     backToHomeLink.addEventListener('click', function(e) {
@@ -96,7 +85,7 @@ function initializeNavigation() {
 // ================================================
 
 /**
- * Toggle mobile navigation menu open/closed
+ * Toggle mobile navigation menu
  */
 function toggleMobileMenu() {
   const hamburger = document.getElementById('hamburger-button');
@@ -104,17 +93,11 @@ function toggleMobileMenu() {
   
   if (!hamburger || !nav) return;
   
-  // Toggle active class on hamburger icon
   hamburger.classList.toggle('active');
-  
-  // Toggle show class on navigation menu
   nav.classList.toggle('show');
   
-  // Update aria-expanded attribute for accessibility
   const isExpanded = nav.classList.contains('show');
   hamburger.setAttribute('aria-expanded', isExpanded);
-  
-  // Update aria-label for accessibility
   hamburger.setAttribute('aria-label', isExpanded ? 'Close menu' : 'Open menu');
 }
 
@@ -127,11 +110,8 @@ function closeMobileMenu() {
   
   if (!hamburger || !nav) return;
   
-  // Remove active and show classes
   hamburger.classList.remove('active');
   nav.classList.remove('show');
-  
-  // Update accessibility attributes
   hamburger.setAttribute('aria-expanded', 'false');
   hamburger.setAttribute('aria-label', 'Open menu');
 }
@@ -146,7 +126,6 @@ function initializeHamburgerMenu() {
     hamburger.addEventListener('click', toggleMobileMenu);
   }
   
-  // Close menu when clicking outside
   document.addEventListener('click', function(e) {
     const nav = document.querySelector('header nav ul');
     const hamburger = document.getElementById('hamburger-button');
@@ -161,11 +140,39 @@ function initializeHamburgerMenu() {
 }
 
 // ================================================
-// 3. TESTIMONIALS CAROUSEL
+// 3. MODERN SCROLL EFFECTS (NEW)
+// Add visual effects when scrolling
+// ================================================
+
+/**
+ * Add modern scrolling effects to header
+ */
+function initializeScrollEffects() {
+  const header = document.querySelector('header');
+  
+  if (!header) return;
+  
+  // Add enhanced shadow to header on scroll
+  let lastScroll = 0;
+  
+  window.addEventListener('scroll', () => {
+    const currentScroll = window.pageYOffset;
+    
+    if (currentScroll > 50) {
+      header.classList.add('scrolled');
+    } else {
+      header.classList.remove('scrolled');
+    }
+    
+    lastScroll = currentScroll;
+  });
+}
+
+// ================================================
+// 4. TESTIMONIALS CAROUSEL
 // Modern carousel with auto-play and touch support
 // ================================================
 
-// Carousel state management
 let currentTestimonialIndex = 0;
 let testimonialAutoplayInterval = null;
 let isTestimonialAnimating = false;
@@ -175,7 +182,6 @@ let isTestimonialAnimating = false;
  * @param {number} index - The index of the testimonial to show
  */
 function showTestimonial(index) {
-  // Prevent multiple animations at once
   if (isTestimonialAnimating) return;
   
   const track = document.querySelector('.testimonials-track');
@@ -184,24 +190,18 @@ function showTestimonial(index) {
   
   if (!track || testimonials.length === 0) return;
   
-  // Wrap around if index is out of bounds
   if (index < 0) {
     index = testimonials.length - 1;
   } else if (index >= testimonials.length) {
     index = 0;
   }
   
-  // Set animating flag
   isTestimonialAnimating = true;
-  
-  // Update current index
   currentTestimonialIndex = index;
   
-  // Calculate the transform offset
   const offset = -index * 100;
   track.style.transform = `translateX(${offset}%)`;
   
-  // Update indicator active states
   indicators.forEach((indicator, i) => {
     if (i === index) {
       indicator.classList.add('active');
@@ -210,10 +210,9 @@ function showTestimonial(index) {
     }
   });
   
-  // Reset animating flag after animation completes
   setTimeout(() => {
     isTestimonialAnimating = false;
-  }, 600); // Match CSS transition duration
+  }, 600);
 }
 
 /**
@@ -221,7 +220,7 @@ function showTestimonial(index) {
  */
 function nextTestimonial() {
   showTestimonial(currentTestimonialIndex + 1);
-  resetTestimonialAutoplay(); // Reset autoplay timer when manually navigating
+  resetTestimonialAutoplay();
 }
 
 /**
@@ -229,19 +228,17 @@ function nextTestimonial() {
  */
 function previousTestimonial() {
   showTestimonial(currentTestimonialIndex - 1);
-  resetTestimonialAutoplay(); // Reset autoplay timer when manually navigating
+  resetTestimonialAutoplay();
 }
 
 /**
  * Start automatic carousel rotation
  */
 function startTestimonialAutoplay() {
-  // Clear any existing interval
   if (testimonialAutoplayInterval) {
     clearInterval(testimonialAutoplayInterval);
   }
   
-  // Set up new interval (change slide every 5 seconds)
   testimonialAutoplayInterval = setInterval(() => {
     nextTestimonial();
   }, 5000);
@@ -258,7 +255,7 @@ function stopTestimonialAutoplay() {
 }
 
 /**
- * Reset autoplay timer (restart from beginning)
+ * Reset autoplay timer
  */
 function resetTestimonialAutoplay() {
   stopTestimonialAutoplay();
@@ -269,13 +266,11 @@ function resetTestimonialAutoplay() {
  * Initialize testimonials carousel
  */
 function initializeTestimonialsCarousel() {
-  // Get carousel elements
   const prevButton = document.querySelector('.carousel-arrow.prev');
   const nextButton = document.querySelector('.carousel-arrow.next');
   const indicators = document.querySelectorAll('.carousel-indicator');
   const carousel = document.querySelector('.testimonials-carousel');
   
-  // Add click listeners to navigation arrows
   if (prevButton) {
     prevButton.addEventListener('click', previousTestimonial);
   }
@@ -284,7 +279,6 @@ function initializeTestimonialsCarousel() {
     nextButton.addEventListener('click', nextTestimonial);
   }
   
-  // Add click listeners to indicators (dots)
   indicators.forEach((indicator, index) => {
     indicator.addEventListener('click', () => {
       showTestimonial(index);
@@ -292,9 +286,7 @@ function initializeTestimonialsCarousel() {
     });
   });
   
-  // Add keyboard navigation support
   document.addEventListener('keydown', (e) => {
-    // Only handle keyboard navigation if carousel is visible
     if (!carousel || !isElementInViewport(carousel)) return;
     
     if (e.key === 'ArrowLeft') {
@@ -304,7 +296,6 @@ function initializeTestimonialsCarousel() {
     }
   });
   
-  // Add touch/swipe support for mobile
   let touchStartX = 0;
   let touchEndX = 0;
   
@@ -319,39 +310,30 @@ function initializeTestimonialsCarousel() {
     }, { passive: true });
   }
   
-  /**
-   * Handle swipe gesture
-   */
   function handleSwipe() {
-    const swipeThreshold = 50; // Minimum swipe distance in pixels
+    const swipeThreshold = 50;
     const difference = touchStartX - touchEndX;
     
     if (Math.abs(difference) > swipeThreshold) {
       if (difference > 0) {
-        // Swiped left - show next
         nextTestimonial();
       } else {
-        // Swiped right - show previous
         previousTestimonial();
       }
     }
   }
   
-  // Pause autoplay when user hovers over carousel (desktop)
   if (carousel) {
     carousel.addEventListener('mouseenter', stopTestimonialAutoplay);
     carousel.addEventListener('mouseleave', startTestimonialAutoplay);
   }
   
-  // Start autoplay
   startTestimonialAutoplay();
-  
-  // Show first testimonial
   showTestimonial(0);
 }
 
 // ================================================
-// 4. MODAL SYSTEM (LOGIN & CONTACT)
+// 5. MODAL SYSTEM (LOGIN & CONTACT)
 // Handles opening and closing of modal dialogs
 // ================================================
 
@@ -362,7 +344,6 @@ function openLoginModal() {
   const modal = document.getElementById('login-modal');
   if (modal) {
     modal.classList.add('active');
-    // Prevent body scroll when modal is open
     document.body.style.overflow = 'hidden';
   }
 }
@@ -374,7 +355,6 @@ function closeLoginModal() {
   const modal = document.getElementById('login-modal');
   if (modal) {
     modal.classList.remove('active');
-    // Restore body scroll
     document.body.style.overflow = '';
   }
 }
@@ -386,9 +366,7 @@ function openContactModal() {
   const modal = document.getElementById('contact-modal');
   if (modal) {
     modal.classList.add('active');
-    // Prevent body scroll when modal is open
     document.body.style.overflow = 'hidden';
-    // Focus on first input field for better UX
     const firstInput = modal.querySelector('input[type="text"]');
     if (firstInput) {
       setTimeout(() => firstInput.focus(), 100);
@@ -403,9 +381,7 @@ function closeContactModal() {
   const modal = document.getElementById('contact-modal');
   if (modal) {
     modal.classList.remove('active');
-    // Restore body scroll
     document.body.style.overflow = '';
-    // Clear form status message
     const formStatus = document.getElementById('formStatus');
     if (formStatus) {
       formStatus.textContent = '';
@@ -418,7 +394,6 @@ function closeContactModal() {
  * Initialize modal system
  */
 function initializeModals() {
-  // Login modal triggers
   const loginBtn = document.getElementById('login-btn');
   const loginModalClose = document.getElementById('modal-close');
   const loginModal = document.getElementById('login-modal');
@@ -431,7 +406,6 @@ function initializeModals() {
     loginModalClose.addEventListener('click', closeLoginModal);
   }
   
-  // Close login modal when clicking outside content
   if (loginModal) {
     loginModal.addEventListener('click', function(e) {
       if (e.target === loginModal) {
@@ -440,7 +414,6 @@ function initializeModals() {
     });
   }
   
-  // Contact modal triggers
   const contactModalBtns = document.querySelectorAll('.contact-modal-btn');
   const contactModalClose = document.getElementById('contact-modal-close');
   const contactModal = document.getElementById('contact-modal');
@@ -453,7 +426,6 @@ function initializeModals() {
     contactModalClose.addEventListener('click', closeContactModal);
   }
   
-  // Close contact modal when clicking outside content
   if (contactModal) {
     contactModal.addEventListener('click', function(e) {
       if (e.target === contactModal) {
@@ -462,7 +434,6 @@ function initializeModals() {
     });
   }
   
-  // Close modals with Escape key
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
       closeLoginModal();
@@ -472,7 +443,7 @@ function initializeModals() {
 }
 
 // ================================================
-// 5. CONTACT FORM SUBMISSION - FORMSPREE
+// 6. CONTACT FORM SUBMISSION - FORMSPREE
 // Handles contact form submission via Formspree API
 // ================================================
 
@@ -481,43 +452,36 @@ function initializeModals() {
  * @param {Event} e - The form submit event
  */
 function handleContactFormSubmit(e) {
-  e.preventDefault(); // Prevent default form submission
+  e.preventDefault();
   
-  // Get form elements
   const form = e.target;
   const submitBtn = form.querySelector('button[type="submit"]');
   const btnText = submitBtn.querySelector('.btn-text');
   const btnLoading = submitBtn.querySelector('.btn-loading');
   const formStatus = document.getElementById('formStatus');
   
-  // Get form data
   const formData = {
     name: document.getElementById('modal-name').value,
     email: document.getElementById('modal-email').value,
+    phone: document.getElementById('modal-phone').value,
     message: document.getElementById('modal-message').value
   };
   
-  // Basic validation
   if (!formData.name || !formData.email || !formData.message) {
     showFormStatus('Please fill in all fields', 'error');
     return;
   }
   
-  // Email validation
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(formData.email)) {
     showFormStatus('Please enter a valid email address', 'error');
     return;
   }
   
-  // Show loading state
   submitBtn.disabled = true;
   btnText.style.display = 'none';
   btnLoading.style.display = 'inline';
   
-  // Submit to Formspree
-  // Form ID: xjkpgovk
-  // Submissions visible at: https://formspree.io/forms/xjkpgovk/submissions
   fetch('https://formspree.io/f/xjkpgovk', {
     method: 'POST',
     headers: {
@@ -532,22 +496,18 @@ function handleContactFormSubmit(e) {
     throw new Error('Network response was not ok');
   })
   .then(data => {
-    // Success!
     showFormStatus('Message sent successfully! We\'ll get back to you soon.', 'success');
     form.reset();
     
-    // Close modal after 2 seconds
     setTimeout(() => {
       closeContactModal();
     }, 2000);
   })
   .catch(error => {
-    // Error handling
     console.error('Form submission error:', error);
     showFormStatus('Oops! Something went wrong. Please try again or call us at 785-267-3223.', 'error');
   })
   .finally(() => {
-    // Reset button state
     submitBtn.disabled = false;
     btnText.style.display = 'inline';
     btnLoading.style.display = 'none';
@@ -566,11 +526,11 @@ function showFormStatus(message, type) {
   formStatus.textContent = message;
   
   if (type === 'success') {
-    formStatus.style.color = '#10b981'; // Green color
-    formStatus.style.backgroundColor = '#d1fae5'; // Light green background
+    formStatus.style.color = '#10b981';
+    formStatus.style.backgroundColor = '#d1fae5';
   } else if (type === 'error') {
-    formStatus.style.color = '#ef4444'; // Red color
-    formStatus.style.backgroundColor = '#fee2e2'; // Light red background
+    formStatus.style.color = '#ef4444';
+    formStatus.style.backgroundColor = '#fee2e2';
   }
   
   formStatus.style.padding = '0.75rem';
@@ -590,7 +550,7 @@ function initializeContactForm() {
 }
 
 // ================================================
-// 6. UTILITY FUNCTIONS
+// 7. UTILITY FUNCTIONS
 // Helper functions used throughout the application
 // ================================================
 
@@ -644,7 +604,7 @@ function smoothScrollTo(selector) {
 }
 
 // ================================================
-// 7. INITIALIZATION
+// 8. INITIALIZATION
 // Initialize all components when DOM is ready
 // ================================================
 
@@ -660,6 +620,7 @@ function initializeWebsite() {
   initializeModals();
   initializeContactForm();
   initializeTestimonialsCarousel();
+  initializeScrollEffects();
   
   // Add smooth scroll behavior to anchor links
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -674,14 +635,11 @@ function initializeWebsite() {
   
   // Handle browser back/forward buttons
   window.addEventListener('popstate', function(e) {
-    // You can add URL-based navigation here if needed
-    // For now, always return to home page
     navigateToPage('home');
   });
   
-  // Handle window resize (debounced for performance)
+  // Handle window resize
   const handleResize = debounce(() => {
-    // Close mobile menu on resize to desktop
     if (window.innerWidth > 768) {
       closeMobileMenu();
     }
@@ -689,33 +647,12 @@ function initializeWebsite() {
   
   window.addEventListener('resize', handleResize);
   
-  // Log success message
   console.log('Website initialized successfully!');
 }
 
-// Wait for DOM to be fully loaded before initializing
+// Wait for DOM to be fully loaded
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initializeWebsite);
 } else {
-  // DOM is already loaded
   initializeWebsite();
 }
-
-// ================================================
-// EXPORT FUNCTIONS (if using modules)
-// Uncomment if you want to use ES6 modules
-// ================================================
-
-/*
-export {
-  navigateToPage,
-  toggleMobileMenu,
-  showTestimonial,
-  nextTestimonial,
-  previousTestimonial,
-  openContactModal,
-  closeContactModal,
-  openLoginModal,
-  closeLoginModal
-};
-*/

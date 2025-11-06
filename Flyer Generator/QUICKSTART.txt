@@ -1,0 +1,101 @@
+===============================================
+Computer Store Kansas - Sales Flyer Generator
+QUICK START GUIDE
+===============================================
+
+GETTING STARTED - 3 EASY STEPS:
+--------------------------------
+
+1. INSTALL DEPENDENCIES (First time only):
+   
+   Windows:
+   --------
+   Open Command Prompt in this folder and run:
+   pip install -r requirements.txt
+
+   Mac/Linux:
+   ----------
+   Open Terminal in this folder and run:
+   pip3 install -r requirements.txt
+
+
+2. RUN THE APPLICATION:
+   
+   Windows:
+   --------
+   Double-click: flyer_generator.py
+   OR run in Command Prompt:
+   python flyer_generator.py
+
+   Mac/Linux:
+   ----------
+   In Terminal:
+   python3 flyer_generator.py
+
+
+3. CREATE AN EXECUTABLE (Optional):
+   
+   Windows:
+   --------
+   Double-click: build.bat
+   
+   Mac/Linux:
+   ----------
+   In Terminal:
+   chmod +x build.sh
+   ./build.sh
+   
+   The executable will be in the "dist" folder
+
+
+USING THE PROGRAM:
+------------------
+
+1. Select Product Type (Laptop or Desktop)
+2. Select Condition (New or Refurbished)
+3. Fill in all product details
+4. Click "Preview HTML" to see it in your browser (optional)
+5. Click "Save as PDF" to create the flyer
+
+
+WARRANTY INFO:
+--------------
+
+NEW LAPTOPS:
+- 1 Year Manufacturer Warranty
+- Lifetime Free Diagnostics
+
+NEW DESKTOPS:
+- 1 Month Manufacturer Warranty
+- Lifetime Free Diagnostics
+
+REFURBISHED LAPTOPS:
+- 90 Days Parts Warranty
+- 6 Months Free Diagnostics
+
+REFURBISHED DESKTOPS:
+- 3 Months Parts Warranty
+- 6 Months Free Diagnostics
+
+
+TROUBLESHOOTING:
+----------------
+
+Problem: "PDF generation requires xhtml2pdf library"
+Solution: Run: pip install xhtml2pdf
+
+Problem: Program won't start
+Solution: Make sure Python 3.8+ is installed
+
+Problem: Images missing in PDF
+Solution: Keep all files together in the same folder
+
+
+NEED HELP?
+----------
+See README.md for detailed instructions and troubleshooting
+
+
+===============================================
+Version 1.0 - Computer Store Kansas
+===============================================

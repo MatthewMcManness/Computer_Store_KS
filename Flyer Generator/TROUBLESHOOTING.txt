@@ -1,0 +1,298 @@
+================================================================================
+INSTALLATION TROUBLESHOOTING GUIDE
+Computer Store Kansas - Flyer Generator
+================================================================================
+
+This guide helps solve common installation problems.
+
+================================================================================
+ERROR: "Failed to copy files. Make sure all files are present."
+================================================================================
+
+CAUSE:
+------
+The installer cannot find the required files. This usually happens when:
+
+1. The installer was run from outside the FlyerGenerator_Package folder
+2. Not all files were extracted from the zip
+3. Files were moved or deleted
+4. Installer was copied to another location without the other files
+
+SOLUTION:
+---------
+
+✓ STEP 1: Check File Location
+   - Navigate to the FlyerGenerator_Package folder
+   - Verify you see these files in the same folder as the installer:
+     • INSTALL.bat (the installer)
+     • flyer_generator.py
+     • Desktop_sales-flyer.html
+     • Laptop_sales-flyer.html
+     • sales-flyer.css
+     • title.png
+     • graphics-icon.png
+     • requirements.txt
+
+✓ STEP 2: Run Installer From The Right Place
+   - DO NOT copy INSTALL.bat to Desktop or another location
+   - DO NOT run the installer from a different folder
+   - Open File Explorer
+   - Navigate to the FlyerGenerator_Package folder
+   - Right-click INSTALL.bat in that folder
+   - Select "Run as Administrator"
+
+✓ STEP 3: Extract All Files
+   If you downloaded a zip file:
+   - Right-click the zip file
+   - Select "Extract All"
+   - Choose a location
+   - Wait for extraction to complete
+   - Open the extracted folder
+   - Run INSTALL.bat from inside that folder
+
+CORRECT WAY:
+-----------
+File Explorer showing:
+  C:\Downloads\FlyerGenerator_Package\
+    ├── INSTALL.bat          ← Right-click this and run as admin
+    ├── flyer_generator.py   ← Must be here
+    ├── Desktop_sales-flyer.html
+    ├── Laptop_sales-flyer.html
+    └── (all other files)
+
+WRONG WAY:
+----------
+❌ Copying INSTALL.bat to Desktop and running it
+❌ Running from inside a zip file (not extracted)
+❌ Moving INSTALL.bat to another folder
+
+
+================================================================================
+ERROR: "Access Denied"
+================================================================================
+
+CAUSE:
+------
+The installer needs administrator privileges to install to Program Files.
+
+SOLUTION:
+---------
+1. Right-click INSTALL.bat
+2. Select "Run as Administrator" (not just double-click)
+3. Click "Yes" if User Account Control prompts appear
+
+
+================================================================================
+ERROR: Python installation fails
+================================================================================
+
+CAUSE:
+------
+- No internet connection
+- Antivirus blocking the download
+- Proxy or firewall issues
+
+SOLUTION:
+---------
+
+OPTION 1: Manual Python Installation
+1. Go to https://www.python.org/downloads/
+2. Download Python 3.11 or higher
+3. Run installer
+4. IMPORTANT: Check "Add Python to PATH"
+5. Click "Install Now"
+6. Run INSTALL.bat again
+
+OPTION 2: Check Internet Connection
+1. Verify internet is working
+2. Temporarily disable antivirus
+3. Run installer again
+
+OPTION 3: Use Alternative Installer
+1. If on corporate network with restrictions
+2. Ask IT department to install Python
+3. Then run INSTALL.bat again
+
+
+================================================================================
+ERROR: "Module not found" or "No module named 'xhtml2pdf'"
+================================================================================
+
+CAUSE:
+------
+Python dependencies (xhtml2pdf, pillow) failed to install.
+
+SOLUTION:
+---------
+1. Open Command Prompt as Administrator
+2. Run: pip install xhtml2pdf pillow
+3. Wait for installation to complete
+4. Try running the application again
+
+
+================================================================================
+ERROR: Application won't launch after installation
+================================================================================
+
+CAUSE:
+------
+- Shortcut is broken
+- Python not properly installed
+- Missing dependencies
+
+SOLUTION:
+---------
+
+✓ STEP 1: Verify Installation
+   Check if files exist:
+   C:\Program Files\ComputerStoreKS\FlyerGenerator\
+   
+   Should contain:
+   - flyer_generator.py
+   - All HTML and CSS files
+   - Image files
+
+✓ STEP 2: Test Python
+   Open Command Prompt and run:
+   python --version
+   
+   Should show: Python 3.x.x
+   
+   If not, Python isn't installed correctly
+
+✓ STEP 3: Try Manual Launch
+   Open Command Prompt as Administrator
+   Run:
+   cd "C:\Program Files\ComputerStoreKS\FlyerGenerator"
+   python flyer_generator.py
+   
+   This will show any error messages
+
+✓ STEP 4: Check Dependencies
+   Run:
+   pip list | findstr xhtml2pdf
+   pip list | findstr pillow
+   
+   Both should appear in the list
+
+
+================================================================================
+ERROR: Images don't appear in PDF
+================================================================================
+
+CAUSE:
+------
+Image files (title.png, graphics-icon.png) are missing or in wrong location.
+
+SOLUTION:
+---------
+1. Check: C:\Program Files\ComputerStoreKS\FlyerGenerator\
+2. Verify title.png and graphics-icon.png exist
+3. If missing, copy them from the original package
+4. Reinstall if necessary
+
+
+================================================================================
+SILENT INSTALLER: Check the Log File
+================================================================================
+
+For INSTALL_SILENT.bat installations:
+
+1. Open File Explorer
+2. Type in address bar: %TEMP%
+3. Find: FlyerGenerator_Install.log
+4. Open with Notepad
+5. Check for error messages
+6. Look for "ERROR:" lines
+
+
+================================================================================
+REINSTALLING
+================================================================================
+
+If installation is broken and you want to start over:
+
+1. Uninstall first:
+   Start Menu → Computer Store Kansas → Uninstall Flyer Generator
+   
+   OR manually delete:
+   C:\Program Files\ComputerStoreKS\FlyerGenerator
+
+2. Delete shortcuts:
+   - Start Menu: C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Computer Store Kansas
+   - Desktop: Remove "Flyer Generator" shortcut
+
+3. Run installer again
+
+
+================================================================================
+GETTING DETAILED ERROR INFORMATION
+================================================================================
+
+When reporting problems, include:
+
+1. Windows version: 
+   Press Win+R, type "winver", press Enter
+
+2. Python version:
+   Open Command Prompt, run: python --version
+
+3. Exact error message (take screenshot)
+
+4. What step failed (check step number in installer)
+
+5. Location where you ran the installer from
+
+6. Whether you have administrator privileges
+
+7. For silent installer: Contents of %TEMP%\FlyerGenerator_Install.log
+
+
+================================================================================
+COMMON QUESTIONS
+================================================================================
+
+Q: Can I install without administrator rights?
+A: No, installing to Program Files requires admin privileges.
+
+Q: Can I install to a different location?
+A: Yes, edit the batch file and change INSTALL_DIR variable.
+
+Q: Do I need to be connected to the internet?
+A: Yes, for automatic Python and dependency installation.
+
+Q: How do I uninstall?
+A: Start Menu → Computer Store Kansas → Uninstall Flyer Generator
+
+Q: Will this affect other Python programs?
+A: No, the installation won't affect other Python applications.
+
+Q: Can I install on multiple computers?
+A: Yes, use INSTALL_SILENT.bat for mass deployment.
+
+
+================================================================================
+STILL HAVING PROBLEMS?
+================================================================================
+
+If none of these solutions work:
+
+1. Make sure you have the complete, unmodified package
+2. Try on a different computer to rule out computer-specific issues
+3. Check antivirus logs for blocked files
+4. Ensure Windows is up to date
+5. Review the detailed installer guide: INSTALLER_GUIDE.txt
+
+For IT Support:
+- Provide the installation log file
+- List exact steps taken before error
+- Specify Windows version and any security software
+- Note any Group Policy restrictions in your environment
+
+
+================================================================================
+
+Last Updated: November 2025
+Version: 1.0
+
+================================================================================

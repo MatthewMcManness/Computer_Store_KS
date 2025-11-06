@@ -1,0 +1,391 @@
+================================================================================
+INSTALLER GUIDE - Computer Store Kansas Flyer Generator
+================================================================================
+
+📦 AVAILABLE INSTALLERS:
+------------------------
+
+You have THREE installer options:
+
+1. INSTALL.bat - Interactive Installer (RECOMMENDED)
+   - User-friendly with prompts
+   - Checks for Python and offers to install it
+   - Asks about desktop shortcut
+   - Best for: Manual installation on individual computers
+
+2. INSTALL_SILENT.bat - Silent Installer
+   - No user interaction required
+   - Automatically installs Python if missing
+   - Creates desktop shortcut for all users
+   - Best for: Mass deployment via Group Policy or scripts
+
+3. flyer_generator_setup.iss - Inno Setup Script
+   - Professional installer builder
+   - Creates a single .exe installer
+   - Best for: Creating a distributable installer package
+
+
+================================================================================
+OPTION 1: INTERACTIVE INSTALLER (Easiest)
+================================================================================
+
+📋 WHAT IT DOES:
+----------------
+✓ Checks if Python is installed
+✓ Offers to download and install Python automatically if missing
+✓ Installs all required Python packages (xhtml2pdf, pillow)
+✓ Copies all application files to Program Files
+✓ Creates Start Menu shortcuts
+✓ Optionally creates Desktop shortcut
+✓ Creates an uninstaller
+
+📝 HOW TO USE:
+--------------
+
+1. Copy the entire FlyerGenerator_Package folder to the target computer
+
+2. Right-click on INSTALL.bat and select "Run as Administrator"
+
+3. Follow the on-screen prompts:
+   - If Python is missing, choose to install it automatically
+   - Choose whether to create a desktop shortcut
+
+4. Wait for installation to complete
+
+5. Launch from Start Menu > Computer Store Kansas > Flyer Generator
+
+⏱️ TIME: 5-10 minutes (depending on internet speed for Python download)
+
+👥 BEST FOR:
+- Installing on a few computers manually
+- Users who want control over the installation process
+- First-time installations where you want to see what's happening
+
+
+================================================================================
+OPTION 2: SILENT INSTALLER (For Multiple Computers)
+================================================================================
+
+📋 WHAT IT DOES:
+----------------
+✓ Same as interactive installer but with NO user prompts
+✓ Automatically installs Python if missing
+✓ Creates shortcuts for all users
+✓ Logs everything to a file for troubleshooting
+✓ Returns exit codes for script automation
+
+📝 HOW TO USE - SINGLE COMPUTER:
+--------------------------------
+
+1. Copy the entire FlyerGenerator_Package folder to the target computer
+
+2. Right-click on INSTALL_SILENT.bat and select "Run as Administrator"
+
+3. Wait for completion (no prompts or windows)
+
+4. Check the log file: %TEMP%\FlyerGenerator_Install.log
+
+📝 HOW TO USE - MULTIPLE COMPUTERS:
+-----------------------------------
+
+METHOD A: Group Policy (Domain Environment)
+-------------------------------------------
+1. Place FlyerGenerator_Package folder on a network share
+   Example: \\server\software\FlyerGenerator
+
+2. Create a Group Policy Object (GPO):
+   - Computer Configuration > Policies > Windows Settings
+   - Scripts > Startup > Add Script
+   - Script: \\server\software\FlyerGenerator\INSTALL_SILENT.bat
+
+3. Link the GPO to the desired Organizational Unit
+
+4. Computers will install on next restart
+
+METHOD B: Remote Script Execution
+---------------------------------
+1. Place FlyerGenerator_Package on a network share
+
+2. Use PsExec or PowerShell to run remotely:
+   
+   PowerShell example:
+   Invoke-Command -ComputerName COMPUTER1,COMPUTER2,COMPUTER3 -ScriptBlock {
+       & "\\server\software\FlyerGenerator\INSTALL_SILENT.bat"
+   }
+
+METHOD C: Batch Script for Multiple Computers
+---------------------------------------------
+Create a file called "deploy_to_all.bat":
+
+@echo off
+set INSTALL_PATH=\\server\software\FlyerGenerator\INSTALL_SILENT.bat
+
+for %%C in (COMPUTER1 COMPUTER2 COMPUTER3) do (
+    echo Installing on %%C...
+    psexec \\%%C -s %INSTALL_PATH%
+)
+
+METHOD D: SCCM / Intune / Other Management Tools
+------------------------------------------------
+1. Package the FlyerGenerator_Package folder
+2. Create a deployment package
+3. Set command line: INSTALL_SILENT.bat
+4. Deploy to target collection/group
+
+⏱️ TIME: 3-5 minutes per computer (unattended)
+
+👥 BEST FOR:
+- IT departments deploying to multiple computers
+- Automated deployments
+- Silent installations without user interaction
+- Group Policy deployments
+
+
+================================================================================
+OPTION 3: INNO SETUP INSTALLER (Most Professional)
+================================================================================
+
+This creates a professional Windows installer (.exe) like commercial software.
+
+📋 REQUIREMENTS:
+----------------
+- Inno Setup 6.x (free download from jrsoftware.org)
+- Already built FlyerGenerator.exe from PyInstaller
+- All template files and images
+
+📝 HOW TO CREATE THE INSTALLER:
+-------------------------------
+
+1. FIRST: Build the executable
+   - On a Windows computer, run build.bat
+   - This creates dist\FlyerGenerator.exe
+
+2. Download and install Inno Setup from:
+   https://jrsoftware.org/isinfo.php
+
+3. Open flyer_generator_setup.iss with Inno Setup Compiler
+
+4. Click "Build" > "Compile"
+
+5. Find your installer in the "installer_output" folder:
+   FlyerGenerator_Setup.exe
+
+6. Distribute this single .exe file
+
+📝 HOW TO USE THE CREATED INSTALLER:
+------------------------------------
+
+1. Double-click FlyerGenerator_Setup.exe
+
+2. Follow the installation wizard:
+   - Accept license
+   - Choose installation location
+   - Select Start Menu folder
+   - Choose whether to create desktop icon
+
+3. The installer will:
+   - Check for Python
+   - Install required dependencies
+   - Copy all files
+   - Create shortcuts
+
+⏱️ TIME TO CREATE: 5 minutes (once)
+⏱️ TIME TO INSTALL: 3-5 minutes per computer
+
+👥 BEST FOR:
+- Creating a single distributable file
+- Professional appearance
+- Installations by non-technical users
+- Software distribution to customers
+
+
+================================================================================
+INSTALLATION LOCATIONS
+================================================================================
+
+The application will be installed to:
+📁 Program Files: C:\Program Files\ComputerStoreKS\FlyerGenerator\
+
+Shortcuts created at:
+📌 Start Menu: Start > Programs > Computer Store Kansas > Flyer Generator
+🖥️ Desktop: Flyer Generator (if selected)
+
+Uninstaller available at:
+🗑️ Start Menu: Start > Programs > Computer Store Kansas > Uninstall Flyer Generator
+
+
+================================================================================
+WHAT GETS INSTALLED
+================================================================================
+
+✓ Python 3.11 (if not already installed)
+✓ Python packages: xhtml2pdf, pillow
+✓ Application files:
+  - flyer_generator.py (main application)
+  - HTML templates (Desktop & Laptop)
+  - CSS stylesheet
+  - Company logo images
+  - Documentation files
+
+✓ Launcher scripts (for proper execution)
+✓ Start Menu shortcuts
+✓ Desktop shortcut (optional)
+✓ Uninstaller
+
+
+================================================================================
+UNINSTALLING
+================================================================================
+
+METHOD 1: Use the Uninstaller
+- Start Menu > Computer Store Kansas > Uninstall Flyer Generator
+
+METHOD 2: Manual Removal
+- Delete folder: C:\Program Files\ComputerStoreKS\FlyerGenerator
+- Delete shortcuts from Start Menu and Desktop
+
+Note: Python and Python packages remain installed (may be used by other apps)
+
+
+================================================================================
+TROUBLESHOOTING INSTALLATION
+================================================================================
+
+PROBLEM: "Access Denied" error
+SOLUTION: Run installer as Administrator (right-click > Run as Administrator)
+
+PROBLEM: Python installation fails
+SOLUTION: 
+  - Check internet connection
+  - Manually install Python from python.org
+  - Run installer again
+
+PROBLEM: Dependencies fail to install
+SOLUTION:
+  - Open Command Prompt as Administrator
+  - Run: pip install xhtml2pdf pillow
+  - Check the log file: %TEMP%\FlyerGenerator_Install.log
+
+PROBLEM: Application won't launch
+SOLUTION:
+  - Verify Python is installed: python --version
+  - Check installation directory exists
+  - Try running manually: python "C:\Program Files\ComputerStoreKS\FlyerGenerator\flyer_generator.py"
+
+PROBLEM: Silent installer not working in Group Policy
+SOLUTION:
+  - Ensure network share is accessible by computer accounts
+  - Check: Computer Configuration > Policies (not User Configuration)
+  - Verify "Run as Administrator" is enabled in GPO settings
+
+PROBLEM: Installer reports success but application not found
+SOLUTION:
+  - Check the log file for errors
+  - Verify all source files were present during installation
+  - Manually check if files exist in Program Files directory
+
+
+================================================================================
+DEPLOYMENT BEST PRACTICES
+================================================================================
+
+FOR SMALL BUSINESSES (1-10 computers):
+✓ Use INSTALL.bat on each computer manually
+✓ Takes 5 minutes per computer
+✓ Simple and straightforward
+
+FOR MEDIUM BUSINESSES (10-50 computers):
+✓ Use INSTALL_SILENT.bat with network share
+✓ Test on 1-2 computers first
+✓ Create a Group Policy for automatic deployment
+✓ Schedule during off-hours or lunch break
+
+FOR LARGE DEPLOYMENTS (50+ computers):
+✓ Build the Inno Setup installer
+✓ Deploy via SCCM, Intune, or similar tools
+✓ Test thoroughly in a pilot group
+✓ Schedule phased rollout
+✓ Monitor installation logs
+
+GENERAL TIPS:
+✓ Test on a clean computer first
+✓ Document any customizations you make
+✓ Keep a backup of the original files
+✓ Inform users before deployment
+✓ Provide quick training after installation
+
+
+================================================================================
+UPDATING THE APPLICATION
+================================================================================
+
+To update to a new version:
+
+1. Uninstall the old version (or overwrite files)
+2. Run the installer with the new version
+3. User settings and PDFs are not affected (they're saved elsewhere)
+
+
+================================================================================
+LICENSING & REDISTRIBUTION
+================================================================================
+
+The installers can be freely used within Computer Store Kansas.
+
+For redistribution to other businesses, ensure:
+- Replace Computer Store Kansas branding
+- Update company name in installer scripts
+- Modify templates as needed
+
+
+================================================================================
+TECHNICAL DETAILS
+================================================================================
+
+INSTALL.bat:
+- Checks for Admin rights
+- Detects Python installation
+- Downloads Python 3.11.7 if needed
+- Installs to: C:\Program Files\ComputerStoreKS\FlyerGenerator
+- Creates VBS wrapper to hide console window
+- Generates Start Menu and optional Desktop shortcuts
+- Creates uninstaller
+
+INSTALL_SILENT.bat:
+- Same as INSTALL.bat but non-interactive
+- Logs to: %TEMP%\FlyerGenerator_Install.log
+- Returns exit code 0 for success, 1 for failure
+- Configurable via variables at the top of script
+
+flyer_generator_setup.iss:
+- Inno Setup 6.x script
+- Checks Python at runtime
+- Creates professional Windows installer
+- Includes Python dependency installation
+- Uninstaller automatically created
+
+
+================================================================================
+SUPPORT & QUESTIONS
+================================================================================
+
+If you need help with installation:
+
+1. Check this guide first
+2. Review the log file (for silent installer)
+3. Verify all files are present in the package
+4. Test on a single computer before mass deployment
+5. Contact IT support with:
+   - Error message or log file
+   - Windows version
+   - Whether Python was already installed
+   - Installation method used
+
+
+================================================================================
+
+Created: November 2025
+Version: 1.0
+Computer Store Kansas
+
+================================================================================

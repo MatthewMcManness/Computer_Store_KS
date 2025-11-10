@@ -1,0 +1,2448 @@
+/*
+ * ================================================
+ * COMPUTER STORE KANSAS - MODERNIZED STYLESHEET
+ * ================================================
+ * VERSION: 33
+ * LAST UPDATED: 2025-10-29
+ * CHANGES: - Complete redesign with bright, modern aesthetic
+ *          - Inspired by contemporary tech service websites
+ *          - Improved typography and spacing
+ *          - Added modern animations and effects
+ *          - Enhanced mobile responsiveness
+ * DESCRIPTION: Complete styling for single-page application with modern design
+ * DEPENDENCIES: None (standalone CSS file)
+ * 
+ * Table of Contents:
+ * 1. CSS Variables & Root Styles
+ * 2. Reset & Base Styles
+ * 3. Typography
+ * 4. Layout & Container Utilities
+ * 5. Header & Navigation
+ * 6. Hero Sections
+ * 7. Stats Section (NEW)
+ * 8. Buttons & Interactive Elements
+ * 9. Content Sections & Cards
+ * 10. Numbered Benefits Section (NEW)
+ * 11. Split Content Sections (NEW)
+ * 12. Testimonials Carousel
+ * 13. Silver Plan Sections
+ * 14. Login & Contact Modals
+ * 15. Footer
+ * 16. Animations
+ * 17. Mobile Responsive Styles
+ * ================================================
+ */
+
+/* ================================================
+   1. CSS VARIABLES & ROOT STYLES
+   Define global color palette with modern, bright theme
+   ================================================ */
+:root {
+  /* ===== MODERN BRIGHT COLOR SCHEME ===== */
+  /* Clean, professional backgrounds */
+  --background: #ffffff;               /* Pure white - main background */
+  --background-light: #f8f9fb;         /* Very light grey for sections */
+  --background-dark: #f0f2f5;          /* Light grey for contrast */
+  
+  /* ===== PRIMARY BRAND COLORS ===== */
+  /* Blue accent colors - modern and vibrant */
+  --primary-blue: #2563eb;             /* Primary brand blue */
+  --primary-blue-light: #3b82f6;       /* Lighter blue for hover states */
+  --primary-blue-dark: #1e40af;        /* Darker blue for depth */
+  --primary-blue-subtle: #dbeafe;      /* Very light blue for backgrounds */
+  
+  /* ===== ACCENT COLORS ===== */
+  /* Silver/Grey accent colors for highlights and special elements */
+  --accent: #6b7280;                   /* Medium grey accent */
+  --accent-light: #9ca3af;             /* Light grey for subtle text */
+  --accent-dark: #4b5563;              /* Dark grey for strong text */
+  
+  /* ===== TEXT COLORS ===== */
+  /* Modern text hierarchy */
+  --text-primary: #111827;             /* Almost black - main headings */
+  --text-secondary: #374151;           /* Dark grey - body text */
+  --text-muted: #6b7280;               /* Medium grey - subtle text */
+  --text-white: #ffffff;               /* White text for dark backgrounds */
+  
+  /* ===== SEMANTIC COLORS ===== */
+  /* Status and action colors */
+  --success: #10b981;                  /* Green for success states */
+  --success-light: #d1fae5;            /* Light green background */
+  --error: #ef4444;                    /* Red for errors */
+  --error-light: #fee2e2;              /* Light red background */
+  --warning: #f59e0b;                  /* Orange for warnings */
+  
+  /* ===== LEGACY COLORS (for compatibility) ===== */
+  --primary-color: #2563eb;            /* Maps to primary-blue */
+  --secondary-color: #c0c0c0;          /* Silver */
+  --text-color: #374151;               /* Maps to text-secondary */
+  --light-grey: #f8f9fb;               /* Maps to background-light */
+  
+  /* ===== MODERN DESIGN TOKENS ===== */
+  /* Spacing, shadows, and effects */
+  --border-radius-sm: 8px;
+  --border-radius-md: 12px;
+  --border-radius-lg: 16px;
+  --border-radius-xl: 24px;
+  
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.15);
+  
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+}
+
+/* ================================================
+   2. RESET & BASE STYLES
+   Normalize browser defaults and set base typography
+   ================================================ */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  color: var(--text-secondary);
+  background-color: var(--background);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ================================================
+   3. TYPOGRAPHY
+   Modern typography system with clear hierarchy
+   ================================================ */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-primary);
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+}
+
+h1 {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  letter-spacing: -0.01em;
+}
+
+h3 {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+}
+
+h4 {
+  font-size: clamp(1.25rem, 2.5vw, 1.5rem);
+}
+
+p {
+  margin-bottom: 1rem;
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.text-large {
+  font-size: 1.25rem;
+  line-height: 1.8;
+}
+
+.text-small {
+  font-size: 0.95rem;
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+.text-center {
+  text-align: center;
+}
+
+/* ================================================
+   4. LAYOUT & CONTAINER UTILITIES
+   Reusable layout components and responsive containers
+   ================================================ */
+.container {
+  width: 90%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.container-wide {
+  max-width: 1400px;
+}
+
+.container-narrow {
+  max-width: 900px;
+}
+
+/* Page section management */
+.page-section {
+  display: none;
+}
+
+.page-section.active {
+  display: block;
+  animation: fadeIn 0.4s ease;
+}
+
+/* Section spacing utilities */
+.section {
+  padding: 5rem 0;
+}
+
+.section-sm {
+  padding: 3rem 0;
+}
+
+.section-lg {
+  padding: 7rem 0;
+}
+
+/* ================================================
+   5. HEADER & NAVIGATION
+   Modern sticky header with clean design
+   ================================================ */
+header {
+  background-color: var(--background);
+  padding: 1rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: var(--shadow-sm);
+  border-bottom: 1px solid var(--background-dark);
+  transition: var(--transition-normal);
+}
+
+header.scrolled {
+  box-shadow: var(--shadow-md);
+}
+
+header .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Logo styling */
+header .logo {
+  display: flex;
+  align-items: center;
+  font-size: 0;
+  transition: var(--transition-fast);
+}
+
+header .logo:hover {
+  transform: scale(1.02);
+}
+
+header .logo img {
+  height: 50px;
+}
+
+/* Navigation menu */
+header nav ul {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+header nav ul li {
+  margin-left: 0.5rem;
+}
+
+/* Navigation links */
+header nav ul li a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius-sm);
+  transition: var(--transition-fast);
+  display: inline-block;
+}
+
+header nav ul li a:hover {
+  color: var(--primary-blue);
+  background-color: var(--primary-blue-subtle);
+}
+
+header nav ul li a.active {
+  color: var(--primary-blue);
+  background-color: var(--primary-blue-subtle);
+}
+
+/* Action buttons in nav */
+header nav ul .nav-action a {
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--border-radius-md);
+  font-weight: 600;
+  white-space: nowrap;
+  transition: var(--transition-normal);
+}
+
+/* Primary action button */
+header nav ul .nav-action.primary a {
+  background: var(--primary-blue);
+  color: var(--text-white);
+  box-shadow: var(--shadow-sm);
+}
+
+header nav ul .nav-action.primary a:hover {
+  background: var(--primary-blue-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Silver Plan button - special styling */
+header nav ul .nav-action.silver a {
+  background: linear-gradient(135deg, #e8e8e8 0%, #f5f5f5 50%, #e8e8e8 100%);
+  color: var(--text-primary);
+  font-weight: 700;
+  border: 2px solid #d0d0d0;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+header nav ul .nav-action.silver a::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+  transition: var(--transition-slow);
+}
+
+header nav ul .nav-action.silver a:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+header nav ul .nav-action.silver a:hover::before {
+  left: 100%;
+}
+
+/* Mobile hamburger menu */
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-size: 1.75rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--border-radius-sm);
+  transition: var(--transition-fast);
+}
+
+.hamburger::before {
+  content: "☰";
+}
+
+.hamburger.active::before {
+  content: "✕";
+}
+
+.hamburger:hover {
+  background-color: var(--background-light);
+}
+
+/* ================================================
+   6. HERO SECTIONS
+   Large banner sections with modern design
+   ================================================ */
+.hero {
+  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
+  color: var(--text-white);
+  padding: 6rem 0 12rem 0;
+  text-align: center;
+  position: relative;
+  overflow: visible;
+  clip-path: polygon(0 0, 100% 0, 100% 85%, 50% 100%, 0 85%);
+  z-index: 0;  /* Set to 0 so overlapping sections (z-index: 10) appear on top */
+}
+
+/* Subtle pattern overlay */
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.hero .container {
+  position: relative;
+  z-index: 2;  /* Above hero background but below overlapping sections */
+}
+
+.hero .hero-title img {
+  display: block;
+  max-width: 450px;
+  width: 70%;
+  margin: 0 auto 2rem;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.2));
+}
+
+.hero h2 {
+  color: var(--text-white);
+  font-size: clamp(2rem, 4vw, 3rem);
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+}
+
+.hero p {
+  font-size: clamp(1.1rem, 2vw, 1.3rem);
+  margin-bottom: 0;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  opacity: 0.95;
+}
+
+/* ================================================
+   7. STATS SECTION (NEW)
+   Display key metrics and achievements
+   ================================================ */
+.stats-section {
+  background: var(--background);
+  padding: 4rem 0;
+  border-top: 1px solid var(--background-dark);
+  border-bottom: 1px solid var(--background-dark);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 3rem;
+  text-align: center;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.stat-item {
+  padding: 1.5rem;
+  transition: var(--transition-normal);
+}
+
+.stat-item:hover {
+  transform: translateY(-4px);
+}
+
+.stat-number {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 800;
+  color: var(--primary-blue);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.stat-label {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* ================================================
+   8. BUTTONS & INTERACTIVE ELEMENTS
+   Modern button styles and interactive components
+   ================================================ */
+.btn {
+  display: inline-block;
+  padding: 0.8rem 2rem;
+  border-radius: var(--border-radius-md);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: var(--transition-normal);
+  cursor: pointer;
+  border: none;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: var(--primary-blue);
+  color: var(--text-white);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover {
+  background: var(--primary-blue-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-secondary {
+  background: var(--background);
+  color: var(--primary-blue);
+  border: 2px solid var(--primary-blue);
+}
+
+.btn-secondary:hover {
+  background: var(--primary-blue);
+  color: var(--text-white);
+  transform: translateY(-2px);
+}
+
+.btn-white {
+  background: var(--text-white);
+  color: var(--primary-blue);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-white:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.contact-modal-btn {
+  background: var(--primary-blue);
+  color: var(--text-white);
+  padding: 0.8rem 2rem;
+  border-radius: var(--border-radius-md);
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition-normal);
+  box-shadow: var(--shadow-sm);
+}
+
+.contact-modal-btn:hover {
+  background: var(--primary-blue-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* ================================================
+   9. CONTENT SECTIONS & CARDS
+   Reusable content layouts and card components
+   ================================================ */
+.services {
+  padding: 5rem 0;
+  background-color: var(--background-light);
+}
+
+.services h2 {
+  text-align: center;
+  margin-bottom: 3rem;
+  color: var(--text-primary);
+}
+
+/* Modern card grid */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+.card {
+  background: var(--background);
+  border-radius: var(--border-radius-lg);
+  padding: 2rem;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-normal);
+  border: 1px solid var(--background-dark);
+}
+
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-blue-subtle);
+}
+
+.card h3 {
+  color: var(--text-primary);
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+}
+
+.card p {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* ================================================
+   10. NUMBERED BENEFITS SECTION (NEW)
+   Display benefits with large numbers (like Tech Junkies)
+   ================================================ */
+.benefits-section {
+  padding: 5rem 0;
+  background: var(--background);
+}
+
+.benefits-section h2 {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.benefits-section > .container > p {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  margin-bottom: 4rem;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 3rem;
+  margin-top: 3rem;
+}
+
+.benefit-item {
+  display: flex;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  border-radius: var(--border-radius-lg);
+  transition: var(--transition-normal);
+}
+
+.benefit-item:hover {
+  background: var(--background-light);
+  transform: translateX(8px);
+}
+
+.benefit-number {
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--primary-blue);
+  background: var(--primary-blue-subtle);
+  border-radius: var(--border-radius-md);
+}
+
+.benefit-content h3 {
+  font-size: 1.3rem;
+  margin-bottom: 0.75rem;
+  color: var(--text-primary);
+}
+
+.benefit-content p {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 0;
+}
+
+/* ================================================
+   11. SPLIT CONTENT SECTIONS (NEW)
+   Alternating image and text sections
+   ================================================ */
+.split-section {
+  padding: 5rem 0;
+  background: var(--background);
+}
+
+.split-section:nth-child(even) {
+  background: var(--background-light);
+}
+
+.split-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+}
+
+.split-content.reverse {
+  direction: rtl;
+}
+
+.split-content.reverse > * {
+  direction: ltr;
+}
+
+.split-text h2 {
+  margin-bottom: 1.5rem;
+}
+
+.split-text p {
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.8;
+}
+
+.split-text ul {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 2rem;
+}
+
+.split-text ul li {
+  padding: 0.5rem 0 0.5rem 2rem;
+  position: relative;
+  font-size: 1.05rem;
+}
+
+.split-text ul li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--primary-blue);
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+.split-image {
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+}
+
+.split-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: var(--transition-slow);
+}
+
+.split-image:hover img {
+  transform: scale(1.05);
+}
+
+/* ================================================
+   12. TESTIMONIALS CAROUSEL (FIXED & IMPROVED)
+   Modern testimonial carousel with proper layout
+   ================================================ */
+.testimonials {
+  background: var(--background-light);
+  padding: 5rem 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.testimonials h2 {
+  text-align: center;
+  margin-bottom: 3.5rem;
+  color: var(--text-primary);
+}
+
+.testimonials .container {
+  position: relative;
+  padding-left: 80px;
+  padding-right: 80px;
+}
+
+.testimonials-carousel {
+  position: relative;
+  max-width: 900px;
+  margin: 0 auto;
+  overflow: visible;
+}
+
+.testimonials-track {
+  display: flex;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 100%;
+  will-change: transform;
+}
+
+.testimonial {
+  min-width: 100%;
+  max-width: 100%;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.testimonial-content {
+  background: var(--background);
+  border: 1px solid var(--background-dark);
+  border-radius: var(--border-radius-xl);
+  padding: 2rem 2.5rem;
+  margin: 0 1rem;
+  position: relative;
+  transition: all var(--transition-normal);
+  box-shadow: var(--shadow-lg);
+  min-height: 320px;
+  max-height: 480px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  overflow-y: auto;
+  overflow-x: hidden;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  box-sizing: border-box;
+  width: calc(100% - 2rem);
+}
+
+.testimonial-content:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-xl);
+}
+
+.quote-icon {
+  font-size: 3rem;
+  color: var(--primary-blue);
+  opacity: 0.1;
+  position: absolute;
+  top: 1rem;
+  left: 1.5rem;
+  line-height: 1;
+  font-family: Georgia, serif;
+  pointer-events: none;
+}
+
+.quote-icon-close {
+  font-size: 3rem;
+  color: var(--primary-blue);
+  opacity: 0.1;
+  position: absolute;
+  bottom: 4rem;
+  right: 1.5rem;
+  line-height: 1;
+  font-family: Georgia, serif;
+  pointer-events: none;
+}
+
+.testimonial-text {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  margin-top: 0.5rem;
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+  width: 100%;
+  text-align: justify;
+  hyphens: auto;
+}
+
+.testimonial-author {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 2px solid var(--background-dark);
+  flex-shrink: 0;
+}
+
+.author-avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: 600;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-sm);
+}
+
+.author-details {
+  flex: 1;
+  text-align: left;
+}
+
+.author-details h4 {
+  font-size: 1rem;
+  color: var(--text-primary);
+  font-weight: 600;
+  margin: 0 0 0.15rem 0;
+  line-height: 1.2;
+}
+
+.author-location {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* Carousel arrows */
+.carousel-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--background);
+  color: var(--primary-blue);
+  border: 2px solid var(--primary-blue);
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-normal);
+  z-index: 10;
+  box-shadow: var(--shadow-lg);
+}
+
+.carousel-arrow svg {
+  width: 22px;
+  height: 22px;
+  stroke-width: 3;
+  transition: transform var(--transition-fast);
+}
+
+.carousel-arrow:hover {
+  background: var(--primary-blue);
+  color: var(--background);
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: var(--shadow-xl);
+}
+
+.carousel-arrow:hover svg {
+  transform: scale(1.1);
+}
+
+.carousel-arrow:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+.carousel-arrow.prev {
+  left: -25px;
+}
+
+.carousel-arrow.next {
+  right: -25px;
+}
+
+/* Carousel indicators - IMPROVED */
+.carousel-indicators {
+  display: flex;
+  justify-content: center;
+  margin-top: 2.5rem;
+  gap: 0.5rem;
+}
+
+.carousel-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--background-dark);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  border: 2px solid transparent;
+  padding: 0;
+  position: relative;
+}
+
+.carousel-indicator::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  transition: border-color var(--transition-normal);
+}
+
+.carousel-indicator.active {
+  background: var(--primary-blue);
+  width: 32px;
+  border-radius: 5px;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
+}
+
+.carousel-indicator:hover:not(.active) {
+  background-color: var(--primary-blue-light);
+  transform: scale(1.3);
+}
+
+.carousel-indicator.active::after {
+  border-color: var(--primary-blue);
+  opacity: 0.2;
+}
+
+/* ================================================
+   13. SILVER PLAN SECTIONS
+   Specialized sections for protection plan
+   ================================================ */
+.silver-plan-badge {
+  display: inline-block;
+  position: relative;
+  background: linear-gradient(145deg, #e8e8e8 0%, #f5f5f5 50%, #e8e8e8 100%);
+  border: 3px solid #d0d0d0;
+  border-radius: var(--border-radius-xl);
+  padding: 1.5rem 2.5rem;
+  margin: 0 auto 2rem auto;
+  box-shadow: var(--shadow-md);
+  transition: var(--transition-normal);
+  overflow: hidden;
+  text-align: center;
+  cursor: default;
+}
+
+.silver-plan-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.badge-text {
+  display: block;
+  font-size: 2.8rem;
+  font-weight: 900;
+  color: #2c2c2c;
+  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+  letter-spacing: 0.05em;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.badge-subtext {
+  display: block;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #404040;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.silver-hero-heading {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--text-white);
+  margin-bottom: 1.5rem;
+  text-align: center;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.membership {
+  background-color: var(--background-light);
+  padding: 5rem 0;
+}
+
+.membership-text-centered {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.plan-description {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.membership-features-enhanced {
+  list-style: none;
+  padding-left: 0;
+  margin: 0 0 2rem 0;
+  display: inline-block;
+  text-align: left;
+}
+
+.membership-features-enhanced li {
+  margin-bottom: 1rem;
+  padding-left: 2rem;
+  position: relative;
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+.membership-features-enhanced li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--primary-blue);
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+/* ================================================
+   14. LOGIN & CONTACT MODALS
+   Modal overlays for forms
+   ================================================ */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 2000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.modal.active {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+  background-color: var(--background);
+  padding: 2rem;
+  border-radius: var(--border-radius-lg);
+  max-width: 500px;
+  width: 90%;
+  position: relative;
+  box-shadow: var(--shadow-xl);
+  animation: slideUp 0.3s ease;
+}
+
+.contact-modal-content {
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--background-dark);
+}
+
+.modal-header h1 {
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  font-size: 1.8rem;
+}
+
+.modal-header p {
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.modal-form {
+  margin-bottom: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid var(--background-dark);
+  border-radius: var(--border-radius-sm);
+  font-size: 1rem;
+  transition: var(--transition-fast);
+  font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px var(--primary-blue-subtle);
+}
+
+.form-actions {
+  text-align: center;
+  margin-top: 1.5rem;
+}
+
+.form-status {
+  margin-top: 1rem;
+  padding: 0.5rem;
+  border-radius: var(--border-radius-sm);
+  text-align: center;
+  font-weight: 500;
+  min-height: 24px;
+}
+
+.modal-footer {
+  text-align: center;
+  padding-top: 1rem;
+  border-top: 1px solid var(--background-dark);
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.modal-footer p {
+  margin: 0.25rem 0;
+}
+
+.modal-footer a {
+  color: var(--primary-blue);
+  text-decoration: none;
+  transition: var(--transition-fast);
+}
+
+.modal-footer a:hover {
+  text-decoration: underline;
+  color: var(--primary-blue-dark);
+}
+
+.modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-muted);
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: var(--transition-fast);
+}
+
+.modal-close:hover {
+  background-color: var(--background-light);
+  color: var(--text-primary);
+}
+
+/* ================================================
+   15. FOOTER
+   Site footer with clean, modern design
+   ================================================ */
+footer {
+  background-color: var(--text-primary);
+  color: var(--text-white);
+  text-align: center;
+  padding: 2rem 0;
+  font-size: 0.9rem;
+}
+
+footer .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+footer p {
+  margin: 0;
+  flex: 1;
+  opacity: 0.9;
+}
+
+.admin-login-btn {
+  background: rgba(255,255,255,0.1);
+  color: var(--text-white);
+  border: 1px solid rgba(255,255,255,0.3);
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  white-space: nowrap;
+}
+
+.admin-login-btn:hover {
+  background: rgba(255,255,255,0.2);
+  transform: translateY(-1px);
+}
+
+/* ================================================
+   16. ANIMATIONS
+   Smooth animations and transitions
+   ================================================ */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ================================================
+   17. MOBILE RESPONSIVE STYLES
+   Responsive design for tablets and mobile
+   ================================================ */
+@media (max-width: 768px) {
+  /* Mobile header */
+  .hamburger {
+    display: flex;
+  }
+  
+  header nav ul {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    background-color: var(--background);
+    margin-top: 0.5rem;
+    padding: 1rem 0;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    box-shadow: var(--shadow-md);
+  }
+  
+  header nav ul.show {
+    display: flex;
+  }
+  
+  header nav ul li {
+    margin: 0.5rem 0;
+    text-align: left;
+    padding-left: 1rem;
+    width: 100%;
+  }
+  
+  header nav ul li a {
+    width: 100%;
+    display: block;
+  }
+  
+  /* Mobile hero */
+  .hero {
+    padding: 4rem 0;
+  }
+  
+  .hero .hero-title img {
+    width: 85%;
+    max-width: 300px;
+  }
+  
+  /* Mobile cards */
+  .cards {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  /* Mobile split sections */
+  .split-content {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  
+  .split-content.reverse {
+    direction: ltr;
+  }
+  
+  /* Mobile benefits */
+  .benefits-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  
+  /* Mobile stats */
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  
+  /* Mobile testimonials - IMPROVED */
+  .testimonials .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .testimonials-carousel {
+    margin: 0 1rem;
+    overflow: visible;
+  }
+
+  .testimonial-content {
+    padding: 1.5rem 1.5rem;
+    margin: 0.5rem;
+    max-height: 350px;
+  }
+
+  .testimonial-text {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+  }
+
+  .quote-icon {
+    font-size: 2.5rem;
+    top: 0.75rem;
+    left: 1rem;
+  }
+
+  .testimonial-author {
+    padding-top: 1rem;
+  }
+
+  .author-avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 1.1rem;
+  }
+
+  .carousel-arrow {
+    width: 44px;
+    height: 44px;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .carousel-arrow.prev {
+    left: 5px;
+  }
+
+  .carousel-arrow.next {
+    right: 5px;
+  }
+
+  .carousel-indicators {
+    margin-top: 2rem;
+  }
+  
+  /* Mobile typography */
+  h1 {
+    font-size: 2.5rem;
+  }
+  
+  h2 {
+    font-size: 2rem;
+  }
+  
+  h3 {
+    font-size: 1.5rem;
+  }
+  
+  p {
+    font-size: 1rem;
+  }
+  
+  /* Mobile sections */
+  .section {
+    padding: 3rem 0;
+  }
+  
+  .section-lg {
+    padding: 4rem 0;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Extra small mobile adjustments */
+  .hero {
+    padding: 3rem 0;
+  }
+  
+  .silver-plan-badge {
+    padding: 1rem 1.5rem;
+  }
+  
+  .badge-text {
+    font-size: 2rem;
+  }
+  
+  .badge-subtext {
+    font-size: 1.1rem;
+  }
+  
+  .testimonial-content {
+    padding: 2rem 1.5rem;
+  }
+  
+  .benefit-item {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .benefit-number {
+    margin: 0 auto;
+  }
+}
+
+/* ================================================
+   18. ABOUT PAGE SPECIFIC STYLES
+   ================================================ */
+.about {
+  background: linear-gradient(135deg, #e8f0fe 0%, #d6e4fd 100%);  /* Solid light blue gradient - no transparency */
+}
+
+/* Remove default padding when used with horizontal-diamond (it has its own padding) */
+.about.horizontal-diamond {
+  padding: 100px 18%;
+}
+
+.about h2 {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: var(--text-primary);
+}
+
+.about p {
+  max-width: 800px;
+  margin: 0 auto 1.5rem auto;
+  font-size: 1.05rem;
+  line-height: 1.8;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+/* ================================================
+   19. FOUNDER SECTION
+   ================================================ */
+.founder {
+  background-color: var(--background-light);
+  padding: 5rem 0;
+}
+
+.founder-text-full {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.founder-text-full h2 {
+  margin-bottom: 1.5rem;
+  color: var(--text-primary);
+}
+
+.founder-text-full p {
+  margin-bottom: 1rem;
+  line-height: 1.8;
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+}
+
+.founder-text-full .founder-name {
+  font-style: italic;
+  color: var(--primary-blue);
+  margin-top: 1.5rem;
+  font-weight: 600;
+}
+
+/* ================================================
+   20. CTA SECTIONS
+   ================================================ */
+.cta {
+  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
+  color: var(--text-white);
+  padding: 4rem 0;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.cta::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.cta .container {
+  position: relative;
+  z-index: 1;
+}
+
+.cta h2 {
+  color: var(--text-white);
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.cta p {
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  opacity: 0.95;
+}
+
+/* ================================================
+   21. CONTACT SECTION
+   ================================================ */
+.contact {
+  padding: 5rem 0;
+  background-color: var(--background-light);
+}
+
+.contact h2 {
+  text-align: center;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.contact p {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: var(--text-secondary);
+}
+
+form {
+  max-width: 600px;
+  margin: 0 auto 2rem auto;
+  display: flex;
+  flex-direction: column;
+}
+
+form label {
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+form input,
+form textarea {
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  border: 2px solid var(--background-dark);
+  border-radius: var(--border-radius-sm);
+  font-size: 1rem;
+  transition: var(--transition-fast);
+  font-family: inherit;
+}
+
+form input:focus,
+form textarea:focus {
+  outline: none;
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px var(--primary-blue-subtle);
+}
+
+form button {
+  align-self: flex-start;
+  cursor: pointer;
+}
+
+.contact-info {
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.contact-info p {
+  margin-bottom: 0.3rem;
+}
+
+.note {
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+  color: var(--text-muted);
+  opacity: 0.8;
+}
+
+.cta .note {
+  color: var(--text-white);
+  opacity: 0.8;
+}
+
+/* ================================================
+   22. GALLERY PAGE STYLES
+   Modern grid layout for computer gallery
+   ================================================ */
+
+/* Gallery Filters Section */
+.gallery-filters-section {
+  padding: 2rem 0;
+  background-color: var(--background-light);
+}
+
+.gallery-filters {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  padding: 0.75rem 1.5rem;
+  background-color: var(--background);
+  border: 2px solid var(--background-dark);
+  border-radius: var(--border-radius-sm);
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.filter-btn:hover {
+  border-color: var(--primary-blue-light);
+  color: var(--primary-blue);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.filter-btn.active {
+  background-color: var(--primary-blue);
+  border-color: var(--primary-blue);
+  color: var(--text-white);
+}
+
+/* Gallery Section */
+.gallery-section {
+  padding: 4rem 0;
+  background-color: var(--background);
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+/* Gallery Card - 3D Flip Card Container */
+.gallery-card {
+  background-color: transparent;
+  perspective: 1000px;
+  height: 400px;
+  opacity: 1;
+  cursor: pointer;
+}
+
+.gallery-card.hidden {
+  display: none;
+}
+
+/* Gallery Card Inner - The flip container */
+.gallery-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-md);
+}
+
+/* Trigger flip on hover */
+.gallery-card:hover .gallery-card-inner {
+  transform: rotateY(180deg);
+}
+
+/* Front and Back positioning */
+.gallery-card-front,
+.gallery-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  background-color: var(--background);
+}
+
+/* Front of card */
+.gallery-card-front {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Back of card (rotated by default) */
+.gallery-card-back {
+  transform: rotateY(180deg);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2rem;
+  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
+  color: var(--text-white);
+}
+
+/* Gallery Card Image (Front) */
+.gallery-card-image {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-color: var(--background-light);
+  overflow: hidden;
+  flex: 1;
+}
+
+.gallery-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Gallery Card Badge (Front) */
+.gallery-card-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius-sm);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: var(--shadow-md);
+  z-index: 1;
+}
+
+.badge-custom {
+  background-color: var(--primary-blue);
+  color: var(--text-white);
+}
+
+.badge-refurbished {
+  background-color: var(--success);
+  color: var(--text-white);
+}
+
+.badge-available {
+  background-color: var(--warning);
+  color: var(--text-white);
+}
+
+/* Back of Card - Title */
+.gallery-card-back .gallery-card-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-white);
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+/* Back of Card - Price */
+.gallery-card-back .gallery-card-price {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-white);
+  margin-bottom: 1.5rem;
+  text-align: center;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Back of Card - Specs */
+.gallery-card-back .gallery-card-specs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  text-align: left;
+}
+
+.gallery-card-back .spec-item {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.95);
+  padding: 0.5rem 0;
+}
+
+.gallery-card-back .spec-item strong {
+  color: var(--text-white);
+  font-weight: 600;
+  display: inline-block;
+  min-width: 100px;
+}
+
+/* Computer Details Modal */
+.computer-modal-content {
+  max-width: 900px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.computer-details-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  padding: 1rem 0;
+}
+
+.computer-details-image {
+  width: 100%;
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  background-color: var(--background-light);
+}
+
+.computer-details-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.computer-details-info h2 {
+  font-size: 1.75rem;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.computer-detail-badge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius-sm);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+}
+
+.computer-details-price {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-blue);
+  margin-bottom: 2rem;
+}
+
+.computer-specs-list {
+  list-style: none;
+  padding: 0;
+}
+
+.computer-specs-list li {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--background-light);
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.95rem;
+}
+
+.computer-specs-list li:last-child {
+  border-bottom: none;
+}
+
+.spec-label {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.spec-value {
+  color: var(--text-secondary);
+  text-align: right;
+}
+
+.computer-details-actions {
+  margin-top: 2rem;
+  display: flex;
+  gap: 1rem;
+}
+
+/* ================================================
+   23. GALLERY RESPONSIVE STYLES
+   Mobile optimization for gallery
+   ================================================ */
+@media (max-width: 768px) {
+  .gallery-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .gallery-filters {
+    gap: 0.5rem;
+  }
+
+  .filter-btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  /* On mobile, make flip cards taller for better readability */
+  .gallery-card {
+    height: 450px;
+  }
+
+  .gallery-card-back {
+    padding: 1.5rem;
+  }
+
+  .gallery-card-back .gallery-card-title {
+    font-size: 1.25rem;
+  }
+
+  .gallery-card-back .gallery-card-price {
+    font-size: 1.5rem;
+  }
+
+  .gallery-card-back .spec-item {
+    font-size: 0.85rem;
+  }
+
+  .computer-details-container {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .computer-details-price {
+    font-size: 1.5rem;
+  }
+
+  .computer-details-actions {
+    flex-direction: column;
+  }
+
+  .computer-details-actions .btn {
+    width: 100%;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .gallery-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ================================================
+   24. MODERN DESIGN ENHANCEMENTS
+   Inspired by contemporary tech websites
+   ================================================ */
+
+/* Overlapping Section Cards */
+.overlap-card-container {
+  position: relative;
+  z-index: 10;
+  margin-top: -180px;
+  padding-top: 120px;
+}
+
+.overlap-card {
+  background: var(--background);
+  border-radius: var(--border-radius-xl);
+  padding: 3rem 2.5rem;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  transition: all var(--transition-normal);
+  position: relative;
+  z-index: 10;
+}
+
+.overlap-card:hover {
+  transform: scale(1.02) translateY(-4px);
+  box-shadow: 0 20px 40px rgba(37, 99, 235, 0.2);
+}
+
+/* Negative Margin Utilities */
+.mt-overlap {
+  margin-top: -80px;
+}
+
+.mt-overlap-lg {
+  margin-top: -120px;
+}
+
+/* Diagonal Section Dividers */
+.diagonal-divider {
+  position: relative;
+  overflow: hidden;
+  clip-path: polygon(
+    0 15%,
+    50% 0,
+    100% 15%,
+    100% 85%,
+    50% 100%,
+    0 85%
+  );
+  padding: 100px 0;
+}
+
+.diagonal-divider::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background: var(--background);
+  clip-path: polygon(0 50%, 100% 0, 100% 100%, 0 100%);
+  z-index: 1;
+}
+
+.diagonal-divider-reverse::after {
+  clip-path: polygon(0 0, 100% 50%, 100% 100%, 0 100%);
+}
+
+.diagonal-divider-top::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background: var(--background);
+  clip-path: polygon(0 0, 100% 0, 100% 50%, 0 100%);
+  z-index: 1;
+}
+
+/* Horizontal Diamond Divider (points on left and right sides) */
+.horizontal-diamond {
+  position: relative;
+  overflow: hidden;
+  clip-path: polygon(
+    0 50%,      /* Left point at middle */
+    15% 0,      /* Top left */
+    85% 0,      /* Top right */
+    100% 50%,   /* Right point at middle */
+    85% 100%,   /* Bottom right */
+    15% 100%    /* Bottom left */
+  );
+  padding: 100px 18%;  /* 18% horizontal padding to clear the 15% clip + extra space */
+}
+
+/* Responsive padding for horizontal diamond on smaller screens */
+@media (max-width: 768px) {
+  .horizontal-diamond {
+    padding: 80px 20%;  /* More padding on mobile for better spacing */
+  }
+}
+
+@media (max-width: 480px) {
+  .horizontal-diamond {
+    padding: 60px 22%;  /* Even more padding on very small screens */
+  }
+}
+
+/* Silver Plan Intro Section */
+.silver-plan-intro {
+  background: var(--background);
+  text-align: center;
+}
+
+.silver-plan-intro .container {
+  max-width: 900px;
+}
+
+.silver-plan-intro h2 {
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+}
+
+.silver-plan-intro p {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  line-height: 1.8;
+}
+
+/* Textured Backgrounds */
+.texture-circuit {
+  position: relative;
+  background-color: var(--background-light);
+}
+
+.texture-circuit::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(37, 99, 235, 0.03) 2px, rgba(37, 99, 235, 0.03) 4px),
+    repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(37, 99, 235, 0.03) 2px, rgba(37, 99, 235, 0.03) 4px);
+  background-size: 40px 40px;
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.texture-circuit > * {
+  position: relative;
+  z-index: 1;
+}
+
+.texture-geometric {
+  position: relative;
+  background-color: var(--background);
+}
+
+.texture-geometric::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    linear-gradient(30deg, transparent 48%, rgba(37, 99, 235, 0.03) 49%, rgba(37, 99, 235, 0.03) 51%, transparent 52%),
+    linear-gradient(-30deg, transparent 48%, rgba(37, 99, 235, 0.03) 49%, rgba(37, 99, 235, 0.03) 51%, transparent 52%);
+  background-size: 60px 60px;
+  opacity: 0.6;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.texture-geometric > * {
+  position: relative;
+  z-index: 1;
+}
+
+.texture-dots {
+  position: relative;
+}
+
+.texture-dots::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: radial-gradient(circle, rgba(37, 99, 235, 0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+  opacity: 0.8;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.texture-dots > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Enhanced Card Hover Effects */
+.card-enhanced {
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.card-enhanced::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.card-enhanced:hover {
+  transform: scale(1.05) translateY(-8px);
+  box-shadow: 0 20px 40px rgba(37, 99, 235, 0.25);
+}
+
+.card-enhanced:hover::before {
+  left: 100%;
+}
+
+/* Hero with Gradient Overlay */
+.hero-overlay {
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+.hero-overlay::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg,
+    rgba(37, 99, 235, 0.85) 0%,
+    rgba(30, 64, 175, 0.9) 50%,
+    rgba(37, 99, 235, 0.85) 100%);
+  z-index: 0;
+}
+
+.hero-overlay .container {
+  position: relative;
+  z-index: 1;
+}
+
+/* Diamond/Rhombus Shape Element */
+.diamond-accent {
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
+  transform: rotate(45deg);
+  position: absolute;
+  opacity: 0.1;
+  z-index: 0;
+}
+
+.diamond-accent-1 {
+  top: -50px;
+  right: 10%;
+  width: 150px;
+  height: 150px;
+}
+
+.diamond-accent-2 {
+  bottom: -50px;
+  left: 5%;
+  width: 120px;
+  height: 120px;
+}
+
+.diamond-accent-3 {
+  top: 50%;
+  right: -60px;
+  width: 180px;
+  height: 180px;
+  opacity: 0.05;
+}
+
+/* Section Layering */
+.section-layered {
+  position: relative;
+  z-index: 1;
+}
+
+.section-elevated {
+  position: relative;
+  z-index: 10;
+}
+
+/* Animated Background Elements */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes rotate-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.floating-element {
+  animation: float 6s ease-in-out infinite;
+}
+
+.rotating-element {
+  animation: rotate-slow 30s linear infinite;
+}
+
+/* Stats Section Enhancement */
+.stats-section.modern {
+  background: linear-gradient(135deg, var(--background-light) 0%, var(--background) 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.stats-section.modern::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(37, 99, 235, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(37, 99, 235, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* Enhanced Services Cards */
+.services.modern .card {
+  border: 2px solid transparent;
+  background: linear-gradient(var(--background), var(--background)) padding-box,
+              linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(37, 99, 235, 0.3)) border-box;
+  transition: all 300ms ease;
+}
+
+.services.modern .card:hover {
+  border-color: var(--primary-blue);
+  background: linear-gradient(var(--background), var(--background)) padding-box,
+              linear-gradient(135deg, var(--primary-blue), var(--primary-blue-light)) border-box;
+}
+
+/* Photo Integration with Better Contrast */
+.photo-overlay-dark {
+  position: relative;
+}
+
+.photo-overlay-dark::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg,
+    rgba(0, 0, 0, 0.4) 0%,
+    rgba(37, 99, 235, 0.6) 100%);
+  z-index: 1;
+}
+
+.photo-overlay-dark > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* Responsive Adjustments for Modern Elements */
+@media (max-width: 768px) {
+  .overlap-card-container {
+    margin-top: -60px;
+  }
+
+  .mt-overlap {
+    margin-top: -40px;
+  }
+
+  .mt-overlap-lg {
+    margin-top: -60px;
+  }
+
+  .diagonal-divider::after,
+  .diagonal-divider-top::before {
+    height: 50px;
+  }
+
+  .diamond-accent {
+    display: none;
+  }
+
+  .overlap-card {
+    padding: 2rem 1.5rem;
+  }
+}

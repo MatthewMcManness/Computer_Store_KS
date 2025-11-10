@@ -1591,3 +1591,353 @@ form button {
   color: var(--text-white);
   opacity: 0.8;
 }
+
+/* ================================================
+   22. GALLERY PAGE STYLES
+   Modern grid layout for computer gallery
+   ================================================ */
+
+/* Gallery Filters Section */
+.gallery-filters-section {
+  padding: 2rem 0;
+  background-color: var(--background-light);
+}
+
+.gallery-filters {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  padding: 0.75rem 1.5rem;
+  background-color: var(--background);
+  border: 2px solid var(--background-dark);
+  border-radius: var(--border-radius-sm);
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.filter-btn:hover {
+  border-color: var(--primary-blue-light);
+  color: var(--primary-blue);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.filter-btn.active {
+  background-color: var(--primary-blue);
+  border-color: var(--primary-blue);
+  color: var(--text-white);
+}
+
+/* Gallery Section */
+.gallery-section {
+  padding: 4rem 0;
+  background-color: var(--background);
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+/* Gallery Card - 3D Flip Card Container */
+.gallery-card {
+  background-color: transparent;
+  perspective: 1000px;
+  height: 400px;
+  opacity: 1;
+  cursor: pointer;
+}
+
+.gallery-card.hidden {
+  display: none;
+}
+
+/* Gallery Card Inner - The flip container */
+.gallery-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-md);
+}
+
+/* Trigger flip on hover */
+.gallery-card:hover .gallery-card-inner {
+  transform: rotateY(180deg);
+}
+
+/* Front and Back positioning */
+.gallery-card-front,
+.gallery-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  background-color: var(--background);
+}
+
+/* Front of card */
+.gallery-card-front {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Back of card (rotated by default) */
+.gallery-card-back {
+  transform: rotateY(180deg);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2rem;
+  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
+  color: var(--text-white);
+}
+
+/* Gallery Card Image (Front) */
+.gallery-card-image {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-color: var(--background-light);
+  overflow: hidden;
+  flex: 1;
+}
+
+.gallery-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Gallery Card Badge (Front) */
+.gallery-card-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius-sm);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: var(--shadow-md);
+  z-index: 1;
+}
+
+.badge-custom {
+  background-color: var(--primary-blue);
+  color: var(--text-white);
+}
+
+.badge-refurbished {
+  background-color: var(--success);
+  color: var(--text-white);
+}
+
+.badge-available {
+  background-color: var(--warning);
+  color: var(--text-white);
+}
+
+/* Back of Card - Title */
+.gallery-card-back .gallery-card-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-white);
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+/* Back of Card - Price */
+.gallery-card-back .gallery-card-price {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-white);
+  margin-bottom: 1.5rem;
+  text-align: center;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Back of Card - Specs */
+.gallery-card-back .gallery-card-specs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  text-align: left;
+}
+
+.gallery-card-back .spec-item {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.95);
+  padding: 0.5rem 0;
+}
+
+.gallery-card-back .spec-item strong {
+  color: var(--text-white);
+  font-weight: 600;
+  display: inline-block;
+  min-width: 100px;
+}
+
+/* Computer Details Modal */
+.computer-modal-content {
+  max-width: 900px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.computer-details-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  padding: 1rem 0;
+}
+
+.computer-details-image {
+  width: 100%;
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  background-color: var(--background-light);
+}
+
+.computer-details-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.computer-details-info h2 {
+  font-size: 1.75rem;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.computer-detail-badge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius-sm);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+}
+
+.computer-details-price {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-blue);
+  margin-bottom: 2rem;
+}
+
+.computer-specs-list {
+  list-style: none;
+  padding: 0;
+}
+
+.computer-specs-list li {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--background-light);
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.95rem;
+}
+
+.computer-specs-list li:last-child {
+  border-bottom: none;
+}
+
+.spec-label {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.spec-value {
+  color: var(--text-secondary);
+  text-align: right;
+}
+
+.computer-details-actions {
+  margin-top: 2rem;
+  display: flex;
+  gap: 1rem;
+}
+
+/* ================================================
+   23. GALLERY RESPONSIVE STYLES
+   Mobile optimization for gallery
+   ================================================ */
+@media (max-width: 768px) {
+  .gallery-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .gallery-filters {
+    gap: 0.5rem;
+  }
+
+  .filter-btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  /* On mobile, make flip cards taller for better readability */
+  .gallery-card {
+    height: 450px;
+  }
+
+  .gallery-card-back {
+    padding: 1.5rem;
+  }
+
+  .gallery-card-back .gallery-card-title {
+    font-size: 1.25rem;
+  }
+
+  .gallery-card-back .gallery-card-price {
+    font-size: 1.5rem;
+  }
+
+  .gallery-card-back .spec-item {
+    font-size: 0.85rem;
+  }
+
+  .computer-details-container {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .computer-details-price {
+    font-size: 1.5rem;
+  }
+
+  .computer-details-actions {
+    flex-direction: column;
+  }
+
+  .computer-details-actions .btn {
+    width: 100%;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .gallery-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

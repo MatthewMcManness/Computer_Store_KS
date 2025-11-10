@@ -604,6 +604,209 @@ function smoothScrollTo(selector) {
 }
 
 // ================================================
+// 7. GALLERY FUNCTIONALITY
+// Handles gallery filtering and computer details modal
+// ================================================
+
+// Computer data - in a real application, this would come from a database
+const computerData = {
+  1: {
+    id: 1,
+    name: 'Gaming Pro Desktop',
+    type: 'desktop',
+    category: 'custom',
+    price: '$1,299',
+    image: './assets/gallery/desktop-1.jpg',
+    specs: {
+      'Processor': 'Intel Core i7-12700K (12-Core, 3.6GHz base, 5.0GHz turbo)',
+      'Memory': '32GB DDR4 3200MHz (2x16GB)',
+      'Storage': '1TB NVMe M.2 SSD',
+      'Graphics': 'NVIDIA GeForce RTX 3070 (8GB GDDR6)',
+      'Motherboard': 'ASUS ROG Strix Z690-A',
+      'Power Supply': '750W 80+ Gold Certified',
+      'Cooling': 'Liquid CPU Cooler with RGB',
+      'Case': 'NZXT H510 Elite with Tempered Glass',
+      'Operating System': 'Windows 11 Pro',
+      'Warranty': '1 Year Parts & Labor'
+    }
+  },
+  2: {
+    id: 2,
+    name: 'Business Pro Laptop',
+    type: 'laptop',
+    category: 'refurbished',
+    price: '$599',
+    image: './assets/gallery/laptop-1.jpg',
+    specs: {
+      'Processor': 'Intel Core i5-11300H (4-Core, 3.1GHz base)',
+      'Memory': '16GB DDR4 3200MHz',
+      'Storage': '512GB NVMe SSD',
+      'Display': '15.6" FHD (1920x1080) IPS Display',
+      'Graphics': 'Intel Iris Xe Graphics',
+      'Battery': 'Up to 8 hours',
+      'Connectivity': 'Wi-Fi 6, Bluetooth 5.0',
+      'Ports': '2x USB-C, 2x USB-A, HDMI, Audio Jack',
+      'Operating System': 'Windows 11 Pro',
+      'Warranty': '90 Days Parts & Labor'
+    }
+  },
+  3: {
+    id: 3,
+    name: 'Office Essential Desktop',
+    type: 'desktop',
+    category: 'refurbished',
+    price: '$449',
+    image: './assets/gallery/desktop-2.jpg',
+    specs: {
+      'Processor': 'Intel Core i5-10400 (6-Core, 2.9GHz base)',
+      'Memory': '16GB DDR4 2666MHz',
+      'Storage': '500GB SATA SSD',
+      'Graphics': 'Intel UHD Graphics 630',
+      'Motherboard': 'Dell Optiplex Motherboard',
+      'Power Supply': '260W Power Supply',
+      'Case': 'Dell Optiplex Small Form Factor',
+      'Ports': '6x USB, DisplayPort, VGA',
+      'Operating System': 'Windows 11 Pro',
+      'Warranty': '90 Days Parts & Labor'
+    }
+  },
+  4: {
+    id: 4,
+    name: 'Creator Pro Laptop',
+    type: 'laptop',
+    category: 'custom',
+    price: '$1,599',
+    image: './assets/gallery/laptop-2.jpg',
+    specs: {
+      'Processor': 'AMD Ryzen 9 5900HX (8-Core, 3.3GHz base, 4.6GHz boost)',
+      'Memory': '32GB DDR4 3200MHz',
+      'Storage': '1TB NVMe M.2 SSD',
+      'Display': '15.6" QHD (2560x1440) 165Hz IPS',
+      'Graphics': 'NVIDIA GeForce RTX 3070 (8GB GDDR6)',
+      'Battery': 'Up to 6 hours (90Wh)',
+      'Cooling': 'Advanced Thermal System with Dual Fans',
+      'Ports': '3x USB-C, 2x USB-A, HDMI 2.1, SD Card Reader',
+      'Operating System': 'Windows 11 Pro',
+      'Warranty': '1 Year Parts & Labor'
+    }
+  },
+  5: {
+    id: 5,
+    name: 'Professional Workstation',
+    type: 'desktop',
+    category: 'custom',
+    price: '$2,199',
+    image: './assets/gallery/desktop-3.jpg',
+    specs: {
+      'Processor': 'Intel Core i9-12900K (16-Core, 3.2GHz base, 5.2GHz turbo)',
+      'Memory': '64GB DDR5 4800MHz (4x16GB)',
+      'Storage': '2TB NVMe M.2 SSD + 4TB HDD',
+      'Graphics': 'NVIDIA RTX A4000 (16GB GDDR6)',
+      'Motherboard': 'ASUS ProArt Z690-Creator',
+      'Power Supply': '850W 80+ Platinum Certified',
+      'Cooling': 'Custom Water Cooling Loop',
+      'Case': 'Fractal Design Define 7 XL',
+      'Operating System': 'Windows 11 Pro for Workstations',
+      'Warranty': '2 Year Parts & Labor'
+    }
+  },
+  6: {
+    id: 6,
+    name: 'Student Essential Laptop',
+    type: 'laptop',
+    category: 'refurbished',
+    price: '$349',
+    image: './assets/gallery/laptop-3.jpg',
+    specs: {
+      'Processor': 'Intel Core i3-10110U (2-Core, 2.1GHz base)',
+      'Memory': '8GB DDR4 2666MHz',
+      'Storage': '256GB NVMe SSD',
+      'Display': '14" HD (1366x768) Display',
+      'Graphics': 'Intel UHD Graphics',
+      'Battery': 'Up to 7 hours',
+      'Connectivity': 'Wi-Fi 5, Bluetooth 4.2',
+      'Ports': '2x USB-A, 1x USB-C, HDMI, Audio Jack',
+      'Operating System': 'Windows 11 Home',
+      'Warranty': '90 Days Parts & Labor'
+    }
+  }
+};
+
+/**
+ * Initialize gallery filters
+ */
+function initializeGalleryFilters() {
+  const filterButtons = document.querySelectorAll('.filter-btn');
+
+  filterButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      // Remove active class from all buttons
+      filterButtons.forEach(btn => btn.classList.remove('active'));
+
+      // Add active class to clicked button
+      this.classList.add('active');
+
+      // Get filter value
+      const filter = this.getAttribute('data-filter');
+
+      // Filter gallery cards
+      filterGalleryCards(filter);
+    });
+  });
+}
+
+/**
+ * Filter gallery cards based on selected filter
+ * @param {string} filter - The filter to apply
+ */
+function filterGalleryCards(filter) {
+  const cards = document.querySelectorAll('.gallery-card');
+
+  cards.forEach(card => {
+    const cardType = card.getAttribute('data-type');
+    const cardCategory = card.getAttribute('data-category');
+
+    if (filter === 'all') {
+      card.classList.remove('hidden');
+    } else if (filter === cardType || filter === cardCategory) {
+      card.classList.remove('hidden');
+    } else {
+      card.classList.add('hidden');
+    }
+  });
+}
+
+/**
+ * Initialize flip card interactions
+ * Adds click handlers for opening contact modal from cards
+ */
+function initializeFlipCards() {
+  const galleryCards = document.querySelectorAll('.gallery-card');
+
+  galleryCards.forEach(card => {
+    // Optional: Add click handler to open contact modal when clicking on the back of the card
+    card.addEventListener('click', function(e) {
+      // You can add additional click functionality here if needed
+      // For example, opening a contact modal when clicking the flipped card
+    });
+  });
+}
+
+/**
+ * Initialize gallery functionality
+ */
+function initializeGallery() {
+  // Only initialize if gallery page exists
+  const galleryPage = document.getElementById('gallery-page');
+  if (!galleryPage) return;
+
+  initializeGalleryFilters();
+  initializeFlipCards();
+
+  console.log('Gallery initialized successfully!');
+}
+
+// ================================================
 // 8. INITIALIZATION
 // Initialize all components when DOM is ready
 // ================================================
@@ -621,6 +824,7 @@ function initializeWebsite() {
   initializeContactForm();
   initializeTestimonialsCarousel();
   initializeScrollEffects();
+  initializeGallery();
   
   // Add smooth scroll behavior to anchor links
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {

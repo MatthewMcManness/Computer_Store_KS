@@ -1,0 +1,74 @@
+═══════════════════════════════════════════════════════════
+  GALLERY MANAGER - QUICK START GUIDE
+  Computer Store Kansas Website
+═══════════════════════════════════════════════════════════
+
+📋 WHAT YOU NEED:
+  • Python installed on your computer
+  • This folder open in your terminal/command prompt
+
+⚙️ INSTALLATION (One-time setup):
+
+  Step 1: Install required packages
+
+    uv pip install customtkinter pillow beautifulsoup4
+
+    Or if you don't have uv:
+
+    pip install customtkinter pillow beautifulsoup4
+
+🚀 HOW TO RUN:
+
+  Double-click: gallery_manager.py
+
+  Or in terminal:
+
+    python gallery_manager.py
+
+💡 QUICK TUTORIAL:
+
+  1. The app opens with three panels
+
+  2. LEFT PANEL = List of computers
+     • Click any computer to preview it
+     • Use filters to narrow down the list
+
+  3. MIDDLE PANEL = Preview
+     • See how it looks on the website
+
+  4. RIGHT PANEL = Publishing
+     • Publish your changes to update the website
+
+  5. ADD A COMPUTER:
+     • Click "Add New" button
+     • Fill in the form (name, price, specs, image)
+     • Click "Save"
+
+  6. EDIT A COMPUTER:
+     • Select a computer from the list
+     • Click "Edit Selected"
+     • Make changes
+     • Click "Save"
+
+  7. DELETE A COMPUTER:
+     • Select a computer
+     • Click "Delete Selected"
+     • Confirm
+
+  8. PUBLISH TO WEBSITE:
+     • Click "Publish Changes" in right panel
+     • Confirm
+     • Wait for success message
+     • Your website is now updated!
+
+🛡️ SAFETY:
+  • Automatic backups before every change
+  • Changes only go live when you click "Publish"
+  • All backups saved in backups/ folder
+
+📖 MORE HELP:
+  Read GALLERY_MANAGER_README.md for complete documentation
+
+═══════════════════════════════════════════════════════════
+  Ready to manage your gallery! Have fun! 🎉
+═══════════════════════════════════════════════════════════

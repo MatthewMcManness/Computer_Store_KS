@@ -379,6 +379,7 @@ header nav ul .nav-action.silver a:hover::before {
   position: relative;
   overflow: visible;
   clip-path: polygon(0 0, 100% 0, 100% 85%, 50% 100%, 0 85%);
+  z-index: 0;  /* Set to 0 so overlapping sections (z-index: 10) appear on top */
 }
 
 /* Subtle pattern overlay */
@@ -396,7 +397,7 @@ header nav ul .nav-action.silver a:hover::before {
 
 .hero .container {
   position: relative;
-  z-index: 1;
+  z-index: 2;  /* Above hero background but below overlapping sections */
 }
 
 .hero .hero-title img {
@@ -1514,8 +1515,12 @@ footer p {
    18. ABOUT PAGE SPECIFIC STYLES
    ================================================ */
 .about {
-  padding: 5rem 0;
-  background-color: var(--background);
+  background: linear-gradient(135deg, #e8f0fe 0%, #d6e4fd 100%);  /* Solid light blue gradient - no transparency */
+}
+
+/* Remove default padding when used with horizontal-diamond (it has its own padding) */
+.about.horizontal-diamond {
+  padding: 100px 18%;
 }
 
 .about h2 {
@@ -2113,6 +2118,55 @@ form button {
   background: var(--background);
   clip-path: polygon(0 0, 100% 0, 100% 50%, 0 100%);
   z-index: 1;
+}
+
+/* Horizontal Diamond Divider (points on left and right sides) */
+.horizontal-diamond {
+  position: relative;
+  overflow: hidden;
+  clip-path: polygon(
+    0 50%,      /* Left point at middle */
+    15% 0,      /* Top left */
+    85% 0,      /* Top right */
+    100% 50%,   /* Right point at middle */
+    85% 100%,   /* Bottom right */
+    15% 100%    /* Bottom left */
+  );
+  padding: 100px 18%;  /* 18% horizontal padding to clear the 15% clip + extra space */
+}
+
+/* Responsive padding for horizontal diamond on smaller screens */
+@media (max-width: 768px) {
+  .horizontal-diamond {
+    padding: 80px 20%;  /* More padding on mobile for better spacing */
+  }
+}
+
+@media (max-width: 480px) {
+  .horizontal-diamond {
+    padding: 60px 22%;  /* Even more padding on very small screens */
+  }
+}
+
+/* Silver Plan Intro Section */
+.silver-plan-intro {
+  background: var(--background);
+  text-align: center;
+}
+
+.silver-plan-intro .container {
+  max-width: 900px;
+}
+
+.silver-plan-intro h2 {
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+}
+
+.silver-plan-intro p {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  line-height: 1.8;
 }
 
 /* Textured Backgrounds */

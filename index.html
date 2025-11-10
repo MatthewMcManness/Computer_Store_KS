@@ -90,7 +90,7 @@ DEPENDENCIES: style.css, script.js
        EXTERNAL STYLESHEETS
        CSS files for styling and layout
        ================================================ -->
-  <link href="style.css?v=33" rel="stylesheet"/>
+  <link href="style.css?v=42" rel="stylesheet"/>
   <!-- ================================================
        STRUCTURED DATA (JSON-LD)
        Rich snippets for search engines - business information
@@ -341,19 +341,17 @@ DEPENDENCIES: style.css, script.js
      <p>
       Count on The Computer Store for all your computer service needs. Fast, friendly, and reliable service you can trust.
      </p>
-     <button class="btn btn-white contact-modal-btn">
-      Talk to an Expert
-     </button>
     </div>
    </section>
    <!-- ================================================
-         NEW: STATS SECTION
-         Display key metrics (like Tech Junkies)
+         NEW: STATS SECTION (MODERNIZED)
+         Display key metrics with overlapping card design
          ================================================ -->
-   <section class="stats-section">
+   <section class="stats-section modern diagonal-divider overlap-card-container">
+    <div class="diamond-accent diamond-accent-1"></div>
     <div class="container">
-     <div class="stats-grid">
-      <div class="stat-item">
+     <div class="stats-grid overlap-card">
+      <div class="stat-item floating-element">
        <span class="stat-number">
         20+
        </span>
@@ -361,7 +359,7 @@ DEPENDENCIES: style.css, script.js
         Years of Experience
        </span>
       </div>
-      <div class="stat-item">
+      <div class="stat-item floating-element" style="animation-delay: 0.2s;">
        <span class="stat-number">
         2003
        </span>
@@ -369,7 +367,7 @@ DEPENDENCIES: style.css, script.js
         Locally Owned Since
        </span>
       </div>
-      <div class="stat-item">
+      <div class="stat-item floating-element" style="animation-delay: 0.4s;">
        <span class="stat-number">
         1000+
        </span>
@@ -381,10 +379,11 @@ DEPENDENCIES: style.css, script.js
     </div>
    </section>
    <!-- ================================================
-         FOUNDER STORY SECTION
-         Company origin story
+         FOUNDER STORY SECTION (MODERNIZED)
+         Company origin story with textured background
          ================================================ -->
-   <section class="founder">
+   <section class="founder texture-geometric section-elevated">
+    <div class="diamond-accent diamond-accent-2"></div>
     <div class="container">
      <div class="founder-text-full">
       <h2>
@@ -399,8 +398,9 @@ DEPENDENCIES: style.css, script.js
      </div>
     </div>
    </section>
-   <!-- SERVICES OVERVIEW SECTION -->
-   <section class="services">
+   <!-- SERVICES OVERVIEW SECTION (MODERNIZED) -->
+   <section class="services modern texture-circuit diagonal-divider-top">
+    <div class="diamond-accent diamond-accent-3 rotating-element"></div>
     <div class="container">
      <h2>
       What We Do
@@ -409,7 +409,7 @@ DEPENDENCIES: style.css, script.js
       From computer repairs to protection plans and custom builds, we've got everything you need to keep your technology running smoothly.
      </p>
      <div class="cards">
-      <div class="card">
+      <div class="card card-enhanced">
        <h3>
         Computer Service
        </h3>
@@ -417,7 +417,7 @@ DEPENDENCIES: style.css, script.js
         Comprehensive diagnostics, repairs and upgrades for desktops and laptops.
        </p>
       </div>
-      <div class="card">
+      <div class="card card-enhanced">
        <h3>
         Protection Plans
        </h3>
@@ -425,7 +425,7 @@ DEPENDENCIES: style.css, script.js
         Flexible plans to safeguard your system from viruses, malware and identity theft.
        </p>
       </div>
-      <div class="card">
+      <div class="card card-enhanced">
        <h3>
         New Computer Sales
        </h3>
@@ -437,10 +437,10 @@ DEPENDENCIES: style.css, script.js
     </div>
    </section>
    <!-- ================================================
-         NEW: NUMBERED BENEFITS SECTION
-         Why choose us with numbers (like Tech Junkies' "5 Reasons")
+         NEW: NUMBERED BENEFITS SECTION (MODERNIZED)
+         Why choose us with numbers - textured background
          ================================================ -->
-   <section class="benefits-section">
+   <section class="benefits-section texture-dots diagonal-divider">
     <div class="container">
      <h2>
       5 Reasons to Choose Computer Store Kansas
@@ -518,10 +518,10 @@ DEPENDENCIES: style.css, script.js
     </div>
    </section>
    <!-- ================================================
-         TESTIMONIALS SECTION
-         Customer reviews carousel
+         TESTIMONIALS SECTION (MODERNIZED)
+         Customer reviews carousel with modern styling
          ================================================ -->
-   <section class="testimonials">
+   <section class="testimonials diagonal-divider-top">
     <div class="container">
      <h2>
       What Our Clients Say
@@ -538,6 +538,9 @@ DEPENDENCIES: style.css, script.js
          <p class="testimonial-text">
           Signing up for a Computer Protection Plan from The Computer Store was the best decision I've made in years. My computer has never run better and no more worries about spyware stealing my identity while online!
          </p>
+         <div class="quote-icon-close">
+          ❞
+         </div>
          <div class="testimonial-author">
           <div class="author-avatar">
            K
@@ -562,6 +565,9 @@ DEPENDENCIES: style.css, script.js
          <p class="testimonial-text">
           When the Big Store told me they'd have to send my PC in and it would be 2-3 weeks, I decided to try a local store. Not only did The Computer Store fix my problem a lot faster, they did so at just under half the cost.
          </p>
+         <div class="quote-icon-close">
+          ❞
+         </div>
          <div class="testimonial-author">
           <div class="author-avatar">
            M
@@ -586,6 +592,9 @@ DEPENDENCIES: style.css, script.js
          <p class="testimonial-text">
           My hard drive stopped working all together and I had no backup. I thought all was lost but the technician managed to get my drive working long enough to get the data onto another drive saving me a lot of headache and money — thank you Computer Store!
          </p>
+         <div class="quote-icon-close">
+          ❞
+         </div>
          <div class="testimonial-author">
           <div class="author-avatar">
            A

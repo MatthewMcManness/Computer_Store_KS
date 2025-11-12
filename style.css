@@ -1606,6 +1606,23 @@ footer p {
   padding: 100px 18%;
 }
 
+/* On mobile, remove diamond shape for about section too */
+@media (max-width: 768px) {
+  .about.horizontal-diamond {
+    padding: 3rem 0;
+    clip-path: none;
+    overflow: visible;
+  }
+}
+
+@media (max-width: 480px) {
+  .about.horizontal-diamond {
+    padding: 2.5rem 0;
+    clip-path: none;
+    overflow: visible;
+  }
+}
+
 .about h2 {
   text-align: center;
   margin-bottom: 2rem;
@@ -2219,15 +2236,20 @@ form button {
 }
 
 /* Responsive padding for horizontal diamond on smaller screens */
+/* On mobile devices, DISABLE the diamond clip-path entirely for better display */
 @media (max-width: 768px) {
   .horizontal-diamond {
-    padding: 80px 20%;  /* More padding on mobile for better spacing */
+    clip-path: none;  /* Remove diamond shape on mobile */
+    padding: 3rem 0;  /* Standard section padding on mobile */
+    overflow: visible;  /* Allow content to flow normally */
   }
 }
 
 @media (max-width: 480px) {
   .horizontal-diamond {
-    padding: 60px 22%;  /* Even more padding on very small screens */
+    clip-path: none;  /* Remove diamond shape on small mobile */
+    padding: 2.5rem 0;  /* Slightly less padding on very small screens */
+    overflow: visible;  /* Allow content to flow normally */
   }
 }
 

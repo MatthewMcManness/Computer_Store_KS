@@ -1359,7 +1359,12 @@ footer p {
   
   /* Mobile hero */
   .hero {
-    padding: 4rem 0;
+    padding: 4rem 0 8rem 0;
+  }
+
+  /* Extra padding for hero paragraph text on mobile */
+  .hero p {
+    margin-bottom: 3rem;
   }
   
   .hero .hero-title img {
@@ -1482,7 +1487,7 @@ footer p {
 @media (max-width: 480px) {
   /* Extra small mobile adjustments */
   .hero {
-    padding: 3rem 0;
+    padding: 3rem 0 10rem 0;
   }
   
   .silver-plan-badge {

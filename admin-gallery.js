@@ -52,33 +52,44 @@ async function loadComputers() {
         cards.forEach((card, index) => {
             const computer = {
                 id: index,
-                name: card.querySelector('.card-name')?.textContent.trim() || '',
-                type: card.querySelector('.card-type')?.textContent.trim().toLowerCase() || '',
-                price: card.querySelector('.card-price')?.textContent.trim() || '',
-                image: card.querySelector('.card-image')?.src || '',
-                category: '', // Will be determined from badge
+                name: card.querySelector('.gallery-card-title')?.textContent.trim() || '',
+                type: card.getAttribute('data-type') || '',
+                price: card.querySelector('.gallery-card-price')?.textContent.trim() || '',
+                image: card.querySelector('.gallery-card-image img')?.src || '',
+                category: '', // Will be determined from badge or data-category
                 specs: []
             };
 
-            // Get category from badge
-            const badge = card.querySelector('[class*="badge-"]');
-            if (badge) {
-                if (badge.classList.contains('badge-custom')) {
-                    computer.category = 'custom';
-                } else if (badge.classList.contains('badge-refurbished')) {
-                    computer.category = 'refurbished';
-                } else if (badge.classList.contains('badge-new')) {
-                    computer.category = 'new';
+            // Get category from data-category attribute or badge
+            const dataCategory = card.getAttribute('data-category');
+            if (dataCategory) {
+                computer.category = dataCategory;
+            } else {
+                const badge = card.querySelector('[class*="badge-"]');
+                if (badge) {
+                    if (badge.classList.contains('badge-custom')) {
+                        computer.category = 'custom';
+                    } else if (badge.classList.contains('badge-refurbished')) {
+                        computer.category = 'refurbished';
+                    } else if (badge.classList.contains('badge-new')) {
+                        computer.category = 'new';
+                    } else if (badge.classList.contains('badge-black-friday')) {
+                        computer.category = 'refurbished'; // Black Friday items are refurbished
+                    }
                 }
             }
 
-            // Get specs
-            const specItems = card.querySelectorAll('.spec-item');
-            specItems.forEach(spec => {
-                const label = spec.querySelector('.spec-label')?.textContent.trim() || '';
-                const value = spec.querySelector('.spec-value')?.textContent.trim() || '';
-                if (label && value) {
-                    computer.specs.push({ label, value });
+            // Get specs from gallery-card-specs section
+            const specItems = card.querySelectorAll('.gallery-card-specs .spec-item');
+            specItems.forEach(item => {
+                const fullText = item.textContent.trim();
+                const strong = item.querySelector('strong');
+                if (strong) {
+                    const label = strong.textContent.replace(/::?$/, '').trim(); // Remove trailing : or ::
+                    const value = fullText.replace(strong.textContent, '').trim();
+                    if (label && value) {
+                        computer.specs.push({ label, value });
+                    }
                 }
             });
 
@@ -455,32 +466,45 @@ async function generateHTML() {
     // Clear existing cards
     galleryGrid.innerHTML = '';
 
-    // Generate new cards
-    computers.forEach(computer => {
+    // Generate new cards with proper flip-card structure
+    computers.forEach((computer, index) => {
         const badgeClass = computer.category === 'custom' ? 'badge-custom' :
                           computer.category === 'new' ? 'badge-new' : 'badge-refurbished';
         const badgeText = computer.category === 'custom' ? 'Custom Build' :
                          computer.category === 'new' ? 'New' : 'Refurbished';
 
         const specsHTML = computer.specs.slice(0, 4).map(spec => `
-                    <div class="spec-item">
-                        <div class="spec-label">${spec.label}</div>
-                        <div class="spec-value">${spec.value}</div>
-                    </div>`).join('\n                ');
+          <div class="spec-item">
+           <strong>
+            ${spec.label}:
+           </strong>
+           ${spec.value}
+          </div>`).join('\n         ');
 
         const cardHTML = `
-            <div class="gallery-card">
-                <img src="${computer.image}" alt="${computer.name}" class="card-image">
-                <div class="card-badge ${badgeClass}">${badgeText}</div>
-                <div class="card-content">
-                    <div class="card-type">${computer.type}</div>
-                    <div class="card-name">${computer.name}</div>
-                    <div class="card-price">${computer.price}</div>
-                    <div class="card-specs">
-                ${specsHTML}
-                    </div>
-                </div>
-            </div>`;
+      <div class="gallery-card" data-category="${computer.category}" data-computer-id="${index + 1}" data-type="${computer.type}">
+       <div class="gallery-card-inner">
+        <div class="gallery-card-front">
+         <div class="gallery-card-badge ${badgeClass}">
+          ${badgeText}
+         </div>
+         <div class="gallery-card-image">
+          <img alt="${computer.name}" onerror="this.src='./assets/logo.png'" src="${computer.image}"/>
+         </div>
+        </div>
+        <div class="gallery-card-back">
+         <h3 class="gallery-card-title">
+          ${computer.name}
+         </h3>
+         <div class="gallery-card-price">
+          ${computer.price}
+         </div>
+         <div class="gallery-card-specs">
+         ${specsHTML}
+         </div>
+        </div>
+       </div>
+      </div>`;
 
         galleryGrid.innerHTML += cardHTML;
     });

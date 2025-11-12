@@ -707,7 +707,7 @@ Images are automatically:
                                     "This will:\n"
                                     "1. Add index.html and gallery images to Git\n"
                                     "2. Commit with automated message\n"
-                                    "3. Push to BOTH current branch AND main\n\n"
+                                    "3. Push to remote repository\n\n"
                                     "Continue?")
 
         if not result:
@@ -716,7 +716,7 @@ Images are automatically:
         # Create progress window
         progress_window = ctk.CTkToplevel(self)
         progress_window.title("Publishing Changes")
-        progress_window.geometry("600x450")
+        progress_window.geometry("600x400")
         progress_window.transient(self)
         progress_window.grab_set()
 
@@ -724,7 +724,7 @@ Images are automatically:
                            font=ctk.CTkFont(size=16, weight="bold"))
         label.pack(pady=10)
 
-        output_text = ctk.CTkTextbox(progress_window, width=560, height=350)
+        output_text = ctk.CTkTextbox(progress_window, width=560, height=300)
         output_text.pack(padx=20, pady=10)
 
         def run_git_commands():
@@ -745,15 +745,6 @@ Images are automatically:
                     (['git', 'commit', '-m', 'Update gallery via Gallery Manager'], "Creating commit..."),
                     (['git', 'push', 'origin', current_branch], f"Pushing to {current_branch}..."),
                 ]
-
-                # If not on main, also push to main
-                if current_branch != 'main':
-                    commands.extend([
-                        (['git', 'checkout', 'main'], "Switching to main branch..."),
-                        (['git', 'merge', current_branch, '--no-edit'], "Merging changes into main..."),
-                        (['git', 'push', 'origin', 'main'], "Pushing to main..."),
-                        (['git', 'checkout', current_branch], f"Switching back to {current_branch}...")
-                    ])
 
                 for cmd, description in commands:
                     output_text.insert("end", f"\n{description}\n")
@@ -778,14 +769,14 @@ Images are automatically:
                             raise Exception(f"Git command failed: {result.stderr}")
 
                 output_text.insert("end", "\n✓ Publishing completed successfully!\n")
-                output_text.insert("end", "✓ Changes pushed to main branch - website will update shortly!\n")
+                output_text.insert("end", "✓ Changes pushed - website will update shortly!\n")
                 output_text.see("end")
 
                 close_btn = ctk.CTkButton(progress_window, text="Close",
                                          command=progress_window.destroy)
                 close_btn.pack(pady=10)
 
-                self.update_status("Changes published to Git (main branch) successfully")
+                self.update_status("Changes published to Git successfully")
 
             except subprocess.TimeoutExpired:
                 output_text.insert("end", "\n✗ Error: Git command timed out\n")

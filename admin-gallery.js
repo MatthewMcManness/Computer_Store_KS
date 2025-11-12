@@ -191,13 +191,23 @@ document.querySelectorAll('.filter-tab').forEach(tab => {
 
 // Modal functions
 function openAddModal() {
-    document.getElementById('modal-title').textContent = 'Add New Computer';
-    document.getElementById('computer-form').reset();
-    document.getElementById('edit-index').value = '';
-    document.getElementById('image-preview').style.display = 'none';
-    document.getElementById('upload-prompt').style.display = 'block';
-    document.getElementById('upload-area').classList.remove('has-image');
-    document.getElementById('computer-modal').classList.add('show');
+    console.log('Opening add modal...');
+    try {
+        document.getElementById('modal-title').textContent = 'Add New Computer';
+        document.getElementById('computer-form').reset();
+        document.getElementById('edit-index').value = '';
+        document.getElementById('image-preview').style.display = 'none';
+        document.getElementById('upload-prompt').style.display = 'block';
+        document.getElementById('upload-area').classList.remove('has-image');
+
+        const modal = document.getElementById('computer-modal');
+        console.log('Modal element:', modal);
+        modal.classList.add('show');
+        console.log('Modal classes:', modal.className);
+    } catch (error) {
+        console.error('Error opening modal:', error);
+        alert('Error opening modal: ' + error.message);
+    }
 }
 
 function openEditModal(computer) {
@@ -557,8 +567,14 @@ document.addEventListener('dblclick', (e) => {
 });
 
 // Initialize
+console.log('Initializing Gallery Manager...');
+console.log('Checking authentication...');
 checkAuth();
-loadComputers();
+console.log('Loading computers...');
+loadComputers().catch(err => {
+    console.error('Failed to load computers:', err);
+    showToast('Failed to load gallery. Please check console for errors.', 'error');
+});
 
 // Prevent accidental navigation away
 window.addEventListener('beforeunload', (e) => {

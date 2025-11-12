@@ -1,11 +1,19 @@
 // Admin Gallery Manager JavaScript
 // Handles loading, editing, and saving computer gallery data
 
+// API Configuration - auto-detect environment
+const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3001'  // Local development
+    : 'https://computer-store-gallery-api.onrender.com'; // Production (update after deploying)
+
+console.log('Using API URL:', API_URL);
+
 // State management
 let computers = [];
 let selectedComputer = null;
 let hasUnsavedChanges = false;
 let currentFilter = 'all';
+let blackFridayEnabled = false;
 
 // Authentication check
 function checkAuth() {
@@ -422,7 +430,7 @@ async function publishChanges() {
         const password = sessionStorage.getItem('admin_password');
 
         // Call API to update and commit
-        const response = await fetch('http://localhost:3001/api/gallery/update', {
+        const response = await fetch(`${API_URL}/api/gallery/update`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

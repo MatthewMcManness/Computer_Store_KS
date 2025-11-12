@@ -224,6 +224,11 @@
     </div>
 
     <script>
+        // API Configuration - auto-detect environment
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:3001'  // Local development
+            : 'https://computer-store-gallery-api.onrender.com'; // Production
+
         const loginForm = document.getElementById('login-form');
         const passwordInput = document.getElementById('password');
         const loginBtn = document.getElementById('login-btn');
@@ -249,7 +254,7 @@
 
             // Verify password with backend API
             try {
-                const response = await fetch('http://localhost:3001/api/auth/login', {
+                const response = await fetch(`${API_URL}/api/auth/login`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

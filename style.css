@@ -1478,9 +1478,31 @@ footer p {
   .section {
     padding: 3rem 0;
   }
-  
+
   .section-lg {
     padding: 4rem 0;
+  }
+
+  /* Better heading text wrapping on tablets */
+  h1, h2, h3 {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  /* Ensure benefits section headings don't truncate */
+  .benefits-section h2 {
+    padding: 0 1rem;
+    line-height: 1.3;
+  }
+
+  /* Improve content card spacing */
+  .overlap-card {
+    padding: 2.5rem 1.5rem;
+  }
+
+  /* Better stat card display on tablets */
+  .stat-item {
+    padding: 2rem 1.5rem;
   }
 }
 
@@ -1489,30 +1511,86 @@ footer p {
   .hero {
     padding: 3rem 0 10rem 0;
   }
-  
+
   .silver-plan-badge {
     padding: 1rem 1.5rem;
   }
-  
+
   .badge-text {
     font-size: 2rem;
   }
-  
+
   .badge-subtext {
     font-size: 1.1rem;
   }
-  
+
   .testimonial-content {
     padding: 2rem 1.5rem;
   }
-  
+
   .benefit-item {
     flex-direction: column;
     text-align: center;
   }
-  
+
   .benefit-number {
     margin: 0 auto;
+  }
+
+  /* Fix for section headings getting cut off */
+  h2 {
+    font-size: 1.75rem;
+    line-height: 1.3;
+    padding: 0 1rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+
+  /* Better mobile padding for all sections */
+  .section,
+  .benefits-section,
+  .services,
+  .about,
+  .cta {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  /* Ensure container doesn't exceed viewport */
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    max-width: 100%;
+  }
+
+  /* Fix stat cards spacing on very small screens */
+  .stat-item {
+    padding: 1.5rem 1rem;
+    margin-bottom: 1rem;
+  }
+
+  /* Prevent content from being hidden by browser UI elements */
+  body {
+    padding-bottom: 2rem;
+  }
+
+  /* Fix overlap card margins */
+  .overlap-card {
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+  }
+
+  /* Improve card readability */
+  .card {
+    padding: 1.5rem 1rem;
+  }
+
+  /* Better button sizing for mobile */
+  .btn {
+    padding: 0.875rem 1.75rem;
+    font-size: 1rem;
+    min-width: auto;
   }
 }
 

@@ -397,15 +397,18 @@ function initializeModals() {
   const loginBtn = document.getElementById('login-btn');
   const loginModalClose = document.getElementById('modal-close');
   const loginModal = document.getElementById('login-modal');
-  
+
   if (loginBtn) {
-    loginBtn.addEventListener('click', openLoginModal);
+    // Redirect to admin login page instead of opening modal
+    loginBtn.addEventListener('click', function() {
+      window.location.href = 'admin-login.html';
+    });
   }
-  
+
   if (loginModalClose) {
     loginModalClose.addEventListener('click', closeLoginModal);
   }
-  
+
   if (loginModal) {
     loginModal.addEventListener('click', function(e) {
       if (e.target === loginModal) {

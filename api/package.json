@@ -1,0 +1,31 @@
+{
+  "name": "computer-store-gallery-api",
+  "version": "1.0.0",
+  "description": "Backend API for Computer Store Kansas Web Gallery Manager",
+  "main": "gallery-api.js",
+  "scripts": {
+    "start": "node gallery-api.js",
+    "dev": "nodemon gallery-api.js"
+  },
+  "keywords": [
+    "gallery",
+    "api",
+    "github",
+    "cms"
+  ],
+  "author": "Computer Store Kansas",
+  "license": "MIT",
+  "dependencies": {
+    "@octokit/rest": "^20.0.2",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "multer": "^2.0.0-rc.4",
+    "sharp": "^0.33.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

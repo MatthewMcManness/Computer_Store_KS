@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Administrator Login - Computer Store Kansas</title>
+    <link rel="icon" href="./assets/logo.png" type="image/png">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 3rem;
+            width: 100%;
+            max-width: 450px;
+            margin: 2rem;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-logo img {
+            width: 50px;
+            height: 50px;
+            filter: brightness(0) invert(1);
+        }
+
+        .login-header h1 {
+            font-size: 1.75rem;
+            color: #1a202c;
+            margin: 0 0 0.5rem 0;
+            font-weight: 700;
+        }
+
+        .login-header p {
+            color: #718096;
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            color: #2d3748;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-top: 1rem;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 0.875rem 1rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            display: none;
+            border-left: 4px solid #c53030;
+        }
+
+        .error-message.show {
+            display: block;
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+
+        .back-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s ease;
+        }
+
+        .back-link a:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .login-btn.loading .btn-text {
+            display: none;
+        }
+
+        .login-btn.loading .loading-spinner {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <div class="login-logo">
+                <img src="./assets/logo.png" alt="Computer Store Kansas Logo">
+            </div>
+            <h1>Administrator Login</h1>
+            <p>Gallery Management System</p>
+        </div>
+
+        <div class="error-message" id="error-message">
+            Invalid password. Please try again.
+        </div>
+
+        <form id="login-form">
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Enter admin password"
+                    autocomplete="current-password"
+                    required
+                    autofocus
+                >
+            </div>
+
+            <button type="submit" class="login-btn" id="login-btn">
+                <span class="btn-text">Sign In</span>
+                <div class="loading-spinner"></div>
+            </button>
+        </form>
+
+        <div class="back-link">
+            <a href="index.html">← Back to Website</a>
+        </div>
+    </div>
+
+    <script>
+        const loginForm = document.getElementById('login-form');
+        const passwordInput = document.getElementById('password');
+        const loginBtn = document.getElementById('login-btn');
+        const errorMessage = document.getElementById('error-message');
+
+        // Simple password authentication (will be enhanced with proper security)
+        const ADMIN_PASSWORD_HASH = ''; // Will be set securely
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Clear any previous errors
+            errorMessage.classList.remove('show');
+
+            // Show loading state
+            loginBtn.classList.add('loading');
+            loginBtn.disabled = true;
+
+            // Simulate authentication delay (replace with real auth)
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            const password = passwordInput.value;
+
+            // Simple authentication check (TEMPORARY - will use proper backend auth)
+            // For now, hardcoded password for testing
+            if (password === 'admin123') {
+                // Set session
+                sessionStorage.setItem('admin_authenticated', 'true');
+                sessionStorage.setItem('admin_login_time', Date.now().toString());
+                sessionStorage.setItem('admin_password', password); // Store for API calls
+
+                // Redirect to gallery manager
+                window.location.href = 'admin-gallery.html';
+            } else {
+                // Show error
+                errorMessage.classList.add('show');
+                loginBtn.classList.remove('loading');
+                loginBtn.disabled = false;
+                passwordInput.value = '';
+                passwordInput.focus();
+            }
+        });
+
+        // Auto-redirect if already authenticated
+        if (sessionStorage.getItem('admin_authenticated') === 'true') {
+            const loginTime = parseInt(sessionStorage.getItem('admin_login_time') || '0');
+            const currentTime = Date.now();
+
+            // Session expires after 8 hours (28800000 ms)
+            if (currentTime - loginTime < 28800000) {
+                window.location.href = 'admin-gallery.html';
+            } else {
+                // Session expired, clear it
+                sessionStorage.removeItem('admin_authenticated');
+                sessionStorage.removeItem('admin_login_time');
+            }
+        }
+    </script>
+</body>
+</html>

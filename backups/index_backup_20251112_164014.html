@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="en">
+ <!--
+===============================================
+COMPUTER STORE KANSAS - MAIN HTML FILE
+===============================================
+VERSION: 31
+LAST UPDATED: 2025-10-29
+CHANGES: Modernized design with bright color scheme, added stats section, numbered benefits
+DESCRIPTION: Single-page application with dynamic navigation and modern content management
+DEPENDENCIES: style.css, script.js
+===============================================
+-->
+ <head>
+  <!-- ================================================
+       GOOGLE ANALYTICS 4 TRACKING
+       Tracks page views and user interactions for better insights
+       ================================================ -->
+  <!-- Google tag (gtag.js) -->
+  <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-EQ3ML3VTCZ">
+  </script>
+  <script>
+   window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-EQ3ML3VTCZ');
+  </script>
+  <!-- ================================================
+       BASIC META TAGS & SEO OPTIMIZATION
+       Essential meta tags for search engines and browsers
+       ================================================ -->
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <meta content="Computer Store Kansas - Your trusted computer repair and protection plan provider since 2003. Expert computer services, virus removal, hardware repair, and Silver Plan protection in Topeka, KS." name="description"/>
+  <meta content="computer repair, computer service, Topeka Kansas, virus removal, hardware repair, protection plans, Silver Plan, computer store, PC repair, laptop repair" name="keywords"/>
+  <meta content="Computer Store Kansas" name="author"/>
+  <meta content="index, follow" name="robots"/>
+  <!-- Business Information -->
+  <meta content="US-KS" name="geo.region"/>
+  <meta content="Topeka" name="geo.placename"/>
+  <meta content="39.0473;-95.6890" name="geo.position"/>
+  <meta content="39.0473, -95.6890" name="ICBM"/>
+  <!-- Mobile Optimization -->
+  <meta content="telephone=yes" name="format-detection"/>
+  <meta content="yes" name="mobile-web-app-capable"/>
+  <meta content="yes" name="apple-mobile-web-app-capable"/>
+  <meta content="default" name="apple-mobile-web-app-status-bar-style"/>
+  <meta content="#2563eb" name="theme-color"/>
+  <!-- ================================================
+       OPEN GRAPH TAGS (FACEBOOK, LINKEDIN)
+       Social media sharing optimization
+       ================================================ -->
+  <meta content="Computer Store Kansas - Expert Computer Repair &amp; Protection Plans" property="og:title"/>
+  <meta content="Trusted computer repair and protection services in Topeka, KS since 2003. Professional diagnostics, virus removal, hardware repair, and comprehensive Silver Plan protection." property="og:description"/>
+  <meta content="website" property="og:type"/>
+  <meta content="https://computerstoreks.com" property="og:url"/>
+  <meta content="https://computerstoreks.com/assets/title.png" property="og:image"/>
+  <meta content="Computer Store Kansas" property="og:site_name"/>
+  <meta content="en_US" property="og:locale"/>
+  <!-- Business Open Graph -->
+  <meta content="Topeka" property="business:contact_data:locality"/>
+  <meta content="Kansas" property="business:contact_data:region"/>
+  <meta content="66604" property="business:contact_data:postal_code"/>
+  <meta content="United States" property="business:contact_data:country_name"/>
+  <!-- ================================================
+       TWITTER CARD TAGS
+       Twitter sharing optimization
+       ================================================ -->
+  <meta content="summary_large_image" name="twitter:card"/>
+  <meta content="Computer Store Kansas - Expert Computer Repair &amp; Protection Plans" name="twitter:title"/>
+  <meta content="Trusted computer repair and protection services in Topeka, KS since 2003. Professional diagnostics, virus removal, hardware repair, and comprehensive Silver Plan protection." name="twitter:description"/>
+  <meta content="https://computerstoreks.com/assets/title.png" property="twitter:image"/>
+  <!-- ================================================
+       CANONICAL URL & ALTERNATE VERSIONS
+       SEO optimization for duplicate content prevention
+       ================================================ -->
+  <link href="https://computerstoreks.com" rel="canonical"/>
+  <!-- ================================================
+       PAGE TITLE & FAVICON
+       Dynamic title updated by JavaScript, favicon for browsers
+       ================================================ -->
+  <title>
+   Computer Store Kansas - Expert Computer Repair &amp; Protection Plans Since 2003
+  </title>
+  <!-- Favicon and Apple Touch Icons -->
+  <link href="./assets/logo.png" rel="icon" type="image/png"/>
+  <link href="./assets/logo.png" rel="apple-touch-icon"/>
+  <link href="./assets/logo.png" rel="shortcut icon"/>
+  <!-- ================================================
+       EXTERNAL STYLESHEETS
+       CSS files for styling and layout
+       ================================================ -->
+  <link href="style.css?v=42" rel="stylesheet"/>
+  <!-- ================================================
+       STRUCTURED DATA (JSON-LD)
+       Rich snippets for search engines - business information
+       ================================================ -->
+  <script type="application/ld+json">
+   {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "Computer Store Kansas",
+    "description": "Professional computer repair, diagnostics, virus removal, and protection plans serving Topeka, Kansas since 2003.",
+    "url": "https://computerstoreks.com",
+    "telephone": "785-267-3223",
+    "email": "contact@computerstoreks.com",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "2008 SW Gage Blvd",
+      "addressLocality": "Topeka",
+      "addressRegion": "KS",
+      "postalCode": "66604",
+      "addressCountry": "US"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": 39.0473,
+      "longitude": -95.6890
+    },
+    "openingHours": [
+      "Mo-Fr 10:00-18:00",
+      "Sa 10:00-14:00"
+    ],
+    "foundingDate": "2003",
+    "founder": {
+      "@type": "Person",
+      "name": "Jim Driggers"
+    },
+    "areaServed": {
+      "@type": "City",
+      "name": "Topeka",
+      "addressRegion": "KS",
+      "addressCountry": "US"
+    },
+    "serviceType": [
+      "Computer Repair",
+      "Virus Removal",
+      "Hardware Repair",
+      "Computer Diagnostics",
+      "Protection Plans",
+      "Computer Sales"
+    ],
+    "priceRange": "$",
+    "paymentAccepted": ["Cash", "Credit Card"],
+    "image": "https://computerstoreks.com/assets/title.png",
+    "logo": "https://computerstoreks.com/assets/logo.png"
+  }
+  </script>
+  <!-- ================================================
+       ADDITIONAL STRUCTURED DATA - SERVICES
+       Rich snippets for services offered
+       ================================================ -->
+  <script type="application/ld+json">
+   {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "Silver Plan Computer Protection",
+    "description": "Comprehensive computer protection plan including anti-virus software, virus removal discounts, preventive maintenance, help desk support, and hardware/software discounts.",
+    "provider": {
+      "@type": "LocalBusiness",
+      "name": "Computer Store Kansas"
+    },
+    "areaServed": {
+      "@type": "City",
+      "name": "Topeka",
+      "addressRegion": "KS"
+    },
+    "offers": {
+      "@type": "Offer",
+      "price": "24.99",
+      "priceCurrency": "USD",
+      "priceSpecification": {
+        "@type": "RecurringPaymentFrequency",
+        "frequency": "monthly"
+      }
+    }
+  }
+  </script>
+ </head>
+ <body>
+  <!-- ================================================
+       SITE HEADER - NAVIGATION SECTION
+       Contains logo, hamburger menu, and navigation links
+       Sticky header that remains at top when scrolling
+       ================================================ -->
+  <header>
+   <div class="container">
+    <!-- Company logo/branding - clickable title graphic -->
+    <h1 class="logo">
+     <img alt="Computer Store Kansas" src="./assets/title.png"/>
+    </h1>
+    <!-- Mobile hamburger menu button - only visible on small screens -->
+    <button aria-expanded="false" aria-label="Open menu" class="hamburger" id="hamburger-button" type="button">
+    </button>
+    <!-- Main navigation menu -->
+    <nav>
+     <ul>
+      <!-- Main page navigation links -->
+      <li>
+       <a class="nav-link active" data-page="home" href="#">
+        Home
+       </a>
+      </li>
+      <li>
+       <a class="nav-link" data-page="about" href="#">
+        About
+       </a>
+      </li>
+      <li>
+       <a class="nav-link" data-page="services" href="#">
+        Services
+       </a>
+      </li>
+      <li>
+       <a class="nav-link" data-page="gallery" href="#">
+        Gallery
+       </a>
+      </li>
+      <!-- Black Friday Sale navigation link - festive styling -->
+      <li class="nav-action black-friday">
+       <a class="nav-link" data-page="black-friday" href="#">
+        Black Friday Sale
+       </a>
+      </li>
+      <!-- Silver Plan navigation link - special styling -->
+      <li class="nav-action silver">
+       <a class="nav-link" data-page="silver-plan" href="#">
+        Silver Plan
+       </a>
+      </li>
+      <!-- Contact button -->
+      <li class="nav-action primary">
+       <a class="nav-link contact-modal-btn" href="#">
+        Contact Us
+       </a>
+      </li>
+     </ul>
+    </nav>
+   </div>
+  </header>
+  <!-- ================================================
+       BLACK FRIDAY SALE PAGE SECTION
+       Dedicated page for Black Friday promotional sale
+       Hidden by default - shown when Black Friday nav is clicked
+       ================================================ -->
+  <div class="page-section" id="black-friday-page">
+   <!-- BLACK FRIDAY PAGE HERO SECTION -->
+   <section class="hero hero-black-friday">
+    <div class="container">
+     <!-- Black Friday Badge Title -->
+     <div class="black-friday-badge">
+      <span class="badge-ribbon">Black Friday</span>
+      <span class="badge-sale-text">MEGA SALE</span>
+     </div>
+     <h2>Incredible Savings on Refurbished Computers</h2>
+     <p class="hero-dates">November 17th - January 1st</p>
+    </div>
+   </section>
+   <!-- BLACK FRIDAY INTRO SECTION -->
+   <section class="black-friday-intro horizontal-diamond texture-circuit overlap-card-container">
+    <div class="diamond-accent diamond-accent-2 rotating-element">
+    </div>
+    <div class="container overlap-card">
+     <h2 class="black-friday-hero-heading">
+      10% Off All Refurbished Computers + Exclusive Bonuses
+     </h2>
+     <p>
+      Take advantage of our biggest sale of the year with unbeatable deals on quality refurbished computers!
+     </p>
+    </div>
+   </section>
+   <!-- BLACK FRIDAY BENEFITS SECTION -->
+   <section class="membership black-friday-benefits">
+    <div class="container">
+     <div class="membership-text-centered">
+      <h2>
+       What You Get With Every Purchase
+      </h2>
+      <!-- Bulleted list of sale benefits -->
+      <ul class="membership-features-enhanced">
+       <li>
+        <strong>10% OFF</strong> the listed price on all refurbished computers
+       </li>
+       <li>
+        <strong>6 Month Parts Warranty</strong> for peace of mind
+       </li>
+       <li>
+        <strong>Full Year of Free Diagnostics</strong> - unlimited visits
+       </li>
+       <li>
+        Limited-time offer - Sale ends January 1st
+       </li>
+      </ul>
+      <!-- Sale description -->
+      <p class="plan-description">
+       This is the perfect time to upgrade or gift a reliable computer. All our refurbished systems are thoroughly tested and come with professional support from The Computer Store.
+      </p>
+     </div>
+    </div>
+   </section>
+   <!-- BLACK FRIDAY CALL-TO-ACTION SECTION -->
+   <section class="cta cta-black-friday">
+    <div class="container">
+     <h2>
+      Ready to Save Big?
+     </h2>
+     <p>
+      Browse our selection of refurbished computers and take advantage of these limited-time offers.
+     </p>
+     <button class="btn btn-white" onclick="window.location.hash=''; setTimeout(function() { document.querySelector('[data-page=gallery]').click(); setTimeout(function() { document.querySelector('[data-filter=refurbished]').click(); }, 100); }, 100);">
+      View Refurbished Computers
+     </button>
+    </div>
+   </section>
+  </div>
+  <!-- ================================================
+       SILVER PLAN PAGE SECTION
+       Dedicated page for Silver Plan protection plan details
+       Hidden by default - shown when Silver Plan nav is clicked
+       ================================================ -->
+  <div class="page-section" id="silver-plan-page">
+   <!-- SILVER PLAN PAGE HERO SECTION -->
+   <section class="hero">
+    <div class="container">
+     <!-- Silver Plan Badge Title -->
+     <div class="silver-plan-badge">
+      <span class="badge-text">
+       Silver Plan
+      </span>
+      <span class="badge-subtext">
+       Protected
+      </span>
+     </div>
+    </div>
+   </section>
+   <!-- SILVER PLAN INTRO SECTION -->
+   <section class="silver-plan-intro horizontal-diamond texture-circuit overlap-card-container">
+    <div class="diamond-accent diamond-accent-2 rotating-element">
+    </div>
+    <div class="container overlap-card">
+     <h2 class="silver-hero-heading">
+      Comprehensive Computer Protection &amp; Peace of Mind
+     </h2>
+     <p>
+      Get complete care for your computer with our affordable monthly plan
+     </p>
+    </div>
+   </section>
+   <!-- SILVER PLAN FEATURES SECTION -->
+   <section class="membership">
+    <div class="container">
+     <div class="membership-text-centered">
+      <h2>
+       Everything You Need to Keep Your Computer Running Smoothly
+      </h2>
+      <!-- Bulleted list of plan features -->
+      <ul class="membership-features-enhanced">
+       <li>
+        Anti-virus software
+       </li>
+       <li>
+        50% off virus removal services
+       </li>
+       <li>
+        Half-price house calls
+       </li>
+       <li>
+        50% off account recovery assistance
+       </li>
+       <li>
+        Preventive maintenance service
+       </li>
+       <li>
+        Limited help desk/remote support
+       </li>
+       <li>
+        Free in-store diagnostics and estimates
+       </li>
+       <li>
+        Performance monitoring and alert service
+       </li>
+       <li>
+        15% discount on labor
+       </li>
+      </ul>
+      <!-- Plan description -->
+      <p class="plan-description">
+       Our Silver Plan provides comprehensive care for your computer. For only
+       <strong>
+        $24.99 per month
+       </strong>
+       (with a three-month commitment), you'll receive comprehensive computer protection and maintenance for peace of mind.
+      </p>
+     </div>
+    </div>
+   </section>
+   <!-- SILVER PLAN CALL-TO-ACTION SECTION -->
+   <section class="cta">
+    <div class="container">
+     <h2>
+      Ready to Get Protected?
+     </h2>
+     <p>
+      Sign up for our Silver Plan today and enjoy comprehensive computer protection.
+     </p>
+     <button class="btn btn-white contact-modal-btn">
+      Sign Up Now
+     </button>
+    </div>
+   </section>
+  </div>
+  <!-- ================================================
+       HOME PAGE SECTION
+       Main landing page content
+       ================================================ -->
+  <div class="page-section active" id="home-page">
+   <!-- BLACK FRIDAY PROMOTIONAL BANNER -->
+   <div class="black-friday-banner">
+    <div class="bf-banner-content">
+     <div class="bf-banner-ribbon"></div>
+     <div class="bf-banner-text">
+      <span class="bf-banner-title">Black Friday Sale!</span>
+      <span class="bf-banner-offer">10% Off All Refurbished Computers</span>
+      <span class="bf-banner-dates">Nov 17 - Jan 1</span>
+     </div>
+     <button class="bf-banner-btn" onclick="document.querySelector('[data-page=black-friday]').click();">
+      Shop Now
+     </button>
+    </div>
+   </div>
+   <!-- HOME PAGE HERO SECTION -->
+   <section class="hero">
+    <div class="container">
+     <!-- Large title graphic for branding -->
+     <div class="hero-title">
+      <img alt="Computer Store Kansas - Expert Computer Repair Since 2003" src="./assets/title.png"/>
+     </div>
+     <!-- Main headline and call-to-action -->
+     <h2>
+      Your Go-To Technology Center Since 2003
+     </h2>
+     <p>
+      Count on The Computer Store for all your computer service needs. Fast, friendly, and reliable service you can trust.
+     </p>
+    </div>
+   </section>
+   <!-- ================================================
+         NEW: STATS SECTION (MODERNIZED)
+         Display key metrics with overlapping card design
+         ================================================ -->
+   <section class="stats-section modern horizontal-diamond overlap-card-container">
+    <div class="diamond-accent diamond-accent-1">
+    </div>
+    <div class="container">
+     <div class="stats-grid overlap-card">
+      <div class="stat-item floating-element">
+       <span class="stat-number">
+        20+
+       </span>
+       <span class="stat-label">
+        Years of Experience
+       </span>
+      </div>
+      <div class="stat-item floating-element" style="animation-delay: 0.2s;">
+       <span class="stat-number">
+        2003
+       </span>
+       <span class="stat-label">
+        Locally Owned Since
+       </span>
+      </div>
+      <div class="stat-item floating-element" style="animation-delay: 0.4s;">
+       <span class="stat-number">
+        1000+
+       </span>
+       <span class="stat-label">
+        Satisfied Customers
+       </span>
+      </div>
+     </div>
+    </div>
+   </section>
+   <!-- ================================================
+         FOUNDER STORY SECTION (MODERNIZED)
+         Company origin story with textured background
+         ================================================ -->
+   <section class="founder texture-geometric section-elevated">
+    <div class="diamond-accent diamond-accent-2">
+    </div>
+    <div class="container">
+     <div class="founder-text-full">
+      <h2>
+       Locally Owned Since 2003
+      </h2>
+      <p>
+       I had seen computer stores come and go and some not run very professionally; I wanted to make sure to build on the best practices learned from my consulting business to offer better and faster service while remaining local. With this business model in place, The Computer Store opened its doors to customers in 2003 and we are the oldest locally owned professional computer retail store in Topeka.
+      </p>
+      <p class="founder-name">
+       — Jim Driggers, Computer Store Founder
+      </p>
+     </div>
+    </div>
+   </section>
+   <!-- SERVICES OVERVIEW SECTION (MODERNIZED) -->
+   <section class="services modern texture-circuit">
+    <div class="diamond-accent diamond-accent-3 rotating-element">
+    </div>
+    <div class="container">
+     <h2>
+      What We Do
+     </h2>
+     <p class="text-center text-muted" style="max-width: 700px; margin: 0 auto 2rem;">
+      From computer repairs to protection plans and custom builds, we've got everything you need to keep your technology running smoothly.
+     </p>
+     <div class="cards">
+      <div class="card card-enhanced">
+       <h3>
+        Computer Service
+       </h3>
+       <p>
+        Comprehensive diagnostics, repairs and upgrades for desktops and laptops.
+       </p>
+      </div>
+      <div class="card card-enhanced">
+       <h3>
+        Protection Plans
+       </h3>
+       <p>
+        Flexible plans to safeguard your system from viruses, malware and identity theft.
+       </p>
+      </div>
+      <div class="card card-enhanced">
+       <h3>
+        New Computer Sales
+       </h3>
+       <p>
+        Let our non-commissioned team help you build or choose the perfect PC for your needs.
+       </p>
+      </div>
+     </div>
+    </div>
+   </section>
+   <!-- ================================================
+         NEW: NUMBERED BENEFITS SECTION (MODERNIZED)
+         Why choose us with numbers - textured background
+         ================================================ -->
+   <section class="benefits-section texture-dots">
+    <div class="container">
+     <h2>
+      5 Reasons to Choose Computer Store Kansas
+     </h2>
+     <p>
+      Your computer's an important part of your life—don't just trust it in the hands of anyone. Here's why we're the right choice:
+     </p>
+     <div class="benefits-grid">
+      <div class="benefit-item">
+       <div class="benefit-number">
+        01
+       </div>
+       <div class="benefit-content">
+        <h3>
+         Expertise and Experience
+        </h3>
+        <p>
+         Over 20 years of experience diagnosing and fixing computer issues. We continue to expand our knowledge in different types of computer systems, software, and hardware.
+        </p>
+       </div>
+      </div>
+      <div class="benefit-item">
+       <div class="benefit-number">
+        02
+       </div>
+       <div class="benefit-content">
+        <h3>
+         Fast and Reliable Service
+        </h3>
+        <p>
+         Quick response times, efficient processes, and quality assurance to ensure you always have the best service at your fingertips.
+        </p>
+       </div>
+      </div>
+      <div class="benefit-item">
+       <div class="benefit-number">
+        03
+       </div>
+       <div class="benefit-content">
+        <h3>
+         Honest, Transparent Pricing
+        </h3>
+        <p>
+         No surprises. We provide clear estimates upfront so you know exactly what you'll be paying before we start any work.
+        </p>
+       </div>
+      </div>
+      <div class="benefit-item">
+       <div class="benefit-number">
+        04
+       </div>
+       <div class="benefit-content">
+        <h3>
+         We Protect Your Data
+        </h3>
+        <p>
+         Our first priority is to backup and protect your data in case of hardware failure or accidental deletion during the repair process.
+        </p>
+       </div>
+      </div>
+      <div class="benefit-item">
+       <div class="benefit-number">
+        05
+       </div>
+       <div class="benefit-content">
+        <h3>
+         Local &amp; Personal
+        </h3>
+        <p>
+         As a locally-owned business, we treat every customer like family. You're not just another ticket—you're part of our community.
+        </p>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section>
+   <!-- ================================================
+         TESTIMONIALS SECTION (MODERNIZED)
+         Customer reviews carousel with modern styling
+         ================================================ -->
+   <section class="testimonials">
+    <div class="container">
+     <h2>
+      What Our Clients Say
+     </h2>
+     <!-- Modern carousel container -->
+     <div class="testimonials-carousel">
+      <div class="testimonials-track">
+       <!-- Testimonial Card 1 -->
+       <div class="testimonial">
+        <div class="testimonial-content">
+         <div class="quote-icon">
+          ❝
+         </div>
+         <p class="testimonial-text">
+          Signing up for a Computer Protection Plan from The Computer Store was the best decision I've made in years. My computer has never run better and no more worries about spyware stealing my identity while online!
+         </p>
+         <div class="quote-icon-close">
+          ❞
+         </div>
+         <div class="testimonial-author">
+          <div class="author-avatar">
+           K
+          </div>
+          <div class="author-details">
+           <h4>
+            Kristina Jones
+           </h4>
+           <p class="author-location">
+            Topeka, KS
+           </p>
+          </div>
+         </div>
+        </div>
+       </div>
+       <!-- Testimonial Card 2 -->
+       <div class="testimonial">
+        <div class="testimonial-content">
+         <div class="quote-icon">
+          ❝
+         </div>
+         <p class="testimonial-text">
+          When the Big Store told me they'd have to send my PC in and it would be 2-3 weeks, I decided to try a local store. Not only did The Computer Store fix my problem a lot faster, they did so at just under half the cost.
+         </p>
+         <div class="quote-icon-close">
+          ❞
+         </div>
+         <div class="testimonial-author">
+          <div class="author-avatar">
+           M
+          </div>
+          <div class="author-details">
+           <h4>
+            Matt
+           </h4>
+           <p class="author-location">
+            Topeka, KS
+           </p>
+          </div>
+         </div>
+        </div>
+       </div>
+       <!-- Testimonial Card 3 -->
+       <div class="testimonial">
+        <div class="testimonial-content">
+         <div class="quote-icon">
+          ❝
+         </div>
+         <p class="testimonial-text">
+          My hard drive stopped working all together and I had no backup. I thought all was lost but the technician managed to get my drive working long enough to get the data onto another drive saving me a lot of headache and money — thank you Computer Store!
+         </p>
+         <div class="quote-icon-close">
+          ❞
+         </div>
+         <div class="testimonial-author">
+          <div class="author-avatar">
+           A
+          </div>
+          <div class="author-details">
+           <h4>
+            Andrew
+           </h4>
+           <p class="author-location">
+            Topeka, KS
+           </p>
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+      <!-- Carousel navigation arrows -->
+      <button aria-label="Previous testimonial" class="carousel-arrow prev">
+       <svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+        <polyline points="15 18 9 12 15 6">
+        </polyline>
+       </svg>
+      </button>
+      <button aria-label="Next testimonial" class="carousel-arrow next">
+       <svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+        <polyline points="9 18 15 12 9 6">
+        </polyline>
+       </svg>
+      </button>
+     </div>
+     <!-- Carousel indicators (dots) -->
+     <div class="carousel-indicators">
+      <button aria-label="Go to testimonial 1" class="carousel-indicator active" data-index="0">
+      </button>
+      <button aria-label="Go to testimonial 2" class="carousel-indicator" data-index="1">
+      </button>
+      <button aria-label="Go to testimonial 3" class="carousel-indicator" data-index="2">
+      </button>
+     </div>
+    </div>
+   </section>
+   <!-- HOME PAGE CALL-TO-ACTION SECTION -->
+   <section class="cta">
+    <div class="container">
+     <h2>
+      Ready to Get Started?
+     </h2>
+     <p>
+      Contact us today for expert computer services and personalized solutions tailored to your needs.
+     </p>
+     <button class="btn btn-white contact-modal-btn">
+      Talk to an Expert
+     </button>
+    </div>
+   </section>
+  </div>
+  <!-- ================================================
+       ABOUT PAGE SECTION
+       Company information and story
+       ================================================ -->
+  <div class="page-section" id="about-page">
+   <!-- ABOUT PAGE HERO SECTION -->
+   <section class="hero">
+    <div class="container">
+     <h2>
+      About Us
+     </h2>
+     <p>
+      Who we are and why we love fixing computers.
+     </p>
+    </div>
+   </section>
+   <!-- COMPANY STORY SECTION -->
+   <section class="about horizontal-diamond texture-dots overlap-card-container">
+    <div class="diamond-accent diamond-accent-2">
+    </div>
+    <div class="container overlap-card">
+     <h2>
+      Our Story
+     </h2>
+     <p>
+      The Computer Store has been proudly serving the Topeka community since 2003. We're passionate about helping our customers get the most out of their technology with fast, friendly and honest service.
+     </p>
+     <p>
+      Our technicians are certified and experienced in working with all major brands and systems. From virus removal and data recovery to upgrades and custom PC builds, we provide a full range of computer services for homes and small businesses.
+     </p>
+     <p>
+      When you work with us, you're not just another ticket — you're part of our community.
+     </p>
+    </div>
+   </section>
+   <!-- WHY CHOOSE US SECTION -->
+   <section class="services">
+    <div class="container">
+     <h2>
+      Why Choose Us?
+     </h2>
+     <div class="cards">
+      <div class="card">
+       <h3>
+        Reliability
+       </h3>
+       <p>
+        Count on us for dependable repairs and support you can trust.
+       </p>
+      </div>
+      <div class="card">
+       <h3>
+        Personalized Approach
+       </h3>
+       <p>
+        Solutions tailored to your unique needs and budget.
+       </p>
+      </div>
+      <div class="card">
+       <h3>
+        Timely Delivery
+       </h3>
+       <p>
+        Quick turnaround so you're back up and running fast.
+       </p>
+      </div>
+      <div class="card">
+       <h3>
+        High Standards
+       </h3>
+       <p>
+        Quality workmanship backed by decades of experience.
+       </p>
+      </div>
+     </div>
+    </div>
+   </section>
+   <!-- ABOUT PAGE CALL-TO-ACTION SECTION -->
+   <section class="cta">
+    <div class="container">
+     <h2>
+      Ready to Experience the Difference?
+     </h2>
+     <p>
+      Contact us today to schedule an appointment or drop by our shop. We look forward to serving you.
+     </p>
+     <button class="btn btn-white contact-modal-btn">
+      Talk to an Expert
+     </button>
+    </div>
+   </section>
+  </div>
+  <!-- ================================================
+       SERVICES PAGE SECTION
+       Detailed breakdown of all services
+       ================================================ -->
+  <div class="page-section" id="services-page">
+   <!-- SERVICES PAGE HERO SECTION -->
+   <section class="hero">
+    <div class="container">
+     <h2>
+      Our Services
+     </h2>
+     <p>
+      Comprehensive support for your computers and devices.
+     </p>
+    </div>
+   </section>
+   <!-- DETAILED SERVICES SECTION -->
+   <section class="services horizontal-diamond texture-circuit overlap-card-container">
+    <div class="diamond-accent diamond-accent-3 rotating-element">
+    </div>
+    <div class="container overlap-card">
+     <h2>
+      What We Offer
+     </h2>
+     <div class="cards">
+      <div class="card">
+       <h3>
+        Diagnostics
+       </h3>
+       <p>
+        Thorough troubleshooting to identify issues quickly and accurately.
+       </p>
+      </div>
+      <div class="card">
+       <h3>
+        Virus &amp; Malware Removal
+       </h3>
+       <p>
+        Deep cleaning and protection against viruses, spyware and other malware.
+       </p>
+      </div>
+      <div class="card">
+       <h3>
+        Hardware Repair
+       </h3>
+       <p>
+        Replacement of failing components such as hard drives, screens and power supplies.
+       </p>
+      </div>
+      <div class="card">
+       <h3>
+        Upgrades &amp; Builds
+       </h3>
+       <p>
+        Performance upgrades and custom PC builds tailored to your needs and budget.
+       </p>
+      </div>
+     </div>
+    </div>
+   </section>
+   <!-- SERVICES PAGE CALL-TO-ACTION SECTION -->
+   <section class="cta">
+    <div class="container">
+     <h2>
+      Not Sure What You Need?
+     </h2>
+     <p>
+      Contact us for a free consultation and we'll help you find the right solution.
+     </p>
+     <button class="btn btn-white contact-modal-btn">
+      Talk to an Expert
+     </button>
+    </div>
+   </section>
+  </div>
+  <!-- ================================================
+       GALLERY PAGE SECTION
+       Display of custom built and refurbished computers
+       ================================================ -->
+  <div class="page-section" id="gallery-page">
+   <!-- GALLERY PAGE HERO SECTION -->
+   <section class="hero">
+    <div class="container">
+     <h2>
+      Our Gallery
+     </h2>
+     <p>
+      Browse our collection of custom-built and refurbished computers ready for your home or business.
+     </p>
+    </div>
+   </section>
+   <!-- GALLERY FILTERS SECTION -->
+   <section class="gallery-filters-section horizontal-diamond texture-dots overlap-card-container">
+    <div class="diamond-accent diamond-accent-1">
+    </div>
+    <div class="container overlap-card">
+     <div class="gallery-filters">
+      <button class="filter-btn active" data-filter="all">
+       All Computers
+      </button>
+      <button class="filter-btn" data-filter="desktop">
+       Desktops
+      </button>
+      <button class="filter-btn" data-filter="laptop">
+       Laptops
+      </button>
+      <button class="filter-btn" data-filter="refurbished">
+       Refurbished
+      </button>
+      <button class="filter-btn" data-filter="custom">
+       Custom Builds
+      </button>
+     </div>
+    </div>
+   </section>
+   <!-- GALLERY GRID SECTION -->
+   <section class="gallery-section">
+    <div class="container">
+     <div class="gallery-grid" id="gallery-grid">
+      <!-- Computer Card 1 - Example Desktop -->
+      <!-- Computer Card 2 - Example Laptop -->
+      <!-- Computer Card 3 - Example Desktop -->
+      <!-- Computer Card 4 - Example Laptop -->
+      <!-- Computer Card 5 - Example Desktop -->
+      <!-- Computer Card 6 - Example Laptop -->
+      <div class="gallery-card" data-category="refurbished" data-computer-id="1" data-type="desktop">
+       <div class="gallery-card-inner">
+        <div class="gallery-card-front">
+         <div class="bf-ribbon-corner"></div>
+         <div class="gallery-card-badge badge-black-friday">
+          Black Friday Sale
+         </div>
+         <div class="gallery-card-image">
+          <img alt="Okinos Blackout" onerror="this.src='./assets/logo.png'" src="./assets/gallery/desktop-1.jpg"/>
+         </div>
+        </div>
+        <div class="gallery-card-back">
+         <h3 class="gallery-card-title">
+          Okinos Blackout
+         </h3>
+         <div class="gallery-card-price">
+          <span class="original-price">$750.00</span>
+          <span class="sale-price">$675.00</span>
+          <span class="savings-badge">Save 10%</span>
+         </div>
+         <div class="gallery-card-specs">
+          <div class="spec-item">
+           <strong>
+            Graphics Card:
+           </strong>
+           RTX 3060
+          </div>
+          <div class="spec-item">
+           <strong>
+            Processor:
+           </strong>
+           Ryzen 5 5500
+          </div>
+          <div class="spec-item">
+           <strong>
+            Memory:
+           </strong>
+           16 GB
+          </div>
+          <div class="spec-item">
+           <strong>
+            Storage:
+           </strong>
+           1 TB NVME
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="gallery-card" data-category="custom" data-computer-id="3" data-type="desktop">
+       <div class="gallery-card-inner">
+        <div class="gallery-card-front">
+         <div class="gallery-card-badge badge-custom">
+          Custom Build
+         </div>
+         <div class="gallery-card-image">
+          <img alt="Frosty" onerror="this.src='./assets/logo.png'" src="./assets/gallery/desktop-3.jpg"/>
+         </div>
+        </div>
+        <div class="gallery-card-back">
+         <h3 class="gallery-card-title">
+          Frosty
+         </h3>
+         <div class="gallery-card-price">
+          $1049.99
+         </div>
+         <div class="gallery-card-specs">
+          <div class="spec-item">
+           <strong>
+            Graphics Card::
+           </strong>
+           RTX 4060 Ti
+          </div>
+          <div class="spec-item">
+           <strong>
+            Processor::
+           </strong>
+           Ryzen 7 5700
+          </div>
+          <div class="spec-item">
+           <strong>
+            Memory::
+           </strong>
+           32 GB
+          </div>
+          <div class="spec-item">
+           <strong>
+            Storage:
+           </strong>
+           1 TB NVME
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="gallery-card" data-category="refurbished" data-computer-id="4" data-type="desktop">
+       <div class="gallery-card-inner">
+        <div class="gallery-card-front">
+         <div class="bf-ribbon-corner"></div>
+         <div class="gallery-card-badge badge-black-friday">
+          Black Friday Sale
+         </div>
+         <div class="gallery-card-image">
+          <img alt="Vanilla Ice" onerror="this.src='./assets/logo.png'" src="./assets/gallery/desktop-4.jpg"/>
+         </div>
+        </div>
+        <div class="gallery-card-back">
+         <h3 class="gallery-card-title">
+          Vanilla Ice
+         </h3>
+         <div class="gallery-card-price">
+          <span class="original-price">$580.00</span>
+          <span class="sale-price">$522.00</span>
+          <span class="savings-badge">Save 10%</span>
+         </div>
+         <div class="gallery-card-specs">
+          <div class="spec-item">
+           <strong>
+            Graphics Card::
+           </strong>
+           AMD RX 5700 XT
+          </div>
+          <div class="spec-item">
+           <strong>
+            Processor::
+           </strong>
+           Intel i7 8th Generation
+          </div>
+          <div class="spec-item">
+           <strong>
+            Memory::
+           </strong>
+           16 GB
+          </div>
+          <div class="spec-item">
+           <strong>
+            Storage::
+           </strong>
+           512 GB SSD
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section>
+   <!-- GALLERY PAGE CALL-TO-ACTION SECTION -->
+   <section class="cta">
+    <div class="container">
+     <h2>
+      Looking for Something Specific?
+     </h2>
+     <p>
+      We can build a custom computer tailored to your exact needs and budget.
+     </p>
+     <button class="btn btn-white contact-modal-btn">
+      Request a Custom Build
+     </button>
+    </div>
+   </section>
+  </div>
+  <!-- ================================================
+       COMPUTER DETAILS MODAL
+       Shows full specifications for selected computer
+       ================================================ -->
+  <div class="modal" id="computer-details-modal">
+   <div class="modal-content computer-modal-content">
+    <button class="modal-close" id="computer-modal-close">
+     ×
+    </button>
+    <div class="computer-details-container" id="computer-details-content">
+     <!-- Content will be dynamically inserted by JavaScript -->
+    </div>
+   </div>
+  </div>
+  <!-- ================================================
+       LOGIN MODAL SECTION
+       Modal overlay for employee login
+       ================================================ -->
+  <div class="modal" id="login-modal">
+   <div class="modal-content">
+    <button class="modal-close" id="modal-close">
+     ×
+    </button>
+    <div class="modal-header">
+     <h1>
+      Repair Shop Login
+     </h1>
+     <p>
+      This page will redirect to our secure login soon.
+     </p>
+    </div>
+    <p style="text-align: center;">
+     <a class="btn btn-primary" data-page="home" href="#" id="back-to-home">
+      ← Back to Home
+     </a>
+    </p>
+   </div>
+  </div>
+  <!-- ================================================
+       CONTACT FORM MODAL SECTION
+       Modal overlay for contact form
+       ================================================ -->
+  <div class="modal" id="contact-modal">
+   <div class="modal-content contact-modal-content">
+    <button class="modal-close" id="contact-modal-close">
+     ×
+    </button>
+    <!-- Modal header -->
+    <div class="modal-header">
+     <h1>
+      Get in Touch
+     </h1>
+     <p>
+      Send us a message and we'll get back to you as soon as possible!
+     </p>
+    </div>
+    <!-- CONTACT FORM -->
+    <form action="javascript:void(0)" class="modal-form" id="contactForm">
+     <div class="form-group">
+      <label for="modal-name">
+       Name
+      </label>
+      <input id="modal-name" name="name" placeholder="Your name" required="" type="text"/>
+     </div>
+     <div class="form-group">
+      <label for="modal-email">
+       Email
+      </label>
+      <input id="modal-email" name="email" placeholder="Your email" required="" type="email"/>
+     </div>
+     <div class="form-group">
+      <label for="modal-phone">
+       Phone Number
+      </label>
+      <input id="modal-phone" name="phone" placeholder="(555) 123-4567" required="" type="tel"/>
+     </div>
+     <div class="form-group">
+      <label for="modal-message">
+       Message
+      </label>
+      <textarea id="modal-message" name="message" placeholder="Tell us how we can help..." required="" rows="4"></textarea>
+     </div>
+     <div class="form-actions">
+      <button class="btn btn-primary" type="submit">
+       <span class="btn-text">
+        Send Message
+       </span>
+       <span class="btn-loading" style="display: none;">
+        Sending...
+       </span>
+      </button>
+      <div aria-live="polite" class="form-status" id="formStatus">
+      </div>
+     </div>
+    </form>
+    <!-- Quick contact info in modal -->
+    <div class="modal-footer">
+     <p>
+      <strong>
+       Prefer to call?
+      </strong>
+      📞
+      <a href="tel:785-267-3223">
+       785-267-3223
+      </a>
+     </p>
+     <p>
+      <strong>
+       Email us directly:
+      </strong>
+      ✉️
+      <a href="mailto:contact@computerstoreks.com">
+       contact@computerstoreks.com
+      </a>
+     </p>
+    </div>
+   </div>
+  </div>
+  <!-- ================================================
+       SITE FOOTER SECTION
+       Copyright and legal information
+       ================================================ -->
+  <footer>
+   <div class="container">
+    <p>
+     © 2025 Computer Store Kansas. All rights reserved.
+    </p>
+    <button class="btn admin-login-btn" id="login-btn">
+     Administrator Login
+    </button>
+   </div>
+  </footer>
+  <!-- ================================================
+       ERROR DETECTION AND FALLBACK SCRIPT
+       ================================================ -->
+  <script>
+   window.addEventListener('error', function(e) {
+      console.error('JavaScript Error:', e.error);
+    });
+    
+    let scriptsLoaded = 0;
+    function checkScripts() {
+      scriptsLoaded++;
+      if (scriptsLoaded >= 2) {
+        console.log('All scripts loaded successfully');
+      }
+    }
+  </script>
+  <!-- ================================================
+       EXTERNAL JAVASCRIPT FILES
+       ================================================ -->
+  <script onload="checkScripts()" src="config.js">
+  </script>
+  <script onload="checkScripts()" src="script.js">
+  </script>
+  <!-- ================================================
+       FALLBACK NAVIGATION SCRIPT
+       ================================================ -->
+  <script>
+   setTimeout(function() {
+      if (typeof window.siteConfig === 'undefined') {
+        console.warn('Configuration not loaded, using fallback navigation');
+        
+        document.querySelectorAll('.nav-link').forEach(function(link) {
+          link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const pageId = this.getAttribute('data-page');
+            
+            document.querySelectorAll('.page-section').forEach(function(page) {
+              page.classList.remove('active');
+            });
+            
+            const targetPage = document.getElementById(pageId + '-page');
+            if (targetPage) {
+              targetPage.classList.add('active');
+            }
+            
+            document.querySelectorAll('.nav-link').forEach(function(navLink) {
+              navLink.classList.remove('active');
+            });
+            this.classList.add('active');
+          });
+        });
+      }
+    }, 2000);
+  </script>
+ </body>
+</html>

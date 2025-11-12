@@ -43,13 +43,21 @@
   --background: #ffffff;               /* Pure white - main background */
   --background-light: #f8f9fb;         /* Very light grey for sections */
   --background-dark: #f0f2f5;          /* Light grey for contrast */
-  
+
   /* ===== PRIMARY BRAND COLORS ===== */
   /* Blue accent colors - modern and vibrant */
   --primary-blue: #2563eb;             /* Primary brand blue */
   --primary-blue-light: #3b82f6;       /* Lighter blue for hover states */
   --primary-blue-dark: #1e40af;        /* Darker blue for depth */
   --primary-blue-subtle: #dbeafe;      /* Very light blue for backgrounds */
+
+  /* ===== BLACK FRIDAY COLORS ===== */
+  /* Festive sale colors */
+  --bf-red: #dc2626;                   /* Bold red for Black Friday */
+  --bf-red-dark: #991b1b;              /* Dark red for depth */
+  --bf-gold: #fbbf24;                  /* Gold accent for luxury */
+  --bf-gold-light: #fef3c7;            /* Light gold background */
+  --bf-black: #0f0f0f;                 /* Deep black for contrast */
   
   /* ===== ACCENT COLORS ===== */
   /* Silver/Grey accent colors for highlights and special elements */
@@ -338,6 +346,47 @@ header nav ul .nav-action.silver a:hover::before {
   left: 100%;
 }
 
+/* Black Friday button - festive styling */
+header nav ul .nav-action.black-friday a {
+  background: linear-gradient(135deg, var(--bf-red) 0%, var(--bf-red-dark) 100%);
+  color: var(--text-white);
+  font-weight: 700;
+  border: 2px solid var(--bf-gold);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+  position: relative;
+  overflow: hidden;
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+header nav ul .nav-action.black-friday a::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.3), transparent);
+  transition: var(--transition-slow);
+}
+
+header nav ul .nav-action.black-friday a:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.6);
+}
+
+header nav ul .nav-action.black-friday a:hover::before {
+  left: 100%;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+  }
+  50% {
+    box-shadow: 0 4px 20px rgba(220, 38, 38, 0.7), 0 0 30px rgba(251, 191, 36, 0.3);
+  }
+}
+
 /* Mobile hamburger menu */
 .hamburger {
   display: none;
@@ -368,6 +417,185 @@ header nav ul .nav-action.silver a:hover::before {
 }
 
 /* ================================================
+   5A. BLACK FRIDAY PROMOTIONAL BANNER
+   Eye-catching banner for home page
+   ================================================ */
+.black-friday-banner {
+  background: linear-gradient(135deg, var(--bf-black) 0%, var(--bf-red-dark) 50%, var(--bf-black) 100%);
+  padding: 1.25rem 0;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 3px solid var(--bf-gold);
+  animation: banner-shine 3s ease-in-out infinite;
+}
+
+@keyframes banner-shine {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.black-friday-banner::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 10px,
+    rgba(251, 191, 36, 0.05) 10px,
+    rgba(251, 191, 36, 0.05) 20px
+  );
+  animation: slide-stripes 20s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes slide-stripes {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(50px, 50px);
+  }
+}
+
+.bf-banner-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  position: relative;
+  z-index: 2;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.bf-banner-ribbon {
+  width: 60px;
+  height: 60px;
+  background: var(--bf-red);
+  border: 3px solid var(--bf-gold);
+  border-radius: 50%;
+  position: relative;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.5);
+  animation: rotate-ribbon 4s linear infinite;
+}
+
+@keyframes rotate-ribbon {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.bf-banner-ribbon::before {
+  content: '%';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: var(--bf-gold);
+}
+
+.bf-banner-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 200px;
+}
+
+.bf-banner-title {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--bf-gold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.bf-banner-offer {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-white);
+}
+
+.bf-banner-dates {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+}
+
+.bf-banner-btn {
+  background: var(--bf-gold);
+  color: var(--bf-black);
+  font-weight: 700;
+  padding: 0.75rem 2rem;
+  border-radius: var(--border-radius-md);
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: var(--transition-normal);
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
+  flex-shrink: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.bf-banner-btn:hover {
+  background: #fcd34d;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(251, 191, 36, 0.6);
+}
+
+@media (max-width: 768px) {
+  .black-friday-banner {
+    padding: 1rem 0;
+  }
+
+  .bf-banner-content {
+    padding: 0 1rem;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .bf-banner-ribbon {
+    display: none;
+  }
+
+  .bf-banner-text {
+    text-align: center;
+    align-items: center;
+  }
+
+  .bf-banner-title {
+    font-size: 1.25rem;
+  }
+
+  .bf-banner-offer {
+    font-size: 0.95rem;
+  }
+
+  .bf-banner-btn {
+    padding: 0.6rem 1.5rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* ================================================
    6. HERO SECTIONS
    Large banner sections with modern design
    ================================================ */
@@ -380,6 +608,39 @@ header nav ul .nav-action.silver a:hover::before {
   overflow: visible;
   clip-path: polygon(0 0, 100% 0, 100% 85%, 50% 100%, 0 85%);
   z-index: 0;  /* Set to 0 so overlapping sections (z-index: 10) appear on top */
+}
+
+/* Black Friday Hero Styling */
+.hero-black-friday {
+  background: linear-gradient(135deg, var(--bf-black) 0%, var(--bf-red-dark) 50%, var(--bf-black) 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-black-friday::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(251, 191, 36, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(220, 38, 38, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.hero-black-friday .container {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-dates {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--bf-gold);
+  margin-top: 1rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 /* Subtle pattern overlay */
@@ -997,6 +1258,84 @@ header nav ul .nav-action.silver a:hover::before {
    13. SILVER PLAN SECTIONS
    Specialized sections for protection plan
    ================================================ */
+/* Black Friday Badge */
+.black-friday-badge {
+  display: inline-block;
+  position: relative;
+  background: linear-gradient(145deg, var(--bf-black) 0%, var(--bf-red-dark) 50%, var(--bf-black) 100%);
+  border: 4px solid var(--bf-gold);
+  border-radius: var(--border-radius-xl);
+  padding: 1.5rem 2.5rem;
+  margin: 0 auto 2rem auto;
+  box-shadow: 0 8px 30px rgba(220, 38, 38, 0.5);
+  transition: var(--transition-normal);
+  overflow: hidden;
+  text-align: center;
+  cursor: default;
+  animation: badge-float 3s ease-in-out infinite;
+}
+
+@keyframes badge-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.black-friday-badge:hover {
+  transform: scale(1.05) translateY(-5px);
+  box-shadow: 0 12px 40px rgba(220, 38, 38, 0.7);
+}
+
+.badge-ribbon {
+  display: block;
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--bf-gold);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.badge-sale-text {
+  display: block;
+  font-size: 3rem;
+  font-weight: 900;
+  color: var(--text-white);
+  text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+/* Black Friday Intro Section */
+.black-friday-intro {
+  background: var(--background);
+}
+
+.black-friday-hero-heading {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--bf-red);
+  margin-bottom: 1.5rem;
+  text-align: center;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.black-friday-benefits {
+  background: linear-gradient(135deg, var(--bf-gold-light) 0%, var(--background-light) 100%);
+}
+
+/* Black Friday CTA */
+.cta-black-friday {
+  background: linear-gradient(135deg, var(--bf-red) 0%, var(--bf-red-dark) 100%);
+}
+
 .silver-plan-badge {
   display: inline-block;
   position: relative;
@@ -1512,6 +1851,46 @@ footer p {
     padding: 3rem 0 10rem 0;
   }
 
+  /* Black Friday mobile adjustments */
+  .black-friday-badge {
+    padding: 1rem 1.5rem;
+  }
+
+  .badge-ribbon {
+    font-size: 1.5rem;
+  }
+
+  .badge-sale-text {
+    font-size: 2rem;
+  }
+
+  .black-friday-hero-heading {
+    font-size: 1.5rem;
+    padding: 0 1rem;
+  }
+
+  .original-price {
+    font-size: 1.1rem;
+  }
+
+  .sale-price {
+    font-size: 1.8rem;
+  }
+
+  .savings-badge {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.6rem;
+  }
+
+  .bf-ribbon-corner {
+    border-width: 45px 45px 0 0;
+  }
+
+  .bf-ribbon-corner::after {
+    top: -43px;
+    border-width: 42px 42px 0 0;
+  }
+
   .silver-plan-badge {
     padding: 1rem 1.5rem;
   }
@@ -1850,7 +2229,7 @@ form button {
 .gallery-card {
   background-color: transparent;
   perspective: 1000px;
-  height: 400px;
+  height: 480px;
   opacity: 1;
   cursor: pointer;
 }
@@ -1901,9 +2280,10 @@ form button {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 2rem;
+  padding: 1.5rem 1.75rem;
   background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
   color: var(--text-white);
+  overflow-y: auto;
 }
 
 /* Gallery Card Image (Front) */
@@ -1947,18 +2327,64 @@ form button {
   color: var(--text-white);
 }
 
+.badge-black-friday {
+  background: linear-gradient(135deg, var(--bf-red) 0%, var(--bf-red-dark) 100%);
+  color: var(--bf-gold);
+  border: 2px solid var(--bf-gold);
+  font-weight: 800;
+  animation: pulse-badge 2s ease-in-out infinite;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes pulse-badge {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: var(--shadow-md);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(220, 38, 38, 0.6);
+  }
+}
+
 .badge-available {
   background-color: var(--warning);
   color: var(--text-white);
 }
 
+/* Black Friday Ribbon Corner Decoration */
+.bf-ribbon-corner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 60px 60px 0 0;
+  border-color: var(--bf-gold) transparent transparent transparent;
+  z-index: 2;
+}
+
+.bf-ribbon-corner::after {
+  content: '';
+  position: absolute;
+  top: -58px;
+  left: 2px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 56px 56px 0 0;
+  border-color: var(--bf-red) transparent transparent transparent;
+}
+
 /* Back of Card - Title */
 .gallery-card-back .gallery-card-title {
-  font-size: 1.5rem;
+  font-size: 1.35rem;
   font-weight: 700;
   color: var(--text-white);
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
   text-align: center;
+  line-height: 1.2;
 }
 
 /* Back of Card - Price */
@@ -1966,24 +2392,71 @@ form button {
   font-size: 2rem;
   font-weight: 700;
   color: var(--text-white);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   text-align: center;
-  padding-bottom: 1rem;
+  padding-bottom: 0.75rem;
   border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+/* Black Friday Sale Pricing */
+.original-price {
+  font-size: 1.1rem;
+  text-decoration: line-through;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 500;
+  line-height: 1;
+}
+
+.sale-price {
+  font-size: 1.9rem;
+  color: var(--bf-gold);
+  font-weight: 900;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  animation: price-pulse 2s ease-in-out infinite;
+  line-height: 1;
+}
+
+@keyframes price-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.savings-badge {
+  display: inline-block;
+  background: var(--bf-gold);
+  color: var(--bf-black);
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--border-radius-sm);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 0.15rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  line-height: 1;
 }
 
 /* Back of Card - Specs */
 .gallery-card-back .gallery-card-specs {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.5rem;
   text-align: left;
 }
 
 .gallery-card-back .spec-item {
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   color: rgba(255, 255, 255, 0.95);
-  padding: 0.5rem 0;
+  padding: 0.35rem 0;
+  line-height: 1.3;
 }
 
 .gallery-card-back .spec-item strong {
@@ -1991,6 +2464,7 @@ form button {
   font-weight: 600;
   display: inline-block;
   min-width: 100px;
+  font-size: 0.85rem;
 }
 
 /* Computer Details Modal */
@@ -2097,23 +2571,50 @@ form button {
 
   /* On mobile, make flip cards taller for better readability */
   .gallery-card {
-    height: 450px;
+    height: 520px;
   }
 
   .gallery-card-back {
-    padding: 1.5rem;
+    padding: 1.25rem 1.5rem;
   }
 
   .gallery-card-back .gallery-card-title {
-    font-size: 1.25rem;
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
   }
 
   .gallery-card-back .gallery-card-price {
     font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    gap: 0.25rem;
+  }
+
+  .original-price {
+    font-size: 0.95rem;
+  }
+
+  .sale-price {
+    font-size: 1.6rem;
+  }
+
+  .savings-badge {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
   }
 
   .gallery-card-back .spec-item {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
+    padding: 0.25rem 0;
+  }
+
+  .gallery-card-back .spec-item strong {
+    font-size: 0.8rem;
+    min-width: 90px;
+  }
+
+  .gallery-card-back .gallery-card-specs {
+    gap: 0.4rem;
   }
 
   .computer-details-container {
@@ -2137,6 +2638,30 @@ form button {
 @media (min-width: 769px) and (max-width: 1024px) {
   .gallery-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .gallery-card {
+    height: 500px;
+  }
+
+  .gallery-card-back {
+    padding: 1.4rem 1.6rem;
+  }
+
+  .gallery-card-back .gallery-card-title {
+    font-size: 1.3rem;
+  }
+
+  .original-price {
+    font-size: 1rem;
+  }
+
+  .sale-price {
+    font-size: 1.8rem;
+  }
+
+  .gallery-card-back .spec-item {
+    font-size: 0.82rem;
   }
 }
 

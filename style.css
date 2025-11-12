@@ -2327,6 +2327,12 @@ form button {
   color: var(--text-white);
 }
 
+.badge-new {
+  background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%);
+  color: var(--text-white);
+  font-weight: 600;
+}
+
 .badge-black-friday {
   background: linear-gradient(135deg, var(--bf-red) 0%, var(--bf-red-dark) 100%);
   color: var(--bf-gold);

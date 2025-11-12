@@ -856,21 +856,27 @@ class ComputerEditDialog(ctk.CTkToplevel):
         self.type_var = ctk.StringVar(value=self.computer_data['type'] if self.computer_data else "desktop")
         type_frame = ctk.CTkFrame(scroll_frame)
         type_frame.pack(fill="x", pady=(0, 15))
-        ctk.CTkRadioButton(type_frame, text="Desktop", variable=self.type_var,
-                          value="desktop").pack(side="left", padx=10)
-        ctk.CTkRadioButton(type_frame, text="Laptop", variable=self.type_var,
-                          value="laptop").pack(side="left", padx=10)
 
-        # Category (Custom/Refurbished)
-        ctk.CTkLabel(scroll_frame, text="Category:",
-                    font=ctk.CTkFont(size=13, weight="bold")).pack(anchor="w", pady=(0, 5))
+        desktop_radio = ctk.CTkRadioButton(type_frame, text="Desktop", variable=self.type_var,
+                          value="desktop", command=self.update_category_options)
+        desktop_radio.pack(side="left", padx=10)
+
+        laptop_radio = ctk.CTkRadioButton(type_frame, text="Laptop", variable=self.type_var,
+                          value="laptop", command=self.update_category_options)
+        laptop_radio.pack(side="left", padx=10)
+
+        # Category (Custom/Refurbished for Desktop, New/Refurbished for Laptop)
+        self.category_label = ctk.CTkLabel(scroll_frame, text="Category:",
+                    font=ctk.CTkFont(size=13, weight="bold"))
+        self.category_label.pack(anchor="w", pady=(0, 5))
         self.category_var = ctk.StringVar(value=self.computer_data['category'] if self.computer_data else "custom")
-        cat_frame = ctk.CTkFrame(scroll_frame)
-        cat_frame.pack(fill="x", pady=(0, 15))
-        ctk.CTkRadioButton(cat_frame, text="Custom Build", variable=self.category_var,
-                          value="custom").pack(side="left", padx=10)
-        ctk.CTkRadioButton(cat_frame, text="Refurbished", variable=self.category_var,
-                          value="refurbished").pack(side="left", padx=10)
+        self.cat_frame = ctk.CTkFrame(scroll_frame)
+        self.cat_frame.pack(fill="x", pady=(0, 15))
+
+        # We'll populate this dynamically based on type
+        self.category_radio_1 = None
+        self.category_radio_2 = None
+        self.update_category_options()
 
         # Price
         ctk.CTkLabel(scroll_frame, text="Price:",
@@ -944,6 +950,52 @@ class ComputerEditDialog(ctk.CTkToplevel):
                                    command=self.cancel,
                                    width=150, height=40)
         btn_cancel.pack(side="left", padx=10)
+
+    def update_category_options(self):
+        """Update category options based on selected type."""
+        # Clear existing radio buttons
+        if self.category_radio_1:
+            self.category_radio_1.destroy()
+        if self.category_radio_2:
+            self.category_radio_2.destroy()
+
+        computer_type = self.type_var.get()
+
+        if computer_type == "desktop":
+            # Desktop options: Custom Build / Refurbished
+            self.category_radio_1 = ctk.CTkRadioButton(
+                self.cat_frame, text="Custom Build",
+                variable=self.category_var, value="custom"
+            )
+            self.category_radio_1.pack(side="left", padx=10)
+
+            self.category_radio_2 = ctk.CTkRadioButton(
+                self.cat_frame, text="Refurbished",
+                variable=self.category_var, value="refurbished"
+            )
+            self.category_radio_2.pack(side="left", padx=10)
+
+            # Set default for desktop if current value is invalid
+            if self.category_var.get() not in ["custom", "refurbished"]:
+                self.category_var.set("custom")
+
+        else:  # laptop
+            # Laptop options: New / Refurbished
+            self.category_radio_1 = ctk.CTkRadioButton(
+                self.cat_frame, text="New",
+                variable=self.category_var, value="new"
+            )
+            self.category_radio_1.pack(side="left", padx=10)
+
+            self.category_radio_2 = ctk.CTkRadioButton(
+                self.cat_frame, text="Refurbished",
+                variable=self.category_var, value="refurbished"
+            )
+            self.category_radio_2.pack(side="left", padx=10)
+
+            # Set default for laptop if current value is invalid
+            if self.category_var.get() not in ["new", "refurbished"]:
+                self.category_var.set("refurbished")
 
     def upload_image(self):
         """Handle image upload."""
@@ -1062,8 +1114,13 @@ class ComputerEditDialog(ctk.CTkToplevel):
         while len(specs) < 4:
             specs.append({'label': '', 'value': ''})
 
-        # Badge text
-        badge_text = "Custom Build" if category == "custom" else "Refurbished"
+        # Badge text based on category
+        if category == "custom":
+            badge_text = "Custom Build"
+        elif category == "new":
+            badge_text = "New"
+        else:  # refurbished
+            badge_text = "Refurbished"
 
         # Create result
         self.result = {

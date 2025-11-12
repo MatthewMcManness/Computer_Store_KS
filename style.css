@@ -2180,16 +2180,9 @@ form button {
 /* Diagonal Section Dividers */
 .diagonal-divider {
   position: relative;
-  overflow: hidden;
-  clip-path: polygon(
-    0 15%,
-    50% 0,
-    100% 15%,
-    100% 85%,
-    50% 100%,
-    0 85%
-  );
-  padding: 100px 0;
+  overflow: visible;
+  /* Removed clip-path that was cutting off content */
+  padding: 5rem 0;
 }
 
 .diagonal-divider::after {
@@ -2202,6 +2195,8 @@ form button {
   background: var(--background);
   clip-path: polygon(0 50%, 100% 0, 100% 100%, 0 100%);
   z-index: 1;
+  /* Hide the pseudo-element to simplify the design */
+  display: none;
 }
 
 .diagonal-divider-reverse::after {
@@ -2218,6 +2213,8 @@ form button {
   background: var(--background);
   clip-path: polygon(0 0, 100% 0, 100% 50%, 0 100%);
   z-index: 1;
+  /* Hide the pseudo-element to simplify the design */
+  display: none;
 }
 
 /* Horizontal Diamond Divider (points on left and right sides) */

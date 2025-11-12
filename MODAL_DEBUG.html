@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modal Debug Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 2rem;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .status.good {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status.bad {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        button {
+            padding: 0.75rem 1.5rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 0.5rem;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .modal-overlay.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .modal {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 500px;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay.show .modal {
+            transform: scale(1);
+        }
+    </style>
+</head>
+<body>
+    <h1>Gallery Manager - Modal Debug Test</h1>
+
+    <div class="test-section">
+        <h2>1. Check Access Method</h2>
+        <div id="access-check"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Test Modal System</h2>
+        <button onclick="testModal()">Test Modal</button>
+        <div id="modal-status"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Check JavaScript</h2>
+        <button onclick="testJS()">Test JavaScript</button>
+        <div id="js-status"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Check API Connection</h2>
+        <button onclick="testAPI()">Test API</button>
+        <div id="api-status"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>5. Recommendations</h2>
+        <div id="recommendations"></div>
+    </div>
+
+    <!-- Test Modal -->
+    <div class="modal-overlay" id="test-modal">
+        <div class="modal">
+            <h2>Test Modal</h2>
+            <p>If you can see this, modals are working!</p>
+            <button onclick="closeTestModal()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // Check access method
+        function checkAccess() {
+            const protocol = window.location.protocol;
+            const hostname = window.location.hostname;
+            const port = window.location.port;
+            const div = document.getElementById('access-check');
+
+            if (protocol === 'file:') {
+                div.innerHTML = `
+                    <div class="status bad">
+                        ❌ PROBLEM FOUND: Opening as file://
+                        <br><br>
+                        Current: ${window.location.href}
+                        <br><br>
+                        <strong>This is why modals don't work!</strong>
+                    </div>
+                `;
+                return false;
+            } else if (protocol === 'http:' || protocol === 'https:') {
+                div.innerHTML = `
+                    <div class="status good">
+                        ✅ CORRECT: Using web server
+                        <br><br>
+                        Protocol: ${protocol}
+                        <br>
+                        Host: ${hostname || 'localhost'}:${port || '80'}
+                        <br>
+                        URL: ${window.location.href}
+                    </div>
+                `;
+                return true;
+            } else {
+                div.innerHTML = `
+                    <div class="status bad">
+                        ❌ Unknown protocol: ${protocol}
+                    </div>
+                `;
+                return false;
+            }
+        }
+
+        // Test modal
+        function testModal() {
+            const modal = document.getElementById('test-modal');
+            const status = document.getElementById('modal-status');
+
+            try {
+                modal.classList.add('show');
+                status.innerHTML = '<div class="status good">✅ Modal opened successfully!</div>';
+            } catch (error) {
+                status.innerHTML = `<div class="status bad">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        function closeTestModal() {
+            document.getElementById('test-modal').classList.remove('show');
+        }
+
+        // Test JavaScript
+        function testJS() {
+            const status = document.getElementById('js-status');
+            const tests = [];
+
+            // Test 1: querySelector
+            try {
+                const el = document.querySelector('body');
+                tests.push('✅ querySelector works');
+            } catch (e) {
+                tests.push('❌ querySelector failed: ' + e.message);
+            }
+
+            // Test 2: addEventListener
+            try {
+                const testFn = () => {};
+                document.addEventListener('test', testFn);
+                document.removeEventListener('test', testFn);
+                tests.push('✅ addEventListener works');
+            } catch (e) {
+                tests.push('❌ addEventListener failed: ' + e.message);
+            }
+
+            // Test 3: classList
+            try {
+                document.body.classList.add('test');
+                document.body.classList.remove('test');
+                tests.push('✅ classList works');
+            } catch (e) {
+                tests.push('❌ classList failed: ' + e.message);
+            }
+
+            status.innerHTML = '<div class="status good">' + tests.join('<br>') + '</div>';
+        }
+
+        // Test API
+        async function testAPI() {
+            const status = document.getElementById('api-status');
+            status.innerHTML = '<div class="status">Testing API connection...</div>';
+
+            try {
+                const response = await fetch('http://localhost:3001/api/health');
+                const data = await response.json();
+
+                if (data.status === 'ok') {
+                    status.innerHTML = `
+                        <div class="status good">
+                            ✅ API is running!
+                            <br><br>
+                            GitHub: ${data.githubConnected ? 'Connected ✅' : 'Not Connected ❌'}
+                        </div>
+                    `;
+                } else {
+                    status.innerHTML = '<div class="status bad">❌ API returned unexpected response</div>';
+                }
+            } catch (error) {
+                status.innerHTML = `
+                    <div class="status bad">
+                        ❌ Cannot connect to API
+                        <br><br>
+                        Error: ${error.message}
+                        <br><br>
+                        Make sure API server is running on port 3001
+                    </div>
+                `;
+            }
+        }
+
+        // Show recommendations
+        function showRecommendations() {
+            const div = document.getElementById('recommendations');
+            const isCorrect = checkAccess();
+
+            if (!isCorrect) {
+                div.innerHTML = `
+                    <div class="status bad">
+                        <h3>⚠️ Action Required:</h3>
+                        <ol style="text-align: left; margin-top: 1rem;">
+                            <li><strong>Close this file</strong></li>
+                            <li><strong>Double-click:</strong> start-both-servers.bat</li>
+                            <li><strong>Wait</strong> for both servers to start</li>
+                            <li><strong>Browser will open</strong> to: http://localhost:8000/admin-login.html</li>
+                            <li><strong>Login</strong> with password and test modals!</li>
+                        </ol>
+                    </div>
+                `;
+            } else {
+                div.innerHTML = `
+                    <div class="status good">
+                        ✅ You're accessing correctly via web server!
+                        <br><br>
+                        If modals still don't work:
+                        <ol style="text-align: left; margin-top: 1rem;">
+                            <li>Hard refresh: Ctrl+Shift+R or Ctrl+F5</li>
+                            <li>Check browser console (F12) for errors</li>
+                            <li>Make sure admin-gallery.js is loading</li>
+                        </ol>
+                    </div>
+                `;
+            }
+        }
+
+        // Run all checks on load
+        window.addEventListener('DOMContentLoaded', () => {
+            checkAccess();
+            showRecommendations();
+        });
+    </script>
+</body>
+</html>

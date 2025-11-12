@@ -247,18 +247,32 @@
 
             const password = passwordInput.value;
 
-            // Simple authentication check (TEMPORARY - will use proper backend auth)
-            // For now, hardcoded password for testing
-            if (password === 'admin123') {
-                // Set session
-                sessionStorage.setItem('admin_authenticated', 'true');
-                sessionStorage.setItem('admin_login_time', Date.now().toString());
-                sessionStorage.setItem('admin_password', password); // Store for API calls
+            // Verify password with backend API
+            try {
+                const response = await fetch('http://localhost:3001/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ password })
+                });
 
-                // Redirect to gallery manager
-                window.location.href = 'admin-gallery.html';
-            } else {
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    // Set session
+                    sessionStorage.setItem('admin_authenticated', 'true');
+                    sessionStorage.setItem('admin_login_time', Date.now().toString());
+                    sessionStorage.setItem('admin_password', password); // Store for API calls
+
+                    // Redirect to gallery manager
+                    window.location.href = 'admin-gallery.html';
+                } else {
+                    throw new Error(result.error || 'Invalid password');
+                }
+            } catch (error) {
                 // Show error
+                errorMessage.textContent = error.message || 'Invalid password. Please try again.';
                 errorMessage.classList.add('show');
                 loginBtn.classList.remove('loading');
                 loginBtn.disabled = false;

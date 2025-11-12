@@ -9,6 +9,9 @@
  * - Uploading and optimizing images
  */
 
+// Load environment variables from .env file
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const { Octokit } = require('@octokit/rest');
@@ -82,6 +85,25 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString(),
     githubConnected: !!GITHUB_TOKEN
   });
+});
+
+/**
+ * Login verification endpoint
+ */
+app.post('/api/auth/login', (req, res) => {
+  const { password } = req.body;
+
+  if (password === ADMIN_PASSWORD) {
+    res.json({
+      success: true,
+      message: 'Authentication successful'
+    });
+  } else {
+    res.status(401).json({
+      success: false,
+      error: 'Invalid password'
+    });
+  }
 });
 
 /**

@@ -321,34 +321,32 @@
             margin-bottom: 1.5rem;
         }
 
-        /* Modal Styles */
-        .modal-overlay {
+        /* Modal Styles - Completely Rebuilt */
+        #computer-modal {
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            display: none;
-            align-items: center;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 9999;
             justify-content: center;
-            z-index: 1000;
+            align-items: center;
         }
 
-        .modal-overlay.show {
-            display: flex;
+        #computer-modal.show {
+            display: flex !important;
         }
 
         .modal {
             background: white;
-            border-radius: 20px;
+            border-radius: 16px;
             max-width: 800px;
             width: 90%;
             max-height: 90vh;
             overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            position: relative;
-            z-index: 1001;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
         }
 
         .modal-header {
@@ -734,7 +732,7 @@
     </div>
 
     <!-- Add/Edit Modal -->
-    <div class="modal-overlay" id="computer-modal">
+    <div id="computer-modal">
         <div class="modal">
             <div class="modal-header">
                 <h2 id="modal-title">Add New Computer</h2>

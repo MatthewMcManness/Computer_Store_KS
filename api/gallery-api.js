@@ -138,60 +138,62 @@ app.post('/api/gallery/update', authenticate, async (req, res) => {
       return res.status(400).json({ error: 'HTML content is required' });
     }
 
-    // Write to local file first
-    const indexPath = path.join(__dirname, '..', 'index.html');
-    await fs.writeFile(indexPath, htmlContent, 'utf8');
+    // Commit to GitHub (primary method for Render deployment)
+    if (!GITHUB_TOKEN) {
+      return res.status(500).json({
+        success: false,
+        error: 'GitHub token not configured',
+        message: 'GITHUB_TOKEN environment variable must be set'
+      });
+    }
 
-    // Create backup
-    const backupDir = path.join(__dirname, '..', 'backups');
-    await fs.mkdir(backupDir, { recursive: true });
+    try {
+      console.log('📝 Committing to GitHub...');
+      console.log('   Owner:', GITHUB_OWNER);
+      console.log('   Repo:', GITHUB_REPO);
+      console.log('   Branch:', GITHUB_BRANCH);
+      console.log('   Content length:', htmlContent.length);
 
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').split('T')[0] + '_' +
-                     new Date().toTimeString().split(' ')[0].replace(/:/g, '');
-    const backupPath = path.join(backupDir, `index_backup_${timestamp}.html`);
-    await fs.writeFile(backupPath, htmlContent, 'utf8');
+      // Get current file SHA
+      const { data: currentFile } = await octokit.repos.getContent({
+        owner: GITHUB_OWNER,
+        repo: GITHUB_REPO,
+        path: 'index.html',
+        ref: GITHUB_BRANCH
+      });
 
-    // Commit to GitHub
-    if (GITHUB_TOKEN) {
-      try {
-        // Get current file SHA
-        const { data: currentFile } = await octokit.repos.getContent({
-          owner: GITHUB_OWNER,
-          repo: GITHUB_REPO,
-          path: 'index.html',
-          ref: GITHUB_BRANCH
-        });
+      console.log('✅ Current file SHA:', currentFile.sha);
 
-        // Update file
-        await octokit.repos.createOrUpdateFileContents({
-          owner: GITHUB_OWNER,
-          repo: GITHUB_REPO,
-          path: 'index.html',
-          message: commitMessage || 'Update gallery via Web Gallery Manager',
-          content: Buffer.from(htmlContent).toString('base64'),
-          sha: currentFile.sha,
-          branch: GITHUB_BRANCH
-        });
+      // Update file
+      const updateResult = await octokit.repos.createOrUpdateFileContents({
+        owner: GITHUB_OWNER,
+        repo: GITHUB_REPO,
+        path: 'index.html',
+        message: commitMessage || 'Update gallery via Web Gallery Manager',
+        content: Buffer.from(htmlContent).toString('base64'),
+        sha: currentFile.sha,
+        branch: GITHUB_BRANCH
+      });
 
-        res.json({
-          success: true,
-          message: 'Gallery updated and committed to GitHub',
-          backup: backupPath
-        });
-      } catch (githubError) {
-        console.error('GitHub commit error:', githubError);
-        res.json({
-          success: true,
-          message: 'Gallery updated locally but GitHub commit failed',
-          error: githubError.message,
-          backup: backupPath
-        });
-      }
-    } else {
+      console.log('✅ GitHub commit successful:', updateResult.data.commit.sha);
+
       res.json({
         success: true,
-        message: 'Gallery updated locally (no GitHub token configured)',
-        backup: backupPath
+        message: 'Gallery committed to GitHub successfully',
+        commitSha: updateResult.data.commit.sha,
+        commitUrl: updateResult.data.commit.html_url
+      });
+
+    } catch (githubError) {
+      console.error('❌ GitHub commit error:', githubError);
+      console.error('   Status:', githubError.status);
+      console.error('   Message:', githubError.message);
+
+      res.status(500).json({
+        success: false,
+        error: 'Failed to commit to GitHub',
+        message: githubError.message,
+        status: githubError.status
       });
     }
   } catch (error) {

@@ -544,35 +544,45 @@ async function publishChanges() {
     publishBtn.innerHTML = '<span class="spinner"></span> Publishing...';
 
     try {
+        console.log('🚀 Starting publish process...');
+
         // Generate updated HTML
+        console.log('📝 Generating updated HTML...');
         const updatedHTML = await generateHTML();
+        console.log('✅ HTML generated, length:', updatedHTML.length);
 
         // Get admin password from session
         const password = sessionStorage.getItem('admin_password');
+        console.log('🔑 Using password:', password ? '***' + password.slice(-3) : 'NO PASSWORD');
+
+        const requestBody = {
+            htmlContent: updatedHTML,
+            commitMessage: 'Update gallery via Web Gallery Manager'
+        };
+        console.log('📤 Request body size:', JSON.stringify(requestBody).length);
 
         // Call API to update and commit
+        console.log('🌐 Calling API at:', `${API_URL}/api/gallery/update`);
         const response = await fetch(`${API_URL}/api/gallery/update`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${password}`
             },
-            body: JSON.stringify({
-                htmlContent: updatedHTML,
-                commitMessage: 'Update gallery via Web Gallery Manager'
-            })
+            body: JSON.stringify(requestBody)
         });
 
-        console.log('Publish response status:', response.status);
+        console.log('📡 Publish response status:', response.status);
+        console.log('📡 Response headers:', Object.fromEntries(response.headers.entries()));
 
         if (!response.ok) {
             const errorText = await response.text();
-            console.error('API error response:', errorText);
+            console.error('❌ API error response:', errorText);
             throw new Error(`API error: ${response.status} - ${errorText}`);
         }
 
         const result = await response.json();
-        console.log('Publish result:', result);
+        console.log('✅ Publish result:', result);
 
         if (result.success) {
             showToast('Changes published successfully! Website will update in 2-3 minutes.', 'success');

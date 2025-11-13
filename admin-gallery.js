@@ -284,36 +284,45 @@ function openAddModal() {
 }
 
 function openEditModal(computer) {
-    document.getElementById('modal-title').textContent = 'Edit Computer';
-    document.getElementById('edit-index').value = computer.id;
+    console.log('Opening edit modal for:', computer);
+    try {
+        document.getElementById('modal-title').textContent = 'Edit Computer';
+        document.getElementById('edit-index').value = computer.id;
 
-    // Fill form
-    document.getElementById('computer-name').value = computer.name;
-    document.getElementById('computer-type').value = computer.type;
-    document.getElementById('computer-category').value = computer.category;
-    document.getElementById('computer-price').value = computer.price;
+        // Fill form
+        document.getElementById('computer-name').value = computer.name;
+        document.getElementById('computer-type').value = computer.type;
+        document.getElementById('computer-category').value = computer.category;
+        document.getElementById('computer-price').value = computer.price;
 
-    // Update category options based on type
-    updateCategoryOptions();
+        // Update category options based on type
+        updateCategoryOptions();
 
-    // Set image preview
-    if (computer.image) {
-        const preview = document.getElementById('image-preview');
-        preview.src = computer.image;
-        preview.style.display = 'block';
-        document.getElementById('upload-prompt').style.display = 'none';
-        document.getElementById('upload-area').classList.add('has-image');
-    }
-
-    // Fill specs
-    computer.specs.forEach((spec, index) => {
-        if (index < 4) {
-            document.getElementById(`spec${index + 1}-label`).value = spec.label;
-            document.getElementById(`spec${index + 1}-value`).value = spec.value;
+        // Set image preview
+        if (computer.image) {
+            const preview = document.getElementById('image-preview');
+            preview.src = computer.image;
+            preview.style.display = 'block';
+            document.getElementById('upload-prompt').style.display = 'none';
+            document.getElementById('upload-area').classList.add('has-image');
         }
-    });
 
-    document.getElementById('computer-modal').classList.add('show');
+        // Fill specs
+        computer.specs.forEach((spec, index) => {
+            if (index < 4) {
+                document.getElementById(`spec${index + 1}-label`).value = spec.label;
+                document.getElementById(`spec${index + 1}-value`).value = spec.value;
+            }
+        });
+
+        const modal = document.getElementById('computer-modal');
+        console.log('Modal element:', modal);
+        modal.classList.add('show');
+        console.log('Modal classes after adding show:', modal.className);
+    } catch (error) {
+        console.error('Error opening edit modal:', error);
+        alert('Error opening edit modal: ' + error.message);
+    }
 }
 
 function closeModal() {

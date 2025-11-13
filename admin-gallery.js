@@ -46,6 +46,20 @@ function logout() {
 // Load computers from index.html
 async function loadComputers() {
     try {
+        // Check if we have unsaved changes in sessionStorage (coming back from add/edit page)
+        const hasUnsaved = sessionStorage.getItem('hasUnsavedChanges') === 'true';
+        const storedComputers = sessionStorage.getItem('computers');
+
+        if (hasUnsaved && storedComputers) {
+            // Load from sessionStorage instead of index.html
+            computers = JSON.parse(storedComputers);
+            hasUnsavedChanges = true;
+            document.getElementById('publish-btn').disabled = false;
+            renderGallery();
+            showToast('Loaded your unpublished changes', 'success');
+            return;
+        }
+
         const response = await fetch('index.html');
         const html = await response.text();
 
@@ -123,6 +137,9 @@ async function loadComputers() {
 
             computers.push(computer);
         });
+
+        // Save to sessionStorage for add/edit pages to use
+        sessionStorage.setItem('computers', JSON.stringify(computers));
 
         renderGallery();
         showToast('Gallery loaded successfully!', 'success');
@@ -239,7 +256,10 @@ function selectCard(id) {
 // Edit selected computer
 function editSelected() {
     if (selectedComputer) {
-        openEditModal(selectedComputer);
+        // Save current computers to sessionStorage for the edit page
+        sessionStorage.setItem('computers', JSON.stringify(computers));
+        // Redirect to edit page with computer ID
+        window.location.href = `edit-computer.html?id=${selectedComputer.id}`;
     }
 }
 
@@ -557,6 +577,8 @@ async function publishChanges() {
         if (result.success) {
             showToast('Changes published successfully! Website will update in 2-3 minutes.', 'success');
             hasUnsavedChanges = false;
+            // Clear sessionStorage flags since changes are now published
+            sessionStorage.removeItem('hasUnsavedChanges');
             publishBtn.disabled = true;
             publishBtn.innerHTML = 'Publish Changes';
         } else {
@@ -710,7 +732,7 @@ document.addEventListener('keydown', (e) => {
 document.addEventListener('dblclick', (e) => {
     const card = e.target.closest('.computer-card');
     if (card && selectedComputer) {
-        openEditModal(selectedComputer);
+        editSelected();
     }
 });
 

@@ -82,6 +82,17 @@ function migrateSpecs(specs) {
     return migratedSpecs;
 }
 
+// Force reload from server (clears cache)
+function forceReload() {
+    if (hasUnsavedChanges) {
+        if (!confirm('You have unsaved changes. Are you sure you want to discard them and reload from the server?')) {
+            return;
+        }
+    }
+    sessionStorage.clear();
+    location.reload();
+}
+
 // Load computers from index.html
 async function loadComputers() {
     try {
@@ -90,17 +101,22 @@ async function loadComputers() {
         const storedComputers = sessionStorage.getItem('computers');
 
         if (hasUnsaved && storedComputers) {
+            console.log('📦 Loading from sessionStorage with unsaved changes...');
             // Load from sessionStorage instead of index.html
             computers = JSON.parse(storedComputers);
+            console.log('Before migration:', computers.map(c => ({ name: c.name, specCount: c.specs.length })));
             // Migrate specs to fix any old format issues
             computers = computers.map(computer => ({
                 ...computer,
                 specs: migrateSpecs(computer.specs)
             }));
+            console.log('After migration:', computers.map(c => ({ name: c.name, specCount: c.specs.length, specs: c.specs })));
+            // Save migrated data back to sessionStorage
+            sessionStorage.setItem('computers', JSON.stringify(computers));
             hasUnsavedChanges = true;
             document.getElementById('publish-btn').disabled = false;
             renderGallery();
-            showToast('Loaded your unpublished changes', 'success');
+            showToast('Loaded your unpublished changes (migrated spec format)', 'success');
             return;
         }
 

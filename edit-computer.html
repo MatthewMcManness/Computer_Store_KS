@@ -240,6 +240,18 @@
             ]
         };
 
+        // Warranty/diagnostic specs (flipped format - value comes before label)
+        const warrantySpecConfigs = {
+            refurbished: [
+                { label: 'Parts Warranty', defaultValue: '3 Months', placeholder: 'e.g., 3 Months' },
+                { label: 'Free Diagnostics', defaultValue: '6 Months', placeholder: 'e.g., 6 Months' }
+            ],
+            custom: [
+                { label: 'Manufacturer Warranty', defaultValue: '1 Year', placeholder: 'e.g., 1 Year' },
+                { label: 'Free Diagnostics', defaultValue: 'Lifetime', placeholder: 'e.g., Lifetime' }
+            ]
+        };
+
         // Helper function to find matching spec value with flexible label matching
         function findSpecValue(existingSpecs, targetLabel) {
             // Define label aliases for backward compatibility
@@ -248,7 +260,10 @@
                 'Display': ['Display', 'Screen', 'Display Size'],
                 'Processor': ['Processor', 'CPU'],
                 'Storage': ['Storage', 'SSD', 'HDD'],
-                'Graphics Card': ['Graphics Card', 'GPU', 'Graphics']
+                'Graphics Card': ['Graphics Card', 'GPU', 'Graphics'],
+                'Parts Warranty': ['Parts Warranty'],
+                'Manufacturer Warranty': ['Manufacturer Warranty'],
+                'Free Diagnostics': ['Free Diagnostics']
             };
 
             const aliases = labelAliases[targetLabel] || [targetLabel];
@@ -261,24 +276,42 @@
             return '';
         }
 
-        // Generate specs based on computer type
-        function generateSpecs(type, existingSpecs = []) {
+        // Generate specs based on computer type and category
+        function generateSpecs(type, category, existingSpecs = []) {
             const container = document.getElementById('specs-container');
             const config = specConfigs[type];
+            const warrantyConfig = warrantySpecConfigs[category] || warrantySpecConfigs.custom;
             const addGraphicsBtn = document.getElementById('add-graphics-btn');
 
             container.innerHTML = '';
             hasGraphicsCard = false;
 
-            config.forEach((spec, index) => {
+            let specIndex = 0;
+
+            // Add regular specs (label: value format)
+            config.forEach((spec) => {
                 const specDiv = document.createElement('div');
                 specDiv.className = 'specs-grid';
                 const existingValue = findSpecValue(existingSpecs, spec.label);
                 specDiv.innerHTML = `
                     <input type="text" value="${spec.label}" readonly style="background: #f7fafc; cursor: not-allowed;">
-                    <input type="text" id="spec-${index}" placeholder="${spec.placeholder}" value="${existingValue}" required>
+                    <input type="text" id="spec-${specIndex}" placeholder="${spec.placeholder}" value="${existingValue}" required>
                 `;
                 container.appendChild(specDiv);
+                specIndex++;
+            });
+
+            // Add warranty/diagnostic specs (flipped format - value: label)
+            warrantyConfig.forEach((spec) => {
+                const specDiv = document.createElement('div');
+                specDiv.className = 'specs-grid';
+                const existingValue = findSpecValue(existingSpecs, spec.label) || spec.defaultValue;
+                specDiv.innerHTML = `
+                    <input type="text" id="spec-${specIndex}" placeholder="${spec.placeholder}" value="${existingValue}" required>
+                    <input type="text" value="${spec.label}" readonly style="background: #f7fafc; cursor: not-allowed;">
+                `;
+                container.appendChild(specDiv);
+                specIndex++;
             });
 
             // Check if laptop has a graphics card in existing specs
@@ -319,7 +352,16 @@
 
         // Listen for type changes
         document.getElementById('computer-type').addEventListener('change', function(e) {
-            generateSpecs(e.target.value, currentComputer ? currentComputer.specs : []);
+            const type = e.target.value;
+            const category = document.getElementById('computer-category').value;
+            generateSpecs(type, category, currentComputer ? currentComputer.specs : []);
+        });
+
+        // Listen for category changes
+        document.getElementById('computer-category').addEventListener('change', function(e) {
+            const type = document.getElementById('computer-type').value;
+            const category = e.target.value;
+            generateSpecs(type, category, currentComputer ? currentComputer.specs : []);
         });
 
         // Get computer ID from URL
@@ -353,7 +395,7 @@
             }
 
             // Generate specs with existing values
-            generateSpecs(computer.type, computer.specs);
+            generateSpecs(computer.type, computer.category, computer.specs);
         }
 
         // Image upload handling

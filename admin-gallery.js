@@ -52,19 +52,28 @@ function forceReload() {
             return;
         }
     }
+    console.log('🔄 Force reload: Clearing ALL sessionStorage...');
     sessionStorage.clear();
-    location.reload();
+    console.log('✅ SessionStorage cleared. Reloading page...');
+    // Force a hard reload to bypass any caching
+    location.reload(true);
 }
 
 // Load computers from index.html
 async function loadComputers() {
     try {
+        console.log('🚀 loadComputers() called');
+        console.log('   SessionStorage keys:', Object.keys(sessionStorage));
+
         // Check if we have unsaved changes in sessionStorage (coming back from add/edit page)
         const hasUnsaved = sessionStorage.getItem('hasUnsavedChanges') === 'true';
         const storedComputers = sessionStorage.getItem('computers');
 
+        console.log('   hasUnsavedChanges flag:', hasUnsaved);
+        console.log('   Has stored computers:', !!storedComputers);
+
         if (hasUnsaved && storedComputers) {
-            console.log('📦 Loading from sessionStorage with unsaved changes...');
+            console.log('📦 ⚠️  Loading from sessionStorage with unsaved changes...');
             // Load from sessionStorage instead of index.html
             computers = JSON.parse(storedComputers);
             console.log('Before migration:', computers.map(c => ({ name: c.name, specCount: c.specs.length })));
@@ -85,8 +94,10 @@ async function loadComputers() {
             return;
         }
 
+        console.log('📄 Loading computers from index.html...');
         const response = await fetch('index.html');
         const html = await response.text();
+        console.log('✅ Fetched index.html, length:', html.length);
 
         // Parse HTML
         const parser = new DOMParser();

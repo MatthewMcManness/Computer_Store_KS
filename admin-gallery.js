@@ -663,13 +663,17 @@ async function generateHTML() {
             priceHTML = computer.price;
         }
 
-        const specsHTML = computer.specs.slice(0, 4).map(spec => `
+        const specsHTML = computer.specs.slice(0, 4).map(spec => {
+            // Ensure label doesn't already end with a colon before adding one
+            const label = spec.label.replace(/::?$/, '').trim();
+            return `
           <div class="spec-item">
            <strong>
-            ${spec.label}:
+            ${label}:
            </strong>
            ${spec.value}
-          </div>`).join('\n         ');
+          </div>`;
+        }).join('\n         ');
 
         const cardHTML = `
       <div class="gallery-card" data-category="${computer.category}" data-computer-id="${index + 1}" data-type="${computer.type}">

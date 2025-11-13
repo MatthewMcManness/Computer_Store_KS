@@ -333,15 +333,10 @@
             align-items: center;
             justify-content: center;
             z-index: 1000;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
         }
 
         .modal-overlay.show {
             display: flex;
-            opacity: 1;
-            pointer-events: all;
         }
 
         .modal {
@@ -352,12 +347,8 @@
             max-height: 90vh;
             overflow-y: auto;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            transform: scale(0.9);
-            transition: transform 0.3s ease;
-        }
-
-        .modal-overlay.show .modal {
-            transform: scale(1);
+            position: relative;
+            z-index: 1001;
         }
 
         .modal-header {

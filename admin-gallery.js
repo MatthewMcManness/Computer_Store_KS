@@ -68,6 +68,26 @@ async function loadComputers() {
                 specs: []
             };
 
+            // Check for Black Friday pricing
+            const originalPriceEl = card.querySelector('.original-price');
+            const salePriceEl = card.querySelector('.sale-price');
+            const savingsBadgeEl = card.querySelector('.savings-badge');
+
+            if (originalPriceEl && salePriceEl && savingsBadgeEl) {
+                // This is a Black Friday item
+                const discountText = savingsBadgeEl.textContent.match(/(\d+)%/);
+                const discount = discountText ? parseInt(discountText[1]) : 10;
+
+                computer.blackFriday = {
+                    enabled: true,
+                    originalPrice: originalPriceEl.textContent.trim(),
+                    salePrice: salePriceEl.textContent.trim(),
+                    discount: discount
+                };
+                // Set price to original for editing purposes
+                computer.price = originalPriceEl.textContent.trim();
+            }
+
             // Get category from data-category attribute or badge
             const dataCategory = card.getAttribute('data-category');
             if (dataCategory) {
@@ -141,10 +161,31 @@ function renderGallery() {
 
     // Render cards
     grid.innerHTML = filtered.map(computer => {
-        const badgeClass = computer.category === 'custom' ? 'badge-custom' :
+        // Determine badge based on Black Friday status
+        let badgeClass, badgeText;
+        if (computer.blackFriday && computer.blackFriday.enabled) {
+            badgeClass = 'badge-black-friday';
+            badgeText = 'Black Friday Sale';
+        } else {
+            badgeClass = computer.category === 'custom' ? 'badge-custom' :
                           computer.category === 'new' ? 'badge-new' : 'badge-refurbished';
-        const badgeText = computer.category === 'custom' ? 'Custom Build' :
+            badgeText = computer.category === 'custom' ? 'Custom Build' :
                          computer.category === 'new' ? 'New' : 'Refurbished';
+        }
+
+        // Determine price display
+        let priceHTML;
+        if (computer.blackFriday && computer.blackFriday.enabled) {
+            priceHTML = `
+                <div class="card-price">
+                    <span class="original-price">${computer.blackFriday.originalPrice}</span>
+                    <span class="sale-price">${computer.blackFriday.salePrice}</span>
+                    <span class="savings-badge">Save ${computer.blackFriday.discount}%</span>
+                </div>
+            `;
+        } else {
+            priceHTML = `<div class="card-price">${computer.price}</div>`;
+        }
 
         const specsHTML = computer.specs.slice(0, 4).map(spec => `
             <div class="spec-item">
@@ -153,14 +194,20 @@ function renderGallery() {
             </div>
         `).join('');
 
+        const ribbonHTML = (computer.blackFriday && computer.blackFriday.enabled) ?
+            '<div class="bf-ribbon-corner"></div>' : '';
+
         return `
             <div class="computer-card" data-id="${computer.id}" onclick="selectCard(${computer.id})">
-                <img src="${computer.image}" alt="${computer.name}" class="card-image" onerror="this.src='./assets/placeholder.jpg'">
-                <div class="card-badge ${badgeClass}">${badgeText}</div>
+                <div class="card-image">
+                    ${ribbonHTML}
+                    <img src="${computer.image}" alt="${computer.name}" style="width: 100%; height: 220px; object-fit: cover; background: #f7fafc;" onerror="this.src='./assets/placeholder.jpg'">
+                    <div class="card-badge ${badgeClass}">${badgeText}</div>
+                </div>
                 <div class="card-content">
                     <div class="card-type">${computer.type}</div>
                     <div class="card-name">${computer.name}</div>
-                    <div class="card-price">${computer.price}</div>
+                    ${priceHTML}
                     <div class="card-specs">
                         ${specsHTML}
                     </div>
@@ -183,7 +230,25 @@ function selectCard(id) {
         card.classList.add('selected');
         selectedComputer = computers.find(c => c.id === id);
 
-        // Show edit/delete options (you can add buttons in top-actions if needed)
+        // Enable edit/delete buttons
+        document.getElementById('edit-btn').disabled = false;
+        document.getElementById('delete-btn').disabled = false;
+    }
+}
+
+// Edit selected computer
+function editSelected() {
+    if (selectedComputer) {
+        openEditModal(selectedComputer);
+    }
+}
+
+// Delete selected computer
+function deleteSelected() {
+    if (selectedComputer) {
+        deleteComputer(selectedComputer.id);
+        document.getElementById('edit-btn').disabled = true;
+        document.getElementById('delete-btn').disabled = true;
     }
 }
 
@@ -486,10 +551,37 @@ async function generateHTML() {
 
     // Generate new cards with proper flip-card structure
     computers.forEach((computer, index) => {
-        const badgeClass = computer.category === 'custom' ? 'badge-custom' :
+        // Determine badge based on Black Friday status
+        let badgeClass, badgeText, ribbonHTML = '';
+        if (computer.blackFriday && computer.blackFriday.enabled) {
+            badgeClass = 'badge-black-friday';
+            badgeText = 'Black Friday Sale';
+            ribbonHTML = `
+         <div class="bf-ribbon-corner">
+         </div>`;
+        } else {
+            badgeClass = computer.category === 'custom' ? 'badge-custom' :
                           computer.category === 'new' ? 'badge-new' : 'badge-refurbished';
-        const badgeText = computer.category === 'custom' ? 'Custom Build' :
+            badgeText = computer.category === 'custom' ? 'Custom Build' :
                          computer.category === 'new' ? 'New' : 'Refurbished';
+        }
+
+        // Determine price HTML
+        let priceHTML;
+        if (computer.blackFriday && computer.blackFriday.enabled) {
+            priceHTML = `
+          <span class="original-price">
+           ${computer.blackFriday.originalPrice}
+          </span>
+          <span class="sale-price">
+           ${computer.blackFriday.salePrice}
+          </span>
+          <span class="savings-badge">
+           Save ${computer.blackFriday.discount}%
+          </span>`;
+        } else {
+            priceHTML = computer.price;
+        }
 
         const specsHTML = computer.specs.slice(0, 4).map(spec => `
           <div class="spec-item">
@@ -502,7 +594,7 @@ async function generateHTML() {
         const cardHTML = `
       <div class="gallery-card" data-category="${computer.category}" data-computer-id="${index + 1}" data-type="${computer.type}">
        <div class="gallery-card-inner">
-        <div class="gallery-card-front">
+        <div class="gallery-card-front">${ribbonHTML}
          <div class="gallery-card-badge ${badgeClass}">
           ${badgeText}
          </div>
@@ -515,7 +607,7 @@ async function generateHTML() {
           ${computer.name}
          </h3>
          <div class="gallery-card-price">
-          ${computer.price}
+          ${priceHTML}
          </div>
          <div class="gallery-card-specs">
          ${specsHTML}
@@ -573,6 +665,71 @@ document.addEventListener('dblclick', (e) => {
         openEditModal(selectedComputer);
     }
 });
+
+// Black Friday Functions
+function toggleBlackFriday() {
+    const toggle = document.getElementById('bf-toggle');
+    const options = document.getElementById('bf-options');
+
+    blackFridayEnabled = toggle.checked;
+    options.style.display = toggle.checked ? 'block' : 'none';
+
+    if (!toggle.checked && selectedComputer) {
+        // Remove Black Friday from selected computer
+        if (selectedComputer.blackFriday) {
+            removeBlackFriday(selectedComputer);
+        }
+    }
+}
+
+function applyBlackFriday() {
+    if (!selectedComputer) {
+        showToast('Please select a computer first', 'error');
+        return;
+    }
+
+    const discountPercent = parseInt(document.getElementById('bf-discount').value);
+
+    if (discountPercent < 1 || discountPercent > 50) {
+        showToast('Discount must be between 1% and 50%', 'error');
+        return;
+    }
+
+    // Extract numeric price from string like "$1,299" or "$1299.99"
+    const priceString = selectedComputer.price.replace(/[$,]/g, '');
+    const originalPrice = parseFloat(priceString);
+
+    if (isNaN(originalPrice)) {
+        showToast('Invalid price format', 'error');
+        return;
+    }
+
+    const salePrice = originalPrice * (1 - discountPercent / 100);
+
+    // Update computer with Black Friday data
+    selectedComputer.blackFriday = {
+        enabled: true,
+        originalPrice: `$${originalPrice.toFixed(2)}`,
+        salePrice: `$${salePrice.toFixed(2)}`,
+        discount: discountPercent
+    };
+
+    hasUnsavedChanges = true;
+    document.getElementById('publish-btn').disabled = false;
+
+    renderGallery();
+    showToast(`Applied ${discountPercent}% Black Friday discount!`, 'success');
+}
+
+function removeBlackFriday(computer) {
+    if (computer.blackFriday) {
+        delete computer.blackFriday;
+        hasUnsavedChanges = true;
+        document.getElementById('publish-btn').disabled = false;
+        renderGallery();
+        showToast('Black Friday discount removed', 'success');
+    }
+}
 
 // Initialize
 console.log('Initializing Gallery Manager...');

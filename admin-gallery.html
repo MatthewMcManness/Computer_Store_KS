@@ -196,11 +196,26 @@
         .computer-card {
             background: white;
             border-radius: 16px;
-            overflow: hidden;
+            overflow: visible;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             transition: all 0.3s ease;
             cursor: pointer;
             position: relative;
+        }
+
+        .card-image {
+            position: relative;
+            overflow: hidden;
+            border-radius: 16px 16px 0 0;
+            width: 100%;
+            height: 220px;
+        }
+
+        .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background: #f7fafc;
         }
 
         .computer-card:hover {
@@ -211,13 +226,6 @@
         .computer-card.selected {
             outline: 3px solid #667eea;
             outline-offset: 2px;
-        }
-
-        .card-image {
-            width: 100%;
-            height: 220px;
-            object-fit: cover;
-            background: #f7fafc;
         }
 
         .card-badge {
@@ -558,6 +566,92 @@
         .toast.error {
             border-left: 4px solid #f56565;
         }
+
+        /* Toggle Switch Styles */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #cbd5e0;
+            transition: 0.4s;
+            border-radius: 34px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Black Friday Badge Styles */
+        .badge-black-friday {
+            background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+            color: white;
+        }
+
+        .bf-ribbon-corner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-top: 60px solid #e53e3e;
+            border-right: 60px solid transparent;
+            z-index: 1;
+        }
+
+        .original-price {
+            text-decoration: line-through;
+            color: #a0aec0;
+            font-size: 1rem;
+            margin-right: 0.5rem;
+        }
+
+        .sale-price {
+            color: #e53e3e;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .savings-badge {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-left: 0.5rem;
+        }
     </style>
 </head>
 <body>
@@ -595,9 +689,42 @@
                 <button class="btn-primary" onclick="openAddModal()">
                     + Add Computer
                 </button>
+                <button class="btn-primary" id="edit-btn" onclick="editSelected()" disabled style="background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%);">
+                    ✏️ Edit Selected
+                </button>
+                <button class="btn-danger" id="delete-btn" onclick="deleteSelected()" disabled>
+                    🗑️ Delete Selected
+                </button>
                 <button class="btn-success" id="publish-btn" onclick="publishChanges()" disabled>
                     Publish Changes
                 </button>
+            </div>
+        </div>
+
+        <!-- Black Friday Toggle Section -->
+        <div class="black-friday-section" style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); margin-bottom: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h3 style="margin: 0 0 0.5rem 0; font-size: 1.25rem; color: #1a202c;">Black Friday Sale Mode</h3>
+                    <p style="margin: 0; color: #718096; font-size: 0.9rem;">Toggle Black Friday badges and discounts on selected computers</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="bf-toggle" onchange="toggleBlackFriday()">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div id="bf-options" style="display: none; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 2px solid #f7fafc;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                    <div class="form-group-full">
+                        <label for="bf-discount">Discount Percentage</label>
+                        <input type="number" id="bf-discount" value="10" min="1" max="50" style="width: 100%; padding: 0.875rem 1rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem;">
+                    </div>
+                    <div style="display: flex; align-items: flex-end;">
+                        <button class="btn-primary" onclick="applyBlackFriday()" style="width: 100%;">
+                            Apply to Selected
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 

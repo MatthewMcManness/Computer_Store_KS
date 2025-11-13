@@ -198,6 +198,12 @@ async function loadComputers() {
             computers.push(computer);
         });
 
+        // Migrate loaded computers to fix any spec issues
+        computers = computers.map(computer => ({
+            ...computer,
+            specs: migrateSpecs(computer.specs)
+        }));
+
         // Save to sessionStorage for add/edit pages to use
         sessionStorage.setItem('computers', JSON.stringify(computers));
 

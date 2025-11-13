@@ -260,8 +260,8 @@
                 const specDiv = document.createElement('div');
                 specDiv.className = 'specs-grid';
                 specDiv.innerHTML = `
-                    <input type="text" value="${spec.label}" readonly style="background: #f7fafc; cursor: not-allowed;">
-                    <input type="text" id="spec-${specIndex}" placeholder="${spec.placeholder}" required>
+                    <input type="text" value="${spec.label}" data-role="label" readonly style="background: #f7fafc; cursor: not-allowed;">
+                    <input type="text" id="spec-${specIndex}" data-role="value" placeholder="${spec.placeholder}" required>
                 `;
                 container.appendChild(specDiv);
                 specIndex++;
@@ -272,8 +272,8 @@
                 const specDiv = document.createElement('div');
                 specDiv.className = 'specs-grid';
                 specDiv.innerHTML = `
-                    <input type="text" id="spec-${specIndex}" placeholder="${spec.placeholder}" value="${spec.defaultValue}" required>
-                    <input type="text" value="${spec.label}" readonly style="background: #f7fafc; cursor: not-allowed;">
+                    <input type="text" id="spec-${specIndex}" data-role="value" placeholder="${spec.placeholder}" value="${spec.defaultValue}" required>
+                    <input type="text" value="${spec.label}" data-role="label" readonly style="background: #f7fafc; cursor: not-allowed;">
                 `;
                 container.appendChild(specDiv);
                 specIndex++;
@@ -296,8 +296,8 @@
             graphicsDiv.className = 'specs-grid';
             graphicsDiv.id = 'graphics-card-spec';
             graphicsDiv.innerHTML = `
-                <input type="text" value="Graphics Card" readonly style="background: #f7fafc; cursor: not-allowed;">
-                <input type="text" id="spec-graphics" placeholder="e.g., RTX 4050" required>
+                <input type="text" value="Graphics Card" data-role="label" readonly style="background: #f7fafc; cursor: not-allowed;">
+                <input type="text" id="spec-graphics" data-role="value" placeholder="e.g., RTX 4050" required>
             `;
             container.appendChild(graphicsDiv);
 
@@ -357,13 +357,14 @@
             const type = document.getElementById('computer-type').value;
             const specs = [];
 
-            // Get all spec inputs
+            // Get all spec inputs using data-role attributes
             const specInputs = document.querySelectorAll('#specs-container .specs-grid');
             specInputs.forEach(specDiv => {
-                const inputs = specDiv.querySelectorAll('input');
+                const labelInput = specDiv.querySelector('input[data-role="label"]');
+                const valueInput = specDiv.querySelector('input[data-role="value"]');
                 specs.push({
-                    label: inputs[0].value,
-                    value: inputs[1].value
+                    label: labelInput.value,
+                    value: valueInput.value
                 });
             });
 

@@ -196,23 +196,13 @@
             </div>
 
             <div class="form-group">
-                <label>Specifications (4 required) *</label>
-                <div class="specs-grid">
-                    <input type="text" id="spec1-label" placeholder="Label (e.g., CPU)" required>
-                    <input type="text" id="spec1-value" placeholder="Value (e.g., Intel i7-12700K)" required>
+                <label>Specifications *</label>
+                <div id="specs-container">
+                    <!-- Specs will be dynamically generated based on computer type -->
                 </div>
-                <div class="specs-grid">
-                    <input type="text" id="spec2-label" placeholder="Label (e.g., RAM)" required>
-                    <input type="text" id="spec2-value" placeholder="Value (e.g., 32GB DDR4)" required>
-                </div>
-                <div class="specs-grid">
-                    <input type="text" id="spec3-label" placeholder="Label (e.g., Storage)" required>
-                    <input type="text" id="spec3-value" placeholder="Value (e.g., 1TB NVMe SSD)" required>
-                </div>
-                <div class="specs-grid">
-                    <input type="text" id="spec4-label" placeholder="Label (e.g., Graphics)" required>
-                    <input type="text" id="spec4-value" placeholder="Value (e.g., RTX 3070)" required>
-                </div>
+                <button type="button" id="add-graphics-btn" class="btn-secondary" style="display: none; margin-top: 1rem; width: auto;" onclick="addGraphicsCard()">
+                    + Add Graphics Card
+                </button>
             </div>
 
             <div class="button-group">
@@ -223,6 +213,77 @@
     </div>
 
     <script>
+        let hasGraphicsCard = false;
+
+        // Spec configurations for different computer types
+        const specConfigs = {
+            desktop: [
+                { label: 'Graphics Card', placeholder: 'e.g., RTX 4060 Ti' },
+                { label: 'Processor', placeholder: 'e.g., Intel i7-12700K' },
+                { label: 'Memory', placeholder: 'e.g., 32GB DDR4' },
+                { label: 'Storage', placeholder: 'e.g., 1TB NVMe SSD' }
+            ],
+            laptop: [
+                { label: 'Display', placeholder: 'e.g., 15.6 Inches' },
+                { label: 'Processor', placeholder: 'e.g., Intel i7-12700H' },
+                { label: 'Memory', placeholder: 'e.g., 16GB DDR4' },
+                { label: 'Storage', placeholder: 'e.g., 512GB NVMe SSD' }
+            ]
+        };
+
+        // Generate specs based on computer type
+        function generateSpecs(type) {
+            const container = document.getElementById('specs-container');
+            const config = specConfigs[type];
+            const addGraphicsBtn = document.getElementById('add-graphics-btn');
+
+            container.innerHTML = '';
+            hasGraphicsCard = false;
+
+            config.forEach((spec, index) => {
+                const specDiv = document.createElement('div');
+                specDiv.className = 'specs-grid';
+                specDiv.innerHTML = `
+                    <input type="text" value="${spec.label}" readonly style="background: #f7fafc; cursor: not-allowed;">
+                    <input type="text" id="spec-${index}" placeholder="${spec.placeholder}" required>
+                `;
+                container.appendChild(specDiv);
+            });
+
+            // Show "Add Graphics Card" button only for laptops
+            if (type === 'laptop') {
+                addGraphicsBtn.style.display = 'inline-block';
+            } else {
+                addGraphicsBtn.style.display = 'none';
+            }
+        }
+
+        // Add graphics card spec for laptops
+        function addGraphicsCard() {
+            if (hasGraphicsCard) return;
+
+            const container = document.getElementById('specs-container');
+            const graphicsDiv = document.createElement('div');
+            graphicsDiv.className = 'specs-grid';
+            graphicsDiv.id = 'graphics-card-spec';
+            graphicsDiv.innerHTML = `
+                <input type="text" value="Graphics Card" readonly style="background: #f7fafc; cursor: not-allowed;">
+                <input type="text" id="spec-graphics" placeholder="e.g., RTX 4050" required>
+            `;
+            container.appendChild(graphicsDiv);
+
+            hasGraphicsCard = true;
+            document.getElementById('add-graphics-btn').style.display = 'none';
+        }
+
+        // Listen for type changes
+        document.getElementById('computer-type').addEventListener('change', function(e) {
+            generateSpecs(e.target.value);
+        });
+
+        // Initialize with desktop specs
+        generateSpecs('desktop');
+
         // Image upload handling
         document.getElementById('image-input').addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -241,31 +302,27 @@
         document.getElementById('computer-form').addEventListener('submit', function(e) {
             e.preventDefault();
 
+            const type = document.getElementById('computer-type').value;
+            const specs = [];
+
+            // Get all spec inputs
+            const specInputs = document.querySelectorAll('#specs-container .specs-grid');
+            specInputs.forEach(specDiv => {
+                const inputs = specDiv.querySelectorAll('input');
+                specs.push({
+                    label: inputs[0].value,
+                    value: inputs[1].value
+                });
+            });
+
             const newComputer = {
                 id: Date.now(),
                 name: document.getElementById('computer-name').value,
-                type: document.getElementById('computer-type').value,
+                type: type,
                 category: document.getElementById('computer-category').value,
                 price: document.getElementById('computer-price').value,
                 image: document.getElementById('image-preview').src,
-                specs: [
-                    {
-                        label: document.getElementById('spec1-label').value,
-                        value: document.getElementById('spec1-value').value
-                    },
-                    {
-                        label: document.getElementById('spec2-label').value,
-                        value: document.getElementById('spec2-value').value
-                    },
-                    {
-                        label: document.getElementById('spec3-label').value,
-                        value: document.getElementById('spec3-value').value
-                    },
-                    {
-                        label: document.getElementById('spec4-label').value,
-                        value: document.getElementById('spec4-value').value
-                    }
-                ]
+                specs: specs
             };
 
             // Get existing computers from sessionStorage

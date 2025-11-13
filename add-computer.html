@@ -305,10 +305,23 @@
             document.getElementById('add-graphics-btn').style.display = 'none';
         }
 
+        // Update category label based on computer type
+        function updateCategoryLabel(type) {
+            const categorySelect = document.getElementById('computer-category');
+            const customOption = categorySelect.querySelector('option[value="custom"]');
+
+            if (type === 'laptop') {
+                customOption.textContent = 'New';
+            } else {
+                customOption.textContent = 'Custom Build';
+            }
+        }
+
         // Listen for type changes
         document.getElementById('computer-type').addEventListener('change', function(e) {
             const type = e.target.value;
             const category = document.getElementById('computer-category').value;
+            updateCategoryLabel(type);
             generateSpecs(type, category);
         });
 
@@ -320,6 +333,7 @@
         });
 
         // Initialize with desktop specs and custom category
+        updateCategoryLabel('desktop');
         generateSpecs('desktop', 'custom');
 
         // Image upload handling

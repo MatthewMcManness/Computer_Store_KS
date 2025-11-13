@@ -507,11 +507,16 @@ async function publishChanges() {
             })
         });
 
+        console.log('Publish response status:', response.status);
+
         if (!response.ok) {
-            throw new Error(`API error: ${response.status}`);
+            const errorText = await response.text();
+            console.error('API error response:', errorText);
+            throw new Error(`API error: ${response.status} - ${errorText}`);
         }
 
         const result = await response.json();
+        console.log('Publish result:', result);
 
         if (result.success) {
             showToast('Changes published successfully! Website will update in 2-3 minutes.', 'success');
@@ -524,7 +529,14 @@ async function publishChanges() {
 
     } catch (error) {
         console.error('Error publishing changes:', error);
-        showToast(`Error publishing changes: ${error.message}`, 'error');
+
+        // More detailed error message
+        let errorMsg = error.message;
+        if (error.message.includes('Failed to fetch')) {
+            errorMsg = 'Cannot connect to API server. Is it running?';
+        }
+
+        showToast(`Error publishing changes: ${errorMsg}`, 'error');
         publishBtn.disabled = false;
         publishBtn.innerHTML = 'Publish Changes';
     }
@@ -731,10 +743,31 @@ function removeBlackFriday(computer) {
     }
 }
 
+// Check API health on startup
+async function checkAPIHealth() {
+    try {
+        console.log('Checking API health at:', `${API_URL}/api/health`);
+        const response = await fetch(`${API_URL}/api/health`);
+        const data = await response.json();
+        console.log('API Health:', data);
+
+        if (!data.githubConnected) {
+            console.warn('⚠️ GitHub is not connected to the API. Publishing will not work!');
+            showToast('Warning: GitHub integration not configured. Contact admin.', 'error');
+        }
+    } catch (error) {
+        console.error('❌ API Health Check Failed:', error);
+        console.error('API URL:', API_URL);
+        showToast('Warning: Cannot connect to API server. Publishing may not work.', 'error');
+    }
+}
+
 // Initialize
 console.log('Initializing Gallery Manager...');
 console.log('Checking authentication...');
 checkAuth();
+console.log('Checking API health...');
+checkAPIHealth();
 console.log('Loading computers...');
 loadComputers().catch(err => {
     console.error('Failed to load computers:', err);

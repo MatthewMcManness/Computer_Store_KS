@@ -368,14 +368,18 @@
                 });
             });
 
+            // Migrate specs to remove duplicates and fix formatting
+            const computerName = document.getElementById('computer-name').value;
+            const migratedSpecs = migrateSpecs(specs, computerName);
+
             const newComputer = {
                 id: Date.now(),
-                name: document.getElementById('computer-name').value,
+                name: computerName,
                 type: type,
                 category: document.getElementById('computer-category').value,
                 price: document.getElementById('computer-price').value,
                 image: document.getElementById('image-preview').src,
-                specs: specs
+                specs: migratedSpecs
             };
 
             // Get existing computers from sessionStorage
@@ -388,5 +392,6 @@
             window.location.href = 'admin-gallery.html';
         });
     </script>
+    <script src="spec-migration.js"></script>
 </body>
 </html>

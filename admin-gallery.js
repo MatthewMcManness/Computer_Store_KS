@@ -43,64 +43,7 @@ function logout() {
     window.location.href = 'admin-login.html';
 }
 
-// Migrate old spec format to new format
-function migrateSpecs(specs, computerName = 'Unknown') {
-    console.log(`🔄 Migrating specs for: ${computerName}`);
-    console.log('📥 Input specs:', JSON.parse(JSON.stringify(specs)));
-
-    const warrantyLabels = ['Parts Warranty', 'Manufacturer Warranty', 'Free Diagnostics'];
-    const migratedSpecs = [];
-    const seenLabels = new Set();
-
-    for (const spec of specs) {
-        console.log(`  Processing: "${spec.label}" => "${spec.value}"`);
-
-        // Check if the value looks like it's the same as the label (duplicate error)
-        if (spec.label === spec.value) {
-            console.log(`  ⏭️  SKIPPED - label === value (duplicate)`);
-            continue;
-        }
-
-        // Check if this is a warranty spec that was stored backwards
-        // If the label is a value-like string and value is a warranty label, swap them
-        if (warrantyLabels.includes(spec.value) && !warrantyLabels.includes(spec.label)) {
-            const normalizedLabel = spec.value;
-
-            // Skip if we've already added this warranty spec
-            if (seenLabels.has(normalizedLabel)) {
-                console.log(`  ⏭️  SKIPPED - duplicate warranty spec "${normalizedLabel}"`);
-                continue;
-            }
-
-            console.log(`  🔄 SWAPPED - warranty spec (was backwards)`);
-            migratedSpecs.push({
-                label: spec.value,
-                value: spec.label
-            });
-            seenLabels.add(normalizedLabel);
-        }
-        // Normal spec
-        else {
-            // Skip if we've already seen this label (prevents duplicates)
-            if (seenLabels.has(spec.label)) {
-                console.log(`  ⏭️  SKIPPED - duplicate label "${spec.label}"`);
-                continue;
-            }
-
-            console.log(`  ✅ KEPT - normal spec`);
-            migratedSpecs.push({
-                label: spec.label,
-                value: spec.value
-            });
-            seenLabels.add(spec.label);
-        }
-    }
-
-    console.log('📤 Output specs:', JSON.parse(JSON.stringify(migratedSpecs)));
-    console.log(`✅ Migration complete: ${specs.length} => ${migratedSpecs.length} specs\n`);
-
-    return migratedSpecs;
-}
+// Migration function is loaded from spec-migration.js
 
 // Force reload from server (clears cache)
 function forceReload() {

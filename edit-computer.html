@@ -240,6 +240,27 @@
             ]
         };
 
+        // Helper function to find matching spec value with flexible label matching
+        function findSpecValue(existingSpecs, targetLabel) {
+            // Define label aliases for backward compatibility
+            const labelAliases = {
+                'Memory': ['Memory', 'RAM'],
+                'Display': ['Display', 'Screen', 'Display Size'],
+                'Processor': ['Processor', 'CPU'],
+                'Storage': ['Storage', 'SSD', 'HDD'],
+                'Graphics Card': ['Graphics Card', 'GPU', 'Graphics']
+            };
+
+            const aliases = labelAliases[targetLabel] || [targetLabel];
+
+            for (const spec of existingSpecs) {
+                if (aliases.includes(spec.label)) {
+                    return spec.value;
+                }
+            }
+            return '';
+        }
+
         // Generate specs based on computer type
         function generateSpecs(type, existingSpecs = []) {
             const container = document.getElementById('specs-container');
@@ -249,16 +270,10 @@
             container.innerHTML = '';
             hasGraphicsCard = false;
 
-            // Create a map of existing spec values
-            const specMap = {};
-            existingSpecs.forEach(spec => {
-                specMap[spec.label] = spec.value;
-            });
-
             config.forEach((spec, index) => {
                 const specDiv = document.createElement('div');
                 specDiv.className = 'specs-grid';
-                const existingValue = specMap[spec.label] || '';
+                const existingValue = findSpecValue(existingSpecs, spec.label);
                 specDiv.innerHTML = `
                     <input type="text" value="${spec.label}" readonly style="background: #f7fafc; cursor: not-allowed;">
                     <input type="text" id="spec-${index}" placeholder="${spec.placeholder}" value="${existingValue}" required>
@@ -268,8 +283,9 @@
 
             // Check if laptop has a graphics card in existing specs
             if (type === 'laptop') {
-                if (specMap['Graphics Card']) {
-                    addGraphicsCardWithValue(specMap['Graphics Card']);
+                const graphicsValue = findSpecValue(existingSpecs, 'Graphics Card');
+                if (graphicsValue) {
+                    addGraphicsCardWithValue(graphicsValue);
                 } else {
                     addGraphicsBtn.style.display = 'inline-block';
                 }

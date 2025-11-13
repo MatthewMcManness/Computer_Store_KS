@@ -206,8 +206,7 @@ function renderGallery() {
 
         const specsHTML = computer.specs.slice(0, 4).map(spec => `
             <div class="spec-item">
-                <div class="spec-label">${spec.label}</div>
-                <div class="spec-value">${spec.value}</div>
+                <strong>${spec.label}:</strong> ${spec.value}
             </div>
         `).join('');
 

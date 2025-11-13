@@ -43,6 +43,45 @@ function logout() {
     window.location.href = 'admin-login.html';
 }
 
+// Migrate old spec format to new format
+function migrateSpecs(specs) {
+    const warrantyLabels = ['Parts Warranty', 'Manufacturer Warranty', 'Free Diagnostics'];
+    const migratedSpecs = [];
+    const seenLabels = new Set();
+
+    for (const spec of specs) {
+        // Skip if we've already seen this label (prevents duplicates)
+        if (seenLabels.has(spec.label)) {
+            continue;
+        }
+
+        // Check if this is a warranty spec that was stored backwards
+        // If the label is a value-like string and value is a warranty label, swap them
+        if (warrantyLabels.includes(spec.value) && !warrantyLabels.includes(spec.label)) {
+            migratedSpecs.push({
+                label: spec.value,
+                value: spec.label
+            });
+            seenLabels.add(spec.value);
+        }
+        // Check if the value looks like it's the same as the label (duplicate error)
+        else if (spec.label === spec.value) {
+            // Skip this duplicate
+            continue;
+        }
+        // Normal spec
+        else {
+            migratedSpecs.push({
+                label: spec.label,
+                value: spec.value
+            });
+            seenLabels.add(spec.label);
+        }
+    }
+
+    return migratedSpecs;
+}
+
 // Load computers from index.html
 async function loadComputers() {
     try {
@@ -53,6 +92,11 @@ async function loadComputers() {
         if (hasUnsaved && storedComputers) {
             // Load from sessionStorage instead of index.html
             computers = JSON.parse(storedComputers);
+            // Migrate specs to fix any old format issues
+            computers = computers.map(computer => ({
+                ...computer,
+                specs: migrateSpecs(computer.specs)
+            }));
             hasUnsavedChanges = true;
             document.getElementById('publish-btn').disabled = false;
             renderGallery();
@@ -209,7 +253,8 @@ function renderGallery() {
             priceHTML = `<div class="card-price">${computer.price}</div>`;
         }
 
-        const specsHTML = computer.specs.slice(0, 4).map(spec => {
+        // Show all specs (no limit)
+        const specsHTML = computer.specs.map(spec => {
             // Ensure label doesn't already end with a colon before adding one
             const label = spec.label.replace(/::?$/, '').trim();
             return `
@@ -676,7 +721,8 @@ async function generateHTML() {
             priceHTML = computer.price;
         }
 
-        const specsHTML = computer.specs.slice(0, 4).map(spec => {
+        // Show all specs (no limit) - includes warranty info
+        const specsHTML = computer.specs.map(spec => {
             // Ensure label doesn't already end with a colon before adding one
             const label = spec.label.replace(/::?$/, '').trim();
             return `

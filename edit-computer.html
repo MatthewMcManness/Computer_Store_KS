@@ -482,19 +482,44 @@
         // Track if image is currently loading
         let isImageLoading = false;
 
-        // Image upload handling
+        // Image upload handling with compression
         document.getElementById('image-input').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
                 isImageLoading = true;
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    document.getElementById('image-preview').src = e.target.result;
-                    document.getElementById('image-preview').style.display = 'block';
-                    document.getElementById('upload-prompt').style.display = 'none';
-                    document.getElementById('upload-area').classList.add('has-image');
-                    isImageLoading = false;
-                    console.log('✅ Image loaded successfully');
+                    const img = new Image();
+                    img.onload = function() {
+                        // Compress image to max 800x800 and 0.8 quality
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+                        const maxSize = 800;
+
+                        if (width > height && width > maxSize) {
+                            height = (height / width) * maxSize;
+                            width = maxSize;
+                        } else if (height > maxSize) {
+                            width = (width / height) * maxSize;
+                            height = maxSize;
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        // Convert to JPEG with 0.8 quality (good balance of size/quality)
+                        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                        document.getElementById('image-preview').src = compressedDataUrl;
+                        document.getElementById('image-preview').style.display = 'block';
+                        document.getElementById('upload-prompt').style.display = 'none';
+                        document.getElementById('upload-area').classList.add('has-image');
+                        isImageLoading = false;
+                        console.log('✅ Image compressed and loaded successfully');
+                    };
+                    img.src = e.target.result;
                 };
                 reader.onerror = function() {
                     console.error('❌ Error reading image file');
@@ -502,7 +527,7 @@
                     alert('Error reading image file. Please try again.');
                 };
                 reader.readAsDataURL(file);
-                console.log('📸 Loading image...');
+                console.log('📸 Loading and compressing image...');
             }
         });
 
@@ -554,8 +579,21 @@
             const index = computers.findIndex(c => c.id === computerId);
             if (index !== -1) {
                 computers[index] = updatedComputer;
-                sessionStorage.setItem('computers', JSON.stringify(computers));
-                sessionStorage.setItem('hasUnsavedChanges', 'true');
+
+                try {
+                    sessionStorage.setItem('computers', JSON.stringify(computers));
+                    sessionStorage.setItem('hasUnsavedChanges', 'true');
+                } catch (e) {
+                    if (e.name === 'QuotaExceededError') {
+                        alert('Storage quota exceeded! This usually happens when images are too large.\n\n' +
+                              'Please try:\n' +
+                              '1. Using smaller images (resize before uploading)\n' +
+                              '2. Using JPEG instead of PNG\n' +
+                              '3. Publishing your changes to free up space');
+                        return;
+                    }
+                    throw e;
+                }
             }
 
             // Redirect back to gallery

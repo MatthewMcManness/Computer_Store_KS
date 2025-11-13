@@ -277,11 +277,39 @@ function renderGallery() {
 
             // Check if this is a warranty spec - display in special format
             if (warrantyLabels.includes(label)) {
-                return `
+                // Check if Black Friday is active and we have original warranty values
+                let warrantyHTML = '';
+                if (computer.blackFriday && computer.blackFriday.enabled) {
+                    const originalValue = label === 'Parts Warranty'
+                        ? computer.blackFriday.originalPartsWarranty
+                        : (label === 'Free Diagnostics' ? computer.blackFriday.originalFreeDiagnostics : null);
+
+                    if (originalValue) {
+                        // Show crossed-out original and new value
+                        warrantyHTML = `
+            <div class="spec-item">
+                <strong style="text-decoration: line-through; opacity: 0.6;">${originalValue}</strong>
+                <strong style="color: #f6ad55;">${spec.value}</strong>
+                <strong>${label}</strong>
+            </div>
+        `;
+                    } else {
+                        // No original value, just show current
+                        warrantyHTML = `
             <div class="spec-item">
                 <strong>${spec.value}</strong> <strong>${label}</strong>
             </div>
         `;
+                    }
+                } else {
+                    // Normal warranty display
+                    warrantyHTML = `
+            <div class="spec-item">
+                <strong>${spec.value}</strong> <strong>${label}</strong>
+            </div>
+        `;
+                }
+                return warrantyHTML;
             } else {
                 // Normal spec - label: value format
                 return `
@@ -756,7 +784,30 @@ async function generateHTML() {
 
             // Check if this is a warranty spec - display in special format
             if (warrantyLabels.includes(label)) {
-                return `
+                // Check if Black Friday is active and we have original warranty values
+                let warrantyHTML = '';
+                if (computer.blackFriday && computer.blackFriday.enabled) {
+                    const originalValue = label === 'Parts Warranty'
+                        ? computer.blackFriday.originalPartsWarranty
+                        : (label === 'Free Diagnostics' ? computer.blackFriday.originalFreeDiagnostics : null);
+
+                    if (originalValue) {
+                        // Show crossed-out original and new value
+                        warrantyHTML = `
+          <div class="spec-item">
+           <strong style="text-decoration: line-through; opacity: 0.6;">
+            ${originalValue}
+           </strong>
+           <strong style="color: #f6ad55;">
+            ${spec.value}
+           </strong>
+           <strong>
+            ${label}
+           </strong>
+          </div>`;
+                    } else {
+                        // No original value, just show current
+                        warrantyHTML = `
           <div class="spec-item">
            <strong>
             ${spec.value}
@@ -765,6 +816,20 @@ async function generateHTML() {
             ${label}
            </strong>
           </div>`;
+                    }
+                } else {
+                    // Normal warranty display
+                    warrantyHTML = `
+          <div class="spec-item">
+           <strong>
+            ${spec.value}
+           </strong>
+           <strong>
+            ${label}
+           </strong>
+          </div>`;
+                }
+                return warrantyHTML;
             } else {
                 // Normal spec - label: value format
                 return `
@@ -852,69 +917,100 @@ document.addEventListener('dblclick', (e) => {
     }
 });
 
-// Black Friday Functions
+// Black Friday Functions - Global Toggle for All Refurbished Computers
 function toggleBlackFriday() {
     const toggle = document.getElementById('bf-toggle');
-    const options = document.getElementById('bf-options');
-
     blackFridayEnabled = toggle.checked;
-    options.style.display = toggle.checked ? 'block' : 'none';
 
-    if (!toggle.checked && selectedComputer) {
-        // Remove Black Friday from selected computer
-        if (selectedComputer.blackFriday) {
-            removeBlackFriday(selectedComputer);
-        }
+    console.log(`🎃 Black Friday Mode ${blackFridayEnabled ? 'ENABLED' : 'DISABLED'}`);
+
+    if (blackFridayEnabled) {
+        // Apply Black Friday to ALL refurbished computers
+        applyBlackFridayToAll();
+    } else {
+        // Remove Black Friday from ALL computers
+        removeBlackFridayFromAll();
     }
 }
 
-function applyBlackFriday() {
-    if (!selectedComputer) {
-        showToast('Please select a computer first', 'error');
-        return;
-    }
+function applyBlackFridayToAll() {
+    let count = 0;
 
-    const discountPercent = parseInt(document.getElementById('bf-discount').value);
+    computers.forEach(computer => {
+        // Only apply to refurbished computers
+        if (computer.category === 'refurbished') {
+            // Apply 10% discount
+            const priceString = computer.price.replace(/[$,]/g, '');
+            const originalPrice = parseFloat(priceString);
 
-    if (discountPercent < 1 || discountPercent > 50) {
-        showToast('Discount must be between 1% and 50%', 'error');
-        return;
-    }
+            if (!isNaN(originalPrice)) {
+                const salePrice = originalPrice * 0.90; // 10% off
 
-    // Extract numeric price from string like "$1,299" or "$1299.99"
-    const priceString = selectedComputer.price.replace(/[$,]/g, '');
-    const originalPrice = parseFloat(priceString);
+                computer.blackFriday = {
+                    enabled: true,
+                    originalPrice: `$${originalPrice.toFixed(2)}`,
+                    salePrice: `$${salePrice.toFixed(2)}`,
+                    discount: 10
+                };
 
-    if (isNaN(originalPrice)) {
-        showToast('Invalid price format', 'error');
-        return;
-    }
+                // Update warranty specs
+                const partsWarrantyIndex = computer.specs.findIndex(s => s.label.replace(/::?$/, '').trim() === 'Parts Warranty');
+                const freeDiagnosticsIndex = computer.specs.findIndex(s => s.label.replace(/::?$/, '').trim() === 'Free Diagnostics');
 
-    const salePrice = originalPrice * (1 - discountPercent / 100);
+                if (partsWarrantyIndex !== -1) {
+                    // Store original warranty before changing
+                    if (!computer.blackFriday.originalPartsWarranty) {
+                        computer.blackFriday.originalPartsWarranty = computer.specs[partsWarrantyIndex].value;
+                    }
+                    computer.specs[partsWarrantyIndex].value = '6 Months';
+                }
 
-    // Update computer with Black Friday data
-    selectedComputer.blackFriday = {
-        enabled: true,
-        originalPrice: `$${originalPrice.toFixed(2)}`,
-        salePrice: `$${salePrice.toFixed(2)}`,
-        discount: discountPercent
-    };
+                if (freeDiagnosticsIndex !== -1) {
+                    // Store original warranty before changing
+                    if (!computer.blackFriday.originalFreeDiagnostics) {
+                        computer.blackFriday.originalFreeDiagnostics = computer.specs[freeDiagnosticsIndex].value;
+                    }
+                    computer.specs[freeDiagnosticsIndex].value = '1 Year';
+                }
+
+                count++;
+            }
+        }
+    });
 
     hasUnsavedChanges = true;
     document.getElementById('publish-btn').disabled = false;
-
     renderGallery();
-    showToast(`Applied ${discountPercent}% Black Friday discount!`, 'success');
+    showToast(`🎃 Black Friday Sale applied to ${count} refurbished computer(s)!`, 'success');
 }
 
-function removeBlackFriday(computer) {
-    if (computer.blackFriday) {
-        delete computer.blackFriday;
-        hasUnsavedChanges = true;
-        document.getElementById('publish-btn').disabled = false;
-        renderGallery();
-        showToast('Black Friday discount removed', 'success');
-    }
+function removeBlackFridayFromAll() {
+    let count = 0;
+
+    computers.forEach(computer => {
+        if (computer.blackFriday && computer.blackFriday.enabled) {
+            // Restore original warranty values
+            const partsWarrantyIndex = computer.specs.findIndex(s => s.label.replace(/::?$/, '').trim() === 'Parts Warranty');
+            const freeDiagnosticsIndex = computer.specs.findIndex(s => s.label.replace(/::?$/, '').trim() === 'Free Diagnostics');
+
+            if (partsWarrantyIndex !== -1 && computer.blackFriday.originalPartsWarranty) {
+                computer.specs[partsWarrantyIndex].value = computer.blackFriday.originalPartsWarranty;
+            }
+
+            if (freeDiagnosticsIndex !== -1 && computer.blackFriday.originalFreeDiagnostics) {
+                computer.specs[freeDiagnosticsIndex].value = computer.blackFriday.originalFreeDiagnostics;
+            }
+
+            // Remove Black Friday data
+            delete computer.blackFriday;
+            count++;
+        }
+    });
+
+    hasUnsavedChanges = true;
+    document.getElementById('publish-btn').disabled = false;
+    renderGallery();
+    showToast(`Black Friday Sale removed from ${count} computer(s)`, 'success');
 }
 
 // Check API health on startup

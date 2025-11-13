@@ -254,6 +254,8 @@
 
         // Helper function to find matching spec value with flexible label matching
         function findSpecValue(existingSpecs, targetLabel) {
+            console.log(`findSpecValue: Looking for "${targetLabel}" in specs:`, existingSpecs.map(s => s.label));
+
             // Define label aliases for backward compatibility
             const labelAliases = {
                 'Memory': ['Memory', 'RAM'],
@@ -269,10 +271,13 @@
             const aliases = labelAliases[targetLabel] || [targetLabel];
 
             for (const spec of existingSpecs) {
+                console.log(`  Checking spec.label="${spec.label}" against aliases:`, aliases);
                 if (aliases.includes(spec.label)) {
+                    console.log(`  ✓ Found match! Value: "${spec.value}"`);
                     return spec.value;
                 }
             }
+            console.log(`  ✗ No match found for "${targetLabel}"`);
             return '';
         }
 

@@ -292,6 +292,18 @@ function openAddModal() {
         console.log('   - Classes:', modal.className);
         console.log('   - Computed display:', window.getComputedStyle(modal).display);
         console.log('   - Inline display:', modal.style.display);
+
+        const computedStyle = window.getComputedStyle(modal);
+        console.log('🔍 Full modal computed styles:');
+        console.log('   - position:', computedStyle.position);
+        console.log('   - top:', computedStyle.top);
+        console.log('   - left:', computedStyle.left);
+        console.log('   - width:', computedStyle.width);
+        console.log('   - height:', computedStyle.height);
+        console.log('   - z-index:', computedStyle.zIndex);
+        console.log('   - visibility:', computedStyle.visibility);
+        console.log('   - opacity:', computedStyle.opacity);
+        console.log('   - background:', computedStyle.backgroundColor);
     } catch (error) {
         console.error('❌ Error opening modal:', error);
         alert('Error opening modal: ' + error.message);

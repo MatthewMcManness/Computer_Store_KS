@@ -160,11 +160,17 @@ async function loadComputers() {
             // Get specs from gallery-card-specs section
             const specItems = card.querySelectorAll('.gallery-card-specs .spec-item');
             specItems.forEach(item => {
-                const fullText = item.textContent.trim();
                 const strong = item.querySelector('strong');
                 if (strong) {
-                    const label = strong.textContent.replace(/::?$/, '').trim(); // Remove trailing : or ::
-                    const value = fullText.replace(strong.textContent, '').trim();
+                    // Normalize the label by trimming and removing trailing colons
+                    const label = strong.textContent.trim().replace(/::?$/, '');
+
+                    // Extract value by getting all text content after the strong element
+                    // First, get the full text and normalize whitespace
+                    const fullText = item.textContent.trim();
+
+                    // Remove the label and any following colons/whitespace to get the value
+                    const value = fullText.replace(label, '').replace(/^::?\s*/, '').trim();
                     if (label && value) {
                         computer.specs.push({ label, value });
                     }

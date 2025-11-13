@@ -158,15 +158,26 @@ async function loadComputers() {
             }
 
             // Get specs from gallery-card-specs section
+            const warrantyLabels = ['Parts Warranty', 'Manufacturer Warranty', 'Free Diagnostics'];
             const specItems = card.querySelectorAll('.gallery-card-specs .spec-item');
             specItems.forEach(item => {
-                const strong = item.querySelector('strong');
-                if (strong) {
+                const strongs = item.querySelectorAll('strong');
+
+                // Check if this is a warranty spec (2 strong tags, no colon)
+                if (strongs.length === 2) {
+                    const value = strongs[0].textContent.trim();
+                    const label = strongs[1].textContent.trim();
+                    if (label && value) {
+                        computer.specs.push({ label, value });
+                    }
+                }
+                // Normal spec (1 strong tag with colon)
+                else if (strongs.length === 1) {
+                    const strong = strongs[0];
                     // Normalize the label by trimming and removing trailing colons
                     const label = strong.textContent.trim().replace(/::?$/, '');
 
                     // Extract value by getting all text content after the strong element
-                    // First, get the full text and normalize whitespace
                     const fullText = item.textContent.trim();
 
                     // Remove the label and any following colons/whitespace to get the value
@@ -260,14 +271,25 @@ function renderGallery() {
         }
 
         // Show all specs (no limit)
+        const warrantyLabels = ['Parts Warranty', 'Manufacturer Warranty', 'Free Diagnostics'];
         const specsHTML = computer.specs.map(spec => {
-            // Ensure label doesn't already end with a colon before adding one
             const label = spec.label.replace(/::?$/, '').trim();
-            return `
+
+            // Check if this is a warranty spec - display in special format
+            if (warrantyLabels.includes(label)) {
+                return `
+            <div class="spec-item">
+                <strong>${spec.value}</strong> <strong>${label}</strong>
+            </div>
+        `;
+            } else {
+                // Normal spec - label: value format
+                return `
             <div class="spec-item">
                 <strong>${label}:</strong> ${spec.value}
             </div>
         `;
+            }
         }).join('');
 
         const ribbonHTML = (computer.blackFriday && computer.blackFriday.enabled) ?
@@ -728,16 +750,31 @@ async function generateHTML() {
         }
 
         // Show all specs (no limit) - includes warranty info
+        const warrantyLabels = ['Parts Warranty', 'Manufacturer Warranty', 'Free Diagnostics'];
         const specsHTML = computer.specs.map(spec => {
-            // Ensure label doesn't already end with a colon before adding one
             const label = spec.label.replace(/::?$/, '').trim();
-            return `
+
+            // Check if this is a warranty spec - display in special format
+            if (warrantyLabels.includes(label)) {
+                return `
+          <div class="spec-item">
+           <strong>
+            ${spec.value}
+           </strong>
+           <strong>
+            ${label}
+           </strong>
+          </div>`;
+            } else {
+                // Normal spec - label: value format
+                return `
           <div class="spec-item">
            <strong>
             ${label}:
            </strong>
            ${spec.value}
           </div>`;
+            }
         }).join('\n         ');
 
         const cardHTML = `

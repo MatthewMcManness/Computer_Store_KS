@@ -278,6 +278,8 @@
 
         // Generate specs based on computer type and category
         function generateSpecs(type, category, existingSpecs = []) {
+            console.log('generateSpecs called with:', { type, category, existingSpecs });
+
             const container = document.getElementById('specs-container');
             const config = specConfigs[type];
             const warrantyConfig = warrantySpecConfigs[category] || warrantySpecConfigs.custom;
@@ -293,6 +295,7 @@
                 const specDiv = document.createElement('div');
                 specDiv.className = 'specs-grid';
                 const existingValue = findSpecValue(existingSpecs, spec.label);
+                console.log(`Looking for spec "${spec.label}", found value: "${existingValue}"`);
                 specDiv.innerHTML = `
                     <input type="text" value="${spec.label}" readonly style="background: #f7fafc; cursor: not-allowed;">
                     <input type="text" id="spec-${specIndex}" placeholder="${spec.placeholder}" value="${existingValue}" required>
@@ -378,6 +381,10 @@
         } else {
             currentComputer = computer;
 
+            // Debug: Log the computer data
+            console.log('Loading computer:', computer);
+            console.log('Computer specs:', computer.specs);
+
             // Fill form with existing data
             document.getElementById('computer-id').value = computer.id;
             document.getElementById('computer-name').value = computer.name;
@@ -395,6 +402,7 @@
             }
 
             // Generate specs with existing values
+            console.log('Generating specs with type:', computer.type, 'category:', computer.category);
             generateSpecs(computer.type, computer.category, computer.specs);
         }
 

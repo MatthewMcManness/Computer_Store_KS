@@ -301,10 +301,24 @@
                 specDiv.className = 'specs-grid';
                 const existingValue = findSpecValue(existingSpecs, spec.label);
                 console.log(`Looking for spec "${spec.label}", found value: "${existingValue}"`);
-                specDiv.innerHTML = `
-                    <input type="text" value="${spec.label}" readonly style="background: #f7fafc; cursor: not-allowed;">
-                    <input type="text" id="spec-${specIndex}" placeholder="${spec.placeholder}" value="${existingValue}" required>
-                `;
+
+                // Create inputs properly to handle special characters
+                const labelInput = document.createElement('input');
+                labelInput.type = 'text';
+                labelInput.value = spec.label;
+                labelInput.readOnly = true;
+                labelInput.style.background = '#f7fafc';
+                labelInput.style.cursor = 'not-allowed';
+
+                const valueInput = document.createElement('input');
+                valueInput.type = 'text';
+                valueInput.id = `spec-${specIndex}`;
+                valueInput.placeholder = spec.placeholder;
+                valueInput.value = existingValue;
+                valueInput.required = true;
+
+                specDiv.appendChild(labelInput);
+                specDiv.appendChild(valueInput);
                 container.appendChild(specDiv);
                 specIndex++;
             });
@@ -314,10 +328,24 @@
                 const specDiv = document.createElement('div');
                 specDiv.className = 'specs-grid';
                 const existingValue = findSpecValue(existingSpecs, spec.label) || spec.defaultValue;
-                specDiv.innerHTML = `
-                    <input type="text" id="spec-${specIndex}" placeholder="${spec.placeholder}" value="${existingValue}" required>
-                    <input type="text" value="${spec.label}" readonly style="background: #f7fafc; cursor: not-allowed;">
-                `;
+
+                // Create inputs properly to handle special characters
+                const valueInput = document.createElement('input');
+                valueInput.type = 'text';
+                valueInput.id = `spec-${specIndex}`;
+                valueInput.placeholder = spec.placeholder;
+                valueInput.value = existingValue;
+                valueInput.required = true;
+
+                const labelInput = document.createElement('input');
+                labelInput.type = 'text';
+                labelInput.value = spec.label;
+                labelInput.readOnly = true;
+                labelInput.style.background = '#f7fafc';
+                labelInput.style.cursor = 'not-allowed';
+
+                specDiv.appendChild(valueInput);
+                specDiv.appendChild(labelInput);
                 container.appendChild(specDiv);
                 specIndex++;
             });
@@ -343,10 +371,24 @@
             const graphicsDiv = document.createElement('div');
             graphicsDiv.className = 'specs-grid';
             graphicsDiv.id = 'graphics-card-spec';
-            graphicsDiv.innerHTML = `
-                <input type="text" value="Graphics Card" readonly style="background: #f7fafc; cursor: not-allowed;">
-                <input type="text" id="spec-graphics" placeholder="e.g., RTX 4050" value="${value}" required>
-            `;
+
+            // Create inputs properly to handle special characters
+            const labelInput = document.createElement('input');
+            labelInput.type = 'text';
+            labelInput.value = 'Graphics Card';
+            labelInput.readOnly = true;
+            labelInput.style.background = '#f7fafc';
+            labelInput.style.cursor = 'not-allowed';
+
+            const valueInput = document.createElement('input');
+            valueInput.type = 'text';
+            valueInput.id = 'spec-graphics';
+            valueInput.placeholder = 'e.g., RTX 4050';
+            valueInput.value = value;
+            valueInput.required = true;
+
+            graphicsDiv.appendChild(labelInput);
+            graphicsDiv.appendChild(valueInput);
             container.appendChild(graphicsDiv);
 
             hasGraphicsCard = true;

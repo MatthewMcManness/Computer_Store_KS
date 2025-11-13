@@ -186,8 +186,13 @@ function renderGallery() {
         } else {
             badgeClass = computer.category === 'custom' ? 'badge-custom' :
                           computer.category === 'new' ? 'badge-new' : 'badge-refurbished';
-            badgeText = computer.category === 'custom' ? 'Custom Build' :
-                         computer.category === 'new' ? 'New' : 'Refurbished';
+            // Show "New" for laptops with custom category, otherwise use normal labels
+            if (computer.category === 'custom' && computer.type === 'laptop') {
+                badgeText = 'New';
+            } else {
+                badgeText = computer.category === 'custom' ? 'Custom Build' :
+                             computer.category === 'new' ? 'New' : 'Refurbished';
+            }
         }
 
         // Determine price display
@@ -204,11 +209,15 @@ function renderGallery() {
             priceHTML = `<div class="card-price">${computer.price}</div>`;
         }
 
-        const specsHTML = computer.specs.slice(0, 4).map(spec => `
+        const specsHTML = computer.specs.slice(0, 4).map(spec => {
+            // Ensure label doesn't already end with a colon before adding one
+            const label = spec.label.replace(/::?$/, '').trim();
+            return `
             <div class="spec-item">
-                <strong>${spec.label}:</strong> ${spec.value}
+                <strong>${label}:</strong> ${spec.value}
             </div>
-        `).join('');
+        `;
+        }).join('');
 
         const ribbonHTML = (computer.blackFriday && computer.blackFriday.enabled) ?
             '<div class="bf-ribbon-corner"></div>' : '';
@@ -641,8 +650,13 @@ async function generateHTML() {
         } else {
             badgeClass = computer.category === 'custom' ? 'badge-custom' :
                           computer.category === 'new' ? 'badge-new' : 'badge-refurbished';
-            badgeText = computer.category === 'custom' ? 'Custom Build' :
-                         computer.category === 'new' ? 'New' : 'Refurbished';
+            // Show "New" for laptops with custom category, otherwise use normal labels
+            if (computer.category === 'custom' && computer.type === 'laptop') {
+                badgeText = 'New';
+            } else {
+                badgeText = computer.category === 'custom' ? 'Custom Build' :
+                             computer.category === 'new' ? 'New' : 'Refurbished';
+            }
         }
 
         // Determine price HTML

@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
- <!--
+<html lang="en"><!--
 ===============================================
 COMPUTER STORE KANSAS - MAIN HTML FILE
 ===============================================
@@ -10,8 +9,7 @@ CHANGES: Modernized design with bright color scheme, added stats section, number
 DESCRIPTION: Single-page application with dynamic navigation and modern content management
 DEPENDENCIES: style.css, script.js
 ===============================================
--->
- <head>
+--><head>
   <!-- ================================================
        GOOGLE ANALYTICS 4 TRACKING
        Tracks page views and user interactions for better insights
@@ -29,52 +27,52 @@ DEPENDENCIES: style.css, script.js
        BASIC META TAGS & SEO OPTIMIZATION
        Essential meta tags for search engines and browsers
        ================================================ -->
-  <meta charset="utf-8"/>
-  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <meta content="Computer Store Kansas - Your trusted computer repair and protection plan provider since 2003. Expert computer services, virus removal, hardware repair, and Silver Plan protection in Topeka, KS." name="description"/>
-  <meta content="computer repair, computer service, Topeka Kansas, virus removal, hardware repair, protection plans, Silver Plan, computer store, PC repair, laptop repair" name="keywords"/>
-  <meta content="Computer Store Kansas" name="author"/>
-  <meta content="index, follow" name="robots"/>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta content="Computer Store Kansas - Your trusted computer repair and protection plan provider since 2003. Expert computer services, virus removal, hardware repair, and Silver Plan protection in Topeka, KS." name="description">
+  <meta content="computer repair, computer service, Topeka Kansas, virus removal, hardware repair, protection plans, Silver Plan, computer store, PC repair, laptop repair" name="keywords">
+  <meta content="Computer Store Kansas" name="author">
+  <meta content="index, follow" name="robots">
   <!-- Business Information -->
-  <meta content="US-KS" name="geo.region"/>
-  <meta content="Topeka" name="geo.placename"/>
-  <meta content="39.0473;-95.6890" name="geo.position"/>
-  <meta content="39.0473, -95.6890" name="ICBM"/>
+  <meta content="US-KS" name="geo.region">
+  <meta content="Topeka" name="geo.placename">
+  <meta content="39.0473;-95.6890" name="geo.position">
+  <meta content="39.0473, -95.6890" name="ICBM">
   <!-- Mobile Optimization -->
-  <meta content="telephone=yes" name="format-detection"/>
-  <meta content="yes" name="mobile-web-app-capable"/>
-  <meta content="yes" name="apple-mobile-web-app-capable"/>
-  <meta content="default" name="apple-mobile-web-app-status-bar-style"/>
-  <meta content="#2563eb" name="theme-color"/>
+  <meta content="telephone=yes" name="format-detection">
+  <meta content="yes" name="mobile-web-app-capable">
+  <meta content="yes" name="apple-mobile-web-app-capable">
+  <meta content="default" name="apple-mobile-web-app-status-bar-style">
+  <meta content="#2563eb" name="theme-color">
   <!-- ================================================
        OPEN GRAPH TAGS (FACEBOOK, LINKEDIN)
        Social media sharing optimization
        ================================================ -->
-  <meta content="Computer Store Kansas - Expert Computer Repair &amp; Protection Plans" property="og:title"/>
-  <meta content="Trusted computer repair and protection services in Topeka, KS since 2003. Professional diagnostics, virus removal, hardware repair, and comprehensive Silver Plan protection." property="og:description"/>
-  <meta content="website" property="og:type"/>
-  <meta content="https://computerstoreks.com" property="og:url"/>
-  <meta content="https://computerstoreks.com/assets/title.png" property="og:image"/>
-  <meta content="Computer Store Kansas" property="og:site_name"/>
-  <meta content="en_US" property="og:locale"/>
+  <meta content="Computer Store Kansas - Expert Computer Repair &amp; Protection Plans" property="og:title">
+  <meta content="Trusted computer repair and protection services in Topeka, KS since 2003. Professional diagnostics, virus removal, hardware repair, and comprehensive Silver Plan protection." property="og:description">
+  <meta content="website" property="og:type">
+  <meta content="https://computerstoreks.com" property="og:url">
+  <meta content="https://computerstoreks.com/assets/title.png" property="og:image">
+  <meta content="Computer Store Kansas" property="og:site_name">
+  <meta content="en_US" property="og:locale">
   <!-- Business Open Graph -->
-  <meta content="Topeka" property="business:contact_data:locality"/>
-  <meta content="Kansas" property="business:contact_data:region"/>
-  <meta content="66604" property="business:contact_data:postal_code"/>
-  <meta content="United States" property="business:contact_data:country_name"/>
+  <meta content="Topeka" property="business:contact_data:locality">
+  <meta content="Kansas" property="business:contact_data:region">
+  <meta content="66604" property="business:contact_data:postal_code">
+  <meta content="United States" property="business:contact_data:country_name">
   <!-- ================================================
        TWITTER CARD TAGS
        Twitter sharing optimization
        ================================================ -->
-  <meta content="summary_large_image" name="twitter:card"/>
-  <meta content="Computer Store Kansas - Expert Computer Repair &amp; Protection Plans" name="twitter:title"/>
-  <meta content="Trusted computer repair and protection services in Topeka, KS since 2003. Professional diagnostics, virus removal, hardware repair, and comprehensive Silver Plan protection." name="twitter:description"/>
-  <meta content="https://computerstoreks.com/assets/title.png" property="twitter:image"/>
+  <meta content="summary_large_image" name="twitter:card">
+  <meta content="Computer Store Kansas - Expert Computer Repair &amp; Protection Plans" name="twitter:title">
+  <meta content="Trusted computer repair and protection services in Topeka, KS since 2003. Professional diagnostics, virus removal, hardware repair, and comprehensive Silver Plan protection." name="twitter:description">
+  <meta content="https://computerstoreks.com/assets/title.png" property="twitter:image">
   <!-- ================================================
        CANONICAL URL & ALTERNATE VERSIONS
        SEO optimization for duplicate content prevention
        ================================================ -->
-  <link href="https://computerstoreks.com" rel="canonical"/>
+  <link href="https://computerstoreks.com" rel="canonical">
   <!-- ================================================
        PAGE TITLE & FAVICON
        Dynamic title updated by JavaScript, favicon for browsers
@@ -83,14 +81,14 @@ DEPENDENCIES: style.css, script.js
    Computer Store Kansas - Expert Computer Repair &amp; Protection Plans Since 2003
   </title>
   <!-- Favicon and Apple Touch Icons -->
-  <link href="./assets/logo.png" rel="icon" type="image/png"/>
-  <link href="./assets/logo.png" rel="apple-touch-icon"/>
-  <link href="./assets/logo.png" rel="shortcut icon"/>
+  <link href="./assets/logo.png" rel="icon" type="image/png">
+  <link href="./assets/logo.png" rel="apple-touch-icon">
+  <link href="./assets/logo.png" rel="shortcut icon">
   <!-- ================================================
        EXTERNAL STYLESHEETS
        CSS files for styling and layout
        ================================================ -->
-  <link href="style.css?v=42" rel="stylesheet"/>
+  <link href="style.css?v=42" rel="stylesheet">
   <!-- ================================================
        STRUCTURED DATA (JSON-LD)
        Rich snippets for search engines - business information
@@ -187,7 +185,7 @@ DEPENDENCIES: style.css, script.js
    <div class="container">
     <!-- Company logo/branding - clickable title graphic -->
     <h1 class="logo">
-     <img alt="Computer Store Kansas" src="./assets/title.png"/>
+     <img alt="Computer Store Kansas" src="./assets/title.png">
     </h1>
     <!-- Mobile hamburger menu button - only visible on small screens -->
     <button aria-expanded="false" aria-label="Open menu" class="hamburger" id="hamburger-button" type="button">
@@ -457,7 +455,7 @@ DEPENDENCIES: style.css, script.js
     <div class="container">
      <!-- Large title graphic for branding -->
      <div class="hero-title">
-      <img alt="Computer Store Kansas - Expert Computer Repair Since 2003" src="./assets/title.png"/>
+      <img alt="Computer Store Kansas - Expert Computer Repair Since 2003" src="./assets/title.png">
      </div>
      <!-- Main headline and call-to-action -->
      <h2>
@@ -741,13 +739,13 @@ DEPENDENCIES: style.css, script.js
       </div>
       <!-- Carousel navigation arrows -->
       <button aria-label="Previous testimonial" class="carousel-arrow prev">
-       <svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <polyline points="15 18 9 12 15 6">
         </polyline>
        </svg>
       </button>
       <button aria-label="Next testimonial" class="carousel-arrow next">
-       <svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <polyline points="9 18 15 12 9 6">
         </polyline>
        </svg>
@@ -990,12 +988,6 @@ DEPENDENCIES: style.css, script.js
    <section class="gallery-section">
     <div class="container">
      <div class="gallery-grid" id="gallery-grid">
-      <!-- Computer Card 1 - Example Desktop -->
-      <!-- Computer Card 2 - Example Laptop -->
-      <!-- Computer Card 3 - Example Desktop -->
-      <!-- Computer Card 4 - Example Laptop -->
-      <!-- Computer Card 5 - Example Desktop -->
-      <!-- Computer Card 6 - Example Laptop -->
       <div class="gallery-card" data-category="refurbished" data-computer-id="1" data-type="desktop">
        <div class="gallery-card-inner">
         <div class="gallery-card-front">
@@ -1005,7 +997,7 @@ DEPENDENCIES: style.css, script.js
           Black Friday Sale
          </div>
          <div class="gallery-card-image">
-          <img alt="Okinos Blackout" onerror="this.src='./assets/logo.png'" src="./assets/gallery/desktop-1.jpg"/>
+          <img alt="Okinos Blackout" onerror="this.src='./assets/logo.png'" src="https://computerstoreks.com/assets/gallery/desktop-1.jpg">
          </div>
         </div>
         <div class="gallery-card-back">
@@ -1013,6 +1005,7 @@ DEPENDENCIES: style.css, script.js
           Okinos Blackout
          </h3>
          <div class="gallery-card-price">
+          
           <span class="original-price">
            $750.00
           </span>
@@ -1024,42 +1017,54 @@ DEPENDENCIES: style.css, script.js
           </span>
          </div>
          <div class="gallery-card-specs">
+         
           <div class="spec-item">
            <strong>
-            Graphics Card:
+            Graphics Card::
            </strong>
+           Graphics Card:
+           
            RTX 3060
           </div>
+         
           <div class="spec-item">
            <strong>
-            Processor:
+            Processor::
            </strong>
+           Processor:
+           
            Ryzen 5 5500
           </div>
+         
           <div class="spec-item">
            <strong>
-            Memory:
+            Memory::
            </strong>
+           Memory:
+           
            16 GB
           </div>
+         
           <div class="spec-item">
            <strong>
-            Storage:
+            Storage::
            </strong>
+           Storage:
+           
            1 TB NVME
           </div>
          </div>
         </div>
        </div>
       </div>
-      <div class="gallery-card" data-category="custom" data-computer-id="3" data-type="desktop">
+      <div class="gallery-card" data-category="custom" data-computer-id="2" data-type="desktop">
        <div class="gallery-card-inner">
         <div class="gallery-card-front">
          <div class="gallery-card-badge badge-custom">
           Custom Build
          </div>
          <div class="gallery-card-image">
-          <img alt="Frosty" onerror="this.src='./assets/logo.png'" src="./assets/gallery/desktop-3.jpg"/>
+          <img alt="Frosty" onerror="this.src='./assets/logo.png'" src="https://computerstoreks.com/assets/gallery/desktop-3.jpg">
          </div>
         </div>
         <div class="gallery-card-back">
@@ -1070,35 +1075,39 @@ DEPENDENCIES: style.css, script.js
           $1049.99
          </div>
          <div class="gallery-card-specs">
+         
           <div class="spec-item">
            <strong>
-            Graphics Card::
+            Graphics Card:::
            </strong>
            RTX 4060 Ti
           </div>
+         
           <div class="spec-item">
            <strong>
-            Processor::
+            Processor:::
            </strong>
-           Ryzen 7 5700
+           Processor::                      Ryzen 7 5700
           </div>
+         
           <div class="spec-item">
            <strong>
-            Memory::
+            Memory:::
            </strong>
-           32 GB
+           Memory::                      32 GB
           </div>
+         
           <div class="spec-item">
            <strong>
-            Storage:
+            Storage::
            </strong>
-           1 TB NVME
+           Storage:                      1 TB NVME
           </div>
          </div>
         </div>
        </div>
       </div>
-      <div class="gallery-card" data-category="refurbished" data-computer-id="4" data-type="desktop">
+      <div class="gallery-card" data-category="refurbished" data-computer-id="3" data-type="desktop">
        <div class="gallery-card-inner">
         <div class="gallery-card-front">
          <div class="bf-ribbon-corner">
@@ -1107,7 +1116,7 @@ DEPENDENCIES: style.css, script.js
           Black Friday Sale
          </div>
          <div class="gallery-card-image">
-          <img alt="Vanilla Ice" onerror="this.src='./assets/logo.png'" src="./assets/gallery/desktop-4.jpg"/>
+          <img alt="Vanilla Ice" onerror="this.src='./assets/logo.png'" src="https://computerstoreks.com/assets/gallery/desktop-4.jpg">
          </div>
         </div>
         <div class="gallery-card-back">
@@ -1115,6 +1124,7 @@ DEPENDENCIES: style.css, script.js
           Vanilla Ice
          </h3>
          <div class="gallery-card-price">
+          
           <span class="original-price">
            $580.00
           </span>
@@ -1126,42 +1136,54 @@ DEPENDENCIES: style.css, script.js
           </span>
          </div>
          <div class="gallery-card-specs">
+         
           <div class="spec-item">
            <strong>
-            Graphics Card::
+            Graphics Card:::
            </strong>
+           Graphics Card::
+           
            AMD RX 5700 XT
           </div>
+         
           <div class="spec-item">
            <strong>
-            Processor::
+            Processor:::
            </strong>
+           Processor::
+           
            Intel i7 8th Generation
           </div>
+         
           <div class="spec-item">
            <strong>
-            Memory::
+            Memory:::
            </strong>
+           Memory::
+           
            16 GB
           </div>
+         
           <div class="spec-item">
            <strong>
-            Storage::
+            Storage:::
            </strong>
+           Storage::
+           
            512 GB SSD
           </div>
          </div>
         </div>
        </div>
       </div>
-      <div class="gallery-card" data-category="refurbished" data-computer-id="5" data-type="desktop">
+      <div class="gallery-card" data-category="refurbished" data-computer-id="4" data-type="desktop">
        <div class="gallery-card-inner">
         <div class="gallery-card-front">
          <div class="gallery-card-badge badge-refurbished">
           Refurbished
          </div>
          <div class="gallery-card-image">
-          <img alt="CloneWarz" onerror="this.src='./assets/logo.png'" src="./assets/gallery/desktop-5.jpg"/>
+          <img alt="CloneWarz" onerror="this.src='./assets/logo.png'" src="https://computerstoreks.com/assets/gallery/desktop-5.jpg">
          </div>
         </div>
         <div class="gallery-card-back">
@@ -1172,42 +1194,54 @@ DEPENDENCIES: style.css, script.js
           $750
          </div>
          <div class="gallery-card-specs">
+         
           <div class="spec-item">
            <strong>
-            Processor::
+            Processor:::
            </strong>
+           Processor::
+           
            Ryzen 7 2700
           </div>
+         
           <div class="spec-item">
            <strong>
-            Graphics Card::
+            Graphics Card:::
            </strong>
+           Graphics Card::
+           
            AMD 5700 XT
           </div>
+         
           <div class="spec-item">
            <strong>
-            RAM::
+            RAM:::
            </strong>
+           RAM::
+           
            16 GB
           </div>
+         
           <div class="spec-item">
            <strong>
-            Storage::
+            Storage:::
            </strong>
+           Storage::
+           
            1 TB NVME
           </div>
          </div>
         </div>
        </div>
       </div>
-      <div class="gallery-card" data-category="refurbished" data-computer-id="6" data-type="laptop">
+      <div class="gallery-card" data-category="refurbished" data-computer-id="5" data-type="laptop">
        <div class="gallery-card-inner">
         <div class="gallery-card-front">
          <div class="gallery-card-badge badge-refurbished">
           Refurbished
          </div>
          <div class="gallery-card-image">
-          <img alt="Alienware Gaming Laptop" onerror="this.src='./assets/logo.png'" src="./assets/gallery/laptop-6.jpg"/>
+          <img alt="Alienware Gaming Laptop" onerror="this.src='./assets/logo.png'" src="https://computerstoreks.com/assets/gallery/laptop-6.jpg">
          </div>
         </div>
         <div class="gallery-card-back">
@@ -1218,29 +1252,99 @@ DEPENDENCIES: style.css, script.js
           $1400
          </div>
          <div class="gallery-card-specs">
+         
           <div class="spec-item">
            <strong>
-            Display:
+            Display::
            </strong>
+           Display:
+           
            18 Inches
           </div>
+         
           <div class="spec-item">
            <strong>
-            Processor:
+            Processor::
            </strong>
+           Processor:
+           
            Intel i9 14th Gen
           </div>
+         
           <div class="spec-item">
            <strong>
-            RAM:
+            RAM::
            </strong>
+           RAM:
+           
            32 GB
           </div>
+         
           <div class="spec-item">
            <strong>
-            Storage:
+            Storage::
            </strong>
+           Storage:
+           
            2 TB NVMe
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="gallery-card" data-category="new" data-computer-id="6" data-type="laptop">
+       <div class="gallery-card-inner">
+        <div class="gallery-card-front">
+         <div class="gallery-card-badge badge-new">
+          New
+         </div>
+         <div class="gallery-card-image">
+          <img alt="Lenovo Laptop" onerror="this.src='./assets/logo.png'" src="https://computerstoreks.com/assets/gallery/laptop-7.jpg">
+         </div>
+        </div>
+        <div class="gallery-card-back">
+         <h3 class="gallery-card-title">
+          Lenovo Laptop
+         </h3>
+         <div class="gallery-card-price">
+          $749.99
+         </div>
+         <div class="gallery-card-specs">
+         
+          <div class="spec-item">
+           <strong>
+            Screen::
+           </strong>
+           Screen:
+           
+           15.6 Inches
+          </div>
+         
+          <div class="spec-item">
+           <strong>
+            Processor::
+           </strong>
+           Processor:
+           
+           Ryzen 7 5000 Series
+          </div>
+         
+          <div class="spec-item">
+           <strong>
+            Memory::
+           </strong>
+           Memory:
+           
+           16 GB RAM
+          </div>
+         
+          <div class="spec-item">
+           <strong>
+            Storage::
+           </strong>
+           Storage:
+           
+           500 GB SSD
           </div>
          </div>
         </div>
@@ -1253,53 +1357,7 @@ DEPENDENCIES: style.css, script.js
           New
          </div>
          <div class="gallery-card-image">
-          <img alt="Lenovo Laptop" onerror="this.src='./assets/logo.png'" src="./assets/gallery/laptop-7.jpg"/>
-         </div>
-        </div>
-        <div class="gallery-card-back">
-         <h3 class="gallery-card-title">
-          Lenovo Laptop
-         </h3>
-         <div class="gallery-card-price">
-          $749.99
-         </div>
-         <div class="gallery-card-specs">
-          <div class="spec-item">
-           <strong>
-            Screen:
-           </strong>
-           15.6 Inches
-          </div>
-          <div class="spec-item">
-           <strong>
-            Processor:
-           </strong>
-           Ryzen 7 5000 Series
-          </div>
-          <div class="spec-item">
-           <strong>
-            Memory:
-           </strong>
-           16 GB RAM
-          </div>
-          <div class="spec-item">
-           <strong>
-            Storage:
-           </strong>
-           500 GB SSD
-          </div>
-         </div>
-        </div>
-       </div>
-      </div>
-      <div class="gallery-card" data-category="new" data-computer-id="8" data-type="laptop">
-       <div class="gallery-card-inner">
-        <div class="gallery-card-front">
-         <div class="gallery-card-badge badge-new">
-          New
-         </div>
-         <div class="gallery-card-image">
-          <img alt="Lenovo Ideapad" onerror="this.src='./assets/logo.png'" src="./assets/gallery/laptop-8.jpg"/>
+          <img alt="Lenovo Ideapad" onerror="this.src='./assets/logo.png'" src="https://computerstoreks.com/assets/gallery/laptop-8.jpg">
          </div>
         </div>
         <div class="gallery-card-back">
@@ -1310,35 +1368,46 @@ DEPENDENCIES: style.css, script.js
           $529.99
          </div>
          <div class="gallery-card-specs">
+         
           <div class="spec-item">
            <strong>
-            Display:
+            Display::
            </strong>
+           Display:
+           
            15.6 Inches
           </div>
+         
           <div class="spec-item">
            <strong>
-            Processor:
+            Processor::
            </strong>
+           Processor:
+           
            Ryzen 5 7000 Series
           </div>
+         
           <div class="spec-item">
            <strong>
-            Memory:
+            Memory::
            </strong>
+           Memory:
+           
            8 GB RAM
           </div>
+         
           <div class="spec-item">
            <strong>
-            Storage:
+            Storage::
            </strong>
+           Storage:
+           
            256 GB NVMe
           </div>
          </div>
         </div>
        </div>
-      </div>
-     </div>
+      </div></div>
     </div>
    </section>
    <!-- GALLERY PAGE CALL-TO-ACTION SECTION -->
@@ -1418,19 +1487,19 @@ DEPENDENCIES: style.css, script.js
       <label for="modal-name">
        Name
       </label>
-      <input id="modal-name" name="name" placeholder="Your name" required="" type="text"/>
+      <input id="modal-name" name="name" placeholder="Your name" required="" type="text">
      </div>
      <div class="form-group">
       <label for="modal-email">
        Email
       </label>
-      <input id="modal-email" name="email" placeholder="Your email" required="" type="email"/>
+      <input id="modal-email" name="email" placeholder="Your email" required="" type="email">
      </div>
      <div class="form-group">
       <label for="modal-phone">
        Phone Number
       </label>
-      <input id="modal-phone" name="phone" placeholder="(555) 123-4567" required="" type="tel"/>
+      <input id="modal-phone" name="phone" placeholder="(555) 123-4567" required="" type="tel">
      </div>
      <div class="form-group">
       <label for="modal-message">
@@ -1542,5 +1611,6 @@ DEPENDENCIES: style.css, script.js
       }
     }, 2000);
   </script>
- </body>
-</html>
+ 
+
+</body></html>

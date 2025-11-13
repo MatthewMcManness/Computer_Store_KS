@@ -2455,7 +2455,7 @@ form button {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  text-align: left;
+  text-align: center;
 }
 
 .gallery-card-back .spec-item {
@@ -2468,8 +2468,7 @@ form button {
 .gallery-card-back .spec-item strong {
   color: var(--text-white);
   font-weight: 600;
-  display: inline-block;
-  min-width: 100px;
+  display: inline;
   font-size: 0.85rem;
 }
 
@@ -2616,7 +2615,6 @@ form button {
 
   .gallery-card-back .spec-item strong {
     font-size: 0.8rem;
-    min-width: 90px;
   }
 
   .gallery-card-back .gallery-card-specs {

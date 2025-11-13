@@ -44,20 +44,27 @@ function logout() {
 }
 
 // Migrate old spec format to new format
-function migrateSpecs(specs) {
+function migrateSpecs(specs, computerName = 'Unknown') {
+    console.log(`🔄 Migrating specs for: ${computerName}`);
+    console.log('📥 Input specs:', JSON.parse(JSON.stringify(specs)));
+
     const warrantyLabels = ['Parts Warranty', 'Manufacturer Warranty', 'Free Diagnostics'];
     const migratedSpecs = [];
     const seenLabels = new Set();
 
     for (const spec of specs) {
+        console.log(`  Processing: "${spec.label}" => "${spec.value}"`);
+
         // Skip if we've already seen this label (prevents duplicates)
         if (seenLabels.has(spec.label)) {
+            console.log(`  ⏭️  SKIPPED - duplicate label "${spec.label}"`);
             continue;
         }
 
         // Check if this is a warranty spec that was stored backwards
         // If the label is a value-like string and value is a warranty label, swap them
         if (warrantyLabels.includes(spec.value) && !warrantyLabels.includes(spec.label)) {
+            console.log(`  🔄 SWAPPED - warranty spec (was backwards)`);
             migratedSpecs.push({
                 label: spec.value,
                 value: spec.label
@@ -66,11 +73,12 @@ function migrateSpecs(specs) {
         }
         // Check if the value looks like it's the same as the label (duplicate error)
         else if (spec.label === spec.value) {
-            // Skip this duplicate
+            console.log(`  ⏭️  SKIPPED - label === value (duplicate)`);
             continue;
         }
         // Normal spec
         else {
+            console.log(`  ✅ KEPT - normal spec`);
             migratedSpecs.push({
                 label: spec.label,
                 value: spec.value
@@ -78,6 +86,9 @@ function migrateSpecs(specs) {
             seenLabels.add(spec.label);
         }
     }
+
+    console.log('📤 Output specs:', JSON.parse(JSON.stringify(migratedSpecs)));
+    console.log(`✅ Migration complete: ${specs.length} => ${migratedSpecs.length} specs\n`);
 
     return migratedSpecs;
 }
@@ -106,10 +117,12 @@ async function loadComputers() {
             computers = JSON.parse(storedComputers);
             console.log('Before migration:', computers.map(c => ({ name: c.name, specCount: c.specs.length })));
             // Migrate specs to fix any old format issues
+            console.log('🔧 Starting migration for sessionStorage computers...\n');
             computers = computers.map(computer => ({
                 ...computer,
-                specs: migrateSpecs(computer.specs)
+                specs: migrateSpecs(computer.specs, computer.name)
             }));
+            console.log('✅ Migration complete for sessionStorage\n');
             console.log('After migration:', computers.map(c => ({ name: c.name, specCount: c.specs.length, specs: c.specs })));
             // Save migrated data back to sessionStorage
             sessionStorage.setItem('computers', JSON.stringify(computers));
@@ -199,10 +212,12 @@ async function loadComputers() {
         });
 
         // Migrate loaded computers to fix any spec issues
+        console.log('🔧 Starting migration for all loaded computers...\n');
         computers = computers.map(computer => ({
             ...computer,
-            specs: migrateSpecs(computer.specs)
+            specs: migrateSpecs(computer.specs, computer.name)
         }));
+        console.log('✅ Migration complete for all computers\n');
 
         // Save to sessionStorage for add/edit pages to use
         sessionStorage.setItem('computers', JSON.stringify(computers));

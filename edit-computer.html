@@ -256,6 +256,9 @@
         function findSpecValue(existingSpecs, targetLabel) {
             console.log(`findSpecValue: Looking for "${targetLabel}" in specs:`, existingSpecs.map(s => s.label));
 
+            // Normalize the target label (remove colons)
+            const normalizedTarget = targetLabel.replace(/::?$/, '').trim();
+
             // Define label aliases for backward compatibility
             const labelAliases = {
                 'Memory': ['Memory', 'RAM'],
@@ -268,11 +271,14 @@
                 'Free Diagnostics': ['Free Diagnostics']
             };
 
-            const aliases = labelAliases[targetLabel] || [targetLabel];
+            const aliases = labelAliases[normalizedTarget] || [normalizedTarget];
 
             for (const spec of existingSpecs) {
-                console.log(`  Checking spec.label="${spec.label}" against aliases:`, aliases);
-                if (aliases.includes(spec.label)) {
+                // Normalize the spec label for comparison (remove colons)
+                const normalizedSpecLabel = spec.label.replace(/::?$/, '').trim();
+
+                console.log(`  Checking spec.label="${spec.label}" (normalized: "${normalizedSpecLabel}") against aliases:`, aliases);
+                if (aliases.includes(normalizedSpecLabel)) {
                     console.log(`  ✓ Found match! Value: "${spec.value}"`);
                     return spec.value;
                 }

@@ -336,23 +336,41 @@
         updateCategoryLabel('desktop');
         generateSpecs('desktop', 'custom');
 
+        // Track if image is currently loading
+        let isImageLoading = false;
+
         // Image upload handling
         document.getElementById('image-input').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
+                isImageLoading = true;
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     document.getElementById('image-preview').src = e.target.result;
                     document.getElementById('image-preview').style.display = 'block';
                     document.getElementById('upload-prompt').style.display = 'none';
+                    isImageLoading = false;
+                    console.log('✅ Image loaded successfully');
+                };
+                reader.onerror = function() {
+                    console.error('❌ Error reading image file');
+                    isImageLoading = false;
+                    alert('Error reading image file. Please try again.');
                 };
                 reader.readAsDataURL(file);
+                console.log('📸 Loading image...');
             }
         });
 
         // Form submission
         document.getElementById('computer-form').addEventListener('submit', function(e) {
             e.preventDefault();
+
+            // Check if image is still loading
+            if (isImageLoading) {
+                alert('Please wait for the image to finish uploading before saving.');
+                return;
+            }
 
             const type = document.getElementById('computer-type').value;
             const specs = [];

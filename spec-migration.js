@@ -57,9 +57,10 @@ function migrateSpecs(specs, computerName = 'Unknown') {
             }
 
             console.log(`  ✅ KEPT - normal spec`);
+            // Store the ORIGINAL values, just use normalized for comparison
             migratedSpecs.push({
-                label: normalizedLabel,
-                value: normalizedValue
+                label: spec.label.trim(),
+                value: spec.value.trim()
             });
             seenLabels.add(normalizedLabel);
         }

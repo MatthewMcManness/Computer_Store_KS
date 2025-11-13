@@ -264,7 +264,18 @@ document.querySelectorAll('.filter-tab').forEach(tab => {
 
 // Modal functions
 function openAddModal() {
-    console.log('Opening add modal...');
+    console.log('🔍 Opening add modal...');
+
+    const modal = document.getElementById('computer-modal');
+    console.log('🔍 Modal element found:', modal);
+    console.log('🔍 Modal current display:', modal ? window.getComputedStyle(modal).display : 'MODAL NOT FOUND');
+    console.log('🔍 Modal current classes:', modal ? modal.className : 'MODAL NOT FOUND');
+
+    if (!modal) {
+        alert('ERROR: Modal element not found in DOM!');
+        return;
+    }
+
     try {
         document.getElementById('modal-title').textContent = 'Add New Computer';
         document.getElementById('computer-form').reset();
@@ -273,12 +284,16 @@ function openAddModal() {
         document.getElementById('upload-prompt').style.display = 'block';
         document.getElementById('upload-area').classList.remove('has-image');
 
-        const modal = document.getElementById('computer-modal');
-        console.log('Modal element:', modal);
+        // Force display with inline style as well
+        modal.style.display = 'flex';
         modal.classList.add('show');
-        console.log('Modal classes:', modal.className);
+
+        console.log('✅ After adding show class:');
+        console.log('   - Classes:', modal.className);
+        console.log('   - Computed display:', window.getComputedStyle(modal).display);
+        console.log('   - Inline display:', modal.style.display);
     } catch (error) {
-        console.error('Error opening modal:', error);
+        console.error('❌ Error opening modal:', error);
         alert('Error opening modal: ' + error.message);
     }
 }

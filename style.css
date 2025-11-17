@@ -2,16 +2,15 @@
  * ================================================
  * COMPUTER STORE KANSAS - MODERNIZED STYLESHEET
  * ================================================
- * VERSION: 33
- * LAST UPDATED: 2025-10-29
- * CHANGES: - Complete redesign with bright, modern aesthetic
- *          - Inspired by contemporary tech service websites
- *          - Improved typography and spacing
- *          - Added modern animations and effects
- *          - Enhanced mobile responsiveness
+ * VERSION: 34
+ * LAST UPDATED: 2025-11-17
+ * CHANGES: - Added footer sections styling (contact, copyright, RWS credit)
+ *          - Added contact page layout with two-column grid
+ *          - Added responsive footer and contact page styles
+ *          - Enhanced mobile responsiveness for new sections
  * DESCRIPTION: Complete styling for single-page application with modern design
  * DEPENDENCIES: None (standalone CSS file)
- * 
+ *
  * Table of Contents:
  * 1. CSS Variables & Root Styles
  * 2. Reset & Base Styles
@@ -30,6 +29,7 @@
  * 15. Footer
  * 16. Animations
  * 17. Mobile Responsive Styles
+ * 25. Contact Page Styles (NEW)
  * ================================================
  */
 
@@ -1596,16 +1596,15 @@ footer {
 
 footer .container {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
-  flex-wrap: wrap;
   gap: 1rem;
 }
 
 footer p {
   margin: 0;
-  flex: 1;
   opacity: 0.9;
+  text-align: center;
 }
 
 .admin-login-btn {
@@ -1623,6 +1622,64 @@ footer p {
 .admin-login-btn:hover {
   background: rgba(255,255,255,0.2);
   transform: translateY(-1px);
+}
+
+/* Footer sections */
+.footer-contact {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0;
+  text-align: center;
+}
+
+.footer-contact p {
+  margin: 0;
+}
+
+.footer-contact a {
+  color: var(--primary-blue-light);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.footer-contact a:hover {
+  color: var(--text-white);
+}
+
+.footer-copyright {
+  margin: 0;
+  text-align: center;
+}
+
+.footer-credit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 0.875rem;
+  opacity: 0.8;
+}
+
+.rws-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.footer-credit a {
+  color: var(--primary-blue-light);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.footer-credit a:hover {
+  color: var(--text-white);
+  text-decoration: underline;
 }
 
 /* ================================================
@@ -1842,6 +1899,12 @@ footer p {
   /* Better stat card display on tablets */
   .stat-item {
     padding: 2rem 1.5rem;
+  }
+
+  /* Footer mobile layout */
+  .footer-contact {
+    flex-direction: column;
+    gap: 0.5rem;
   }
 }
 
@@ -3075,5 +3138,158 @@ form button {
 
   .overlap-card {
     padding: 2rem 1.5rem;
+  }
+}
+
+/* ================================================
+   25. CONTACT PAGE STYLES
+   Two-column layout with form and info sections
+   ================================================ */
+
+/* Contact page layout */
+#contact-page .page-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+#contact-page .page-header h1 {
+  font-size: 2.5rem;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+#contact-page .page-header p {
+  font-size: 1.125rem;
+  color: var(--text-secondary);
+}
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Contact form section */
+.contact-form-section {
+  background: var(--background);
+  padding: 2rem;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.contact-form-section h2 {
+  font-size: 1.75rem;
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+}
+
+.contact-form .form-group {
+  margin-bottom: 1.5rem;
+}
+
+.contact-form label {
+  display: block;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.contact-form input,
+.contact-form textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: var(--border-radius-md);
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+  outline: none;
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.contact-form button[type="submit"] {
+  width: 100%;
+  padding: 1rem;
+  background: var(--primary-blue);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-md);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.contact-form button[type="submit"]:hover {
+  background: var(--primary-blue-dark);
+}
+
+/* Contact info section */
+.contact-info-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.contact-info-section h2 {
+  font-size: 1.75rem;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.info-block {
+  background: var(--background-light);
+  padding: 1.5rem;
+  border-radius: var(--border-radius-md);
+  border-left: 4px solid var(--primary-blue);
+}
+
+.info-block h3 {
+  font-size: 1.125rem;
+  color: var(--primary-blue);
+  margin-bottom: 0.5rem;
+}
+
+.info-block p {
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.6;
+}
+
+.info-block a {
+  color: var(--primary-blue);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.info-block a:hover {
+  color: var(--primary-blue-dark);
+  text-decoration: underline;
+}
+
+.map-placeholder {
+  background: var(--background-dark);
+  border: 2px dashed #d1d5db;
+  border-radius: var(--border-radius-md);
+  padding: 3rem;
+  text-align: center;
+  color: var(--text-muted);
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Responsive - Contact Page Mobile */
+@media (max-width: 768px) {
+  .contact-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
   }
 }

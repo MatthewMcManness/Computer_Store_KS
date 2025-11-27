@@ -1128,6 +1128,13 @@ const FLYER_BLACK_FRIDAY_CSS = `
     text-transform: uppercase;
     margin-top: 4px;
 }
+
+.black-friday .warranty-original {
+    font-size: 14px;
+    color: #888;
+    text-decoration: line-through;
+    margin-bottom: 2px;
+}
 `;
 
 // Generate flyer for a computer
@@ -1230,31 +1237,63 @@ function generateFlyer(computerId) {
     const partsWarranty = getSpec(computer.specs, 'Parts Warranty', 'Manufacturer Warranty', 'Warranty');
     const freeDiagnostics = getSpec(computer.specs, 'Free Diagnostics', 'Diagnostics');
 
-    const warrantyDuration = partsWarranty || (isLaptop ? '1 Year' : '3 Months');
-    const warrantyType = partsWarranty && partsWarranty.toLowerCase().includes('manufacturer')
-        ? 'Manufacturer Warranty'
-        : 'Parts Warranty';
-    const diagnosticsDuration = freeDiagnostics || (isLaptop ? 'Lifetime' : '6 Months');
+    // For Black Friday, show the upgraded values with original crossed out
+    let warrantyDuration, diagnosticsDuration, warrantyHtml;
 
-    const warrantyUpgraded = isBlackFriday ? '<div class="warranty-upgraded">Upgraded!</div>' : '';
+    if (isBlackFriday && computer.blackFriday) {
+        // Black Friday: show original crossed out, upgraded value highlighted
+        const originalPartsWarranty = computer.blackFriday.originalPartsWarranty || '3 Months';
+        const originalDiagnostics = computer.blackFriday.originalFreeDiagnostics || '6 Months';
 
-    const warrantyHtml = `
-        <div class="peace-of-mind">
-            <div class="peace-title">🛡️ Peace of Mind Included</div>
-            <div class="warranty-grid">
-                <div class="warranty-item">
-                    <div class="warranty-duration">${warrantyDuration}</div>
-                    <div class="warranty-type">${warrantyType}</div>
-                    ${warrantyUpgraded}
-                </div>
-                <div class="warranty-item">
-                    <div class="warranty-duration">${diagnosticsDuration}</div>
-                    <div class="warranty-type">Free Diagnostics</div>
-                    ${warrantyUpgraded}
+        // The upgraded values (already set in specs by applyBlackFridayToAll)
+        warrantyDuration = partsWarranty || '6 Months';
+        diagnosticsDuration = freeDiagnostics || '1 Year';
+
+        const warrantyType = 'Parts Warranty';
+
+        warrantyHtml = `
+            <div class="peace-of-mind">
+                <div class="peace-title">🛡️ Peace of Mind Included</div>
+                <div class="warranty-grid">
+                    <div class="warranty-item">
+                        <div class="warranty-original">${originalPartsWarranty}</div>
+                        <div class="warranty-duration">${warrantyDuration}</div>
+                        <div class="warranty-type">${warrantyType}</div>
+                        <div class="warranty-upgraded">Upgraded!</div>
+                    </div>
+                    <div class="warranty-item">
+                        <div class="warranty-original">${originalDiagnostics}</div>
+                        <div class="warranty-duration">${diagnosticsDuration}</div>
+                        <div class="warranty-type">Free Diagnostics</div>
+                        <div class="warranty-upgraded">Upgraded!</div>
+                    </div>
                 </div>
             </div>
-        </div>
-    `;
+        `;
+    } else {
+        // Standard warranty display
+        warrantyDuration = partsWarranty || (isLaptop ? '1 Year' : '3 Months');
+        const warrantyType = partsWarranty && partsWarranty.toLowerCase().includes('manufacturer')
+            ? 'Manufacturer Warranty'
+            : 'Parts Warranty';
+        diagnosticsDuration = freeDiagnostics || (isLaptop ? 'Lifetime' : '6 Months');
+
+        warrantyHtml = `
+            <div class="peace-of-mind">
+                <div class="peace-title">🛡️ Peace of Mind Included</div>
+                <div class="warranty-grid">
+                    <div class="warranty-item">
+                        <div class="warranty-duration">${warrantyDuration}</div>
+                        <div class="warranty-type">${warrantyType}</div>
+                    </div>
+                    <div class="warranty-item">
+                        <div class="warranty-duration">${diagnosticsDuration}</div>
+                        <div class="warranty-type">Free Diagnostics</div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
 
     // Build full CSS
     const css = isBlackFriday ? FLYER_BASE_CSS + FLYER_BLACK_FRIDAY_CSS : FLYER_BASE_CSS;

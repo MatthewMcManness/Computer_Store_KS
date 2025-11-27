@@ -2,10 +2,21 @@
 const nextConfig = {
   output: 'standalone',
   // Ensure webpack resolves TypeScript paths correctly
-  webpack: (config) => {
-    config.resolve.extensionAlias = {
-      '.js': ['.ts', '.tsx', '.js', '.jsx'],
-    };
+  webpack: (config, { isServer }) => {
+    // Explicitly set module resolution
+    config.resolve.fullySpecified = false;
+
+    // Ensure proper extension resolution
+    if (!config.resolve.extensions) {
+      config.resolve.extensions = [];
+    }
+    const extensions = ['.tsx', '.ts', '.jsx', '.js', '.json'];
+    extensions.forEach(ext => {
+      if (!config.resolve.extensions.includes(ext)) {
+        config.resolve.extensions.push(ext);
+      }
+    });
+
     return config;
   },
   images: {

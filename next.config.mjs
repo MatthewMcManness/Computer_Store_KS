@@ -1,10 +1,23 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
   // Ensure webpack resolves TypeScript paths correctly
   webpack: (config, { isServer }) => {
+
     // Explicitly set module resolution
     config.resolve.fullySpecified = false;
+
+    // Add explicit alias for @ path (critical for Render)
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': path.resolve(__dirname, './src'),
+    };
 
     // Ensure proper extension resolution
     if (!config.resolve.extensions) {

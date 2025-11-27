@@ -11,10 +11,10 @@
     "clean": "rm -rf .next out node_modules"
   },
   "devDependencies": {
-    "@types/bun": "latest",
-    "typescript": "^5.9.3"
+    "@types/bun": "latest"
   },
   "dependencies": {
+    "typescript": "^5.9.3",
     "@octokit/rest": "^22.0.1",
     "@types/node": "^24.10.1",
     "@types/react": "18",

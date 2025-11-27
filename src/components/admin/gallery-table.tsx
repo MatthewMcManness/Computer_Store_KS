@@ -5,7 +5,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import type { GalleryComputer } from '@/types/gallery';
-import { Pencil, Trash2, Eye } from 'lucide-react';
+import { Pencil, Trash2, Eye, Printer } from 'lucide-react';
+import { generateFlyer } from '@/lib/flyer-generator';
 
 interface GalleryTableProps {
   computers: GalleryComputer[];
@@ -182,6 +183,16 @@ export function GalleryTable({ computers, onDelete, isLoading }: GalleryTablePro
               </td>
               <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
                 <div className="flex items-center justify-end gap-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      generateFlyer(computer);
+                    }}
+                    className="rounded p-1 text-gray-500 hover:bg-blue-50 hover:text-blue-600"
+                    title="Generate sales flyer"
+                  >
+                    <Printer className="h-4 w-4" />
+                  </button>
                   <Link
                     href={`/admin/gallery/${computer.id}`}
                     className="rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-purple-600"

@@ -350,6 +350,9 @@ function renderGallery() {
                     <div class="card-specs">
                         ${specsHTML}
                     </div>
+                    <button class="btn-flyer" onclick="event.stopPropagation(); generateFlyer(${computer.id})" title="Generate sales flyer">
+                        🖨️ Make Flyer
+                    </button>
                 </div>
             </div>
         `;
@@ -820,3 +823,489 @@ window.addEventListener('beforeunload', (e) => {
         e.returnValue = '';
     }
 });
+
+// ===== FLYER GENERATOR =====
+
+// Helper to find a spec by label (supports multiple label variants)
+function getSpec(specs, ...labels) {
+    for (const label of labels) {
+        const spec = specs.find(s => s.label.toLowerCase().replace(/::?$/, '').trim() === label.toLowerCase());
+        if (spec) return spec.value;
+    }
+    return '';
+}
+
+// Capitalize first letter of each word
+function capitalizeWords(str) {
+    return str.replace(/\b\w/g, c => c.toUpperCase());
+}
+
+// Base CSS for flyers
+const FLYER_BASE_CSS = `
+@page {
+    size: 8.5in 11in;
+    margin: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    margin: 0;
+    padding: 0.5in;
+    background: white;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
+
+.flyer {
+    max-width: 7.5in;
+    margin: 0 auto;
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+
+.header {
+    background: linear-gradient(135deg, #081e5b 0%, #06277a 100%);
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
+
+.header img {
+    max-width: 100%;
+    height: 60px;
+    object-fit: contain;
+    margin-bottom: 10px;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.content {
+    padding: 20px 18px;
+}
+
+.product-title {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.product-title h2 {
+    font-size: 28px;
+    margin: 0;
+    color: #081e5b;
+    font-weight: 800;
+}
+
+.specs-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.spec-card {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 16px 12px;
+    text-align: center;
+    border-left: 4px solid #081e5b;
+}
+
+.spec-icon {
+    font-size: 32px;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.spec-title {
+    font-weight: 700;
+    color: #081e5b;
+    margin-bottom: 5px;
+    font-size: 16px;
+}
+
+.spec-detail {
+    color: #343a40;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.software-badge {
+    background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%);
+    color: #081e5b;
+    padding: 12px 20px;
+    border-radius: 25px;
+    text-align: center;
+    margin: 18px 0;
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.price-section {
+    background: linear-gradient(135deg, #081e5b 0%, #06277a 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+    margin: 18px 0;
+}
+
+.price {
+    font-size: 48px;
+    font-weight: 900;
+    margin: 0;
+}
+
+.price-note {
+    margin: 10px 0 0 0;
+    opacity: 0.9;
+    font-size: 14px;
+}
+
+.peace-of-mind {
+    background: linear-gradient(135deg, #c0c0c0 0%, #d4d4d4 100%);
+    padding: 16px;
+    border-radius: 15px;
+    margin: 18px 0 0 0;
+    text-align: center;
+}
+
+.peace-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0 0 15px 0;
+    color: #081e5b;
+}
+
+.warranty-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.warranty-item {
+    background: rgba(255,255,255,0.9);
+    padding: 15px 10px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.warranty-duration {
+    font-size: 24px;
+    font-weight: 800;
+    color: #081e5b;
+    margin: 0;
+}
+
+.warranty-type {
+    font-size: 12px;
+    color: #343a40;
+    font-weight: 600;
+    margin: 5px 0 0 0;
+    text-transform: uppercase;
+}
+`;
+
+// Black Friday CSS
+const FLYER_BLACK_FRIDAY_CSS = `
+.flyer.black-friday {
+    border: 4px solid #fbbf24;
+    box-shadow: 0 20px 40px rgba(220, 38, 38, 0.3);
+    position: relative;
+}
+
+.flyer.black-friday::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+    clip-path: polygon(100% 0, 0 0, 100% 100%);
+    z-index: 10;
+}
+
+.flyer.black-friday::after {
+    content: '🎀';
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 32px;
+    z-index: 11;
+}
+
+.black-friday-badge {
+    background: linear-gradient(145deg, #dc2626 0%, #991b1b 100%);
+    border: 3px solid #fbbf24;
+    border-radius: 50px;
+    padding: 8px 24px;
+    margin-bottom: 15px;
+    display: inline-block;
+}
+
+.black-friday-badge span {
+    font-size: 18px;
+    font-weight: 900;
+    color: #fbbf24;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.black-friday .header {
+    background: linear-gradient(135deg, #0f0f0f 0%, #991b1b 50%, #0f0f0f 100%);
+}
+
+.black-friday .product-title h2 {
+    color: #991b1b;
+}
+
+.black-friday .spec-card {
+    border-left-color: #dc2626;
+}
+
+.black-friday .spec-title {
+    color: #991b1b;
+}
+
+.black-friday .price-section {
+    background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+    border: 3px solid #fbbf24;
+}
+
+.black-friday .original-price {
+    font-size: 24px;
+    color: #888;
+    text-decoration: line-through;
+    margin-bottom: 5px;
+}
+
+.black-friday .sale-price {
+    font-size: 52px;
+    font-weight: 900;
+    color: #fbbf24;
+}
+
+.black-friday .discount-badge {
+    display: inline-block;
+    background: #dc2626;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 700;
+    margin-top: 8px;
+}
+
+.black-friday .peace-of-mind {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    border: 2px solid #dc2626;
+}
+
+.black-friday .peace-title {
+    color: #0f0f0f;
+}
+
+.black-friday .warranty-item {
+    background: rgba(255,255,255,0.95);
+    border: 2px solid #fbbf24;
+}
+
+.black-friday .warranty-duration {
+    color: #dc2626;
+}
+
+.black-friday .warranty-upgraded {
+    font-size: 10px;
+    color: #dc2626;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-top: 4px;
+}
+`;
+
+// Generate flyer for a computer
+function generateFlyer(computerId) {
+    const computer = computers.find(c => c.id === computerId);
+    if (!computer) {
+        showToast('Computer not found', 'error');
+        return;
+    }
+
+    const isLaptop = computer.type === 'laptop';
+    const isBlackFriday = computer.blackFriday && computer.blackFriday.enabled;
+    const typeLabel = capitalizeWords(`${computer.category} ${computer.type}`);
+
+    // Generate specs HTML
+    let specsHtml;
+    if (isLaptop) {
+        const display = getSpec(computer.specs, 'Display', 'Screen', 'Screen Size');
+        const processor = getSpec(computer.specs, 'Processor', 'CPU');
+        const memory = getSpec(computer.specs, 'Memory', 'RAM');
+        const storage = getSpec(computer.specs, 'Storage', 'SSD', 'HDD', 'Hard Drive');
+
+        specsHtml = `
+            <div class="specs-grid">
+                <div class="spec-card">
+                    <div class="spec-icon">💻</div>
+                    <div class="spec-title">Display</div>
+                    <div class="spec-detail">${display || 'N/A'}</div>
+                </div>
+                <div class="spec-card">
+                    <div class="spec-icon">🧠</div>
+                    <div class="spec-title">Processor</div>
+                    <div class="spec-detail">${processor || 'N/A'}</div>
+                </div>
+                <div class="spec-card">
+                    <div class="spec-icon">⚡</div>
+                    <div class="spec-title">Memory</div>
+                    <div class="spec-detail">${memory || 'N/A'}</div>
+                </div>
+                <div class="spec-card">
+                    <div class="spec-icon">💾</div>
+                    <div class="spec-title">Storage</div>
+                    <div class="spec-detail">${storage || 'N/A'}</div>
+                </div>
+            </div>
+        `;
+    } else {
+        const graphics = getSpec(computer.specs, 'Graphics', 'Graphics Card', 'GPU', 'Video Card');
+        const processor = getSpec(computer.specs, 'Processor', 'CPU');
+        const memory = getSpec(computer.specs, 'Memory', 'RAM');
+        const storage = getSpec(computer.specs, 'Storage', 'SSD', 'HDD', 'Hard Drive');
+
+        specsHtml = `
+            <div class="specs-grid">
+                <div class="spec-card">
+                    <div class="spec-icon">🎮</div>
+                    <div class="spec-title">Graphics</div>
+                    <div class="spec-detail">${graphics || 'Integrated'}</div>
+                </div>
+                <div class="spec-card">
+                    <div class="spec-icon">🧠</div>
+                    <div class="spec-title">Processor</div>
+                    <div class="spec-detail">${processor || 'N/A'}</div>
+                </div>
+                <div class="spec-card">
+                    <div class="spec-icon">⚡</div>
+                    <div class="spec-title">Memory</div>
+                    <div class="spec-detail">${memory || 'N/A'}</div>
+                </div>
+                <div class="spec-card">
+                    <div class="spec-icon">💾</div>
+                    <div class="spec-title">Storage</div>
+                    <div class="spec-detail">${storage || 'N/A'}</div>
+                </div>
+            </div>
+        `;
+    }
+
+    // Generate price HTML
+    let priceHtml;
+    if (isBlackFriday) {
+        priceHtml = `
+            <div class="price-section">
+                <div class="original-price">${computer.blackFriday.originalPrice}</div>
+                <div class="sale-price">${computer.blackFriday.salePrice}</div>
+                <div class="discount-badge">${computer.blackFriday.discount}% OFF</div>
+                <div class="price-note">Plus applicable tax</div>
+            </div>
+        `;
+    } else {
+        priceHtml = `
+            <div class="price-section">
+                <div class="price">${computer.price}</div>
+                <div class="price-note">Plus applicable tax</div>
+            </div>
+        `;
+    }
+
+    // Generate warranty HTML
+    const partsWarranty = getSpec(computer.specs, 'Parts Warranty', 'Manufacturer Warranty', 'Warranty');
+    const freeDiagnostics = getSpec(computer.specs, 'Free Diagnostics', 'Diagnostics');
+
+    const warrantyDuration = partsWarranty || (isLaptop ? '1 Year' : '3 Months');
+    const warrantyType = partsWarranty && partsWarranty.toLowerCase().includes('manufacturer')
+        ? 'Manufacturer Warranty'
+        : 'Parts Warranty';
+    const diagnosticsDuration = freeDiagnostics || (isLaptop ? 'Lifetime' : '6 Months');
+
+    const warrantyUpgraded = isBlackFriday ? '<div class="warranty-upgraded">Upgraded!</div>' : '';
+
+    const warrantyHtml = `
+        <div class="peace-of-mind">
+            <div class="peace-title">🛡️ Peace of Mind Included</div>
+            <div class="warranty-grid">
+                <div class="warranty-item">
+                    <div class="warranty-duration">${warrantyDuration}</div>
+                    <div class="warranty-type">${warrantyType}</div>
+                    ${warrantyUpgraded}
+                </div>
+                <div class="warranty-item">
+                    <div class="warranty-duration">${diagnosticsDuration}</div>
+                    <div class="warranty-type">Free Diagnostics</div>
+                    ${warrantyUpgraded}
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Build full CSS
+    const css = isBlackFriday ? FLYER_BASE_CSS + FLYER_BLACK_FRIDAY_CSS : FLYER_BASE_CSS;
+    const flyerClass = isBlackFriday ? 'flyer black-friday' : 'flyer';
+    const blackFridayBadge = isBlackFriday
+        ? '<div class="black-friday-badge"><span>Black Friday Sale</span></div>'
+        : '';
+
+    // Build full HTML
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${computer.name} - Sales Flyer</title>
+    <style>${css}</style>
+</head>
+<body>
+    <div class="${flyerClass}">
+        <div class="header">
+            <img src="./assets/title.png" alt="Computer Store Kansas" onerror="this.style.display='none'">
+            <h1>${typeLabel}</h1>
+        </div>
+
+        <div class="content">
+            ${blackFridayBadge}
+            <div class="product-title">
+                <h2>${computer.name}</h2>
+            </div>
+
+            ${specsHtml}
+
+            <div class="software-badge">
+                🖥️ Windows 11 Pre-Installed${isLaptop ? '!' : ''}
+            </div>
+
+            ${priceHtml}
+
+            ${warrantyHtml}
+        </div>
+    </div>
+</body>
+</html>`;
+
+    // Create blob and open in new tab
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+
+    // Clean up URL after delay
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+    showToast('Flyer generated! Check the new tab.', 'success');
+}

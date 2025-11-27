@@ -1,5 +1,5 @@
 services:
-  # Main Next.js Website (includes contact form)
+  # Main Next.js Website (includes contact form and gallery)
   - type: web
     name: computer-store-ks
     env: node
@@ -31,26 +31,3 @@ services:
         sync: false
       - key: NEXTAUTH_URL
         sync: false
-
-  # Legacy Gallery API (can be removed if not used separately)
-  - type: web
-    name: computer-store-gallery-api
-    env: node
-    rootDirectory: ./api
-    buildCommand: npm install
-    startCommand: npm start
-    envVars:
-      - key: NODE_VERSION
-        value: 18.17.0
-      - key: GITHUB_TOKEN
-        sync: false
-      - key: GITHUB_OWNER
-        value: MatthewMcManness
-      - key: GITHUB_REPO
-        value: Computer_Store_KS
-      - key: GITHUB_BRANCH
-        value: Computer-Store-KS
-      - key: ADMIN_PASSWORD
-        sync: false
-      - key: PORT
-        value: 3001

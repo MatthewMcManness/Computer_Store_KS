@@ -1,3 +1,8 @@
+# CLAUDE.md
+
+> Think carefully and implement the most concise solution that changes as little code as possible.
+
+## Project-Specific Instructions
 
 Default to using Bun instead of Node.js.
 
@@ -7,6 +12,27 @@ Default to using Bun instead of Node.js.
 - Use `bun install` instead of `npm install` or `yarn install` or `pnpm install`
 - Use `bun run <script>` instead of `npm run <script>` or `yarn run <script>` or `pnpm run <script>`
 - Bun automatically loads .env, so don't use dotenv.
+
+## Project Management
+
+This project uses **Bast + CCPM** for spec-driven development.
+
+### Quick Start Workflow
+```bash
+/pm:prd-new <feature>      # Create requirements
+/pm:prd-parse <feature>    # Plan implementation
+/pm:epic-decompose <feature> # Break into tasks
+/pm:epic-sync <feature>    # Sync to GitHub
+/pm:issue-start <number>   # Start parallel work
+```
+
+See [PM_GUIDE.md](.claude/PM_GUIDE.md) for complete documentation.
+
+## Tool Preferences
+
+- **Python:** Always use `uv` (not pip)
+- **Node:** Always use `bun` (not npm)
+- **Docker:** Always use `docker compose` (not docker-compose)
 
 ## APIs
 

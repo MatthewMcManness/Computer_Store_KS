@@ -31,3 +31,7 @@ desktop.ini
 __pycache__/
 *.py[cod]
 *$py.class
+
+# CCPM local workspace
+.claude/epics/
+.claude/settings.local.json

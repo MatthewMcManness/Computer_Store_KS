@@ -446,9 +446,14 @@ function initializeModals() {
 }
 
 // ================================================
-// 6. CONTACT FORM SUBMISSION - FORMSPREE
-// Handles contact form submission via Formspree API
+// 6. CONTACT FORM SUBMISSION - SELF-HOSTED API
+// Handles contact form submission via self-hosted API with security features
 // ================================================
+
+// API Configuration - auto-detect environment
+const CONTACT_API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3001'
+    : '';
 
 /**
  * Handle contact form submission
@@ -456,36 +461,51 @@ function initializeModals() {
  */
 function handleContactFormSubmit(e) {
   e.preventDefault();
-  
+
   const form = e.target;
   const submitBtn = form.querySelector('button[type="submit"]');
-  const btnText = submitBtn.querySelector('.btn-text');
-  const btnLoading = submitBtn.querySelector('.btn-loading');
+  const btnText = submitBtn ? submitBtn.querySelector('.btn-text') : null;
+  const btnLoading = submitBtn ? submitBtn.querySelector('.btn-loading') : null;
   const formStatus = document.getElementById('formStatus');
-  
-  const formData = {
-    name: document.getElementById('modal-name').value,
-    email: document.getElementById('modal-email').value,
-    phone: document.getElementById('modal-phone').value,
-    message: document.getElementById('modal-message').value
-  };
-  
-  if (!formData.name || !formData.email || !formData.message) {
-    showFormStatus('Please fill in all fields', 'error');
+
+  // Get form fields - try contact page IDs first, then modal IDs as fallback
+  const nameField = document.getElementById('contact-name') || document.getElementById('modal-name');
+  const emailField = document.getElementById('contact-email') || document.getElementById('modal-email');
+  const phoneField = document.getElementById('contact-phone') || document.getElementById('modal-phone');
+  const messageField = document.getElementById('contact-message') || document.getElementById('modal-message');
+  const honeypot = document.getElementById('contact-website') || document.getElementById('modal-website');
+
+  // Check if all required fields exist
+  if (!nameField || !emailField || !messageField) {
+    console.error('Contact form fields not found:', { nameField, emailField, phoneField, messageField });
+    showFormStatus('Form error. Please refresh the page and try again.', 'error');
     return;
   }
-  
+
+  const formData = {
+    name: nameField.value,
+    email: emailField.value,
+    phone: phoneField ? phoneField.value : '',
+    message: messageField.value,
+    website: honeypot ? honeypot.value : '' // Honeypot field
+  };
+
+  if (!formData.name || !formData.email || !formData.message) {
+    showFormStatus('Please fill in all required fields', 'error');
+    return;
+  }
+
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(formData.email)) {
     showFormStatus('Please enter a valid email address', 'error');
     return;
   }
-  
+
   submitBtn.disabled = true;
-  btnText.style.display = 'none';
-  btnLoading.style.display = 'inline';
-  
-  fetch('https://formspree.io/f/xjkpgovk', {
+  if (btnText) btnText.style.display = 'none';
+  if (btnLoading) btnLoading.style.display = 'inline';
+
+  fetch(`${CONTACT_API_URL}/api/contact`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -493,27 +513,25 @@ function handleContactFormSubmit(e) {
     body: JSON.stringify(formData)
   })
   .then(response => {
-    if (response.ok) {
-      return response.json();
-    }
-    throw new Error('Network response was not ok');
+    return response.json().then(data => {
+      if (!response.ok) {
+        throw new Error(data.error || 'Network response was not ok');
+      }
+      return data;
+    });
   })
   .then(data => {
-    showFormStatus('Message sent successfully! We\'ll get back to you soon.', 'success');
+    showFormStatus(data.message || 'Message sent successfully!', 'success');
     form.reset();
-    
-    setTimeout(() => {
-      closeContactModal();
-    }, 2000);
   })
   .catch(error => {
     console.error('Form submission error:', error);
-    showFormStatus('Oops! Something went wrong. Please try again or call us at 785-267-3223.', 'error');
+    showFormStatus(error.message || 'Oops! Something went wrong. Please try again or call us at (785) 267-3223.', 'error');
   })
   .finally(() => {
     submitBtn.disabled = false;
-    btnText.style.display = 'inline';
-    btnLoading.style.display = 'none';
+    if (btnText) btnText.style.display = 'inline';
+    if (btnLoading) btnLoading.style.display = 'none';
   });
 }
 

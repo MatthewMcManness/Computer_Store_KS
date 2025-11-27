@@ -1,6 +1,19 @@
 // Admin Gallery Manager JavaScript
 // Handles loading, editing, and saving computer gallery data
 
+/**
+ * HTML Sanitization to prevent XSS attacks
+ */
+function sanitizeHTML(str) {
+    if (typeof str !== 'string') return '';
+    return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
 // API Configuration - auto-detect environment
 const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:3001'  // Local development
@@ -368,7 +381,7 @@ function editSelected() {
         // Save current computers to sessionStorage for the edit page
         sessionStorage.setItem('computers', JSON.stringify(computers));
         // Redirect to edit page with computer ID
-        window.location.href = `edit-computer.html?id=${selectedComputer.id}`;
+        window.location.href = `computer-form.html?id=${selectedComputer.id}`;
     }
 }
 
@@ -390,237 +403,6 @@ document.querySelectorAll('.filter-tab').forEach(tab => {
         renderGallery();
     });
 });
-
-// Modal functions
-function openAddModal() {
-    console.log('🔍 Opening add modal...');
-
-    const modal = document.getElementById('computer-modal');
-    console.log('🔍 Modal element found:', modal);
-    console.log('🔍 Modal current display:', modal ? window.getComputedStyle(modal).display : 'MODAL NOT FOUND');
-    console.log('🔍 Modal current classes:', modal ? modal.className : 'MODAL NOT FOUND');
-
-    if (!modal) {
-        alert('ERROR: Modal element not found in DOM!');
-        return;
-    }
-
-    try {
-        document.getElementById('modal-title').textContent = 'Add New Computer';
-        document.getElementById('computer-form').reset();
-        document.getElementById('edit-index').value = '';
-        document.getElementById('image-preview').style.display = 'none';
-        document.getElementById('upload-prompt').style.display = 'block';
-        document.getElementById('upload-area').classList.remove('has-image');
-
-        // Force display with inline style as well
-        modal.style.display = 'flex';
-        modal.classList.add('show');
-
-        console.log('✅ After adding show class:');
-        console.log('   - Classes:', modal.className);
-        console.log('   - Computed display:', window.getComputedStyle(modal).display);
-        console.log('   - Inline display:', modal.style.display);
-
-        const computedStyle = window.getComputedStyle(modal);
-        console.log('🔍 Full modal computed styles:');
-        console.log('   - position:', computedStyle.position);
-        console.log('   - top:', computedStyle.top);
-        console.log('   - left:', computedStyle.left);
-        console.log('   - width:', computedStyle.width);
-        console.log('   - height:', computedStyle.height);
-        console.log('   - z-index:', computedStyle.zIndex);
-        console.log('   - visibility:', computedStyle.visibility);
-        console.log('   - opacity:', computedStyle.opacity);
-        console.log('   - background:', computedStyle.backgroundColor);
-    } catch (error) {
-        console.error('❌ Error opening modal:', error);
-        alert('Error opening modal: ' + error.message);
-    }
-}
-
-function openEditModal(computer) {
-    console.log('Opening edit modal for:', computer);
-    try {
-        document.getElementById('modal-title').textContent = 'Edit Computer';
-        document.getElementById('edit-index').value = computer.id;
-
-        // Fill form
-        document.getElementById('computer-name').value = computer.name;
-        document.getElementById('computer-type').value = computer.type;
-        document.getElementById('computer-category').value = computer.category;
-        document.getElementById('computer-price').value = computer.price;
-
-        // Update category options based on type
-        updateCategoryOptions();
-
-        // Set image preview
-        if (computer.image) {
-            const preview = document.getElementById('image-preview');
-            preview.src = computer.image;
-            preview.style.display = 'block';
-            document.getElementById('upload-prompt').style.display = 'none';
-            document.getElementById('upload-area').classList.add('has-image');
-        }
-
-        // Fill specs
-        computer.specs.forEach((spec, index) => {
-            if (index < 4) {
-                document.getElementById(`spec${index + 1}-label`).value = spec.label;
-                document.getElementById(`spec${index + 1}-value`).value = spec.value;
-            }
-        });
-
-        const modal = document.getElementById('computer-modal');
-        console.log('Modal element:', modal);
-        modal.classList.add('show');
-        console.log('Modal classes after adding show:', modal.className);
-    } catch (error) {
-        console.error('Error opening edit modal:', error);
-        alert('Error opening edit modal: ' + error.message);
-    }
-}
-
-function closeModal() {
-    document.getElementById('computer-modal').classList.remove('show');
-}
-
-// Update category options based on computer type
-function updateCategoryOptions() {
-    const typeSelect = document.getElementById('computer-type');
-    const categorySelect = document.getElementById('computer-category');
-    const currentCategory = categorySelect.value;
-
-    if (typeSelect.value === 'desktop') {
-        categorySelect.innerHTML = `
-            <option value="custom">Custom Build</option>
-            <option value="refurbished">Refurbished</option>
-        `;
-        // Set to custom if current was 'new'
-        if (currentCategory === 'new') {
-            categorySelect.value = 'custom';
-        } else {
-            categorySelect.value = currentCategory;
-        }
-    } else {
-        categorySelect.innerHTML = `
-            <option value="new">New</option>
-            <option value="refurbished">Refurbished</option>
-        `;
-        // Set to new if current was 'custom'
-        if (currentCategory === 'custom') {
-            categorySelect.value = 'new';
-        } else {
-            categorySelect.value = currentCategory;
-        }
-    }
-}
-
-// Listen for type changes
-document.getElementById('computer-type').addEventListener('change', updateCategoryOptions);
-
-// Image upload handling
-const uploadArea = document.getElementById('upload-area');
-const imageInput = document.getElementById('image-input');
-const imagePreview = document.getElementById('image-preview');
-
-uploadArea.addEventListener('click', () => {
-    imageInput.click();
-});
-
-imageInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) {
-        // Validate file type
-        if (!file.type.match('image/(jpeg|jpg|png)')) {
-            showToast('Please select a JPG or PNG image', 'error');
-            return;
-        }
-
-        // Validate file size (5MB max)
-        if (file.size > 5 * 1024 * 1024) {
-            showToast('Image must be less than 5MB', 'error');
-            return;
-        }
-
-        // Show preview
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            imagePreview.src = e.target.result;
-            imagePreview.style.display = 'block';
-            document.getElementById('upload-prompt').style.display = 'none';
-            uploadArea.classList.add('has-image');
-        };
-        reader.readAsDataURL(file);
-    }
-});
-
-// Save computer
-function saveComputer() {
-    const form = document.getElementById('computer-form');
-
-    // Validate form
-    if (!form.checkValidity()) {
-        form.reportValidity();
-        return;
-    }
-
-    // Get form data
-    const computerData = {
-        name: document.getElementById('computer-name').value,
-        type: document.getElementById('computer-type').value,
-        category: document.getElementById('computer-category').value,
-        price: document.getElementById('computer-price').value,
-        image: imagePreview.src || '',
-        specs: [
-            {
-                label: document.getElementById('spec1-label').value,
-                value: document.getElementById('spec1-value').value
-            },
-            {
-                label: document.getElementById('spec2-label').value,
-                value: document.getElementById('spec2-value').value
-            },
-            {
-                label: document.getElementById('spec3-label').value,
-                value: document.getElementById('spec3-value').value
-            },
-            {
-                label: document.getElementById('spec4-label').value,
-                value: document.getElementById('spec4-value').value
-            }
-        ]
-    };
-
-    // Validate image
-    if (!computerData.image) {
-        showToast('Please select an image', 'error');
-        return;
-    }
-
-    const editIndex = document.getElementById('edit-index').value;
-
-    if (editIndex !== '') {
-        // Edit existing
-        const index = parseInt(editIndex);
-        computers[computers.findIndex(c => c.id === index)] = {
-            ...computerData,
-            id: index
-        };
-        showToast('Computer updated successfully!', 'success');
-    } else {
-        // Add new
-        computerData.id = computers.length > 0 ? Math.max(...computers.map(c => c.id)) + 1 : 0;
-        computers.push(computerData);
-        showToast('Computer added successfully!', 'success');
-    }
-
-    hasUnsavedChanges = true;
-    document.getElementById('publish-btn').disabled = false;
-
-    closeModal();
-    renderGallery();
-}
 
 // Delete computer
 function deleteComputer(id) {
@@ -890,19 +672,6 @@ function showToast(message, type = 'success') {
 
 // Keyboard shortcuts
 document.addEventListener('keydown', (e) => {
-    // Escape to close modal
-    if (e.key === 'Escape') {
-        closeModal();
-    }
-
-    // Ctrl+S to save (when modal is open)
-    if (e.ctrlKey && e.key === 's') {
-        e.preventDefault();
-        if (document.getElementById('computer-modal').classList.contains('show')) {
-            saveComputer();
-        }
-    }
-
     // Delete key to delete selected
     if (e.key === 'Delete' && selectedComputer) {
         deleteComputer(selectedComputer.id);

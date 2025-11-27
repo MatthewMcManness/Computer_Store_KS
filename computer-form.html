@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Computer Form - Gallery Manager</title>
+    <link rel="icon" href="./assets/logo.png" type="image/png">
+    <style>
+        :root {
+            --primary-blue: #2563eb;
+            --primary-blue-dark: #1e40af;
+            --primary-blue-subtle: #dbeafe;
+            --background: #ffffff;
+            --background-light: #f8f9fb;
+            --background-dark: #f0f2f5;
+            --text-primary: #111827;
+            --text-secondary: #374151;
+            --text-muted: #6b7280;
+            --success: #10b981;
+            --error: #ef4444;
+            --border-radius-sm: 8px;
+            --border-radius-md: 12px;
+            --border-radius-lg: 16px;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+            --transition-fast: 0.15s ease;
+            --transition-normal: 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--background-light);
+            color: var(--text-primary);
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--background);
+            border-radius: var(--border-radius-lg);
+            padding: 2rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--background-dark);
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary-blue);
+            text-decoration: none;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            transition: var(--transition-fast);
+        }
+
+        .back-link:hover {
+            color: var(--primary-blue-dark);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            color: var(--text-secondary);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--background-dark);
+            border-radius: var(--border-radius-md);
+            font-size: 1rem;
+            font-family: inherit;
+            transition: var(--transition-fast);
+            background: var(--background);
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px var(--primary-blue-subtle);
+        }
+
+        input:read-only {
+            background: var(--background-light);
+            cursor: not-allowed;
+            color: var(--text-muted);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .image-upload-area {
+            border: 2px dashed var(--background-dark);
+            border-radius: var(--border-radius-md);
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition-normal);
+        }
+
+        .image-upload-area:hover {
+            border-color: var(--primary-blue);
+            background: var(--primary-blue-subtle);
+        }
+
+        .image-upload-area.has-image {
+            border-style: solid;
+            border-color: var(--success);
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: var(--border-radius-sm);
+            margin-bottom: 1rem;
+        }
+
+        .upload-prompt {
+            color: var(--text-secondary);
+        }
+
+        .upload-prompt p:first-child {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-prompt p:last-child {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .specs-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 0.875rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius-md);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-normal);
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: var(--primary-blue);
+            color: white;
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-blue-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-secondary {
+            background: var(--background-dark);
+            color: var(--text-secondary);
+        }
+
+        .btn-secondary:hover {
+            background: #e2e8f0;
+        }
+
+        .btn-link {
+            background: none;
+            color: var(--primary-blue);
+            padding: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .btn-link:hover {
+            color: var(--primary-blue-dark);
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 1rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .specs-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="admin-gallery.html" class="back-link">
+            <span>&larr;</span> Back to Gallery
+        </a>
+
+        <h1 id="page-title">Add New Computer</h1>
+        <p class="subtitle" id="page-subtitle">Fill out the form below to add a new computer to the gallery.</p>
+
+        <form id="computer-form">
+            <input type="hidden" id="computer-id">
+
+            <div class="form-group">
+                <label for="computer-name">Computer Name *</label>
+                <input type="text" id="computer-name" required placeholder="e.g., Gaming Pro Desktop">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="computer-type">Type *</label>
+                    <select id="computer-type" required>
+                        <option value="desktop">Desktop</option>
+                        <option value="laptop">Laptop</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="computer-category">Category *</label>
+                    <select id="computer-category" required>
+                        <option value="custom">Custom Build</option>
+                        <option value="refurbished">Refurbished</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="computer-price">Price *</label>
+                <input type="text" id="computer-price" required placeholder="$1,299">
+            </div>
+
+            <div class="form-group">
+                <label>Image *</label>
+                <div class="image-upload-area" id="upload-area" onclick="document.getElementById('image-input').click()">
+                    <img id="image-preview" class="image-preview" style="display: none;">
+                    <div id="upload-prompt" class="upload-prompt">
+                        <p>Click to upload image</p>
+                        <p>JPG or PNG, max 5MB</p>
+                    </div>
+                    <input type="file" id="image-input" accept="image/jpeg,image/png,image/jpg" style="display: none;">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Specifications *</label>
+                <div id="specs-container"></div>
+                <button type="button" id="add-graphics-btn" class="btn btn-link" style="display: none;" onclick="addGraphicsCard()">
+                    + Add Graphics Card
+                </button>
+            </div>
+
+            <div class="button-group">
+                <button type="button" class="btn btn-secondary" onclick="window.location.href='admin-gallery.html'">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="submit-btn">Save Computer</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="spec-migration.js"></script>
+    <script>
+        // Mode detection
+        const urlParams = new URLSearchParams(window.location.search);
+        const computerId = urlParams.get('id') ? parseInt(urlParams.get('id')) : null;
+        const isEditMode = computerId !== null;
+
+        let hasGraphicsCard = false;
+        let currentComputer = null;
+        let isImageLoading = false;
+
+        // Spec configurations
+        const specConfigs = {
+            desktop: [
+                { label: 'Graphics Card', placeholder: 'e.g., RTX 4060 Ti' },
+                { label: 'Processor', placeholder: 'e.g., Intel i7-12700K' },
+                { label: 'Memory', placeholder: 'e.g., 32GB DDR4' },
+                { label: 'Storage', placeholder: 'e.g., 1TB NVMe SSD' }
+            ],
+            laptop: [
+                { label: 'Display Size', placeholder: 'e.g., 15.6 Inches' },
+                { label: 'Processor', placeholder: 'e.g., Intel i7-12700H' },
+                { label: 'Memory', placeholder: 'e.g., 16GB DDR4' },
+                { label: 'Storage', placeholder: 'e.g., 512GB NVMe SSD' }
+            ]
+        };
+
+        const warrantySpecConfigs = {
+            refurbished: [
+                { label: 'Parts Warranty', defaultValue: '3 Months', placeholder: 'e.g., 3 Months' },
+                { label: 'Free Diagnostics', defaultValue: '6 Months', placeholder: 'e.g., 6 Months' }
+            ],
+            custom: [
+                { label: 'Manufacturer Warranty', defaultValue: '1 Year', placeholder: 'e.g., 1 Year' },
+                { label: 'Free Diagnostics', defaultValue: 'Lifetime', placeholder: 'e.g., Lifetime' }
+            ]
+        };
+
+        // Find spec value with flexible label matching
+        function findSpecValue(existingSpecs, targetLabel) {
+            if (!existingSpecs) return '';
+            const normalizedTarget = targetLabel.replace(/::?$/, '').trim();
+
+            const labelAliases = {
+                'Memory': ['Memory', 'RAM'],
+                'Display Size': ['Display Size', 'Display', 'Screen'],
+                'Processor': ['Processor', 'CPU'],
+                'Storage': ['Storage', 'SSD', 'HDD'],
+                'Graphics Card': ['Graphics Card', 'GPU', 'Graphics'],
+                'Parts Warranty': ['Parts Warranty'],
+                'Manufacturer Warranty': ['Manufacturer Warranty'],
+                'Free Diagnostics': ['Free Diagnostics']
+            };
+
+            const aliases = labelAliases[normalizedTarget] || [normalizedTarget];
+
+            for (const spec of existingSpecs) {
+                const normalizedLabel = spec.label.replace(/::?$/, '').trim();
+                if (aliases.includes(normalizedLabel)) {
+                    return spec.value;
+                }
+            }
+            return '';
+        }
+
+        // Generate specs
+        function generateSpecs(type, category, existingSpecs = []) {
+            const container = document.getElementById('specs-container');
+            const config = specConfigs[type];
+            const warrantyConfig = warrantySpecConfigs[category] || warrantySpecConfigs.custom;
+            const addGraphicsBtn = document.getElementById('add-graphics-btn');
+
+            container.innerHTML = '';
+            hasGraphicsCard = false;
+
+            // Regular specs
+            config.forEach((spec, index) => {
+                const specDiv = document.createElement('div');
+                specDiv.className = 'specs-grid';
+                const existingValue = findSpecValue(existingSpecs, spec.label);
+
+                const labelInput = document.createElement('input');
+                labelInput.type = 'text';
+                labelInput.value = spec.label;
+                labelInput.setAttribute('data-role', 'label');
+                labelInput.readOnly = true;
+
+                const valueInput = document.createElement('input');
+                valueInput.type = 'text';
+                valueInput.id = `spec-${index}`;
+                valueInput.setAttribute('data-role', 'value');
+                valueInput.placeholder = spec.placeholder;
+                valueInput.value = existingValue;
+                valueInput.required = true;
+
+                specDiv.appendChild(labelInput);
+                specDiv.appendChild(valueInput);
+                container.appendChild(specDiv);
+            });
+
+            // Warranty specs
+            warrantyConfig.forEach((spec, index) => {
+                const specDiv = document.createElement('div');
+                specDiv.className = 'specs-grid';
+                const existingValue = findSpecValue(existingSpecs, spec.label) || spec.defaultValue;
+
+                const valueInput = document.createElement('input');
+                valueInput.type = 'text';
+                valueInput.id = `spec-w-${index}`;
+                valueInput.setAttribute('data-role', 'value');
+                valueInput.placeholder = spec.placeholder;
+                valueInput.value = existingValue;
+                valueInput.required = true;
+
+                const labelInput = document.createElement('input');
+                labelInput.type = 'text';
+                labelInput.value = spec.label;
+                labelInput.setAttribute('data-role', 'label');
+                labelInput.readOnly = true;
+
+                specDiv.appendChild(valueInput);
+                specDiv.appendChild(labelInput);
+                container.appendChild(specDiv);
+            });
+
+            // Handle graphics card for laptops
+            if (type === 'laptop') {
+                const graphicsValue = findSpecValue(existingSpecs, 'Graphics Card');
+                if (graphicsValue) {
+                    addGraphicsCardWithValue(graphicsValue);
+                } else {
+                    addGraphicsBtn.style.display = 'inline-block';
+                }
+            } else {
+                addGraphicsBtn.style.display = 'none';
+            }
+        }
+
+        function addGraphicsCardWithValue(value = '') {
+            if (hasGraphicsCard) return;
+
+            const container = document.getElementById('specs-container');
+            const graphicsDiv = document.createElement('div');
+            graphicsDiv.className = 'specs-grid';
+            graphicsDiv.id = 'graphics-card-spec';
+
+            const labelInput = document.createElement('input');
+            labelInput.type = 'text';
+            labelInput.value = 'Graphics Card';
+            labelInput.setAttribute('data-role', 'label');
+            labelInput.readOnly = true;
+
+            const valueInput = document.createElement('input');
+            valueInput.type = 'text';
+            valueInput.id = 'spec-graphics';
+            valueInput.setAttribute('data-role', 'value');
+            valueInput.placeholder = 'e.g., RTX 4050';
+            valueInput.value = value;
+            valueInput.required = true;
+
+            graphicsDiv.appendChild(labelInput);
+            graphicsDiv.appendChild(valueInput);
+            container.appendChild(graphicsDiv);
+
+            hasGraphicsCard = true;
+            document.getElementById('add-graphics-btn').style.display = 'none';
+        }
+
+        function addGraphicsCard() {
+            addGraphicsCardWithValue('');
+        }
+
+        function updateCategoryLabel(type) {
+            const customOption = document.querySelector('#computer-category option[value="custom"]');
+            customOption.textContent = type === 'laptop' ? 'New' : 'Custom Build';
+        }
+
+        // Event listeners
+        document.getElementById('computer-type').addEventListener('change', function(e) {
+            const type = e.target.value;
+            const category = document.getElementById('computer-category').value;
+            updateCategoryLabel(type);
+            generateSpecs(type, category, currentComputer ? currentComputer.specs : []);
+        });
+
+        document.getElementById('computer-category').addEventListener('change', function(e) {
+            const type = document.getElementById('computer-type').value;
+            const category = e.target.value;
+            generateSpecs(type, category, currentComputer ? currentComputer.specs : []);
+        });
+
+        // Image upload
+        document.getElementById('image-input').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                isImageLoading = true;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+                        const maxSize = 800;
+
+                        if (width > height && width > maxSize) {
+                            height = (height / width) * maxSize;
+                            width = maxSize;
+                        } else if (height > maxSize) {
+                            width = (width / height) * maxSize;
+                            height = maxSize;
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+
+                        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                        document.getElementById('image-preview').src = compressedDataUrl;
+                        document.getElementById('image-preview').style.display = 'block';
+                        document.getElementById('upload-prompt').style.display = 'none';
+                        document.getElementById('upload-area').classList.add('has-image');
+                        isImageLoading = false;
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Form submission
+        document.getElementById('computer-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (isImageLoading) {
+                alert('Please wait for the image to finish uploading.');
+                return;
+            }
+
+            const specs = [];
+            document.querySelectorAll('#specs-container .specs-grid').forEach(specDiv => {
+                const labelInput = specDiv.querySelector('input[data-role="label"]');
+                const valueInput = specDiv.querySelector('input[data-role="value"]');
+                specs.push({
+                    label: labelInput.value,
+                    value: valueInput.value
+                });
+            });
+
+            const computerName = document.getElementById('computer-name').value;
+            const migratedSpecs = migrateSpecs(specs, computerName);
+
+            const computerData = {
+                id: isEditMode ? computerId : Date.now(),
+                name: computerName,
+                type: document.getElementById('computer-type').value,
+                category: document.getElementById('computer-category').value,
+                price: document.getElementById('computer-price').value,
+                image: document.getElementById('image-preview').src,
+                specs: migratedSpecs
+            };
+
+            let computers = JSON.parse(sessionStorage.getItem('computers') || '[]');
+
+            if (isEditMode) {
+                const index = computers.findIndex(c => c.id === computerId);
+                if (index !== -1) {
+                    computers[index] = computerData;
+                }
+            } else {
+                computers.push(computerData);
+            }
+
+            try {
+                sessionStorage.setItem('computers', JSON.stringify(computers));
+                sessionStorage.setItem('hasUnsavedChanges', 'true');
+            } catch (e) {
+                if (e.name === 'QuotaExceededError') {
+                    alert('Storage quota exceeded! Try using smaller images or publish your changes first.');
+                    return;
+                }
+                throw e;
+            }
+
+            window.location.href = 'admin-gallery.html';
+        });
+
+        // Initialize
+        if (isEditMode) {
+            document.getElementById('page-title').textContent = 'Edit Computer';
+            document.getElementById('page-subtitle').textContent = 'Update the computer information below.';
+            document.getElementById('submit-btn').textContent = 'Save Changes';
+            document.title = 'Edit Computer - Gallery Manager';
+
+            const computers = JSON.parse(sessionStorage.getItem('computers') || '[]');
+            const computer = computers.find(c => c.id === computerId);
+
+            if (!computer) {
+                alert('Computer not found!');
+                window.location.href = 'admin-gallery.html';
+            } else {
+                currentComputer = computer;
+
+                document.getElementById('computer-id').value = computer.id;
+                document.getElementById('computer-name').value = computer.name;
+                document.getElementById('computer-type').value = computer.type;
+                document.getElementById('computer-category').value = computer.category;
+                document.getElementById('computer-price').value = computer.price;
+
+                if (computer.image) {
+                    document.getElementById('image-preview').src = computer.image;
+                    document.getElementById('image-preview').style.display = 'block';
+                    document.getElementById('upload-prompt').style.display = 'none';
+                    document.getElementById('upload-area').classList.add('has-image');
+                }
+
+                updateCategoryLabel(computer.type);
+                generateSpecs(computer.type, computer.category, computer.specs);
+            }
+        } else {
+            updateCategoryLabel('desktop');
+            generateSpecs('desktop', 'custom');
+        }
+    </script>
+</body>
+</html>

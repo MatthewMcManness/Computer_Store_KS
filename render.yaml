@@ -1,4 +1,38 @@
 services:
+  # Main Next.js Website (includes contact form)
+  - type: web
+    name: computer-store-ks
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_APP_URL
+        sync: false
+      # Email service for contact form (REQUIRED)
+      - key: RESEND_API_KEY
+        sync: false
+      - key: NOTIFICATION_EMAIL
+        value: contact@computerstoreks.com
+      # GitHub integration for gallery
+      - key: GITHUB_TOKEN
+        sync: false
+      - key: GITHUB_OWNER
+        value: MatthewMcManness
+      - key: GITHUB_REPO
+        value: Computer_Store_KS
+      - key: GITHUB_BRANCH
+        value: Computer-Store-KS
+      # Admin authentication
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: NEXTAUTH_SECRET
+        sync: false
+      - key: NEXTAUTH_URL
+        sync: false
+
+  # Legacy Gallery API (can be removed if not used separately)
   - type: web
     name: computer-store-gallery-api
     env: node

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { sendContactNotification, sendContactConfirmation } from '@/lib/email';
 
+export const dynamic = 'force-dynamic';
+
 // Rate limiting store (in production, use Redis)
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
 

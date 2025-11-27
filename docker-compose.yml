@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  computer-store-ks:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: computer-store-ks
+    restart: unless-stopped
+    ports:
+      - "3000:3000"  # Static site
+      - "3001:3001"  # API
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      # GitHub Integration
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - GITHUB_OWNER=${GITHUB_OWNER:-MatthewMcManness}
+      - GITHUB_REPO=${GITHUB_REPO:-Computer_Store_KS}
+      - GITHUB_BRANCH=${GITHUB_BRANCH:-Computer-Store-KS}
+      # Admin Authentication
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+    volumes:
+      # Persist uploaded images and backups
+      - ./backups:/app/backups
+      - gallery_images:/app/assets/gallery
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - webnet
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  gallery_images:
+    driver: local
+
+networks:
+  webnet:
+    external: true
+    name: webnet

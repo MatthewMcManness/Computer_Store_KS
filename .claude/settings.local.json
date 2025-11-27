@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bun install)",
+      "Bash(npm install:*)",
+      "Bash(npm run type-check:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm start)",
+      "Bash(npx serve -p 8080)",
+      "Bash(bun run build:*)",
+      "Bash(npm run build:*)",
+      "Bash(node --version:*)",
+      "Bash(npm --version:*)",
+      "Bash(nginx -v:*)",
+      "Bash(pm2 --version:*)",
+      "Bash(sudo lsof:*)",
+      "Bash(sudo apt update:*)",
+      "Bash(sudo apt install:*)",
+      "Bash(sudo npm install:*)",
+      "Bash(chmod:*)",
+      "Bash(systemctl is-active:*)",
+      "Bash(pm2 list:*)",
+      "Bash(curl:*)",
+      "Bash(sudo tail:*)",
+      "Bash(pm2 restart:*)",
+      "Bash(pm2 logs:*)",
+      "Bash(pm2 delete:*)",
+      "Bash(pm2 start:*)",
+      "Bash(pm2 flush:*)",
+      "Bash(sudo cat:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

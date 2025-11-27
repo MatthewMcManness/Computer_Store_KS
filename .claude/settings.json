@@ -1,0 +1,34 @@
+{
+  "outputStyle": "bast-web-dev.md",
+  "hooks": {
+    "Stop": [{
+      "hooks": [{
+        "type": "command",
+        "command": "paplay /usr/share/sounds/freedesktop/stereo/complete.oga"
+      }]
+    }],
+    "Notification": [{
+      "hooks": [{
+        "type": "command",
+        "command": "paplay /usr/share/sounds/freedesktop/stereo/bell.oga"
+      }]
+    }],
+    "SubagentStart": [{
+      "hooks": [{
+        "type": "command",
+        "command": "paplay /usr/share/sounds/freedesktop/stereo/service-login.oga"
+      }]
+    }],
+    "SubagentStop": [{
+      "hooks": [{
+        "type": "command",
+        "command": "paplay /usr/share/sounds/freedesktop/stereo/service-logout.oga"
+      }]
+    }]
+  },
+  "companyAnnouncements": [
+    "🎯 Bast + CCPM Project Management Active",
+    "📋 Spec-driven development: PRD → Epic → Task → Code",
+    "⚡ Parallel execution with 137 specialized agents"
+  ]
+}

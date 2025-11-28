@@ -1,23 +1,93 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+// =============================================================================
+// Configuration
+// =============================================================================
+
 const SESSION_COOKIE_NAME = 'admin_session';
+const ROLE_COOKIE_NAME = 'user_role';
+
+// Valid roles
+type UserRole = 'admin' | 'employee' | 'limited';
+
+/**
+ * Route permission matrix
+ * Maps routes to allowed roles
+ * More specific routes should come before general ones
+ */
+const routePermissions: Record<string, UserRole[]> = {
+  // Admin-only routes
+  '/admin/settings': ['admin'],
+
+  // Gallery management - admin and employees
+  '/admin/gallery/new': ['admin', 'employee'],
+  '/admin/gallery': ['admin', 'employee'],
+
+  // Dashboard - all roles
+  '/admin': ['admin', 'employee', 'limited'],
+};
+
+// Default: require authentication but allow any role
+const DEFAULT_ALLOWED_ROLES: UserRole[] = ['admin', 'employee', 'limited'];
+
+// =============================================================================
+// Helper Functions
+// =============================================================================
+
+/**
+ * Get the allowed roles for a given pathname
+ * Checks for exact match first, then prefix matches
+ */
+function getAllowedRoles(pathname: string): UserRole[] {
+  // Check for exact match first
+  if (routePermissions[pathname]) {
+    return routePermissions[pathname];
+  }
+
+  // Check for prefix matches (longest match first)
+  const sortedRoutes = Object.keys(routePermissions).sort(
+    (a, b) => b.length - a.length
+  );
+
+  for (const route of sortedRoutes) {
+    if (pathname.startsWith(route)) {
+      return routePermissions[route];
+    }
+  }
+
+  return DEFAULT_ALLOWED_ROLES;
+}
+
+/**
+ * Validate and parse role from cookie
+ */
+function parseRole(roleValue: string | undefined): UserRole | null {
+  if (!roleValue) {
+    return null;
+  }
+
+  // Validate role is one of the expected values
+  if (roleValue === 'admin' || roleValue === 'employee' || roleValue === 'limited') {
+    return roleValue;
+  }
+
+  return null;
+}
+
+// =============================================================================
+// Middleware
+// =============================================================================
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Check if accessing admin routes (except login)
-  if (pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')) {
-    const session = request.cookies.get(SESSION_COOKIE_NAME);
-
-    if (!session?.value) {
-      // Redirect to login if not authenticated
-      const loginUrl = new URL('/admin/login', request.url);
-      return NextResponse.redirect(loginUrl);
-    }
+  // Skip non-admin routes
+  if (!pathname.startsWith('/admin')) {
+    return NextResponse.next();
   }
 
-  // Check if accessing login while already authenticated
+  // Skip login page
   if (pathname === '/admin/login') {
     const session = request.cookies.get(SESSION_COOKIE_NAME);
 
@@ -26,6 +96,39 @@ export function middleware(request: NextRequest) {
       const adminUrl = new URL('/admin', request.url);
       return NextResponse.redirect(adminUrl);
     }
+
+    return NextResponse.next();
+  }
+
+  // Check authentication for protected admin routes
+  const session = request.cookies.get(SESSION_COOKIE_NAME);
+
+  if (!session?.value) {
+    // Not authenticated - redirect to login
+    const loginUrl = new URL('/admin/login', request.url);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  // Get role from cookie
+  const roleCookie = request.cookies.get(ROLE_COOKIE_NAME);
+  const userRole = parseRole(roleCookie?.value);
+
+  // If no valid role cookie, assume admin (backward compatibility with legacy sessions)
+  const effectiveRole: UserRole = userRole || 'admin';
+
+  // Check role permission
+  const allowedRoles = getAllowedRoles(pathname);
+
+  if (!allowedRoles.includes(effectiveRole)) {
+    // Log unauthorized access attempt
+    console.log(
+      `[AUTH] Unauthorized access attempt: ${pathname} by role ${effectiveRole}`
+    );
+
+    // Redirect to dashboard with error
+    const dashboardUrl = new URL('/admin', request.url);
+    dashboardUrl.searchParams.set('error', 'unauthorized');
+    return NextResponse.redirect(dashboardUrl);
   }
 
   return NextResponse.next();

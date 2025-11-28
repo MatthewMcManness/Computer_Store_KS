@@ -37,7 +37,7 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Computer Store Kansas <noreply@computerstoreks.com>',
+        from: 'Computer Store Kansas <contact@computerstoreks.com>',
         to: Array.isArray(options.to) ? options.to : [options.to],
         subject: options.subject,
         html: options.html,

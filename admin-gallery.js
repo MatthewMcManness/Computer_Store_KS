@@ -847,6 +847,10 @@ const FLYER_BASE_CSS = `
     margin: 0;
 }
 
+* {
+    box-sizing: border-box;
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     margin: 0;
@@ -854,6 +858,18 @@ body {
     background: white;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+    color-adjust: exact;
+}
+
+@media print {
+    body {
+        padding: 0.5in;
+    }
+
+    .flyer {
+        box-shadow: none;
+        page-break-inside: avoid;
+    }
 }
 
 .flyer {
@@ -922,6 +938,16 @@ body {
     display: block;
 }
 
+.spec-icon img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+}
+
+.spec-icon-emoji {
+    font-size: 32px;
+}
+
 .spec-title {
     font-weight: 700;
     color: #081e5b;
@@ -944,6 +970,8 @@ body {
     margin: 18px 0;
     font-weight: 700;
     font-size: 16px;
+    text-shadow: 0 1px 1px rgba(255,255,255,0.5);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.3);
 }
 
 .price-section {
@@ -959,6 +987,7 @@ body {
     font-size: 48px;
     font-weight: 900;
     margin: 0;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
 }
 
 .price-note {
@@ -973,6 +1002,7 @@ body {
     border-radius: 15px;
     margin: 18px 0 0 0;
     text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 .peace-title {
@@ -980,6 +1010,7 @@ body {
     font-weight: 700;
     margin: 0 0 15px 0;
     color: #081e5b;
+    text-shadow: 0 1px 1px rgba(255,255,255,0.8);
 }
 
 .warranty-grid {
@@ -994,6 +1025,7 @@ body {
     padding: 15px 10px;
     border-radius: 10px;
     text-align: center;
+    border: 1px solid rgba(8, 30, 91, 0.1);
 }
 
 .warranty-duration {
@@ -1009,6 +1041,7 @@ body {
     font-weight: 600;
     margin: 5px 0 0 0;
     text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 `;
 
@@ -1137,6 +1170,9 @@ const FLYER_BLACK_FRIDAY_CSS = `
 }
 `;
 
+// Base64 encoded title.png placeholder (Computer Store Kansas logo)
+const LOGO_DATA_URL = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjYwIiB2aWV3Qm94PSIwIDAgMzAwIDYwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSJ3aGl0ZSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjI0IiBmb250LXdlaWdodD0iYm9sZCI+Q29tcHV0ZXIgU3RvcmUgS2Fuc2FzPC90ZXh0Pjwvc3ZnPg==';
+
 // Generate flyer for a computer
 function generateFlyer(computerId) {
     const computer = computers.find(c => c.id === computerId);
@@ -1149,6 +1185,9 @@ function generateFlyer(computerId) {
     const isBlackFriday = computer.blackFriday && computer.blackFriday.enabled;
     const typeLabel = capitalizeWords(`${computer.category} ${computer.type}`);
 
+    // Graphics card SVG icon for desktop flyers
+    const GRAPHICS_ICON_SVG = `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#081e5b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 12h.01M10 12h.01M14 12h.01M18 12h.01"/><path d="M6 18v2M18 18v2"/></svg>`;
+
     // Generate specs HTML
     let specsHtml;
     if (isLaptop) {
@@ -1160,22 +1199,22 @@ function generateFlyer(computerId) {
         specsHtml = `
             <div class="specs-grid">
                 <div class="spec-card">
-                    <div class="spec-icon">💻</div>
+                    <div class="spec-icon"><span class="spec-icon-emoji">💻</span></div>
                     <div class="spec-title">Display</div>
                     <div class="spec-detail">${display || 'N/A'}</div>
                 </div>
                 <div class="spec-card">
-                    <div class="spec-icon">🧠</div>
+                    <div class="spec-icon"><span class="spec-icon-emoji">🧠</span></div>
                     <div class="spec-title">Processor</div>
                     <div class="spec-detail">${processor || 'N/A'}</div>
                 </div>
                 <div class="spec-card">
-                    <div class="spec-icon">⚡</div>
+                    <div class="spec-icon"><span class="spec-icon-emoji">⚡</span></div>
                     <div class="spec-title">Memory</div>
                     <div class="spec-detail">${memory || 'N/A'}</div>
                 </div>
                 <div class="spec-card">
-                    <div class="spec-icon">💾</div>
+                    <div class="spec-icon"><span class="spec-icon-emoji">💾</span></div>
                     <div class="spec-title">Storage</div>
                     <div class="spec-detail">${storage || 'N/A'}</div>
                 </div>
@@ -1190,22 +1229,22 @@ function generateFlyer(computerId) {
         specsHtml = `
             <div class="specs-grid">
                 <div class="spec-card">
-                    <div class="spec-icon">🎮</div>
+                    <div class="spec-icon">${GRAPHICS_ICON_SVG}</div>
                     <div class="spec-title">Graphics</div>
                     <div class="spec-detail">${graphics || 'Integrated'}</div>
                 </div>
                 <div class="spec-card">
-                    <div class="spec-icon">🧠</div>
+                    <div class="spec-icon"><span class="spec-icon-emoji">🧠</span></div>
                     <div class="spec-title">Processor</div>
                     <div class="spec-detail">${processor || 'N/A'}</div>
                 </div>
                 <div class="spec-card">
-                    <div class="spec-icon">⚡</div>
+                    <div class="spec-icon"><span class="spec-icon-emoji">⚡</span></div>
                     <div class="spec-title">Memory</div>
                     <div class="spec-detail">${memory || 'N/A'}</div>
                 </div>
                 <div class="spec-card">
-                    <div class="spec-icon">💾</div>
+                    <div class="spec-icon"><span class="spec-icon-emoji">💾</span></div>
                     <div class="spec-title">Storage</div>
                     <div class="spec-detail">${storage || 'N/A'}</div>
                 </div>
@@ -1314,7 +1353,7 @@ function generateFlyer(computerId) {
 <body>
     <div class="${flyerClass}">
         <div class="header">
-            <img src="./assets/title.png" alt="Computer Store Kansas" onerror="this.style.display='none'">
+            <img src="${LOGO_DATA_URL}" alt="Computer Store Kansas">
             <h1>${typeLabel}</h1>
         </div>
 

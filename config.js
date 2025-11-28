@@ -72,8 +72,8 @@ window.siteConfig = {
      External API endpoints and service URLs
      ================================================ */
   api: {
-    contact_endpoint: "https://tcs-contact-api.onrender.com/api/contact", // Contact form submission endpoint
-    health_endpoint: "https://tcs-contact-api.onrender.com/api/health"    // API health check endpoint
+    contact_endpoint: "https://computer-store-ks.onrender.com/api/contact", // Contact form submission endpoint (Next.js + Resend)
+    health_endpoint: "https://computer-store-ks.onrender.com/api/health"    // API health check endpoint
   },
 
   /* ================================================

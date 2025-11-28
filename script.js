@@ -450,10 +450,10 @@ function initializeModals() {
 // Handles contact form submission via self-hosted API with security features
 // ================================================
 
-// API Configuration - auto-detect environment
+// API Configuration - use config or auto-detect environment
 const CONTACT_API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:3001'
-    : '';
+    : (window.siteConfig?.api?.contact_endpoint ? window.siteConfig.api.contact_endpoint.replace('/api/contact', '') : 'https://computer-store-ks.onrender.com');
 
 /**
  * Handle contact form submission
@@ -472,6 +472,7 @@ function handleContactFormSubmit(e) {
   const nameField = document.getElementById('contact-name') || document.getElementById('modal-name');
   const emailField = document.getElementById('contact-email') || document.getElementById('modal-email');
   const phoneField = document.getElementById('contact-phone') || document.getElementById('modal-phone');
+  const subjectField = document.getElementById('contact-subject') || document.getElementById('modal-subject');
   const messageField = document.getElementById('contact-message') || document.getElementById('modal-message');
   const honeypot = document.getElementById('contact-website') || document.getElementById('modal-website');
 
@@ -486,6 +487,7 @@ function handleContactFormSubmit(e) {
     name: nameField.value,
     email: emailField.value,
     phone: phoneField ? phoneField.value : '',
+    subject: subjectField ? subjectField.value : 'General', // Default to 'General' if no subject field
     message: messageField.value,
     website: honeypot ? honeypot.value : '' // Honeypot field
   };

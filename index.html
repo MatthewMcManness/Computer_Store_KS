@@ -1595,7 +1595,19 @@ DEPENDENCIES: style.css, script.js
          <label for="contact-phone">
           Phone Number
          </label>
-         <input id="contact-phone" name="phone" placeholder="(555) 123-4567" required="" type="tel">
+         <input id="contact-phone" name="phone" placeholder="(555) 123-4567" type="tel">
+        </div>
+        <div class="form-group">
+         <label for="contact-subject">
+          Subject
+         </label>
+         <select id="contact-subject" name="subject" required="">
+          <option value="General">General Inquiry</option>
+          <option value="Repair">Computer Repair</option>
+          <option value="Custom Build">Custom Build</option>
+          <option value="Silver Plan">Silver Plan</option>
+          <option value="Other">Other</option>
+         </select>
         </div>
         <div class="form-group">
          <label for="contact-message">

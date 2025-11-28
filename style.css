@@ -1505,7 +1505,8 @@ header nav ul .nav-action.black-friday a:hover::before {
 }
 
 .form-group input,
-.form-group textarea {
+.form-group textarea,
+.form-group select {
   width: 100%;
   padding: 0.75rem;
   border: 2px solid var(--background-dark);
@@ -1513,10 +1514,12 @@ header nav ul .nav-action.black-friday a:hover::before {
   font-size: 1rem;
   transition: var(--transition-fast);
   font-family: inherit;
+  background-color: var(--text-white);
 }
 
 .form-group input:focus,
-.form-group textarea:focus {
+.form-group textarea:focus,
+.form-group select:focus {
   outline: none;
   border-color: var(--primary-blue);
   box-shadow: 0 0 0 3px var(--primary-blue-subtle);

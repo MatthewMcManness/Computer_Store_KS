@@ -2,6 +2,51 @@
 
 > Think carefully and implement the most concise solution that changes as little code as possible.
 
+## Project Overview
+
+Computer Store KS is a website for a computer repair shop featuring:
+- Public-facing website (Next.js 14, React 18, TypeScript, Tailwind)
+- Admin gallery management system
+- Flyer generator for promotions
+- Contact form with email notifications (Resend)
+
+## Architecture
+
+### Active Code
+- `src/` - Next.js 14 application (App Router)
+  - `src/app/` - Pages and API routes
+  - `src/components/` - React components by feature
+  - `src/lib/` - Utilities (auth, email, github, flyer-generator)
+- `api/` - Legacy Express.js backend (preserved, mostly unused)
+- `public/` - Static assets
+- `docs/` - Project documentation
+
+### Archived Code (DO NOT USE)
+- `_archive/` - Deprecated static HTML site and legacy docs
+  - This code is preserved for historical reference only
+  - **Do NOT reference files in `_archive/` for current development**
+
+## Key Files
+
+### Frontend (src/)
+- `src/app/page.tsx` - Homepage
+- `src/app/admin/` - Admin pages (protected)
+- `src/app/api/` - API route handlers
+- `src/components/gallery/` - Gallery components
+- `src/components/admin/` - Admin components
+
+### Utilities (src/lib/)
+- `auth.ts` - Session-based authentication
+- `github.ts` - GitHub API for image storage
+- `email.ts` - Resend email integration
+- `flyer-generator.ts` - PDF flyer generation
+
+### Configuration
+- `.env` - Environment variables (not committed)
+- `.env.example` - Example environment config
+- `next.config.mjs` - Next.js configuration
+- `tailwind.config.js` - Tailwind CSS config
+
 ## Project-Specific Instructions
 
 Default to using Bun instead of Node.js.
@@ -130,3 +175,19 @@ bun --hot ./index.ts
 ```
 
 For more information, read the Bun API docs in `node_modules/bun-types/docs/**.md`.
+
+## Development Workflow
+
+1. Run `bun install` to install dependencies
+2. Copy `.env.example` to `.env` and configure
+3. Run `bun run dev` for development
+4. Run `bun run build` before committing
+
+## Important Patterns
+
+- Use TypeScript strict mode
+- Components organized by feature in `src/components/`
+- API routes in `src/app/api/`
+- Use Tailwind for styling (no separate CSS files)
+- Authentication via session cookies (see `src/lib/auth.ts`)
+- Gallery images stored in GitHub via API (see `src/lib/github.ts`)

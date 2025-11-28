@@ -27,7 +27,14 @@
       "Bash(pm2 delete:*)",
       "Bash(pm2 start:*)",
       "Bash(pm2 flush:*)",
-      "Bash(sudo cat:*)"
+      "Bash(sudo cat:*)",
+      "WebSearch",
+      "WebFetch(domain:api-docs.repairshopr.com)",
+      "WebFetch(domain:www.repairshopr.com)",
+      "WebFetch(domain:repair.uservoice.com)",
+      "WebFetch(domain:github.com)",
+      "Bash(git mv:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

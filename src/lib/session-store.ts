@@ -66,8 +66,12 @@ function ensureSessionsDir(): void {
  */
 function generateUUID(): string {
   const bytes = randomBytes(16);
-  bytes[6] = (bytes[6] & 0x0f) | 0x40; // Version 4
-  bytes[8] = (bytes[8] & 0x3f) | 0x80; // Variant
+  // Set version to 4 and variant bits
+  // TypeScript strict null checks: bytes from randomBytes(16) always has indices 0-15
+  const byte6 = bytes[6]!;
+  const byte8 = bytes[8]!;
+  bytes[6] = (byte6 & 0x0f) | 0x40; // Version 4
+  bytes[8] = (byte8 & 0x3f) | 0x80; // Variant
 
   const hex = bytes.toString('hex');
   return [

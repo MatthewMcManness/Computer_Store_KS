@@ -36,6 +36,9 @@ __pycache__/
 .next/
 out/
 
+# Server-side sessions (encrypted, sensitive)
+.sessions/
+
 # CCPM local workspace
 .claude/epics/
 .claude/settings.local.json

@@ -450,10 +450,14 @@ function initializeModals() {
 // Handles contact form submission via self-hosted API with security features
 // ================================================
 
-// API Configuration - use config or auto-detect environment
-const CONTACT_API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:3001'
-    : (window.siteConfig?.api?.contact_endpoint ? window.siteConfig.api.contact_endpoint.replace('/api/contact', '') : 'https://computer-store-ks.onrender.com');
+// API Configuration - get URL at runtime from config
+function getContactApiUrl() {
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    return 'http://localhost:3001/api/contact';
+  }
+  // Use config.js endpoint directly, or fallback to Render
+  return window.siteConfig?.api?.contact_endpoint || 'https://computer-store-ks.onrender.com/api/contact';
+}
 
 /**
  * Handle contact form submission
@@ -507,7 +511,7 @@ function handleContactFormSubmit(e) {
   if (btnText) btnText.style.display = 'none';
   if (btnLoading) btnLoading.style.display = 'inline';
 
-  fetch(`${CONTACT_API_URL}/api/contact`, {
+  fetch(getContactApiUrl(), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

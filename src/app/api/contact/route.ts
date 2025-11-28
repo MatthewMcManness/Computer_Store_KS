@@ -16,7 +16,7 @@ const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
 
 // Rate limit configuration
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
-const MAX_REQUESTS = 3; // 3 requests per minute
+const MAX_REQUESTS = 10; // 10 requests per minute
 
 // Contact form validation schema
 const contactFormSchema = z.object({

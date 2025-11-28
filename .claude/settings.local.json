@@ -34,7 +34,8 @@
       "WebFetch(domain:repair.uservoice.com)",
       "WebFetch(domain:github.com)",
       "Bash(git mv:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

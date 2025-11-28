@@ -137,7 +137,7 @@ export function logValidationResult(result: ValidationResult): void {
  * Get a summary of current auth configuration (safe to log)
  * Does not include sensitive values
  */
-export function getAuthConfigSummary(): Record<string, string | boolean> {
+export function getAuthConfigSummary(): Record<string, string | boolean | number> {
   return {
     AUTH_MODE: getAuthMode(),
     REPAIRSHOPR_SUBDOMAIN: process.env.REPAIRSHOPR_SUBDOMAIN || '(not set)',

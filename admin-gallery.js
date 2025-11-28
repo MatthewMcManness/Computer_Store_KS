@@ -870,6 +870,62 @@ body {
         box-shadow: none;
         page-break-inside: avoid;
     }
+
+    /* Tighter spacing for Black Friday flyers to fit on one page */
+    .black-friday .content {
+        padding: 15px 18px;
+    }
+
+    .black-friday .product-title {
+        margin-bottom: 15px;
+    }
+
+    .black-friday .black-friday-badge {
+        margin-bottom: 12px;
+    }
+
+    .black-friday .specs-grid {
+        margin-bottom: 12px;
+    }
+
+    .black-friday .software-badge {
+        margin: 12px 0;
+    }
+
+    .black-friday .price-section {
+        padding: 15px;
+        margin: 12px 0;
+    }
+
+    .black-friday .sale-price {
+        font-size: 48px;
+    }
+
+    .black-friday .discount-badge {
+        margin-top: 5px;
+    }
+
+    .black-friday .peace-of-mind {
+        padding: 12px;
+        margin: 12px 0 0 0;
+    }
+
+    .black-friday .peace-title {
+        margin: 0 0 10px 0;
+    }
+
+    .black-friday .warranty-grid {
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+    .black-friday .warranty-item {
+        padding: 10px 8px;
+    }
+
+    .black-friday .warranty-duration {
+        font-size: 22px;
+    }
 }
 
 .flyer {

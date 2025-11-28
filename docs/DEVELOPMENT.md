@@ -9,6 +9,7 @@ This guide covers setting up and running Computer Store KS locally.
 - **Git**
 - **GitHub Account** (for gallery image storage)
 - **Resend Account** (for contact form emails)
+- **RepairShopr Account** (for customer/repair management integration)
 
 ## Quick Start
 
@@ -47,6 +48,12 @@ Copy `.env.example` to `.env` and configure:
 | `GITHUB_BRANCH` | Branch for gallery data |
 | `RESEND_API_KEY` | Resend API key for emails |
 | `NOTIFICATION_EMAIL` | Email to receive contact form submissions |
+
+### RepairShopr Integration
+
+| Variable | Description |
+|----------|-------------|
+| `REPAIRSHOPR_SUBDOMAIN` | Your RepairShopr subdomain (e.g., `thecomputerstore` for thecomputerstore.repairshopr.com) |
 
 ### Optional
 
@@ -111,6 +118,68 @@ export async function GET() {
 }
 ```
 
+## RepairShopr Integration
+
+The application integrates with [RepairShopr](https://www.repairshopr.com/) for customer authentication and repair ticket management.
+
+### Configuration
+
+1. Set `REPAIRSHOPR_SUBDOMAIN` in your `.env` file to your RepairShopr subdomain
+2. The API client is located at `src/lib/repairshopr.ts`
+
+### Usage
+
+```typescript
+import { RepairShoprClient, createRepairShoprClient } from '@/lib/repairshopr';
+
+// Using factory function (reads subdomain from environment)
+const client = createRepairShoprClient();
+
+// Or manual configuration
+const client = new RepairShoprClient({ subdomain: 'yoursubdomain' });
+
+// Sign in and get API token
+const { api_key, user } = await client.signIn('user@example.com', 'password');
+
+// Get current user info
+const { user } = await client.getMe(api_key);
+```
+
+### API Methods
+
+| Method | Description |
+|--------|-------------|
+| `signIn(email, password)` | Authenticate user, returns API key and user info |
+| `getMe(apiToken)` | Get current authenticated user details |
+
+### Rate Limiting
+
+RepairShopr enforces a rate limit of 180 requests per minute. The client automatically tracks requests and will throw a `RepairShoprAPIError` with code `RATE_LIMIT_EXCEEDED` if the limit is reached.
+
+```typescript
+// Check rate limit status
+const { remaining, limit, resetMs } = client.getRateLimitStatus();
+```
+
+### Error Handling
+
+```typescript
+import { RepairShoprAPIError } from '@/lib/repairshopr';
+
+try {
+  await client.signIn(email, password);
+} catch (error) {
+  if (error instanceof RepairShoprAPIError) {
+    console.error(`Error ${error.code}: ${error.message}`);
+    // Handle specific error codes:
+    // - UNAUTHORIZED: Invalid credentials
+    // - RATE_LIMIT_EXCEEDED: Too many requests
+    // - NETWORK_ERROR: Connection issues
+    // - VALIDATION_ERROR: Invalid input
+  }
+}
+```
+
 ## Code Conventions
 
 ### TypeScript
@@ -135,14 +204,13 @@ export async function GET() {
 
 ## Testing
 
-Currently, no automated tests are configured. To add tests:
+Run tests using Bun's built-in test runner:
 
 ```bash
-# Install Bun test runner (built-in)
-# Create test files with .test.ts extension
-
 bun test
 ```
+
+Test files should use the `.test.ts` extension and be placed alongside the code they test.
 
 ## Troubleshooting
 
@@ -158,6 +226,7 @@ bun run build
 - Ensure `.env` file exists with all required variables
 - Check that GitHub token has `repo` scope
 - Verify Resend API key is valid
+- Confirm RepairShopr subdomain is correct
 
 ### Port Already in Use
 ```bash

@@ -108,7 +108,16 @@ services:
 1. Create account at https://resend.com
 2. Get API key from https://resend.com/api-keys
 3. Add `RESEND_API_KEY` to Render environment variables
-4. (Optional) Verify domain for better deliverability
+4. Verify your sending domain in Resend dashboard
+
+**Required DNS Records for Email Delivery:**
+
+When verifying your domain in Resend, you'll need to add DNS records. Important considerations:
+
+- **SPF Record**: Add `include:_spf.resend.com` to your existing SPF TXT record
+  - Example: `v=spf1 include:_spf.google.com include:_spf.resend.com ~all`
+- **DKIM Record**: Add the DKIM TXT record Resend provides
+- **MX Records**: Do NOT add Resend's MX record unless you want Resend to receive inbound emails. Adding it can override your existing email provider (e.g., Google Workspace) and cause delivery issues.
 
 ### Verifying Deployment
 
@@ -361,7 +370,10 @@ pm2 restart all
 
 1. Verify `RESEND_API_KEY` is valid
 2. Check Resend dashboard at https://resend.com/emails for errors
-3. Verify sending domain is configured (optional but recommended)
+3. Verify sending domain is configured in Resend
+4. Check SPF record includes `include:_spf.resend.com`
+5. Verify MX records point to your email provider (not Resend's inbound server)
+6. Check spam/junk folder of recipient email
 
 ### Render Service Down
 

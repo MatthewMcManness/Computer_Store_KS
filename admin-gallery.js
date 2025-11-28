@@ -38,7 +38,7 @@ function checkAuth() {
     if (!isAuth || (currentTime - loginTime > 28800000)) {
         sessionStorage.removeItem('admin_authenticated');
         sessionStorage.removeItem('admin_login_time');
-        window.location.href = 'admin-login.html';
+        window.location.href = 'https://computer-store-ks.onrender.com/admin/login';
         return false;
     }
     return true;
@@ -53,7 +53,7 @@ function logout() {
     }
     sessionStorage.removeItem('admin_authenticated');
     sessionStorage.removeItem('admin_login_time');
-    window.location.href = 'admin-login.html';
+    window.location.href = 'https://computer-store-ks.onrender.com/admin/login';
 }
 
 // Migration function is loaded from spec-migration.js

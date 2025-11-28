@@ -399,9 +399,9 @@ function initializeModals() {
   const loginModal = document.getElementById('login-modal');
 
   if (loginBtn) {
-    // Redirect to admin login page instead of opening modal
+    // Redirect to Next.js admin login on Render
     loginBtn.addEventListener('click', function() {
-      window.location.href = 'admin-login.html';
+      window.location.href = 'https://computer-store-ks.onrender.com/admin/login';
     });
   }
 

@@ -41,8 +41,9 @@ const DEFAULT_ALLOWED_ROLES: UserRole[] = ['admin', 'employee', 'limited'];
  */
 function getAllowedRoles(pathname: string): UserRole[] {
   // Check for exact match first
-  if (routePermissions[pathname]) {
-    return routePermissions[pathname];
+  const exactMatch = routePermissions[pathname];
+  if (exactMatch) {
+    return exactMatch;
   }
 
   // Check for prefix matches (longest match first)
@@ -52,7 +53,10 @@ function getAllowedRoles(pathname: string): UserRole[] {
 
   for (const route of sortedRoutes) {
     if (pathname.startsWith(route)) {
-      return routePermissions[route];
+      const prefixMatch = routePermissions[route];
+      if (prefixMatch) {
+        return prefixMatch;
+      }
     }
   }
 

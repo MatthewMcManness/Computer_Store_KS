@@ -38,7 +38,11 @@
       "Bash(cat:*)",
       "Bash(git commit:*)",
       "Bash(git push:*)",
-      "Bash(git pull:*)"
+      "Bash(git pull:*)",
+      "Bash(dig:*)",
+      "SlashCommand(/pm:issue-start:*)",
+      "SlashCommand(/pm:issue-analyze:*)",
+      "Bash(openssl rand:*)"
     ],
     "deny": [],
     "ask": []

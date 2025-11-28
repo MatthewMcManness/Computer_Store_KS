@@ -873,58 +873,81 @@ body {
 
     /* Tighter spacing for Black Friday flyers to fit on one page */
     .black-friday .content {
-        padding: 15px 18px;
+        padding: 12px 18px;
     }
 
     .black-friday .product-title {
-        margin-bottom: 15px;
+        margin-bottom: 12px;
     }
 
     .black-friday .black-friday-badge {
-        margin-bottom: 12px;
+        margin-bottom: 8px;
+        padding: 6px 20px;
     }
 
     .black-friday .specs-grid {
-        margin-bottom: 12px;
+        margin-bottom: 10px;
+        gap: 10px;
+    }
+
+    .black-friday .spec-card {
+        padding: 12px 10px;
     }
 
     .black-friday .software-badge {
-        margin: 12px 0;
+        margin: 10px 0;
+        padding: 10px 18px;
     }
 
     .black-friday .price-section {
-        padding: 15px;
-        margin: 12px 0;
+        padding: 12px;
+        margin: 10px 0;
     }
 
     .black-friday .sale-price {
-        font-size: 48px;
+        font-size: 44px;
     }
 
     .black-friday .discount-badge {
-        margin-top: 5px;
+        margin-top: 4px;
+        padding: 3px 10px;
     }
 
     .black-friday .peace-of-mind {
-        padding: 12px;
-        margin: 12px 0 0 0;
+        padding: 8px 12px;
+        margin: 8px 0 0 0;
     }
 
     .black-friday .peace-title {
-        margin: 0 0 10px 0;
+        margin: 0 0 6px 0;
+        font-size: 20px;
     }
 
     .black-friday .warranty-grid {
-        gap: 8px;
-        margin-top: 10px;
+        gap: 6px;
+        margin-top: 6px;
     }
 
     .black-friday .warranty-item {
-        padding: 10px 8px;
+        padding: 8px 6px;
     }
 
     .black-friday .warranty-duration {
-        font-size: 22px;
+        font-size: 20px;
+    }
+
+    .black-friday .warranty-type {
+        font-size: 11px;
+    }
+
+    .black-friday .warranty-upgraded {
+        font-size: 9px;
+        margin-top: 2px;
+    }
+
+    .black-friday .warranty-original {
+        font-size: 13px;
+        margin-bottom: 1px;
     }
 }
 

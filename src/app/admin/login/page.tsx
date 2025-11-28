@@ -2,15 +2,25 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import Link from 'next/link';
 import { Settings } from 'lucide-react';
 
+/**
+ * Error code to user-friendly message mapping
+ */
+const errorMessages: Record<string, string> = {
+  INVALID_CREDENTIALS: 'Invalid email or password',
+  RATE_LIMITED: 'Too many login attempts. Please wait a moment.',
+  SERVICE_UNAVAILABLE: 'Authentication service unavailable. Please try again.',
+};
+
 export default function AdminLoginPage() {
   const router = useRouter();
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   // Check if already authenticated
   useEffect(() => {
@@ -31,6 +41,7 @@ export default function AdminLoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccessMessage('');
     setIsLoading(true);
 
     try {
@@ -39,16 +50,27 @@ export default function AdminLoginPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ email, password }),
       });
 
       const result = await response.json();
 
       if (response.ok && result.success) {
-        router.push('/admin');
-        router.refresh();
+        // Show success message with user name
+        const userName = result.user?.name || 'User';
+        setSuccessMessage(`Welcome back, ${userName}!`);
+
+        // Redirect after brief delay to show success message
+        setTimeout(() => {
+          router.push('/admin');
+          router.refresh();
+        }, 800);
       } else {
-        setError(result.error || 'Invalid password');
+        // Map error code to user-friendly message
+        const errorCode = result.code || '';
+        const errorMsg =
+          errorMessages[errorCode] || result.error || 'Invalid credentials';
+        setError(errorMsg);
         setPassword('');
       }
     } catch {
@@ -70,6 +92,13 @@ export default function AdminLoginPage() {
           <p className="mt-1 text-gray-500">Gallery Management System</p>
         </div>
 
+        {/* Success Message */}
+        {successMessage && (
+          <div className="mb-6 rounded-lg border border-green-200 bg-green-50 p-4">
+            <p className="text-sm font-medium text-green-600">{successMessage}</p>
+          </div>
+        )}
+
         {/* Error Message */}
         {error && (
           <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4">
@@ -79,6 +108,27 @@ export default function AdminLoginPage() {
 
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your RepairShopr email"
+              autoComplete="email"
+              required
+              autoFocus
+              disabled={isLoading || !!successMessage}
+              className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20 disabled:bg-gray-100 disabled:cursor-not-allowed"
+            />
+          </div>
+
           <div>
             <label
               htmlFor="password"
@@ -91,18 +141,18 @@ export default function AdminLoginPage() {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter admin password"
+              placeholder="Enter your RepairShopr password"
               autoComplete="current-password"
               required
-              autoFocus
-              className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+              disabled={isLoading || !!successMessage}
+              className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20 disabled:bg-gray-100 disabled:cursor-not-allowed"
             />
           </div>
 
           <button
             type="submit"
-            disabled={isLoading}
-            className="w-full rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-3 font-semibold text-white transition-all hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50"
+            disabled={isLoading || !!successMessage}
+            className="w-full rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-3 font-semibold text-white transition-all hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <span className="flex items-center justify-center">

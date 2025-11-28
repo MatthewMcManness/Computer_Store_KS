@@ -2,11 +2,22 @@
 
 This guide covers deploying Computer Store KS to production.
 
+## Current Production Setup
+
+The site uses a **hybrid deployment**:
+
+| Component | Platform | URL |
+|-----------|----------|-----|
+| Static Frontend | CDN/Static Host | computerstoreks.com |
+| Next.js API (Resend) | Render | computer-store-ks.onrender.com |
+
+The static HTML frontend makes API calls to the Next.js backend on Render for contact form submissions.
+
 ## Deployment Options
 
-1. **Docker** (Recommended) - Containerized deployment
-2. **Manual** - Direct deployment with PM2
-3. **Platform** - Vercel, Render, etc.
+1. **Render** (Current Production) - Next.js API backend
+2. **Docker** - Self-hosted with static site + Express API
+3. **Manual** - Direct deployment with PM2
 
 ## Prerequisites
 
@@ -17,30 +28,103 @@ This guide covers deploying Computer Store KS to production.
 
 ## Environment Variables
 
-All deployments require these environment variables:
+### Render Deployment (Next.js)
+
+Required for `render.yaml`:
 
 ```bash
 # Application
 NODE_ENV=production
-NEXT_PUBLIC_APP_URL=https://yourdomain.com
 
 # GitHub Integration
 GITHUB_TOKEN=ghp_xxxxxxxxxxxxx
-GITHUB_OWNER=your-username
-GITHUB_REPO=your-repo
-GITHUB_BRANCH=main
+GITHUB_OWNER=MatthewMcManness
+GITHUB_REPO=Computer_Store_KS
+GITHUB_BRANCH=Computer-Store-KS
 
 # Authentication
 ADMIN_PASSWORD=your-secure-password
-NEXTAUTH_SECRET=generated-32-byte-secret
-NEXTAUTH_URL=https://yourdomain.com
 
-# Email (Resend)
+# Email (Resend) - CRITICAL for contact form
 RESEND_API_KEY=re_xxxxxxxxxxxxx
-NOTIFICATION_EMAIL=contact@yourdomain.com
+NOTIFICATION_EMAIL=contact@computerstoreks.com
+```
+
+### Docker Deployment (Express API)
+
+Additional variables for `docker-compose.yml`:
+
+```bash
+# Same as above, plus:
+PORT=3001
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASS=your-app-password
+```
+
+## Render Deployment
+
+### Current Setup
+
+The `render.yaml` in the project root deploys the Next.js application:
+
+```yaml
+services:
+  - type: web
+    name: computer-store-ks
+    env: node
+    buildCommand: npm install && npm run build && cp -r .next/static .next/standalone/.next/static && cp -r public .next/standalone/public
+    startCommand: node .next/standalone/server.js
+    envVars:
+      - key: NODE_VERSION
+        value: 20.11.0
+      - key: NODE_ENV
+        value: production
+      - key: RESEND_API_KEY
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: GITHUB_TOKEN
+        sync: false
+      - key: GITHUB_OWNER
+        value: MatthewMcManness
+      - key: GITHUB_REPO
+        value: Computer_Store_KS
+      - key: GITHUB_BRANCH
+        value: Computer-Store-KS
+```
+
+### Setting Up Render
+
+1. **Create Render Account** at https://render.com
+2. **Connect GitHub Repository**
+3. **Create Web Service** from the repository
+4. **Configure Environment Variables** in Render dashboard
+5. **Deploy** - Render auto-deploys on push
+
+### Setting Up Resend (Email)
+
+1. Create account at https://resend.com
+2. Get API key from https://resend.com/api-keys
+3. Add `RESEND_API_KEY` to Render environment variables
+4. (Optional) Verify domain for better deliverability
+
+### Verifying Deployment
+
+```bash
+# Check API health
+curl https://computer-store-ks.onrender.com/api/health
+
+# Test contact form
+curl -X POST https://computer-store-ks.onrender.com/api/contact \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Test","email":"test@test.com","subject":"General","message":"Test message from deployment verification"}'
 ```
 
 ## Docker Deployment
+
+For self-hosted environments, use Docker to run the static site with Express API.
 
 ### Build and Run
 
@@ -52,10 +136,11 @@ docker build -t computer-store-ks .
 docker run -d \
   --name computer-store-ks \
   -p 3000:3000 \
+  -p 3001:3001 \
   -e NODE_ENV=production \
   -e GITHUB_TOKEN=your-token \
-  -e GITHUB_OWNER=your-username \
-  -e GITHUB_REPO=your-repo \
+  -e GITHUB_OWNER=MatthewMcManness \
+  -e GITHUB_REPO=Computer_Store_KS \
   -e ADMIN_PASSWORD=your-password \
   computer-store-ks
 ```
@@ -84,8 +169,26 @@ docker compose down
 
 | Port | Service |
 |------|---------|
-| 3000 | Next.js application |
-| 3001 | Legacy API (if using) |
+| 3000 | Static HTML site (via `serve`) |
+| 3001 | Express API (gallery + contact) |
+
+### Docker Architecture
+
+```
+┌─────────────────────────────────────┐
+│           Docker Container          │
+│                                     │
+│  ┌─────────────┐  ┌──────────────┐  │
+│  │   serve     │  │  Express API │  │
+│  │  :3000      │  │    :3001     │  │
+│  │             │  │              │  │
+│  │ index.html  │  │ gallery-api  │  │
+│  │ style.css   │  │   .js        │  │
+│  │ script.js   │  │              │  │
+│  └─────────────┘  └──────────────┘  │
+│                                     │
+└─────────────────────────────────────┘
+```
 
 ## Manual Deployment with PM2
 
@@ -107,7 +210,7 @@ curl -fsSL https://bun.sh/install | bash
 
 ```bash
 # Clone repository
-git clone https://github.com/your-username/Computer_Store_KS.git
+git clone https://github.com/MatthewMcManness/Computer_Store_KS.git
 cd Computer_Store_KS
 
 # Install dependencies
@@ -143,17 +246,18 @@ pm2 delete all          # Remove processes
 ```nginx
 server {
     listen 80;
-    server_name yourdomain.com;
+    server_name computerstoreks.com;
     return 301 https://$server_name$request_uri;
 }
 
 server {
     listen 443 ssl http2;
-    server_name yourdomain.com;
+    server_name computerstoreks.com;
 
-    ssl_certificate /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/computerstoreks.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/computerstoreks.com/privkey.pem;
 
+    # Static files
     location / {
         proxy_pass http://localhost:3000;
         proxy_http_version 1.1;
@@ -175,38 +279,39 @@ server {
 sudo apt install certbot python3-certbot-nginx
 
 # Obtain certificate
-sudo certbot --nginx -d yourdomain.com
+sudo certbot --nginx -d computerstoreks.com
 
 # Auto-renewal is configured automatically
 ```
 
-## Platform Deployment
+## Static Site Hosting
 
-### Vercel
+The static HTML site can be hosted on any static file host:
 
-1. Connect GitHub repository to Vercel
-2. Configure environment variables in Vercel dashboard
-3. Deploy automatically on push
+- **GitHub Pages**
+- **Netlify**
+- **Cloudflare Pages**
+- **Vercel** (static export)
+- **AWS S3 + CloudFront**
 
-### Render
+### Important: Configure API URL
 
-1. Create new Web Service
-2. Connect GitHub repository
-3. Build command: `bun install && bun run build`
-4. Start command: `bun run start`
-5. Add environment variables
+When hosting the static site separately, update `config.js`:
+
+```javascript
+api: {
+  contact_endpoint: "https://computer-store-ks.onrender.com/api/contact",
+  health_endpoint: "https://computer-store-ks.onrender.com/api/health"
+}
+```
 
 ## Health Checks
 
-The application provides a health endpoint:
-
 ```bash
-# Check application health
-curl https://yourdomain.com/api/health
-```
+# Check Next.js API health
+curl https://computer-store-ks.onrender.com/api/health
 
-Expected response:
-```json
+# Expected response
 {
   "status": "ok",
   "timestamp": "2024-01-01T00:00:00.000Z"
@@ -215,13 +320,14 @@ Expected response:
 
 ## Updating
 
+### Render (Auto-deploy)
+
+Push to `Computer-Store-KS` branch - Render auto-deploys.
+
 ### Docker
 
 ```bash
-# Pull latest code
 git pull
-
-# Rebuild and restart
 docker compose down
 docker compose build --no-cache
 docker compose up -d
@@ -230,38 +336,39 @@ docker compose up -d
 ### Manual/PM2
 
 ```bash
-# Pull latest code
 git pull
-
-# Install any new dependencies
 bun install
-
-# Rebuild
 bun run build
-
-# Restart
 pm2 restart all
 ```
 
 ## Troubleshooting
 
-### Application Won't Start
+### Contact Form Not Working
 
-1. Check environment variables are set
-2. Verify Node.js version (`node --version`)
-3. Check logs: `pm2 logs` or `docker compose logs`
+1. Check `RESEND_API_KEY` is set in Render environment
+2. Verify API is responding: `curl https://computer-store-ks.onrender.com/api/health`
+3. Check `config.js` points to correct API URL
+4. Check browser console for CORS errors
 
 ### Images Not Loading
 
 1. Verify `GITHUB_TOKEN` has `repo` scope
 2. Check `GITHUB_OWNER` and `GITHUB_REPO` are correct
-3. Ensure branch exists
+3. Ensure branch `Computer-Store-KS` exists
 
-### Email Not Working
+### Email Not Sending
 
 1. Verify `RESEND_API_KEY` is valid
-2. Check Resend dashboard for errors
-3. Verify sending domain is configured
+2. Check Resend dashboard at https://resend.com/emails for errors
+3. Verify sending domain is configured (optional but recommended)
+
+### Render Service Down
+
+1. Check Render dashboard for deployment errors
+2. View service logs
+3. Verify all environment variables are set
+4. Check build command succeeded
 
 ### SSL Issues
 

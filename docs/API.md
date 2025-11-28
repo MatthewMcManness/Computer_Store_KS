@@ -1,11 +1,80 @@
 # API Reference
 
-Computer Store KS provides REST API endpoints for gallery management, authentication, and contact forms.
+Computer Store KS provides REST API endpoints for contact forms, gallery management, and authentication.
 
-## Base URL
+## Base URLs
 
-- Development: `http://localhost:3000/api`
-- Production: `https://yourdomain.com/api`
+| Environment | URL |
+|-------------|-----|
+| Production (Render) | `https://computer-store-ks.onrender.com/api` |
+| Local Development | `http://localhost:3000/api` |
+| Docker (Express API) | `http://localhost:3001/api` |
+
+## Contact Form
+
+The contact form is the primary public-facing API endpoint, used by both the static HTML site and the Next.js app.
+
+### Submit Contact Form
+
+```http
+POST /api/contact
+Content-Type: application/json
+```
+
+**Request Body**
+```json
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "phone": "555-123-4567",
+  "subject": "General",
+  "message": "I have a question about your computer repair services."
+}
+```
+
+**Fields**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | string | Yes | Customer name (max 100 chars) |
+| `email` | string | Yes | Valid email address (max 254 chars) |
+| `phone` | string | No | Phone number (max 20 chars) |
+| `subject` | enum | Yes | One of: `General`, `Repair`, `Custom Build`, `Silver Plan`, `Other` |
+| `message` | string | Yes | Message content (10-5000 chars) |
+| `website` | string | No | Honeypot field - must be empty |
+
+**Response (Success)**
+```json
+{
+  "success": true,
+  "message": "Thank you for your message! We will get back to you within 24 hours."
+}
+```
+
+**Response (Validation Error)**
+```json
+{
+  "success": false,
+  "error": "Validation failed",
+  "errors": [
+    { "field": "subject", "message": "Please select a valid subject" },
+    { "field": "message", "message": "Message must be at least 10 characters" }
+  ]
+}
+```
+
+**Response (Rate Limited)**
+```json
+{
+  "success": false,
+  "error": "Too many requests. Please try again later."
+}
+```
+HTTP Status: 429, Header: `Retry-After: <seconds>`
+
+**Rate Limiting**
+- 3 requests per minute per IP address
+- Returns 429 status when exceeded
 
 ## Authentication
 
@@ -224,38 +293,6 @@ POST /api/gallery/publish
 }
 ```
 
-## Contact Form
-
-### Submit Contact Form
-
-```http
-POST /api/contact
-Content-Type: application/json
-
-{
-  "name": "John Doe",
-  "email": "john@example.com",
-  "phone": "555-1234",
-  "message": "I have a question about your services."
-}
-```
-
-**Response (Success)**
-```json
-{
-  "success": true,
-  "message": "Message sent successfully"
-}
-```
-
-**Response (Error)**
-```json
-{
-  "success": false,
-  "error": "Failed to send message"
-}
-```
-
 ## Health Check
 
 ```http
@@ -289,11 +326,8 @@ All endpoints return errors in a consistent format:
 | 400 | Bad Request - Invalid input |
 | 401 | Unauthorized - Authentication required |
 | 404 | Not Found - Resource doesn't exist |
+| 429 | Too Many Requests - Rate limit exceeded |
 | 500 | Server Error - Internal error |
-
-## Rate Limiting
-
-No rate limiting is currently implemented. For production, consider adding rate limiting via Nginx or middleware.
 
 ## Data Types
 
@@ -330,6 +364,54 @@ interface ContactForm {
   name: string;
   email: string;
   phone?: string;
+  subject: 'General' | 'Repair' | 'Custom Build' | 'Silver Plan' | 'Other';
   message: string;
+  website?: string;  // Honeypot - should always be empty
 }
+```
+
+## CORS Configuration
+
+The API allows requests from:
+- `https://computerstoreks.com`
+- `https://www.computerstoreks.com`
+- `https://thecomputerstoreks.com`
+- `https://www.thecomputerstoreks.com`
+- `http://localhost:3000` (development)
+
+## Integration Examples
+
+### Static HTML Site (JavaScript)
+
+```javascript
+// From config.js
+const API_URL = 'https://computer-store-ks.onrender.com';
+
+async function submitContactForm(formData) {
+  const response = await fetch(`${API_URL}/api/contact`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone || '',
+      subject: formData.subject || 'General',
+      message: formData.message
+    })
+  });
+  return response.json();
+}
+```
+
+### cURL Example
+
+```bash
+curl -X POST https://computer-store-ks.onrender.com/api/contact \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Test User",
+    "email": "test@example.com",
+    "subject": "General",
+    "message": "This is a test message for the contact form."
+  }'
 ```

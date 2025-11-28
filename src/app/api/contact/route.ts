@@ -4,6 +4,13 @@ import { sendContactNotification, sendContactConfirmation } from '@/lib/email';
 
 export const dynamic = 'force-dynamic';
 
+// CORS headers for cross-origin requests from static site
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+};
+
 // Rate limiting store (in production, use Redis)
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
 
@@ -108,6 +115,7 @@ export async function POST(request: NextRequest) {
         {
           status: 429,
           headers: {
+            ...corsHeaders,
             'X-RateLimit-Remaining': '0',
             'Retry-After': String(retryAfter),
           },
@@ -122,7 +130,7 @@ export async function POST(request: NextRequest) {
     } catch {
       return NextResponse.json(
         { success: false, error: 'Invalid request body' },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -139,7 +147,7 @@ export async function POST(request: NextRequest) {
           error: 'Validation failed',
           errors,
         },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -149,10 +157,13 @@ export async function POST(request: NextRequest) {
     if (formData.website) {
       console.log('Bot detected via honeypot from IP:', ip);
       // Return success to not alert the bot
-      return NextResponse.json({
-        success: true,
-        message: 'Thank you for your message!',
-      });
+      return NextResponse.json(
+        {
+          success: true,
+          message: 'Thank you for your message!',
+        },
+        { headers: corsHeaders }
+      );
     }
 
     // Sanitize inputs
@@ -194,6 +205,7 @@ export async function POST(request: NextRequest) {
       },
       {
         headers: {
+          ...corsHeaders,
           'X-RateLimit-Remaining': String(rateLimit.remaining),
         },
       }
@@ -205,7 +217,7 @@ export async function POST(request: NextRequest) {
         success: false,
         error: 'An error occurred. Please try again or call us directly at (785) 267-3223.',
       },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }

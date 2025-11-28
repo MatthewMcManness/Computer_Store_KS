@@ -8,10 +8,11 @@ services:
     container_name: computer-store-ks
     restart: unless-stopped
     ports:
-      - "3000:3000"  # Next.js application
+      - "3000:3000"  # Static site
+      - "3001:3001"  # API
     environment:
       - NODE_ENV=production
-      - PORT=3000
+      - PORT=3001
       # GitHub Integration
       - GITHUB_TOKEN=${GITHUB_TOKEN}
       - GITHUB_OWNER=${GITHUB_OWNER:-MatthewMcManness}
@@ -19,11 +20,12 @@ services:
       - GITHUB_BRANCH=${GITHUB_BRANCH:-Computer-Store-KS}
       # Admin Authentication
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
-      # Email (Resend)
-      - RESEND_API_KEY=${RESEND_API_KEY}
-      - NOTIFICATION_EMAIL=${NOTIFICATION_EMAIL:-contact@computerstoreks.com}
+    volumes:
+      # Persist uploaded images and backups
+      - ./backups:/app/backups
+      - gallery_images:/app/assets/gallery
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -35,6 +37,10 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+
+volumes:
+  gallery_images:
+    driver: local
 
 networks:
   webnet:

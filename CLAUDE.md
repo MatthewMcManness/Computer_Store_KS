@@ -14,12 +14,21 @@ Computer Store KS is a website for a computer repair shop featuring:
 
 ### Active Code
 - `src/` - Next.js 14 application (App Router)
-  - `src/app/` - Pages and API routes
-  - `src/components/` - React components by feature
+  - `src/app/(public)/` - Public pages (Home, About, Services, Gallery, Contact, Silver Plan, Black Friday)
+  - `src/app/admin/` - Admin pages (protected)
+  - `src/app/api/` - API route handlers
+  - `src/components/static/` - Static site components (Header, Footer, TestimonialsCarousel)
+  - `src/components/gallery/` - Gallery components
+  - `src/components/admin/` - Admin components
   - `src/lib/` - Utilities (auth, email, github, flyer-generator)
+  - `src/data/gallery.json` - Gallery computer inventory data
 - `api/` - Legacy Express.js backend (preserved, mostly unused)
-- `public/` - Static assets
+- `public/assets/` - Static assets (logos, gallery images)
 - `docs/` - Project documentation
+
+### Route Groups
+- `(public)` - Customer-facing pages with static site styling (`static-styles.css`)
+- `admin` - Admin dashboard with Tailwind styling (`admin.css`)
 
 ### Archived Code (DO NOT USE)
 - `_archive/` - Deprecated static HTML site and legacy docs
@@ -29,11 +38,14 @@ Computer Store KS is a website for a computer repair shop featuring:
 ## Key Files
 
 ### Frontend (src/)
-- `src/app/page.tsx` - Homepage
+- `src/app/(public)/page.tsx` - Homepage
+- `src/app/(public)/layout.tsx` - Public layout with Header/Footer
 - `src/app/admin/` - Admin pages (protected)
 - `src/app/api/` - API route handlers
+- `src/components/static/` - Header, Footer, TestimonialsCarousel
 - `src/components/gallery/` - Gallery components
 - `src/components/admin/` - Admin components
+- `src/app/static-styles.css` - CSS for public pages (matches original static site)
 
 ### Utilities (src/lib/)
 - `auth.ts` - Session-based authentication

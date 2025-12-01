@@ -2,12 +2,13 @@ import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
 import { createRepairShoprClient, RepairShoprAPIError } from './repairshopr';
 import {
-  createSession as createStoreSession,
-  getSession,
-  getSessionSafe,
-  deleteSession,
-  type CreateSessionData,
-} from './session-store';
+  encryptSession,
+  decryptSession,
+  createSessionData,
+  getSafeSession,
+  type CreateSessionInput,
+  type SessionData,
+} from './session-cookie';
 
 // =============================================================================
 // Configuration
@@ -141,19 +142,20 @@ export async function authenticateWithRepairShopr(
     const role = mapRepairShoprRole(meResponse.admin, meResponse.permissions);
 
     // Create session data
-    const userData: CreateSessionData = {
+    const userData: CreateSessionInput = {
       userId: meResponse.user.id,
       email: meResponse.user.email,
       name: meResponse.user.full_name,
       role,
     };
 
-    // Create session in session store (with encrypted API token)
-    const sessionId = createStoreSession(userData, signInResponse.api_key);
+    // Create encrypted session (stored in cookie, not filesystem)
+    const sessionData = createSessionData(userData, signInResponse.api_key);
+    const encryptedSession = encryptSession(sessionData);
 
-    // Set session cookie (contains only session ID, not the token)
+    // Set session cookie (contains encrypted session data)
     const cookieStore = await cookies();
-    cookieStore.set(SESSION_COOKIE_NAME, sessionId, {
+    cookieStore.set(SESSION_COOKIE_NAME, encryptedSession, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
@@ -251,7 +253,7 @@ export async function authenticateWithRepairShopr(
  * In RepairShopr mode, this is called internally by authenticateWithRepairShopr
  * In legacy mode, this creates a simple session token
  * @param user Optional user data for RepairShopr mode
- * @returns Session token/ID
+ * @returns Session token/encrypted session
  */
 export async function createSession(user?: UserSession): Promise<string> {
   const cookieStore = await cookies();
@@ -277,11 +279,8 @@ export async function createSession(user?: UserSession): Promise<string> {
     return token;
   }
 
-  // RepairShopr mode: use session store
-  // Note: This path is typically used internally by authenticateWithRepairShopr
-  // which passes the API token. For external callers without a token,
-  // we create a session without one.
-  const sessionId = createStoreSession(
+  // RepairShopr mode: create encrypted session in cookie
+  const sessionData = createSessionData(
     {
       userId: user.userId,
       email: user.email,
@@ -290,8 +289,9 @@ export async function createSession(user?: UserSession): Promise<string> {
     },
     '' // No API token when called directly
   );
+  const encryptedSession = encryptSession(sessionData);
 
-  cookieStore.set(SESSION_COOKIE_NAME, sessionId, {
+  cookieStore.set(SESSION_COOKIE_NAME, encryptedSession, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
@@ -308,7 +308,7 @@ export async function createSession(user?: UserSession): Promise<string> {
     path: '/',
   });
 
-  return sessionId;
+  return encryptedSession;
 }
 
 /**
@@ -316,14 +316,9 @@ export async function createSession(user?: UserSession): Promise<string> {
  */
 export async function destroySession(): Promise<void> {
   const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get(SESSION_COOKIE_NAME);
 
-  if (sessionCookie?.value && getAuthMode() === 'repairshopr') {
-    // Delete from session store
-    deleteSession(sessionCookie.value);
-  }
-
-  // Always delete both cookies
+  // With cookie-based sessions, we just delete the cookies
+  // No server-side cleanup needed
   cookieStore.delete(SESSION_COOKIE_NAME);
   cookieStore.delete(ROLE_COOKIE_NAME);
 }
@@ -340,8 +335,8 @@ export async function isAuthenticated(): Promise<boolean> {
   }
 
   if (getAuthMode() === 'repairshopr') {
-    // Validate against session store
-    const session = getSession(sessionCookie.value);
+    // Decrypt and validate session from cookie
+    const session = decryptSession(sessionCookie.value);
     return session !== null;
   }
 
@@ -362,17 +357,19 @@ export async function getCurrentUser(): Promise<UserSession | null> {
   }
 
   if (getAuthMode() === 'repairshopr') {
-    // Get from session store (safe version without API token)
-    const session = getSessionSafe(sessionCookie.value);
+    // Decrypt session from cookie
+    const session = decryptSession(sessionCookie.value);
     if (!session) {
       return null;
     }
 
+    // Return safe session data (getSafeSession removes apiToken)
+    const safeSession = getSafeSession(session);
     return {
-      userId: session.userId,
-      email: session.email,
-      name: session.name,
-      role: session.role,
+      userId: safeSession.userId,
+      email: safeSession.email,
+      name: safeSession.name,
+      role: safeSession.role,
     };
   }
 
@@ -405,8 +402,8 @@ export function checkAuthFromRequest(request: NextRequest): boolean {
   }
 
   if (getAuthMode() === 'repairshopr') {
-    // Validate against session store
-    const session = getSession(sessionCookie.value);
+    // Decrypt and validate session from cookie
+    const session = decryptSession(sessionCookie.value);
     return session !== null;
   }
 

@@ -215,13 +215,6 @@ export async function POST(request: NextRequest) {
             success: false,
             error: result.error || 'Invalid email or password',
             code,
-            // Temporary debug info - remove after fixing
-            _debug: {
-              authMode,
-              hasSubdomain: !!process.env.REPAIRSHOPR_SUBDOMAIN,
-              subdomain: process.env.REPAIRSHOPR_SUBDOMAIN?.substring(0, 4) + '...',
-              rawError: result.error,
-            },
           },
           { status }
         );

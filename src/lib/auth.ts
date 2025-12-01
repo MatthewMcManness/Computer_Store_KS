@@ -183,6 +183,14 @@ export async function authenticateWithRepairShopr(
   } catch (error) {
     // Handle RepairShopr API errors
     if (error instanceof RepairShoprAPIError) {
+      // Log detailed error info for debugging
+      console.error(`[AUTH] RepairShopr API error:`, {
+        code: error.code,
+        status: error.status,
+        message: error.message,
+        email,
+      });
+
       if (error.code === 'UNAUTHORIZED') {
         return {
           success: false,
@@ -203,6 +211,14 @@ export async function authenticateWithRepairShopr(
 
     // Handle other errors (missing env vars, etc)
     if (error instanceof Error) {
+      // Log the full error for debugging
+      console.error(`[AUTH] Unexpected error during authentication:`, {
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+        email,
+      });
+
       // Check for missing subdomain
       if (error.message.includes('REPAIRSHOPR_SUBDOMAIN')) {
         return {
@@ -215,6 +231,9 @@ export async function authenticateWithRepairShopr(
         error: 'An unexpected error occurred. Please try again.',
       };
     }
+
+    // Log unknown error type
+    console.error(`[AUTH] Unknown error type:`, error);
 
     return {
       success: false,

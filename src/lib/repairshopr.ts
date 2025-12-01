@@ -226,18 +226,29 @@ export class RepairShoprClient {
       if (!response.ok) {
         let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
         let errorCode = 'HTTP_ERROR';
+        let rawErrorBody: unknown = null;
 
         try {
-          const errorBody = await response.json();
+          rawErrorBody = await response.json();
+          const errorBody = rawErrorBody as Record<string, unknown>;
           if (errorBody.error) {
-            errorMessage = errorBody.error;
+            errorMessage = String(errorBody.error);
           }
           if (errorBody.message) {
-            errorMessage = errorBody.message;
+            errorMessage = String(errorBody.message);
           }
         } catch {
           // Unable to parse error body, use default message
         }
+
+        // Log detailed error for debugging
+        console.error(`[RepairShopr API] Request failed:`, {
+          endpoint,
+          status: response.status,
+          statusText: response.statusText,
+          errorMessage,
+          rawErrorBody,
+        });
 
         // Map common status codes to specific error codes
         switch (response.status) {

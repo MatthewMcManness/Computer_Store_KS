@@ -42,7 +42,10 @@
       "Bash(dig:*)",
       "SlashCommand(/pm:issue-start:*)",
       "SlashCommand(/pm:issue-analyze:*)",
-      "Bash(openssl rand:*)"
+      "Bash(openssl rand:*)",
+      "Bash(gh issue list:*)",
+      "Bash(gh issue view:*)",
+      "WebFetch(domain:feedback.repairshopr.com)"
     ],
     "deny": [],
     "ask": []

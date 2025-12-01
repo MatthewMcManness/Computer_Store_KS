@@ -47,7 +47,19 @@
       "Bash(gh issue view:*)",
       "WebFetch(domain:feedback.repairshopr.com)",
       "Bash(cp:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(node scripts/extract-computers.js:*)",
+      "Bash(node /home/matthew/Computer_Store_KS/scripts/extract-computers.js:*)",
+      "Bash(node:*)",
+      "WebFetch(domain:developers.google.com)",
+      "Bash(ls:*)",
+      "Bash(echo:*)",
+      "Bash(NODE_ENV=production bun run:*)",
+      "Bash(pkill:*)",
+      "Bash(lsof:*)",
+      "Bash(xargs:*)",
+      "Bash(identify:*)",
+      "Bash(python3:*)"
     ],
     "deny": [],
     "ask": []

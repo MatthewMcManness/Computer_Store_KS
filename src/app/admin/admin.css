@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Admin-specific styles */
+.admin-layout {
+  /* Ensure Tailwind styles apply to admin section */
+}

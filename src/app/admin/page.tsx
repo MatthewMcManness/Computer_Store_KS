@@ -143,8 +143,10 @@ export default async function AdminDashboardPage() {
             </div>
           </Link>
 
-          <Link
-            href="/"
+          <a
+            href={process.env.NEXT_PUBLIC_SITE_URL || 'https://computerstoreks.com'}
+            target="_blank"
+            rel="noopener noreferrer"
             className="flex items-center gap-4 rounded-xl bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
           >
             <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
@@ -154,7 +156,7 @@ export default async function AdminDashboardPage() {
               <p className="font-medium text-gray-900">View Site</p>
               <p className="text-sm text-gray-500">See the public website</p>
             </div>
-          </Link>
+          </a>
         </div>
       </div>
 

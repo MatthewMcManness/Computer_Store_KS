@@ -1,15 +1,6 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
 import './globals.css';
 import { BUSINESS_INFO } from '@/lib/constants';
-import { Header } from '@/components/layout/header';
-import { Footer } from '@/components/layout/footer';
-import { LocalBusinessSchema } from '@/components/seo/json-ld';
-
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
-});
 
 export const metadata: Metadata = {
   title: {
@@ -18,28 +9,13 @@ export const metadata: Metadata = {
   },
   description: `${BUSINESS_INFO.name} offers quality refurbished computers, expert repair services, and exceptional customer support in Topeka, Kansas. Serving the community since ${BUSINESS_INFO.founded}.`,
   keywords: [
-    // Primary location keywords
     'computer store Topeka',
     'computer repair Topeka KS',
     'PC repair Topeka Kansas',
     'laptop repair Topeka',
-    // Service keywords
     'refurbished computers Topeka',
     'custom PC builds Kansas',
     'computer virus removal Topeka',
-    'data recovery Topeka KS',
-    'Linux installation Topeka',
-    'Windows to Linux migration',
-    // Competitive keywords (non-gaming focused)
-    'business computer repair',
-    'office PC setup Topeka',
-    'computer upgrade service',
-    'SSD upgrade Topeka',
-    'RAM upgrade Kansas',
-    'computer maintenance plan',
-    'affordable computer repair',
-    'same day computer repair Topeka',
-    // Brand terms
     'Computer Store Kansas',
   ],
   authors: [{ name: BUSINESS_INFO.founder }],
@@ -83,14 +59,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={inter.variable}>
-      <body className="min-h-screen bg-background font-sans antialiased">
-        <LocalBusinessSchema />
-        <Header />
-        <main className="flex-1">
-          {children}
-        </main>
-        <Footer />
+    <html lang="en">
+      <body>
+        {children}
       </body>
     </html>
   );

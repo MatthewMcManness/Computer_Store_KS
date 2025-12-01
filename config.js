@@ -77,6 +77,24 @@ window.siteConfig = {
   },
 
   /* ================================================
+     3.1 GOOGLE INTEGRATION
+     Google Places API for reviews and maps
+     To set up:
+     1. Go to https://console.cloud.google.com/
+     2. Create a project or select existing one
+     3. Enable "Places API" and "Maps JavaScript API"
+     4. Create an API key with HTTP referrer restrictions
+     5. Find your Place ID at: https://developers.google.com/maps/documentation/places/web-service/place-id
+     ================================================ */
+  google: {
+    apiKey: "",                                          // Your Google Cloud API key (leave empty to use static reviews)
+    placeId: "ChIJhbB_qLr3vIcRMk8tG_pFnGA",             // Computer Store Kansas Place ID
+    reviewsToShow: 5,                                    // Number of reviews to display
+    minRating: 4,                                        // Minimum star rating to show (1-5)
+    cacheMinutes: 60                                     // How long to cache reviews (in minutes)
+  },
+
+  /* ================================================
      4. NAVIGATION STRUCTURE
      Website navigation configuration and page titles
      ================================================ */

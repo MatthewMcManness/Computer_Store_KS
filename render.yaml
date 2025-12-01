@@ -13,7 +13,14 @@ services:
       # Email service for contact form (REQUIRED)
       - key: RESEND_API_KEY
         sync: false
-      # Gallery admin authentication (OPTIONAL - defaults to admin123)
+      # Authentication settings (REQUIRED for admin panel)
+      - key: AUTH_MODE
+        value: repairshopr
+      - key: SESSION_SECRET
+        sync: false
+      - key: REPAIRSHOPR_SUBDOMAIN
+        value: thecomputerstore
+      # Gallery admin authentication (legacy mode fallback)
       - key: ADMIN_PASSWORD
         sync: false
       # GitHub integration for gallery (OPTIONAL - only if you use gallery manager)
@@ -25,3 +32,6 @@ services:
         value: Computer_Store_KS
       - key: GITHUB_BRANCH
         value: Computer-Store-KS
+      # Static site URL for "View Site" link
+      - key: NEXT_PUBLIC_SITE_URL
+        value: https://computerstoreks.com

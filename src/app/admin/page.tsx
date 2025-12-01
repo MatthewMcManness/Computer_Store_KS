@@ -3,6 +3,7 @@ import { isAuthenticated } from '@/lib/auth';
 import Link from 'next/link';
 import { Image, Plus, Settings, TrendingUp } from 'lucide-react';
 import { isGitHubConfigured, getGitHubConfig } from '@/lib/github';
+import { SaleDropdown } from '@/components/admin';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -48,11 +49,17 @@ export default async function AdminDashboardPage() {
   return (
     <div>
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="mt-1 text-gray-500">
-          Welcome to the Computer Store Kansas admin panel
-        </p>
+      <div className="mb-8 flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+          <p className="mt-1 text-gray-500">
+            Welcome to the Computer Store Kansas admin panel
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-gray-500">Global Sale:</span>
+          <SaleDropdown />
+        </div>
       </div>
 
       {/* Stats Grid */}

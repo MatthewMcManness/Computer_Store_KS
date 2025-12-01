@@ -116,7 +116,12 @@
           "value": "1 TB NVME"
         }
       ],
-      "blackFriday": null
+      "blackFriday": {
+        "enabled": true,
+        "originalPrice": "$750.00",
+        "salePrice": "$675.00",
+        "discount": 10
+      }
     },
     {
       "id": 5,
@@ -143,7 +148,12 @@
           "value": "2 TB NVMe"
         }
       ],
-      "blackFriday": null
+      "blackFriday": {
+        "enabled": true,
+        "originalPrice": "$1400.00",
+        "salePrice": "$1260.00",
+        "discount": 10
+      }
     },
     {
       "id": 6,
@@ -174,5 +184,6 @@
     }
   ],
   "lastUpdated": "2025-12-01T18:34:58.741Z",
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "globalSale": "black-friday"
 }

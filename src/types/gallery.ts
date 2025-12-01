@@ -24,10 +24,26 @@ export interface GalleryComputer {
   blackFriday?: BlackFridayData;
 }
 
+// Sale types for global sale dropdown
+export type SaleType = 'none' | 'black-friday';
+
+export interface SaleConfig {
+  type: SaleType;
+  name: string;
+  discount: number; // percentage
+}
+
+// Available sales - extend this array to add more sales
+export const AVAILABLE_SALES: SaleConfig[] = [
+  { type: 'none', name: 'No Sale', discount: 0 },
+  { type: 'black-friday', name: 'Black Friday (10% off)', discount: 10 },
+];
+
 export interface GalleryData {
   computers: GalleryComputer[];
   lastUpdated: string;
   version: string;
+  globalSale?: SaleType; // Active global sale
 }
 
 // API response types

@@ -1,198 +1,207 @@
 # Architecture
 
-Computer Store KS is a web application for a computer repair shop featuring a public website, admin gallery management, and flyer generation.
-
-## Dual Architecture
-
-The project maintains **two parallel architectures**:
-
-| Architecture | Status | Use Case |
-|--------------|--------|----------|
-| **Static HTML + Express API** | Production (computerstoreks.com) | Current live site |
-| **Next.js Full-Stack** | Work-in-Progress | Future replacement |
-
-Both architectures share the same **Resend-powered contact API** hosted on Render.
+Computer Store KS is a Next.js 14 web application for a computer repair shop featuring a public website, admin gallery management, and flyer generation.
 
 ## Technology Stack
 
-### Static HTML Site (Production)
-
 | Layer | Technology |
 |-------|------------|
-| Frontend | Single-page HTML, Vanilla JavaScript, CSS |
-| Configuration | `config.js` - centralized site settings |
-| Admin | `admin-gallery.html`, `admin-gallery.js` |
-| Flyer Generator | Client-side JavaScript |
-| Backend API | Next.js API Routes on Render |
-| Email | Resend API (via Next.js) |
-
-### Next.js Application (WIP)
-
-| Layer | Technology |
-|-------|------------|
-| Frontend | Next.js 14 (App Router), React 18, TypeScript |
-| Styling | Tailwind CSS 3, Framer Motion |
+| Framework | Next.js 14 (App Router) |
+| Frontend | React 18, TypeScript |
+| Styling | CSS (static-styles.css for public), Tailwind CSS (admin) |
 | Backend API | Next.js API Routes |
 | Image Storage | GitHub API (Octokit) |
 | Email | Resend API |
-| Authentication | Custom session-based auth |
+| Authentication | RepairShopr OAuth + session-based auth |
+| Deployment | Render (standalone output) |
 
 ## System Overview
-
-### Production Architecture (Current)
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                      Browser (Client)                        │
 └─────────────────────────┬───────────────────────────────────┘
                           │
+                          ▼
+┌─────────────────────────────────────────────────────────────┐
+│              Next.js on Render                               │
+│              computer-store-ks.onrender.com                  │
+│                                                              │
+│  Public Pages (src/app/(public)/):                          │
+│  - / (Home)           - /about        - /services           │
+│  - /gallery           - /contact      - /silver-plan        │
+│  - /black-friday                                            │
+│                                                              │
+│  Admin Pages (src/app/admin/):                              │
+│  - /admin/login       - /admin/gallery                      │
+│                                                              │
+│  API Routes (src/app/api/):                                 │
+│  - /api/contact       - /api/gallery    - /api/auth         │
+│  - /api/health                                              │
+└─────────────────────────────────────────────────────────────┘
+                          │
         ┌─────────────────┼─────────────────┐
-        ▼                                   ▼
-┌───────────────────┐           ┌───────────────────────────────┐
-│   Static HTML     │           │   Next.js on Render           │
-│   (index.html)    │           │   computer-store-ks.onrender  │
-│                   │           │                               │
-│  - Home           │           │   API Routes:                 │
-│  - About          │  ──────►  │   - /api/contact (Resend)     │
-│  - Services       │  Contact  │   - /api/health               │
-│  - Gallery        │   Form    │   - /api/gallery              │
-│  - Contact        │           │   - /api/auth                 │
-│  - Silver Plan    │           │                               │
-└───────────────────┘           └───────────────────────────────┘
-                                            │
-                    ┌───────────────────────┼───────────────────┐
-                    ▼                       ▼                   ▼
-            ┌──────────────┐       ┌──────────────┐    ┌──────────────┐
-            │  GitHub API  │       │  Resend API  │    │ Session Auth │
-            │  (Images)    │       │  (Email)     │    │  (Cookies)   │
-            └──────────────┘       └──────────────┘    └──────────────┘
+        ▼                 ▼                 ▼
+┌──────────────┐  ┌──────────────┐  ┌───────────────────┐
+│  GitHub API  │  │  Resend API  │  │ RepairShopr OAuth │
+│  (Images)    │  │  (Email)     │  │  (Authentication) │
+└──────────────┘  └──────────────┘  └───────────────────┘
 ```
-
-### Deployment Configuration
-
-| Service | Platform | URL |
-|---------|----------|-----|
-| Static Frontend | CDN/Static Host | computerstoreks.com |
-| Next.js API | Render | computer-store-ks.onrender.com |
-| Contact API | Render (Next.js) | computer-store-ks.onrender.com/api/contact |
 
 ## Directory Structure
 
 ```
-/
-├── index.html              # Static site main page (single-page app)
-├── style.css               # Static site styles
-├── script.js               # Static site JavaScript
-├── config.js               # Site configuration (business info, API URLs)
-├── admin-gallery.html      # Admin interface for gallery management
-├── admin-gallery.js        # Admin JavaScript
-├── admin-login.html        # Admin login page
-├── add-computer.html       # Form to add computers
-├── edit-computer.html      # Form to edit computers
-├── assets/                 # Images and media
-│   ├── gallery/            # Computer images
-│   └── *.png               # Site assets (logo, etc.)
-├── checklists/             # Staff checklists
-├── Sales Cards/            # Flyer templates
-├── backups/                # HTML backups
+src/
+├── app/
+│   ├── (public)/                 # Route group for customer pages
+│   │   ├── layout.tsx            # Public layout (Header + Footer)
+│   │   ├── page.tsx              # Home page
+│   │   ├── about/page.tsx
+│   │   ├── services/page.tsx
+│   │   ├── gallery/page.tsx      # Loads from src/data/gallery.json
+│   │   ├── contact/page.tsx      # Contact form + Google Maps
+│   │   ├── silver-plan/page.tsx
+│   │   └── black-friday/page.tsx
+│   │
+│   ├── admin/                    # Admin dashboard (protected)
+│   │   ├── layout.tsx            # Admin layout (sidebar)
+│   │   ├── admin.css             # Tailwind styles for admin
+│   │   ├── page.tsx              # Dashboard
+│   │   ├── login/page.tsx
+│   │   └── gallery/              # Gallery management
+│   │
+│   ├── api/                      # API route handlers
+│   │   ├── contact/route.ts      # Contact form (Resend)
+│   │   ├── gallery/route.ts      # Gallery CRUD
+│   │   ├── auth/                 # Authentication
+│   │   └── health/route.ts       # Health check
+│   │
+│   ├── layout.tsx                # Root layout
+│   ├── not-found.tsx             # 404 page
+│   ├── global-error.tsx          # 500 error page
+│   └── static-styles.css         # CSS for public pages
 │
-├── src/                    # Next.js application source (WIP)
-│   ├── app/                # App Router pages and API routes
-│   │   ├── api/            # API route handlers
-│   │   │   ├── contact/    # Contact form endpoint
-│   │   │   ├── gallery/    # Gallery CRUD endpoints
-│   │   │   ├── auth/       # Authentication endpoints
-│   │   │   └── health/     # Health check
-│   │   ├── admin/          # Admin pages (protected)
-│   │   └── ...             # Public pages
-│   ├── components/         # React components
-│   ├── lib/                # Shared utilities
-│   │   ├── auth.ts         # Authentication helpers
-│   │   ├── email.ts        # Email sending (Resend)
-│   │   ├── github.ts       # GitHub API integration
-│   │   └── utils.ts        # General utilities
-│   └── types/              # TypeScript type definitions
+├── components/
+│   ├── static/                   # Public page components
+│   │   ├── Header.tsx            # Navigation with active states
+│   │   ├── Footer.tsx            # Contact info, admin link
+│   │   └── TestimonialsCarousel.tsx
+│   ├── admin/                    # Admin components
+│   └── gallery/                  # Gallery display components
 │
-├── api/                    # Legacy Express.js API (for Docker deployment)
-│   └── gallery-api.js      # Gallery CRUD + Contact (nodemailer)
+├── data/
+│   └── gallery.json              # Computer inventory (8 computers)
 │
-├── docs/                   # Documentation
-├── _archive/               # Deprecated code (preserved for history)
-├── Dockerfile              # Docker build for static site + Express API
-├── docker-compose.yml      # Docker Compose configuration
-└── render.yaml             # Render deployment configuration (Next.js)
+└── lib/
+    ├── auth.ts                   # Session-based authentication
+    ├── repairshopr.ts            # RepairShopr OAuth integration
+    ├── email.ts                  # Resend email sending
+    ├── github.ts                 # GitHub API for image storage
+    └── utils.ts                  # General utilities
+
+public/
+└── assets/                       # Static files served at /assets/*
+    ├── title.png                 # Main logo (512x236)
+    ├── logo.png                  # Circular logo
+    ├── logo_outlined.png
+    ├── rws-logo.svg              # Footer credit logo
+    ├── silver_plan.png
+    └── gallery/                  # Computer images
 ```
+
+## Route Groups
+
+Next.js App Router uses route groups (folders in parentheses) to organize pages without affecting URL paths:
+
+### `(public)` Route Group
+- Contains all customer-facing pages
+- Uses `static-styles.css` for styling (matches original static site design)
+- Includes Header and Footer components
+- Uses `dynamic = 'force-dynamic'` to avoid prerendering issues
+
+### `admin` Route Group
+- Contains admin dashboard pages
+- Protected by authentication middleware
+- Uses Tailwind CSS for styling
+- Sidebar navigation
 
 ## Key Components
 
-### Static Site Configuration (`config.js`)
+### Header (`src/components/static/Header.tsx`)
+- Responsive navigation with hamburger menu for mobile
+- Active state highlighting based on current path
+- Scroll-triggered styling changes
+- Links: Home, About, Services, Gallery, Black Friday, Silver Plan, Contact
 
-Centralized configuration for:
+### Footer (`src/components/static/Footer.tsx`)
 - Business contact information
-- API endpoints (contact form, health check)
-- Navigation structure
-- Service offerings
-- Testimonials
-- SEO metadata
+- Admin login link
+- Resilient Web Solutions credit
 
-### Contact Form Integration
+### Gallery Page (`src/app/(public)/gallery/page.tsx`)
+- Loads data from `src/data/gallery.json`
+- Filter buttons: All, Desktops, Laptops, Refurbished, Custom Builds
+- Flip card design with specs on back
+- Black Friday sale badges and pricing
 
-The static site submits contact forms to the Next.js API:
-
-```javascript
-// config.js
-api: {
-  contact_endpoint: "https://computer-store-ks.onrender.com/api/contact",
-  health_endpoint: "https://computer-store-ks.onrender.com/api/health"
-}
-```
-
-Required fields:
-- `name` (string)
-- `email` (string)
-- `subject` (enum: General, Repair, Custom Build, Silver Plan, Other)
-- `message` (string, min 10 chars)
-- `phone` (optional)
-
-### Gallery Management
-
-Admin interface at `admin-gallery.html` allows:
-- Adding/editing computer listings
-- Image uploads
-- Publishing to GitHub (stores data in repository)
-
-### Flyer Generator
-
-Client-side JavaScript generates printable PDF flyers:
-- Standard product flyers
-- Black Friday promotional flyers
-- Multiple layout options
-
-## Security Considerations
-
-- Admin routes protected by password authentication
-- Session tokens stored in HTTP-only cookies
-- Environment variables for sensitive data
-- Input validation with Zod schemas (Next.js API)
-- CORS configured for known domains
-- Rate limiting on contact form (3 requests/minute)
-- Honeypot field for bot detection
+### Contact Page (`src/app/(public)/contact/page.tsx`)
+- Contact form with validation
+- Posts to `/api/contact`
+- Google Maps embed
+- Business hours display
 
 ## Data Flow
 
 ### Contact Form Submission
+1. User fills out form on `/contact`
+2. Client-side validation
+3. POST to `/api/contact`
+4. Server validates with Zod schema
+5. Resend API sends notification to business + confirmation to user
+6. Success/error response displayed
 
-1. User fills out form on static site
-2. JavaScript validates locally
-3. POST to `https://computer-store-ks.onrender.com/api/contact`
-4. Next.js API validates with Zod
-5. Resend API sends notification + confirmation emails
-6. Success/error response returned
+### Gallery Data
+1. Gallery page imports `src/data/gallery.json`
+2. Data transformed to component format
+3. Filter state managed in React
+4. Images served from `/assets/gallery/` or GitHub
 
-### Gallery Management
+### Authentication
+1. User visits `/admin/login`
+2. RepairShopr OAuth flow or password authentication
+3. Session token stored in HTTP-only cookie
+4. Middleware protects `/admin/*` routes
 
-1. Admin authenticates via login page
-2. Admin creates/edits computer listing
-3. Images uploaded to GitHub via API
-4. Computer data stored as JSON in GitHub repo
-5. Public gallery fetches data from GitHub
+## Security
+
+- Admin routes protected by authentication middleware
+- Session tokens in HTTP-only cookies
+- Environment variables for sensitive data
+- Input validation with Zod schemas
+- CORS configured for known domains
+- Rate limiting on contact form
+- Honeypot field for bot detection
+
+## Deployment
+
+### Render Configuration (`render.yaml`)
+```yaml
+services:
+  - type: web
+    name: computer-store-ks
+    env: node
+    buildCommand: npm install && npm run build && cp -r .next/static .next/standalone/.next/static && cp -r public .next/standalone/public
+    startCommand: node .next/standalone/server.js
+```
+
+### Build Requirements
+- `NODE_ENV=production` must be set for build
+- `output: 'standalone'` in `next.config.mjs`
+- Static assets copied to standalone folder
+
+## Historical Note
+
+The original static HTML site is preserved in `_archive/` for reference. It was migrated to Next.js in December 2025 to enable:
+- Server-side API integration (Google Reviews planned)
+- Better SEO with proper routing
+- Unified codebase for public site and admin dashboard

@@ -9,28 +9,18 @@ A web application for a computer repair shop featuring a public-facing website, 
 
 ## Architecture
 
-The project maintains **two parallel architectures**:
+The site is built with **Next.js 14** (App Router) running on Render:
 
-| Architecture | Status | Description |
-|--------------|--------|-------------|
-| Static HTML + API | **Production** | Single-page HTML site with JavaScript navigation |
-| Next.js Full-Stack | Work-in-Progress | Modern React-based replacement |
-
-Both use the same **Resend-powered contact API** on Render.
+| Feature | Technology |
+|---------|------------|
+| Frontend | Next.js 14, React 18, TypeScript |
+| Styling | CSS (static-styles.css for public pages, Tailwind for admin) |
+| Backend API | Next.js API Routes |
+| Image Storage | GitHub API (Octokit) |
+| Email | Resend API |
+| Authentication | RepairShopr OAuth + session-based auth |
 
 ## Quick Start
-
-### Static Site (Production)
-
-The static site just needs a web server:
-
-```bash
-# Serve static files
-npx serve -s . -l 3000
-# Open http://localhost:3000
-```
-
-### Next.js Development
 
 ```bash
 # Install dependencies
@@ -43,88 +33,85 @@ cp .env.example .env
 # Run development server
 bun run dev
 # Open http://localhost:3000
+
+# Build for production (must set NODE_ENV)
+NODE_ENV=production bun run build
 ```
-
-## Technology Stack
-
-### Static Site (Production)
-- **Frontend**: Single-page HTML, Vanilla JavaScript, CSS
-- **Configuration**: `config.js` for centralized settings
-- **Backend API**: Next.js on Render (contact form via Resend)
-
-### Next.js (WIP)
-- **Frontend**: Next.js 14, React 18, TypeScript, Tailwind CSS
-- **Backend**: Next.js API Routes
-- **Image Storage**: GitHub API
-- **Email**: Resend API
 
 ## Project Structure
 
 ```
-├── index.html          # Static site main page
-├── style.css           # Static site styles
-├── script.js           # Static site JavaScript
-├── config.js           # Site configuration (API URLs, business info)
-├── admin-*.html        # Admin interface pages
-├── assets/             # Images and media
-├── src/                # Next.js application (WIP)
-├── api/                # Legacy Express API (Docker deployment)
-├── docs/               # Documentation
-└── _archive/           # Deprecated code (preserved for history)
+├── src/
+│   ├── app/
+│   │   ├── (public)/       # Customer-facing pages
+│   │   │   ├── page.tsx    # Home
+│   │   │   ├── about/
+│   │   │   ├── services/
+│   │   │   ├── gallery/
+│   │   │   ├── contact/
+│   │   │   ├── silver-plan/
+│   │   │   └── black-friday/
+│   │   ├── admin/          # Admin dashboard (protected)
+│   │   ├── api/            # API route handlers
+│   │   └── static-styles.css
+│   ├── components/
+│   │   ├── static/         # Header, Footer, TestimonialsCarousel
+│   │   ├── admin/
+│   │   └── gallery/
+│   ├── data/
+│   │   └── gallery.json    # Computer inventory
+│   └── lib/                # Utilities (auth, email, github)
+├── public/assets/          # Static assets (logos, images)
+├── docs/                   # Documentation
+├── _archive/               # Deprecated static HTML site (historical reference)
+└── render.yaml             # Render deployment configuration
 ```
 
 ## Documentation
 
-- [Architecture](docs/ARCHITECTURE.md) - System design and dual architecture
+- [Architecture](docs/ARCHITECTURE.md) - System design and components
 - [Development](docs/DEVELOPMENT.md) - Setup and development guide
-- [Deployment](docs/DEPLOYMENT.md) - Production deployment (Render, Docker)
+- [Deployment](docs/DEPLOYMENT.md) - Production deployment on Render
 - [API Reference](docs/API.md) - API endpoints with examples
 - [Features](docs/FEATURES.md) - Application features
+- [Authentication](docs/AUTHENTICATION.md) - Auth system documentation
 
 ## Available Scripts
 
 | Script | Description |
 |--------|-------------|
-| `bun run dev` | Start Next.js development server |
-| `bun run build` | Build Next.js for production |
-| `bun run start` | Start Next.js production server |
+| `bun run dev` | Start development server |
+| `bun run build` | Build for production |
+| `bun run start` | Start production server |
 | `bun run lint` | Run ESLint |
 | `bun run type-check` | TypeScript type checking |
 
 ## Environment Variables
 
-Required for Next.js/Render deployment (see `.env.example`):
+Required for deployment (see `.env.example`):
 
 | Variable | Description |
 |----------|-------------|
-| `ADMIN_PASSWORD` | Admin authentication |
-| `GITHUB_TOKEN` | GitHub API access for images |
+| `SESSION_SECRET` | Session encryption key |
+| `AUTH_MODE` | `repairshopr` or `password` |
+| `REPAIRSHOPR_SUBDOMAIN` | RepairShopr account subdomain |
+| `ADMIN_PASSWORD` | Fallback password auth |
+| `GITHUB_TOKEN` | GitHub API access for gallery images |
 | `GITHUB_OWNER` | GitHub username |
 | `GITHUB_REPO` | Repository name |
 | `RESEND_API_KEY` | Email service for contact form |
 
 ## Features
 
-- **Public Website**: Home, About, Services, Gallery, Contact, Silver Plan pages
+- **Public Website**: Home, About, Services, Gallery, Contact, Silver Plan, Black Friday pages
 - **Admin Dashboard**: Gallery management with image uploads
-- **Flyer Generator**: Create printable promotional flyers (standard + Black Friday)
+- **Flyer Generator**: Create printable promotional flyers
 - **Contact Form**: Email notifications via Resend API
+- **Gallery**: Computer inventory with filtering and Black Friday pricing
 
 ## Deployment
 
-### Current Production
-
-| Service | Platform | URL |
-|---------|----------|-----|
-| Static Frontend | CDN | computerstoreks.com |
-| Contact API | Render | computer-store-ks.onrender.com |
-
-### Alternative: Docker
-
-```bash
-docker compose up -d
-# Static site on :3000, Express API on :3001
-```
+The site deploys automatically to Render on push to the `Computer-Store-KS` branch.
 
 See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for detailed instructions.
 

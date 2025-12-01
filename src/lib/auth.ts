@@ -128,20 +128,57 @@ export async function authenticateWithRepairShopr(
   email: string,
   password: string
 ): Promise<AuthResult> {
+  // Step 1: Create client
+  let client;
   try {
-    // Create RepairShopr client
-    const client = createRepairShoprClient();
+    client = createRepairShoprClient();
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : 'Unknown error creating client';
+    console.log(`[AUTH] Failed to create RepairShopr client:`, msg);
+    return {
+      success: false,
+      error: `Configuration error: ${msg}`,
+    };
+  }
 
-    // Sign in to get API token
-    const signInResponse = await client.signIn(email, password);
+  // Step 2: Sign in to RepairShopr
+  let signInResponse;
+  try {
+    signInResponse = await client.signIn(email, password);
+  } catch (error) {
+    if (error instanceof RepairShoprAPIError) {
+      console.log(`[AUTH] RepairShopr sign-in failed:`, {
+        code: error.code,
+        status: error.status,
+        message: error.message,
+      });
+      if (error.code === 'UNAUTHORIZED') {
+        return { success: false, error: 'Invalid email or password' };
+      }
+      return { success: false, error: error.message };
+    }
+    const msg = error instanceof Error ? error.message : 'Unknown sign-in error';
+    console.log(`[AUTH] Unexpected sign-in error:`, msg);
+    return { success: false, error: `Sign-in failed: ${msg}` };
+  }
 
-    // Get user details
-    const meResponse = await client.getMe(signInResponse.api_key);
+  // Step 3: Get user details
+  let meResponse;
+  try {
+    meResponse = await client.getMe(signInResponse.api_key);
+  } catch (error) {
+    if (error instanceof RepairShoprAPIError) {
+      console.log(`[AUTH] RepairShopr getMe failed:`, error.message);
+      return { success: false, error: error.message };
+    }
+    const msg = error instanceof Error ? error.message : 'Unknown error';
+    console.log(`[AUTH] Unexpected getMe error:`, msg);
+    return { success: false, error: `Failed to get user info: ${msg}` };
+  }
 
-    // Map role
+  // Step 4: Create session
+  try {
     const role = mapRepairShoprRole(meResponse.admin, meResponse.permissions);
-
-    // Create session data
     const userData: CreateSessionInput = {
       userId: meResponse.user.id,
       email: meResponse.user.email,
@@ -149,11 +186,9 @@ export async function authenticateWithRepairShopr(
       role,
     };
 
-    // Create encrypted session (stored in cookie, not filesystem)
     const sessionData = createSessionData(userData, signInResponse.api_key);
     const encryptedSession = encryptSession(sessionData);
 
-    // Set session cookie (contains encrypted session data)
     const cookieStore = await cookies();
     cookieStore.set(SESSION_COOKIE_NAME, encryptedSession, {
       httpOnly: true,
@@ -163,7 +198,6 @@ export async function authenticateWithRepairShopr(
       path: '/',
     });
 
-    // Set role cookie (for Edge middleware access - not sensitive)
     cookieStore.set(ROLE_COOKIE_NAME, userData.role, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -172,7 +206,6 @@ export async function authenticateWithRepairShopr(
       path: '/',
     });
 
-    // Return success with user data (no sensitive info)
     return {
       success: true,
       user: {
@@ -183,64 +216,9 @@ export async function authenticateWithRepairShopr(
       },
     };
   } catch (error) {
-    // Handle RepairShopr API errors
-    if (error instanceof RepairShoprAPIError) {
-      // Log detailed error info for debugging
-      console.log(`[AUTH] RepairShopr API error:`, {
-        code: error.code,
-        status: error.status,
-        message: error.message,
-        email,
-      });
-
-      if (error.code === 'UNAUTHORIZED') {
-        return {
-          success: false,
-          error: 'Invalid email or password',
-        };
-      }
-      if (error.code === 'NETWORK_ERROR') {
-        return {
-          success: false,
-          error: 'Unable to connect to authentication service. Please try again.',
-        };
-      }
-      return {
-        success: false,
-        error: error.message,
-      };
-    }
-
-    // Handle other errors (missing env vars, etc)
-    if (error instanceof Error) {
-      // Log the full error for debugging
-      console.log(`[AUTH] Unexpected error during authentication:`, {
-        name: error.name,
-        message: error.message,
-        stack: error.stack,
-        email,
-      });
-
-      // Check for missing subdomain
-      if (error.message.includes('REPAIRSHOPR_SUBDOMAIN')) {
-        return {
-          success: false,
-          error: 'Authentication service is not configured. Please contact support.',
-        };
-      }
-      return {
-        success: false,
-        error: 'An unexpected error occurred. Please try again.',
-      };
-    }
-
-    // Log unknown error type
-    console.log(`[AUTH] Unknown error type:`, error);
-
-    return {
-      success: false,
-      error: 'An unexpected error occurred. Please try again.',
-    };
+    const msg = error instanceof Error ? error.message : 'Unknown session error';
+    console.log(`[AUTH] Session creation failed:`, msg);
+    return { success: false, error: `Session error: ${msg}` };
   }
 }
 

@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 /**
- * Extract computer data from HTML backup and convert to gallery.json format
+ * Extract computer data from HTML and convert to gallery.json format
  */
 
 const fs = require('fs');
 const path = require('path');
 
-// Read the backup HTML file
-const backupPath = path.join(__dirname, '../backups/index_backup_20251112_165648.html');
+// Read the live gallery.html file (has all 8 computers)
+const backupPath = path.join(__dirname, '../gallery.html');
 const outputPath = path.join(__dirname, '../src/data/gallery.json');
 
 const html = fs.readFileSync(backupPath, 'utf-8');

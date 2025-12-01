@@ -14,7 +14,7 @@
         },
         {
           "label": "Processor",
-          "value": "Ryzen 5 5500"
+          "value": "Ryzen 5 5000 Series"
         },
         {
           "label": "Memory",
@@ -22,7 +22,7 @@
         },
         {
           "label": "Storage",
-          "value": "1 TB NVME"
+          "value": "1 TB NVMe"
         }
       ],
       "blackFriday": {
@@ -46,7 +46,7 @@
         },
         {
           "label": "Processor",
-          "value": "Ryzen 7 5700"
+          "value": "Ryzen 7 5000 Series"
         },
         {
           "label": "Memory",
@@ -54,18 +54,26 @@
         },
         {
           "label": "Storage",
-          "value": "1 TB NVME"
+          "value": "1 TB NVMe"
+        },
+        {
+          "label": "Manufacturer Warranty",
+          "value": "1 Year"
+        },
+        {
+          "label": "Free Diagnostics",
+          "value": "Lifetime"
         }
       ],
       "blackFriday": null
     },
     {
       "id": 3,
-      "name": "Vanilla Ice",
+      "name": "CloneWarz",
       "type": "desktop",
       "category": "refurbished",
-      "price": "$580.00",
-      "image": "/assets/gallery/desktop-4.jpg",
+      "price": "$750.00",
+      "image": "/assets/gallery/desktop-3.jpg",
       "specs": [
         {
           "label": "Graphics Card",
@@ -73,7 +81,7 @@
         },
         {
           "label": "Processor",
-          "value": "Intel i7 8th Generation"
+          "value": "Ryzen 7 2000 Series"
         },
         {
           "label": "Memory",
@@ -81,39 +89,7 @@
         },
         {
           "label": "Storage",
-          "value": "512 GB SSD"
-        }
-      ],
-      "blackFriday": {
-        "enabled": true,
-        "originalPrice": "$580.00",
-        "salePrice": "$522.00",
-        "discount": 10
-      }
-    },
-    {
-      "id": 4,
-      "name": "CloneWarz",
-      "type": "desktop",
-      "category": "refurbished",
-      "price": "$750.00",
-      "image": "/assets/gallery/desktop-5.jpg",
-      "specs": [
-        {
-          "label": "Processor",
-          "value": "Ryzen 7 2700"
-        },
-        {
-          "label": "Graphics Card",
-          "value": "AMD 5700 XT"
-        },
-        {
-          "label": "Memory",
-          "value": "16 GB"
-        },
-        {
-          "label": "Storage",
-          "value": "1 TB NVME"
+          "value": "1 TB NVMe"
         }
       ],
       "blackFriday": {
@@ -124,12 +100,12 @@
       }
     },
     {
-      "id": 5,
+      "id": 4,
       "name": "Alienware Gaming Laptop",
       "type": "laptop",
       "category": "refurbished",
       "price": "$1400.00",
-      "image": "/assets/gallery/laptop-6.jpg",
+      "image": "/assets/gallery/desktop-4.jpg",
       "specs": [
         {
           "label": "Display Size",
@@ -137,7 +113,7 @@
         },
         {
           "label": "Processor",
-          "value": "Intel i9 14th Gen"
+          "value": "Intel i9 14th Generation"
         },
         {
           "label": "Memory",
@@ -146,6 +122,10 @@
         {
           "label": "Storage",
           "value": "2 TB NVMe"
+        },
+        {
+          "label": "Graphics Card",
+          "value": "RTX 4070"
         }
       ],
       "blackFriday": {
@@ -156,12 +136,12 @@
       }
     },
     {
-      "id": 6,
+      "id": 5,
       "name": "Lenovo Laptop",
       "type": "laptop",
-      "category": "new",
+      "category": "custom",
       "price": "$749.99",
-      "image": "/assets/gallery/laptop-7.jpg",
+      "image": "/assets/gallery/desktop-5.jpg",
       "specs": [
         {
           "label": "Display Size",
@@ -177,13 +157,124 @@
         },
         {
           "label": "Storage",
-          "value": "500 GB SSD"
+          "value": "512 GB NVMe"
+        },
+        {
+          "label": "Manufacturer Warranty",
+          "value": "1 Year"
+        },
+        {
+          "label": "Free Diagnostics",
+          "value": "Lifetime"
         }
       ],
       "blackFriday": null
+    },
+    {
+      "id": 6,
+      "name": "Lenovo Ideapad",
+      "type": "laptop",
+      "category": "custom",
+      "price": "$529.99",
+      "image": "/assets/gallery/desktop-6.jpg",
+      "specs": [
+        {
+          "label": "Display Size",
+          "value": "15.6 Inches"
+        },
+        {
+          "label": "Processor",
+          "value": "Ryzen 5 7000 Series"
+        },
+        {
+          "label": "Memory",
+          "value": "8 GB"
+        },
+        {
+          "label": "Storage",
+          "value": "256 GB NVMe"
+        },
+        {
+          "label": "Manufacturer Warranty",
+          "value": "1 Year"
+        },
+        {
+          "label": "Free Diagnostics",
+          "value": "Lifetime"
+        }
+      ],
+      "blackFriday": null
+    },
+    {
+      "id": 7,
+      "name": "Hp Victus",
+      "type": "laptop",
+      "category": "refurbished",
+      "price": "$700.00",
+      "image": "/assets/gallery/desktop-7.jpg",
+      "specs": [
+        {
+          "label": "Display Size",
+          "value": "15.6 Inches"
+        },
+        {
+          "label": "Processor",
+          "value": "Intel i5 12th Generation"
+        },
+        {
+          "label": "Memory",
+          "value": "16 GB"
+        },
+        {
+          "label": "Storage",
+          "value": "512 GB NVMe"
+        },
+        {
+          "label": "Graphics Card",
+          "value": "RTX 4050"
+        }
+      ],
+      "blackFriday": {
+        "enabled": true,
+        "originalPrice": "$700.00",
+        "salePrice": "$630.00",
+        "discount": 10
+      }
+    },
+    {
+      "id": 8,
+      "name": "HP Laptop",
+      "type": "laptop",
+      "category": "refurbished",
+      "price": "$200.00",
+      "image": "/assets/gallery/desktop-8.jpg",
+      "specs": [
+        {
+          "label": "Display Size",
+          "value": "14 Inches"
+        },
+        {
+          "label": "Processor",
+          "value": "Athlon Silver 3000 Series"
+        },
+        {
+          "label": "Memory",
+          "value": "12 GB"
+        },
+        {
+          "label": "Storage",
+          "value": "128 GB SSD"
+        }
+      ],
+      "blackFriday": {
+        "enabled": true,
+        "originalPrice": "$200.00",
+        "salePrice": "$180.00",
+        "discount": 10
+      }
     }
   ],
-  "lastUpdated": "2025-12-01T18:34:58.741Z",
+  "lastUpdated": "2025-12-01T22:02:00.294Z",
   "version": "1.0.0",
   "globalSale": "black-friday"
 }

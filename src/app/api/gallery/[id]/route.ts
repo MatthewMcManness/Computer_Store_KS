@@ -5,34 +5,49 @@ import type { GalleryComputer, GalleryData } from '@/types/gallery';
 import fs from 'fs/promises';
 import path from 'path';
 
+// Import gallery data directly for bundling (works in production)
+import initialGalleryData from '@/data/gallery.json';
+
 // Local gallery data path
 const LOCAL_GALLERY_PATH = path.join(process.cwd(), 'src/data/gallery.json');
 
 // Get gallery data
 async function loadGalleryData(): Promise<GalleryData> {
-  if (process.env.NODE_ENV === 'development' || !isGitHubConfigured()) {
+  // If GitHub is configured, use it as the source of truth
+  if (isGitHubConfigured()) {
+    return getGalleryData();
+  }
+
+  // In development, try to read from local file for latest changes
+  if (process.env.NODE_ENV === 'development') {
     try {
       const content = await fs.readFile(LOCAL_GALLERY_PATH, 'utf-8');
       return JSON.parse(content);
     } catch {
-      return {
-        computers: [],
-        lastUpdated: new Date().toISOString(),
-        version: '1.0.0',
-      };
+      // Fall back to imported data
     }
   }
 
-  return getGalleryData();
+  // In production without GitHub, use bundled data
+  return initialGalleryData as GalleryData;
 }
 
 // Save gallery data
 async function persistGalleryData(data: GalleryData): Promise<void> {
-  await fs.writeFile(LOCAL_GALLERY_PATH, JSON.stringify(data, null, 2));
-
+  // If GitHub is configured, save there (production mode)
   if (isGitHubConfigured()) {
     await saveGalleryData(data, 'Update gallery via admin panel');
+    return;
   }
+
+  // In development, save locally
+  if (process.env.NODE_ENV === 'development') {
+    await fs.writeFile(LOCAL_GALLERY_PATH, JSON.stringify(data, null, 2));
+    return;
+  }
+
+  // In production without GitHub, we can't persist changes
+  console.warn('[Gallery] Cannot persist data: GitHub not configured in production');
 }
 
 // GET /api/gallery/[id] - Get single computer

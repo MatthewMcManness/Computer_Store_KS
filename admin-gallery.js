@@ -72,7 +72,7 @@ function forceReload() {
     location.reload(true);
 }
 
-// Load computers from index.html
+// Load computers from gallery.html
 async function loadComputers() {
     try {
         console.log('🚀 loadComputers() called');
@@ -87,7 +87,7 @@ async function loadComputers() {
 
         if (hasUnsaved && storedComputers) {
             console.log('📦 ⚠️  Loading from sessionStorage with unsaved changes...');
-            // Load from sessionStorage instead of index.html
+            // Load from sessionStorage instead of gallery.html
             computers = JSON.parse(storedComputers);
             console.log('Before migration:', computers.map(c => ({ name: c.name, specCount: c.specs.length })));
             // Migrate specs to fix any old format issues
@@ -107,10 +107,10 @@ async function loadComputers() {
             return;
         }
 
-        console.log('📄 Loading computers from index.html...');
-        const response = await fetch('index.html');
+        console.log('📄 Loading computers from gallery.html...');
+        const response = await fetch('gallery.html');
         const html = await response.text();
-        console.log('✅ Fetched index.html, length:', html.length);
+        console.log('✅ Fetched gallery.html, length:', html.length);
 
         // Parse HTML
         const parser = new DOMParser();
@@ -507,7 +507,7 @@ async function publishChanges() {
 // Generate updated HTML with current computer data
 async function generateHTML() {
     // Fetch current HTML
-    const response = await fetch('index.html');
+    const response = await fetch('gallery.html');
     const html = await response.text();
 
     // Parse HTML

@@ -2,17 +2,18 @@
  * ================================================
  * COMPUTER STORE KANSAS - MAIN JAVASCRIPT FILE
  * ================================================
- * VERSION: 33
- * LAST UPDATED: 2025-10-29
- * CHANGES: - Added modern scrolling header effects
- *          - Enhanced smooth transitions
+ * VERSION: 34
+ * LAST UPDATED: 2025-12-01
+ * CHANGES: - Updated for multi-page site structure
+ *          - Added URL filter parameter support for gallery
+ *          - Changed gallery init to use gallery-grid ID
  * DESCRIPTION: Handles all interactive functionality for the website
  * DEPENDENCIES: None (vanilla JavaScript)
- * 
+ *
  * Table of Contents:
- * 1. Page Navigation System
+ * 1. Page Navigation System (legacy SPA support)
  * 2. Mobile Hamburger Menu
- * 3. Modern Scroll Effects (NEW)
+ * 3. Modern Scroll Effects
  * 4. Testimonials Carousel
  * 5. Modal System (Login & Contact)
  * 6. Contact Form Submission
@@ -780,6 +781,17 @@ function initializeGalleryFilters() {
       filterGalleryCards(filter);
     });
   });
+
+  // Check for URL filter parameter (e.g., gallery.html?filter=refurbished)
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlFilter = urlParams.get('filter');
+  if (urlFilter) {
+    // Find and click the matching filter button
+    const matchingButton = document.querySelector(`.filter-btn[data-filter="${urlFilter}"]`);
+    if (matchingButton) {
+      matchingButton.click();
+    }
+  }
 }
 
 /**
@@ -823,9 +835,9 @@ function initializeFlipCards() {
  * Initialize gallery functionality
  */
 function initializeGallery() {
-  // Only initialize if gallery page exists
-  const galleryPage = document.getElementById('gallery-page');
-  if (!galleryPage) return;
+  // Only initialize if gallery grid exists (works on both SPA and multi-page)
+  const galleryGrid = document.getElementById('gallery-grid');
+  if (!galleryGrid) return;
 
   initializeGalleryFilters();
   initializeFlipCards();

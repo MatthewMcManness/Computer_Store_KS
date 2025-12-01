@@ -1,11 +1,10 @@
 # ================================================
 # COMPUTER STORE KANSAS - ROBOTS.TXT
 # ================================================
-# VERSION: 2
-# LAST UPDATED: 2025-10-15
-# CHANGES: - Updated sitemap URL to correct domain
-#          - Added more detailed comments
-#          - Organized sections for clarity
+# VERSION: 3
+# LAST UPDATED: 2025-12-01
+# CHANGES: - Renamed from robot.txt to robots.txt
+#          - Updated for multi-page site structure
 # DESCRIPTION: Robots exclusion file that tells search engines
 #              which parts of the site they can crawl
 # DEPENDENCIES: sitemap.xml

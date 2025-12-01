@@ -3,38 +3,75 @@
 ================================================
 COMPUTER STORE KANSAS - XML SITEMAP
 ================================================
-VERSION: 2
-LAST UPDATED: 2025-10-15
-CHANGES: - Fixed missing HTTPS protocol in URLs
-         - Updated to correct domain (tcs-frontend-uf5q.onrender.com)
-         - Removed hash fragments (not indexed by search engines)
-         - Updated last modified date to current
-         - Simplified for single-page application structure
+VERSION: 3
+LAST UPDATED: 2025-12-01
+CHANGES: - Converted from SPA to multi-page site
+         - Added all individual page URLs
+         - Updated to production domain computerstoreks.com
 DESCRIPTION: XML sitemap for search engine optimization
              Lists all indexable pages for search engines
 DEPENDENCIES: None (standalone XML file)
-
-NOTE: This is a single-page application (SPA) with client-side
-      hash-based navigation. Search engines only index the main URL.
-      All content (home, about, services, contact, silver-plan) is
-      accessible from the main page through JavaScript navigation.
 ================================================
 -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
-        
-  <!-- 
-    MAIN PAGE - Single entry point for entire website
-    This page contains all sections: home, about, services, contact, and silver-plan
-    Accessible through client-side navigation (hash routing)
-  -->
+
+  <!-- HOME PAGE -->
   <url>
     <loc>https://computerstoreks.com/</loc>
-    <lastmod>2025-10-15</lastmod>
+    <lastmod>2025-12-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
-  
+
+  <!-- ABOUT PAGE -->
+  <url>
+    <loc>https://computerstoreks.com/about.html</loc>
+    <lastmod>2025-12-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- SERVICES PAGE -->
+  <url>
+    <loc>https://computerstoreks.com/services.html</loc>
+    <lastmod>2025-12-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- GALLERY PAGE -->
+  <url>
+    <loc>https://computerstoreks.com/gallery.html</loc>
+    <lastmod>2025-12-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- SILVER PLAN PAGE -->
+  <url>
+    <loc>https://computerstoreks.com/silver-plan.html</loc>
+    <lastmod>2025-12-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- BLACK FRIDAY SALE PAGE -->
+  <url>
+    <loc>https://computerstoreks.com/black-friday.html</loc>
+    <lastmod>2025-12-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- CONTACT PAGE -->
+  <url>
+    <loc>https://computerstoreks.com/contact.html</loc>
+    <lastmod>2025-12-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
 </urlset>

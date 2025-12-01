@@ -219,19 +219,19 @@ app.post('/api/auth/login', loginLimiter, (req, res) => {
 });
 
 /**
- * Get current index.html content
+ * Get current gallery.html content
  */
 app.get('/api/gallery/html', authenticate, async (req, res) => {
   try {
-    const indexPath = path.join(__dirname, '..', 'index.html');
-    const content = await fs.readFile(indexPath, 'utf8');
+    const galleryPath = path.join(__dirname, '..', 'gallery.html');
+    const content = await fs.readFile(galleryPath, 'utf8');
 
     res.json({
       success: true,
       content
     });
   } catch (error) {
-    console.error('Error reading index.html:', error.message);
+    console.error('Error reading gallery.html:', error.message);
     res.status(500).json({
       error: 'Failed to read gallery content'
     });
@@ -260,7 +260,7 @@ app.post('/api/gallery/update', authenticate, async (req, res) => {
     const { data: currentFile } = await octokit.repos.getContent({
       owner: GITHUB_OWNER,
       repo: GITHUB_REPO,
-      path: 'index.html',
+      path: 'gallery.html',
       ref: GITHUB_BRANCH
     });
 
@@ -268,7 +268,7 @@ app.post('/api/gallery/update', authenticate, async (req, res) => {
     const updateResult = await octokit.repos.createOrUpdateFileContents({
       owner: GITHUB_OWNER,
       repo: GITHUB_REPO,
-      path: 'index.html',
+      path: 'gallery.html',
       message: commitMessage || 'Update gallery via Web Gallery Manager',
       content: Buffer.from(htmlContent).toString('base64'),
       sha: currentFile.sha,

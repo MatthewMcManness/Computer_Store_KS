@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
+import galleryData from '@/data/gallery.json';
 
 interface GalleryItem {
   id: string;
@@ -13,34 +14,29 @@ interface GalleryItem {
   price: number;
   salePrice?: number;
   imageUrl: string;
-  specs: {
-    graphicsCard?: string;
-    processor?: string;
-    memory?: string;
-    storage?: string;
-  };
+  specs: Array<{ label: string; value: string }>;
   isBlackFridaySale?: boolean;
 }
 
-// Sample gallery data - in production this would come from an API
-const galleryItems: GalleryItem[] = [
-  {
-    id: '1',
-    name: 'Okinos Blackout',
-    category: 'refurbished',
-    type: 'desktop',
-    price: 750,
-    salePrice: 675,
-    imageUrl: '/assets/gallery/desktop-1.jpg',
-    specs: {
-      graphicsCard: 'RTX 3060',
-      processor: 'Ryzen 5 5000 Series',
-      memory: '16 GB',
-      storage: '1 TB NVMe',
-    },
-    isBlackFridaySale: true,
-  },
-];
+// Transform gallery.json data to the format we need
+const galleryItems: GalleryItem[] = galleryData.computers.map((computer) => {
+  const price = parseFloat(computer.price.replace(/[$,]/g, ''));
+  const salePrice = computer.blackFriday?.enabled
+    ? parseFloat(computer.blackFriday.salePrice.replace(/[$,]/g, ''))
+    : undefined;
+
+  return {
+    id: String(computer.id),
+    name: computer.name,
+    category: computer.category,
+    type: computer.type,
+    price,
+    salePrice,
+    imageUrl: computer.image,
+    specs: computer.specs,
+    isBlackFridaySale: computer.blackFriday?.enabled || false,
+  };
+});
 
 function GalleryContent() {
   const searchParams = useSearchParams();
@@ -152,26 +148,11 @@ function GalleryContent() {
                       )}
                     </div>
                     <div className="gallery-card-specs">
-                      {item.specs.graphicsCard && (
-                        <div className="spec-item">
-                          <strong>Graphics Card:</strong> {item.specs.graphicsCard}
+                      {item.specs.map((spec, index) => (
+                        <div key={index} className="spec-item">
+                          <strong>{spec.label}:</strong> {spec.value}
                         </div>
-                      )}
-                      {item.specs.processor && (
-                        <div className="spec-item">
-                          <strong>Processor:</strong> {item.specs.processor}
-                        </div>
-                      )}
-                      {item.specs.memory && (
-                        <div className="spec-item">
-                          <strong>Memory:</strong> {item.specs.memory}
-                        </div>
-                      )}
-                      {item.specs.storage && (
-                        <div className="spec-item">
-                          <strong>Storage:</strong> {item.specs.storage}
-                        </div>
-                      )}
+                      ))}
                     </div>
                   </div>
                 </div>

@@ -184,7 +184,7 @@ export async function authenticateWithRepairShopr(
     // Handle RepairShopr API errors
     if (error instanceof RepairShoprAPIError) {
       // Log detailed error info for debugging
-      console.error(`[AUTH] RepairShopr API error:`, {
+      console.log(`[AUTH] RepairShopr API error:`, {
         code: error.code,
         status: error.status,
         message: error.message,
@@ -212,7 +212,7 @@ export async function authenticateWithRepairShopr(
     // Handle other errors (missing env vars, etc)
     if (error instanceof Error) {
       // Log the full error for debugging
-      console.error(`[AUTH] Unexpected error during authentication:`, {
+      console.log(`[AUTH] Unexpected error during authentication:`, {
         name: error.name,
         message: error.message,
         stack: error.stack,
@@ -233,7 +233,7 @@ export async function authenticateWithRepairShopr(
     }
 
     // Log unknown error type
-    console.error(`[AUTH] Unknown error type:`, error);
+    console.log(`[AUTH] Unknown error type:`, error);
 
     return {
       success: false,

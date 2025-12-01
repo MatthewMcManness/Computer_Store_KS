@@ -242,7 +242,7 @@ export class RepairShoprClient {
         }
 
         // Log detailed error for debugging
-        console.error(`[RepairShopr API] Request failed:`, {
+        console.log(`[RepairShopr API] Request failed:`, {
           endpoint,
           status: response.status,
           statusText: response.statusText,

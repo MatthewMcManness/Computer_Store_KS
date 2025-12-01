@@ -120,6 +120,7 @@ interface LoginRequest {
 // =============================================================================
 
 export async function POST(request: NextRequest) {
+  console.log('[AUTH] Login request received');
   const clientIP = getClientIP(request);
 
   // Check rate limit first

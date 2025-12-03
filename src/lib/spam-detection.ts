@@ -325,7 +325,16 @@ export function validateTiming(pageLoadTime: number, submitTime: number): number
  */
 export function checkHoneypots(fields: Record<string, string | undefined>): number {
   // Common honeypot field names
-  const honeypotFields = ['website', 'url', 'homepage', 'phone2', 'fax'];
+  const honeypotFields = [
+    'website',
+    'url',
+    'homepage',
+    'phone2',
+    'fax',
+    '_hp_email2',
+    '_hp_phone_confirm',
+    '_hp_url',
+  ];
 
   for (const field of honeypotFields) {
     const value = fields[field];
@@ -407,7 +416,14 @@ function analyzeFingerprint(headers: Headers): number {
  * @returns Spam score result with breakdown and recommended action
  */
 export function calculateSpamScore(
-  data: ContactFormData & { website?: string; pageLoadTime?: number; submitTime?: number },
+  data: ContactFormData & {
+    website?: string;
+    pageLoadTime?: number;
+    submitTime?: number;
+    _hp_email2?: string;
+    _hp_phone_confirm?: string;
+    _hp_url?: string;
+  },
   headers: Headers
 ): SpamScoreResult {
   // Content analysis
@@ -423,7 +439,9 @@ export function calculateSpamScore(
   // Honeypot check
   const honeypotScore = checkHoneypots({
     website: data.website,
-    // Add more honeypot fields here if needed
+    _hp_email2: data._hp_email2,
+    _hp_phone_confirm: data._hp_phone_confirm,
+    _hp_url: data._hp_url,
   });
 
   // Request fingerprint

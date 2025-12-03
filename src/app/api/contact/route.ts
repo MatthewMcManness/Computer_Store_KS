@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { sendContactNotification, sendContactConfirmation } from '@/lib/email';
+import { calculateSpamScore, SPAM_THRESHOLDS } from '@/lib/spam-detection';
 
 export const dynamic = 'force-dynamic';
 
@@ -39,6 +40,11 @@ const contactFormSchema = z.object({
     .transform((val) => val.trim()),
   // Honeypot field - should always be empty
   website: z.string().optional(),
+  // Bot protection fields
+  _timing: z.string().optional(),  // Page load timestamp
+  _hp_email2: z.string().optional(),  // Honeypot 1
+  _hp_phone_confirm: z.string().optional(),  // Honeypot 2
+  _hp_url: z.string().optional(),  // Honeypot 3
 });
 
 type ContactFormData = z.infer<typeof contactFormSchema>;
@@ -145,17 +151,62 @@ export async function POST(request: NextRequest) {
 
     const formData: ContactFormData = validationResult.data;
 
-    // Check honeypot field (bot trap)
-    if (formData.website) {
-      console.log('Bot detected via honeypot from IP:', ip);
-      // Return success to not alert the bot
+    // Extract timing data for spam detection
+    const pageLoadTime = formData._timing ? parseInt(formData._timing, 10) : 0;
+    const submitTime = Date.now();
+
+    // Prepare data for spam detection
+    const spamDetectionData = {
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      subject: formData.subject,
+      message: formData.message,
+      website: formData.website,
+      pageLoadTime,
+      submitTime,
+      // Check additional honeypot fields
+      _hp_email2: formData._hp_email2,
+      _hp_phone_confirm: formData._hp_phone_confirm,
+      _hp_url: formData._hp_url,
+    };
+
+    // Calculate spam score
+    const spamResult = calculateSpamScore(spamDetectionData, request.headers);
+
+    // Log spam score for monitoring
+    console.log(JSON.stringify({
+      type: 'spam_score',
+      timestamp: new Date().toISOString(),
+      ip,
+      score: spamResult.score,
+      breakdown: spamResult.breakdown,
+      action: spamResult.action,
+      message_preview: formData.message.substring(0, 50),
+    }));
+
+    // Handle high spam scores (silent success to not alert bots)
+    if (spamResult.score >= SPAM_THRESHOLDS.SILENT_SUCCESS_SCORE) {
+      console.log(`Silent success for high spam score (${spamResult.score}) from IP: ${ip}`);
       return NextResponse.json({
         success: true,
-        message: 'Thank you for your message!',
+        message: 'Thank you for your message! We will get back to you within 24 hours.',
       });
     }
 
-    // Sanitize inputs
+    // Block moderate spam scores
+    if (spamResult.score >= SPAM_THRESHOLDS.BLOCK_SCORE) {
+      console.log(`Blocked submission with spam score (${spamResult.score}) from IP: ${ip}`);
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Your submission appears to be spam. If you believe this is an error, please call us at (785) 267-3223.',
+        },
+        { status: 400 }
+      );
+    }
+
+    // Sanitize inputs for legitimate submissions
     const sanitizedData = {
       name: sanitize(formData.name),
       email: formData.email, // Already validated as email

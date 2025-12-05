@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
-<!--
+<html lang="en"><!--
 ===============================================
 COMPUTER STORE KANSAS - GALLERY PAGE
 ===============================================
@@ -10,10 +9,9 @@ DESCRIPTION: Display of custom built and refurbished computers for sale
 DEPENDENCIES: style.css, script.js
 NOTE: Gallery cards are managed via admin-gallery.html
 ===============================================
--->
-<head>
+--><head>
   <!-- Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-EQ3ML3VTCZ"></script>
+  <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-EQ3ML3VTCZ"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
@@ -138,13 +136,11 @@ NOTE: Gallery cards are managed via admin-gallery.html
   <section class="gallery-section">
     <div class="container">
       <div class="gallery-grid" id="gallery-grid">
-              <div class="gallery-card" data-category="refurbished" data-computer-id="1" data-type="desktop">
+      <div class="gallery-card" data-category="refurbished" data-computer-id="1" data-type="desktop">
        <div class="gallery-card-inner">
         <div class="gallery-card-front">
-         <div class="bf-ribbon-corner">
-         </div>
-         <div class="gallery-card-badge badge-black-friday">
-          Black Friday Sale
+         <div class="gallery-card-badge badge-refurbished">
+          Refurbished
          </div>
          <div class="gallery-card-image">
           <img alt="Okinos Blackout" onerror="this.src='./assets/logo.png'" src="https://computerstoreks.com/assets/gallery/desktop-1.jpg">
@@ -155,16 +151,7 @@ NOTE: Gallery cards are managed via admin-gallery.html
           Okinos Blackout
          </h3>
          <div class="gallery-card-price">
-          
-          <span class="original-price">
-           $750.00
-          </span>
-          <span class="sale-price">
-           $675.00
-          </span>
-          <span class="savings-badge">
-           Save 10%
-          </span>
+          $850
          </div>
          <div class="gallery-card-specs">
          
@@ -194,6 +181,24 @@ NOTE: Gallery cards are managed via admin-gallery.html
             Storage:
            </strong>
            1 TB NVMe
+          </div>
+         
+          <div class="spec-item">
+           <strong>
+            3 Months
+           </strong>
+           <strong>
+            Parts Warranty
+           </strong>
+          </div>
+         
+          <div class="spec-item">
+           <strong>
+            6 Months
+           </strong>
+           <strong>
+            Free Diagnostics
+           </strong>
           </div>
          </div>
         </div>
@@ -657,37 +662,11 @@ NOTE: Gallery cards are managed via admin-gallery.html
            </strong>
            128 GB SSD
           </div>
-         
-          <div class="spec-item">
-           <strong style="text-decoration: line-through; opacity: 0.6;">
-            3 Months
-           </strong>
-           <strong style="color: #f6ad55;">
-            6 Months
-           </strong>
-           <strong>
-            Parts Warranty
-           </strong>
-          </div>
-         
-          <div class="spec-item">
-           <strong style="text-decoration: line-through; opacity: 0.6;">
-            6 Months
-           </strong>
-           <strong style="color: #f6ad55;">
-            1 Year
-           </strong>
-           <strong>
-            Free Diagnostics
-           </strong>
-          </div>
          </div>
         </div>
        </div>
-
-      </div>
-    </div>
-  </section>
+      </div></div>
+  </div></section>
 
   <!-- Call-to-Action Section -->
   <section class="cta">
@@ -701,7 +680,7 @@ NOTE: Gallery cards are managed via admin-gallery.html
   <!-- Computer Details Modal -->
   <div class="modal" id="computer-details-modal">
     <div class="modal-content computer-modal-content">
-      <button class="modal-close" id="computer-modal-close">&times;</button>
+      <button class="modal-close" id="computer-modal-close">×</button>
       <div class="computer-details-container" id="computer-details-content">
         <!-- Content will be dynamically inserted by JavaScript -->
       </div>
@@ -715,7 +694,7 @@ NOTE: Gallery cards are managed via admin-gallery.html
         <p><strong>Phone:</strong> <a href="tel:785-267-3223">785-267-3223</a></p>
         <p><strong>Address:</strong> 2008 SW Gage Blvd, Topeka, KS 66604</p>
       </div>
-      <p class="footer-copyright">&copy; 2025 Computer Store Kansas. All rights reserved.</p>
+      <p class="footer-copyright">© 2025 Computer Store Kansas. All rights reserved.</p>
       <a href="https://computer-store-ks.onrender.com/admin/login" class="btn admin-login-btn">Administrator Login</a>
       <div class="footer-credit">
         <img src="placeholder-icon.png" alt="Resilient Web Solutions" class="rws-icon">
@@ -727,5 +706,6 @@ NOTE: Gallery cards are managed via admin-gallery.html
   <!-- JavaScript -->
   <script src="config.js"></script>
   <script src="script.js?v=3"></script>
-</body>
-</html>
+
+
+</body></html>

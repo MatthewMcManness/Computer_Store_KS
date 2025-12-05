@@ -5,13 +5,33 @@
       "name": "Okinos Blackout",
       "type": "desktop",
       "category": "refurbished",
-      "price": "$750.00",
+      "price": "850",
       "image": "/assets/gallery/computer-1.jpg",
       "specs": [
-        { "label": "Graphics Card", "value": "RTX 3060" },
-        { "label": "Processor", "value": "Ryzen 5 5000 Series" },
-        { "label": "Memory", "value": "16 GB" },
-        { "label": "Storage", "value": "1 TB NVMe" }
+        {
+          "label": "Graphics Card",
+          "value": "RTX 3060"
+        },
+        {
+          "label": "Processor",
+          "value": "Ryzen 5 5000 Series"
+        },
+        {
+          "label": "Memory",
+          "value": "16 GB"
+        },
+        {
+          "label": "Storage",
+          "value": "1 TB NVMe"
+        },
+        {
+          "label": "Parts Warranty",
+          "value": "3 Months"
+        },
+        {
+          "label": "Free Diagnostics",
+          "value": "6 Months"
+        }
       ],
       "blackFriday": {
         "enabled": true,
@@ -28,12 +48,30 @@
       "price": "$1049.99",
       "image": "/assets/gallery/computer-2.jpg",
       "specs": [
-        { "label": "Graphics Card", "value": "RTX 4060 Ti" },
-        { "label": "Processor", "value": "Ryzen 7 5000 Series" },
-        { "label": "Memory", "value": "32 GB" },
-        { "label": "Storage", "value": "1 TB NVMe" },
-        { "label": "Manufacturer Warranty", "value": "1 Year" },
-        { "label": "Free Diagnostics", "value": "Lifetime" }
+        {
+          "label": "Graphics Card",
+          "value": "RTX 4060 Ti"
+        },
+        {
+          "label": "Processor",
+          "value": "Ryzen 7 5000 Series"
+        },
+        {
+          "label": "Memory",
+          "value": "32 GB"
+        },
+        {
+          "label": "Storage",
+          "value": "1 TB NVMe"
+        },
+        {
+          "label": "Manufacturer Warranty",
+          "value": "1 Year"
+        },
+        {
+          "label": "Free Diagnostics",
+          "value": "Lifetime"
+        }
       ]
     },
     {
@@ -44,10 +82,22 @@
       "price": "$750.00",
       "image": "/assets/gallery/computer-3.jpg",
       "specs": [
-        { "label": "Graphics Card", "value": "AMD RX 5700 XT" },
-        { "label": "Processor", "value": "Ryzen 7 2000 Series" },
-        { "label": "Memory", "value": "16 GB" },
-        { "label": "Storage", "value": "1 TB NVMe" }
+        {
+          "label": "Graphics Card",
+          "value": "AMD RX 5700 XT"
+        },
+        {
+          "label": "Processor",
+          "value": "Ryzen 7 2000 Series"
+        },
+        {
+          "label": "Memory",
+          "value": "16 GB"
+        },
+        {
+          "label": "Storage",
+          "value": "1 TB NVMe"
+        }
       ],
       "blackFriday": {
         "enabled": true,
@@ -64,11 +114,26 @@
       "price": "$1400.00",
       "image": "/assets/gallery/computer-4.jpg",
       "specs": [
-        { "label": "Display Size", "value": "18 Inches" },
-        { "label": "Processor", "value": "Intel i9 14th Generation" },
-        { "label": "Memory", "value": "32 GB" },
-        { "label": "Storage", "value": "2 TB NVMe" },
-        { "label": "Graphics Card", "value": "RTX 4070" }
+        {
+          "label": "Display Size",
+          "value": "18 Inches"
+        },
+        {
+          "label": "Processor",
+          "value": "Intel i9 14th Generation"
+        },
+        {
+          "label": "Memory",
+          "value": "32 GB"
+        },
+        {
+          "label": "Storage",
+          "value": "2 TB NVMe"
+        },
+        {
+          "label": "Graphics Card",
+          "value": "RTX 4070"
+        }
       ],
       "blackFriday": {
         "enabled": true,
@@ -85,12 +150,30 @@
       "price": "$749.99",
       "image": "/assets/gallery/computer-5.jpg",
       "specs": [
-        { "label": "Display Size", "value": "15.6 Inches" },
-        { "label": "Processor", "value": "Ryzen 7 5000 Series" },
-        { "label": "Memory", "value": "16 GB" },
-        { "label": "Storage", "value": "512 GB NVMe" },
-        { "label": "Manufacturer Warranty", "value": "1 Year" },
-        { "label": "Free Diagnostics", "value": "Lifetime" }
+        {
+          "label": "Display Size",
+          "value": "15.6 Inches"
+        },
+        {
+          "label": "Processor",
+          "value": "Ryzen 7 5000 Series"
+        },
+        {
+          "label": "Memory",
+          "value": "16 GB"
+        },
+        {
+          "label": "Storage",
+          "value": "512 GB NVMe"
+        },
+        {
+          "label": "Manufacturer Warranty",
+          "value": "1 Year"
+        },
+        {
+          "label": "Free Diagnostics",
+          "value": "Lifetime"
+        }
       ]
     },
     {
@@ -101,12 +184,30 @@
       "price": "$529.99",
       "image": "/assets/gallery/computer-6.jpg",
       "specs": [
-        { "label": "Display Size", "value": "15.6 Inches" },
-        { "label": "Processor", "value": "Ryzen 5 7000 Series" },
-        { "label": "Memory", "value": "8 GB" },
-        { "label": "Storage", "value": "256 GB NVMe" },
-        { "label": "Manufacturer Warranty", "value": "1 Year" },
-        { "label": "Free Diagnostics", "value": "Lifetime" }
+        {
+          "label": "Display Size",
+          "value": "15.6 Inches"
+        },
+        {
+          "label": "Processor",
+          "value": "Ryzen 5 7000 Series"
+        },
+        {
+          "label": "Memory",
+          "value": "8 GB"
+        },
+        {
+          "label": "Storage",
+          "value": "256 GB NVMe"
+        },
+        {
+          "label": "Manufacturer Warranty",
+          "value": "1 Year"
+        },
+        {
+          "label": "Free Diagnostics",
+          "value": "Lifetime"
+        }
       ]
     },
     {
@@ -117,11 +218,26 @@
       "price": "$700.00",
       "image": "/assets/gallery/computer-7.jpg",
       "specs": [
-        { "label": "Display Size", "value": "15.6 Inches" },
-        { "label": "Processor", "value": "Intel i5 12th Generation" },
-        { "label": "Memory", "value": "16 GB" },
-        { "label": "Storage", "value": "512 GB NVMe" },
-        { "label": "Graphics Card", "value": "RTX 4050" }
+        {
+          "label": "Display Size",
+          "value": "15.6 Inches"
+        },
+        {
+          "label": "Processor",
+          "value": "Intel i5 12th Generation"
+        },
+        {
+          "label": "Memory",
+          "value": "16 GB"
+        },
+        {
+          "label": "Storage",
+          "value": "512 GB NVMe"
+        },
+        {
+          "label": "Graphics Card",
+          "value": "RTX 4050"
+        }
       ],
       "blackFriday": {
         "enabled": true,
@@ -138,10 +254,22 @@
       "price": "$200.00",
       "image": "/assets/gallery/computer-8.jpg",
       "specs": [
-        { "label": "Display Size", "value": "14 Inches" },
-        { "label": "Processor", "value": "Athlon Silver 3000 Series" },
-        { "label": "Memory", "value": "12 GB" },
-        { "label": "Storage", "value": "128 GB SSD" }
+        {
+          "label": "Display Size",
+          "value": "14 Inches"
+        },
+        {
+          "label": "Processor",
+          "value": "Athlon Silver 3000 Series"
+        },
+        {
+          "label": "Memory",
+          "value": "12 GB"
+        },
+        {
+          "label": "Storage",
+          "value": "128 GB SSD"
+        }
       ],
       "blackFriday": {
         "enabled": true,
@@ -151,7 +279,7 @@
       }
     }
   ],
-  "lastUpdated": "2025-12-05T18:55:00.000Z",
+  "lastUpdated": "2025-12-05T20:38:07.357Z",
   "version": "1.0.0",
   "globalSale": "black-friday"
 }

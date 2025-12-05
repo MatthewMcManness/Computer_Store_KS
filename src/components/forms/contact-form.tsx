@@ -8,6 +8,7 @@ import { Select } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { BUSINESS_INFO } from '@/lib/constants';
 import { Send, CheckCircle, AlertCircle, Clock } from 'lucide-react';
+import { useBotProtection } from '@/hooks/useBotProtection';
 
 interface FormData {
   name: string;
@@ -47,6 +48,9 @@ const subjectOptions = [
 ];
 
 export function ContactForm() {
+  const { timing, honeypotFields } = useBotProtection();
+  const [honeypots, setHoneypots] = React.useState(honeypotFields);
+
   const [formData, setFormData] = React.useState<FormData>({
     name: '',
     email: '',
@@ -127,7 +131,13 @@ export function ContactForm() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          _timing: timing,
+          _hp_email2: honeypots._hp_email2,
+          _hp_phone_confirm: honeypots._hp_phone_confirm,
+          _hp_url: honeypots._hp_url,
+        }),
       });
 
       const data: APIResponse = await response.json();
@@ -231,6 +241,37 @@ export function ContactForm() {
               autoComplete="off"
             />
           </div>
+
+          {/* Additional honeypot fields */}
+          <div aria-hidden="true" className="absolute -left-[9999px] -top-[9999px]">
+            <input
+              type="email"
+              name="_hp_email2"
+              value={honeypots._hp_email2}
+              onChange={(e) => setHoneypots(h => ({...h, _hp_email2: e.target.value}))}
+              tabIndex={-1}
+              autoComplete="off"
+            />
+            <input
+              type="tel"
+              name="_hp_phone_confirm"
+              value={honeypots._hp_phone_confirm}
+              onChange={(e) => setHoneypots(h => ({...h, _hp_phone_confirm: e.target.value}))}
+              tabIndex={-1}
+              autoComplete="off"
+            />
+            <input
+              type="url"
+              name="_hp_url"
+              value={honeypots._hp_url}
+              onChange={(e) => setHoneypots(h => ({...h, _hp_url: e.target.value}))}
+              tabIndex={-1}
+              autoComplete="off"
+            />
+          </div>
+
+          {/* Timing field */}
+          <input type="hidden" name="_timing" value={timing} />
 
           <div className="grid gap-6 sm:grid-cols-2">
             <Input

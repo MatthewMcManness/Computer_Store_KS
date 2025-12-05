@@ -32,7 +32,13 @@
           "label": "Free Diagnostics",
           "value": "6 Months"
         }
-      ]
+      ],
+      "blackFriday": {
+        "enabled": true,
+        "originalPrice": "$850",
+        "salePrice": "$765.00",
+        "discount": 10
+      }
     },
     {
       "id": 2,
@@ -92,7 +98,13 @@
           "label": "Storage",
           "value": "1 TB NVMe"
         }
-      ]
+      ],
+      "blackFriday": {
+        "enabled": true,
+        "originalPrice": "$750.00",
+        "salePrice": "$675.00",
+        "discount": 10
+      }
     },
     {
       "id": 4,
@@ -122,7 +134,13 @@
           "label": "Graphics Card",
           "value": "RTX 4070"
         }
-      ]
+      ],
+      "blackFriday": {
+        "enabled": true,
+        "originalPrice": "$1400.00",
+        "salePrice": "$1260.00",
+        "discount": 10
+      }
     },
     {
       "id": 5,
@@ -220,7 +238,13 @@
           "label": "Graphics Card",
           "value": "RTX 4050"
         }
-      ]
+      ],
+      "blackFriday": {
+        "enabled": true,
+        "originalPrice": "$700.00",
+        "salePrice": "$630.00",
+        "discount": 10
+      }
     },
     {
       "id": 8,
@@ -246,10 +270,16 @@
           "label": "Storage",
           "value": "128 GB SSD"
         }
-      ]
+      ],
+      "blackFriday": {
+        "enabled": true,
+        "originalPrice": "$200.00",
+        "salePrice": "$180.00",
+        "discount": 10
+      }
     }
   ],
-  "lastUpdated": "2025-12-05T20:42:17.059Z",
+  "lastUpdated": "2025-12-05T20:42:27.773Z",
   "version": "1.0.0",
-  "globalSale": "none"
+  "globalSale": "black-friday"
 }

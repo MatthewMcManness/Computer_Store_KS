@@ -131,10 +131,11 @@ export async function deleteFileFromGitHub(
 export async function uploadImageToGitHub(
   filename: string,
   imageBuffer: Buffer,
-  message: string
+  message: string,
+  directory: string = 'public/assets/gallery'
 ): Promise<{ sha: string; url: string; path: string }> {
   const octokit = getOctokit();
-  const path = `assets/gallery/${filename}`;
+  const path = `${directory}/${filename}`;
 
   // Check if file already exists
   let sha: string | undefined;

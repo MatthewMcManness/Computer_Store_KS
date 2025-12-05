@@ -147,6 +147,11 @@ export function Header() {
                 Reviews
               </Link>
             </li>
+            <li>
+              <Link className={`nav-link ${pathname?.startsWith('/blog') ? 'active' : ''}`} href="/blog">
+                Blog
+              </Link>
+            </li>
             <li className="nav-action black-friday">
               <Link className={`nav-link ${isActive('/black-friday') ? 'active' : ''}`} href="/black-friday">
                 Black Friday Sale

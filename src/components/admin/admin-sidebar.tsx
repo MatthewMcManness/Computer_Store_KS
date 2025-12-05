@@ -11,6 +11,8 @@ import {
   LogOut,
   Home,
   RefreshCw,
+  FileText,
+  PenSquare,
 } from 'lucide-react';
 
 interface NavItem {
@@ -34,6 +36,16 @@ const navItems: NavItem[] = [
     label: 'Add Computer',
     href: '/admin/gallery/new',
     icon: <Plus className="h-5 w-5" />,
+  },
+  {
+    label: 'Blog Posts',
+    href: '/admin/blog',
+    icon: <FileText className="h-5 w-5" />,
+  },
+  {
+    label: 'New Post',
+    href: '/admin/blog/new',
+    icon: <PenSquare className="h-5 w-5" />,
   },
 ];
 

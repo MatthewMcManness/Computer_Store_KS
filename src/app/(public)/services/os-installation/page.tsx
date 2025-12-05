@@ -27,10 +27,9 @@ export default function OSInstallationPage() {
         <div className="diamond-accent diamond-accent-3 rotating-element"></div>
         <div className="container overlap-card">
           <h2>Windows Installation</h2>
-          <p className="price-tag">$75 flat rate • License included</p>
 
           <div className="service-details">
-            <p>Need a clean slate? We install a fresh copy of Windows on your computer—and the license is included in the price. No need to hunt down product keys or worry about activation.</p>
+            <p>Need a clean slate? We install a fresh copy of Windows on your computer—and the license is included. No need to hunt down product keys or worry about activation.</p>
 
             <h3>What&apos;s Included:</h3>
             <ul className="feature-list">
@@ -53,19 +52,16 @@ export default function OSInstallationPage() {
           <div className="cards">
             <div className="card">
               <h3>Linux Standard</h3>
-              <p className="price-tag">$100 flat rate</p>
               <p>Zorin OS Core edition installed and configured. We set up the desktop layout to match what you&apos;re used to from Windows, making the transition seamless.</p>
             </div>
 
             <div className="card">
               <h3>Linux Premium</h3>
-              <p className="price-tag">$150 flat rate</p>
               <p>Zorin OS Pro edition with expanded layout options and premium desktop themes. More customization to make your computer truly yours.</p>
             </div>
 
             <div className="card">
               <h3>Dual-Boot Setup</h3>
-              <p className="price-tag">Price of OS(es) needed</p>
               <p>Want both Windows and Linux? We set up dual-boot so you can choose which operating system to use each time you start your computer.</p>
             </div>
           </div>

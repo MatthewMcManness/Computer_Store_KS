@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'Data Transfer & Drive Cloning Services | Computer Store Kansas',
-  description: 'Professional data transfer and drive cloning services in Topeka, KS. PC-to-PC transfers, drive clones, and data recovery from failing drives. Flat-rate pricing.',
+  description: 'Professional data transfer and drive cloning services in Topeka, KS. PC-to-PC transfers, drive clones, and data recovery from failing drives.',
   openGraph: {
     title: 'Data Transfer & Drive Cloning - Computer Store Kansas',
     description: 'Professional data transfer and drive cloning services. We restore your files exactly where they belong.',
@@ -31,19 +31,16 @@ export default function DataServicesPage() {
           <div className="cards">
             <div className="card">
               <h3>Data Transfers</h3>
-              <p className="price-tag">$120 flat rate</p>
               <p>Moving to a new computer? We transfer your files from your old PC to your new one, or from an old drive to a new drive. No data left behind.</p>
             </div>
 
             <div className="card">
               <h3>Drive Cloning</h3>
-              <p className="price-tag">$240 flat rate</p>
               <p>An exact copy of your entire drive—operating system, programs, settings, and all your files. Perfect for upgrading to a faster SSD without reinstalling everything.</p>
             </div>
 
             <div className="card">
               <h3>Data Recovery</h3>
-              <p className="price-tag">No charge if unsuccessful</p>
               <p>Have a failing drive? We attempt to recover your precious files before it&apos;s too late. If we can&apos;t recover your data, you don&apos;t pay a thing.</p>
             </div>
           </div>

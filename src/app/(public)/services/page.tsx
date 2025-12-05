@@ -3,13 +3,77 @@ import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'Computer Repair Services in Topeka, KS',
-  description: 'Computer repair services in Topeka, KS - diagnostics, virus removal, hardware repair, upgrades, and custom PC builds. Professional computer service since 2003.',
+  description: 'Computer repair services in Topeka, KS - diagnostics, virus removal, hardware upgrades, data services, OS installation, and custom PC builds. Professional computer service since 2003.',
   openGraph: {
     title: 'Computer Repair Services - Computer Store Kansas',
-    description: 'Professional computer repair services in Topeka: diagnostics, virus removal, hardware repair, and custom builds.',
+    description: 'Professional computer repair services in Topeka: diagnostics, virus removal, hardware upgrades, data services, and custom builds.',
     url: 'https://computerstoreks.com/services',
   },
 };
+
+const services = [
+  {
+    href: '/services/diagnostics',
+    title: 'Diagnostics',
+    description: 'Thorough troubleshooting to identify issues quickly and accurately. Small fixes included at no extra charge.',
+    icon: '🔍',
+  },
+  {
+    href: '/services/virus-removal',
+    title: 'Virus & Malware Removal',
+    description: 'Complete removal of viruses, malware, spyware, and rootkits. Your computer returned clean and protected.',
+    icon: '🛡️',
+  },
+  {
+    href: '/services/data-services',
+    title: 'Data Transfer & Cloning',
+    description: 'Move your files, settings, and programs to a new computer. Drive cloning and data recovery available.',
+    icon: '💾',
+  },
+  {
+    href: '/services/os-installation',
+    title: 'OS Installation',
+    description: 'Fresh Windows or Linux installation. Dual-boot setups available. Windows license included.',
+    icon: '💻',
+  },
+  {
+    href: '/services/upgrades',
+    title: 'Hardware Upgrades',
+    description: 'RAM, SSD, graphics cards, processors, and more. Breathe new life into your existing computer.',
+    icon: '⚡',
+  },
+  {
+    href: '/services/debloat',
+    title: 'Windows Debloat',
+    description: 'Remove bloatware and optimize Windows for speed. Free on all computers purchased from us.',
+    icon: '🧹',
+  },
+  {
+    href: '/services/antivirus',
+    title: 'Antivirus & Protection',
+    description: 'Professional antivirus software installation and scam protection to keep you safe online.',
+    icon: '🔒',
+  },
+  {
+    href: '/services/custom-computers',
+    title: 'Custom-Built PCs',
+    description: 'Gaming rigs, workstations, home offices, and servers. Quality parts, expert assembly, free lifetime diagnostics.',
+    icon: '🖥️',
+    featured: true,
+  },
+  {
+    href: '/services/laptops',
+    title: 'Laptops',
+    description: 'New Asus and Lenovo laptops, plus quality refurbished options. Custom orders available.',
+    icon: '💼',
+  },
+  {
+    href: '/services/desktops',
+    title: 'Refurbished Desktops',
+    description: 'Quality refurbished desktop computers. Cleaned, tested, and ready to work for years to come.',
+    icon: '🖱️',
+  },
+];
 
 export default function ServicesPage() {
   return (
@@ -22,38 +86,64 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      {/* Detailed Services Section */}
+      {/* Featured Section */}
       <section className="services horizontal-diamond texture-circuit overlap-card-container">
         <div className="diamond-accent diamond-accent-3 rotating-element"></div>
         <div className="container overlap-card">
-          <h2>What We Offer</h2>
+          <h2>Featured</h2>
           <div className="cards">
-            <div className="card">
-              <h3>Diagnostics</h3>
-              <p>Thorough troubleshooting to identify issues quickly and accurately.</p>
-            </div>
-            <div className="card">
-              <h3>Virus &amp; Malware Removal</h3>
-              <p>Deep cleaning and protection against viruses, spyware and other malware.</p>
-            </div>
-            <div className="card">
-              <h3>Hardware Repair</h3>
-              <p>Replacement of failing components such as hard drives, screens and power supplies.</p>
-            </div>
-            <div className="card">
-              <h3>Upgrades &amp; Builds</h3>
-              <p>Performance upgrades and custom PC builds tailored to your needs and budget.</p>
-            </div>
+            <Link href="/services/custom-computers" className="card card-link">
+              <h3>🖥️ Custom-Built PCs</h3>
+              <p>Your vision, expertly built. Gaming rigs, workstations, servers—we build it all with quality parts and clean cable management. Free lifetime diagnostics on every build.</p>
+              <span className="card-action">Learn More →</span>
+            </Link>
+            <Link href="/why-linux" className="card card-link">
+              <h3>🐧 Why Linux?</h3>
+              <p>Windows 10 support ends October 2025. Your computer doesn&apos;t have to become obsolete. Linux runs faster, stays secure, and respects your privacy.</p>
+              <span className="card-action">Discover Linux →</span>
+            </Link>
           </div>
+        </div>
+      </section>
+
+      {/* All Services */}
+      <section className="benefits-section">
+        <div className="container">
+          <h2>All Services</h2>
+          <p>Click any service to learn more about what we offer.</p>
+
+          <div className="services-grid">
+            {services.map((service) => (
+              <Link
+                key={service.href}
+                href={service.href}
+                className={`service-card ${service.featured ? 'featured' : ''}`}
+              >
+                <span className="service-icon">{service.icon}</span>
+                <h3>{service.title}</h3>
+                <p>{service.description}</p>
+                <span className="card-action">View Details →</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Not Sure Section */}
+      <section className="cta" style={{ background: 'linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%)' }}>
+        <div className="container">
+          <h2>Not Sure What You Need?</h2>
+          <p>Bring in your computer and we&apos;ll take a look. Our diagnostic service identifies the problem and gives you options—no pressure, just honest advice.</p>
+          <Link href="/services/diagnostics" className="btn btn-white">Learn About Diagnostics</Link>
         </div>
       </section>
 
       {/* Call-to-Action Section */}
       <section className="cta">
         <div className="container">
-          <h2>Not Sure What You Need?</h2>
-          <p>Contact us for a free consultation and we&apos;ll help you find the right solution.</p>
-          <Link href="/contact" className="btn btn-white">Talk to an Expert</Link>
+          <h2>Ready to Get Started?</h2>
+          <p>Contact us to discuss your needs or bring your computer in for service.</p>
+          <Link href="/contact" className="btn btn-white">Contact Us</Link>
         </div>
       </section>
     </>

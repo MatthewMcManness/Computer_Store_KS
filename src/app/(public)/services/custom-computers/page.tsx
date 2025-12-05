@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'Custom-Built Computers | Computer Store Kansas',
-  description: 'Custom-built PCs in Topeka, KS. Gaming rigs, workstations, home offices, servers, and more. Expert consultation, quality parts, and $180 flat build labor.',
+  description: 'Custom-built PCs in Topeka, KS. Gaming rigs, workstations, home offices, servers, and more. Expert consultation, quality parts, and professional assembly.',
   openGraph: {
     title: 'Custom-Built Computers - Computer Store Kansas',
     description: 'Your vision, expertly built. Custom PCs for gaming, work, or anything in between.',
@@ -146,12 +146,8 @@ export default function CustomComputersPage() {
       {/* Pricing */}
       <section className="cta" style={{ background: 'linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%)' }}>
         <div className="container">
-          <h2>Simple, Transparent Pricing</h2>
-          <div className="pricing-breakdown">
-            <p><strong>Parts:</strong> At cost from our suppliers—no markup games</p>
-            <p><strong>Build Labor:</strong> $180 flat rate</p>
-            <p>That&apos;s it. Parts plus $180. Windows installation and testing included.</p>
-          </div>
+          <h2>Transparent Pricing</h2>
+          <p>You pay for the parts plus a flat build labor fee. Windows installation and testing included. No hidden charges, no surprises—contact us for a quote based on your build.</p>
         </div>
       </section>
 

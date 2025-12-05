@@ -91,16 +91,9 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Skip login page
+  // Skip login page - let the page handle auth check via API
+  // This avoids redirect loops when session cookie exists but is invalid
   if (pathname === '/admin/login') {
-    const session = request.cookies.get(SESSION_COOKIE_NAME);
-
-    if (session?.value) {
-      // Redirect to admin dashboard if already authenticated
-      const adminUrl = new URL('/admin', request.url);
-      return NextResponse.redirect(adminUrl);
-    }
-
     return NextResponse.next();
   }
 

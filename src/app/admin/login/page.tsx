@@ -21,22 +21,34 @@ export default function AdminLoginPage() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
-  // Check if already authenticated
+  // Check if already authenticated (only once on mount)
   useEffect(() => {
+    let mounted = true;
+
     const checkAuth = async () => {
       try {
         const response = await fetch('/api/auth/check');
         const data = await response.json();
-        if (data.authenticated) {
-          router.push('/admin');
+        if (mounted && data.authenticated) {
+          router.replace('/admin');
         }
       } catch {
         // Not authenticated, stay on login page
+      } finally {
+        if (mounted) {
+          setIsCheckingAuth(false);
+        }
       }
     };
+
     checkAuth();
-  }, [router]);
+
+    return () => {
+      mounted = false;
+    };
+  }, []); // Empty dependency array - only run once
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,6 +91,36 @@ export default function AdminLoginPage() {
       setIsLoading(false);
     }
   };
+
+  // Show loading while checking initial auth
+  if (isCheckingAuth) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-600 to-indigo-700 p-4">
+        <div className="text-white text-center">
+          <svg
+            className="mx-auto h-8 w-8 animate-spin"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+              fill="none"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            />
+          </svg>
+          <p className="mt-2">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-600 to-indigo-700 p-4">

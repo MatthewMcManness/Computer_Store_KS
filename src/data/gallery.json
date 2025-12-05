@@ -174,7 +174,7 @@
       "type": "laptop",
       "category": "custom",
       "price": "$529.99",
-      "image": "/assets/gallery/desktop-6.jpg",
+      "image": "/assets/gallery/laptop-6.jpg",
       "specs": [
         {
           "label": "Display Size",
@@ -208,7 +208,7 @@
       "type": "laptop",
       "category": "refurbished",
       "price": "$700.00",
-      "image": "/assets/gallery/desktop-7.jpg",
+      "image": "/assets/gallery/laptop-7.jpg",
       "specs": [
         {
           "label": "Display Size",
@@ -244,7 +244,7 @@
       "type": "laptop",
       "category": "refurbished",
       "price": "$200.00",
-      "image": "/assets/gallery/desktop-8.jpg",
+      "image": "/assets/gallery/laptop-8.jpg",
       "specs": [
         {
           "label": "Display Size",

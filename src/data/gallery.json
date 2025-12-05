@@ -177,40 +177,6 @@
       ]
     },
     {
-      "id": 6,
-      "name": "Lenovo Ideapad",
-      "type": "laptop",
-      "category": "custom",
-      "price": "$529.99",
-      "image": "/assets/gallery/computer-6.jpg",
-      "specs": [
-        {
-          "label": "Display Size",
-          "value": "15.6 Inches"
-        },
-        {
-          "label": "Processor",
-          "value": "Ryzen 5 7000 Series"
-        },
-        {
-          "label": "Memory",
-          "value": "8 GB"
-        },
-        {
-          "label": "Storage",
-          "value": "256 GB NVMe"
-        },
-        {
-          "label": "Manufacturer Warranty",
-          "value": "1 Year"
-        },
-        {
-          "label": "Free Diagnostics",
-          "value": "Lifetime"
-        }
-      ]
-    },
-    {
       "id": 7,
       "name": "Hp Victus",
       "type": "laptop",
@@ -279,7 +245,7 @@
       }
     }
   ],
-  "lastUpdated": "2025-12-05T20:42:27.773Z",
+  "lastUpdated": "2025-12-05T22:12:21.091Z",
   "version": "1.0.0",
   "globalSale": "black-friday"
 }

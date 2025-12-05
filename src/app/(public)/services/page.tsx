@@ -73,6 +73,13 @@ const services = [
     description: 'Quality refurbished desktop computers. Cleaned, tested, and ready to work for years to come.',
     icon: '🖱️',
   },
+  {
+    href: '/silver-plan',
+    title: 'Silver Plan',
+    description: 'Annual protection plan with priority service, free diagnostics, discounts on repairs, and peace of mind.',
+    icon: '🥈',
+    silver: true,
+  },
 ];
 
 export default function ServicesPage() {
@@ -117,7 +124,7 @@ export default function ServicesPage() {
               <Link
                 key={service.href}
                 href={service.href}
-                className={`service-card ${service.featured ? 'featured' : ''}`}
+                className={`service-card ${(service as { featured?: boolean }).featured ? 'featured' : ''} ${(service as { silver?: boolean }).silver ? 'silver' : ''}`}
               >
                 <span className="service-icon">{service.icon}</span>
                 <h3>{service.title}</h3>

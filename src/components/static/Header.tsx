@@ -16,6 +16,7 @@ const serviceLinks = [
   { href: '/services/upgrades', label: 'Hardware Upgrades' },
   { href: '/services/debloat', label: 'Windows Debloat' },
   { href: '/services/antivirus', label: 'Antivirus & Protection' },
+  { href: '/silver-plan', label: 'Silver Plan', className: 'silver' },
 ];
 
 export function Header() {
@@ -118,7 +119,7 @@ export function Header() {
                   <li key={service.href}>
                     <Link
                       href={service.href}
-                      className={`dropdown-link ${isActive(service.href) ? 'active' : ''}`}
+                      className={`dropdown-link ${isActive(service.href) ? 'active' : ''} ${(service as { className?: string }).className || ''}`}
                     >
                       {service.label}
                     </Link>
@@ -149,11 +150,6 @@ export function Header() {
             <li className="nav-action black-friday">
               <Link className={`nav-link ${isActive('/black-friday') ? 'active' : ''}`} href="/black-friday">
                 Black Friday Sale
-              </Link>
-            </li>
-            <li className="nav-action silver">
-              <Link className={`nav-link ${isActive('/silver-plan') ? 'active' : ''}`} href="/silver-plan">
-                Silver Plan
               </Link>
             </li>
             <li className="nav-action primary">

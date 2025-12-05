@@ -3701,3 +3701,40 @@ form button {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* Silver Plan Card Styling */
+.service-card.silver {
+  border-color: #a8a8a8;
+  background: linear-gradient(145deg, #f8f8f8 0%, #e8e8e8 50%, #f0f0f0 100%);
+  position: relative;
+}
+
+.service-card.silver::before {
+  background: linear-gradient(90deg, #c0c0c0, #e8e8e8, #c0c0c0);
+  opacity: 1;
+}
+
+.service-card.silver:hover {
+  border-color: #909090;
+  box-shadow: 0 8px 30px rgba(128, 128, 128, 0.3);
+}
+
+.service-card.silver h3 {
+  color: #404040;
+}
+
+.service-card.silver .card-action {
+  color: #606060;
+}
+
+/* Silver dropdown link styling */
+.dropdown-link.silver {
+  background: linear-gradient(145deg, #f0f0f0 0%, #e0e0e0 100%);
+  font-weight: 600;
+  border-left: 3px solid #c0c0c0;
+}
+
+.dropdown-link.silver:hover {
+  background: linear-gradient(145deg, #e8e8e8 0%, #d8d8d8 100%);
+  border-left-color: #a0a0a0;
+}

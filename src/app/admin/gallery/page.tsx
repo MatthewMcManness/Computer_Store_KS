@@ -1,22 +1,36 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { GalleryTable } from '@/components/admin';
 import type { GalleryComputer } from '@/types/gallery';
-import { Plus, Upload, Filter } from 'lucide-react';
+import { Plus, Upload, Filter, CheckCircle, Loader2 } from 'lucide-react';
 
 export default function AdminGalleryPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [computers, setComputers] = useState<GalleryComputer[]>([]);
   const [filteredComputers, setFilteredComputers] = useState<GalleryComputer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isPublishing, setIsPublishing] = useState(false);
-  const [hasChanges, setHasChanges] = useState(false);
+  const [publishSuccess, setPublishSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentFilter, setCurrentFilter] = useState('all');
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
+
+  // Check for success message from add/edit pages
+  useEffect(() => {
+    const message = searchParams?.get('message');
+    if (message === 'added') {
+      showToast('Computer added! Click "Publish to Website" to make it live.', 'info');
+      // Clear the URL param
+      router.replace('/admin/gallery', { scroll: false });
+    } else if (message === 'updated') {
+      showToast('Computer updated! Click "Publish to Website" to make changes live.', 'info');
+      router.replace('/admin/gallery', { scroll: false });
+    }
+  }, [searchParams, router]);
 
   // Load computers
   useEffect(() => {
@@ -54,9 +68,9 @@ export default function AdminGalleryPage() {
   }, [currentFilter, computers]);
 
   // Show toast notification
-  const showToast = (message: string, type: 'success' | 'error') => {
+  const showToast = (message: string, type: 'success' | 'error' | 'info') => {
     setToast({ message, type });
-    setTimeout(() => setToast(null), 4000);
+    setTimeout(() => setToast(null), type === 'success' ? 6000 : 4000);
   };
 
   // Delete computer
@@ -70,8 +84,7 @@ export default function AdminGalleryPage() {
 
       if (result.success) {
         setComputers(computers.filter(c => c.id !== id));
-        setHasChanges(true);
-        showToast('Computer deleted successfully', 'success');
+        showToast('Computer deleted! Click "Publish to Website" to update the live site.', 'success');
       } else {
         showToast(result.error || 'Failed to delete computer', 'error');
       }
@@ -81,18 +94,14 @@ export default function AdminGalleryPage() {
     }
   };
 
-  // Publish changes
+  // Publish changes to live website
   const handlePublish = async () => {
-    if (!hasChanges) {
-      showToast('No changes to publish', 'error');
-      return;
-    }
-
-    if (!confirm('This will update the live website. Continue?')) {
+    if (!confirm('This will update the live website with all current gallery data. Continue?')) {
       return;
     }
 
     setIsPublishing(true);
+    setPublishSuccess(false);
 
     try {
       const response = await fetch('/api/gallery/publish', {
@@ -106,13 +115,15 @@ export default function AdminGalleryPage() {
       const result = await response.json();
 
       if (result.success) {
-        setHasChanges(false);
-        showToast('Changes published successfully! Website will update in 2-3 minutes.', 'success');
+        setPublishSuccess(true);
+        showToast('Published successfully! The website will update automatically in 2-3 minutes.', 'success');
+        // Reset success indicator after 10 seconds
+        setTimeout(() => setPublishSuccess(false), 10000);
       } else {
         showToast(result.error || 'Failed to publish changes', 'error');
       }
     } catch (err) {
-      showToast('Failed to publish changes', 'error');
+      showToast('Failed to publish changes. Please try again.', 'error');
       console.error('Publish error:', err);
     } finally {
       setIsPublishing(false);
@@ -148,11 +159,31 @@ export default function AdminGalleryPage() {
           </Link>
           <button
             onClick={handlePublish}
-            disabled={!hasChanges || isPublishing}
-            className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-4 py-2 text-sm font-medium text-white hover:from-green-700 hover:to-emerald-700 disabled:opacity-50"
+            disabled={isPublishing}
+            className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white transition-all ${
+              publishSuccess
+                ? 'bg-gradient-to-r from-green-500 to-emerald-500'
+                : isPublishing
+                ? 'bg-gradient-to-r from-yellow-500 to-orange-500'
+                : 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700'
+            } disabled:cursor-wait`}
           >
-            <Upload className="h-4 w-4" />
-            {isPublishing ? 'Publishing...' : 'Publish Changes'}
+            {isPublishing ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Publishing to Website...
+              </>
+            ) : publishSuccess ? (
+              <>
+                <CheckCircle className="h-4 w-4" />
+                Published!
+              </>
+            ) : (
+              <>
+                <Upload className="h-4 w-4" />
+                Publish to Website
+              </>
+            )}
           </button>
         </div>
       </div>
@@ -203,13 +234,19 @@ export default function AdminGalleryPage() {
 
       {/* Toast Notification */}
       {toast && (
-        <div className={`fixed bottom-6 right-6 rounded-lg p-4 shadow-lg ${
+        <div className={`fixed bottom-6 right-6 z-50 max-w-md rounded-lg p-4 shadow-lg ${
           toast.type === 'success'
             ? 'border-l-4 border-green-500 bg-white'
+            : toast.type === 'info'
+            ? 'border-l-4 border-blue-500 bg-white'
             : 'border-l-4 border-red-500 bg-white'
         }`}>
           <p className={`text-sm font-medium ${
-            toast.type === 'success' ? 'text-green-800' : 'text-red-800'
+            toast.type === 'success'
+              ? 'text-green-800'
+              : toast.type === 'info'
+              ? 'text-blue-800'
+              : 'text-red-800'
           }`}>
             {toast.message}
           </p>

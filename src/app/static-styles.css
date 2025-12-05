@@ -887,6 +887,90 @@ header nav ul .nav-action.black-friday a:hover::before {
   color: var(--primary-blue);
 }
 
+/* Service page details styling */
+.service-details {
+  margin-top: 2rem;
+}
+
+.service-details p {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  margin-bottom: 1.5rem;
+}
+
+.service-details h3 {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.feature-list li {
+  padding: 0.75rem 0 0.75rem 2rem;
+  position: relative;
+  font-size: 1.05rem;
+  border-bottom: 1px solid var(--background-dark);
+}
+
+.feature-list li:last-child {
+  border-bottom: none;
+}
+
+.feature-list li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: var(--success);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+/* Linux highlight box */
+.linux-highlight {
+  margin-top: 3rem;
+  padding: 2rem;
+  background: var(--primary-blue-subtle);
+  border-radius: var(--border-radius-lg);
+  border-left: 4px solid var(--primary-blue);
+}
+
+.linux-highlight h3 {
+  color: var(--primary-blue-dark);
+  margin-bottom: 1rem;
+}
+
+.linux-highlight p {
+  color: var(--text-secondary);
+  margin-bottom: 0;
+}
+
+/* Pricing breakdown for CTA sections */
+.pricing-breakdown {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius-lg);
+  padding: 2rem;
+  margin: 2rem auto;
+  max-width: 500px;
+}
+
+.pricing-breakdown p {
+  color: var(--text-white);
+  margin-bottom: 0.75rem;
+  font-size: 1.1rem;
+}
+
+.pricing-breakdown p:last-child {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  font-weight: 600;
+}
+
 /* ================================================
    10. NUMBERED BENEFITS SECTION (NEW)
    Display benefits with large numbers (like Tech Junkies)

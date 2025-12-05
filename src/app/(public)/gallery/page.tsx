@@ -44,7 +44,7 @@ function GalleryContent() {
   const [items] = useState<GalleryItem[]>(galleryItems);
 
   useEffect(() => {
-    const urlFilter = searchParams.get('filter');
+    const urlFilter = searchParams?.get('filter');
     if (urlFilter) {
       setFilter(urlFilter);
     }

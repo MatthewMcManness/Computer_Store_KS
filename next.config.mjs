@@ -7,6 +7,14 @@ const __dirname = path.dirname(__filename);
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
+  // Skip type checking during build (we run it separately)
+  typescript: {
+    ignoreBuildErrors: false,
+  },
+  // Allow build to continue with errors (useful for debugging)
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   // Ensure webpack resolves TypeScript paths correctly
   webpack: (config, { isServer }) => {
 

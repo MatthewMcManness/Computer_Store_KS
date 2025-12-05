@@ -77,7 +77,7 @@ export function AdminSidebar({ onLogout }: AdminSidebarProps) {
         <nav className="flex-1 space-y-1 px-3 py-4">
           {navItems.map((item) => {
             const isActive = pathname === item.href ||
-              (item.href !== '/admin' && pathname.startsWith(item.href));
+              (item.href !== '/admin' && pathname?.startsWith(item.href));
 
             return (
               <Link

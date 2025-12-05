@@ -299,7 +299,15 @@ export default function EditBlogPostPage({ params }: PageProps) {
                         const file = e.target.files?.[0];
                         if (!file) return;
 
+                        // Check file size before upload (10MB max)
+                        if (file.size > 10 * 1024 * 1024) {
+                          setError('Image must be less than 10MB');
+                          e.target.value = '';
+                          return;
+                        }
+
                         setIsUploading(true);
+                        setError(null);
                         try {
                           const formData = new FormData();
                           formData.append('image', file);
@@ -316,7 +324,7 @@ export default function EditBlogPostPage({ params }: PageProps) {
                             setError(result.error || 'Failed to upload image');
                           }
                         } catch (err) {
-                          setError('Failed to upload image');
+                          setError('Failed to upload image. Please try a smaller file.');
                         } finally {
                           setIsUploading(false);
                           e.target.value = '';
@@ -326,7 +334,9 @@ export default function EditBlogPostPage({ params }: PageProps) {
                   </label>
                 </div>
                 <p className="text-xs text-gray-500">
-                  Upload an image or paste a URL. Images are optimized automatically.
+                  {isUploading
+                    ? 'Uploading and optimizing image...'
+                    : 'Upload an image (max 10MB) or paste a URL. Images are optimized automatically.'}
                 </p>
               </div>
               {featuredImageUrl && (

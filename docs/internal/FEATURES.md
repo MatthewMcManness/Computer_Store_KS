@@ -48,6 +48,20 @@ Computer Store KS provides a complete web presence for a computer repair shop wi
 - Phone and email information
 - Business hours
 
+### Blog
+- Full-featured blog system
+- Category and tag organization
+- Search functionality
+- Markdown content support
+- Featured images
+- Post archives by date
+- SEO-optimized URLs
+
+### Reviews Page
+- Customer testimonials
+- Google Business integration (planned)
+- Social proof display
+
 ## Admin Dashboard
 
 ### Authentication
@@ -86,6 +100,15 @@ Computer Store KS provides a complete web presence for a computer repair shop wi
 - Save drafts locally
 - Publish to GitHub for live site
 - Version control of gallery data
+
+### Blog Management
+- Create new blog posts
+- Edit existing posts
+- Delete posts
+- Upload featured images
+- Manage categories and tags
+- Draft vs. published status
+- Rich text with markdown support
 
 ## Flyer Generator
 
@@ -143,6 +166,12 @@ Computer Store KS provides a complete web presence for a computer repair shop wi
 - Contact form notifications
 - Professional email templates
 - Reliable delivery
+
+### Supabase (Blog Database)
+- PostgreSQL database for blog posts
+- Categories and tags management
+- Image storage for blog media
+- Full-text search support
 
 ### Google Maps (Optional)
 - Store location map

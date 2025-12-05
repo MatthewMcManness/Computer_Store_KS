@@ -88,15 +88,35 @@ export function verifyPassword(password: string): boolean {
 // =============================================================================
 
 /**
+ * List of emails that should always have admin access
+ * These users get admin role regardless of their RepairShopr permissions
+ */
+const ADMIN_EMAIL_WHITELIST = [
+  'joseph@thecomputerstoreks.com',
+  'contact@thecomputerstoreks.com',
+  'owner@thecomputerstoreks.com',
+  'joseph@computerstoreks.com',
+  'contact@computerstoreks.com',
+  'owner@computerstoreks.com',
+].map(email => email.toLowerCase());
+
+/**
  * Map RepairShopr admin status and permissions to our role system
  * @param isAdmin Whether the user is an admin in RepairShopr
  * @param permissions User permissions from RepairShopr
+ * @param email User's email address (for whitelist check)
  * @returns Mapped role
  */
 function mapRepairShoprRole(
   isAdmin: boolean,
-  permissions: Record<string, Record<string, boolean>>
+  permissions: Record<string, Record<string, boolean>>,
+  email?: string
 ): 'admin' | 'employee' | 'limited' {
+  // Check email whitelist first
+  if (email && ADMIN_EMAIL_WHITELIST.includes(email.toLowerCase())) {
+    return 'admin';
+  }
+
   // Admin users get admin role
   if (isAdmin) {
     return 'admin';
@@ -178,7 +198,7 @@ export async function authenticateWithRepairShopr(
 
   // Step 4: Create session
   try {
-    const role = mapRepairShoprRole(meResponse.admin, meResponse.permissions);
+    const role = mapRepairShoprRole(meResponse.admin, meResponse.permissions, meResponse.user.email);
     const userData: CreateSessionInput = {
       userId: meResponse.user.id,
       email: meResponse.user.email,

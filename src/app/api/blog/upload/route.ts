@@ -5,6 +5,10 @@ import sharp from 'sharp';
 import fs from 'fs/promises';
 import path from 'path';
 
+// Next.js App Router route segment config
+export const maxDuration = 60; // 60 seconds timeout for large uploads
+export const dynamic = 'force-dynamic';
+
 // Local blog images directory for development
 const LOCAL_BLOG_DIR = path.join(process.cwd(), 'public/assets/blog');
 
@@ -41,10 +45,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate file size (5MB max)
-    if (file.size > 5 * 1024 * 1024) {
+    // Validate file size (10MB max)
+    if (file.size > 10 * 1024 * 1024) {
       return NextResponse.json(
-        { success: false, error: 'Image must be less than 5MB' },
+        { success: false, error: 'Image must be less than 10MB' },
         { status: 400 }
       );
     }

@@ -293,6 +293,118 @@ POST /api/gallery/publish
 }
 ```
 
+## Blog Endpoints
+
+### Get Blog Posts (Public)
+
+```http
+GET /api/blog
+GET /api/blog?category=tech&tag=tips&search=keyword
+```
+
+**Query Parameters**
+
+| Param | Type | Description |
+|-------|------|-------------|
+| `category` | string | Filter by category slug |
+| `tag` | string | Filter by tag slug |
+| `search` | string | Search in title/content |
+| `admin` | boolean | Include drafts (requires auth) |
+| `metadata` | boolean | Include categories/tags lists |
+
+**Response**
+```json
+{
+  "posts": [
+    {
+      "id": "uuid",
+      "title": "Post Title",
+      "slug": "post-title",
+      "excerpt": "Brief summary...",
+      "content": "Full markdown content...",
+      "status": "published",
+      "featured_image_url": "https://...",
+      "author_name": "Admin",
+      "published_at": "2025-12-05T00:00:00.000Z",
+      "category": { "id": "uuid", "name": "Tech", "slug": "tech" },
+      "tags": [{ "id": "uuid", "name": "Tips", "slug": "tips" }]
+    }
+  ],
+  "categories": [...],
+  "tags": [...]
+}
+```
+
+### Get Single Blog Post
+
+```http
+GET /api/blog/[slug]
+```
+
+**Response**
+```json
+{
+  "id": "uuid",
+  "title": "Post Title",
+  "slug": "post-title",
+  "content": "Full markdown content...",
+  ...
+}
+```
+
+### Create Blog Post (Authenticated)
+
+```http
+POST /api/blog
+Content-Type: application/json
+
+{
+  "title": "New Post",
+  "slug": "new-post",
+  "excerpt": "Summary",
+  "content": "Markdown content...",
+  "category_id": "uuid",
+  "tag_ids": ["uuid1", "uuid2"],
+  "featured_image_url": "https://...",
+  "status": "draft"
+}
+```
+
+### Update Blog Post (Authenticated)
+
+```http
+PUT /api/blog/[id]
+Content-Type: application/json
+
+{
+  "title": "Updated Title",
+  "status": "published"
+}
+```
+
+### Delete Blog Post (Authenticated)
+
+```http
+DELETE /api/blog/[id]
+```
+
+### Upload Blog Image (Authenticated)
+
+```http
+POST /api/blog/upload
+Content-Type: multipart/form-data
+
+image: <file>
+```
+
+**Response**
+```json
+{
+  "success": true,
+  "url": "https://gzcmwpcxnwlgknhjijic.supabase.co/storage/v1/object/public/blog-images/..."
+}
+```
+
 ## Health Check
 
 ```http

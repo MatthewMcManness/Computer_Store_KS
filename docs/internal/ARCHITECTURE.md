@@ -10,7 +10,8 @@ Computer Store KS is a Next.js 14 web application for a computer repair shop fea
 | Frontend | React 18, TypeScript |
 | Styling | CSS (static-styles.css for public), Tailwind CSS (admin) |
 | Backend API | Next.js API Routes |
-| Image Storage | GitHub API (Octokit) |
+| Blog Database | Supabase (PostgreSQL) |
+| Image Storage | GitHub API (Gallery), Supabase Storage (Blog) |
 | Email | Resend API |
 | Authentication | RepairShopr OAuth + session-based auth |
 | Deployment | Render (standalone output) |
@@ -30,14 +31,15 @@ Computer Store KS is a Next.js 14 web application for a computer repair shop fea
 │  Public Pages (src/app/(public)/):                          │
 │  - / (Home)           - /about        - /services           │
 │  - /gallery           - /contact      - /silver-plan        │
-│  - /black-friday                                            │
+│  - /black-friday      - /blog         - /reviews            │
+│  - /why-linux                                               │
 │                                                              │
 │  Admin Pages (src/app/admin/):                              │
-│  - /admin/login       - /admin/gallery                      │
+│  - /admin/login       - /admin/gallery  - /admin/blog       │
 │                                                              │
 │  API Routes (src/app/api/):                                 │
 │  - /api/contact       - /api/gallery    - /api/auth         │
-│  - /api/health                                              │
+│  - /api/blog          - /api/health                         │
 └─────────────────────────────────────────────────────────────┘
                           │
         ┌─────────────────┼─────────────────┐
@@ -46,6 +48,13 @@ Computer Store KS is a Next.js 14 web application for a computer repair shop fea
 │  GitHub API  │  │  Resend API  │  │ RepairShopr OAuth │
 │  (Images)    │  │  (Email)     │  │  (Authentication) │
 └──────────────┘  └──────────────┘  └───────────────────┘
+        │
+        ▼
+┌──────────────────────────────────────────────────────┐
+│                    Supabase                           │
+│  - PostgreSQL (blog posts, categories, tags)         │
+│  - Storage (blog images)                             │
+└──────────────────────────────────────────────────────┘
 ```
 
 ## Directory Structure
@@ -57,9 +66,14 @@ src/
 │   │   ├── layout.tsx            # Public layout (Header + Footer)
 │   │   ├── page.tsx              # Home page
 │   │   ├── about/page.tsx
-│   │   ├── services/page.tsx
+│   │   ├── services/page.tsx     # + /services/[slug] detail pages
 │   │   ├── gallery/page.tsx      # Loads from src/data/gallery.json
 │   │   ├── contact/page.tsx      # Contact form + Google Maps
+│   │   ├── blog/                 # Blog system (Supabase)
+│   │   │   ├── page.tsx          # Blog listing with search/filters
+│   │   │   └── [slug]/page.tsx   # Individual blog posts
+│   │   ├── reviews/page.tsx
+│   │   ├── why-linux/page.tsx
 │   │   ├── silver-plan/page.tsx
 │   │   └── black-friday/page.tsx
 │   │
@@ -68,11 +82,19 @@ src/
 │   │   ├── admin.css             # Tailwind styles for admin
 │   │   ├── page.tsx              # Dashboard
 │   │   ├── login/page.tsx
-│   │   └── gallery/              # Gallery management
+│   │   ├── gallery/              # Gallery management
+│   │   └── blog/                 # Blog management
+│   │       ├── page.tsx          # Blog posts list
+│   │       ├── new/page.tsx      # Create new post
+│   │       └── [id]/page.tsx     # Edit existing post
 │   │
 │   ├── api/                      # API route handlers
 │   │   ├── contact/route.ts      # Contact form (Resend)
 │   │   ├── gallery/route.ts      # Gallery CRUD
+│   │   ├── blog/                 # Blog API
+│   │   │   ├── route.ts          # GET/POST blog posts
+│   │   │   ├── [slug]/route.ts   # GET/PUT/DELETE individual posts
+│   │   │   └── upload/route.ts   # Image uploads to Supabase
 │   │   ├── auth/                 # Authentication
 │   │   └── health/route.ts       # Health check
 │   │
@@ -97,6 +119,7 @@ src/
     ├── repairshopr.ts            # RepairShopr OAuth integration
     ├── email.ts                  # Resend email sending
     ├── github.ts                 # GitHub API for image storage
+    ├── supabase.ts               # Supabase client + blog types
     └── utils.ts                  # General utilities
 
 public/

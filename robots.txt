@@ -1,10 +1,10 @@
 # ================================================
 # COMPUTER STORE KANSAS - ROBOTS.TXT
 # ================================================
-# VERSION: 3
-# LAST UPDATED: 2025-12-01
-# CHANGES: - Renamed from robot.txt to robots.txt
-#          - Updated for multi-page site structure
+# VERSION: 4
+# LAST UPDATED: 2025-12-05
+# CHANGES: - Enabled blocking for admin and API paths
+#          - Added Next.js internal paths to blocklist
 # DESCRIPTION: Robots exclusion file that tells search engines
 #              which parts of the site they can crawl
 # DEPENDENCIES: sitemap.xml
@@ -12,32 +12,31 @@
 
 # ================================================
 # SECTION 1: GENERAL CRAWLING RULES
-# Allow all search engines to crawl the entire site
+# Allow all search engines to crawl public pages
 # ================================================
 User-agent: *
 Allow: /
 
 # ================================================
-# SECTION 2: SITEMAP LOCATION
+# SECTION 2: BLOCKED PATHS
+# Paths that should not be indexed by search engines
+# ================================================
+Disallow: /admin/
+Disallow: /api/
+Disallow: /_next/
+Disallow: /.env
+
+# ================================================
+# SECTION 3: SITEMAP LOCATION
 # Tells search engines where to find the sitemap
 # ================================================
 Sitemap: https://computerstoreks.com/sitemap.xml
 
 # ================================================
-# SECTION 3: CRAWL RATE CONTROL (Optional)
+# SECTION 4: CRAWL RATE CONTROL (Optional)
 # Uncomment to set delay between crawler requests
 # ================================================
 # Crawl-delay: 1
-
-# ================================================
-# SECTION 4: BLOCKED PATHS (Optional)
-# Add paths here that should not be crawled
-# Uncomment and customize as needed
-# ================================================
-# Disallow: /admin/
-# Disallow: /.env
-# Disallow: /config/
-# Disallow: /api/
 
 # ================================================
 # SECTION 5: SOCIAL MEDIA CRAWLERS

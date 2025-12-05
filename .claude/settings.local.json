@@ -60,7 +60,11 @@
       "Bash(xargs:*)",
       "Bash(identify:*)",
       "Bash(python3:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "WebFetch(domain:zorin.com)",
+      "WebFetch(domain:www.lpi.org)",
+      "Bash(bun add:*)",
+      "Bash(git stash:*)"
     ],
     "deny": [],
     "ask": []

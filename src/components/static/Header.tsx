@@ -6,9 +6,9 @@ import { usePathname } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 
 const serviceLinks = [
+  { href: '/services/custom-computers', label: 'Custom-Built PCs', className: 'featured' },
   { href: '/services/data-services', label: 'Data Transfer & Cloning' },
   { href: '/services/os-installation', label: 'OS Installation' },
-  { href: '/services/custom-computers', label: 'Custom-Built PCs' },
   { href: '/services/laptops', label: 'Laptops' },
   { href: '/services/desktops', label: 'Refurbished Desktops' },
   { href: '/services/diagnostics', label: 'Diagnostics' },
@@ -16,6 +16,7 @@ const serviceLinks = [
   { href: '/services/upgrades', label: 'Hardware Upgrades' },
   { href: '/services/debloat', label: 'Windows Debloat' },
   { href: '/services/antivirus', label: 'Antivirus & Protection' },
+  { href: '/why-linux', label: 'Why Linux?', className: 'linux' },
   { href: '/silver-plan', label: 'Silver Plan', className: 'silver' },
 ];
 
@@ -52,7 +53,7 @@ export function Header() {
   }, []);
 
   const isActive = (path: string) => pathname === path;
-  const isServicesActive = pathname?.startsWith('/services');
+  const isServicesActive = pathname?.startsWith('/services') || pathname === '/why-linux' || pathname === '/silver-plan';
 
   return (
     <header className={isScrolled ? 'scrolled' : ''}>
@@ -128,23 +129,8 @@ export function Header() {
               </ul>
             </li>
             <li>
-              <Link className={`nav-link ${isActive('/services/custom-computers') ? 'active' : ''}`} href="/services/custom-computers">
-                Custom PCs
-              </Link>
-            </li>
-            <li>
-              <Link className={`nav-link ${isActive('/why-linux') ? 'active' : ''}`} href="/why-linux">
-                Why Linux?
-              </Link>
-            </li>
-            <li>
               <Link className={`nav-link ${isActive('/gallery') ? 'active' : ''}`} href="/gallery">
                 Gallery
-              </Link>
-            </li>
-            <li>
-              <Link className={`nav-link ${isActive('/reviews') ? 'active' : ''}`} href="/reviews">
-                Reviews
               </Link>
             </li>
             <li>

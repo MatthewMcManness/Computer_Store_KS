@@ -20,9 +20,9 @@ const routePermissions: Record<string, UserRole[]> = {
   // Admin-only routes
   '/admin/settings': ['admin'],
 
-  // Gallery management - admin and employees
-  '/admin/gallery/new': ['admin', 'employee'],
-  '/admin/gallery': ['admin', 'employee'],
+  // Gallery management - all authenticated users can manage gallery
+  '/admin/gallery/new': ['admin', 'employee', 'limited'],
+  '/admin/gallery': ['admin', 'employee', 'limited'],
 
   // Dashboard - all roles
   '/admin': ['admin', 'employee', 'limited'],

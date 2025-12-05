@@ -59,7 +59,8 @@
       "Bash(lsof:*)",
       "Bash(xargs:*)",
       "Bash(identify:*)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(mkdir:*)"
     ],
     "deny": [],
     "ask": []

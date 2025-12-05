@@ -1,0 +1,238 @@
+/* Reviews Display Styles */
+
+.statsSection {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--background-dark);
+}
+
+.averageRating {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.ratingNumber {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.stars {
+  font-size: 1.5rem;
+  display: flex;
+  gap: 2px;
+}
+
+.starFilled {
+  color: #fbbf24;
+}
+
+.starEmpty {
+  color: #d1d5db;
+}
+
+.reviewCount {
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.fallbackNote {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+/* Reviews Grid */
+.reviewsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Review Card */
+.reviewCard {
+  background: var(--background);
+  border: 1px solid var(--background-dark);
+  border-radius: var(--border-radius-md);
+  padding: 1.5rem;
+  transition: box-shadow var(--transition-normal);
+}
+
+.reviewCard:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.reviewHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.reviewAuthor {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.authorPhoto {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.authorInitial {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--primary-blue);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1.125rem;
+}
+
+.authorName {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.reviewDate {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.reviewText {
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Owner Reply */
+.ownerReply {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--background-light);
+  border-radius: var(--border-radius-sm);
+  border-left: 3px solid var(--primary-blue);
+}
+
+.replyHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.replyHeader strong {
+  color: var(--text-primary);
+  font-size: 0.875rem;
+}
+
+.replyDate {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.ownerReply p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+/* No Reviews */
+.noReviews {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-muted);
+}
+
+.noReviews h3 {
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+/* Skeleton Loading */
+.skeleton {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.skeletonStats {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--background-dark);
+}
+
+.skeletonGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.skeletonCard {
+  background: var(--background);
+  border: 1px solid var(--background-dark);
+  border-radius: var(--border-radius-md);
+  padding: 1.5rem;
+}
+
+.skeletonHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.skeletonBox {
+  background: linear-gradient(90deg, var(--background-dark) 25%, var(--background-light) 50%, var(--background-dark) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 4px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .reviewsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .ratingNumber {
+    font-size: 2.5rem;
+  }
+
+  .reviewHeader {
+    flex-direction: column;
+  }
+}

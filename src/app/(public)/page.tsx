@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { TestimonialsCarousel } from '@/components/static/TestimonialsCarousel';
+import { ReviewsWidget } from '@/components/reviews/ReviewsWidget';
 
 export default function HomePage() {
   return (
@@ -140,8 +140,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* TESTIMONIALS SECTION */}
-      <TestimonialsCarousel />
+      {/* REVIEWS SECTION */}
+      <ReviewsWidget />
 
       {/* CALL-TO-ACTION SECTION */}
       <section className="cta">

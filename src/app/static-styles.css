@@ -850,6 +850,43 @@ header nav ul .nav-action.black-friday a:hover::before {
   line-height: 1.6;
 }
 
+/* Price tag styling for service cards */
+.card .price-tag {
+  display: inline-block;
+  background: var(--primary-blue-subtle);
+  color: var(--primary-blue-dark);
+  padding: 0.4rem 1rem;
+  border-radius: var(--border-radius-sm);
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+/* Clickable service cards */
+.card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.card-link .card {
+  cursor: pointer;
+}
+
+.card-link:hover .card {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-blue);
+}
+
+.card-link .card h3 {
+  transition: var(--transition-fast);
+}
+
+.card-link:hover .card h3 {
+  color: var(--primary-blue);
+}
+
 /* ================================================
    10. NUMBERED BENEFITS SECTION (NEW)
    Display benefits with large numbers (like Tech Junkies)

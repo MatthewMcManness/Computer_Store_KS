@@ -108,3 +108,6 @@ export interface WeeklyHours {
   saturday: BusinessHours;
   sunday: BusinessHours;
 }
+
+// Re-export Google Business types
+export * from './google-business';

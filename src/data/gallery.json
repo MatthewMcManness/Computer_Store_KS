@@ -5,7 +5,7 @@
       "name": "Okinos Blackout",
       "type": "desktop",
       "category": "refurbished",
-      "price": "850",
+      "price": "$850",
       "image": "/assets/gallery/computer-1.jpg",
       "specs": [
         {
@@ -279,7 +279,7 @@
       }
     }
   ],
-  "lastUpdated": "2025-12-05T20:38:07.357Z",
+  "lastUpdated": "2025-12-05T20:38:23.481Z",
   "version": "1.0.0",
   "globalSale": "black-friday"
 }

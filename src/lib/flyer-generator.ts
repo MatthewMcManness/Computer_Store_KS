@@ -339,7 +339,7 @@ const LOGO_DATA_URL = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ
 const GRAPHICS_ICON_SVG = `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#081e5b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 12h.01M10 12h.01M14 12h.01M18 12h.01"/><path d="M6 18v2M18 18v2"/></svg>`;
 
 function generateDesktopSpecs(specs: GallerySpec[]): string {
-  const graphics = getSpec(specs, 'Graphics', 'GPU', 'Video Card');
+  const graphics = getSpec(specs, 'Graphics', 'Graphics Card', 'GPU', 'Video Card');
   const processor = getSpec(specs, 'Processor', 'CPU');
   const memory = getSpec(specs, 'Memory', 'RAM');
   const storage = getSpec(specs, 'Storage', 'SSD', 'HDD', 'Hard Drive');
@@ -379,10 +379,48 @@ function generateDesktopSpecs(specs: GallerySpec[]): string {
 }
 
 function generateLaptopSpecs(specs: GallerySpec[]): string {
-  const display = getSpec(specs, 'Display', 'Screen', 'Screen Size');
+  const display = getSpec(specs, 'Display', 'Display Size', 'Screen', 'Screen Size');
   const processor = getSpec(specs, 'Processor', 'CPU');
   const memory = getSpec(specs, 'Memory', 'RAM');
   const storage = getSpec(specs, 'Storage', 'SSD', 'HDD', 'Hard Drive');
+  const graphics = getSpec(specs, 'Graphics', 'Graphics Card', 'GPU', 'Video Card');
+
+  // If laptop has a dedicated graphics card, show 5 specs in a different layout
+  if (graphics) {
+    return `
+    <div class="specs-grid">
+        <div class="spec-card">
+            <div class="spec-icon">💻</div>
+            <div class="spec-title">Display</div>
+            <div class="spec-detail">${display || 'N/A'}</div>
+        </div>
+        <div class="spec-card">
+            <div class="spec-icon">🧠</div>
+            <div class="spec-title">Processor</div>
+            <div class="spec-detail">${processor || 'N/A'}</div>
+        </div>
+        <div class="spec-card">
+            <div class="spec-icon">
+                ${GRAPHICS_ICON_SVG}
+            </div>
+            <div class="spec-title">Graphics</div>
+            <div class="spec-detail">${graphics}</div>
+        </div>
+        <div class="spec-card">
+            <div class="spec-icon">⚡</div>
+            <div class="spec-title">Memory</div>
+            <div class="spec-detail">${memory || 'N/A'}</div>
+        </div>
+    </div>
+    <div class="specs-grid" style="grid-template-columns: 1fr; max-width: 50%; margin: 0 auto;">
+        <div class="spec-card">
+            <div class="spec-icon">💾</div>
+            <div class="spec-title">Storage</div>
+            <div class="spec-detail">${storage || 'N/A'}</div>
+        </div>
+    </div>
+    `;
+  }
 
   return `
     <div class="specs-grid">

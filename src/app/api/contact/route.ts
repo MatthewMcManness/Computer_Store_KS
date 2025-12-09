@@ -19,6 +19,22 @@ const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
 const MAX_REQUESTS = 10; // 10 requests per minute
 
+// Interaction tracking schema
+const interactionSchema = z.object({
+  score: z.number(),
+  maxScore: z.number(),
+  isHumanLike: z.boolean(),
+  spamScore: z.number(),
+}).optional();
+
+// Browser fingerprint schema
+const fingerprintSchema = z.object({
+  visitorId: z.string(),
+  confidence: z.number(),
+  simpleFingerprint: z.string(),
+  spamScore: z.number(),
+}).optional();
+
 // Contact form validation schema
 const contactFormSchema = z.object({
   name: z
@@ -52,6 +68,12 @@ const contactFormSchema = z.object({
   _hp_email2: z.string().optional(),  // Honeypot 1
   _hp_phone_confirm: z.string().optional(),  // Honeypot 2
   _hp_url: z.string().optional(),  // Honeypot 3
+  // Turnstile token
+  _turnstile: z.string().optional(),
+  // Interaction tracking data
+  _interaction: interactionSchema,
+  // Browser fingerprint data
+  _fingerprint: fingerprintSchema,
 });
 
 type ContactFormData = z.infer<typeof contactFormSchema>;
@@ -177,10 +199,16 @@ export async function POST(request: NextRequest) {
       _hp_email2: formData._hp_email2,
       _hp_phone_confirm: formData._hp_phone_confirm,
       _hp_url: formData._hp_url,
+      // Turnstile token
+      _turnstile: formData._turnstile,
+      // Interaction tracking
+      _interaction: formData._interaction,
+      // Browser fingerprint
+      _fingerprint: formData._fingerprint,
     };
 
-    // Calculate spam score
-    const spamResult = calculateSpamScore(spamDetectionData, request.headers);
+    // Calculate spam score (async for Turnstile verification)
+    const spamResult = await calculateSpamScore(spamDetectionData, request.headers, ip);
 
     // Log spam score for monitoring
     console.log(JSON.stringify({

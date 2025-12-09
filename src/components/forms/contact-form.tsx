@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { Turnstile } from '@marsidev/react-turnstile';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -9,6 +10,8 @@ import { Button } from '@/components/ui/button';
 import { BUSINESS_INFO } from '@/lib/constants';
 import { Send, CheckCircle, AlertCircle, Clock } from 'lucide-react';
 import { useBotProtection } from '@/hooks/useBotProtection';
+import { useInteractionTracking } from '@/hooks/useInteractionTracking';
+import { useFingerprint, getSimpleFingerprint } from '@/hooks/useFingerprint';
 
 interface FormData {
   name: string;
@@ -47,9 +50,15 @@ const subjectOptions = [
   { value: 'Other', label: 'Other' },
 ];
 
+// Turnstile site key (use test key in development)
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'; // Test key
+
 export function ContactForm() {
   const { timing, honeypotFields } = useBotProtection();
+  const { getInteractionScore } = useInteractionTracking();
+  const { fingerprint, getFingerprintSpamScore } = useFingerprint();
   const [honeypots, setHoneypots] = React.useState(honeypotFields);
+  const [turnstileToken, setTurnstileToken] = React.useState<string>('');
 
   const [formData, setFormData] = React.useState<FormData>({
     name: '',
@@ -125,6 +134,11 @@ export function ContactForm() {
     setSubmitStatus('idle');
     setErrorMessage('');
 
+    // Gather client-side bot detection data
+    const interactionScore = getInteractionScore();
+    const fingerprintSpamScore = getFingerprintSpamScore();
+    const simpleFingerprint = getSimpleFingerprint();
+
     try {
       const response = await fetch('/api/contact', {
         method: 'POST',
@@ -133,10 +147,28 @@ export function ContactForm() {
         },
         body: JSON.stringify({
           ...formData,
+          // Timing data
           _timing: timing,
+          // Honeypot fields
           _hp_email2: honeypots._hp_email2,
           _hp_phone_confirm: honeypots._hp_phone_confirm,
           _hp_url: honeypots._hp_url,
+          // Turnstile token
+          _turnstile: turnstileToken,
+          // Interaction tracking
+          _interaction: {
+            score: interactionScore.score,
+            maxScore: interactionScore.maxScore,
+            isHumanLike: interactionScore.isHumanLike,
+            spamScore: interactionScore.spamScore,
+          },
+          // Browser fingerprint
+          _fingerprint: {
+            visitorId: fingerprint.visitorId,
+            confidence: fingerprint.confidence,
+            simpleFingerprint,
+            spamScore: fingerprintSpamScore,
+          },
         }),
       });
 
@@ -174,6 +206,7 @@ export function ContactForm() {
         message: '',
         website: '',
       });
+      setTurnstileToken(''); // Reset Turnstile
     } catch (error) {
       console.error('Form submission error:', error);
       setSubmitStatus('error');
@@ -333,6 +366,20 @@ export function ContactForm() {
             rows={5}
             disabled={isSubmitting}
           />
+
+          {/* Cloudflare Turnstile - Invisible CAPTCHA */}
+          <div className="flex justify-center">
+            <Turnstile
+              siteKey={TURNSTILE_SITE_KEY}
+              onSuccess={(token) => setTurnstileToken(token)}
+              onError={() => setTurnstileToken('')}
+              onExpire={() => setTurnstileToken('')}
+              options={{
+                theme: 'light',
+                size: 'invisible',
+              }}
+            />
+          </div>
 
           <Button
             type="submit"

@@ -1,6 +1,6 @@
 import { test, expect, describe } from 'bun:test';
 import {
-  calculateSpamScore,
+  calculateSpamScoreSync,
   analyzeContent,
   validateTiming,
   checkHoneypots,
@@ -18,7 +18,7 @@ class MockHeaders extends Headers {
     this.map = new Map(Object.entries(init));
   }
 
-  get(name: string): string | null {
+  override get(name: string): string | null {
     return this.map.get(name.toLowerCase()) || null;
   }
 }
@@ -114,9 +114,9 @@ describe('Spam Detection Module', () => {
         referer: 'https://example.com/contact',
       });
 
-      const result = calculateSpamScore(data, headers);
+      const result = calculateSpamScoreSync(data, headers);
 
-      expect(result.score).toBeLessThan(40);
+      expect(result.score).toBeLessThan(50);
       expect(result.action).toBe('allow');
       expect(result.breakdown.content).toBeLessThan(15);
       expect(result.breakdown.timing).toBe(0);
@@ -136,7 +136,7 @@ describe('Spam Detection Module', () => {
         'user-agent': 'Mozilla/5.0',
       });
 
-      const result = calculateSpamScore(data, headers);
+      const result = calculateSpamScoreSync(data, headers);
 
       expect(result.score).toBeGreaterThan(40);
       expect(result.action).not.toBe('allow');
@@ -156,7 +156,7 @@ describe('Spam Detection Module', () => {
         'user-agent': 'Python/3.9',
       });
 
-      const result = calculateSpamScore(data, headers);
+      const result = calculateSpamScoreSync(data, headers);
 
       expect(result.score).toBeGreaterThanOrEqual(50);
       expect(result.breakdown.honeypot).toBe(50);
@@ -177,7 +177,7 @@ describe('Spam Detection Module', () => {
         'accept-language': 'en-US,en;q=0.9',
       });
 
-      const result = calculateSpamScore(data, headers);
+      const result = calculateSpamScoreSync(data, headers);
 
       expect(result.breakdown.timing).toBeGreaterThan(10);
     });
@@ -195,12 +195,12 @@ describe('Spam Detection Module', () => {
         'user-agent': 'curl/7.68.0',
       });
 
-      const result = calculateSpamScore(data, headers);
+      const result = calculateSpamScoreSync(data, headers);
 
       expect(result.breakdown.fingerprint).toBeGreaterThan(0);
     });
 
-    test('should cap score at 100', () => {
+    test('should produce high score for obvious spam', () => {
       const data = {
         name: 'Mega Bot',
         email: 'megabot@example.com',
@@ -214,16 +214,17 @@ describe('Spam Detection Module', () => {
         'user-agent': 'bot',
       });
 
-      const result = calculateSpamScore(data, headers);
+      const result = calculateSpamScoreSync(data, headers);
 
-      expect(result.score).toBeLessThanOrEqual(100);
+      expect(result.score).toBeGreaterThan(SPAM_THRESHOLDS.BLOCK_SCORE);
     });
   });
 
   describe('SPAM_THRESHOLDS', () => {
     test('should have correct threshold values', () => {
-      expect(SPAM_THRESHOLDS.BLOCK_SCORE).toBe(60);
-      expect(SPAM_THRESHOLDS.SILENT_SUCCESS_SCORE).toBe(80);
+      expect(SPAM_THRESHOLDS.BLOCK_SCORE).toBe(80);
+      expect(SPAM_THRESHOLDS.SILENT_SUCCESS_SCORE).toBe(120);
+      expect(SPAM_THRESHOLDS.LOG_SCORE).toBe(50);
       expect(SPAM_THRESHOLDS.MIN_PAGE_TIME_MS).toBe(3000);
       expect(SPAM_THRESHOLDS.MIN_VALID_WORD_RATIO).toBe(0.3);
       expect(SPAM_THRESHOLDS.MAX_ENTROPY).toBe(4.7);

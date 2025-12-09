@@ -1,65 +1,46 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isAuthenticated } from '@/lib/auth';
-import { getGalleryData, saveGalleryData, isGitHubConfigured } from '@/lib/github';
-import type { GalleryComputer, GalleryData } from '@/types/gallery';
-import fs from 'fs/promises';
-import path from 'path';
-
-// Import gallery data directly for bundling (works in production)
-import initialGalleryData from '@/data/gallery.json';
-
-// Local gallery data path for development
-const LOCAL_GALLERY_PATH = path.join(process.cwd(), 'src/data/gallery.json');
-
-// Get gallery data (local or GitHub)
-async function loadGalleryData(): Promise<GalleryData> {
-  // If GitHub is configured, use it as the source of truth
-  if (isGitHubConfigured()) {
-    return getGalleryData();
-  }
-
-  // In development, try to read from local file for latest changes
-  if (process.env.NODE_ENV === 'development') {
-    try {
-      const content = await fs.readFile(LOCAL_GALLERY_PATH, 'utf-8');
-      return JSON.parse(content);
-    } catch {
-      // Fall back to imported data
-    }
-  }
-
-  // In production without GitHub, use bundled data
-  return initialGalleryData as GalleryData;
-}
-
-// Save gallery data (local or GitHub)
-async function persistGalleryData(data: GalleryData): Promise<void> {
-  // If GitHub is configured, save there (production mode)
-  if (isGitHubConfigured()) {
-    await saveGalleryData(data, 'Update gallery via admin panel');
-    return;
-  }
-
-  // In development, save locally
-  if (process.env.NODE_ENV === 'development') {
-    await fs.writeFile(LOCAL_GALLERY_PATH, JSON.stringify(data, null, 2));
-    return;
-  }
-
-  // In production without GitHub, we can't persist changes
-  // The changes will be lost on restart - GitHub should be configured for production
-  console.warn('[Gallery] Cannot persist data: GitHub not configured in production');
-}
+import {
+  getComputers,
+  getAllComputers,
+  createComputer,
+  parsePrice,
+  isSupabaseConfigured,
+  isSupabaseAdminConfigured,
+} from '@/lib/supabase';
+import type { GallerySpec } from '@/types/gallery';
 
 // GET /api/gallery - Get all computers
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const data = await loadGalleryData();
+    if (!isSupabaseConfigured()) {
+      return NextResponse.json(
+        { success: false, error: 'Database not configured' },
+        { status: 503 }
+      );
+    }
+
+    // Check if admin mode requested
+    const { searchParams } = new URL(request.url);
+    const isAdmin = searchParams.get('admin') === 'true';
+
+    let computers;
+    if (isAdmin) {
+      const authenticated = await isAuthenticated();
+      if (!authenticated) {
+        return NextResponse.json(
+          { success: false, error: 'Unauthorized' },
+          { status: 401 }
+        );
+      }
+      computers = await getAllComputers();
+    } else {
+      computers = await getComputers();
+    }
 
     return NextResponse.json({
       success: true,
-      data: data.computers,
-      lastUpdated: data.lastUpdated,
+      data: computers,
     });
   } catch (error) {
     console.error('Error loading gallery:', error);
@@ -82,36 +63,44 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (!isSupabaseAdminConfigured()) {
+      return NextResponse.json(
+        { success: false, error: 'Database admin not configured' },
+        { status: 503 }
+      );
+    }
+
     const body = await request.json();
-    const computerData: Omit<GalleryComputer, 'id'> = body;
 
     // Validate required fields
-    if (!computerData.name || !computerData.type || !computerData.category || !computerData.price) {
+    if (!body.name || !body.type || !body.category || !body.price) {
       return NextResponse.json(
         { success: false, error: 'Missing required fields' },
         { status: 400 }
       );
     }
 
-    // Load current data
-    const data = await loadGalleryData();
+    // Parse price from string to number
+    const priceValue = typeof body.price === 'string'
+      ? parsePrice(body.price)
+      : body.price;
 
-    // Generate new ID
-    const newId = data.computers.length > 0
-      ? Math.max(...data.computers.map(c => c.id)) + 1
-      : 1;
+    const newComputer = await createComputer({
+      name: body.name,
+      type: body.type,
+      category: body.category,
+      price: priceValue,
+      image_url: body.image || body.image_url || null,
+      specs: (body.specs || []) as GallerySpec[],
+      sort_order: body.sort_order || 0,
+    });
 
-    const newComputer: GalleryComputer = {
-      ...computerData,
-      id: newId,
-    };
-
-    // Add to computers array
-    data.computers.push(newComputer);
-    data.lastUpdated = new Date().toISOString();
-
-    // Save data
-    await persistGalleryData(data);
+    if (!newComputer) {
+      return NextResponse.json(
+        { success: false, error: 'Failed to create computer' },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       success: true,

@@ -10,14 +10,14 @@ import { generateFlyer } from '@/lib/flyer-generator';
 
 interface GalleryTableProps {
   computers: GalleryComputer[];
-  onDelete?: (id: number) => void;
+  onDelete?: (id: string) => void;
   isLoading?: boolean;
 }
 
 export function GalleryTable({ computers, onDelete, isLoading }: GalleryTableProps) {
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  const handleDelete = async (id: number, name: string) => {
+  const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Are you sure you want to delete "${name}"?`)) {
       return;
     }

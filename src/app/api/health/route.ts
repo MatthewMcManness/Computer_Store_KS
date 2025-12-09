@@ -1,18 +1,13 @@
 import { NextResponse } from 'next/server';
-import { isGitHubConfigured, getGitHubConfig } from '@/lib/github';
+import { isGitHubConfigured } from '@/lib/github';
+import { isSupabaseConfigured } from '@/lib/supabase';
 
 // GET /api/health - Health check endpoint
 export async function GET() {
-  const config = getGitHubConfig();
-
   return NextResponse.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
+    supabaseConnected: isSupabaseConfigured(),
     githubConnected: isGitHubConfigured(),
-    githubConfig: {
-      owner: config.owner,
-      repo: config.repo,
-      branch: config.branch,
-    },
   });
 }

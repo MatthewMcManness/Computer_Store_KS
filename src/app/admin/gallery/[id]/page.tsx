@@ -1,24 +1,9 @@
 import { redirect, notFound } from 'next/navigation';
 import { isAuthenticated } from '@/lib/auth';
 import { ComputerForm } from '@/components/admin';
-import type { GalleryComputer, GalleryData } from '@/types/gallery';
+import { getComputerByIdAdmin, isSupabaseAdminConfigured } from '@/lib/supabase';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import fs from 'fs/promises';
-import path from 'path';
-
-async function getComputer(id: string): Promise<GalleryComputer | null> {
-  try {
-    const filePath = path.join(process.cwd(), 'src/data/gallery.json');
-    const content = await fs.readFile(filePath, 'utf-8');
-    const data: GalleryData = JSON.parse(content);
-
-    const computerId = parseInt(id);
-    return data.computers.find(c => c.id === computerId) || null;
-  } catch {
-    return null;
-  }
-}
 
 export default async function EditComputerPage({
   params,
@@ -32,7 +17,22 @@ export default async function EditComputerPage({
   }
 
   const { id } = await params;
-  const computer = await getComputer(id);
+
+  // Validate UUID format
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!uuidRegex.test(id)) {
+    notFound();
+  }
+
+  if (!isSupabaseAdminConfigured()) {
+    return (
+      <div className="rounded-xl bg-red-50 p-6">
+        <p className="text-red-700">Database not configured. Please check your environment variables.</p>
+      </div>
+    );
+  }
+
+  const computer = await getComputerByIdAdmin(id);
 
   if (!computer) {
     notFound();

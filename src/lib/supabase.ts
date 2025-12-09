@@ -495,3 +495,437 @@ export async function isSlugAvailable(slug: string, excludeId?: string): Promise
   const { data } = await query;
   return !data || data.length === 0;
 }
+
+// =============================================================================
+// Gallery Type Definitions
+// =============================================================================
+
+export interface GallerySpec {
+  label: string;
+  value: string;
+}
+
+export interface BlackFridayData {
+  enabled: boolean;
+  originalPrice: string;
+  salePrice: string;
+  discount: number;
+  originalPartsWarranty?: string;
+  originalFreeDiagnostics?: string;
+}
+
+export interface GalleryComputerDB {
+  id: string;
+  name: string;
+  type: 'desktop' | 'laptop';
+  category: 'refurbished' | 'custom' | 'new';
+  price: number;
+  image_url: string | null;
+  specs: GallerySpec[];
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface GalleryComputer {
+  id: string;
+  name: string;
+  type: 'desktop' | 'laptop';
+  category: 'refurbished' | 'custom' | 'new';
+  price: string;
+  image: string;
+  specs: GallerySpec[];
+  blackFriday?: BlackFridayData;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface GallerySale {
+  id: string;
+  sale_type: string;
+  name: string;
+  discount_percent: number;
+  applies_to: string[];
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface CreateComputerInput {
+  name: string;
+  type: 'desktop' | 'laptop';
+  category: 'refurbished' | 'custom' | 'new';
+  price: number;
+  image_url?: string;
+  specs?: GallerySpec[];
+  sort_order?: number;
+}
+
+export interface UpdateComputerInput {
+  name?: string;
+  type?: 'desktop' | 'laptop';
+  category?: 'refurbished' | 'custom' | 'new';
+  price?: number;
+  image_url?: string;
+  specs?: GallerySpec[];
+  is_active?: boolean;
+  sort_order?: number;
+}
+
+// =============================================================================
+// Gallery Helper Functions
+// =============================================================================
+
+/**
+ * Format price number to string (e.g., 850 -> "$850.00")
+ */
+function formatPrice(price: number): string {
+  return `$${price.toFixed(2)}`;
+}
+
+/**
+ * Parse price string to number (e.g., "$850.00" -> 850)
+ */
+export function parsePrice(price: string): number {
+  return parseFloat(price.replace(/[$,]/g, '')) || 0;
+}
+
+/**
+ * Apply sale pricing to a computer if eligible
+ */
+function applySalePricing(
+  computer: GalleryComputerDB,
+  activeSale: GallerySale | null
+): GalleryComputer {
+  const baseComputer: GalleryComputer = {
+    id: computer.id,
+    name: computer.name,
+    type: computer.type,
+    category: computer.category,
+    price: formatPrice(computer.price),
+    image: computer.image_url || '',
+    specs: computer.specs || [],
+    created_at: computer.created_at,
+    updated_at: computer.updated_at,
+  };
+
+  // Check if sale applies to this computer
+  if (
+    activeSale &&
+    activeSale.sale_type !== 'none' &&
+    activeSale.discount_percent > 0 &&
+    activeSale.applies_to.includes(computer.category)
+  ) {
+    const originalPrice = computer.price;
+    const salePrice = originalPrice * (1 - activeSale.discount_percent / 100);
+
+    baseComputer.blackFriday = {
+      enabled: true,
+      originalPrice: formatPrice(originalPrice),
+      salePrice: formatPrice(salePrice),
+      discount: activeSale.discount_percent,
+    };
+  }
+
+  return baseComputer;
+}
+
+// =============================================================================
+// Gallery Functions (Public)
+// =============================================================================
+
+/**
+ * Get the currently active sale
+ */
+export async function getActiveSale(): Promise<GallerySale | null> {
+  if (!supabase) return null;
+
+  const { data, error } = await supabase
+    .from('gallery_sales')
+    .select('*')
+    .eq('is_active', true)
+    .single();
+
+  if (error) {
+    // No active sale or error - return null
+    return null;
+  }
+
+  return data;
+}
+
+/**
+ * Get all available sales
+ */
+export async function getAvailableSales(): Promise<GallerySale[]> {
+  if (!supabase) return [];
+
+  const { data, error } = await supabase
+    .from('gallery_sales')
+    .select('*')
+    .order('sale_type');
+
+  if (error) {
+    console.error('Error fetching available sales:', error);
+    return [];
+  }
+
+  return data || [];
+}
+
+/**
+ * Get all active computers with sale pricing applied (Public)
+ */
+export async function getComputers(): Promise<GalleryComputer[]> {
+  if (!supabase) return [];
+
+  // Get active sale first
+  const activeSale = await getActiveSale();
+
+  const { data, error } = await supabase
+    .from('gallery_computers')
+    .select('*')
+    .eq('is_active', true)
+    .order('sort_order')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching computers:', error);
+    return [];
+  }
+
+  // Apply sale pricing to each computer
+  return (data || []).map((computer) => applySalePricing(computer, activeSale));
+}
+
+/**
+ * Get a single computer by ID (Public)
+ */
+export async function getComputerById(id: string): Promise<GalleryComputer | null> {
+  if (!supabase) return null;
+
+  // Get active sale first
+  const activeSale = await getActiveSale();
+
+  const { data, error } = await supabase
+    .from('gallery_computers')
+    .select('*')
+    .eq('id', id)
+    .eq('is_active', true)
+    .single();
+
+  if (error) {
+    console.error('Error fetching computer by ID:', error);
+    return null;
+  }
+
+  return applySalePricing(data, activeSale);
+}
+
+// =============================================================================
+// Gallery Functions (Admin)
+// =============================================================================
+
+/**
+ * Get all computers including inactive (Admin)
+ */
+export async function getAllComputers(): Promise<GalleryComputer[]> {
+  if (!supabaseAdmin) return [];
+
+  // Get active sale first
+  const activeSale = await getActiveSaleAdmin();
+
+  const { data, error } = await supabaseAdmin
+    .from('gallery_computers')
+    .select('*')
+    .order('sort_order')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching all computers:', error);
+    return [];
+  }
+
+  return (data || []).map((computer) => applySalePricing(computer, activeSale));
+}
+
+/**
+ * Get active sale (Admin - bypasses RLS)
+ */
+export async function getActiveSaleAdmin(): Promise<GallerySale | null> {
+  if (!supabaseAdmin) return null;
+
+  const { data, error } = await supabaseAdmin
+    .from('gallery_sales')
+    .select('*')
+    .eq('is_active', true)
+    .single();
+
+  if (error) {
+    return null;
+  }
+
+  return data;
+}
+
+/**
+ * Get a single computer by ID including inactive (Admin)
+ */
+export async function getComputerByIdAdmin(id: string): Promise<GalleryComputer | null> {
+  if (!supabaseAdmin) return null;
+
+  const activeSale = await getActiveSaleAdmin();
+
+  const { data, error } = await supabaseAdmin
+    .from('gallery_computers')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (error) {
+    console.error('Error fetching computer by ID (admin):', error);
+    return null;
+  }
+
+  return applySalePricing(data, activeSale);
+}
+
+/**
+ * Create a new computer (Admin)
+ */
+export async function createComputer(input: CreateComputerInput): Promise<GalleryComputer | null> {
+  if (!supabaseAdmin) return null;
+
+  const { data, error } = await supabaseAdmin
+    .from('gallery_computers')
+    .insert({
+      name: input.name,
+      type: input.type,
+      category: input.category,
+      price: input.price,
+      image_url: input.image_url || null,
+      specs: input.specs || [],
+      sort_order: input.sort_order || 0,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error creating computer:', error);
+    return null;
+  }
+
+  const activeSale = await getActiveSaleAdmin();
+  return applySalePricing(data, activeSale);
+}
+
+/**
+ * Update a computer (Admin)
+ */
+export async function updateComputer(
+  id: string,
+  input: UpdateComputerInput
+): Promise<GalleryComputer | null> {
+  if (!supabaseAdmin) return null;
+
+  const { data, error } = await supabaseAdmin
+    .from('gallery_computers')
+    .update(input)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error updating computer:', error);
+    return null;
+  }
+
+  const activeSale = await getActiveSaleAdmin();
+  return applySalePricing(data, activeSale);
+}
+
+/**
+ * Delete a computer (soft delete - sets is_active to false) (Admin)
+ */
+export async function deleteComputer(id: string): Promise<boolean> {
+  if (!supabaseAdmin) return false;
+
+  const { error } = await supabaseAdmin
+    .from('gallery_computers')
+    .update({ is_active: false })
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error deleting computer:', error);
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Permanently delete a computer (Admin)
+ */
+export async function hardDeleteComputer(id: string): Promise<boolean> {
+  if (!supabaseAdmin) return false;
+
+  const { error } = await supabaseAdmin
+    .from('gallery_computers')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error hard deleting computer:', error);
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Set the active sale (Admin)
+ * Deactivates all other sales and activates the specified one
+ */
+export async function setActiveSale(saleType: string): Promise<GallerySale | null> {
+  if (!supabaseAdmin) return null;
+
+  // Deactivate all sales first
+  await supabaseAdmin
+    .from('gallery_sales')
+    .update({ is_active: false })
+    .neq('sale_type', '');
+
+  // Activate the specified sale
+  const { data, error } = await supabaseAdmin
+    .from('gallery_sales')
+    .update({ is_active: true })
+    .eq('sale_type', saleType)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error setting active sale:', error);
+    return null;
+  }
+
+  return data;
+}
+
+/**
+ * Get all available sales (Admin)
+ */
+export async function getAvailableSalesAdmin(): Promise<GallerySale[]> {
+  if (!supabaseAdmin) return [];
+
+  const { data, error } = await supabaseAdmin
+    .from('gallery_sales')
+    .select('*')
+    .order('sale_type');
+
+  if (error) {
+    console.error('Error fetching available sales (admin):', error);
+    return [];
+  }
+
+  return data || [];
+}

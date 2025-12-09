@@ -2,28 +2,35 @@ import { redirect } from 'next/navigation';
 import { isAuthenticated } from '@/lib/auth';
 import Link from 'next/link';
 import { Image, Plus, Settings, TrendingUp } from 'lucide-react';
-import { isGitHubConfigured, getGitHubConfig } from '@/lib/github';
+import { isGitHubConfigured } from '@/lib/github';
+import { getAllComputers, isSupabaseConfigured, getActiveSaleAdmin } from '@/lib/supabase';
 import { SaleDropdown } from '@/components/admin';
-import fs from 'fs/promises';
-import path from 'path';
 
 async function getGalleryStats() {
   try {
-    const filePath = path.join(process.cwd(), 'src/data/gallery.json');
-    const content = await fs.readFile(filePath, 'utf-8');
-    const data = JSON.parse(content);
+    if (!isSupabaseConfigured()) {
+      return {
+        total: 0,
+        desktops: 0,
+        laptops: 0,
+        blackFriday: 0,
+        lastUpdated: null,
+      };
+    }
 
-    const computers = data.computers || [];
-    const desktops = computers.filter((c: { type: string }) => c.type === 'desktop').length;
-    const laptops = computers.filter((c: { type: string }) => c.type === 'laptop').length;
-    const blackFriday = computers.filter((c: { blackFriday?: { enabled: boolean } }) => c.blackFriday?.enabled).length;
+    const computers = await getAllComputers();
+    const activeSale = await getActiveSaleAdmin();
+
+    const desktops = computers.filter(c => c.type === 'desktop').length;
+    const laptops = computers.filter(c => c.type === 'laptop').length;
+    const blackFriday = computers.filter(c => c.blackFriday?.enabled).length;
 
     return {
       total: computers.length,
       desktops,
       laptops,
       blackFriday,
-      lastUpdated: data.lastUpdated,
+      activeSale: activeSale?.name || 'No Sale',
     };
   } catch {
     return {
@@ -31,7 +38,7 @@ async function getGalleryStats() {
       desktops: 0,
       laptops: 0,
       blackFriday: 0,
-      lastUpdated: null,
+      activeSale: null,
     };
   }
 }
@@ -44,7 +51,8 @@ export default async function AdminDashboardPage() {
   }
 
   const stats = await getGalleryStats();
-  const githubConfig = getGitHubConfig();
+  const githubConnected = isGitHubConfigured();
+  const supabaseConnected = isSupabaseConfigured();
 
   return (
     <div>
@@ -103,7 +111,7 @@ export default async function AdminDashboardPage() {
         <div className="rounded-xl bg-white p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500">Black Friday</p>
+              <p className="text-sm text-gray-500">On Sale</p>
               <p className="mt-1 text-3xl font-bold text-gray-900">{stats.blackFriday}</p>
             </div>
             <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-red-100">
@@ -166,37 +174,31 @@ export default async function AdminDashboardPage() {
         <div className="rounded-xl bg-white p-6 shadow-sm">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-gray-600">GitHub Integration</span>
+              <span className="text-gray-600">Database (Supabase)</span>
               <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${
-                githubConfig.configured
+                supabaseConnected
                   ? 'bg-green-100 text-green-800'
                   : 'bg-yellow-100 text-yellow-800'
               }`}>
-                {githubConfig.configured ? 'Connected' : 'Not Configured'}
+                {supabaseConnected ? 'Connected' : 'Not Configured'}
               </span>
             </div>
 
-            {githubConfig.configured && (
-              <>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Repository</span>
-                  <span className="text-sm text-gray-900">
-                    {githubConfig.owner}/{githubConfig.repo}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Branch</span>
-                  <span className="text-sm text-gray-900">{githubConfig.branch}</span>
-                </div>
-              </>
-            )}
+            <div className="flex items-center justify-between">
+              <span className="text-gray-600">Image Storage (GitHub)</span>
+              <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${
+                githubConnected
+                  ? 'bg-green-100 text-green-800'
+                  : 'bg-yellow-100 text-yellow-800'
+              }`}>
+                {githubConnected ? 'Connected' : 'Not Configured'}
+              </span>
+            </div>
 
-            {stats.lastUpdated && (
+            {stats.activeSale && (
               <div className="flex items-center justify-between">
-                <span className="text-gray-600">Last Updated</span>
-                <span className="text-sm text-gray-900">
-                  {new Date(stats.lastUpdated).toLocaleString()}
-                </span>
+                <span className="text-gray-600">Active Sale</span>
+                <span className="text-sm text-gray-900">{stats.activeSale}</span>
               </div>
             )}
           </div>

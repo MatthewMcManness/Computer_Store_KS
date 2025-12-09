@@ -14,7 +14,7 @@ export interface BlackFridayData {
 }
 
 export interface GalleryComputer {
-  id: number;
+  id: string; // UUID from Supabase
   name: string;
   type: 'desktop' | 'laptop';
   category: 'custom' | 'refurbished' | 'new';
@@ -22,6 +22,8 @@ export interface GalleryComputer {
   image: string;
   specs: GallerySpec[];
   blackFriday?: BlackFridayData;
+  created_at?: string;
+  updated_at?: string;
 }
 
 // Sale types for global sale dropdown
@@ -34,11 +36,24 @@ export interface SaleConfig {
 }
 
 // Available sales - extend this array to add more sales
+// Note: These must match the gallery_sales table in Supabase
 export const AVAILABLE_SALES: SaleConfig[] = [
   { type: 'none', name: 'No Sale', discount: 0 },
   { type: 'black-friday', name: 'Black Friday (10% off)', discount: 10 },
 ];
 
+// Database sale type from Supabase
+export interface GallerySale {
+  id: string;
+  sale_type: string;
+  name: string;
+  discount_percent: number;
+  applies_to: string[];
+  is_active: boolean;
+  created_at: string;
+}
+
+// Legacy GalleryData type - kept for migration script compatibility
 export interface GalleryData {
   computers: GalleryComputer[];
   lastUpdated: string;
@@ -61,13 +76,6 @@ export interface ImageUploadResponse {
   url: string;
 }
 
-export interface PublishResponse {
-  success: boolean;
-  message: string;
-  commitSha?: string;
-  commitUrl?: string;
-}
-
 // Form data for creating/editing computers
 export interface ComputerFormData {
   name: string;
@@ -76,4 +84,26 @@ export interface ComputerFormData {
   price: string;
   image: string;
   specs: GallerySpec[];
+}
+
+// Input types for Supabase operations
+export interface CreateComputerInput {
+  name: string;
+  type: 'desktop' | 'laptop';
+  category: 'refurbished' | 'custom' | 'new';
+  price: number;
+  image_url?: string;
+  specs?: GallerySpec[];
+  sort_order?: number;
+}
+
+export interface UpdateComputerInput {
+  name?: string;
+  type?: 'desktop' | 'laptop';
+  category?: 'refurbished' | 'custom' | 'new';
+  price?: number;
+  image_url?: string;
+  specs?: GallerySpec[];
+  is_active?: boolean;
+  sort_order?: number;
 }

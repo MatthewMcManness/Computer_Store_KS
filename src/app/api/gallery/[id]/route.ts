@@ -1,54 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isAuthenticated } from '@/lib/auth';
-import { getGalleryData, saveGalleryData, isGitHubConfigured } from '@/lib/github';
-import type { GalleryComputer, GalleryData } from '@/types/gallery';
-import fs from 'fs/promises';
-import path from 'path';
-
-// Import gallery data directly for bundling (works in production)
-import initialGalleryData from '@/data/gallery.json';
-
-// Local gallery data path
-const LOCAL_GALLERY_PATH = path.join(process.cwd(), 'src/data/gallery.json');
-
-// Get gallery data
-async function loadGalleryData(): Promise<GalleryData> {
-  // If GitHub is configured, use it as the source of truth
-  if (isGitHubConfigured()) {
-    return getGalleryData();
-  }
-
-  // In development, try to read from local file for latest changes
-  if (process.env.NODE_ENV === 'development') {
-    try {
-      const content = await fs.readFile(LOCAL_GALLERY_PATH, 'utf-8');
-      return JSON.parse(content);
-    } catch {
-      // Fall back to imported data
-    }
-  }
-
-  // In production without GitHub, use bundled data
-  return initialGalleryData as GalleryData;
-}
-
-// Save gallery data
-async function persistGalleryData(data: GalleryData): Promise<void> {
-  // If GitHub is configured, save there (production mode)
-  if (isGitHubConfigured()) {
-    await saveGalleryData(data, 'Update gallery via admin panel');
-    return;
-  }
-
-  // In development, save locally
-  if (process.env.NODE_ENV === 'development') {
-    await fs.writeFile(LOCAL_GALLERY_PATH, JSON.stringify(data, null, 2));
-    return;
-  }
-
-  // In production without GitHub, we can't persist changes
-  console.warn('[Gallery] Cannot persist data: GitHub not configured in production');
-}
+import {
+  getComputerById,
+  getComputerByIdAdmin,
+  updateComputer,
+  deleteComputer,
+  parsePrice,
+  isSupabaseConfigured,
+  isSupabaseAdminConfigured,
+} from '@/lib/supabase';
+import type { GallerySpec } from '@/types/gallery';
 
 // GET /api/gallery/[id] - Get single computer
 export async function GET(
@@ -56,18 +17,41 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
-    const computerId = parseInt(id);
-
-    if (isNaN(computerId)) {
+    if (!isSupabaseConfigured()) {
       return NextResponse.json(
-        { success: false, error: 'Invalid computer ID' },
+        { success: false, error: 'Database not configured' },
+        { status: 503 }
+      );
+    }
+
+    const { id } = await params;
+
+    // Validate UUID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(id)) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid computer ID format' },
         { status: 400 }
       );
     }
 
-    const data = await loadGalleryData();
-    const computer = data.computers.find(c => c.id === computerId);
+    // Check if admin mode requested
+    const { searchParams } = new URL(request.url);
+    const isAdmin = searchParams.get('admin') === 'true';
+
+    let computer;
+    if (isAdmin) {
+      const authenticated = await isAuthenticated();
+      if (!authenticated) {
+        return NextResponse.json(
+          { success: false, error: 'Unauthorized' },
+          { status: 401 }
+        );
+      }
+      computer = await getComputerByIdAdmin(id);
+    } else {
+      computer = await getComputerById(id);
+    }
 
     if (!computer) {
       return NextResponse.json(
@@ -104,56 +88,51 @@ export async function PUT(
       );
     }
 
-    const { id } = await params;
-    const computerId = parseInt(id);
-
-    if (isNaN(computerId)) {
+    if (!isSupabaseAdminConfigured()) {
       return NextResponse.json(
-        { success: false, error: 'Invalid computer ID' },
+        { success: false, error: 'Database admin not configured' },
+        { status: 503 }
+      );
+    }
+
+    const { id } = await params;
+
+    // Validate UUID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(id)) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid computer ID format' },
         { status: 400 }
       );
     }
 
     const body = await request.json();
-    const updateData: Partial<GalleryComputer> = body;
 
-    // Load current data
-    const data = await loadGalleryData();
-    const computerIndex = data.computers.findIndex(c => c.id === computerId);
+    // Build update object
+    const updateData: Record<string, unknown> = {};
 
-    if (computerIndex === -1) {
+    if (body.name !== undefined) updateData.name = body.name;
+    if (body.type !== undefined) updateData.type = body.type;
+    if (body.category !== undefined) updateData.category = body.category;
+    if (body.price !== undefined) {
+      updateData.price = typeof body.price === 'string'
+        ? parsePrice(body.price)
+        : body.price;
+    }
+    if (body.image !== undefined) updateData.image_url = body.image;
+    if (body.image_url !== undefined) updateData.image_url = body.image_url;
+    if (body.specs !== undefined) updateData.specs = body.specs as GallerySpec[];
+    if (body.is_active !== undefined) updateData.is_active = body.is_active;
+    if (body.sort_order !== undefined) updateData.sort_order = body.sort_order;
+
+    const updatedComputer = await updateComputer(id, updateData);
+
+    if (!updatedComputer) {
       return NextResponse.json(
-        { success: false, error: 'Computer not found' },
+        { success: false, error: 'Computer not found or update failed' },
         { status: 404 }
       );
     }
-
-    // Update computer
-    const existingComputer = data.computers[computerIndex];
-    if (!existingComputer) {
-      return NextResponse.json(
-        { success: false, error: 'Computer not found' },
-        { status: 404 }
-      );
-    }
-
-    const updatedComputer: GalleryComputer = {
-      ...existingComputer,
-      ...updateData,
-      id: computerId, // Ensure ID doesn't change
-      name: updateData.name ?? existingComputer.name,
-      type: updateData.type ?? existingComputer.type,
-      category: updateData.category ?? existingComputer.category,
-      price: updateData.price ?? existingComputer.price,
-      image: updateData.image ?? existingComputer.image,
-      specs: updateData.specs ?? existingComputer.specs,
-    };
-
-    data.computers[computerIndex] = updatedComputer;
-    data.lastUpdated = new Date().toISOString();
-
-    // Save data
-    await persistGalleryData(data);
 
     return NextResponse.json({
       success: true,
@@ -169,7 +148,7 @@ export async function PUT(
   }
 }
 
-// DELETE /api/gallery/[id] - Delete computer
+// DELETE /api/gallery/[id] - Delete computer (soft delete)
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -184,33 +163,32 @@ export async function DELETE(
       );
     }
 
-    const { id } = await params;
-    const computerId = parseInt(id);
-
-    if (isNaN(computerId)) {
+    if (!isSupabaseAdminConfigured()) {
       return NextResponse.json(
-        { success: false, error: 'Invalid computer ID' },
+        { success: false, error: 'Database admin not configured' },
+        { status: 503 }
+      );
+    }
+
+    const { id } = await params;
+
+    // Validate UUID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(id)) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid computer ID format' },
         { status: 400 }
       );
     }
 
-    // Load current data
-    const data = await loadGalleryData();
-    const computerIndex = data.computers.findIndex(c => c.id === computerId);
+    const success = await deleteComputer(id);
 
-    if (computerIndex === -1) {
+    if (!success) {
       return NextResponse.json(
-        { success: false, error: 'Computer not found' },
+        { success: false, error: 'Computer not found or delete failed' },
         { status: 404 }
       );
     }
-
-    // Remove computer
-    data.computers.splice(computerIndex, 1);
-    data.lastUpdated = new Date().toISOString();
-
-    // Save data
-    await persistGalleryData(data);
 
     return NextResponse.json({
       success: true,

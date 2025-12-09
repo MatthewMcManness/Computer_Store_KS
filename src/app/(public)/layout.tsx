@@ -2,7 +2,7 @@ import '../static-styles.css';
 import { Header } from '@/components/static/Header';
 import { Footer } from '@/components/static/Footer';
 import { MobileCallButton } from '@/components/ui/mobile-call-button';
-import { ContactWidget } from '@/components/ui/contact-widget';
+import { ChatWidget } from '@/components/ui/chat-widget';
 import Script from 'next/script';
 
 // Force dynamic rendering for all public pages (avoid prerendering issues with client hooks)
@@ -31,7 +31,7 @@ export default function PublicLayout({
       {children}
       <Footer />
       <MobileCallButton />
-      <ContactWidget />
+      <ChatWidget />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{

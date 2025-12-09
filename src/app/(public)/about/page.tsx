@@ -63,7 +63,7 @@ export default function AboutPage() {
         <div className="container">
           <h2>Ready to Experience the Difference?</h2>
           <p>Contact us today to schedule an appointment or drop by our shop. We look forward to serving you.</p>
-          <Link href="/contact" className="btn btn-white">Talk to an Expert</Link>
+          <Link href="/contact" className="btn btn-white">Get Your Free Quote</Link>
         </div>
       </section>
     </>

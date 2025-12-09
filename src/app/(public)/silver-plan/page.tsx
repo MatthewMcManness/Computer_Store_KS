@@ -63,7 +63,7 @@ export default function SilverPlanPage() {
         <div className="container">
           <h2>Ready to Get Protected?</h2>
           <p>Sign up for our Silver Plan today and enjoy comprehensive computer protection.</p>
-          <Link href="/contact" className="btn btn-white">Sign Up Now</Link>
+          <Link href="/contact" className="btn btn-white">Start My Silver Plan</Link>
         </div>
       </section>
     </>

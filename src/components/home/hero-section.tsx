@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Container } from '@/components/layout/container';
 import { Button } from '@/components/ui/button';
 import { BUSINESS_INFO } from '@/lib/constants';
-import { Phone, ArrowRight, CheckCircle } from 'lucide-react';
+import { Phone, ArrowRight, CheckCircle, Wrench } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const highlights = [
@@ -80,17 +80,17 @@ export function HeroSection() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5, duration: 0.4 }}
             >
-              <Link href="/gallery">
+              <Link href="/contact">
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <Button size="lg" variant="primary" rightIcon={<ArrowRight className="h-4 w-4" />}>
-                    Browse Computers
+                  <Button size="lg" variant="primary" leftIcon={<Wrench className="h-4 w-4" />}>
+                    Get a Quote
                   </Button>
                 </motion.div>
               </Link>
               <a href={`tel:${BUSINESS_INFO.phone.replace(/\D/g, '')}`}>
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                   <Button size="lg" variant="outline" leftIcon={<Phone className="h-4 w-4" />}>
-                    {BUSINESS_INFO.phoneFormatted}
+                    Call Now - Same Day Service
                   </Button>
                 </motion.div>
               </a>

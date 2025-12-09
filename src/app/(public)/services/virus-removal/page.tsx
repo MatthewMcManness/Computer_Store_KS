@@ -197,7 +197,7 @@ export default function VirusRemovalPage() {
         <div className="container">
           <h2>Think You&apos;re Infected?</h2>
           <p>Don&apos;t wait—the longer malware sits on your system, the more damage it can do. Bring your computer in and let us clean it up.</p>
-          <Link href="/contact" className="btn btn-white">Get Help Now</Link>
+          <Link href="/contact" className="btn btn-white">Remove My Virus Now</Link>
         </div>
       </section>
     </>

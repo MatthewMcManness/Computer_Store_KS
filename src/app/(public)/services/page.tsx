@@ -150,7 +150,7 @@ export default function ServicesPage() {
         <div className="container">
           <h2>Ready to Get Started?</h2>
           <p>Contact us to discuss your needs or bring your computer in for service.</p>
-          <Link href="/contact" className="btn btn-white">Contact Us</Link>
+          <Link href="/contact" className="btn btn-white">Get Your Free Quote</Link>
         </div>
       </section>
     </>

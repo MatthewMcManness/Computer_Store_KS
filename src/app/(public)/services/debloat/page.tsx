@@ -164,7 +164,7 @@ export default function DebloatPage() {
         <div className="container">
           <h2>Ready for a Cleaner Windows?</h2>
           <p>Bring in your computer and we&apos;ll strip out the bloat. You&apos;ll wonder why you waited so long.</p>
-          <Link href="/contact" className="btn btn-white">Get Started</Link>
+          <Link href="/contact" className="btn btn-white">Speed Up My PC</Link>
         </div>
       </section>
     </>

@@ -155,7 +155,7 @@ export default function DiagnosticsPage() {
         <div className="container">
           <h2>Let&apos;s Find the Problem</h2>
           <p>Bring in your computer and we&apos;ll get to the bottom of it.</p>
-          <Link href="/contact" className="btn btn-white">Get Directions</Link>
+          <Link href="/contact" className="btn btn-white">Schedule a Diagnosis</Link>
         </div>
       </section>
     </>

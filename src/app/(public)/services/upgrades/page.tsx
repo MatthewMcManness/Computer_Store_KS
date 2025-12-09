@@ -185,7 +185,7 @@ export default function UpgradesPage() {
         <div className="container">
           <h2>Ready to Upgrade?</h2>
           <p>Bring in your computer and let&apos;s talk about what upgrades would make the biggest difference for you.</p>
-          <Link href="/contact" className="btn btn-white">Get Started</Link>
+          <Link href="/contact" className="btn btn-white">Upgrade My Computer</Link>
         </div>
       </section>
     </>

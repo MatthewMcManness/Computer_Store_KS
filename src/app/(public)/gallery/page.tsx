@@ -185,7 +185,7 @@ export default function GalleryPage() {
         <div className="container">
           <h2>Interested in a Computer?</h2>
           <p>Contact us to learn more about any of our available systems or to request a custom build.</p>
-          <Link href="/contact" className="btn btn-white">Get in Touch</Link>
+          <Link href="/contact" className="btn btn-white">Ask About This Computer</Link>
         </div>
       </section>
     </>

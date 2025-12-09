@@ -125,7 +125,7 @@ export default function DataServicesPage() {
         <div className="container">
           <h2>Ready to Transfer Your Data?</h2>
           <p>Bring in your old and new devices, or just the drives. We&apos;ll take it from there.</p>
-          <Link href="/contact" className="btn btn-white">Get Started</Link>
+          <Link href="/contact" className="btn btn-white">Transfer My Data</Link>
         </div>
       </section>
     </>

@@ -153,7 +153,7 @@ export default function OSInstallationPage() {
         <div className="container">
           <h2>Ready for a Fresh Start?</h2>
           <p>Bring in your computer and we&apos;ll have it running like new with a clean operating system.</p>
-          <Link href="/contact" className="btn btn-white">Get Started</Link>
+          <Link href="/contact" className="btn btn-white">Install My OS</Link>
         </div>
       </section>
     </>

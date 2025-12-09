@@ -185,7 +185,7 @@ export default function AntivirusPage() {
         <div className="container">
           <h2>Get Protected</h2>
           <p>Bring in your computer and we&apos;ll set you up with the protection you need. Installation, configuration, and support—all handled.</p>
-          <Link href="/contact" className="btn btn-white">Get Started</Link>
+          <Link href="/contact" className="btn btn-white">Protect My Computer</Link>
         </div>
       </section>
     </>

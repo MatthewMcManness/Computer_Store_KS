@@ -69,7 +69,7 @@ export function Header({ className }: HeaderProps) {
             {/* CTA Button - Desktop */}
             <Link href="/contact" className="hidden md:block">
               <Button variant="primary" size="sm">
-                Get a Quote
+                Free Quote
               </Button>
             </Link>
 

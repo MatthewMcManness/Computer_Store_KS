@@ -174,7 +174,7 @@ export default function LaptopsPage() {
         <div className="container">
           <h2>Find Your Perfect Laptop</h2>
           <p>Stop by to see our current selection, or tell us what you need and we&apos;ll help you find it.</p>
-          <Link href="/contact" className="btn btn-white">Get in Touch</Link>
+          <Link href="/contact" className="btn btn-white">Browse Laptops Today</Link>
         </div>
       </section>
     </>

@@ -176,7 +176,7 @@ export default function DesktopsPage() {
         <div className="container">
           <h2>See What&apos;s In Stock</h2>
           <p>Our inventory changes regularly. Stop by to see our current selection of refurbished desktops.</p>
-          <Link href="/contact" className="btn btn-white">Visit Us</Link>
+          <Link href="/contact" className="btn btn-white">Browse Desktops Today</Link>
         </div>
       </section>
     </>

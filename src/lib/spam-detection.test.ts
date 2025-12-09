@@ -4,6 +4,8 @@ import {
   analyzeContent,
   validateTiming,
   checkHoneypots,
+  isGibberish,
+  validateName,
   SPAM_THRESHOLDS,
   type SpamScoreResult,
   type ContentAnalysis,
@@ -229,6 +231,115 @@ describe('Spam Detection Module', () => {
       expect(SPAM_THRESHOLDS.MIN_VALID_WORD_RATIO).toBe(0.3);
       expect(SPAM_THRESHOLDS.MAX_ENTROPY).toBe(4.7);
       expect(SPAM_THRESHOLDS.MIN_ENTROPY).toBe(2.5);
+    });
+  });
+
+  describe('isGibberish', () => {
+    test('should detect random alphanumeric gibberish', () => {
+      const result = isGibberish('gHbduNvoalqsyBvB');
+      expect(result.isGibberish).toBe(true);
+      expect(result.score).toBeGreaterThan(10);
+    });
+
+    test('should detect base64-like strings', () => {
+      const result = isGibberish('CiNYZSmxHzTXjATgzXlW');
+      expect(result.isGibberish).toBe(true);
+      expect(result.score).toBeGreaterThan(15);
+    });
+
+    test('should allow legitimate text', () => {
+      const result = isGibberish('Hello, I need help with my computer');
+      expect(result.isGibberish).toBe(false);
+      expect(result.score).toBeLessThan(10);
+    });
+
+    test('should detect random case mixing', () => {
+      const result = isGibberish('aBcDeFgHiJk');
+      expect(result.score).toBeGreaterThan(10);
+    });
+
+    test('should detect long strings without spaces', () => {
+      const result = isGibberish('thisisaverylongstringwithoutanyspaces');
+      expect(result.score).toBeGreaterThan(5);
+    });
+  });
+
+  describe('validateName', () => {
+    test('should allow normal names', () => {
+      const result = validateName('John Smith');
+      expect(result.score).toBe(0);
+    });
+
+    test('should flag gibberish names', () => {
+      const result = validateName('CiNYZSmxHzTXjATgzXlW');
+      expect(result.score).toBeGreaterThan(20);
+    });
+
+    test('should flag names with numbers', () => {
+      const result = validateName('John123');
+      expect(result.score).toBeGreaterThan(5);
+    });
+
+    test('should flag very long single-word names', () => {
+      const result = validateName('Superlongnamewithoutanyspaces');
+      expect(result.score).toBeGreaterThan(10);
+    });
+
+    test('should slightly flag single word names', () => {
+      const result = validateName('John');
+      expect(result.score).toBe(3); // Minor penalty for no last name
+    });
+  });
+
+  describe('Real spam example - CiNYZSmxHzTXjATgzXlW', () => {
+    test('should INSTANT BLOCK gibberish message with zero valid words', () => {
+      const data = {
+        name: 'CiNYZSmxHzTXjATgzXlW',
+        email: 'klemmerlechicago@gmail.com',
+        phone: '7684791511',
+        subject: 'General' as const,
+        message: 'gHbduNvoalqsyBvB',
+        pageLoadTime: Date.now() - 5000,
+        submitTime: Date.now(),
+      };
+      const headers = new MockHeaders({
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'accept-language': 'en-US,en;q=0.9',
+        referer: 'https://computerstoreks.com/contact',
+      });
+
+      const result = calculateSpamScoreSync(data, headers);
+
+      console.log('Spam score breakdown:', result.breakdown);
+      console.log('Total score:', result.score);
+      console.log('Action:', result.action);
+
+      // Pure gibberish with zero valid words now triggers instant block (200 points)
+      expect(result.breakdown.gibberish).toBe(200);
+      expect(result.score).toBeGreaterThanOrEqual(SPAM_THRESHOLDS.SILENT_SUCCESS_SCORE);
+      expect(result.action).toBe('silent_success');
+    });
+
+    test('should allow legitimate messages even with unusual names', () => {
+      const data = {
+        name: 'Xing Wei', // Unusual name but legitimate
+        email: 'xing@example.com',
+        subject: 'General' as const,
+        message: 'Hello, I need help fixing my laptop screen. It is cracked.',
+        pageLoadTime: Date.now() - 5000,
+        submitTime: Date.now(),
+      };
+      const headers = new MockHeaders({
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'accept-language': 'en-US,en;q=0.9',
+        referer: 'https://computerstoreks.com/contact',
+      });
+
+      const result = calculateSpamScoreSync(data, headers);
+
+      // Should NOT be blocked - message has valid words
+      expect(result.breakdown.gibberish).toBeLessThan(50);
+      expect(result.action).toBe('allow');
     });
   });
 });

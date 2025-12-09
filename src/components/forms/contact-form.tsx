@@ -50,8 +50,8 @@ const subjectOptions = [
   { value: 'Other', label: 'Other' },
 ];
 
-// Turnstile site key (use test key in development)
-const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'; // Test key
+// Turnstile site key - MUST be set in production
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA';
 
 export function ContactForm() {
   const { timing, honeypotFields } = useBotProtection();
@@ -127,6 +127,13 @@ export function ContactForm() {
     e.preventDefault();
 
     if (!validateForm()) {
+      return;
+    }
+
+    // Require Turnstile verification in production
+    if (!turnstileToken && process.env.NODE_ENV === 'production') {
+      setSubmitStatus('error');
+      setErrorMessage('Please complete the security verification.');
       return;
     }
 
@@ -367,7 +374,7 @@ export function ContactForm() {
             disabled={isSubmitting}
           />
 
-          {/* Cloudflare Turnstile - Invisible CAPTCHA */}
+          {/* Cloudflare Turnstile - Managed CAPTCHA */}
           <div className="flex justify-center">
             <Turnstile
               siteKey={TURNSTILE_SITE_KEY}
@@ -376,7 +383,7 @@ export function ContactForm() {
               onExpire={() => setTurnstileToken('')}
               options={{
                 theme: 'light',
-                size: 'invisible',
+                size: 'normal',
               }}
             />
           </div>

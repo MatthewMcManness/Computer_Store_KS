@@ -27,7 +27,7 @@ export interface SpamScoreResult {
   score: number;
   /** Individual signal scores */
   breakdown: {
-    /** Content analysis score (0-30 points) */
+    /** Content analysis score (0-35 points) */
     content: number;
     /** Spam patterns score (0-30 points) */
     patterns: number;
@@ -45,6 +45,10 @@ export interface SpamScoreResult {
     browserFingerprint: number;
     /** Turnstile verification score (0 or 30 points) */
     turnstile: number;
+    /** Gibberish detection score (0-30 points) */
+    gibberish: number;
+    /** Name validation score (0-25 points) */
+    nameValidation: number;
   };
   /** Recommended action based on score */
   action: 'allow' | 'log' | 'block' | 'silent_success';
@@ -193,6 +197,147 @@ const KEYBOARD_WALKS = [
 ];
 
 /**
+ * Common English vowel patterns for gibberish detection
+ */
+const VOWELS = new Set(['a', 'e', 'i', 'o', 'u']);
+
+/**
+ * Detect if a string is likely gibberish (random characters)
+ * Uses multiple heuristics:
+ * - Consonant cluster analysis
+ * - Character transition patterns
+ * - Mixed case in single "words"
+ */
+export function isGibberish(text: string): { isGibberish: boolean; score: number; reasons: string[] } {
+  if (!text || text.trim().length === 0) {
+    return { isGibberish: false, score: 0, reasons: [] };
+  }
+
+  const reasons: string[] = [];
+  let score = 0;
+
+  // Clean text for analysis
+  const cleanText = text.trim().toLowerCase();
+  const words = cleanText.match(/[a-z]+/gi) || [];
+
+  if (words.length === 0) {
+    return { isGibberish: false, score: 0, reasons: [] };
+  }
+
+  // Check each word for gibberish patterns
+  for (const word of words) {
+    if (word.length < 3) continue;
+
+    const lowerWord = word.toLowerCase();
+
+    // 1. Check for excessive consecutive consonants (more than 4)
+    const consonantClusters = lowerWord.match(/[bcdfghjklmnpqrstvwxyz]{5,}/gi);
+    if (consonantClusters) {
+      score += 10;
+      reasons.push(`long_consonant_cluster:${consonantClusters[0]}`);
+    }
+
+    // 2. Check vowel ratio (real words have 20-60% vowels typically)
+    const vowelCount = [...lowerWord].filter(c => VOWELS.has(c)).length;
+    const vowelRatio = vowelCount / lowerWord.length;
+    if (vowelRatio < 0.1 && lowerWord.length > 4) {
+      score += 8;
+      reasons.push('very_low_vowels');
+    } else if (vowelRatio > 0.7 && lowerWord.length > 4) {
+      score += 5;
+      reasons.push('excessive_vowels');
+    }
+
+    // 3. Check for random case mixing within a single word (e.g., "CiNYZSmxHz")
+    const hasRandomCase = /[a-z][A-Z][a-z]|[A-Z][a-z][A-Z]/.test(word);
+    if (hasRandomCase && word.length > 5) {
+      score += 15;
+      reasons.push('random_case_mixing');
+    }
+
+    // 4. Check for unlikely character transitions
+    // Real words don't often have sequences like "xz", "qj", "zx", "wq"
+    const unlikelyPairs = ['xz', 'zx', 'qj', 'jq', 'wq', 'qw', 'vx', 'xv', 'zj', 'jz', 'qx', 'xq'];
+    for (const pair of unlikelyPairs) {
+      if (lowerWord.includes(pair)) {
+        score += 5;
+        reasons.push(`unlikely_pair:${pair}`);
+        break;
+      }
+    }
+  }
+
+  // 5. Check overall text for base64-like patterns (common in spam bot output)
+  // Base64 often has mixed case and specific character patterns
+  const base64Pattern = /^[A-Za-z0-9+/=]{10,}$/;
+  if (base64Pattern.test(text.replace(/\s/g, ''))) {
+    score += 20;
+    reasons.push('base64_like');
+  }
+
+  // 6. Check for lack of spaces in long text (single long gibberish word)
+  if (text.length > 12 && !text.includes(' ')) {
+    score += 10;
+    reasons.push('no_spaces_long_text');
+  }
+
+  return {
+    isGibberish: score >= 15,
+    score: Math.min(score, 30),
+    reasons,
+  };
+}
+
+/**
+ * Validate that a name looks like a real human name
+ * Returns spam score (0 = looks valid, higher = suspicious)
+ */
+export function validateName(name: string): { score: number; reasons: string[] } {
+  if (!name || name.trim().length === 0) {
+    return { score: 0, reasons: [] };
+  }
+
+  const reasons: string[] = [];
+  let score = 0;
+
+  const cleanName = name.trim();
+
+  // 1. Check for gibberish in name
+  const gibberishResult = isGibberish(cleanName);
+  if (gibberishResult.isGibberish) {
+    score += gibberishResult.score;
+    reasons.push(...gibberishResult.reasons.map(r => `name_${r}`));
+  }
+
+  // 2. Names shouldn't be all uppercase (except very short like "JR")
+  if (cleanName.length > 3 && cleanName === cleanName.toUpperCase()) {
+    score += 5;
+    reasons.push('name_all_caps');
+  }
+
+  // 3. Names typically don't have numbers
+  if (/\d/.test(cleanName)) {
+    score += 10;
+    reasons.push('name_has_numbers');
+  }
+
+  // 4. Names typically have at least one space (first and last name)
+  // Single-word names are suspicious for formal contact forms
+  if (!cleanName.includes(' ') && cleanName.length > 2) {
+    score += 3;
+    reasons.push('name_single_word');
+  }
+
+  // 5. Check for very long names without spaces (likely gibberish)
+  if (cleanName.length > 20 && !cleanName.includes(' ')) {
+    score += 15;
+    reasons.push('name_too_long_no_spaces');
+  }
+
+  return { score: Math.min(score, 25), reasons };
+}
+
+/**
  * Calculate Shannon entropy of text (measure of randomness)
  */
 function calculateEntropy(text: string): number {
@@ -257,8 +402,12 @@ export function analyzeContent(message: string): ContentAnalysis {
     score += 5;
   }
 
-  // Valid word ratio check (0-15 points)
-  if (validWordRatio < 0.1) {
+  // Valid word ratio check (0-20 points)
+  // Messages should contain recognizable English words
+  if (validWordRatio === 0 && words.length > 0) {
+    // Zero valid words is highly suspicious
+    score += 20;
+  } else if (validWordRatio < 0.1) {
     score += 15;
   } else if (validWordRatio < SPAM_THRESHOLDS.MIN_VALID_WORD_RATIO) {
     score += 10;
@@ -272,7 +421,7 @@ export function analyzeContent(message: string): ContentAnalysis {
   }
 
   return {
-    score: Math.min(score, 30),
+    score: Math.min(score, 35),
     validWordRatio,
     entropy,
   };
@@ -442,6 +591,8 @@ export async function verifyTurnstile(token: string, ip: string): Promise<boolea
  * - Interaction (20 points max) - behavioral analysis
  * - Browser Fingerprint (10 points max) - client fingerprint
  * - Turnstile (30 points) - CAPTCHA verification
+ * - Gibberish (30 points max) - random character detection in message
+ * - Name Validation (25 points max) - suspicious name patterns
  *
  * Actions based on thresholds:
  * - 0-49: allow (legitimate)
@@ -454,7 +605,7 @@ export async function calculateSpamScore(
   headers: Headers,
   clientIP: string
 ): Promise<SpamScoreResult> {
-  // Content analysis (0-30)
+  // Content analysis (0-35)
   const contentAnalysis = analyzeContent(data.message);
   const contentScore = contentAnalysis.score;
 
@@ -488,17 +639,35 @@ export async function calculateSpamScore(
   // Browser fingerprint (0-10)
   const browserFingerprintScore = data._fingerprint?.spamScore || 0;
 
-  // Turnstile verification (0 or 30)
+  // Turnstile verification (0, 30, or 200 for instant block)
   let turnstileScore = 0;
+  let turnstileFailed = false;
   if (data._turnstile) {
     const turnstileValid = await verifyTurnstile(data._turnstile, clientIP);
     if (!turnstileValid) {
-      turnstileScore = 30;
+      // Turnstile failure = instant block (no legitimate user fails this)
+      turnstileScore = 200;
+      turnstileFailed = true;
     }
   } else if (process.env.TURNSTILE_SECRET_KEY) {
-    // Token required but not provided
-    turnstileScore = 30;
+    // Token required but not provided = instant block
+    turnstileScore = 200;
+    turnstileFailed = true;
   }
+
+  // Gibberish detection in message (0-30, or 200 for instant block)
+  const messageGibberishResult = isGibberish(data.message);
+  let gibberishScore = messageGibberishResult.score;
+
+  // If message has zero valid words AND is detected as gibberish, instant block
+  // No legitimate customer sends pure gibberish as a message
+  if (contentAnalysis.validWordRatio === 0 && messageGibberishResult.isGibberish) {
+    gibberishScore = 200;
+  }
+
+  // Name validation (0-25)
+  const nameResult = validateName(data.name);
+  const nameValidationScore = nameResult.score;
 
   // Calculate total score
   const totalScore =
@@ -510,7 +679,9 @@ export async function calculateSpamScore(
     disposableEmailScore +
     interactionScore +
     browserFingerprintScore +
-    turnstileScore;
+    turnstileScore +
+    gibberishScore +
+    nameValidationScore;
 
   // Determine action based on thresholds
   let action: SpamScoreResult['action'];
@@ -536,6 +707,8 @@ export async function calculateSpamScore(
       interaction: interactionScore,
       browserFingerprint: browserFingerprintScore,
       turnstile: turnstileScore,
+      gibberish: gibberishScore,
+      nameValidation: nameValidationScore,
     },
     action,
   };
@@ -572,6 +745,19 @@ export function calculateSpamScoreSync(
   const interactionScore = data._interaction?.spamScore || 0;
   const browserFingerprintScore = data._fingerprint?.spamScore || 0;
 
+  // Gibberish detection in message (0-30, or 200 for instant block)
+  const messageGibberishResult = isGibberish(data.message);
+  let gibberishScore = messageGibberishResult.score;
+
+  // If message has zero valid words AND is detected as gibberish, instant block
+  if (contentAnalysis.validWordRatio === 0 && messageGibberishResult.isGibberish) {
+    gibberishScore = 200;
+  }
+
+  // Name validation (0-25)
+  const nameResult = validateName(data.name);
+  const nameValidationScore = nameResult.score;
+
   const totalScore =
     contentScore +
     patternsScore +
@@ -580,7 +766,9 @@ export function calculateSpamScoreSync(
     fingerprintScore +
     disposableEmailScore +
     interactionScore +
-    browserFingerprintScore;
+    browserFingerprintScore +
+    gibberishScore +
+    nameValidationScore;
 
   let action: SpamScoreResult['action'];
   if (totalScore >= SPAM_THRESHOLDS.SILENT_SUCCESS_SCORE) {
@@ -605,6 +793,8 @@ export function calculateSpamScoreSync(
       interaction: interactionScore,
       browserFingerprint: browserFingerprintScore,
       turnstile: 0,
+      gibberish: gibberishScore,
+      nameValidation: nameValidationScore,
     },
     action,
   };

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import {
   getAuthMode,
   authenticateWithRepairShopr,
+  authenticateWithSupabase,
   verifyPassword,
   createSession,
 } from '@/lib/auth';
@@ -166,7 +167,7 @@ export async function POST(request: NextRequest) {
 
     const authMode = getAuthMode();
 
-    // RepairShopr mode
+    // RepairShopr mode with cascading Supabase fallback
     if (authMode === 'repairshopr') {
       // Email is required in repairshopr mode
       if (!email) {
@@ -179,46 +180,66 @@ export async function POST(request: NextRequest) {
       // Record attempt before auth
       recordLoginAttempt(clientIP);
 
-      // Authenticate with RepairShopr
-      const result = await authenticateWithRepairShopr(email, password);
+      // Step 1: Try RepairShopr authentication (for employees)
+      const repairShoprResult = await authenticateWithRepairShopr(email, password);
 
-      if (result.success && result.user) {
+      if (repairShoprResult.success && repairShoprResult.user) {
         // Audit log - never log passwords
-        console.log(`[AUTH] Login attempt: ${email} - SUCCESS`);
+        console.log(`[AUTH] Employee login successful: ${email}`);
 
         return NextResponse.json({
           success: true,
           user: {
-            email: result.user.email,
-            name: result.user.name,
-            role: result.user.role,
+            email: repairShoprResult.user.email,
+            name: repairShoprResult.user.name,
+            role: repairShoprResult.user.role,
+            userType: repairShoprResult.user.userType,
           },
         });
-      } else {
-        // Audit log - never log passwords
-        console.log(`[AUTH] Login attempt: ${email} - FAILED`);
-
-        // Determine appropriate error code
-        let code: string = 'INVALID_CREDENTIALS';
-        let status = 401;
-
-        if (
-          result.error?.includes('Unable to connect') ||
-          result.error?.includes('not configured')
-        ) {
-          code = 'SERVICE_UNAVAILABLE';
-          status = 503;
-        }
-
-        return NextResponse.json(
-          {
-            success: false,
-            error: result.error || 'Invalid email or password',
-            code,
-          },
-          { status }
-        );
       }
+
+      // Step 2: If RepairShopr failed, try Supabase authentication (for customers)
+      console.log(`[AUTH] RepairShopr auth failed for ${email}, trying customer auth...`);
+      const supabaseResult = await authenticateWithSupabase(email, password);
+
+      if (supabaseResult.success && supabaseResult.user) {
+        // Audit log - never log passwords
+        console.log(`[AUTH] Customer login successful: ${email}`);
+
+        return NextResponse.json({
+          success: true,
+          user: {
+            email: supabaseResult.user.email,
+            name: supabaseResult.user.name,
+            role: supabaseResult.user.role,
+            userType: supabaseResult.user.userType,
+          },
+        });
+      }
+
+      // Both authentication methods failed
+      console.log(`[AUTH] Login attempt: ${email} - FAILED (both employee and customer auth)`);
+
+      // Determine appropriate error code
+      let code: string = 'INVALID_CREDENTIALS';
+      let status = 401;
+
+      if (
+        repairShoprResult.error?.includes('Unable to connect') ||
+        repairShoprResult.error?.includes('not configured')
+      ) {
+        code = 'SERVICE_UNAVAILABLE';
+        status = 503;
+      }
+
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Invalid email or password',
+          code,
+        },
+        { status }
+      );
     }
 
     // Legacy mode

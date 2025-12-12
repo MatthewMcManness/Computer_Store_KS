@@ -42,6 +42,7 @@ body {
     border-radius: 20px;
     overflow: hidden;
     box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    page-break-inside: avoid;
 }
 
 .header {
@@ -65,12 +66,12 @@ body {
 }
 
 .content {
-    padding: 20px 18px;
+    padding: 16px 18px;
 }
 
 .product-title {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
 }
 
 .product-title h2 {
@@ -83,14 +84,14 @@ body {
 .specs-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 18px;
+    gap: 10px;
+    margin-bottom: 14px;
 }
 
 .spec-card {
     background: #f8f9fa;
     border-radius: 15px;
-    padding: 16px 12px;
+    padding: 14px 12px;
     text-align: center;
     border-left: 4px solid #081e5b;
 }
@@ -136,7 +137,7 @@ body {
 
 .spec-icon {
     font-size: 32px;
-    margin-bottom: 10px;
+    margin-bottom: 6px;
     display: block;
 }
 
@@ -166,10 +167,10 @@ body {
 .software-badge {
     background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%);
     color: #081e5b;
-    padding: 12px 20px;
+    padding: 10px 20px;
     border-radius: 25px;
     text-align: center;
-    margin: 18px 0;
+    margin: 14px 0;
     font-weight: 700;
     font-size: 16px;
     text-shadow: 0 1px 1px rgba(255,255,255,0.5);
@@ -179,10 +180,10 @@ body {
 .price-section {
     background: linear-gradient(135deg, #081e5b 0%, #06277a 100%);
     color: white;
-    padding: 20px;
+    padding: 16px;
     border-radius: 15px;
     text-align: center;
-    margin: 18px 0;
+    margin: 14px 0;
 }
 
 .price {
@@ -200,17 +201,18 @@ body {
 
 .peace-of-mind {
     background: linear-gradient(135deg, #c0c0c0 0%, #d4d4d4 100%);
-    padding: 16px;
+    padding: 12px 16px;
     border-radius: 15px;
-    margin: 18px 0 0 0;
+    margin: 12px 0 0 0;
     text-align: center;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    page-break-inside: avoid;
 }
 
 .peace-title {
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 700;
-    margin: 0 0 15px 0;
+    margin: 0 0 8px 0;
     color: #081e5b;
     text-shadow: 0 1px 1px rgba(255,255,255,0.8);
 }
@@ -218,13 +220,13 @@ body {
 .warranty-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-top: 15px;
+    gap: 8px;
+    margin-top: 8px;
 }
 
 .warranty-item {
     background: rgba(255,255,255,0.9);
-    padding: 15px 10px;
+    padding: 12px 10px;
     border-radius: 10px;
     text-align: center;
     border: 1px solid rgba(8, 30, 91, 0.1);

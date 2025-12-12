@@ -7,7 +7,7 @@ import { AlertCircle } from 'lucide-react';
 interface TicketStepProps {
   customer: RepairShoprCustomer;
   device: RepairShoprAsset;
-  onTicketCreated: (ticket: RepairShoprTicket) => void;
+  onTicketCreated: (ticket: RepairShoprTicket, customer: RepairShoprCustomer) => void | Promise<void>;
   onBack: () => void;
 }
 
@@ -53,7 +53,7 @@ export function TicketStep({ customer, device, onTicketCreated, onBack }: Ticket
         throw new Error('Invalid response from server');
       }
 
-      onTicketCreated(data.ticket);
+      onTicketCreated(data.ticket, customer);
     } catch (err) {
       console.error('Failed to create ticket:', err);
       setError(err instanceof Error ? err.message : 'Failed to create ticket');

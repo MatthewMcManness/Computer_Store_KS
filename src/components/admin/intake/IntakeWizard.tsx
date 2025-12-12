@@ -195,32 +195,31 @@ export function IntakeWizard() {
     }
   };
 
-  const handleTicketCreated = async (ticket: RepairShoprTicket) => {
+  const handleTicketCreated = async (ticket: RepairShoprTicket, customer: RepairShoprCustomer) => {
     dispatch({ type: 'SET_CREATED_TICKET', ticket });
 
     // Check if customer has a password saved in our database
-    if (state.customer) {
-      setCheckingPortalAccount(true);
-      const hasPassword = await checkForSavedPassword(state.customer.id);
-      dispatch({ type: 'SET_PORTAL_ACCOUNT', hasAccount: hasPassword });
-      setCheckingPortalAccount(false);
+    // Using customer passed from TicketStep to avoid stale closure issues
+    console.log('[Intake] Ticket created for customer:', customer.id, customer.fullname, customer.email);
 
-      console.log('[Intake] Customer email:', state.customer.email, 'hasPassword:', hasPassword);
+    setCheckingPortalAccount(true);
+    const hasPassword = await checkForSavedPassword(customer.id);
+    dispatch({ type: 'SET_PORTAL_ACCOUNT', hasAccount: hasPassword });
+    setCheckingPortalAccount(false);
 
-      if (!hasPassword && state.customer.email) {
-        // No password saved and customer has email - show password setup modal
-        console.log('[Intake] Showing password modal');
-        setShowPasswordModal(true);
-      } else if (!hasPassword && !state.customer.email) {
-        // No password and no email - can't create account, skip to success
-        console.log('[Intake] No email, skipping password modal');
-        dispatch({ type: 'NEXT_STEP' });
-      } else {
-        // Customer already has password saved, go to success
-        console.log('[Intake] Password exists, going to success');
-        dispatch({ type: 'NEXT_STEP' });
-      }
+    console.log('[Intake] Customer email:', customer.email, 'hasPassword:', hasPassword);
+
+    if (!hasPassword && customer.email) {
+      // No password saved and customer has email - show password setup modal
+      console.log('[Intake] Showing password modal');
+      setShowPasswordModal(true);
+    } else if (!hasPassword && !customer.email) {
+      // No password and no email - can't create account, skip to success
+      console.log('[Intake] No email, skipping password modal');
+      dispatch({ type: 'NEXT_STEP' });
     } else {
+      // Customer already has password saved, go to success
+      console.log('[Intake] Password exists, going to success');
       dispatch({ type: 'NEXT_STEP' });
     }
   };

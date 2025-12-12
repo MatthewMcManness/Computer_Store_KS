@@ -8,7 +8,6 @@ interface SuccessStepProps {
   device: RepairShoprAsset;
   ticket: RepairShoprTicket;
   portalAccountCreated: boolean;
-  countdown: number;
   onNewIntake: () => void;
   onAddAnotherDevice: () => void;
 }
@@ -18,7 +17,6 @@ export function SuccessStep({
   device,
   ticket,
   portalAccountCreated,
-  countdown,
   onNewIntake,
   onAddAnotherDevice,
 }: SuccessStepProps) {
@@ -116,14 +114,6 @@ export function SuccessStep({
         </div>
       </div>
 
-      {/* Auto-advance notice */}
-      <div className="mb-6 rounded-lg bg-blue-50 p-4 text-center">
-        <p className="text-blue-700">
-          Adding another device for <span className="font-semibold">{customer.fullname}</span> in{' '}
-          <span className="font-bold text-blue-900">{countdown}</span> seconds...
-        </p>
-      </div>
-
       {/* Action Buttons */}
       <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
         <button
@@ -131,14 +121,14 @@ export function SuccessStep({
           className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-8 py-3 font-medium text-white shadow-lg hover:bg-blue-700"
         >
           <Plus className="h-5 w-5" />
-          Add Another Device Now
+          Add Another Device for {customer.firstname || customer.fullname?.split(' ')[0] || 'Customer'}
         </button>
         <button
           onClick={onNewIntake}
           className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-8 py-3 font-medium text-gray-700 hover:bg-gray-50"
         >
           <X className="h-5 w-5" />
-          New Customer
+          Start New Intake
         </button>
       </div>
     </div>

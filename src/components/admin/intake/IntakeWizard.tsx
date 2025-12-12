@@ -1,6 +1,6 @@
 'use client';
 
-import { useReducer, useState, useEffect } from 'react';
+import { useReducer, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { RepairShoprCustomer, RepairShoprAsset, RepairShoprTicket } from '@/lib/repairshopr';
 import { CustomerSearchStep } from './CustomerSearchStep';
@@ -115,26 +115,6 @@ export function IntakeWizard() {
   const [state, dispatch] = useReducer(intakeReducer, initialState);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [checkingPortalAccount, setCheckingPortalAccount] = useState(false);
-  const [countdown, setCountdown] = useState(4);
-
-  // Auto-advance from success step after 4 seconds
-  useEffect(() => {
-    if (state.step === 5 && state.createdTicket) {
-      setCountdown(4);
-      const interval = setInterval(() => {
-        setCountdown((prev) => prev - 1);
-      }, 1000);
-
-      const timeout = setTimeout(() => {
-        dispatch({ type: 'CONTINUE_WITH_CUSTOMER' });
-      }, 4000);
-
-      return () => {
-        clearInterval(interval);
-        clearTimeout(timeout);
-      };
-    }
-  }, [state.step, state.createdTicket]);
 
   const handleNext = () => {
     dispatch({ type: 'NEXT_STEP' });
@@ -373,7 +353,6 @@ export function IntakeWizard() {
             device={state.device}
             ticket={state.createdTicket}
             portalAccountCreated={state.hasPortalAccount}
-            countdown={countdown}
             onNewIntake={handleNewIntake}
             onAddAnotherDevice={() => dispatch({ type: 'CONTINUE_WITH_CUSTOMER' })}
           />

@@ -35,3 +35,10 @@ services:
       # Static site URL for "View Site" link
       - key: NEXT_PUBLIC_SITE_URL
         value: https://computerstoreks.com
+      # Supabase (REQUIRED for customer portal and blog)
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false

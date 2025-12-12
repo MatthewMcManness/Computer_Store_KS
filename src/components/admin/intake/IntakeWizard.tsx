@@ -174,16 +174,23 @@ export function IntakeWizard() {
     dispatch({ type: 'NEXT_STEP' });
   };
 
-  // Check if customer has portal account after ticket is created
-  const checkPortalAccount = async (customerId: number): Promise<boolean> => {
+  // Check if customer has a password saved in Supabase
+  const checkForSavedPassword = async (customerId: number): Promise<boolean> => {
     try {
       const response = await fetch(`/api/admin/customer-accounts?customer_id=${customerId}`);
-      if (response.ok) {
-        const data = await response.json();
-        return data.account !== null;
+      const data = await response.json();
+
+      // If there's an account with data, they have a password saved
+      if (data.account && data.account.id) {
+        console.log('[Intake] Customer has saved password:', customerId);
+        return true;
       }
+
+      console.log('[Intake] Customer has NO saved password:', customerId);
       return false;
-    } catch {
+    } catch (error) {
+      console.error('[Intake] Error checking for saved password:', error);
+      // On error, assume no password (show the modal)
       return false;
     }
   };
@@ -191,18 +198,26 @@ export function IntakeWizard() {
   const handleTicketCreated = async (ticket: RepairShoprTicket) => {
     dispatch({ type: 'SET_CREATED_TICKET', ticket });
 
-    // Check if customer has portal account
+    // Check if customer has a password saved in our database
     if (state.customer) {
       setCheckingPortalAccount(true);
-      const hasAccount = await checkPortalAccount(state.customer.id);
-      dispatch({ type: 'SET_PORTAL_ACCOUNT', hasAccount });
+      const hasPassword = await checkForSavedPassword(state.customer.id);
+      dispatch({ type: 'SET_PORTAL_ACCOUNT', hasAccount: hasPassword });
       setCheckingPortalAccount(false);
 
-      if (!hasAccount && state.customer.email) {
-        // Show password setup modal
+      console.log('[Intake] Customer email:', state.customer.email, 'hasPassword:', hasPassword);
+
+      if (!hasPassword && state.customer.email) {
+        // No password saved and customer has email - show password setup modal
+        console.log('[Intake] Showing password modal');
         setShowPasswordModal(true);
+      } else if (!hasPassword && !state.customer.email) {
+        // No password and no email - can't create account, skip to success
+        console.log('[Intake] No email, skipping password modal');
+        dispatch({ type: 'NEXT_STEP' });
       } else {
-        // Customer already has account or no email, go to success
+        // Customer already has password saved, go to success
+        console.log('[Intake] Password exists, going to success');
         dispatch({ type: 'NEXT_STEP' });
       }
     } else {

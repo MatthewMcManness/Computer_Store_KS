@@ -1,6 +1,6 @@
 'use client';
 
-import { useReducer, useState } from 'react';
+import { useReducer, useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { RepairShoprCustomer, RepairShoprAsset, RepairShoprTicket } from '@/lib/repairshopr';
 import { CustomerSearchStep } from './CustomerSearchStep';
@@ -35,6 +35,7 @@ type IntakeAction =
   | { type: 'SET_TICKET_DESCRIPTION'; description: string }
   | { type: 'SET_CREATED_TICKET'; ticket: RepairShoprTicket }
   | { type: 'SET_PORTAL_ACCOUNT'; hasAccount: boolean }
+  | { type: 'CONTINUE_WITH_CUSTOMER' }
   | { type: 'RESET' };
 
 // =============================================================================
@@ -89,6 +90,16 @@ function intakeReducer(state: IntakeState, action: IntakeAction): IntakeState {
         ...state,
         hasPortalAccount: action.hasAccount,
       };
+    case 'CONTINUE_WITH_CUSTOMER':
+      // Keep customer selected, clear device/ticket, go to device step
+      return {
+        ...state,
+        step: 3,
+        device: null,
+        isNewDevice: false,
+        ticketDescription: '',
+        createdTicket: null,
+      };
     case 'RESET':
       return initialState;
     default:
@@ -104,6 +115,26 @@ export function IntakeWizard() {
   const [state, dispatch] = useReducer(intakeReducer, initialState);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [checkingPortalAccount, setCheckingPortalAccount] = useState(false);
+  const [countdown, setCountdown] = useState(4);
+
+  // Auto-advance from success step after 4 seconds
+  useEffect(() => {
+    if (state.step === 5 && state.createdTicket) {
+      setCountdown(4);
+      const interval = setInterval(() => {
+        setCountdown((prev) => prev - 1);
+      }, 1000);
+
+      const timeout = setTimeout(() => {
+        dispatch({ type: 'CONTINUE_WITH_CUSTOMER' });
+      }, 4000);
+
+      return () => {
+        clearInterval(interval);
+        clearTimeout(timeout);
+      };
+    }
+  }, [state.step, state.createdTicket]);
 
   const handleNext = () => {
     dispatch({ type: 'NEXT_STEP' });
@@ -182,11 +213,13 @@ export function IntakeWizard() {
   const handlePasswordCreated = () => {
     dispatch({ type: 'SET_PORTAL_ACCOUNT', hasAccount: true });
     setShowPasswordModal(false);
+    // Go to success step briefly, then auto-reset
     dispatch({ type: 'NEXT_STEP' });
   };
 
   const handleSkipPassword = () => {
     setShowPasswordModal(false);
+    // Go to success step
     dispatch({ type: 'NEXT_STEP' });
   };
 
@@ -310,7 +343,9 @@ export function IntakeWizard() {
             device={state.device}
             ticket={state.createdTicket}
             portalAccountCreated={state.hasPortalAccount}
+            countdown={countdown}
             onNewIntake={handleNewIntake}
+            onAddAnotherDevice={() => dispatch({ type: 'CONTINUE_WITH_CUSTOMER' })}
           />
         );
       default:

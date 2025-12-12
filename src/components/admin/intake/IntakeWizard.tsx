@@ -1,6 +1,6 @@
 'use client';
 
-import { useReducer } from 'react';
+import { useReducer, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { RepairShoprCustomer, RepairShoprAsset, RepairShoprTicket } from '@/lib/repairshopr';
 import { CustomerSearchStep } from './CustomerSearchStep';
@@ -8,6 +8,7 @@ import { CustomerFormStep } from './CustomerFormStep';
 import { DeviceStep } from './DeviceStep';
 import { TicketStep } from './TicketStep';
 import { SuccessStep } from './SuccessStep';
+import { PasswordSetupModal } from './PasswordSetupModal';
 
 // =============================================================================
 // Types
@@ -22,6 +23,7 @@ interface IntakeState {
   isNewDevice: boolean;
   ticketDescription: string;
   createdTicket: RepairShoprTicket | null;
+  hasPortalAccount: boolean;
 }
 
 type IntakeAction =
@@ -32,6 +34,7 @@ type IntakeAction =
   | { type: 'SET_DEVICE'; device: RepairShoprAsset; isNew: boolean }
   | { type: 'SET_TICKET_DESCRIPTION'; description: string }
   | { type: 'SET_CREATED_TICKET'; ticket: RepairShoprTicket }
+  | { type: 'SET_PORTAL_ACCOUNT'; hasAccount: boolean }
   | { type: 'RESET' };
 
 // =============================================================================
@@ -47,6 +50,7 @@ const initialState: IntakeState = {
   isNewDevice: false,
   ticketDescription: '',
   createdTicket: null,
+  hasPortalAccount: false,
 };
 
 function intakeReducer(state: IntakeState, action: IntakeAction): IntakeState {
@@ -80,6 +84,11 @@ function intakeReducer(state: IntakeState, action: IntakeAction): IntakeState {
         ...state,
         createdTicket: action.ticket,
       };
+    case 'SET_PORTAL_ACCOUNT':
+      return {
+        ...state,
+        hasPortalAccount: action.hasAccount,
+      };
     case 'RESET':
       return initialState;
     default:
@@ -93,6 +102,8 @@ function intakeReducer(state: IntakeState, action: IntakeAction): IntakeState {
 
 export function IntakeWizard() {
   const [state, dispatch] = useReducer(intakeReducer, initialState);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [checkingPortalAccount, setCheckingPortalAccount] = useState(false);
 
   const handleNext = () => {
     dispatch({ type: 'NEXT_STEP' });
@@ -104,6 +115,7 @@ export function IntakeWizard() {
 
   const handleNewIntake = () => {
     dispatch({ type: 'RESET' });
+    setShowPasswordModal(false);
   };
 
   const handleSelectCustomer = (customer: RepairShoprCustomer, skipToDevice: boolean) => {
@@ -131,8 +143,50 @@ export function IntakeWizard() {
     dispatch({ type: 'NEXT_STEP' });
   };
 
-  const handleTicketCreated = (ticket: RepairShoprTicket) => {
+  // Check if customer has portal account after ticket is created
+  const checkPortalAccount = async (customerId: number): Promise<boolean> => {
+    try {
+      const response = await fetch(`/api/admin/customer-accounts?customer_id=${customerId}`);
+      if (response.ok) {
+        const data = await response.json();
+        return data.account !== null;
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  };
+
+  const handleTicketCreated = async (ticket: RepairShoprTicket) => {
     dispatch({ type: 'SET_CREATED_TICKET', ticket });
+
+    // Check if customer has portal account
+    if (state.customer) {
+      setCheckingPortalAccount(true);
+      const hasAccount = await checkPortalAccount(state.customer.id);
+      dispatch({ type: 'SET_PORTAL_ACCOUNT', hasAccount });
+      setCheckingPortalAccount(false);
+
+      if (!hasAccount && state.customer.email) {
+        // Show password setup modal
+        setShowPasswordModal(true);
+      } else {
+        // Customer already has account or no email, go to success
+        dispatch({ type: 'NEXT_STEP' });
+      }
+    } else {
+      dispatch({ type: 'NEXT_STEP' });
+    }
+  };
+
+  const handlePasswordCreated = () => {
+    dispatch({ type: 'SET_PORTAL_ACCOUNT', hasAccount: true });
+    setShowPasswordModal(false);
+    dispatch({ type: 'NEXT_STEP' });
+  };
+
+  const handleSkipPassword = () => {
+    setShowPasswordModal(false);
     dispatch({ type: 'NEXT_STEP' });
   };
 
@@ -255,7 +309,7 @@ export function IntakeWizard() {
             customer={state.customer}
             device={state.device}
             ticket={state.createdTicket}
-            portalAccountCreated={state.isNewCustomer}
+            portalAccountCreated={state.hasPortalAccount}
             onNewIntake={handleNewIntake}
           />
         );
@@ -266,6 +320,27 @@ export function IntakeWizard() {
 
   return (
     <div className="mx-auto max-w-4xl">
+      {/* Password Setup Modal */}
+      {showPasswordModal && state.customer && (
+        <PasswordSetupModal
+          customer={state.customer}
+          onPasswordCreated={handlePasswordCreated}
+          onSkip={handleSkipPassword}
+        />
+      )}
+
+      {/* Loading overlay when checking portal account */}
+      {checkingPortalAccount && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-gray-900/50">
+          <div className="rounded-lg bg-white p-6 shadow-xl">
+            <div className="flex items-center gap-3">
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
+              <span className="text-gray-700">Checking portal account...</span>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Step Indicator */}
       <div className="mb-8">
         <div className="flex items-center justify-between">

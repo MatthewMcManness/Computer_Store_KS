@@ -90,6 +90,131 @@ export interface MeResponse {
   permissions: Record<string, Record<string, boolean>>;
 }
 
+/**
+ * Customer information from the RepairShopr API
+ */
+export interface RepairShoprCustomer {
+  id: number;
+  firstname: string;
+  lastname: string;
+  fullname: string;
+  business_name?: string | null;
+  email: string;
+  phone?: string | null;
+  mobile?: string | null;
+  address?: string | null;
+  address_2?: string | null;
+  city?: string | null;
+  state?: string | null;
+  zip?: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
+/**
+ * Asset (device) information from the RepairShopr API
+ */
+export interface RepairShoprAsset {
+  id: number;
+  name: string;
+  asset_type_name?: string | null;
+  customer_id: number;
+  properties?: Record<string, unknown>;
+  created_at?: string;
+  updated_at?: string;
+}
+
+/**
+ * Ticket information from the RepairShopr API
+ */
+export interface RepairShoprTicket {
+  id: number;
+  number: string;
+  subject: string;
+  customer_id: number;
+  customer_business_then_name?: string;
+  status?: string;
+  problem_type?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+/**
+ * Business/Company information from the RepairShopr API
+ */
+export interface RepairShoprBusiness {
+  id: number;
+  name: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+// =============================================================================
+// Input Types for Create/Update Operations
+// =============================================================================
+
+/**
+ * Input for creating a new customer
+ */
+export interface CreateCustomerInput {
+  firstname: string;
+  lastname: string;
+  email: string;
+  phone?: string;
+  mobile?: string;
+  address?: string;
+  address_2?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
+  business_name?: string;
+  notes?: string;
+  get_sms?: boolean;
+  opt_out?: boolean;
+  no_email?: boolean;
+}
+
+/**
+ * Input for creating a new asset/device
+ */
+export interface CreateAssetInput {
+  name: string;
+  customer_id: number;
+  asset_serial?: string;
+  asset_type_id?: number;
+  properties?: Record<string, unknown>;
+}
+
+/**
+ * Input for creating a new ticket
+ */
+export interface CreateTicketInput {
+  customer_id: number;
+  subject: string;
+  problem_type?: string;
+  status?: string;
+  asset_id?: number;
+  due_date?: string;
+  start_at?: string;
+  end_at?: string;
+  location_id?: number;
+  user_id?: number;
+  comment_subject?: string;
+  comment_body?: string;
+}
+
+/**
+ * Input for creating a new business/company
+ */
+export interface CreateBusinessInput {
+  name: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
+  phone?: string;
+}
+
 export interface RepairShoprError {
   error: string;
   status: number;
@@ -401,6 +526,405 @@ export class RepairShoprClient {
 
     // Normalize the response to our standard format
     return this.normalizeUserResponse(rawResponse);
+  }
+
+  // =============================================================================
+  // Customer Operations
+  // =============================================================================
+
+  /**
+   * Search for customers by query string
+   *
+   * @param apiToken - API token for authentication
+   * @param query - Search query string
+   * @returns Array of matching customers
+   *
+   * @example
+   * ```typescript
+   * const customers = await client.searchCustomers(apiToken, 'john smith');
+   * ```
+   */
+  async searchCustomers(
+    apiToken: string,
+    query: string
+  ): Promise<RepairShoprCustomer[]> {
+    if (!apiToken || !apiToken.trim()) {
+      throw new RepairShoprAPIError(
+        'API token is required',
+        400,
+        'VALIDATION_ERROR'
+      );
+    }
+
+    if (!query || !query.trim()) {
+      throw new RepairShoprAPIError(
+        'Search query is required',
+        400,
+        'VALIDATION_ERROR'
+      );
+    }
+
+    const response = await this.request<{ customers: RepairShoprCustomer[] }>(
+      `/customers?api_key=${encodeURIComponent(apiToken.trim())}&query=${encodeURIComponent(query.trim())}`
+    );
+
+    return response.customers || [];
+  }
+
+  /**
+   * Get a customer by ID
+   *
+   * @param apiToken - API token for authentication
+   * @param id - Customer ID
+   * @returns Customer details
+   *
+   * @example
+   * ```typescript
+   * const customer = await client.getCustomer(apiToken, 12345);
+   * ```
+   */
+  async getCustomer(
+    apiToken: string,
+    id: number
+  ): Promise<RepairShoprCustomer> {
+    if (!apiToken || !apiToken.trim()) {
+      throw new RepairShoprAPIError(
+        'API token is required',
+        400,
+        'VALIDATION_ERROR'
+      );
+    }
+
+    if (!id || id <= 0) {
+      throw new RepairShoprAPIError(
+        'Valid customer ID is required',
+        400,
+        'VALIDATION_ERROR'
+      );
+    }
+
+    const response = await this.request<{ customer: RepairShoprCustomer }>(
+      `/customers/${id}?api_key=${encodeURIComponent(apiToken.trim())}`
+    );
+
+    return response.customer;
+  }
+
+  /**
+   * Create a new customer
+   *
+   * @param apiToken - API token for authentication
+   * @param data - Customer data
+   * @returns Created customer details
+   *
+   * @example
+   * ```typescript
+   * const customer = await client.createCustomer(apiToken, {
+   *   firstname: 'John',
+   *   lastname: 'Doe',
+   *   email: 'john@example.com',
+   *   phone: '555-1234'
+   * });
+   * ```
+   */
+  async createCustomer(
+    apiToken: string,
+    data: CreateCustomerInput
+  ): Promise<RepairShoprCustomer> {
+    if (!apiToken || !apiToken.trim()) {
+      throw new RepairShoprAPIError(
+        'API token is required',
+        400,
+        'VALIDATION_ERROR'
+      );
+    }
+
+    if (!data.firstname || !data.lastname || !data.email) {
+      throw new RepairShoprAPIError(
+        'First name, last name, and email are required',
+        400,
+        'VALIDATION_ERROR'
+      );
+    }
+
+    const response = await this.request<{ customer: RepairShoprCustomer }>(
+      `/customers?api_key=${encodeURIComponent(apiToken.trim())}`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }
+    );
+
+    return response.customer;
+  }
+
+  // =============================================================================
+  // Asset/Device Operations
+  // =============================================================================
+
+  /**
+   * Get all assets for a customer
+   *
+   * @param apiToken - API token for authentication
+   * @param customerId - Customer ID
+   * @returns Array of customer's assets
+   *
+   * @example
+   * ```typescript
+   * const assets = await client.getCustomerAssets(apiToken, 12345);
+   * ```
+   */
+  async getCustomerAssets(
+    apiToken: string,
+    customerId: number
+  ): Promise<RepairShoprAsset[]> {
+    if (!apiToken || !apiToken.trim()) {
+      throw new RepairShoprAPIError(
+        'API token is required',
+        400,
+        'VALIDATION_ERROR'
+      );
+    }
+
+    if (!customerId || customerId <= 0) {
+      throw new RepairShoprAPIError(
+        'Valid customer ID is required',
+        400,
+        'VALIDATION_ERROR'
+      );
+    }
+
+    const response = await this.request<{ customer_assets: RepairShoprAsset[] }>(
+      `/customer_assets?api_key=${encodeURIComponent(apiToken.trim())}&customer_id=${customerId}`
+    );
+
+    return response.customer_assets || [];
+  }
+
+  /**
+   * Create a new asset/device
+   *
+   * @param apiToken - API token for authentication
+   * @param data - Asset data
+   * @returns Created asset details
+   *
+   * @example
+   * ```typescript
+   * const asset = await client.createAsset(apiToken, {
+   *   name: 'Dell Laptop',
+   *   customer_id: 12345,
+   *   asset_serial: 'ABC123'
+   * });
+   * ```
+   */
+  async createAsset(
+    apiToken: string,
+    data: CreateAssetInput
+  ): Promise<RepairShoprAsset> {
+    if (!apiToken || !apiToken.trim()) {
+      throw new RepairShoprAPIError(
+        'API token is required',
+        400,
+        'VALIDATION_ERROR'
+      );
+    }
+
+    if (!data.name || !data.customer_id) {
+      throw new RepairShoprAPIError(
+        'Asset name and customer ID are required',
+        400,
+        'VALIDATION_ERROR'
+      );
+    }
+
+    const response = await this.request<{ customer_asset: RepairShoprAsset }>(
+      `/customer_assets?api_key=${encodeURIComponent(apiToken.trim())}`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }
+    );
+
+    return response.customer_asset;
+  }
+
+  // =============================================================================
+  // Ticket Operations
+  // =============================================================================
+
+  /**
+   * Get a ticket by ID
+   *
+   * @param apiToken - API token for authentication
+   * @param id - Ticket ID
+   * @returns Ticket details
+   *
+   * @example
+   * ```typescript
+   * const ticket = await client.getTicket(apiToken, 67890);
+   * ```
+   */
+  async getTicket(apiToken: string, id: number): Promise<RepairShoprTicket> {
+    if (!apiToken || !apiToken.trim()) {
+      throw new RepairShoprAPIError(
+        'API token is required',
+        400,
+        'VALIDATION_ERROR'
+      );
+    }
+
+    if (!id || id <= 0) {
+      throw new RepairShoprAPIError(
+        'Valid ticket ID is required',
+        400,
+        'VALIDATION_ERROR'
+      );
+    }
+
+    const response = await this.request<{ ticket: RepairShoprTicket }>(
+      `/tickets/${id}?api_key=${encodeURIComponent(apiToken.trim())}`
+    );
+
+    return response.ticket;
+  }
+
+  /**
+   * Create a new ticket
+   *
+   * @param apiToken - API token for authentication
+   * @param data - Ticket data
+   * @returns Created ticket details
+   *
+   * @example
+   * ```typescript
+   * const ticket = await client.createTicket(apiToken, {
+   *   customer_id: 12345,
+   *   subject: 'Computer won\'t boot',
+   *   problem_type: 'Hardware',
+   *   status: 'New'
+   * });
+   * ```
+   */
+  async createTicket(
+    apiToken: string,
+    data: CreateTicketInput
+  ): Promise<RepairShoprTicket> {
+    if (!apiToken || !apiToken.trim()) {
+      throw new RepairShoprAPIError(
+        'API token is required',
+        400,
+        'VALIDATION_ERROR'
+      );
+    }
+
+    if (!data.customer_id || !data.subject) {
+      throw new RepairShoprAPIError(
+        'Customer ID and subject are required',
+        400,
+        'VALIDATION_ERROR'
+      );
+    }
+
+    const response = await this.request<{ ticket: RepairShoprTicket }>(
+      `/tickets?api_key=${encodeURIComponent(apiToken.trim())}`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }
+    );
+
+    return response.ticket;
+  }
+
+  // =============================================================================
+  // Business/Company Operations
+  // =============================================================================
+
+  /**
+   * Search for businesses by name
+   *
+   * @param apiToken - API token for authentication
+   * @param query - Business name search query
+   * @returns Array of matching businesses
+   *
+   * @example
+   * ```typescript
+   * const businesses = await client.searchBusinesses(apiToken, 'Acme Corp');
+   * ```
+   */
+  async searchBusinesses(
+    apiToken: string,
+    query: string
+  ): Promise<RepairShoprBusiness[]> {
+    if (!apiToken || !apiToken.trim()) {
+      throw new RepairShoprAPIError(
+        'API token is required',
+        400,
+        'VALIDATION_ERROR'
+      );
+    }
+
+    if (!query || !query.trim()) {
+      throw new RepairShoprAPIError(
+        'Search query is required',
+        400,
+        'VALIDATION_ERROR'
+      );
+    }
+
+    // Search contacts with business_name filter
+    const response = await this.request<{ contacts: RepairShoprBusiness[] }>(
+      `/contacts?api_key=${encodeURIComponent(apiToken.trim())}&business_name=${encodeURIComponent(query.trim())}`
+    );
+
+    return response.contacts || [];
+  }
+
+  /**
+   * Create a new business/company
+   *
+   * @param apiToken - API token for authentication
+   * @param data - Business data
+   * @returns Created business details
+   *
+   * @example
+   * ```typescript
+   * const business = await client.createBusiness(apiToken, {
+   *   name: 'Acme Corporation',
+   *   phone: '555-9999',
+   *   city: 'Topeka'
+   * });
+   * ```
+   */
+  async createBusiness(
+    apiToken: string,
+    data: CreateBusinessInput
+  ): Promise<RepairShoprBusiness> {
+    if (!apiToken || !apiToken.trim()) {
+      throw new RepairShoprAPIError(
+        'API token is required',
+        400,
+        'VALIDATION_ERROR'
+      );
+    }
+
+    if (!data.name) {
+      throw new RepairShoprAPIError(
+        'Business name is required',
+        400,
+        'VALIDATION_ERROR'
+      );
+    }
+
+    const response = await this.request<{ contact: RepairShoprBusiness }>(
+      `/contacts?api_key=${encodeURIComponent(apiToken.trim())}`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }
+    );
+
+    return response.contact;
   }
 }
 

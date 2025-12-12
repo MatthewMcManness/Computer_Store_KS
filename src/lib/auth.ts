@@ -294,7 +294,7 @@ export async function authenticateWithSupabase(
     }
 
     // Step 2: Verify password hash
-    const bcrypt = await import('bcrypt');
+    const bcrypt = await import('bcryptjs');
     const isPasswordValid = await bcrypt.compare(password, account.password_hash);
 
     if (!isPasswordValid) {

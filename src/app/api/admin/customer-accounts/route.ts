@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 export const dynamic = 'force-dynamic';
 

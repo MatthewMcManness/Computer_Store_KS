@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser, getSessionToken } from '@/lib/auth';
 import { createRepairShoprClient, RepairShoprAPIError } from '@/lib/repairshopr';
 import { supabaseAdmin } from '@/lib/supabase';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 export const dynamic = 'force-dynamic';
 

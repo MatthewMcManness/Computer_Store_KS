@@ -1,7 +1,8 @@
 import { redirect } from 'next/navigation';
 import { isAuthenticated } from '@/lib/auth';
 import Link from 'next/link';
-import { Image, Plus, Settings, TrendingUp } from 'lucide-react';
+import NextImage from 'next/image';
+import { Image, Plus, Settings, TrendingUp, Users } from 'lucide-react';
 import { isGitHubConfigured } from '@/lib/github';
 import { getAllComputers, isSupabaseConfigured, getActiveSaleAdmin } from '@/lib/supabase';
 import { SaleDropdown } from '@/components/admin';
@@ -78,8 +79,8 @@ export default async function AdminDashboardPage() {
               <p className="text-sm text-gray-500">Total Computers</p>
               <p className="mt-1 text-3xl font-bold text-gray-900">{stats.total}</p>
             </div>
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100">
-              <TrendingUp className="h-6 w-6 text-purple-600" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
+              <TrendingUp className="h-6 w-6 text-blue-600" />
             </div>
           </div>
         </div>
@@ -102,8 +103,8 @@ export default async function AdminDashboardPage() {
               <p className="text-sm text-gray-500">Laptops</p>
               <p className="mt-1 text-3xl font-bold text-gray-900">{stats.laptops}</p>
             </div>
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-indigo-100">
-              <Image className="h-6 w-6 text-indigo-600" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
+              <Image className="h-6 w-6 text-blue-600" />
             </div>
           </div>
         </div>
@@ -129,8 +130,8 @@ export default async function AdminDashboardPage() {
             href="/admin/gallery"
             className="flex items-center gap-4 rounded-xl bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
           >
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100">
-              <Image className="h-6 w-6 text-purple-600" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
+              <Image className="h-6 w-6 text-blue-600" />
             </div>
             <div>
               <p className="font-medium text-gray-900">Manage Gallery</p>
@@ -148,6 +149,19 @@ export default async function AdminDashboardPage() {
             <div>
               <p className="font-medium text-gray-900">Add Computer</p>
               <p className="text-sm text-gray-500">Add a new computer to gallery</p>
+            </div>
+          </Link>
+
+          <Link
+            href="/admin/customers"
+            className="flex items-center gap-4 rounded-xl bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+          >
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-amber-100">
+              <Users className="h-6 w-6 text-amber-600" />
+            </div>
+            <div>
+              <p className="font-medium text-gray-900">Customers</p>
+              <p className="text-sm text-gray-500">Manage customer portal access</p>
             </div>
           </Link>
 
@@ -203,6 +217,25 @@ export default async function AdminDashboardPage() {
             )}
           </div>
         </div>
+      </div>
+
+      {/* RWS Footer */}
+      <div className="mt-12 flex items-center justify-center gap-2 text-xs text-gray-400">
+        <span>Created and Maintained by</span>
+        <a
+          href="https://resilientwebsolutions.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1.5 text-gray-500 hover:text-blue-600 transition-colors"
+        >
+          <NextImage
+            src="/assets/rws-logo.svg"
+            alt="Resilient Web Solutions"
+            width={16}
+            height={16}
+          />
+          <span className="font-medium">Resilient Web Solutions</span>
+        </a>
       </div>
     </div>
   );

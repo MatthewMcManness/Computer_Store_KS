@@ -40,9 +40,19 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Debug: log the request body
+  console.log('[API] Creating asset with body:', JSON.stringify(body, null, 2));
+
   try {
     const client = createRepairShoprClient();
     const asset = await client.createAsset(apiToken, body);
+
+    console.log('[API] Asset created, returning:', JSON.stringify(asset, null, 2));
+
+    if (!asset) {
+      console.error('[API] No asset returned from RepairShopr client');
+      return NextResponse.json({ error: 'No asset created' }, { status: 500 });
+    }
 
     return NextResponse.json({ asset }, { status: 201 });
   } catch (error) {

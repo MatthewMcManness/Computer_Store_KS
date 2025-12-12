@@ -22,10 +22,160 @@ interface DeviceType {
 const deviceTypes: DeviceType[] = [
   { value: 'Desktop', label: 'Desktop', icon: '🖥️' },
   { value: 'Laptop', label: 'Laptop', icon: '💻' },
-  { value: 'Tablet', label: 'Tablet', icon: '📱' },
-  { value: 'Phone', label: 'Phone', icon: '📲' },
-  { value: 'Other', label: 'Other', icon: '🔧' },
 ];
+
+// =============================================================================
+// Brand and Model Data
+// =============================================================================
+
+const brands = [
+  'Dell',
+  'HP',
+  'Lenovo',
+  'ASUS',
+  'Acer',
+  'MSI',
+  'Samsung',
+  'Microsoft',
+  'Toshiba/Dynabook',
+  'Custom Build',
+] as const;
+
+type Brand = typeof brands[number];
+
+// Laptop models by brand
+const laptopModels: Record<Brand, string[]> = {
+  'Dell': [
+    'Inspiron',
+    'XPS',
+    'Latitude',
+    'Vostro',
+    'Precision',
+    'Alienware',
+    'G Series',
+  ],
+  'HP': [
+    'Pavilion',
+    'Envy',
+    'Spectre',
+    'EliteBook',
+    'ProBook',
+    'ZBook',
+    'OMEN',
+    'Victus',
+    'OmniBook',
+  ],
+  'Lenovo': [
+    'ThinkPad',
+    'IdeaPad',
+    'Yoga',
+    'Legion',
+    'LOQ',
+    'ThinkBook',
+  ],
+  'ASUS': [
+    'ZenBook',
+    'VivoBook',
+    'ROG',
+    'TUF Gaming',
+    'ExpertBook',
+    'ProArt StudioBook',
+  ],
+  'Acer': [
+    'Aspire',
+    'Swift',
+    'Predator Helios',
+    'Nitro',
+    'TravelMate',
+    'Chromebook',
+  ],
+  'MSI': [
+    'Stealth',
+    'Raider',
+    'Titan',
+    'Creator',
+    'Prestige',
+    'Modern',
+    'Crosshair',
+    'Vector',
+    'Katana',
+    'Thin',
+  ],
+  'Samsung': [
+    'Galaxy Book',
+    'Galaxy Book Pro',
+    'Galaxy Book Pro 360',
+    'Galaxy Book Ultra',
+    'Galaxy Book Odyssey',
+  ],
+  'Microsoft': [
+    'Surface Laptop',
+    'Surface Pro',
+    'Surface Go',
+    'Surface Laptop Go',
+    'Surface Laptop Studio',
+  ],
+  'Toshiba/Dynabook': [
+    'Portégé',
+    'Tecra',
+    'Satellite Pro',
+  ],
+  'Custom Build': [],
+};
+
+// Desktop models by brand
+const desktopModels: Record<Brand, string[]> = {
+  'Dell': [
+    'OptiPlex',
+    'Precision',
+    'Inspiron Desktop',
+    'XPS Desktop',
+    'Alienware Aurora',
+    'Vostro Desktop',
+    'G Series Desktop',
+  ],
+  'HP': [
+    'Pavilion Desktop',
+    'Envy Desktop',
+    'EliteDesk',
+    'ProDesk',
+    'OMEN Desktop',
+    'Victus Desktop',
+    'OmniDesk',
+    'Z Workstation',
+  ],
+  'Lenovo': [
+    'ThinkCentre',
+    'IdeaCentre',
+    'Legion Tower',
+    'ThinkStation',
+    'LOQ Tower',
+  ],
+  'ASUS': [
+    'ROG Desktop',
+    'TUF Gaming Desktop',
+    'ProArt Desktop',
+    'ExpertCenter',
+  ],
+  'Acer': [
+    'Aspire Desktop',
+    'Predator Orion',
+    'Nitro Desktop',
+    'Veriton',
+  ],
+  'MSI': [
+    'Trident',
+    'MEG Aegis',
+    'MAG Infinite',
+    'Codex',
+  ],
+  'Samsung': [],
+  'Microsoft': [
+    'Surface Studio',
+  ],
+  'Toshiba/Dynabook': [],
+  'Custom Build': [],
+};
 
 // =============================================================================
 // Component
@@ -39,9 +189,29 @@ export function DeviceStep({ customer, onSelectDevice, onBack }: DeviceStepProps
   const [error, setError] = useState<string | null>(null);
 
   // Form state
-  const [deviceType, setDeviceType] = useState('Desktop');
-  const [brand, setBrand] = useState('');
+  const [deviceType, setDeviceType] = useState<'Desktop' | 'Laptop'>('Desktop');
+  const [brand, setBrand] = useState<Brand | ''>('');
   const [model, setModel] = useState('');
+
+  // Get available models based on device type and brand
+  const getAvailableModels = (): string[] => {
+    if (!brand || brand === 'Custom Build') return [];
+    const models = deviceType === 'Laptop' ? laptopModels : desktopModels;
+    return models[brand] || [];
+  };
+
+  // Reset model when brand or device type changes
+  const handleBrandChange = (newBrand: Brand | '') => {
+    setBrand(newBrand);
+    setModel(''); // Reset model when brand changes
+  };
+
+  const handleDeviceTypeChange = (newType: 'Desktop' | 'Laptop') => {
+    setDeviceType(newType);
+    setModel(''); // Reset model when device type changes
+  };
+
+  const isCustomBuild = brand === 'Custom Build';
 
   // Load customer's existing devices
   useEffect(() => {
@@ -87,11 +257,19 @@ export function DeviceStep({ customer, onSelectDevice, onBack }: DeviceStepProps
     setCreating(true);
 
     try {
+      // Build device name based on brand and model
+      let deviceName: string;
+      if (isCustomBuild) {
+        deviceName = `Custom Build ${deviceType}`;
+      } else {
+        deviceName = model ? `${brand} ${model}` : brand;
+      }
+
       const response = await fetch('/api/repairshopr/assets', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: `${brand.trim()} ${model.trim()}`,
+          name: deviceName,
           customer_id: customer.id,
           asset_type_name: deviceType,
         }),
@@ -103,6 +281,11 @@ export function DeviceStep({ customer, onSelectDevice, onBack }: DeviceStepProps
       }
 
       const data = await response.json();
+      console.log('[DeviceStep] API response:', JSON.stringify(data, null, 2));
+      console.log('[DeviceStep] Asset object:', data.asset);
+      if (!data.asset) {
+        throw new Error('No asset returned from API');
+      }
       onSelectDevice(data.asset);
     } catch (err) {
       console.error('Error creating device:', err);
@@ -120,6 +303,16 @@ export function DeviceStep({ customer, onSelectDevice, onBack }: DeviceStepProps
     setModel('');
     setError(null);
   };
+
+  // Check if form is valid for submission
+  const isFormValid = (): boolean => {
+    if (!brand) return false;
+    if (isCustomBuild) return true; // Custom build doesn't need model
+    if (!model) return false;
+    return true;
+  };
+
+  const availableModels = getAvailableModels();
 
   return (
     <div className="rounded-lg bg-white p-8 shadow-sm">
@@ -141,7 +334,7 @@ export function DeviceStep({ customer, onSelectDevice, onBack }: DeviceStepProps
       {/* Loading state */}
       {loading && (
         <div className="py-8 text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-purple-600 border-r-transparent"></div>
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
           <p className="mt-2 text-sm text-gray-600">Loading devices...</p>
         </div>
       )}
@@ -158,7 +351,7 @@ export function DeviceStep({ customer, onSelectDevice, onBack }: DeviceStepProps
                 {devices.map((device) => (
                   <div
                     key={device.id}
-                    className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 transition-colors hover:border-purple-300 hover:bg-purple-50"
+                    className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 transition-colors hover:border-blue-300 hover:bg-blue-50"
                   >
                     <div className="flex items-center gap-3">
                       <span className="text-2xl">
@@ -175,7 +368,7 @@ export function DeviceStep({ customer, onSelectDevice, onBack }: DeviceStepProps
                     </div>
                     <button
                       onClick={() => handleSelectDevice(device)}
-                      className="rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-2 text-sm font-medium text-white hover:from-purple-700 hover:to-indigo-700"
+                      className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
                     >
                       Select
                     </button>
@@ -192,7 +385,7 @@ export function DeviceStep({ customer, onSelectDevice, onBack }: DeviceStepProps
           {/* Add New Device button */}
           <button
             onClick={() => setShowForm(true)}
-            className="w-full rounded-lg border-2 border-dashed border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 hover:border-purple-400 hover:bg-purple-50 hover:text-purple-700"
+            className="w-full rounded-lg border-2 border-dashed border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 hover:border-blue-400 hover:bg-blue-50 hover:text-blue-700"
           >
             + Add New Device
           </button>
@@ -212,9 +405,9 @@ export function DeviceStep({ customer, onSelectDevice, onBack }: DeviceStepProps
             <select
               id="deviceType"
               value={deviceType}
-              onChange={(e) => setDeviceType(e.target.value)}
+              onChange={(e) => handleDeviceTypeChange(e.target.value as 'Desktop' | 'Laptop')}
               required
-              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               {deviceTypes.map((type) => (
                 <option key={type.value} value={type.value}>
@@ -229,32 +422,58 @@ export function DeviceStep({ customer, onSelectDevice, onBack }: DeviceStepProps
             <label htmlFor="brand" className="mb-1 block text-sm font-medium text-gray-700">
               Brand <span className="text-red-500">*</span>
             </label>
-            <input
+            <select
               id="brand"
-              type="text"
               value={brand}
-              onChange={(e) => setBrand(e.target.value)}
-              placeholder="e.g., Dell, HP, Apple"
+              onChange={(e) => handleBrandChange(e.target.value as Brand | '')}
               required
-              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
-            />
+              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Select a brand...</option>
+              {brands.map((b) => (
+                <option key={b} value={b}>
+                  {b}
+                </option>
+              ))}
+            </select>
           </div>
 
-          {/* Model */}
-          <div>
-            <label htmlFor="model" className="mb-1 block text-sm font-medium text-gray-700">
-              Model <span className="text-red-500">*</span>
-            </label>
-            <input
-              id="model"
-              type="text"
-              value={model}
-              onChange={(e) => setModel(e.target.value)}
-              placeholder="e.g., OptiPlex 7090, MacBook Pro"
-              required
-              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
-            />
-          </div>
+          {/* Model - only show if brand is selected and not Custom Build */}
+          {brand && !isCustomBuild && (
+            <div>
+              <label htmlFor="model" className="mb-1 block text-sm font-medium text-gray-700">
+                Model <span className="text-red-500">*</span>
+              </label>
+              {availableModels.length > 0 ? (
+                <select
+                  id="model"
+                  value={model}
+                  onChange={(e) => setModel(e.target.value)}
+                  required
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Select a model...</option>
+                  {availableModels.map((m) => (
+                    <option key={m} value={m}>
+                      {m}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <p className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-800">
+                  No {deviceType.toLowerCase()} models available for {brand}.
+                  Please select a different brand or device type.
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Custom Build notice */}
+          {isCustomBuild && (
+            <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
+              Custom Build selected - no model needed.
+            </div>
+          )}
 
           {/* Form buttons */}
           <div className="flex gap-3 pt-2">
@@ -268,8 +487,8 @@ export function DeviceStep({ customer, onSelectDevice, onBack }: DeviceStepProps
             </button>
             <button
               type="submit"
-              disabled={creating || !brand.trim() || !model.trim()}
-              className="flex-1 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-2 font-medium text-white hover:from-purple-700 hover:to-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+              disabled={creating || !isFormValid()}
+              className="flex-1 rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {creating ? 'Adding...' : 'Add Device'}
             </button>

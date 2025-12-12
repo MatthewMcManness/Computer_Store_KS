@@ -299,7 +299,7 @@ export function CustomerFormStep({
                 value={businessSearchQuery}
                 onChange={(e) => setBusinessSearchQuery(e.target.value)}
                 placeholder="Search for existing business or enter new name..."
-                className="w-full rounded-lg border border-gray-300 px-4 py-2 pr-10 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2 pr-10 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               {isSearchingBusinesses && (
                 <Loader2 className="absolute right-3 top-3 h-5 w-5 animate-spin text-gray-400" />
@@ -331,7 +331,7 @@ export function CustomerFormStep({
                   <button
                     type="button"
                     onClick={handleCreateNewBusiness}
-                    className="w-full rounded px-3 py-2 text-left text-purple-600 hover:bg-purple-50"
+                    className="w-full rounded px-3 py-2 text-left text-blue-600 hover:bg-blue-50"
                   >
                     + Create new business "{businessSearchQuery}"
                   </button>
@@ -346,7 +346,7 @@ export function CustomerFormStep({
                 <button
                   type="button"
                   onClick={handleCreateNewBusiness}
-                  className="mt-2 w-full rounded-lg border border-purple-200 bg-purple-50 px-4 py-2 text-left text-purple-700 hover:bg-purple-100"
+                  className="mt-2 w-full rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-left text-blue-700 hover:bg-blue-100"
                 >
                   + Create new business "{businessSearchQuery}"
                 </button>
@@ -373,7 +373,7 @@ export function CustomerFormStep({
                   value={formData.business_name}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 {errors.business_name && (
                   <p className="mt-1 text-sm text-red-600">{errors.business_name}</p>
@@ -387,7 +387,7 @@ export function CustomerFormStep({
                   value={formData.address}
                   onChange={handleChange}
                   placeholder="Street address"
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div>
@@ -397,7 +397,7 @@ export function CustomerFormStep({
                   name="city"
                   value={formData.city}
                   onChange={handleChange}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div>
@@ -408,7 +408,7 @@ export function CustomerFormStep({
                   value={formData.state}
                   onChange={handleChange}
                   placeholder="KS"
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </div>
@@ -435,7 +435,7 @@ export function CustomerFormStep({
                 onChange={handleChange}
                 onBlur={handleBlur}
                 required
-                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               {errors.firstname && (
                 <p className="mt-1 text-sm text-red-600">{errors.firstname}</p>
@@ -454,7 +454,7 @@ export function CustomerFormStep({
                 onChange={handleChange}
                 onBlur={handleBlur}
                 required
-                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               {errors.lastname && (
                 <p className="mt-1 text-sm text-red-600">{errors.lastname}</p>
@@ -473,7 +473,7 @@ export function CustomerFormStep({
                 onChange={handleChange}
                 onBlur={handleBlur}
                 required
-                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
             </div>
@@ -491,7 +491,7 @@ export function CustomerFormStep({
                 onBlur={handleBlur}
                 required
                 placeholder="(555) 123-4567"
-                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
             </div>
@@ -509,7 +509,7 @@ export function CustomerFormStep({
                     value={formData.address}
                     onChange={handleChange}
                     placeholder="Street address"
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 <div>
@@ -519,7 +519,7 @@ export function CustomerFormStep({
                     value={formData.city}
                     onChange={handleChange}
                     placeholder="City"
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-2">
@@ -529,7 +529,7 @@ export function CustomerFormStep({
                     value={formData.state}
                     onChange={handleChange}
                     placeholder="State"
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <input
                     type="text"
@@ -537,7 +537,7 @@ export function CustomerFormStep({
                     value={formData.zip}
                     onChange={handleChange}
                     placeholder="ZIP"
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
@@ -546,7 +546,7 @@ export function CustomerFormStep({
         </div>
 
         {/* Portal Password Section */}
-        <div className="space-y-4 rounded-lg border border-purple-200 bg-purple-50 p-4">
+        <div className="space-y-4 rounded-lg border border-blue-200 bg-blue-50 p-4">
           <p className="text-sm font-medium text-gray-700">
             <Lock className="mr-1 inline-block h-4 w-4" />
             Customer Portal Password
@@ -569,7 +569,7 @@ export function CustomerFormStep({
                 onBlur={handleBlur}
                 required
                 placeholder="Minimum 8 characters"
-                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               {errors.password && (
                 <p className="mt-1 text-sm text-red-600">{errors.password}</p>
@@ -589,7 +589,7 @@ export function CustomerFormStep({
                 onBlur={handleBlur}
                 required
                 placeholder="Re-enter password"
-                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               {errors.confirmPassword && (
                 <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>
@@ -612,7 +612,7 @@ export function CustomerFormStep({
           <button
             type="submit"
             disabled={isSubmitting}
-            className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-3 font-medium text-white hover:from-purple-700 hover:to-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-3 font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isSubmitting ? (
               <>

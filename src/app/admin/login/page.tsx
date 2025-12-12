@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Settings } from 'lucide-react';
+import Image from 'next/image';
 
 /**
  * Error code to user-friendly message mapping
@@ -32,7 +32,12 @@ export default function AdminLoginPage() {
         const response = await fetch('/api/auth/check');
         const data = await response.json();
         if (mounted && data.authenticated) {
-          router.replace('/admin');
+          // Redirect based on user type
+          if (data.user?.userType === 'customer') {
+            router.replace('/portal');
+          } else {
+            router.replace('/admin');
+          }
         }
       } catch {
         // Not authenticated, stay on login page
@@ -72,9 +77,13 @@ export default function AdminLoginPage() {
         const userName = result.user?.name || 'User';
         setSuccessMessage(`Welcome back, ${userName}!`);
 
-        // Redirect after brief delay to show success message
+        // Redirect based on user type after brief delay
         setTimeout(() => {
-          router.push('/admin');
+          if (result.user?.userType === 'customer') {
+            router.push('/portal');
+          } else {
+            router.push('/admin');
+          }
           router.refresh();
         }, 800);
       } else {
@@ -95,7 +104,7 @@ export default function AdminLoginPage() {
   // Show loading while checking initial auth
   if (isCheckingAuth) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-600 to-indigo-700 p-4">
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-600 to-blue-800 p-4">
         <div className="text-white text-center">
           <svg
             className="mx-auto h-8 w-8 animate-spin"
@@ -123,15 +132,17 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-600 to-indigo-700 p-4">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-600 to-blue-800 p-4">
       <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl">
-        {/* Header */}
-        <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-purple-600 to-indigo-600">
-            <Settings className="h-8 w-8 text-white" />
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900">Administrator Login</h1>
-          <p className="mt-1 text-gray-500">Gallery Management System</p>
+        {/* Header - Logo only */}
+        <div className="mb-8 flex justify-center">
+          <Image
+            src="/assets/title.png"
+            alt="Computer Store KS"
+            width={280}
+            height={60}
+            priority
+          />
         </div>
 
         {/* Success Message */}
@@ -167,7 +178,7 @@ export default function AdminLoginPage() {
               required
               autoFocus
               disabled={isLoading || !!successMessage}
-              className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20 disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:bg-gray-100 disabled:cursor-not-allowed"
             />
           </div>
 
@@ -187,14 +198,14 @@ export default function AdminLoginPage() {
               autoComplete="current-password"
               required
               disabled={isLoading || !!successMessage}
-              className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20 disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:bg-gray-100 disabled:cursor-not-allowed"
             />
           </div>
 
           <button
             type="submit"
             disabled={isLoading || !!successMessage}
-            className="w-full rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-3 font-semibold text-white transition-all hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full rounded-lg bg-blue-600 px-4 py-3 font-semibold text-white transition-all hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <span className="flex items-center justify-center">
@@ -229,10 +240,29 @@ export default function AdminLoginPage() {
         <div className="mt-6 text-center">
           <Link
             href="/"
-            className="text-sm text-purple-600 hover:text-purple-700 hover:underline"
+            className="text-sm text-blue-600 hover:text-blue-700 hover:underline"
           >
             Back to Website
           </Link>
+        </div>
+
+        {/* RWS Footer */}
+        <div className="mt-8 flex items-center justify-center gap-2 text-xs text-gray-400">
+          <span>Created and Maintained by</span>
+          <a
+            href="https://resilientwebsolutions.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 text-gray-500 hover:text-blue-600 transition-colors"
+          >
+            <Image
+              src="/assets/rws-logo.svg"
+              alt="Resilient Web Solutions"
+              width={16}
+              height={16}
+            />
+            <span className="font-medium">Resilient Web Solutions</span>
+          </a>
         </div>
       </div>
     </div>

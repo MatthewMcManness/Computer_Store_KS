@@ -201,7 +201,7 @@ export function ComputerForm({ computer, onSubmit, isLoading }: ComputerFormProp
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           placeholder="e.g., Gaming Pro Desktop"
-          className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+          className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
           required
         />
       </div>
@@ -216,7 +216,7 @@ export function ComputerForm({ computer, onSubmit, isLoading }: ComputerFormProp
             id="type"
             value={formData.type}
             onChange={(e) => setFormData({ ...formData, type: e.target.value as 'desktop' | 'laptop' })}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+            className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
             required
           >
             <option value="desktop">Desktop</option>
@@ -231,7 +231,7 @@ export function ComputerForm({ computer, onSubmit, isLoading }: ComputerFormProp
             id="category"
             value={formData.category}
             onChange={(e) => setFormData({ ...formData, category: e.target.value as 'custom' | 'refurbished' | 'new' })}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+            className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
             required
           >
             <option value="custom">{formData.type === 'laptop' ? 'New' : 'Custom Build'}</option>
@@ -252,7 +252,7 @@ export function ComputerForm({ computer, onSubmit, isLoading }: ComputerFormProp
           value={formData.price}
           onChange={(e) => setFormData({ ...formData, price: e.target.value })}
           placeholder="$1,299"
-          className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+          className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
           required
         />
       </div>
@@ -288,7 +288,7 @@ export function ComputerForm({ computer, onSubmit, isLoading }: ComputerFormProp
                 value={spec.value}
                 onChange={(e) => updateSpec(index, e.target.value)}
                 placeholder={specConfigs[formData.type]?.find(s => s.label === spec.label)?.placeholder || 'Enter value'}
-                className="col-span-2 rounded-lg border border-gray-300 px-4 py-2 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                className="col-span-2 rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                 required
               />
             </div>
@@ -299,7 +299,7 @@ export function ComputerForm({ computer, onSubmit, isLoading }: ComputerFormProp
           <button
             type="button"
             onClick={addGraphicsCard}
-            className="mt-3 text-sm font-medium text-purple-600 hover:text-purple-700"
+            className="mt-3 text-sm font-medium text-blue-600 hover:text-blue-700"
           >
             + Add Graphics Card
           </button>
@@ -318,7 +318,7 @@ export function ComputerForm({ computer, onSubmit, isLoading }: ComputerFormProp
         <button
           type="submit"
           disabled={submitting || isLoading}
-          className="flex-1 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-2 text-sm font-medium text-white hover:from-purple-700 hover:to-indigo-700 disabled:opacity-50"
+          className="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
         >
           {submitting || isLoading ? 'Saving...' : (isEditing ? 'Save Changes' : 'Add Computer')}
         </button>

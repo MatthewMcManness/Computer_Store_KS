@@ -121,10 +121,10 @@ export function ImageUpload({ currentImage, computerType, onImageChange }: Image
         className={cn(
           'relative cursor-pointer rounded-lg border-2 border-dashed p-6 text-center transition-colors',
           isDragging
-            ? 'border-purple-500 bg-purple-50'
+            ? 'border-blue-500 bg-blue-50'
             : preview
             ? 'border-green-500 bg-green-50'
-            : 'border-gray-300 hover:border-purple-500 hover:bg-purple-50'
+            : 'border-gray-300 hover:border-blue-500 hover:bg-blue-50'
         )}
       >
         {preview ? (
@@ -151,7 +151,7 @@ export function ImageUpload({ currentImage, computerType, onImageChange }: Image
           <div>
             {isUploading ? (
               <div className="flex flex-col items-center">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-purple-600 border-r-transparent"></div>
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-r-transparent"></div>
                 <p className="mt-2 text-sm text-gray-600">Uploading...</p>
               </div>
             ) : (

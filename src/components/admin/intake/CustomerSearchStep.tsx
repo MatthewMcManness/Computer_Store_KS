@@ -92,7 +92,7 @@ export function CustomerSearchStep({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by name, email, or phone"
-            className="block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
         {searchQuery.length > 0 && searchQuery.length < 2 && (
@@ -105,7 +105,7 @@ export function CustomerSearchStep({
       {/* Loading State */}
       {isLoading && (
         <div className="mb-6 flex items-center justify-center py-8">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-purple-200 border-t-purple-600"></div>
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600"></div>
           <span className="ml-3 text-gray-600">Searching...</span>
         </div>
       )}
@@ -122,7 +122,7 @@ export function CustomerSearchStep({
                 {results.map((customer) => (
                   <div
                     key={customer.id}
-                    className="flex items-center justify-between rounded-lg border border-gray-200 p-4 transition-colors hover:border-purple-300 hover:bg-purple-50"
+                    className="flex items-center justify-between rounded-lg border border-gray-200 p-4 transition-colors hover:border-blue-300 hover:bg-blue-50"
                   >
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
@@ -159,7 +159,7 @@ export function CustomerSearchStep({
                     </div>
                     <button
                       onClick={() => handleSelectCustomer(customer)}
-                      className="ml-4 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-2 font-medium text-white transition-all hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+                      className="ml-4 rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-all hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                     >
                       Select
                     </button>
@@ -188,7 +188,7 @@ export function CustomerSearchStep({
         <div className="flex gap-4">
           <button
             onClick={() => onCreateNew('individual')}
-            className="flex flex-1 items-center justify-center gap-2 rounded-lg border-2 border-purple-200 bg-white px-6 py-4 font-medium text-purple-700 transition-all hover:border-purple-400 hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+            className="flex flex-1 items-center justify-center gap-2 rounded-lg border-2 border-blue-200 bg-white px-6 py-4 font-medium text-blue-700 transition-all hover:border-blue-400 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
             <UserPlus className="h-5 w-5" />
             Create New Individual Customer

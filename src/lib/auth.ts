@@ -273,7 +273,7 @@ export async function authenticateWithSupabase(
     // Step 1: Query customer account by email
     const { data: account, error: queryError } = await supabaseAdmin
       .from('customer_accounts')
-      .select('*')
+      .select('id, email, password_hash, repairshopr_customer_id, first_name')
       .eq('email', email.toLowerCase())
       .single();
 
@@ -301,7 +301,7 @@ export async function authenticateWithSupabase(
     const userData: CreateSessionInput = {
       userId: account.repairshopr_customer_id,
       email: account.email,
-      name: account.email.split('@')[0], // Use email prefix as name for now
+      name: account.first_name || account.email.split('@')[0], // Use first name from RepairShopr, fallback to email prefix
       role: 'limited', // Customers have limited access
       userType: 'customer',
     };

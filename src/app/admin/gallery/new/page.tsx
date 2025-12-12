@@ -17,7 +17,7 @@ export default async function AddComputerPage() {
       <div className="mb-8">
         <Link
           href="/admin/gallery"
-          className="mb-4 inline-flex items-center gap-2 text-sm text-purple-600 hover:text-purple-700"
+          className="mb-4 inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Gallery

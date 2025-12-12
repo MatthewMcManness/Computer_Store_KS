@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS customer_accounts (
   email VARCHAR(255) NOT NULL UNIQUE,
   password_hash VARCHAR(255) NOT NULL,
   repairshopr_customer_id INTEGER NOT NULL,
+  first_name VARCHAR(100),
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -58,4 +59,11 @@ COMMENT ON TABLE customer_accounts IS 'Customer portal login credentials. Linked
 COMMENT ON COLUMN customer_accounts.email IS 'Customer email address (unique login identifier)';
 COMMENT ON COLUMN customer_accounts.password_hash IS 'bcrypt hashed password';
 COMMENT ON COLUMN customer_accounts.repairshopr_customer_id IS 'Foreign key to RepairShopr customer record';
+COMMENT ON COLUMN customer_accounts.first_name IS 'Customer first name from RepairShopr';
 COMMENT ON INDEX idx_customer_accounts_repairshopr_id IS 'Fast lookup by RepairShopr customer ID';
+
+-- =============================================================================
+-- Migration: Add first_name column to existing table
+-- Run this if the table already exists without the first_name column
+-- =============================================================================
+-- ALTER TABLE customer_accounts ADD COLUMN IF NOT EXISTS first_name VARCHAR(100);

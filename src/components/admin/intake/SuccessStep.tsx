@@ -48,8 +48,8 @@ export function SuccessStep({
       <div className="mb-8 space-y-4">
         {/* Customer */}
         <div className="flex items-start gap-4 rounded-lg bg-gray-50 p-4">
-          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-purple-100">
-            <User className="h-5 w-5 text-purple-600" />
+          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-blue-100">
+            <User className="h-5 w-5 text-blue-600" />
           </div>
           <div className="flex-1">
             <p className="text-sm font-medium text-gray-600">Customer</p>
@@ -116,7 +116,7 @@ export function SuccessStep({
       <div className="flex justify-center">
         <button
           onClick={onNewIntake}
-          className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 px-8 py-3 font-medium text-white shadow-lg hover:from-purple-700 hover:to-indigo-700"
+          className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-8 py-3 font-medium text-white shadow-lg hover:bg-blue-700"
         >
           <X className="h-5 w-5" />
           Start New Intake

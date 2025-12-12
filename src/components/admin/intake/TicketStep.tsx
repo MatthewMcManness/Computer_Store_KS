@@ -37,6 +37,7 @@ export function TicketStep({ customer, device, onTicketCreated, onBack }: Ticket
           asset_id: device.id,
           subject: `Customer states: ${description.substring(0, 50)}${description.length > 50 ? '...' : ''}`,
           problem_type: 'Repair',
+          comment_subject: 'Initial Issue Description',
           comment_body: `Customer states: ${description}`,
         }),
       });
@@ -67,7 +68,7 @@ export function TicketStep({ customer, device, onTicketCreated, onBack }: Ticket
       </h2>
 
       {/* Summary Header */}
-      <div className="mb-6 rounded-lg bg-gradient-to-r from-purple-50 to-indigo-50 p-4">
+      <div className="mb-6 rounded-lg bg-blue-50 p-4">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm font-medium text-gray-600">Customer</p>
@@ -103,7 +104,7 @@ export function TicketStep({ customer, device, onTicketCreated, onBack }: Ticket
             setDescription(e.target.value);
             if (error) setError(null);
           }}
-          className="min-h-[200px] w-full rounded-lg border border-gray-300 p-4 text-base focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+          className="min-h-[200px] w-full rounded-lg border border-gray-300 p-4 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
           placeholder="Describe the issue or repair request in detail..."
           disabled={isSubmitting}
         />
@@ -133,7 +134,7 @@ export function TicketStep({ customer, device, onTicketCreated, onBack }: Ticket
         <button
           onClick={handleSubmit}
           disabled={!isValid || isSubmitting}
-          className="rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-3 font-medium text-white hover:from-purple-700 hover:to-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+          className="rounded-lg bg-blue-600 px-6 py-3 font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isSubmitting ? 'Creating Ticket...' : 'Create Ticket'}
         </button>

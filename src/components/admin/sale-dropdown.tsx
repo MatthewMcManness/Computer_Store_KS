@@ -139,13 +139,13 @@ export function SaleDropdown({ onSaleChange }: SaleDropdownProps) {
                 onClick={() => handleSelectSale(sale.type)}
                 className={`flex w-full items-center justify-between px-4 py-2 text-sm transition-colors ${
                   currentSale === sale.type
-                    ? 'bg-purple-50 text-purple-700'
+                    ? 'bg-blue-50 text-blue-700'
                     : 'text-gray-700 hover:bg-gray-50'
                 }`}
               >
                 <span>{sale.name}</span>
                 {currentSale === sale.type && (
-                  <Check className="h-4 w-4 text-purple-600" />
+                  <Check className="h-4 w-4 text-blue-600" />
                 )}
               </button>
             ))}

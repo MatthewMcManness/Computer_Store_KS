@@ -114,6 +114,7 @@ export async function POST(request: NextRequest) {
             email: customerData.email.toLowerCase(),
             password_hash: passwordHash,
             repairshopr_customer_id: customer.id,
+            first_name: customerData.firstname,
           });
 
         if (!insertError) {

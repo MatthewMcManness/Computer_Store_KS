@@ -105,7 +105,7 @@ export default function AdminBlogPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
       </div>
     );
   }
@@ -122,7 +122,7 @@ export default function AdminBlogPage() {
         </div>
         <Link
           href="/admin/blog/new"
-          className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-2 text-sm font-medium text-white hover:from-purple-700 hover:to-indigo-700"
+          className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
         >
           <Plus className="h-4 w-4" />
           New Post
@@ -162,14 +162,14 @@ export default function AdminBlogPage() {
       {/* Posts Table */}
       {posts.length === 0 ? (
         <div className="rounded-xl bg-white p-12 text-center shadow-sm">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-purple-100">
-            <Plus className="h-6 w-6 text-purple-600" />
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
+            <Plus className="h-6 w-6 text-blue-600" />
           </div>
           <h3 className="text-lg font-medium text-gray-900">No blog posts yet</h3>
           <p className="mt-1 text-gray-500">Get started by creating your first post.</p>
           <Link
             href="/admin/blog/new"
-            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-2 text-sm font-medium text-white hover:from-purple-700 hover:to-indigo-700"
+            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
           >
             <Plus className="h-4 w-4" />
             Create First Post
@@ -251,7 +251,7 @@ export default function AdminBlogPage() {
                       )}
                       <Link
                         href={`/admin/blog/${post.id}`}
-                        className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-purple-600"
+                        className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-blue-600"
                         title="Edit post"
                       >
                         <Edit className="h-4 w-4" />

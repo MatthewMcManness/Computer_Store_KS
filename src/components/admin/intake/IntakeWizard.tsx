@@ -243,7 +243,7 @@ export function IntakeWizard() {
               </p>
               <button
                 onClick={handleNewIntake}
-                className="mt-6 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-3 font-medium text-white hover:from-purple-700 hover:to-indigo-700"
+                className="mt-6 rounded-lg bg-blue-600 px-6 py-3 font-medium text-white hover:bg-blue-700"
               >
                 Start New Intake
               </button>
@@ -275,7 +275,7 @@ export function IntakeWizard() {
                 <div
                   className={`flex h-12 w-12 items-center justify-center rounded-full border-2 text-lg font-bold transition-colors ${
                     stepNumber === state.step
-                      ? 'border-purple-600 bg-purple-600 text-white'
+                      ? 'border-blue-600 bg-blue-600 text-white'
                       : stepNumber < state.step
                       ? 'border-green-600 bg-green-600 text-white'
                       : 'border-gray-300 bg-white text-gray-500'
@@ -327,7 +327,7 @@ export function IntakeWizard() {
             <button
               onClick={handleNext}
               disabled={!canProceed()}
-              className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-3 font-medium text-white hover:from-purple-700 hover:to-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-3 font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Next
               <ChevronRight className="h-5 w-5" />

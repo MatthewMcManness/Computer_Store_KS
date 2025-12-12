@@ -10,7 +10,6 @@ export function Footer() {
           <p><strong>Address:</strong> 2008 SW Gage Blvd, Topeka, KS 66604</p>
         </div>
         <p className="footer-copyright">&copy; 2025 Computer Store Kansas. All rights reserved.</p>
-        <Link href="/admin/login" className="btn admin-login-btn">Administrator Login</Link>
         <div className="footer-credit">
           <Image
             src="/assets/rws-logo.svg"

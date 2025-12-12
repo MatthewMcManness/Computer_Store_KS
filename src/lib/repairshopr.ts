@@ -182,6 +182,7 @@ export interface CreateAssetInput {
   customer_id: number;
   asset_serial?: string;
   asset_type_id?: number;
+  asset_type_name?: string;
   properties?: Record<string, unknown>;
 }
 
@@ -694,11 +695,11 @@ export class RepairShoprClient {
       );
     }
 
-    const response = await this.request<{ customer_assets: RepairShoprAsset[] }>(
+    const response = await this.request<{ assets: RepairShoprAsset[] }>(
       `/customer_assets?api_key=${encodeURIComponent(apiToken.trim())}&customer_id=${customerId}`
     );
 
-    return response.customer_assets || [];
+    return response.assets || [];
   }
 
   /**
@@ -737,7 +738,10 @@ export class RepairShoprClient {
       );
     }
 
-    const response = await this.request<{ customer_asset: RepairShoprAsset }>(
+    // Debug: log the data being sent
+    console.log('[RepairShopr] Creating asset with data:', JSON.stringify(data, null, 2));
+
+    const response = await this.request<{ asset: RepairShoprAsset }>(
       `/customer_assets?api_key=${encodeURIComponent(apiToken.trim())}`,
       {
         method: 'POST',
@@ -745,7 +749,14 @@ export class RepairShoprClient {
       }
     );
 
-    return response.customer_asset;
+    console.log('[RepairShopr] Raw API response:', JSON.stringify(response, null, 2));
+    console.log('[RepairShopr] Asset created successfully:', response.asset?.id);
+
+    if (!response.asset) {
+      console.error('[RepairShopr] No asset in response. Full response:', response);
+    }
+
+    return response.asset;
   }
 
   // =============================================================================

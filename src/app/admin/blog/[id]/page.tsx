@@ -148,7 +148,7 @@ export default function EditBlogPostPage({ params }: PageProps) {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
       </div>
     );
   }
@@ -160,7 +160,7 @@ export default function EditBlogPostPage({ params }: PageProps) {
         <p className="mt-1 text-gray-500">The blog post you're looking for doesn't exist.</p>
         <Link
           href="/admin/blog"
-          className="mt-4 inline-flex items-center gap-2 text-purple-600 hover:text-purple-700"
+          className="mt-4 inline-flex items-center gap-2 text-blue-600 hover:text-blue-700"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Posts
@@ -214,7 +214,7 @@ export default function EditBlogPostPage({ params }: PageProps) {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
-              className="w-full rounded-lg border border-gray-300 px-4 py-2 text-lg font-medium focus:border-purple-500 focus:ring-purple-500"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2 text-lg font-medium focus:border-blue-500 focus:ring-blue-500"
               placeholder="Enter post title..."
             />
           </div>
@@ -230,7 +230,7 @@ export default function EditBlogPostPage({ params }: PageProps) {
                 type="text"
                 value={slug}
                 onChange={(e) => setSlug(e.target.value)}
-                className="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:border-purple-500 focus:ring-purple-500"
+                className="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500"
                 placeholder="url-slug"
               />
             </div>
@@ -245,7 +245,7 @@ export default function EditBlogPostPage({ params }: PageProps) {
               value={excerpt}
               onChange={(e) => setExcerpt(e.target.value)}
               rows={2}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-purple-500 focus:ring-purple-500"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500"
               placeholder="Brief summary of the post (shown in previews)..."
             />
           </div>
@@ -263,7 +263,7 @@ export default function EditBlogPostPage({ params }: PageProps) {
               onChange={(e) => setContent(e.target.value)}
               required
               rows={15}
-              className="w-full rounded-lg border border-gray-300 px-4 py-3 font-mono text-sm focus:border-purple-500 focus:ring-purple-500"
+              className="w-full rounded-lg border border-gray-300 px-4 py-3 font-mono text-sm focus:border-blue-500 focus:ring-blue-500"
               placeholder="Write your post content here..."
             />
           </div>
@@ -280,7 +280,7 @@ export default function EditBlogPostPage({ params }: PageProps) {
                     type="url"
                     value={featuredImageUrl}
                     onChange={(e) => setFeaturedImageUrl(e.target.value)}
-                    className="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:border-purple-500 focus:ring-purple-500"
+                    className="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500"
                     placeholder="https://example.com/image.jpg"
                   />
                   <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
@@ -365,7 +365,7 @@ export default function EditBlogPostPage({ params }: PageProps) {
                 <select
                   value={categoryId}
                   onChange={(e) => setCategoryId(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-purple-500 focus:ring-purple-500"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500"
                 >
                   <option value="">Select a category</option>
                   {categories.map((cat) => (
@@ -389,7 +389,7 @@ export default function EditBlogPostPage({ params }: PageProps) {
                       onClick={() => handleTagToggle(tag.id)}
                       className={`rounded-full px-3 py-1 text-sm font-medium transition-colors ${
                         selectedTags.includes(tag.id)
-                          ? 'bg-purple-600 text-white'
+                          ? 'bg-blue-600 text-white'
                           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                       }`}
                     >
@@ -411,7 +411,7 @@ export default function EditBlogPostPage({ params }: PageProps) {
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value as 'draft' | 'published' | 'archived')}
-                className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:border-purple-500 focus:ring-purple-500"
+                className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-blue-500"
               >
                 <option value="draft">Draft</option>
                 <option value="published">Published</option>
@@ -437,7 +437,7 @@ export default function EditBlogPostPage({ params }: PageProps) {
                   type="button"
                   onClick={(e) => handleSubmit(e as React.FormEvent, 'published')}
                   disabled={isSubmitting || !title || !content}
-                  className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-2 text-sm font-medium text-white hover:from-purple-700 hover:to-indigo-700 disabled:opacity-50"
+                  className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
                 >
                   {isSubmitting ? (
                     <Loader2 className="h-4 w-4 animate-spin" />

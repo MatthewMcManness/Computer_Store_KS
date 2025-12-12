@@ -14,6 +14,7 @@ import {
   FileText,
   PenSquare,
   ClipboardList,
+  Users,
 } from 'lucide-react';
 
 interface NavItem {
@@ -32,6 +33,11 @@ const navItems: NavItem[] = [
     label: 'Customer Intake',
     href: '/admin/intake',
     icon: <ClipboardList className="h-5 w-5" />,
+  },
+  {
+    label: 'Customers',
+    href: '/admin/customers',
+    icon: <Users className="h-5 w-5" />,
   },
   {
     label: 'Gallery',
@@ -81,12 +87,12 @@ export function AdminSidebar({ onLogout }: AdminSidebarProps) {
         {/* Header */}
         <div className="flex h-16 items-center border-b border-gray-200 px-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
               <Settings className="h-4 w-4 text-white" />
             </div>
             <div>
               <h1 className="text-sm font-bold text-gray-900">Admin Panel</h1>
-              <p className="text-xs text-gray-500">Gallery Manager</p>
+              <p className="text-xs text-gray-500">Computer Store KS</p>
             </div>
           </div>
         </div>
@@ -104,7 +110,7 @@ export function AdminSidebar({ onLogout }: AdminSidebarProps) {
                 className={cn(
                   'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                   isActive
-                    ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white'
+                    ? 'bg-blue-600 text-white'
                     : 'text-gray-700 hover:bg-gray-100'
                 )}
               >

@@ -272,28 +272,30 @@ export function IntakeWizard() {
       {/* Step Content */}
       <div className="mb-8">{renderStepContent()}</div>
 
-      {/* Navigation Buttons */}
-      <div className="flex items-center justify-between">
-        <button
-          onClick={handleBack}
-          disabled={state.step === 1}
-          className="inline-flex items-center gap-2 rounded-lg bg-white px-6 py-3 font-medium text-gray-700 shadow-sm hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          <ChevronLeft className="h-5 w-5" />
-          Back
-        </button>
-
-        {state.step < 5 && (
+      {/* Navigation Buttons - Hide on steps that have their own navigation */}
+      {state.step !== 2 && state.step !== 3 && (
+        <div className="flex items-center justify-between">
           <button
-            onClick={handleNext}
-            disabled={!canProceed()}
-            className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-3 font-medium text-white hover:from-purple-700 hover:to-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+            onClick={handleBack}
+            disabled={state.step === 1}
+            className="inline-flex items-center gap-2 rounded-lg bg-white px-6 py-3 font-medium text-gray-700 shadow-sm hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Next
-            <ChevronRight className="h-5 w-5" />
+            <ChevronLeft className="h-5 w-5" />
+            Back
           </button>
-        )}
-      </div>
+
+          {state.step < 5 && (
+            <button
+              onClick={handleNext}
+              disabled={!canProceed()}
+              className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-3 font-medium text-white hover:from-purple-700 hover:to-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Next
+              <ChevronRight className="h-5 w-5" />
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

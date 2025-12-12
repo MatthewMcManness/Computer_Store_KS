@@ -490,12 +490,30 @@ export async function getCurrentUser(): Promise<UserSession | null> {
 }
 
 /**
- * Get session token (for API routes)
+ * Get RepairShopr API token from session (for API routes)
+ * Returns null if not authenticated or if user is not an employee
  */
 export async function getSessionToken(): Promise<string | null> {
   const cookieStore = await cookies();
-  const session = cookieStore.get(SESSION_COOKIE_NAME);
-  return session?.value || null;
+  const sessionCookie = cookieStore.get(SESSION_COOKIE_NAME);
+
+  if (!sessionCookie?.value) {
+    return null;
+  }
+
+  if (getAuthMode() === 'repairshopr') {
+    // Decrypt session from cookie
+    const session = decryptSession(sessionCookie.value);
+    if (!session) {
+      return null;
+    }
+
+    // Return the API token
+    return session.apiToken || null;
+  }
+
+  // Legacy mode: no API token available
+  return null;
 }
 
 /**

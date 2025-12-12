@@ -273,11 +273,19 @@ export async function authenticateWithSupabase(
     // Step 1: Query customer account by email
     const { data: account, error: queryError } = await supabaseAdmin
       .from('customer_accounts')
-      .select('id, email, password_hash, repairshopr_customer_id, first_name')
+      .select('*')
       .eq('email', email.toLowerCase())
       .single();
 
-    if (queryError || !account) {
+    if (queryError) {
+      console.log(`[AUTH] Customer account query error:`, queryError.message);
+      return {
+        success: false,
+        error: 'Invalid email or password',
+      };
+    }
+
+    if (!account) {
       console.log(`[AUTH] Customer account not found: ${email}`);
       return {
         success: false,
@@ -298,10 +306,13 @@ export async function authenticateWithSupabase(
     }
 
     // Step 3: Create customer session
+    // Use first_name if available, otherwise fallback to email prefix
+    const customerName = (account as { first_name?: string }).first_name || account.email.split('@')[0];
+
     const userData: CreateSessionInput = {
       userId: account.repairshopr_customer_id,
       email: account.email,
-      name: account.first_name || account.email.split('@')[0], // Use first name from RepairShopr, fallback to email prefix
+      name: customerName,
       role: 'limited', // Customers have limited access
       userType: 'customer',
     };

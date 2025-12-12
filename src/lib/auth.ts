@@ -41,6 +41,7 @@ export interface UserSession {
   email: string;
   name: string;
   role: 'admin' | 'employee' | 'limited';
+  userType: 'employee' | 'customer';
 }
 
 /**
@@ -204,6 +205,7 @@ export async function authenticateWithRepairShopr(
       email: meResponse.user.email,
       name: meResponse.user.full_name,
       role,
+      userType: 'employee', // RepairShopr users are employees
     };
 
     const sessionData = createSessionData(userData, signInResponse.api_key);
@@ -233,12 +235,116 @@ export async function authenticateWithRepairShopr(
         email: userData.email,
         name: userData.name,
         role: userData.role,
+        userType: userData.userType,
       },
     };
   } catch (error) {
     const msg = error instanceof Error ? error.message : 'Unknown session error';
     console.log(`[AUTH] Session creation failed:`, msg);
     return { success: false, error: `Session error: ${msg}` };
+  }
+}
+
+// =============================================================================
+// Customer Authentication (Supabase)
+// =============================================================================
+
+/**
+ * Authenticate a customer with Supabase credentials
+ * @param email Customer's email address
+ * @param password Customer's password
+ * @returns AuthResult with success status and user data
+ */
+export async function authenticateWithSupabase(
+  email: string,
+  password: string
+): Promise<AuthResult> {
+  const { supabaseAdmin } = await import('./supabase');
+
+  if (!supabaseAdmin) {
+    console.log('[AUTH] Supabase not configured');
+    return {
+      success: false,
+      error: 'Customer authentication is not available',
+    };
+  }
+
+  try {
+    // Step 1: Query customer account by email
+    const { data: account, error: queryError } = await supabaseAdmin
+      .from('customer_accounts')
+      .select('*')
+      .eq('email', email.toLowerCase())
+      .single();
+
+    if (queryError || !account) {
+      console.log(`[AUTH] Customer account not found: ${email}`);
+      return {
+        success: false,
+        error: 'Invalid email or password',
+      };
+    }
+
+    // Step 2: Verify password hash
+    const bcrypt = await import('bcrypt');
+    const isPasswordValid = await bcrypt.compare(password, account.password_hash);
+
+    if (!isPasswordValid) {
+      console.log(`[AUTH] Customer password verification failed: ${email}`);
+      return {
+        success: false,
+        error: 'Invalid email or password',
+      };
+    }
+
+    // Step 3: Create customer session
+    const userData: CreateSessionInput = {
+      userId: account.repairshopr_customer_id,
+      email: account.email,
+      name: account.email.split('@')[0], // Use email prefix as name for now
+      role: 'limited', // Customers have limited access
+      userType: 'customer',
+    };
+
+    const sessionData = createSessionData(userData, ''); // No API token for customers
+    const encryptedSession = encryptSession(sessionData);
+
+    const cookieStore = await cookies();
+    cookieStore.set(SESSION_COOKIE_NAME, encryptedSession, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: SESSION_MAX_AGE,
+      path: '/',
+    });
+
+    cookieStore.set(ROLE_COOKIE_NAME, userData.role, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: SESSION_MAX_AGE,
+      path: '/',
+    });
+
+    console.log(`[AUTH] Customer login successful: ${email}`);
+
+    return {
+      success: true,
+      user: {
+        userId: userData.userId,
+        email: userData.email,
+        name: userData.name,
+        role: userData.role,
+        userType: userData.userType,
+      },
+    };
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : 'Unknown error';
+    console.error(`[AUTH] Customer authentication error:`, msg);
+    return {
+      success: false,
+      error: 'Authentication failed',
+    };
   }
 }
 
@@ -284,6 +390,7 @@ export async function createSession(user?: UserSession): Promise<string> {
       email: user.email,
       name: user.name,
       role: user.role,
+      userType: user.userType,
     },
     '' // No API token when called directly
   );
@@ -368,6 +475,7 @@ export async function getCurrentUser(): Promise<UserSession | null> {
       email: safeSession.email,
       name: safeSession.name,
       role: safeSession.role,
+      userType: safeSession.userType,
     };
   }
 
@@ -377,6 +485,7 @@ export async function getCurrentUser(): Promise<UserSession | null> {
     email: 'admin@local',
     name: 'Administrator',
     role: 'admin',
+    userType: 'employee',
   };
 }
 

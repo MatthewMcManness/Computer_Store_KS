@@ -196,30 +196,46 @@ export function IntakeWizard() {
   };
 
   const handleTicketCreated = async (ticket: RepairShoprTicket, customer: RepairShoprCustomer) => {
-    dispatch({ type: 'SET_CREATED_TICKET', ticket });
+    console.log('[Intake] handleTicketCreated called!');
 
-    // Check if customer has a password saved in our database
-    // Using customer passed from TicketStep to avoid stale closure issues
-    console.log('[Intake] Ticket created for customer:', customer.id, customer.fullname, customer.email);
+    try {
+      dispatch({ type: 'SET_CREATED_TICKET', ticket });
 
-    setCheckingPortalAccount(true);
-    const hasPassword = await checkForSavedPassword(customer.id);
-    dispatch({ type: 'SET_PORTAL_ACCOUNT', hasAccount: hasPassword });
-    setCheckingPortalAccount(false);
+      // Check if customer has a password saved in our database
+      console.log('[Intake] Ticket created for customer:', customer?.id, customer?.fullname, customer?.email);
 
-    console.log('[Intake] Customer email:', customer.email, 'hasPassword:', hasPassword);
+      if (!customer) {
+        console.error('[Intake] No customer provided!');
+        dispatch({ type: 'NEXT_STEP' });
+        return;
+      }
 
-    if (!hasPassword && customer.email) {
-      // No password saved and customer has email - show password setup modal
-      console.log('[Intake] Showing password modal');
-      setShowPasswordModal(true);
-    } else if (!hasPassword && !customer.email) {
-      // No password and no email - can't create account, skip to success
-      console.log('[Intake] No email, skipping password modal');
-      dispatch({ type: 'NEXT_STEP' });
-    } else {
-      // Customer already has password saved, go to success
-      console.log('[Intake] Password exists, going to success');
+      setCheckingPortalAccount(true);
+      console.log('[Intake] Checking for saved password...');
+
+      const hasPassword = await checkForSavedPassword(customer.id);
+      console.log('[Intake] Password check result:', hasPassword);
+
+      dispatch({ type: 'SET_PORTAL_ACCOUNT', hasAccount: hasPassword });
+      setCheckingPortalAccount(false);
+
+      console.log('[Intake] Customer email:', customer.email, 'hasPassword:', hasPassword);
+
+      if (!hasPassword && customer.email) {
+        // No password saved and customer has email - show password setup modal
+        console.log('[Intake] Showing password modal');
+        setShowPasswordModal(true);
+      } else if (!hasPassword && !customer.email) {
+        // No password and no email - can't create account, skip to success
+        console.log('[Intake] No email, skipping password modal');
+        dispatch({ type: 'NEXT_STEP' });
+      } else {
+        // Customer already has password saved, go to success
+        console.log('[Intake] Password exists, going to success');
+        dispatch({ type: 'NEXT_STEP' });
+      }
+    } catch (error) {
+      console.error('[Intake] Error in handleTicketCreated:', error);
       dispatch({ type: 'NEXT_STEP' });
     }
   };

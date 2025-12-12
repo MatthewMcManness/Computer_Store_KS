@@ -53,6 +53,7 @@ export function TicketStep({ customer, device, onTicketCreated, onBack }: Ticket
         throw new Error('Invalid response from server');
       }
 
+      console.log('[TicketStep] Calling onTicketCreated with:', data.ticket?.id, customer?.id);
       onTicketCreated(data.ticket, customer);
     } catch (err) {
       console.error('Failed to create ticket:', err);

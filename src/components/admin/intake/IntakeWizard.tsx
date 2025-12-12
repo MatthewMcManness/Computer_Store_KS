@@ -1,0 +1,256 @@
+'use client';
+
+import { useReducer } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import type { RepairShoprCustomer, RepairShoprAsset, RepairShoprTicket } from '@/lib/repairshopr';
+
+// =============================================================================
+// Types
+// =============================================================================
+
+interface IntakeState {
+  step: number;
+  customer: RepairShoprCustomer | null;
+  isNewCustomer: boolean;
+  device: RepairShoprAsset | null;
+  isNewDevice: boolean;
+  ticketDescription: string;
+  createdTicket: RepairShoprTicket | null;
+}
+
+type IntakeAction =
+  | { type: 'NEXT_STEP' }
+  | { type: 'PREV_STEP' }
+  | { type: 'SET_CUSTOMER'; customer: RepairShoprCustomer; isNew: boolean }
+  | { type: 'SET_DEVICE'; device: RepairShoprAsset; isNew: boolean }
+  | { type: 'SET_TICKET_DESCRIPTION'; description: string }
+  | { type: 'SET_CREATED_TICKET'; ticket: RepairShoprTicket }
+  | { type: 'RESET' };
+
+// =============================================================================
+// Reducer
+// =============================================================================
+
+const initialState: IntakeState = {
+  step: 1,
+  customer: null,
+  isNewCustomer: false,
+  device: null,
+  isNewDevice: false,
+  ticketDescription: '',
+  createdTicket: null,
+};
+
+function intakeReducer(state: IntakeState, action: IntakeAction): IntakeState {
+  switch (action.type) {
+    case 'NEXT_STEP':
+      return { ...state, step: Math.min(state.step + 1, 5) };
+    case 'PREV_STEP':
+      return { ...state, step: Math.max(state.step - 1, 1) };
+    case 'SET_CUSTOMER':
+      return {
+        ...state,
+        customer: action.customer,
+        isNewCustomer: action.isNew,
+      };
+    case 'SET_DEVICE':
+      return {
+        ...state,
+        device: action.device,
+        isNewDevice: action.isNew,
+      };
+    case 'SET_TICKET_DESCRIPTION':
+      return {
+        ...state,
+        ticketDescription: action.description,
+      };
+    case 'SET_CREATED_TICKET':
+      return {
+        ...state,
+        createdTicket: action.ticket,
+      };
+    case 'RESET':
+      return initialState;
+    default:
+      return state;
+  }
+}
+
+// =============================================================================
+// Component
+// =============================================================================
+
+export function IntakeWizard() {
+  const [state, dispatch] = useReducer(intakeReducer, initialState);
+
+  const handleNext = () => {
+    dispatch({ type: 'NEXT_STEP' });
+  };
+
+  const handleBack = () => {
+    dispatch({ type: 'PREV_STEP' });
+  };
+
+  const handleNewIntake = () => {
+    dispatch({ type: 'RESET' });
+  };
+
+  // Step validation logic
+  const canProceed = (): boolean => {
+    switch (state.step) {
+      case 1: // Customer search - need to select a customer
+        return state.customer !== null;
+      case 2: // Customer form - only shown if new customer
+        return !state.isNewCustomer || state.customer !== null;
+      case 3: // Device - need to select a device
+        return state.device !== null;
+      case 4: // Ticket - need a description
+        return state.ticketDescription.trim().length > 0;
+      case 5: // Success - already complete
+        return true;
+      default:
+        return false;
+    }
+  };
+
+  // Render current step content
+  const renderStepContent = () => {
+    switch (state.step) {
+      case 1:
+        return (
+          <div className="rounded-lg bg-white p-8 shadow-sm">
+            <h2 className="mb-4 text-2xl font-bold text-gray-900">
+              Step 1: Search Customer
+            </h2>
+            <p className="text-gray-600">
+              Customer search and selection will be implemented here.
+            </p>
+          </div>
+        );
+      case 2:
+        return (
+          <div className="rounded-lg bg-white p-8 shadow-sm">
+            <h2 className="mb-4 text-2xl font-bold text-gray-900">
+              Step 2: Customer Details
+            </h2>
+            <p className="text-gray-600">
+              Customer form with password setup will be implemented here.
+            </p>
+          </div>
+        );
+      case 3:
+        return (
+          <div className="rounded-lg bg-white p-8 shadow-sm">
+            <h2 className="mb-4 text-2xl font-bold text-gray-900">
+              Step 3: Select Device
+            </h2>
+            <p className="text-gray-600">
+              Device selection and creation will be implemented here.
+            </p>
+          </div>
+        );
+      case 4:
+        return (
+          <div className="rounded-lg bg-white p-8 shadow-sm">
+            <h2 className="mb-4 text-2xl font-bold text-gray-900">
+              Step 4: Ticket Info
+            </h2>
+            <p className="text-gray-600">
+              Ticket description and creation will be implemented here.
+            </p>
+          </div>
+        );
+      case 5:
+        return (
+          <div className="rounded-lg bg-white p-8 shadow-sm">
+            <h2 className="mb-4 text-2xl font-bold text-green-600">
+              Step 5: Complete
+            </h2>
+            <p className="text-gray-600">
+              Success message and new intake option will be implemented here.
+            </p>
+            <button
+              onClick={handleNewIntake}
+              className="mt-6 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-3 font-medium text-white hover:from-purple-700 hover:to-indigo-700"
+            >
+              Start New Intake
+            </button>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="mx-auto max-w-4xl">
+      {/* Step Indicator */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between">
+          {[1, 2, 3, 4, 5].map((stepNumber) => (
+            <div key={stepNumber} className="flex flex-1 items-center">
+              <div className="relative flex flex-col items-center">
+                <div
+                  className={`flex h-12 w-12 items-center justify-center rounded-full border-2 text-lg font-bold transition-colors ${
+                    stepNumber === state.step
+                      ? 'border-purple-600 bg-purple-600 text-white'
+                      : stepNumber < state.step
+                      ? 'border-green-600 bg-green-600 text-white'
+                      : 'border-gray-300 bg-white text-gray-500'
+                  }`}
+                >
+                  {stepNumber}
+                </div>
+                <div className="mt-2 text-xs font-medium text-gray-600">
+                  {stepNumber === 1 && 'Customer'}
+                  {stepNumber === 2 && 'Details'}
+                  {stepNumber === 3 && 'Device'}
+                  {stepNumber === 4 && 'Ticket'}
+                  {stepNumber === 5 && 'Complete'}
+                </div>
+              </div>
+              {stepNumber < 5 && (
+                <div
+                  className={`mx-2 h-1 flex-1 transition-colors ${
+                    stepNumber < state.step ? 'bg-green-600' : 'bg-gray-300'
+                  }`}
+                />
+              )}
+            </div>
+          ))}
+        </div>
+        <div className="mt-6 text-center">
+          <p className="text-sm font-medium text-gray-600">
+            Step {state.step} of 5
+          </p>
+        </div>
+      </div>
+
+      {/* Step Content */}
+      <div className="mb-8">{renderStepContent()}</div>
+
+      {/* Navigation Buttons */}
+      <div className="flex items-center justify-between">
+        <button
+          onClick={handleBack}
+          disabled={state.step === 1}
+          className="inline-flex items-center gap-2 rounded-lg bg-white px-6 py-3 font-medium text-gray-700 shadow-sm hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <ChevronLeft className="h-5 w-5" />
+          Back
+        </button>
+
+        {state.step < 5 && (
+          <button
+            onClick={handleNext}
+            disabled={!canProceed()}
+            className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-3 font-medium text-white hover:from-purple-700 hover:to-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Next
+            <ChevronRight className="h-5 w-5" />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}

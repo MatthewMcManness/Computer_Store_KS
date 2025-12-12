@@ -13,6 +13,7 @@ import {
   RefreshCw,
   FileText,
   PenSquare,
+  ClipboardList,
 } from 'lucide-react';
 
 interface NavItem {
@@ -26,6 +27,11 @@ const navItems: NavItem[] = [
     label: 'Dashboard',
     href: '/admin',
     icon: <LayoutDashboard className="h-5 w-5" />,
+  },
+  {
+    label: 'Customer Intake',
+    href: '/admin/intake',
+    icon: <ClipboardList className="h-5 w-5" />,
   },
   {
     label: 'Gallery',

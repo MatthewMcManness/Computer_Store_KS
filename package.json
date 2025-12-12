@@ -11,6 +11,7 @@
     "clean": "rm -rf .next out node_modules"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/bun": "latest"
   },
   "dependencies": {
@@ -21,6 +22,7 @@
     "@types/node": "^24.10.1",
     "@types/react": "18",
     "autoprefixer": "^10.4.22",
+    "bcrypt": "^6.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.23.24",

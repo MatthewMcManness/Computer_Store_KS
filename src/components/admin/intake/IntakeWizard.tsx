@@ -3,6 +3,9 @@
 import { useReducer } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { RepairShoprCustomer, RepairShoprAsset, RepairShoprTicket } from '@/lib/repairshopr';
+import { CustomerSearchStep } from './CustomerSearchStep';
+import { CustomerFormStep } from './CustomerFormStep';
+import { DeviceStep } from './DeviceStep';
 
 // =============================================================================
 // Types
@@ -12,6 +15,7 @@ interface IntakeState {
   step: number;
   customer: RepairShoprCustomer | null;
   isNewCustomer: boolean;
+  customerType: 'individual' | 'business' | null;
   device: RepairShoprAsset | null;
   isNewDevice: boolean;
   ticketDescription: string;
@@ -21,7 +25,8 @@ interface IntakeState {
 type IntakeAction =
   | { type: 'NEXT_STEP' }
   | { type: 'PREV_STEP' }
-  | { type: 'SET_CUSTOMER'; customer: RepairShoprCustomer; isNew: boolean }
+  | { type: 'JUMP_TO_STEP'; step: number }
+  | { type: 'SET_CUSTOMER'; customer: RepairShoprCustomer; isNew: boolean; customerType?: 'individual' | 'business' }
   | { type: 'SET_DEVICE'; device: RepairShoprAsset; isNew: boolean }
   | { type: 'SET_TICKET_DESCRIPTION'; description: string }
   | { type: 'SET_CREATED_TICKET'; ticket: RepairShoprTicket }
@@ -35,6 +40,7 @@ const initialState: IntakeState = {
   step: 1,
   customer: null,
   isNewCustomer: false,
+  customerType: null,
   device: null,
   isNewDevice: false,
   ticketDescription: '',
@@ -47,11 +53,14 @@ function intakeReducer(state: IntakeState, action: IntakeAction): IntakeState {
       return { ...state, step: Math.min(state.step + 1, 5) };
     case 'PREV_STEP':
       return { ...state, step: Math.max(state.step - 1, 1) };
+    case 'JUMP_TO_STEP':
+      return { ...state, step: action.step };
     case 'SET_CUSTOMER':
       return {
         ...state,
         customer: action.customer,
         isNewCustomer: action.isNew,
+        customerType: action.customerType || state.customerType,
       };
     case 'SET_DEVICE':
       return {
@@ -95,6 +104,16 @@ export function IntakeWizard() {
     dispatch({ type: 'RESET' });
   };
 
+  const handleSelectDevice = (device: RepairShoprAsset) => {
+    dispatch({ type: 'SET_DEVICE', device, isNew: false });
+    dispatch({ type: 'NEXT_STEP' });
+  };
+
+  const handleCustomerCreated = (customer: RepairShoprCustomer) => {
+    dispatch({ type: 'SET_CUSTOMER', customer, isNew: true });
+    dispatch({ type: 'NEXT_STEP' });
+  };
+
   // Step validation logic
   const canProceed = (): boolean => {
     switch (state.step) {
@@ -128,26 +147,50 @@ export function IntakeWizard() {
           </div>
         );
       case 2:
+        // Only show customer form if creating a new customer
+        if (!state.isNewCustomer) {
+          // Skip this step for existing customers
+          handleNext();
+          return null;
+        }
+        if (!state.customerType) {
+          return (
+            <div className="rounded-lg bg-white p-8 shadow-sm">
+              <h2 className="mb-4 text-2xl font-bold text-gray-900">
+                Step 2: Customer Details
+              </h2>
+              <p className="text-red-600">
+                Error: No customer type selected. Please go back and select individual or business.
+              </p>
+            </div>
+          );
+        }
         return (
-          <div className="rounded-lg bg-white p-8 shadow-sm">
-            <h2 className="mb-4 text-2xl font-bold text-gray-900">
-              Step 2: Customer Details
-            </h2>
-            <p className="text-gray-600">
-              Customer form with password setup will be implemented here.
-            </p>
-          </div>
+          <CustomerFormStep
+            customerType={state.customerType}
+            onCustomerCreated={handleCustomerCreated}
+            onBack={handleBack}
+          />
         );
       case 3:
+        if (!state.customer) {
+          return (
+            <div className="rounded-lg bg-white p-8 shadow-sm">
+              <h2 className="mb-4 text-2xl font-bold text-gray-900">
+                Step 3: Select Device
+              </h2>
+              <p className="text-red-600">
+                Error: No customer selected. Please go back and select a customer.
+              </p>
+            </div>
+          );
+        }
         return (
-          <div className="rounded-lg bg-white p-8 shadow-sm">
-            <h2 className="mb-4 text-2xl font-bold text-gray-900">
-              Step 3: Select Device
-            </h2>
-            <p className="text-gray-600">
-              Device selection and creation will be implemented here.
-            </p>
-          </div>
+          <DeviceStep
+            customer={state.customer}
+            onSelectDevice={handleSelectDevice}
+            onBack={handleBack}
+          />
         );
       case 4:
         return (

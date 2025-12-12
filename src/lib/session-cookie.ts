@@ -21,6 +21,7 @@ export interface SessionData {
   email: string;
   name: string;
   role: 'admin' | 'employee' | 'limited';
+  userType: 'employee' | 'customer'; // Track whether user authenticated via RepairShopr or Supabase
   apiToken: string;
   createdAt: number;
   expiresAt: number;
@@ -31,6 +32,7 @@ export interface SafeSessionData {
   email: string;
   name: string;
   role: 'admin' | 'employee' | 'limited';
+  userType: 'employee' | 'customer';
   createdAt: number;
   expiresAt: number;
 }
@@ -40,6 +42,7 @@ export interface CreateSessionInput {
   email: string;
   name: string;
   role: 'admin' | 'employee' | 'limited';
+  userType: 'employee' | 'customer';
 }
 
 // =============================================================================
@@ -164,6 +167,7 @@ export function createSessionData(
     email: input.email,
     name: input.name,
     role: input.role,
+    userType: input.userType,
     apiToken,
     createdAt: now,
     expiresAt: now + SESSION_EXPIRY_MS,
@@ -179,6 +183,7 @@ export function getSafeSession(session: SessionData): SafeSessionData {
     email: session.email,
     name: session.name,
     role: session.role,
+    userType: session.userType,
     createdAt: session.createdAt,
     expiresAt: session.expiresAt,
   };

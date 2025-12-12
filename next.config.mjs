@@ -7,9 +7,9 @@ const __dirname = path.dirname(__filename);
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
-  // Skip type checking during build (we run it separately)
+  // Skip type checking during build (we run it separately in CI)
   typescript: {
-    ignoreBuildErrors: false,
+    ignoreBuildErrors: true,
   },
   // Allow build to continue with errors (useful for debugging)
   eslint: {

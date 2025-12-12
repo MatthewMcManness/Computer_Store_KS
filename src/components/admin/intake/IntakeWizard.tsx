@@ -6,6 +6,8 @@ import type { RepairShoprCustomer, RepairShoprAsset, RepairShoprTicket } from '@
 import { CustomerSearchStep } from './CustomerSearchStep';
 import { CustomerFormStep } from './CustomerFormStep';
 import { DeviceStep } from './DeviceStep';
+import { TicketStep } from './TicketStep';
+import { SuccessStep } from './SuccessStep';
 
 // =============================================================================
 // Types
@@ -104,6 +106,21 @@ export function IntakeWizard() {
     dispatch({ type: 'RESET' });
   };
 
+  const handleSelectCustomer = (customer: RepairShoprCustomer, skipToDevice: boolean) => {
+    dispatch({ type: 'SET_CUSTOMER', customer, isNew: false });
+    if (skipToDevice) {
+      // Skip step 2 (customer details) and go directly to step 3 (device selection)
+      dispatch({ type: 'JUMP_TO_STEP', step: 3 });
+    } else {
+      dispatch({ type: 'NEXT_STEP' });
+    }
+  };
+
+  const handleCreateNew = (type: 'individual' | 'business') => {
+    dispatch({ type: 'SET_CUSTOMER', customer: {} as RepairShoprCustomer, isNew: true, customerType: type });
+    dispatch({ type: 'NEXT_STEP' });
+  };
+
   const handleSelectDevice = (device: RepairShoprAsset) => {
     dispatch({ type: 'SET_DEVICE', device, isNew: false });
     dispatch({ type: 'NEXT_STEP' });
@@ -111,6 +128,11 @@ export function IntakeWizard() {
 
   const handleCustomerCreated = (customer: RepairShoprCustomer) => {
     dispatch({ type: 'SET_CUSTOMER', customer, isNew: true });
+    dispatch({ type: 'NEXT_STEP' });
+  };
+
+  const handleTicketCreated = (ticket: RepairShoprTicket) => {
+    dispatch({ type: 'SET_CREATED_TICKET', ticket });
     dispatch({ type: 'NEXT_STEP' });
   };
 
@@ -137,14 +159,10 @@ export function IntakeWizard() {
     switch (state.step) {
       case 1:
         return (
-          <div className="rounded-lg bg-white p-8 shadow-sm">
-            <h2 className="mb-4 text-2xl font-bold text-gray-900">
-              Step 1: Search Customer
-            </h2>
-            <p className="text-gray-600">
-              Customer search and selection will be implemented here.
-            </p>
-          </div>
+          <CustomerSearchStep
+            onSelectCustomer={handleSelectCustomer}
+            onCreateNew={handleCreateNew}
+          />
         );
       case 2:
         // Only show customer form if creating a new customer
@@ -193,32 +211,53 @@ export function IntakeWizard() {
           />
         );
       case 4:
+        if (!state.customer || !state.device) {
+          return (
+            <div className="rounded-lg bg-white p-8 shadow-sm">
+              <h2 className="mb-4 text-2xl font-bold text-gray-900">
+                Step 4: Ticket Information
+              </h2>
+              <p className="text-red-600">
+                Error: Customer and device are required. Please go back and complete previous steps.
+              </p>
+            </div>
+          );
+        }
         return (
-          <div className="rounded-lg bg-white p-8 shadow-sm">
-            <h2 className="mb-4 text-2xl font-bold text-gray-900">
-              Step 4: Ticket Info
-            </h2>
-            <p className="text-gray-600">
-              Ticket description and creation will be implemented here.
-            </p>
-          </div>
+          <TicketStep
+            customer={state.customer}
+            device={state.device}
+            onTicketCreated={handleTicketCreated}
+            onBack={handleBack}
+          />
         );
       case 5:
+        if (!state.customer || !state.device || !state.createdTicket) {
+          return (
+            <div className="rounded-lg bg-white p-8 shadow-sm">
+              <h2 className="mb-4 text-2xl font-bold text-red-600">
+                Error
+              </h2>
+              <p className="text-red-600">
+                Missing required data. Please start a new intake.
+              </p>
+              <button
+                onClick={handleNewIntake}
+                className="mt-6 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-3 font-medium text-white hover:from-purple-700 hover:to-indigo-700"
+              >
+                Start New Intake
+              </button>
+            </div>
+          );
+        }
         return (
-          <div className="rounded-lg bg-white p-8 shadow-sm">
-            <h2 className="mb-4 text-2xl font-bold text-green-600">
-              Step 5: Complete
-            </h2>
-            <p className="text-gray-600">
-              Success message and new intake option will be implemented here.
-            </p>
-            <button
-              onClick={handleNewIntake}
-              className="mt-6 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-3 font-medium text-white hover:from-purple-700 hover:to-indigo-700"
-            >
-              Start New Intake
-            </button>
-          </div>
+          <SuccessStep
+            customer={state.customer}
+            device={state.device}
+            ticket={state.createdTicket}
+            portalAccountCreated={state.isNewCustomer}
+            onNewIntake={handleNewIntake}
+          />
         );
       default:
         return null;
@@ -273,7 +312,7 @@ export function IntakeWizard() {
       <div className="mb-8">{renderStepContent()}</div>
 
       {/* Navigation Buttons - Hide on steps that have their own navigation */}
-      {state.step !== 2 && state.step !== 3 && (
+      {state.step !== 2 && state.step !== 3 && state.step !== 4 && state.step !== 5 && (
         <div className="flex items-center justify-between">
           <button
             onClick={handleBack}

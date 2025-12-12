@@ -1,0 +1,127 @@
+'use client';
+
+import type { RepairShoprCustomer, RepairShoprAsset, RepairShoprTicket } from '@/lib/repairshopr';
+import { CheckCircle2, User, Laptop, FileText, ShieldCheck, X } from 'lucide-react';
+
+interface SuccessStepProps {
+  customer: RepairShoprCustomer;
+  device: RepairShoprAsset;
+  ticket: RepairShoprTicket;
+  portalAccountCreated: boolean;
+  onNewIntake: () => void;
+}
+
+export function SuccessStep({
+  customer,
+  device,
+  ticket,
+  portalAccountCreated,
+  onNewIntake
+}: SuccessStepProps) {
+  // Get first 100 characters of issue for preview
+  const issuePreview = ticket.subject.length > 100
+    ? `${ticket.subject.substring(0, 100)}...`
+    : ticket.subject;
+
+  return (
+    <div className="rounded-lg bg-white p-8 shadow-sm">
+      {/* Success Header */}
+      <div className="mb-8 flex flex-col items-center text-center">
+        <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-green-100">
+          <CheckCircle2 className="h-12 w-12 text-green-600" />
+        </div>
+        <h2 className="mb-2 text-3xl font-bold text-green-600">
+          Ticket Created!
+        </h2>
+        <p className="text-gray-600">
+          Customer intake completed successfully
+        </p>
+      </div>
+
+      {/* Ticket Number Display */}
+      <div className="mb-8 rounded-lg bg-gradient-to-r from-green-50 to-emerald-50 p-6 text-center">
+        <p className="mb-2 text-sm font-medium text-gray-600">Ticket Number</p>
+        <p className="text-4xl font-bold text-gray-900">#{ticket.number}</p>
+      </div>
+
+      {/* Summary Details */}
+      <div className="mb-8 space-y-4">
+        {/* Customer */}
+        <div className="flex items-start gap-4 rounded-lg bg-gray-50 p-4">
+          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-purple-100">
+            <User className="h-5 w-5 text-purple-600" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-medium text-gray-600">Customer</p>
+            <p className="text-lg font-semibold text-gray-900">{customer.fullname}</p>
+            {customer.email && (
+              <p className="text-sm text-gray-600">{customer.email}</p>
+            )}
+          </div>
+        </div>
+
+        {/* Device */}
+        <div className="flex items-start gap-4 rounded-lg bg-gray-50 p-4">
+          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-indigo-100">
+            <Laptop className="h-5 w-5 text-indigo-600" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-medium text-gray-600">Device</p>
+            <p className="text-lg font-semibold text-gray-900">{device.name}</p>
+            {device.asset_type_name && (
+              <p className="text-sm text-gray-600">{device.asset_type_name}</p>
+            )}
+          </div>
+        </div>
+
+        {/* Issue */}
+        <div className="flex items-start gap-4 rounded-lg bg-gray-50 p-4">
+          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-blue-100">
+            <FileText className="h-5 w-5 text-blue-600" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-medium text-gray-600">Issue</p>
+            <p className="text-base text-gray-900">{issuePreview}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Portal Account Status */}
+      <div className="mb-8 rounded-lg border-2 border-gray-200 p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <ShieldCheck className={`h-6 w-6 ${portalAccountCreated ? 'text-green-600' : 'text-gray-400'}`} />
+            <div>
+              <p className="font-medium text-gray-900">Customer Portal Account</p>
+              <p className="text-sm text-gray-600">
+                {portalAccountCreated
+                  ? 'Active and ready to use'
+                  : 'Not configured'}
+              </p>
+            </div>
+          </div>
+          {portalAccountCreated ? (
+            <span className="rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-700">
+              Active
+            </span>
+          ) : (
+            <span className="rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-600">
+              Inactive
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Action Button */}
+      <div className="flex justify-center">
+        <button
+          onClick={onNewIntake}
+          className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 px-8 py-3 font-medium text-white shadow-lg hover:from-purple-700 hover:to-indigo-700"
+        >
+          <X className="h-5 w-5" />
+          Start New Intake
+        </button>
+      </div>
+    </div>
+  );
+}

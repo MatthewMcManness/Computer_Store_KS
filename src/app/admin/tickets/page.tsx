@@ -34,6 +34,27 @@ interface PublicNote {
   created_at: string;
 }
 
+interface StatusOverride {
+  id: string;
+  repairshopr_ticket_id: number;
+  custom_status: string;
+  customer_question: string | null;
+  updated_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+interface StatusDefinition {
+  status: string;
+  display_name: string;
+  description: string | null;
+  repairshopr_status: string;
+  show_customer_question: boolean;
+  customer_visible_status: string | null;
+  sort_order: number;
+  is_active: boolean;
+}
+
 interface TicketData {
   id: number;
   number: string;
@@ -54,6 +75,8 @@ export default function TicketsPage() {
   const [tickets, setTickets] = useState<TicketData[]>([]);
   const [selectedTicket, setSelectedTicket] = useState<TicketData | null>(null);
   const [publicNotes, setPublicNotes] = useState<PublicNote[]>([]);
+  const [statusOverride, setStatusOverride] = useState<StatusOverride | null>(null);
+  const [statusDefinitions, setStatusDefinitions] = useState<StatusDefinition[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -72,6 +95,11 @@ export default function TicketsPage() {
   const [privateNote, setPrivateNote] = useState('');
   const [publicNote, setPublicNote] = useState('');
   const [isSendingNote, setIsSendingNote] = useState(false);
+
+  // Custom status state
+  const [customStatus, setCustomStatus] = useState('');
+  const [customerQuestion, setCustomerQuestion] = useState('');
+  const [isSavingStatus, setIsSavingStatus] = useState(false);
 
   // Status filter
   const [statusFilter, setStatusFilter] = useState<string>('');
@@ -121,14 +149,16 @@ export default function TicketsPage() {
     setIsLoadingDetails(true);
 
     try {
-      // Fetch ticket details and public notes in parallel
-      const [ticketRes, notesRes] = await Promise.all([
+      // Fetch ticket details, public notes, and custom status in parallel
+      const [ticketRes, notesRes, statusRes] = await Promise.all([
         fetch(`/api/repairshopr/tickets/${ticketId}`),
         fetch(`/api/repairshopr/tickets/${ticketId}/public-notes`),
+        fetch(`/api/repairshopr/tickets/${ticketId}/status`),
       ]);
 
       const ticketData = await ticketRes.json();
       const notesData = await notesRes.json();
+      const statusData = await statusRes.json();
 
       if (!ticketRes.ok) {
         throw new Error(ticketData.error || 'Failed to load ticket');
@@ -136,6 +166,18 @@ export default function TicketsPage() {
 
       setSelectedTicket(ticketData.ticket);
       setPublicNotes(notesData.notes || []);
+      setStatusOverride(statusData.status_override || null);
+      setStatusDefinitions(statusData.definitions || []);
+
+      // Set current custom status in form
+      if (statusData.status_override) {
+        setCustomStatus(statusData.status_override.custom_status);
+        setCustomerQuestion(statusData.status_override.customer_question || '');
+      } else {
+        // Default to 'new' if no override exists
+        setCustomStatus('new');
+        setCustomerQuestion('');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load ticket details');
     } finally {
@@ -268,6 +310,72 @@ export default function TicketsPage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete note');
     }
+  };
+
+  const handleSaveCustomStatus = async () => {
+    if (!selectedTicket || !customStatus) return;
+
+    // Check if customer question is required
+    const selectedDef = statusDefinitions.find((d) => d.status === customStatus);
+    if (selectedDef?.show_customer_question && !customerQuestion.trim()) {
+      setError('Customer question is required for this status');
+      return;
+    }
+
+    setIsSavingStatus(true);
+    try {
+      const response = await fetch(`/api/repairshopr/tickets/${selectedTicket.id}/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          custom_status: customStatus,
+          customer_question: customerQuestion.trim() || null,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to update status');
+      }
+
+      setStatusOverride(data.status_override);
+
+      // Refresh ticket to get updated RepairShopr status
+      await loadTicketDetails(selectedTicket.id);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save custom status');
+    } finally {
+      setIsSavingStatus(false);
+    }
+  };
+
+  const getCustomStatusColor = (status: string) => {
+    switch (status) {
+      case 'new':
+        return 'bg-blue-100 text-blue-800';
+      case 'diagnosing':
+      case 'repairing':
+      case 'data_transferring':
+      case 'installing':
+      case 'building':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'waiting_for_parts':
+        return 'bg-orange-100 text-orange-800';
+      case 'call_customer':
+      case 'waiting_for_customer_reply':
+        return 'bg-purple-100 text-purple-800';
+      case 'ready_for_pickup':
+        return 'bg-green-100 text-green-800';
+      case 'completed':
+        return 'bg-emerald-100 text-emerald-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const isQuestionRequired = (status: string) => {
+    return status === 'call_customer' || status === 'waiting_for_customer_reply';
   };
 
   const formatDate = (dateString?: string) => {
@@ -421,12 +529,21 @@ export default function TicketsPage() {
                         <h2 className="text-xl font-bold text-gray-900">
                           Ticket #{selectedTicket.number}
                         </h2>
+                        {statusOverride && (
+                          <span
+                            className={`rounded-full px-3 py-1 text-sm font-medium ${getCustomStatusColor(
+                              statusOverride.custom_status
+                            )}`}
+                          >
+                            {statusDefinitions.find((d) => d.status === statusOverride.custom_status)?.display_name || statusOverride.custom_status}
+                          </span>
+                        )}
                         <span
-                          className={`rounded-full px-3 py-1 text-sm font-medium ${getStatusColor(
+                          className={`rounded-full px-2 py-0.5 text-xs ${getStatusColor(
                             selectedTicket.status
                           )}`}
                         >
-                          {selectedTicket.status || 'Unknown'}
+                          RS: {selectedTicket.status || 'Unknown'}
                         </span>
                       </div>
                       <p className="mt-1 text-lg text-gray-700">{selectedTicket.subject}</p>
@@ -466,6 +583,75 @@ export default function TicketsPage() {
                           ? new Date(selectedTicket.due_date).toLocaleDateString()
                           : 'Not set'}
                       </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Custom Status Panel */}
+                <div className="rounded-lg border border-gray-200 bg-white p-6">
+                  <h3 className="mb-4 font-semibold text-gray-900">Workflow Status</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-gray-700">
+                        Current Status
+                      </label>
+                      <select
+                        value={customStatus}
+                        onChange={(e) => {
+                          setCustomStatus(e.target.value);
+                          // Clear customer question if not needed for new status
+                          if (!isQuestionRequired(e.target.value)) {
+                            setCustomerQuestion('');
+                          }
+                        }}
+                        className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      >
+                        {statusDefinitions.map((def) => (
+                          <option key={def.status} value={def.status}>
+                            {def.display_name} → {def.repairshopr_status}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {isQuestionRequired(customStatus) && (
+                      <div>
+                        <label className="mb-2 block text-sm font-medium text-gray-700">
+                          Customer Question <span className="text-red-500">*</span>
+                        </label>
+                        <textarea
+                          value={customerQuestion}
+                          onChange={(e) => setCustomerQuestion(e.target.value)}
+                          placeholder="What question do you need to ask the customer?"
+                          rows={3}
+                          className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        />
+                        <p className="mt-1 text-xs text-gray-500">
+                          This question will be visible to the customer in their portal.
+                        </p>
+                      </div>
+                    )}
+
+                    {statusOverride?.customer_question && !isQuestionRequired(customStatus) && (
+                      <div className="rounded-lg border border-purple-200 bg-purple-50 p-3">
+                        <p className="text-xs font-medium text-purple-800">Previous Customer Question:</p>
+                        <p className="mt-1 text-sm text-purple-700">{statusOverride.customer_question}</p>
+                      </div>
+                    )}
+
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs text-gray-500">
+                        {statusOverride?.updated_by && (
+                          <>Last updated by {statusOverride.updated_by}</>
+                        )}
+                      </p>
+                      <button
+                        onClick={handleSaveCustomStatus}
+                        disabled={isSavingStatus || (isQuestionRequired(customStatus) && !customerQuestion.trim())}
+                        className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                      >
+                        {isSavingStatus ? 'Saving...' : 'Update Status'}
+                      </button>
                     </div>
                   </div>
                 </div>

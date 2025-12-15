@@ -6,13 +6,17 @@ services:
     name: computer-store-ks
     env: node
     branch: Computer-Store-KS
-    buildCommand: npm install && npm run build && cp -r .next/static .next/standalone/.next/static && rm -rf .next/standalone/public && cp -R public .next/standalone/
-    startCommand: node .next/standalone/server.js
+    buildCommand: npm install && npm run build && cp -r .next/static .next/standalone/.next/static && rm -rf .next/standalone/public && cp -R public .next/standalone/ && cp -r node_modules .next/standalone/ && cp package.json .next/standalone/
+    startCommand: cd .next/standalone && node server.js
     envVars:
       - key: NODE_VERSION
         value: 20.11.0
       - key: NODE_ENV
         value: production
+      - key: PORT
+        value: 3000
+      - key: HOSTNAME
+        value: 0.0.0.0
       # Email service for contact form (REQUIRED)
       - key: RESEND_API_KEY
         sync: false
@@ -53,13 +57,17 @@ services:
     name: computer-store-ks-dev
     env: node
     branch: dev
-    buildCommand: npm install && npm run build && cp -r .next/static .next/standalone/.next/static && rm -rf .next/standalone/public && cp -R public .next/standalone/
-    startCommand: node .next/standalone/server.js
+    buildCommand: npm install && npm run build && cp -r .next/static .next/standalone/.next/static && rm -rf .next/standalone/public && cp -R public .next/standalone/ && cp -r node_modules .next/standalone/ && cp package.json .next/standalone/
+    startCommand: cd .next/standalone && node server.js
     envVars:
       - key: NODE_VERSION
         value: 20.11.0
       - key: NODE_ENV
         value: production
+      - key: PORT
+        value: 3000
+      - key: HOSTNAME
+        value: 0.0.0.0
       # Email service for contact form (REQUIRED)
       - key: RESEND_API_KEY
         sync: false

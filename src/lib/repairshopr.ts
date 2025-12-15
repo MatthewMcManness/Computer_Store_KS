@@ -295,6 +295,8 @@ export interface AddTicketCommentInput {
   tech?: string;
   hidden?: boolean;
   do_not_email?: boolean;
+  /** SMS message body - if provided, sends SMS to customer */
+  sms_body?: string;
 }
 
 /**

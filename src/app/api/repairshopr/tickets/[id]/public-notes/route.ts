@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCurrentUser } from '@/lib/auth';
+import { getCurrentUser, getSessionToken } from '@/lib/auth';
 import {
   getTicketPublicNotes,
   createTicketPublicNote,
   deleteTicketPublicNote,
   isSupabaseAdminConfigured,
 } from '@/lib/supabase';
+import { createRepairShoprClient, RepairShoprAPIError } from '@/lib/repairshopr';
 
 export const dynamic = 'force-dynamic';
 
@@ -109,6 +110,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   }
 
   try {
+    // 1. Store in Supabase for portal viewing
     const note = await createTicketPublicNote({
       repairshopr_ticket_id: ticketId,
       repairshopr_customer_id: body.customer_id,
@@ -122,6 +124,28 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         { error: 'Failed to create public note' },
         { status: 500 }
       );
+    }
+
+    // 2. Send SMS and Email via RepairShopr ticket comment
+    const apiToken = await getSessionToken();
+    if (apiToken) {
+      try {
+        const client = createRepairShoprClient();
+        await client.addTicketComment(apiToken, ticketId, {
+          subject: 'Update from The Computer Store',
+          body: body.content.trim(),
+          sms_body: body.content.trim(), // Send as SMS
+          hidden: false, // Not a private note
+          do_not_email: false, // Send email
+        });
+        console.log('[API] Public note sent via SMS and Email');
+      } catch (rsError) {
+        // Log but don't fail - the public note was created, communication is best-effort
+        console.error('[API] Failed to send SMS/Email via RepairShopr:', rsError);
+        if (rsError instanceof RepairShoprAPIError) {
+          console.error('[API] RepairShopr error details:', rsError.message, rsError.status);
+        }
+      }
     }
 
     return NextResponse.json({ note }, { status: 201 });

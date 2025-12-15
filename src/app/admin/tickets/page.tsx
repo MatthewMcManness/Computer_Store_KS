@@ -16,6 +16,8 @@ import {
   Clock,
   User,
   Calendar,
+  Mail,
+  Phone,
 } from 'lucide-react';
 
 interface TicketComment {
@@ -858,17 +860,22 @@ export default function TicketsPage() {
                         </div>
                       </div>
 
-                      {/* Public Note */}
+                      {/* Public Note - sends SMS + Email + Portal */}
                       <div>
                         <label className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-700">
                           <Eye className="h-4 w-4 text-green-600" />
-                          Add Public Note (visible to customer in portal)
+                          Send Message to Customer
+                          <span className="ml-2 flex items-center gap-1 rounded bg-green-100 px-2 py-0.5 text-xs text-green-700">
+                            <Phone className="h-3 w-3" />
+                            <Mail className="h-3 w-3" />
+                            SMS + Email + Portal
+                          </span>
                         </label>
                         <div className="flex gap-2">
                           <textarea
                             value={publicNote}
                             onChange={(e) => setPublicNote(e.target.value)}
-                            placeholder="Add a note visible to the customer..."
+                            placeholder="Type your message to the customer..."
                             rows={2}
                             className="flex-1 rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                           />
@@ -876,6 +883,7 @@ export default function TicketsPage() {
                             onClick={handleSendPublicNote}
                             disabled={!publicNote.trim() || isSendingNote}
                             className="rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700 disabled:opacity-50"
+                            title="Send via SMS, Email, and save to Portal"
                           >
                             <Send className="h-5 w-5" />
                           </button>

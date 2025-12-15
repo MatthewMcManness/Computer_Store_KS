@@ -18,7 +18,13 @@ import {
   Calendar,
   Mail,
   Phone,
+  Building,
+  MapPin,
+  Key,
+  Check,
+  Loader2,
 } from 'lucide-react';
+import type { RepairShoprCustomer } from '@/lib/repairshopr';
 
 interface TicketComment {
   id: number;
@@ -87,6 +93,7 @@ export default function TicketsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [tickets, setTickets] = useState<TicketData[]>([]);
   const [selectedTicket, setSelectedTicket] = useState<TicketData | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<RepairShoprCustomer | null>(null);
   const [publicNotes, setPublicNotes] = useState<PublicNote[]>([]);
   const [statusOverride, setStatusOverride] = useState<StatusOverride | null>(null);
   const [statusDefinitions, setStatusDefinitions] = useState<StatusDefinition[]>([]);
@@ -116,6 +123,10 @@ export default function TicketsPage() {
 
   // Status filter
   const [statusFilter, setStatusFilter] = useState<string>('');
+
+  // Portal account state
+  const [portalAccount, setPortalAccount] = useState<{ id: string; created_at: string } | null>(null);
+  const [loadingPortalAccount, setLoadingPortalAccount] = useState(false);
 
   // Load status definitions on mount
   useEffect(() => {
@@ -176,6 +187,8 @@ export default function TicketsPage() {
 
   const loadTicketDetails = async (ticketId: number) => {
     setIsLoadingDetails(true);
+    setSelectedCustomer(null);
+    setPortalAccount(null);
 
     try {
       // Fetch ticket details, public notes, and custom status in parallel
@@ -205,6 +218,35 @@ export default function TicketsPage() {
         // Default to 'new' if no override exists
         setCustomStatus('new');
         setCustomerQuestion('');
+      }
+
+      // Fetch customer details and portal account status
+      if (ticketData.ticket?.customer_id) {
+        try {
+          const customerRes = await fetch(`/api/repairshopr/customers/${ticketData.ticket.customer_id}`);
+          if (customerRes.ok) {
+            const customerData = await customerRes.json();
+            setSelectedCustomer(customerData.customer);
+
+            // Check portal account status
+            setLoadingPortalAccount(true);
+            try {
+              const accountRes = await fetch(`/api/admin/customer-accounts?customer_id=${ticketData.ticket.customer_id}`);
+              if (accountRes.ok) {
+                const accountData = await accountRes.json();
+                setPortalAccount(accountData.account);
+              } else {
+                setPortalAccount(null);
+              }
+            } catch {
+              setPortalAccount(null);
+            } finally {
+              setLoadingPortalAccount(false);
+            }
+          }
+        } catch (customerErr) {
+          console.error('Failed to load customer:', customerErr);
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load ticket details');
@@ -544,93 +586,186 @@ export default function TicketsPage() {
           </div>
         )}
 
+        {/* Search Panel - Full Width at Top */}
+        <div className="mb-6 rounded-lg border border-gray-200 bg-white p-6">
+          <div className="flex flex-wrap gap-4">
+            <div className="flex-1 min-w-[200px]">
+              <label className="mb-2 block text-sm font-medium text-gray-700">
+                Search Tickets
+              </label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Ticket #, subject, customer..."
+                  className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+
+            <div className="w-48">
+              <label className="mb-2 block text-sm font-medium text-gray-700">
+                Filter by Status
+              </label>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              >
+                <option value="">All Statuses</option>
+                {statusDefinitions.map((def) => (
+                  <option key={def.status} value={def.repairshopr_status}>
+                    {def.display_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Search Results */}
+          <div className="mt-4">
+            {isLoading ? (
+              <div className="py-4 text-center text-gray-500">Searching...</div>
+            ) : tickets.length === 0 ? (
+              <div className="py-4 text-center text-gray-500">
+                {searchQuery.length >= 2 || statusFilter
+                  ? 'No tickets found'
+                  : 'Enter at least 2 characters or select a status'}
+              </div>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {tickets.map((ticket) => (
+                  <button
+                    key={ticket.id}
+                    onClick={() => handleSelectTicket(ticket)}
+                    className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-left transition-colors ${
+                      selectedTicket?.id === ticket.id
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-200 hover:bg-gray-50'
+                    }`}
+                  >
+                    <Ticket className="h-4 w-4 text-gray-400" />
+                    <span className="font-medium text-gray-900">
+                      #{ticket.number}
+                    </span>
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${getStatusColor(
+                        ticket.status
+                      )}`}
+                    >
+                      {ticket.status || 'Unknown'}
+                    </span>
+                    <span className="max-w-[150px] truncate text-sm text-gray-600">
+                      {ticket.subject}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          {/* Search Panel */}
+          {/* Customer Info Panel */}
           <div className="lg:col-span-1">
             <div className="rounded-lg border border-gray-200 bg-white p-6">
-              <div className="mb-4">
-                <label className="mb-2 block text-sm font-medium text-gray-700">
-                  Search Tickets
-                </label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Ticket #, subject, customer..."
-                    className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  />
+              {!selectedCustomer ? (
+                <div className="flex flex-col items-center justify-center py-8">
+                  <User className="h-12 w-12 text-gray-300" />
+                  <p className="mt-2 text-center text-gray-500">
+                    Select a ticket to view customer info
+                  </p>
                 </div>
-              </div>
-
-              <div className="mb-4">
-                <label className="mb-2 block text-sm font-medium text-gray-700">
-                  Filter by Status
-                </label>
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                >
-                  <option value="">All Statuses</option>
-                  {statusDefinitions.map((def) => (
-                    <option key={def.status} value={def.repairshopr_status}>
-                      {def.display_name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Results */}
-              <div className="mt-6">
-                {isLoading ? (
-                  <div className="py-8 text-center text-gray-500">Searching...</div>
-                ) : tickets.length === 0 ? (
-                  <div className="py-8 text-center text-gray-500">
-                    {searchQuery.length >= 2 || statusFilter
-                      ? 'No tickets found'
-                      : 'Enter at least 2 characters or select a status'}
+              ) : (
+                <div>
+                  {/* Customer Header */}
+                  <div className="mb-4 border-b border-gray-200 pb-4">
+                    <div className="flex items-start gap-3">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
+                        <User className="h-6 w-6 text-blue-600" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="truncate font-bold text-gray-900">
+                          {selectedCustomer.fullname ||
+                            `${selectedCustomer.firstname} ${selectedCustomer.lastname}`}
+                        </h3>
+                        <p className="text-sm text-gray-500">ID: {selectedCustomer.id}</p>
+                      </div>
+                    </div>
                   </div>
-                ) : (
-                  <div className="space-y-2">
-                    {tickets.map((ticket) => (
-                      <button
-                        key={ticket.id}
-                        onClick={() => handleSelectTicket(ticket)}
-                        className={`flex w-full items-center justify-between rounded-lg border p-3 text-left transition-colors ${
-                          selectedTicket?.id === ticket.id
-                            ? 'border-blue-500 bg-blue-50'
-                            : 'border-gray-200 hover:bg-gray-50'
-                        }`}
-                      >
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2">
-                            <Ticket className="h-4 w-4 text-gray-400" />
-                            <span className="font-medium text-gray-900">
-                              #{ticket.number}
-                            </span>
-                            <span
-                              className={`rounded-full px-2 py-0.5 text-xs font-medium ${getStatusColor(
-                                ticket.status
-                              )}`}
-                            >
-                              {ticket.status || 'Unknown'}
-                            </span>
-                          </div>
-                          <p className="mt-1 truncate text-sm text-gray-600">
-                            {ticket.subject}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {ticket.customer_business_then_name}
-                          </p>
-                        </div>
-                        <ChevronRight className="h-5 w-5 flex-shrink-0 text-gray-400" />
-                      </button>
-                    ))}
+
+                  {/* Contact Info */}
+                  <div className="mb-4 space-y-2">
+                    <h4 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                      Contact Information
+                    </h4>
+
+                    {selectedCustomer.email && (
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <Mail className="h-4 w-4 text-gray-400" />
+                        <span className="truncate">{selectedCustomer.email}</span>
+                      </div>
+                    )}
+
+                    {selectedCustomer.phone && (
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <Phone className="h-4 w-4 text-gray-400" />
+                        <span>{selectedCustomer.phone}</span>
+                      </div>
+                    )}
+
+                    {selectedCustomer.mobile && selectedCustomer.mobile !== selectedCustomer.phone && (
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <Phone className="h-4 w-4 text-gray-400" />
+                        <span>{selectedCustomer.mobile} (mobile)</span>
+                      </div>
+                    )}
+
+                    {selectedCustomer.business_name && (
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <Building className="h-4 w-4 text-gray-400" />
+                        <span className="truncate">{selectedCustomer.business_name}</span>
+                      </div>
+                    )}
+
+                    {selectedCustomer.address && (
+                      <div className="flex items-start gap-2 text-sm text-gray-600">
+                        <MapPin className="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-400" />
+                        <span>
+                          {selectedCustomer.address}
+                          {selectedCustomer.address_2 && `, ${selectedCustomer.address_2}`}
+                          {selectedCustomer.city && `, ${selectedCustomer.city}`}
+                          {selectedCustomer.state && `, ${selectedCustomer.state}`}
+                          {selectedCustomer.zip && ` ${selectedCustomer.zip}`}
+                        </span>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
+
+                  {/* Portal Access Status */}
+                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+                    <div className="flex items-center gap-2">
+                      <Key className="h-4 w-4 text-gray-600" />
+                      <span className="text-sm font-medium text-gray-900">Portal Access</span>
+                      {loadingPortalAccount ? (
+                        <Loader2 className="ml-auto h-4 w-4 animate-spin text-gray-400" />
+                      ) : portalAccount ? (
+                        <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
+                          <Check className="h-3 w-3" />
+                          Active
+                        </span>
+                      ) : (
+                        <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
+                          <X className="h-3 w-3" />
+                          No Password
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

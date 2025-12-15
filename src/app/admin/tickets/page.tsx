@@ -565,17 +565,17 @@ export default function TicketsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <AdminSidebar />
 
       <main className="ml-64 p-8">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">Tickets</h1>
-          <p className="text-gray-600">Search and manage service tickets</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Tickets</h1>
+          <p className="text-gray-600 dark:text-gray-400">Search and manage service tickets</p>
         </div>
 
         {error && (
-          <div className="mb-4 rounded-lg bg-red-50 p-4 text-red-700">
+          <div className="mb-4 rounded-lg bg-red-50 p-4 text-red-700 dark:bg-red-900/30 dark:text-red-400">
             {error}
             <button
               onClick={() => setError(null)}
@@ -587,10 +587,10 @@ export default function TicketsPage() {
         )}
 
         {/* Search Panel - Full Width at Top */}
-        <div className="mb-6 rounded-lg border border-gray-200 bg-white p-6">
+        <div className="mb-6 rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-900">
           <div className="flex flex-wrap gap-4">
             <div className="flex-1 min-w-[200px]">
-              <label className="mb-2 block text-sm font-medium text-gray-700">
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Search Tickets
               </label>
               <div className="relative">
@@ -600,19 +600,19 @@ export default function TicketsPage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Ticket #, subject, customer..."
-                  className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full rounded-lg border border-gray-300 bg-white py-2 pl-10 pr-4 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400"
                 />
               </div>
             </div>
 
             <div className="w-48">
-              <label className="mb-2 block text-sm font-medium text-gray-700">
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Filter by Status
               </label>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
               >
                 <option value="">All Statuses</option>
                 {statusDefinitions.map((def) => (
@@ -627,9 +627,9 @@ export default function TicketsPage() {
           {/* Search Results */}
           <div className="mt-4">
             {isLoading ? (
-              <div className="py-4 text-center text-gray-500">Searching...</div>
+              <div className="py-4 text-center text-gray-500 dark:text-gray-400">Searching...</div>
             ) : tickets.length === 0 ? (
-              <div className="py-4 text-center text-gray-500">
+              <div className="py-4 text-center text-gray-500 dark:text-gray-400">
                 {searchQuery.length >= 2 || statusFilter
                   ? 'No tickets found'
                   : 'Enter at least 2 characters or select a status'}
@@ -642,12 +642,12 @@ export default function TicketsPage() {
                     onClick={() => handleSelectTicket(ticket)}
                     className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-left transition-colors ${
                       selectedTicket?.id === ticket.id
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-200 hover:bg-gray-50'
+                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30'
+                        : 'border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800'
                     }`}
                   >
                     <Ticket className="h-4 w-4 text-gray-400" />
-                    <span className="font-medium text-gray-900">
+                    <span className="font-medium text-gray-900 dark:text-white">
                       #{ticket.number}
                     </span>
                     <span
@@ -657,7 +657,7 @@ export default function TicketsPage() {
                     >
                       {ticket.status || 'Unknown'}
                     </span>
-                    <span className="max-w-[150px] truncate text-sm text-gray-600">
+                    <span className="max-w-[150px] truncate text-sm text-gray-600 dark:text-gray-400">
                       {ticket.subject}
                     </span>
                   </button>
@@ -670,68 +670,68 @@ export default function TicketsPage() {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Customer Info Panel */}
           <div className="lg:col-span-1">
-            <div className="rounded-lg border border-gray-200 bg-white p-6">
+            <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-900">
               {!selectedCustomer ? (
                 <div className="flex flex-col items-center justify-center py-8">
-                  <User className="h-12 w-12 text-gray-300" />
-                  <p className="mt-2 text-center text-gray-500">
+                  <User className="h-12 w-12 text-gray-300 dark:text-gray-600" />
+                  <p className="mt-2 text-center text-gray-500 dark:text-gray-400">
                     Select a ticket to view customer info
                   </p>
                 </div>
               ) : (
                 <div>
                   {/* Customer Header */}
-                  <div className="mb-4 border-b border-gray-200 pb-4">
+                  <div className="mb-4 border-b border-gray-200 pb-4 dark:border-gray-700">
                     <div className="flex items-start gap-3">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
-                        <User className="h-6 w-6 text-blue-600" />
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/50">
+                        <User className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <h3 className="truncate font-bold text-gray-900">
+                        <h3 className="truncate font-bold text-gray-900 dark:text-white">
                           {selectedCustomer.fullname ||
                             `${selectedCustomer.firstname} ${selectedCustomer.lastname}`}
                         </h3>
-                        <p className="text-sm text-gray-500">ID: {selectedCustomer.id}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">ID: {selectedCustomer.id}</p>
                       </div>
                     </div>
                   </div>
 
                   {/* Contact Info */}
                   <div className="mb-4 space-y-2">
-                    <h4 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                    <h4 className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                       Contact Information
                     </h4>
 
                     {selectedCustomer.email && (
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
                         <Mail className="h-4 w-4 text-gray-400" />
                         <span className="truncate">{selectedCustomer.email}</span>
                       </div>
                     )}
 
                     {selectedCustomer.phone && (
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
                         <Phone className="h-4 w-4 text-gray-400" />
                         <span>{selectedCustomer.phone}</span>
                       </div>
                     )}
 
                     {selectedCustomer.mobile && selectedCustomer.mobile !== selectedCustomer.phone && (
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
                         <Phone className="h-4 w-4 text-gray-400" />
                         <span>{selectedCustomer.mobile} (mobile)</span>
                       </div>
                     )}
 
                     {selectedCustomer.business_name && (
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
                         <Building className="h-4 w-4 text-gray-400" />
                         <span className="truncate">{selectedCustomer.business_name}</span>
                       </div>
                     )}
 
                     {selectedCustomer.address && (
-                      <div className="flex items-start gap-2 text-sm text-gray-600">
+                      <div className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-300">
                         <MapPin className="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-400" />
                         <span>
                           {selectedCustomer.address}
@@ -745,19 +745,19 @@ export default function TicketsPage() {
                   </div>
 
                   {/* Portal Access Status */}
-                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800">
                     <div className="flex items-center gap-2">
-                      <Key className="h-4 w-4 text-gray-600" />
-                      <span className="text-sm font-medium text-gray-900">Portal Access</span>
+                      <Key className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">Portal Access</span>
                       {loadingPortalAccount ? (
                         <Loader2 className="ml-auto h-4 w-4 animate-spin text-gray-400" />
                       ) : portalAccount ? (
-                        <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
+                        <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-900/50 dark:text-green-400">
                           <Check className="h-3 w-3" />
                           Active
                         </span>
                       ) : (
-                        <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
+                        <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-900/50 dark:text-amber-400">
                           <X className="h-3 w-3" />
                           No Password
                         </span>
@@ -772,17 +772,17 @@ export default function TicketsPage() {
           {/* Ticket Details Panel */}
           <div className="lg:col-span-2">
             {isLoadingDetails ? (
-              <div className="rounded-lg border border-gray-200 bg-white p-8 text-center">
-                <p className="text-gray-500">Loading ticket details...</p>
+              <div className="rounded-lg border border-gray-200 bg-white p-8 text-center dark:border-gray-700 dark:bg-gray-900">
+                <p className="text-gray-500 dark:text-gray-400">Loading ticket details...</p>
               </div>
             ) : selectedTicket ? (
               <div className="space-y-6">
                 {/* Ticket Header */}
-                <div className="rounded-lg border border-gray-200 bg-white p-6">
+                <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-900">
                   <div className="flex items-start justify-between">
                     <div>
                       <div className="flex items-center gap-3">
-                        <h2 className="text-xl font-bold text-gray-900">
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                           Ticket #{selectedTicket.number}
                         </h2>
                         {/* Show custom status if available, otherwise show RepairShopr status */}
@@ -805,8 +805,8 @@ export default function TicketsPage() {
                           </span>
                         )}
                       </div>
-                      <p className="mt-1 text-lg text-gray-700">{selectedTicket.subject}</p>
-                      <p className="mt-2 text-sm text-gray-500">
+                      <p className="mt-1 text-lg text-gray-700 dark:text-gray-300">{selectedTicket.subject}</p>
+                      <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                         <User className="mr-1 inline h-4 w-4" />
                         {selectedTicket.customer_business_then_name}
                       </p>
@@ -820,24 +820,24 @@ export default function TicketsPage() {
                     </button>
                   </div>
 
-                  <div className="mt-4 grid grid-cols-2 gap-4 border-t pt-4 sm:grid-cols-4">
+                  <div className="mt-4 grid grid-cols-2 gap-4 border-t pt-4 dark:border-gray-700 sm:grid-cols-4">
                     <div>
-                      <p className="text-xs text-gray-500">Problem Type</p>
-                      <p className="font-medium">{selectedTicket.problem_type || 'N/A'}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Problem Type</p>
+                      <p className="font-medium dark:text-white">{selectedTicket.problem_type || 'N/A'}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500">Priority</p>
-                      <p className="font-medium">{selectedTicket.priority || 'Normal'}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Priority</p>
+                      <p className="font-medium dark:text-white">{selectedTicket.priority || 'Normal'}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500">Created</p>
-                      <p className="font-medium text-sm">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Created</p>
+                      <p className="font-medium text-sm dark:text-white">
                         {formatDate(selectedTicket.created_at)}
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500">Due Date</p>
-                      <p className="font-medium text-sm">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Due Date</p>
+                      <p className="font-medium text-sm dark:text-white">
                         {selectedTicket.due_date
                           ? new Date(selectedTicket.due_date).toLocaleDateString()
                           : 'Not set'}
@@ -847,18 +847,18 @@ export default function TicketsPage() {
                 </div>
 
                 {/* Workflow Status Panel */}
-                <div className="rounded-lg border border-gray-200 bg-white p-6">
-                  <h3 className="mb-4 font-semibold text-gray-900">Workflow Status</h3>
+                <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-900">
+                  <h3 className="mb-4 font-semibold text-gray-900 dark:text-white">Workflow Status</h3>
                   <div className="space-y-4">
                     <div>
-                      <label className="mb-2 block text-sm font-medium text-gray-700">
+                      <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                         Current Status
                       </label>
                       <div className="flex items-center gap-3">
                         <select
                           value={customStatus}
                           onChange={(e) => setCustomStatus(e.target.value)}
-                          className="flex-1 rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                          className="flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                         >
                           {statusDefinitions.map((def) => (
                             <option key={def.status} value={def.status}>
@@ -879,7 +879,7 @@ export default function TicketsPage() {
                     {/* Customer Question Field - shown for specific statuses */}
                     {isQuestionRequired(customStatus) && (
                       <div>
-                        <label className="mb-2 block text-sm font-medium text-gray-700">
+                        <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                           Customer Question
                         </label>
                         <textarea
@@ -887,7 +887,7 @@ export default function TicketsPage() {
                           onChange={(e) => setCustomerQuestion(e.target.value)}
                           placeholder="What do you need to ask the customer?"
                           rows={3}
-                          className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                          className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400"
                         />
                       </div>
                     )}
@@ -905,9 +905,9 @@ export default function TicketsPage() {
                 </div>
 
                 {/* Notes & Comments */}
-                <div className="rounded-lg border border-gray-200 bg-white">
-                  <div className="border-b px-6 py-4">
-                    <h3 className="flex items-center gap-2 font-semibold text-gray-900">
+                <div className="rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
+                  <div className="border-b px-6 py-4 dark:border-gray-700">
+                    <h3 className="flex items-center gap-2 font-semibold text-gray-900 dark:text-white">
                       <MessageSquare className="h-5 w-5" />
                       Notes & Communications
                     </h3>
@@ -918,7 +918,7 @@ export default function TicketsPage() {
                     {(() => {
                       const mergedNotes = getMergedNotes();
                       if (mergedNotes.length === 0) {
-                        return <p className="text-center text-gray-500">No notes yet</p>;
+                        return <p className="text-center text-gray-500 dark:text-gray-400">No notes yet</p>;
                       }
                       return (
                         <div className="space-y-4">
@@ -930,7 +930,7 @@ export default function TicketsPage() {
                                 key={note.id}
                                 className={`rounded-lg border-l-4 ${style.border} ${style.bg} p-4`}
                               >
-                                <div className="mb-2 flex items-center justify-between text-xs text-gray-500">
+                                <div className="mb-2 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
                                   <div className="flex items-center gap-2">
                                     <IconComponent className={`h-3 w-3 ${style.iconColor}`} />
                                     <span className={`font-medium ${style.iconColor}`}>
@@ -953,11 +953,11 @@ export default function TicketsPage() {
                                   )}
                                 </div>
                                 {note.subject && (
-                                  <p className="mb-1 font-medium text-gray-900">
+                                  <p className="mb-1 font-medium text-gray-900 dark:text-white">
                                     {note.subject}
                                   </p>
                                 )}
-                                <p className="whitespace-pre-wrap text-sm text-gray-700">
+                                <p className="whitespace-pre-wrap text-sm text-gray-700 dark:text-gray-300">
                                   {note.body}
                                 </p>
                               </div>
@@ -969,11 +969,11 @@ export default function TicketsPage() {
                   </div>
 
                   {/* Add Note Forms */}
-                  <div className="border-t p-6">
+                  <div className="border-t p-6 dark:border-gray-700">
                     <div className="space-y-4">
                       {/* Private Note */}
                       <div>
-                        <label className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-700">
+                        <label className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                           <EyeOff className="h-4 w-4 text-amber-600" />
                           Add Private Note (internal only)
                         </label>
@@ -983,7 +983,7 @@ export default function TicketsPage() {
                             onChange={(e) => setPrivateNote(e.target.value)}
                             placeholder="Add a private note..."
                             rows={2}
-                            className="flex-1 rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            className="flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400"
                           />
                           <button
                             onClick={handleSendPrivateNote}
@@ -997,10 +997,10 @@ export default function TicketsPage() {
 
                       {/* Public Note - sends SMS + Email + Portal */}
                       <div>
-                        <label className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-700">
+                        <label className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                           <Eye className="h-4 w-4 text-green-600" />
                           Send Message to Customer
-                          <span className="ml-2 flex items-center gap-1 rounded bg-green-100 px-2 py-0.5 text-xs text-green-700">
+                          <span className="ml-2 flex items-center gap-1 rounded bg-green-100 px-2 py-0.5 text-xs text-green-700 dark:bg-green-900/50 dark:text-green-400">
                             <Phone className="h-3 w-3" />
                             <Mail className="h-3 w-3" />
                             SMS + Email + Portal
@@ -1012,7 +1012,7 @@ export default function TicketsPage() {
                             onChange={(e) => setPublicNote(e.target.value)}
                             placeholder="Type your message to the customer..."
                             rows={2}
-                            className="flex-1 rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            className="flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400"
                           />
                           <button
                             onClick={handleSendPublicNote}
@@ -1029,9 +1029,9 @@ export default function TicketsPage() {
                 </div>
               </div>
             ) : (
-              <div className="rounded-lg border border-gray-200 bg-white p-8 text-center">
-                <Ticket className="mx-auto h-12 w-12 text-gray-300" />
-                <p className="mt-4 text-gray-500">
+              <div className="rounded-lg border border-gray-200 bg-white p-8 text-center dark:border-gray-700 dark:bg-gray-900">
+                <Ticket className="mx-auto h-12 w-12 text-gray-300 dark:text-gray-600" />
+                <p className="mt-4 text-gray-500 dark:text-gray-400">
                   Select a ticket to view details
                 </p>
               </div>
@@ -1042,12 +1042,12 @@ export default function TicketsPage() {
         {/* Edit Modal */}
         {showEditModal && selectedTicket && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="w-full max-w-md rounded-lg bg-white shadow-xl">
-              <div className="flex items-center justify-between border-b px-6 py-4">
-                <h3 className="text-lg font-semibold">Edit Ticket</h3>
+            <div className="w-full max-w-md rounded-lg bg-white shadow-xl dark:bg-gray-900">
+              <div className="flex items-center justify-between border-b px-6 py-4 dark:border-gray-700">
+                <h3 className="text-lg font-semibold dark:text-white">Edit Ticket</h3>
                 <button
                   onClick={() => setShowEditModal(false)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -1055,7 +1055,7 @@ export default function TicketsPage() {
 
               <div className="space-y-4 p-6">
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                  <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Subject
                   </label>
                   <input
@@ -1064,12 +1064,12 @@ export default function TicketsPage() {
                     onChange={(e) =>
                       setEditFormData({ ...editFormData, subject: e.target.value })
                     }
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                  <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Status
                   </label>
                   <select
@@ -1077,7 +1077,7 @@ export default function TicketsPage() {
                     onChange={(e) =>
                       setEditFormData({ ...editFormData, status: e.target.value })
                     }
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                   >
                     <option value="">Select Status</option>
                     <option value="New">New</option>
@@ -1089,7 +1089,7 @@ export default function TicketsPage() {
                 </div>
 
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                  <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Problem Type
                   </label>
                   <input
@@ -1098,12 +1098,12 @@ export default function TicketsPage() {
                     onChange={(e) =>
                       setEditFormData({ ...editFormData, problem_type: e.target.value })
                     }
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                  <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Priority
                   </label>
                   <select
@@ -1111,7 +1111,7 @@ export default function TicketsPage() {
                     onChange={(e) =>
                       setEditFormData({ ...editFormData, priority: e.target.value })
                     }
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                   >
                     <option value="">Select Priority</option>
                     <option value="Low">Low</option>
@@ -1122,10 +1122,10 @@ export default function TicketsPage() {
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 border-t px-6 py-4">
+              <div className="flex justify-end gap-3 border-t px-6 py-4 dark:border-gray-700">
                 <button
                   onClick={() => setShowEditModal(false)}
-                  className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50"
+                  className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
                 >
                   Cancel
                 </button>

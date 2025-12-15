@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Script from 'next/script';
 import './globals.css';
 import { BUSINESS_INFO } from '@/lib/constants';
 
@@ -66,13 +65,6 @@ export default function RootLayout({
     <html lang="en">
       <body>
         {children}
-        {/* OTTO Pixel - SearchAtlas Dynamic Optimization */}
-        <Script
-          id="sa-dynamic-optimization"
-          data-uuid="219067f8-2667-4b49-b296-474653be0481"
-          src="data:text/javascript;base64,dmFyIHNjcmlwdCA9IGRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoInNjcmlwdCIpO3NjcmlwdC5zZXRBdHRyaWJ1dGUoIm5vd3Byb2NrZXQiLCAiIik7c2NyaXB0LnNldEF0dHJpYnV0ZSgibml0cm8tZXhjbHVkZSIsICIiKTtzY3JpcHQuc3JjID0gImh0dHBzOi8vZGFzaGJvYXJkLnNlYXJjaGF0bGFzLmNvbS9zY3JpcHRzL2R5bmFtaWNfb3B0aW1pemF0aW9uLmpzIjtzY3JpcHQuZGF0YXNldC51dWlkID0gIjIxOTA2N2Y4LTI2NjctNGI0OS1iMjk2LTQ3NDY1M2JlMDQ4MSI7c2NyaXB0LmlkID0gInNhLWR5bmFtaWMtb3B0aW1pemF0aW9uLWxvYWRlciI7ZG9jdW1lbnQuaGVhZC5hcHBlbmRDaGlsZChzY3JpcHQpOw=="
-          strategy="afterInteractive"
-        />
       </body>
     </html>
   );

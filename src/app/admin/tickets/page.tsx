@@ -34,6 +34,17 @@ interface PublicNote {
   created_at: string;
 }
 
+// Unified note type for chronological display
+interface UnifiedNote {
+  id: string;
+  type: 'private' | 'customer' | 'staff' | 'public';
+  body: string;
+  author: string;
+  subject?: string;
+  created_at: string;
+  canDelete?: boolean;
+}
+
 interface StatusOverride {
   id: string;
   repairshopr_ticket_id: number;
@@ -406,6 +417,91 @@ export default function TicketsPage() {
     return new Date(dateString).toLocaleString();
   };
 
+  // Merge all notes into a single chronologically sorted array
+  const getMergedNotes = (): UnifiedNote[] => {
+    const notes: UnifiedNote[] = [];
+
+    // Add RepairShopr comments
+    if (selectedTicket?.comments) {
+      for (const comment of selectedTicket.comments) {
+        let noteType: 'private' | 'customer' | 'staff';
+
+        if (comment.hidden) {
+          noteType = 'private';
+        } else if (!comment.tech) {
+          // No tech means customer reply (email, SMS, portal)
+          noteType = 'customer';
+        } else {
+          noteType = 'staff';
+        }
+
+        notes.push({
+          id: `rs-${comment.id}`,
+          type: noteType,
+          body: comment.body,
+          author: comment.tech || selectedTicket.customer_business_then_name || 'Customer',
+          subject: comment.subject,
+          created_at: comment.created_at,
+          canDelete: false,
+        });
+      }
+    }
+
+    // Add Supabase public notes
+    for (const note of publicNotes) {
+      notes.push({
+        id: `pub-${note.id}`,
+        type: 'public',
+        body: note.content,
+        author: note.author_name,
+        created_at: note.created_at,
+        canDelete: true,
+      });
+    }
+
+    // Sort chronologically (oldest first)
+    return notes.sort((a, b) =>
+      new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+    );
+  };
+
+  const getNoteStyle = (type: UnifiedNote['type']) => {
+    switch (type) {
+      case 'private':
+        return {
+          border: 'border-amber-400',
+          bg: 'bg-amber-50',
+          icon: EyeOff,
+          iconColor: 'text-amber-600',
+          label: 'Private Note',
+        };
+      case 'customer':
+        return {
+          border: 'border-purple-400',
+          bg: 'bg-purple-50',
+          icon: User,
+          iconColor: 'text-purple-600',
+          label: 'Customer',
+        };
+      case 'staff':
+        return {
+          border: 'border-blue-400',
+          bg: 'bg-blue-50',
+          icon: Eye,
+          iconColor: 'text-blue-600',
+          label: 'Staff Comment',
+        };
+      case 'public':
+        return {
+          border: 'border-green-400',
+          bg: 'bg-green-50',
+          icon: Eye,
+          iconColor: 'text-green-600',
+          label: 'Public Note',
+        };
+    }
+  };
+
   const getStatusColor = (status?: string) => {
     switch (status?.toLowerCase()) {
       case 'new':
@@ -681,88 +777,58 @@ export default function TicketsPage() {
                   </div>
 
                   <div className="max-h-96 overflow-y-auto p-6">
-                    {/* Private Notes (from RepairShopr) */}
-                    {selectedTicket.comments && selectedTicket.comments.length > 0 ? (
-                      <div className="space-y-4">
-                        {selectedTicket.comments.map((comment) => (
-                          <div
-                            key={comment.id}
-                            className={`rounded-lg p-4 ${
-                              comment.hidden
-                                ? 'border-l-4 border-amber-400 bg-amber-50'
-                                : 'border-l-4 border-blue-400 bg-blue-50'
-                            }`}
-                          >
-                            <div className="mb-2 flex items-center gap-2 text-xs text-gray-500">
-                              {comment.hidden ? (
-                                <EyeOff className="h-3 w-3" />
-                              ) : (
-                                <Eye className="h-3 w-3" />
-                              )}
-                              <span className="font-medium">
-                                {comment.hidden ? 'Private Note' : 'Comment'}
-                              </span>
-                              {comment.tech && (
-                                <>
-                                  <span>by</span>
-                                  <span className="font-medium">{comment.tech}</span>
-                                </>
-                              )}
-                              <span>•</span>
-                              <Clock className="h-3 w-3" />
-                              <span>{formatDate(comment.created_at)}</span>
-                            </div>
-                            {comment.subject && (
-                              <p className="mb-1 font-medium text-gray-900">
-                                {comment.subject}
-                              </p>
-                            )}
-                            <p className="whitespace-pre-wrap text-sm text-gray-700">
-                              {comment.body}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-center text-gray-500">No comments yet</p>
-                    )}
-
-                    {/* Public Notes (from Supabase) */}
-                    {publicNotes.length > 0 && (
-                      <div className="mt-6">
-                        <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-700">
-                          <Eye className="h-4 w-4 text-green-600" />
-                          Public Notes (visible to customer)
-                        </h4>
-                        <div className="space-y-3">
-                          {publicNotes.map((note) => (
-                            <div
-                              key={note.id}
-                              className="rounded-lg border-l-4 border-green-400 bg-green-50 p-4"
-                            >
-                              <div className="mb-2 flex items-center justify-between text-xs text-gray-500">
-                                <div className="flex items-center gap-2">
-                                  <span className="font-medium">{note.author_name}</span>
-                                  <span>•</span>
-                                  <Clock className="h-3 w-3" />
-                                  <span>{formatDate(note.created_at)}</span>
+                    {/* All notes in chronological order */}
+                    {(() => {
+                      const mergedNotes = getMergedNotes();
+                      if (mergedNotes.length === 0) {
+                        return <p className="text-center text-gray-500">No notes yet</p>;
+                      }
+                      return (
+                        <div className="space-y-4">
+                          {mergedNotes.map((note) => {
+                            const style = getNoteStyle(note.type);
+                            const IconComponent = style.icon;
+                            return (
+                              <div
+                                key={note.id}
+                                className={`rounded-lg border-l-4 ${style.border} ${style.bg} p-4`}
+                              >
+                                <div className="mb-2 flex items-center justify-between text-xs text-gray-500">
+                                  <div className="flex items-center gap-2">
+                                    <IconComponent className={`h-3 w-3 ${style.iconColor}`} />
+                                    <span className={`font-medium ${style.iconColor}`}>
+                                      {style.label}
+                                    </span>
+                                    <span>by</span>
+                                    <span className="font-medium">{note.author}</span>
+                                    <span>•</span>
+                                    <Clock className="h-3 w-3" />
+                                    <span>{formatDate(note.created_at)}</span>
+                                  </div>
+                                  {note.canDelete && (
+                                    <button
+                                      onClick={() => handleDeletePublicNote(note.id.replace('pub-', ''))}
+                                      className="text-red-500 hover:text-red-700"
+                                      title="Delete note"
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </button>
+                                  )}
                                 </div>
-                                <button
-                                  onClick={() => handleDeletePublicNote(note.id)}
-                                  className="text-red-500 hover:text-red-700"
-                                  title="Delete note"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </button>
+                                {note.subject && (
+                                  <p className="mb-1 font-medium text-gray-900">
+                                    {note.subject}
+                                  </p>
+                                )}
+                                <p className="whitespace-pre-wrap text-sm text-gray-700">
+                                  {note.body}
+                                </p>
                               </div>
-                              <p className="whitespace-pre-wrap text-sm text-gray-700">
-                                {note.content}
-                              </p>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
-                      </div>
-                    )}
+                      );
+                    })()}
                   </div>
 
                   {/* Add Note Forms */}

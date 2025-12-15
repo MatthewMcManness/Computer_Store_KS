@@ -1056,3 +1056,172 @@ export async function getCustomerTicketPublicNotes(
 
   return data || [];
 }
+
+// =============================================================================
+// Ticket Custom Status Types and Functions
+// =============================================================================
+
+export type TicketCustomStatus =
+  | 'new'
+  | 'diagnosing'
+  | 'repairing'
+  | 'data_transferring'
+  | 'installing'
+  | 'waiting_for_parts'
+  | 'building'
+  | 'call_customer'
+  | 'waiting_for_customer_reply'
+  | 'ready_for_pickup'
+  | 'completed';
+
+export interface TicketStatusOverride {
+  id: string;
+  repairshopr_ticket_id: number;
+  custom_status: TicketCustomStatus;
+  customer_question: string | null;
+  updated_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TicketStatusDefinition {
+  status: TicketCustomStatus;
+  display_name: string;
+  description: string | null;
+  repairshopr_status: string;
+  show_customer_question: boolean;
+  customer_visible_status: string | null;
+  sort_order: number;
+  is_active: boolean;
+}
+
+// Static status definitions (used when DB not available or for quick lookups)
+export const TICKET_STATUS_DEFINITIONS: TicketStatusDefinition[] = [
+  { status: 'new', display_name: 'New', description: 'Ticket just created', repairshopr_status: 'New', show_customer_question: false, customer_visible_status: 'Received', sort_order: 1, is_active: true },
+  { status: 'diagnosing', display_name: 'Diagnosing', description: 'Diagnosing the issue', repairshopr_status: 'In Progress', show_customer_question: false, customer_visible_status: 'Being Diagnosed', sort_order: 2, is_active: true },
+  { status: 'repairing', display_name: 'Repairing', description: 'Repair in progress', repairshopr_status: 'In Progress', show_customer_question: false, customer_visible_status: 'Being Repaired', sort_order: 3, is_active: true },
+  { status: 'data_transferring', display_name: 'Data Transferring', description: 'Transferring data', repairshopr_status: 'In Progress', show_customer_question: false, customer_visible_status: 'Data Transfer in Progress', sort_order: 4, is_active: true },
+  { status: 'installing', display_name: 'Installing', description: 'Installing software/components', repairshopr_status: 'In Progress', show_customer_question: false, customer_visible_status: 'Installation in Progress', sort_order: 5, is_active: true },
+  { status: 'waiting_for_parts', display_name: 'Waiting for Parts', description: 'Waiting for parts', repairshopr_status: 'Waiting for Parts', show_customer_question: false, customer_visible_status: 'Waiting for Parts', sort_order: 6, is_active: true },
+  { status: 'building', display_name: 'Building', description: 'Building custom system', repairshopr_status: 'In Progress', show_customer_question: false, customer_visible_status: 'Being Built', sort_order: 7, is_active: true },
+  { status: 'call_customer', display_name: 'Call Customer', description: 'Need to call customer', repairshopr_status: 'Customer Reply', show_customer_question: true, customer_visible_status: 'We Have a Question', sort_order: 8, is_active: true },
+  { status: 'waiting_for_customer_reply', display_name: 'Waiting for Customer Reply', description: 'Waiting for response', repairshopr_status: 'Customer Reply', show_customer_question: true, customer_visible_status: 'Awaiting Your Response', sort_order: 9, is_active: true },
+  { status: 'ready_for_pickup', display_name: 'Ready for Pickup', description: 'On done shelf', repairshopr_status: 'Done Shelf', show_customer_question: false, customer_visible_status: 'Ready for Pickup', sort_order: 10, is_active: true },
+  { status: 'completed', display_name: 'Completed', description: 'Fully resolved', repairshopr_status: 'Resolved', show_customer_question: false, customer_visible_status: 'Completed', sort_order: 11, is_active: true },
+];
+
+/**
+ * Get all ticket status definitions
+ */
+export async function getTicketStatusDefinitions(): Promise<TicketStatusDefinition[]> {
+  if (!supabase) return TICKET_STATUS_DEFINITIONS;
+
+  const { data, error } = await supabase
+    .from('ticket_status_definitions')
+    .select('*')
+    .eq('is_active', true)
+    .order('sort_order', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching ticket status definitions:', error);
+    return TICKET_STATUS_DEFINITIONS;
+  }
+
+  return data || TICKET_STATUS_DEFINITIONS;
+}
+
+/**
+ * Get ticket status override for a specific ticket
+ */
+export async function getTicketStatusOverride(
+  ticketId: number
+): Promise<TicketStatusOverride | null> {
+  if (!supabaseAdmin) return null;
+
+  const { data, error } = await supabaseAdmin
+    .from('ticket_status_overrides')
+    .select('*')
+    .eq('repairshopr_ticket_id', ticketId)
+    .single();
+
+  if (error && error.code !== 'PGRST116') {
+    console.error('Error fetching ticket status override:', error);
+    return null;
+  }
+
+  return data;
+}
+
+/**
+ * Get ticket status overrides for multiple tickets
+ */
+export async function getTicketStatusOverrides(
+  ticketIds: number[]
+): Promise<TicketStatusOverride[]> {
+  if (!supabaseAdmin || ticketIds.length === 0) return [];
+
+  const { data, error } = await supabaseAdmin
+    .from('ticket_status_overrides')
+    .select('*')
+    .in('repairshopr_ticket_id', ticketIds);
+
+  if (error) {
+    console.error('Error fetching ticket status overrides:', error);
+    return [];
+  }
+
+  return data || [];
+}
+
+/**
+ * Set or update ticket status override
+ */
+export async function setTicketStatusOverride(
+  ticketId: number,
+  customStatus: TicketCustomStatus,
+  customerQuestion: string | null,
+  updatedBy: string
+): Promise<TicketStatusOverride | null> {
+  if (!supabaseAdmin) return null;
+
+  const { data, error } = await supabaseAdmin
+    .from('ticket_status_overrides')
+    .upsert(
+      {
+        repairshopr_ticket_id: ticketId,
+        custom_status: customStatus,
+        customer_question: customerQuestion,
+        updated_by: updatedBy,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'repairshopr_ticket_id' }
+    )
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error setting ticket status override:', error);
+    return null;
+  }
+
+  return data;
+}
+
+/**
+ * Get the RepairShopr status for a custom status
+ */
+export function getRepairShoprStatusForCustomStatus(
+  customStatus: TicketCustomStatus
+): string {
+  const definition = TICKET_STATUS_DEFINITIONS.find(d => d.status === customStatus);
+  return definition?.repairshopr_status || 'New';
+}
+
+/**
+ * Check if a custom status requires a customer question
+ */
+export function statusRequiresCustomerQuestion(
+  customStatus: TicketCustomStatus
+): boolean {
+  return customStatus === 'call_customer' || customStatus === 'waiting_for_customer_reply';
+}

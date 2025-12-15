@@ -34,6 +34,27 @@ interface PublicNote {
   created_at: string;
 }
 
+interface StatusOverride {
+  id: string;
+  repairshopr_ticket_id: number;
+  custom_status: string;
+  customer_question: string | null;
+  updated_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+interface StatusDefinition {
+  status: string;
+  display_name: string;
+  description: string | null;
+  repairshopr_status: string;
+  show_customer_question: boolean;
+  customer_visible_status: string | null;
+  sort_order: number;
+  is_active: boolean;
+}
+
 interface TicketData {
   id: number;
   number: string;
@@ -54,6 +75,8 @@ export default function TicketsPage() {
   const [tickets, setTickets] = useState<TicketData[]>([]);
   const [selectedTicket, setSelectedTicket] = useState<TicketData | null>(null);
   const [publicNotes, setPublicNotes] = useState<PublicNote[]>([]);
+  const [statusOverride, setStatusOverride] = useState<StatusOverride | null>(null);
+  const [statusDefinitions, setStatusDefinitions] = useState<StatusDefinition[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -73,8 +96,29 @@ export default function TicketsPage() {
   const [publicNote, setPublicNote] = useState('');
   const [isSendingNote, setIsSendingNote] = useState(false);
 
+  // Custom status state
+  const [customStatus, setCustomStatus] = useState('');
+  const [customerQuestion, setCustomerQuestion] = useState('');
+  const [isSavingStatus, setIsSavingStatus] = useState(false);
+
   // Status filter
   const [statusFilter, setStatusFilter] = useState<string>('');
+
+  // Load status definitions on mount
+  useEffect(() => {
+    const loadStatusDefinitions = async () => {
+      try {
+        const response = await fetch('/api/repairshopr/tickets/status-definitions');
+        const data = await response.json();
+        if (data.definitions) {
+          setStatusDefinitions(data.definitions);
+        }
+      } catch (err) {
+        console.error('Failed to load status definitions:', err);
+      }
+    };
+    loadStatusDefinitions();
+  }, []);
 
   const searchTickets = useCallback(async () => {
     if (!searchQuery.trim() && !statusFilter) {
@@ -121,14 +165,16 @@ export default function TicketsPage() {
     setIsLoadingDetails(true);
 
     try {
-      // Fetch ticket details and public notes in parallel
-      const [ticketRes, notesRes] = await Promise.all([
+      // Fetch ticket details, public notes, and custom status in parallel
+      const [ticketRes, notesRes, statusRes] = await Promise.all([
         fetch(`/api/repairshopr/tickets/${ticketId}`),
         fetch(`/api/repairshopr/tickets/${ticketId}/public-notes`),
+        fetch(`/api/repairshopr/tickets/${ticketId}/status`),
       ]);
 
       const ticketData = await ticketRes.json();
       const notesData = await notesRes.json();
+      const statusData = await statusRes.json();
 
       if (!ticketRes.ok) {
         throw new Error(ticketData.error || 'Failed to load ticket');
@@ -136,6 +182,17 @@ export default function TicketsPage() {
 
       setSelectedTicket(ticketData.ticket);
       setPublicNotes(notesData.notes || []);
+      setStatusOverride(statusData.status_override || null);
+
+      // Set current custom status in form
+      if (statusData.status_override) {
+        setCustomStatus(statusData.status_override.custom_status);
+        setCustomerQuestion(statusData.status_override.customer_question || '');
+      } else {
+        // Default to 'new' if no override exists
+        setCustomStatus('new');
+        setCustomerQuestion('');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load ticket details');
     } finally {
@@ -270,6 +327,80 @@ export default function TicketsPage() {
     }
   };
 
+  const handleSaveCustomStatus = async () => {
+    if (!selectedTicket) return;
+
+    setIsSavingStatus(true);
+    try {
+      const response = await fetch(`/api/repairshopr/tickets/${selectedTicket.id}/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          custom_status: customStatus,
+          customer_question: customerQuestion || null,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to update status');
+      }
+
+      setStatusOverride(data.status_override);
+      // Update the ticket's RepairShopr status if it was synced
+      if (data.ticket) {
+        setSelectedTicket(data.ticket);
+        // Update in list
+        setTickets((prev) =>
+          prev.map((t) => (t.id === data.ticket.id ? { ...t, ...data.ticket } : t))
+        );
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update status');
+    } finally {
+      setIsSavingStatus(false);
+    }
+  };
+
+  const getCustomStatusColor = (status: string) => {
+    switch (status) {
+      case 'new':
+        return 'bg-blue-100 text-blue-800';
+      case 'diagnosing':
+        return 'bg-purple-100 text-purple-800';
+      case 'repairing':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'data_transferring':
+        return 'bg-indigo-100 text-indigo-800';
+      case 'installing':
+        return 'bg-cyan-100 text-cyan-800';
+      case 'waiting_for_parts':
+        return 'bg-orange-100 text-orange-800';
+      case 'building':
+        return 'bg-pink-100 text-pink-800';
+      case 'call_customer':
+        return 'bg-red-100 text-red-800';
+      case 'waiting_for_customer_reply':
+        return 'bg-amber-100 text-amber-800';
+      case 'ready_for_pickup':
+        return 'bg-green-100 text-green-800';
+      case 'completed':
+        return 'bg-emerald-100 text-emerald-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getStatusDefinition = (status: string): StatusDefinition | undefined => {
+    return statusDefinitions.find((d) => d.status === status);
+  };
+
+  const isQuestionRequired = (status: string): boolean => {
+    const def = getStatusDefinition(status);
+    return def?.show_customer_question || false;
+  };
+
   const formatDate = (dateString?: string) => {
     if (!dateString) return 'N/A';
     return new Date(dateString).toLocaleString();
@@ -345,11 +476,11 @@ export default function TicketsPage() {
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 >
                   <option value="">All Statuses</option>
-                  <option value="New">New</option>
-                  <option value="In Progress">In Progress</option>
-                  <option value="Customer Reply">Customer Reply</option>
-                  <option value="Waiting on Customer">Waiting on Customer</option>
-                  <option value="Resolved">Resolved</option>
+                  {statusDefinitions.map((def) => (
+                    <option key={def.status} value={def.repairshopr_status}>
+                      {def.display_name}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -421,13 +552,25 @@ export default function TicketsPage() {
                         <h2 className="text-xl font-bold text-gray-900">
                           Ticket #{selectedTicket.number}
                         </h2>
-                        <span
-                          className={`rounded-full px-3 py-1 text-sm font-medium ${getStatusColor(
-                            selectedTicket.status
-                          )}`}
-                        >
-                          {selectedTicket.status || 'Unknown'}
-                        </span>
+                        {/* Show custom status if available, otherwise show RepairShopr status */}
+                        {statusOverride ? (
+                          <span
+                            className={`rounded-full px-3 py-1 text-sm font-medium ${getCustomStatusColor(
+                              statusOverride.custom_status
+                            )}`}
+                          >
+                            {getStatusDefinition(statusOverride.custom_status)?.display_name ||
+                              statusOverride.custom_status}
+                          </span>
+                        ) : (
+                          <span
+                            className={`rounded-full px-3 py-1 text-sm font-medium ${getStatusColor(
+                              selectedTicket.status
+                            )}`}
+                          >
+                            {selectedTicket.status || 'Unknown'}
+                          </span>
+                        )}
                       </div>
                       <p className="mt-1 text-lg text-gray-700">{selectedTicket.subject}</p>
                       <p className="mt-2 text-sm text-gray-500">
@@ -466,6 +609,64 @@ export default function TicketsPage() {
                           ? new Date(selectedTicket.due_date).toLocaleDateString()
                           : 'Not set'}
                       </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Workflow Status Panel */}
+                <div className="rounded-lg border border-gray-200 bg-white p-6">
+                  <h3 className="mb-4 font-semibold text-gray-900">Workflow Status</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-gray-700">
+                        Current Status
+                      </label>
+                      <div className="flex items-center gap-3">
+                        <select
+                          value={customStatus}
+                          onChange={(e) => setCustomStatus(e.target.value)}
+                          className="flex-1 rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        >
+                          {statusDefinitions.map((def) => (
+                            <option key={def.status} value={def.status}>
+                              {def.display_name}
+                            </option>
+                          ))}
+                        </select>
+                        <span
+                          className={`rounded-full px-3 py-1 text-sm font-medium ${getCustomStatusColor(
+                            customStatus
+                          )}`}
+                        >
+                          {getStatusDefinition(customStatus)?.display_name || customStatus}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Customer Question Field - shown for specific statuses */}
+                    {isQuestionRequired(customStatus) && (
+                      <div>
+                        <label className="mb-2 block text-sm font-medium text-gray-700">
+                          Customer Question
+                        </label>
+                        <textarea
+                          value={customerQuestion}
+                          onChange={(e) => setCustomerQuestion(e.target.value)}
+                          placeholder="What do you need to ask the customer?"
+                          rows={3}
+                          className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        />
+                      </div>
+                    )}
+
+                    <div className="flex justify-end">
+                      <button
+                        onClick={handleSaveCustomStatus}
+                        disabled={isSavingStatus}
+                        className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+                      >
+                        {isSavingStatus ? 'Saving...' : 'Update Status'}
+                      </button>
                     </div>
                   </div>
                 </div>

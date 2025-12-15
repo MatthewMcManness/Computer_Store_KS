@@ -124,6 +124,9 @@ export default function TicketsPage() {
   // Status filter
   const [statusFilter, setStatusFilter] = useState<string>('');
 
+  // Batch status overrides for search results
+  const [ticketStatusOverrides, setTicketStatusOverrides] = useState<Record<number, StatusOverride>>({});
+
   // Portal account state
   const [portalAccount, setPortalAccount] = useState<{ id: string; created_at: string } | null>(null);
   const [loadingPortalAccount, setLoadingPortalAccount] = useState(false);
@@ -165,10 +168,32 @@ export default function TicketsPage() {
         throw new Error(data.error || 'Failed to search tickets');
       }
 
-      setTickets(data.tickets || []);
+      const fetchedTickets = data.tickets || [];
+      setTickets(fetchedTickets);
+
+      // Fetch status overrides for all tickets in search results
+      if (fetchedTickets.length > 0) {
+        const ticketIds = fetchedTickets.map((t: TicketData) => t.id);
+        try {
+          const overridesRes = await fetch('/api/repairshopr/tickets/status-batch', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ticket_ids: ticketIds }),
+          });
+          const overridesData = await overridesRes.json();
+          if (overridesRes.ok && overridesData.overrides) {
+            setTicketStatusOverrides(overridesData.overrides);
+          }
+        } catch (overrideErr) {
+          console.error('Failed to fetch status overrides:', overrideErr);
+        }
+      } else {
+        setTicketStatusOverrides({});
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Search failed');
       setTickets([]);
+      setTicketStatusOverrides({});
     } finally {
       setIsLoading(false);
     }
@@ -636,32 +661,40 @@ export default function TicketsPage() {
               </div>
             ) : (
               <div className="flex flex-wrap gap-2">
-                {tickets.map((ticket) => (
-                  <button
-                    key={ticket.id}
-                    onClick={() => handleSelectTicket(ticket)}
-                    className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-left transition-colors ${
-                      selectedTicket?.id === ticket.id
-                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30'
-                        : 'border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800'
-                    }`}
-                  >
-                    <Ticket className="h-4 w-4 text-gray-400" />
-                    <span className="font-medium text-gray-900 dark:text-white">
-                      #{ticket.number}
-                    </span>
-                    <span
-                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${getStatusColor(
-                        ticket.status
-                      )}`}
+                {tickets.map((ticket) => {
+                  const override = ticketStatusOverrides[ticket.id];
+                  const displayStatus = override
+                    ? getStatusDefinition(override.custom_status)?.display_name || override.custom_status
+                    : ticket.status || 'Unknown';
+                  const statusColor = override
+                    ? getCustomStatusColor(override.custom_status)
+                    : getStatusColor(ticket.status);
+
+                  return (
+                    <button
+                      key={ticket.id}
+                      onClick={() => handleSelectTicket(ticket)}
+                      className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-left transition-colors ${
+                        selectedTicket?.id === ticket.id
+                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30'
+                          : 'border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800'
+                      }`}
                     >
-                      {ticket.status || 'Unknown'}
-                    </span>
-                    <span className="max-w-[150px] truncate text-sm text-gray-600 dark:text-gray-400">
-                      {ticket.subject}
-                    </span>
-                  </button>
-                ))}
+                      <Ticket className="h-4 w-4 text-gray-400" />
+                      <span className="font-medium text-gray-900 dark:text-white">
+                        #{ticket.number}
+                      </span>
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusColor}`}
+                      >
+                        {displayStatus}
+                      </span>
+                      <span className="max-w-[150px] truncate text-sm text-gray-600 dark:text-gray-400">
+                        {ticket.subject}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>

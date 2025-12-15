@@ -175,6 +175,27 @@ export interface CreateCustomerInput {
 }
 
 /**
+ * Input for updating an existing customer
+ */
+export interface UpdateCustomerInput {
+  firstname?: string;
+  lastname?: string;
+  email?: string;
+  phone?: string;
+  mobile?: string;
+  address?: string;
+  address_2?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
+  business_name?: string;
+  notes?: string;
+  get_sms?: boolean;
+  opt_out?: boolean;
+  no_email?: boolean;
+}
+
+/**
  * Input for creating a new asset/device
  */
 export interface CreateAssetInput {
@@ -652,6 +673,54 @@ export class RepairShoprClient {
       `/customers?api_key=${encodeURIComponent(apiToken.trim())}`,
       {
         method: 'POST',
+        body: JSON.stringify(data),
+      }
+    );
+
+    return response.customer;
+  }
+
+  /**
+   * Update an existing customer
+   *
+   * @param apiToken - API token for authentication
+   * @param id - Customer ID
+   * @param data - Fields to update
+   * @returns Updated customer details
+   *
+   * @example
+   * ```typescript
+   * const customer = await client.updateCustomer(apiToken, 12345, {
+   *   phone: '555-5678',
+   *   mobile: '555-9999'
+   * });
+   * ```
+   */
+  async updateCustomer(
+    apiToken: string,
+    id: number,
+    data: UpdateCustomerInput
+  ): Promise<RepairShoprCustomer> {
+    if (!apiToken || !apiToken.trim()) {
+      throw new RepairShoprAPIError(
+        'API token is required',
+        400,
+        'VALIDATION_ERROR'
+      );
+    }
+
+    if (!id || id <= 0) {
+      throw new RepairShoprAPIError(
+        'Valid customer ID is required',
+        400,
+        'VALIDATION_ERROR'
+      );
+    }
+
+    const response = await this.request<{ customer: RepairShoprCustomer }>(
+      `/customers/${id}?api_key=${encodeURIComponent(apiToken.trim())}`,
+      {
+        method: 'PUT',
         body: JSON.stringify(data),
       }
     );

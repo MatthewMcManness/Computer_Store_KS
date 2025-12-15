@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, User, Mail, Phone, Building, Key, Check, X, Loader2 } from 'lucide-react';
+import { Search, User, Mail, Phone, Building, Key, Check, X, Loader2, Edit2 } from 'lucide-react';
 import type { RepairShoprCustomer } from '@/lib/repairshopr';
 
 interface CustomerAccount {
@@ -11,6 +11,20 @@ interface CustomerAccount {
   repairshopr_customer_id: number;
   created_at: string;
   updated_at: string;
+}
+
+interface EditFormData {
+  firstname: string;
+  lastname: string;
+  email: string;
+  phone: string;
+  mobile: string;
+  address: string;
+  address_2: string;
+  city: string;
+  state: string;
+  zip: string;
+  business_name: string;
 }
 
 export default function CustomersPage() {
@@ -24,12 +38,23 @@ export default function CustomersPage() {
   const [loadingAccount, setLoadingAccount] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Password form state
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [savingPassword, setSavingPassword] = useState(false);
-  const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
-  const [passwordError, setPasswordError] = useState<string | null>(null);
+  // Edit modal state
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editFormData, setEditFormData] = useState<EditFormData>({
+    firstname: '',
+    lastname: '',
+    email: '',
+    phone: '',
+    mobile: '',
+    address: '',
+    address_2: '',
+    city: '',
+    state: '',
+    zip: '',
+    business_name: '',
+  });
+  const [savingEdit, setSavingEdit] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
 
   // Check authentication
   useEffect(() => {
@@ -80,10 +105,6 @@ export default function CustomersPage() {
     setSelectedCustomer(customer);
     setPortalAccount(null);
     setLoadingAccount(true);
-    setNewPassword('');
-    setConfirmPassword('');
-    setPasswordSuccess(null);
-    setPasswordError(null);
 
     try {
       const response = await fetch(`/api/admin/customer-accounts?customer_id=${customer.id}`);
@@ -98,50 +119,80 @@ export default function CustomersPage() {
     }
   };
 
-  // Save password (create or update)
-  const handleSavePassword = async () => {
+  // Open edit modal with current customer data
+  const openEditModal = () => {
     if (!selectedCustomer) return;
 
-    setPasswordError(null);
-    setPasswordSuccess(null);
+    setEditFormData({
+      firstname: selectedCustomer.firstname || '',
+      lastname: selectedCustomer.lastname || '',
+      email: selectedCustomer.email || '',
+      phone: selectedCustomer.phone || '',
+      mobile: selectedCustomer.mobile || '',
+      address: selectedCustomer.address || '',
+      address_2: selectedCustomer.address_2 || '',
+      city: selectedCustomer.city || '',
+      state: selectedCustomer.state || '',
+      zip: selectedCustomer.zip || '',
+      business_name: selectedCustomer.business_name || '',
+    });
+    setEditError(null);
+    setShowEditModal(true);
+  };
 
-    if (newPassword.length < 8) {
-      setPasswordError('Password must be at least 8 characters');
-      return;
-    }
+  // Handle edit form input change
+  const handleEditInputChange = (field: keyof EditFormData, value: string) => {
+    setEditFormData(prev => ({ ...prev, [field]: value }));
+  };
 
-    if (newPassword !== confirmPassword) {
-      setPasswordError('Passwords do not match');
-      return;
-    }
+  // Save customer edits
+  const handleSaveEdit = async () => {
+    if (!selectedCustomer) return;
 
-    setSavingPassword(true);
+    setSavingEdit(true);
+    setEditError(null);
 
     try {
-      const response = await fetch('/api/admin/customer-accounts', {
-        method: 'POST',
+      // Only send fields that have changed
+      const updateData: Partial<EditFormData> = {};
+      for (const [key, value] of Object.entries(editFormData)) {
+        const originalValue = selectedCustomer[key as keyof RepairShoprCustomer] || '';
+        if (value !== originalValue) {
+          updateData[key as keyof EditFormData] = value;
+        }
+      }
+
+      if (Object.keys(updateData).length === 0) {
+        setShowEditModal(false);
+        return;
+      }
+
+      const response = await fetch(`/api/repairshopr/customers/${selectedCustomer.id}`, {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: selectedCustomer.email,
-          password: newPassword,
-          repairshopr_customer_id: selectedCustomer.id,
-        }),
+        body: JSON.stringify(updateData),
       });
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || 'Failed to save password');
+        throw new Error(data.error || 'Failed to update customer');
       }
 
       const data = await response.json();
-      setPortalAccount(data.account);
-      setNewPassword('');
-      setConfirmPassword('');
-      setPasswordSuccess(data.action === 'created' ? 'Portal account created!' : 'Password updated!');
+
+      // Update selected customer with new data
+      setSelectedCustomer(data.customer);
+
+      // Update customer in list
+      setCustomers(prev =>
+        prev.map(c => (c.id === data.customer.id ? data.customer : c))
+      );
+
+      setShowEditModal(false);
     } catch (err) {
-      setPasswordError(err instanceof Error ? err.message : 'Failed to save password');
+      setEditError(err instanceof Error ? err.message : 'Failed to update customer');
     } finally {
-      setSavingPassword(false);
+      setSavingEdit(false);
     }
   };
 
@@ -150,7 +201,7 @@ export default function CustomersPage() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Customer Management</h1>
-        <p className="mt-1 text-gray-500">Search customers and manage portal access</p>
+        <p className="mt-1 text-gray-500">Search customers and manage their information</p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -264,16 +315,25 @@ export default function CustomersPage() {
             <div>
               {/* Customer Info Header */}
               <div className="mb-6 border-b border-gray-200 pb-6">
-                <div className="flex items-start gap-4">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-100">
-                    <User className="h-7 w-7 text-blue-600" />
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-100">
+                      <User className="h-7 w-7 text-blue-600" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-bold text-gray-900">
+                        {selectedCustomer.fullname}
+                      </h2>
+                      <p className="text-sm text-gray-500">ID: {selectedCustomer.id}</p>
+                    </div>
                   </div>
-                  <div>
-                    <h2 className="text-xl font-bold text-gray-900">
-                      {selectedCustomer.fullname}
-                    </h2>
-                    <p className="text-sm text-gray-500">ID: {selectedCustomer.id}</p>
-                  </div>
+                  <button
+                    onClick={openEditModal}
+                    className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                  >
+                    <Edit2 className="h-4 w-4" />
+                    Edit
+                  </button>
                 </div>
               </div>
 
@@ -316,6 +376,7 @@ export default function CustomersPage() {
                     <div className="mt-0.5 h-4 w-4" />
                     <span className="text-sm">
                       {selectedCustomer.address}
+                      {selectedCustomer.address_2 && `, ${selectedCustomer.address_2}`}
                       {selectedCustomer.city && `, ${selectedCustomer.city}`}
                       {selectedCustomer.state && `, ${selectedCustomer.state}`}
                       {selectedCustomer.zip && ` ${selectedCustomer.zip}`}
@@ -324,97 +385,224 @@ export default function CustomersPage() {
                 )}
               </div>
 
-              {/* Portal Access Section */}
+              {/* Portal Access Status */}
               <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-                <div className="mb-4 flex items-center gap-2">
-                  <Key className="h-5 w-5 text-blue-600" />
-                  <h3 className="font-semibold text-gray-900">Customer Portal Access</h3>
+                <div className="flex items-center gap-3">
+                  <Key className="h-5 w-5 text-gray-600" />
+                  <h3 className="font-semibold text-gray-900">Customer Portal</h3>
+                  {loadingAccount ? (
+                    <Loader2 className="ml-auto h-4 w-4 animate-spin text-gray-400" />
+                  ) : portalAccount ? (
+                    <span className="ml-auto inline-flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-700">
+                      <Check className="h-3.5 w-3.5" />
+                      Password Set
+                    </span>
+                  ) : (
+                    <span className="ml-auto inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-sm font-medium text-amber-700">
+                      <X className="h-3.5 w-3.5" />
+                      No Password
+                    </span>
+                  )}
                 </div>
-
-                {loadingAccount ? (
-                  <div className="flex items-center gap-2 text-gray-500">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>Loading account info...</span>
-                  </div>
-                ) : (
-                  <>
-                    {/* Account Status */}
-                    <div className="mb-4">
-                      {portalAccount ? (
-                        <div className="flex items-center gap-2 text-green-700">
-                          <Check className="h-4 w-4" />
-                          <span className="text-sm">
-                            Portal account active (created {new Date(portalAccount.created_at).toLocaleDateString()})
-                          </span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2 text-amber-700">
-                          <X className="h-4 w-4" />
-                          <span className="text-sm">No portal account - create one below</span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Password Form */}
-                    <div className="space-y-3">
-                      <div>
-                        <label className="mb-1 block text-sm font-medium text-gray-700">
-                          {portalAccount ? 'New Password' : 'Set Password'}
-                        </label>
-                        <input
-                          type="password"
-                          value={newPassword}
-                          onChange={(e) => setNewPassword(e.target.value)}
-                          placeholder="Min 8 characters"
-                          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="mb-1 block text-sm font-medium text-gray-700">
-                          Confirm Password
-                        </label>
-                        <input
-                          type="password"
-                          value={confirmPassword}
-                          onChange={(e) => setConfirmPassword(e.target.value)}
-                          placeholder="Re-enter password"
-                          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                        />
-                      </div>
-
-                      {passwordError && (
-                        <p className="text-sm text-red-600">{passwordError}</p>
-                      )}
-
-                      {passwordSuccess && (
-                        <p className="text-sm text-green-600">{passwordSuccess}</p>
-                      )}
-
-                      <button
-                        onClick={handleSavePassword}
-                        disabled={savingPassword || !newPassword || !confirmPassword}
-                        className="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        {savingPassword ? (
-                          <span className="flex items-center justify-center gap-2">
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                            Saving...
-                          </span>
-                        ) : portalAccount ? (
-                          'Update Password'
-                        ) : (
-                          'Create Portal Account'
-                        )}
-                      </button>
-                    </div>
-                  </>
+                {portalAccount && (
+                  <p className="mt-2 text-sm text-gray-500">
+                    Account created {new Date(portalAccount.created_at).toLocaleDateString()}
+                  </p>
                 )}
               </div>
             </div>
           )}
         </div>
       </div>
+
+      {/* Edit Modal */}
+      {showEditModal && selectedCustomer && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-2xl rounded-xl bg-white p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div className="mb-6 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-gray-900">Edit Customer</h2>
+              <button
+                onClick={() => setShowEditModal(false)}
+                className="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {editError && (
+              <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-800">
+                {editError}
+              </div>
+            )}
+
+            <div className="space-y-4">
+              {/* Name Fields */}
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    First Name
+                  </label>
+                  <input
+                    type="text"
+                    value={editFormData.firstname}
+                    onChange={(e) => handleEditInputChange('firstname', e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    Last Name
+                  </label>
+                  <input
+                    type="text"
+                    value={editFormData.lastname}
+                    onChange={(e) => handleEditInputChange('lastname', e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  />
+                </div>
+              </div>
+
+              {/* Email */}
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={editFormData.email}
+                  onChange={(e) => handleEditInputChange('email', e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                />
+              </div>
+
+              {/* Phone Numbers */}
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    Phone
+                  </label>
+                  <input
+                    type="tel"
+                    value={editFormData.phone}
+                    onChange={(e) => handleEditInputChange('phone', e.target.value)}
+                    placeholder="Main phone number"
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    Mobile
+                  </label>
+                  <input
+                    type="tel"
+                    value={editFormData.mobile}
+                    onChange={(e) => handleEditInputChange('mobile', e.target.value)}
+                    placeholder="Mobile phone number"
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  />
+                </div>
+              </div>
+
+              {/* Business Name */}
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">
+                  Business Name
+                </label>
+                <input
+                  type="text"
+                  value={editFormData.business_name}
+                  onChange={(e) => handleEditInputChange('business_name', e.target.value)}
+                  placeholder="Optional business name"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                />
+              </div>
+
+              {/* Address */}
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">
+                  Address
+                </label>
+                <input
+                  type="text"
+                  value={editFormData.address}
+                  onChange={(e) => handleEditInputChange('address', e.target.value)}
+                  placeholder="Street address"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">
+                  Address Line 2
+                </label>
+                <input
+                  type="text"
+                  value={editFormData.address_2}
+                  onChange={(e) => handleEditInputChange('address_2', e.target.value)}
+                  placeholder="Apt, suite, unit, etc."
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                />
+              </div>
+
+              {/* City, State, Zip */}
+              <div className="grid gap-4 sm:grid-cols-3">
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    City
+                  </label>
+                  <input
+                    type="text"
+                    value={editFormData.city}
+                    onChange={(e) => handleEditInputChange('city', e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    State
+                  </label>
+                  <input
+                    type="text"
+                    value={editFormData.state}
+                    onChange={(e) => handleEditInputChange('state', e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    ZIP Code
+                  </label>
+                  <input
+                    type="text"
+                    value={editFormData.zip}
+                    onChange={(e) => handleEditInputChange('zip', e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="mt-6 flex items-center justify-end gap-3">
+              <button
+                onClick={() => setShowEditModal(false)}
+                disabled={savingEdit}
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveEdit}
+                disabled={savingEdit}
+                className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+              >
+                {savingEdit && <Loader2 className="h-4 w-4 animate-spin" />}
+                {savingEdit ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -6,7 +6,6 @@ import { cn } from '@/lib/utils';
 import {
   LayoutDashboard,
   Image,
-  Plus,
   Settings,
   LogOut,
   Home,
@@ -15,6 +14,7 @@ import {
   PenSquare,
   ClipboardList,
   Users,
+  Building2,
 } from 'lucide-react';
 
 interface NavItem {
@@ -40,14 +40,14 @@ const navItems: NavItem[] = [
     icon: <Users className="h-5 w-5" />,
   },
   {
+    label: 'Businesses',
+    href: '/admin/businesses',
+    icon: <Building2 className="h-5 w-5" />,
+  },
+  {
     label: 'Gallery',
     href: '/admin/gallery',
     icon: <Image className="h-5 w-5" />,
-  },
-  {
-    label: 'Add Computer',
-    href: '/admin/gallery/new',
-    icon: <Plus className="h-5 w-5" />,
   },
   {
     label: 'Blog Posts',

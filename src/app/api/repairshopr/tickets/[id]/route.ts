@@ -4,12 +4,15 @@ import { createRepairShoprClient, RepairShoprAPIError } from '@/lib/repairshopr'
 
 export const dynamic = 'force-dynamic';
 
+interface RouteParams {
+  params: Promise<{ id: string }>;
+}
+
 /**
- * GET /api/repairshopr/tickets
- * Search/list tickets with optional filters
- * Query params: ?q=search&customer_id=123&status=New&page=1
+ * GET /api/repairshopr/tickets/[id]
+ * Get a single ticket with full details (comments, timers, etc.)
  */
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest, { params }: RouteParams) {
   // Check employee authentication
   const user = await getCurrentUser();
   if (!user || user.userType !== 'employee') {
@@ -21,23 +24,21 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Session expired' }, { status: 401 });
   }
 
-  // Get search parameters
-  const searchParams = request.nextUrl.searchParams;
-  const query = searchParams.get('q') || undefined;
-  const customerId = searchParams.get('customer_id');
-  const status = searchParams.get('status') || undefined;
-  const page = searchParams.get('page');
+  const { id } = await params;
+  const ticketId = parseInt(id, 10);
+
+  if (isNaN(ticketId) || ticketId <= 0) {
+    return NextResponse.json(
+      { error: 'Invalid ticket ID' },
+      { status: 400 }
+    );
+  }
 
   try {
     const client = createRepairShoprClient();
-    const tickets = await client.searchTickets(apiToken, {
-      query,
-      customer_id: customerId ? parseInt(customerId, 10) : undefined,
-      status,
-      page: page ? parseInt(page, 10) : undefined,
-    });
+    const ticket = await client.getTicket(apiToken, ticketId);
 
-    return NextResponse.json({ tickets });
+    return NextResponse.json({ ticket });
   } catch (error) {
     if (error instanceof RepairShoprAPIError) {
       return NextResponse.json(
@@ -46,20 +47,20 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    console.error('[API] Ticket search error:', error);
+    console.error('[API] Ticket fetch error:', error);
     return NextResponse.json(
-      { error: 'Failed to search tickets' },
+      { error: 'Failed to fetch ticket' },
       { status: 500 }
     );
   }
 }
 
 /**
- * POST /api/repairshopr/tickets
- * Create a new ticket
- * Body: CreateTicketInput
+ * PUT /api/repairshopr/tickets/[id]
+ * Update a ticket
+ * Body: UpdateTicketInput
  */
-export async function POST(request: NextRequest) {
+export async function PUT(request: NextRequest, { params }: RouteParams) {
   // Check employee authentication
   const user = await getCurrentUser();
   if (!user || user.userType !== 'employee') {
@@ -69,6 +70,16 @@ export async function POST(request: NextRequest) {
   const apiToken = await getSessionToken();
   if (!apiToken) {
     return NextResponse.json({ error: 'Session expired' }, { status: 401 });
+  }
+
+  const { id } = await params;
+  const ticketId = parseInt(id, 10);
+
+  if (isNaN(ticketId) || ticketId <= 0) {
+    return NextResponse.json(
+      { error: 'Invalid ticket ID' },
+      { status: 400 }
+    );
   }
 
   // Parse request body
@@ -82,19 +93,11 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Validate required fields
-  if (!body.customer_id || !body.subject) {
-    return NextResponse.json(
-      { error: 'Customer ID and subject are required' },
-      { status: 400 }
-    );
-  }
-
   try {
     const client = createRepairShoprClient();
-    const ticket = await client.createTicket(apiToken, body);
+    const ticket = await client.updateTicket(apiToken, ticketId, body);
 
-    return NextResponse.json({ ticket }, { status: 201 });
+    return NextResponse.json({ ticket });
   } catch (error) {
     if (error instanceof RepairShoprAPIError) {
       return NextResponse.json(
@@ -103,9 +106,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.error('[API] Ticket creation error:', error);
+    console.error('[API] Ticket update error:', error);
     return NextResponse.json(
-      { error: 'Failed to create ticket' },
+      { error: 'Failed to update ticket' },
       { status: 500 }
     );
   }

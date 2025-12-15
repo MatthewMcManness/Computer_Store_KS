@@ -15,6 +15,7 @@ import {
   ClipboardList,
   Users,
   Building2,
+  Ticket,
 } from 'lucide-react';
 
 interface NavItem {
@@ -43,6 +44,11 @@ const navItems: NavItem[] = [
     label: 'Businesses',
     href: '/admin/businesses',
     icon: <Building2 className="h-5 w-5" />,
+  },
+  {
+    label: 'Tickets',
+    href: '/admin/tickets',
+    icon: <Ticket className="h-5 w-5" />,
   },
   {
     label: 'Gallery',

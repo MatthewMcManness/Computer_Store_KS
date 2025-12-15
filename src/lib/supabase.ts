@@ -929,3 +929,130 @@ export async function getAvailableSalesAdmin(): Promise<GallerySale[]> {
 
   return data || [];
 }
+
+// =============================================================================
+// Ticket Public Notes Type Definitions
+// =============================================================================
+
+export interface TicketPublicNote {
+  id: string;
+  repairshopr_ticket_id: number;
+  repairshopr_customer_id: number;
+  author_name: string;
+  author_email: string | null;
+  content: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateTicketPublicNoteInput {
+  repairshopr_ticket_id: number;
+  repairshopr_customer_id: number;
+  author_name: string;
+  author_email?: string;
+  content: string;
+}
+
+// =============================================================================
+// Ticket Public Notes Functions (Admin)
+// =============================================================================
+
+/**
+ * Get all public notes for a ticket (Admin)
+ */
+export async function getTicketPublicNotes(ticketId: number): Promise<TicketPublicNote[]> {
+  if (!supabaseAdmin) return [];
+
+  const { data, error } = await supabaseAdmin
+    .from('ticket_public_notes')
+    .select('*')
+    .eq('repairshopr_ticket_id', ticketId)
+    .order('created_at', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching ticket public notes:', error);
+    return [];
+  }
+
+  return data || [];
+}
+
+/**
+ * Create a public note for a ticket (Admin)
+ */
+export async function createTicketPublicNote(
+  input: CreateTicketPublicNoteInput
+): Promise<TicketPublicNote | null> {
+  if (!supabaseAdmin) return null;
+
+  const { data, error } = await supabaseAdmin
+    .from('ticket_public_notes')
+    .insert({
+      repairshopr_ticket_id: input.repairshopr_ticket_id,
+      repairshopr_customer_id: input.repairshopr_customer_id,
+      author_name: input.author_name,
+      author_email: input.author_email || null,
+      content: input.content,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error creating ticket public note:', error);
+    return null;
+  }
+
+  return data;
+}
+
+/**
+ * Delete a public note (Admin)
+ */
+export async function deleteTicketPublicNote(noteId: string): Promise<boolean> {
+  if (!supabaseAdmin) return false;
+
+  const { error } = await supabaseAdmin
+    .from('ticket_public_notes')
+    .delete()
+    .eq('id', noteId);
+
+  if (error) {
+    console.error('Error deleting ticket public note:', error);
+    return false;
+  }
+
+  return true;
+}
+
+// =============================================================================
+// Ticket Public Notes Functions (Customer Portal)
+// =============================================================================
+
+/**
+ * Get public notes for tickets owned by a customer (Customer Portal)
+ */
+export async function getCustomerTicketPublicNotes(
+  customerId: number,
+  ticketId?: number
+): Promise<TicketPublicNote[]> {
+  if (!supabase) return [];
+
+  let query = supabase
+    .from('ticket_public_notes')
+    .select('*')
+    .eq('repairshopr_customer_id', customerId)
+    .order('created_at', { ascending: true });
+
+  if (ticketId) {
+    query = query.eq('repairshopr_ticket_id', ticketId);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error('Error fetching customer ticket public notes:', error);
+    return [];
+  }
+
+  return data || [];
+}

@@ -125,6 +125,38 @@ export interface RepairShoprAsset {
 }
 
 /**
+ * Ticket comment from the RepairShopr API
+ */
+export interface RepairShoprTicketComment {
+  id: number;
+  created_at: string;
+  updated_at: string;
+  ticket_id: number;
+  subject?: string;
+  body: string;
+  tech?: string;
+  hidden: boolean;
+  user_id?: number;
+}
+
+/**
+ * Ticket timer entry from the RepairShopr API
+ */
+export interface RepairShoprTimerEntry {
+  id: number;
+  ticket_id: number;
+  user_id?: number;
+  start_time?: string;
+  end_time?: string;
+  recorded?: boolean;
+  created_at: string;
+  updated_at: string;
+  billable?: boolean;
+  notes?: string;
+  active_duration?: number;
+}
+
+/**
  * Ticket information from the RepairShopr API
  */
 export interface RepairShoprTicket {
@@ -137,6 +169,23 @@ export interface RepairShoprTicket {
   problem_type?: string;
   created_at?: string;
   updated_at?: string;
+  due_date?: string;
+  resolved_at?: string;
+  ticket_type_id?: number;
+  user_id?: number;
+  properties?: Record<string, unknown>;
+  tag_list?: string[];
+  priority?: string;
+}
+
+/**
+ * Detailed ticket with all related data
+ */
+export interface RepairShoprTicketDetail extends RepairShoprTicket {
+  comments?: RepairShoprTicketComment[];
+  timers?: RepairShoprTimerEntry[];
+  customer?: RepairShoprCustomer;
+  assets?: RepairShoprAsset[];
 }
 
 /**
@@ -223,6 +272,29 @@ export interface CreateTicketInput {
   user_id?: number;
   comment_subject?: string;
   comment_body?: string;
+}
+
+/**
+ * Input for updating an existing ticket
+ */
+export interface UpdateTicketInput {
+  subject?: string;
+  problem_type?: string;
+  status?: string;
+  due_date?: string;
+  user_id?: number;
+  priority?: string;
+}
+
+/**
+ * Input for adding a comment to a ticket
+ */
+export interface AddTicketCommentInput {
+  subject?: string;
+  body: string;
+  tech?: string;
+  hidden?: boolean;
+  do_not_email?: boolean;
 }
 
 /**
@@ -833,18 +905,64 @@ export class RepairShoprClient {
   // =============================================================================
 
   /**
-   * Get a ticket by ID
+   * Search for tickets with various filters
+   *
+   * @param apiToken - API token for authentication
+   * @param options - Search options (query, customer_id, status, etc.)
+   * @returns Array of matching tickets
+   *
+   * @example
+   * ```typescript
+   * const tickets = await client.searchTickets(apiToken, { query: 'laptop repair' });
+   * ```
+   */
+  async searchTickets(
+    apiToken: string,
+    options: {
+      query?: string;
+      customer_id?: number;
+      status?: string;
+      user_id?: number;
+      page?: number;
+    } = {}
+  ): Promise<RepairShoprTicket[]> {
+    if (!apiToken || !apiToken.trim()) {
+      throw new RepairShoprAPIError(
+        'API token is required',
+        400,
+        'VALIDATION_ERROR'
+      );
+    }
+
+    const params = new URLSearchParams();
+    params.append('api_key', apiToken.trim());
+
+    if (options.query) params.append('query', options.query);
+    if (options.customer_id) params.append('customer_id', options.customer_id.toString());
+    if (options.status) params.append('status', options.status);
+    if (options.user_id) params.append('user_id', options.user_id.toString());
+    if (options.page) params.append('page', options.page.toString());
+
+    const response = await this.request<{ tickets: RepairShoprTicket[] }>(
+      `/tickets?${params.toString()}`
+    );
+
+    return response.tickets || [];
+  }
+
+  /**
+   * Get a ticket by ID with full details including comments
    *
    * @param apiToken - API token for authentication
    * @param id - Ticket ID
-   * @returns Ticket details
+   * @returns Detailed ticket with comments, timers, etc.
    *
    * @example
    * ```typescript
    * const ticket = await client.getTicket(apiToken, 67890);
    * ```
    */
-  async getTicket(apiToken: string, id: number): Promise<RepairShoprTicket> {
+  async getTicket(apiToken: string, id: number): Promise<RepairShoprTicketDetail> {
     if (!apiToken || !apiToken.trim()) {
       throw new RepairShoprAPIError(
         'API token is required',
@@ -861,11 +979,115 @@ export class RepairShoprClient {
       );
     }
 
-    const response = await this.request<{ ticket: RepairShoprTicket }>(
+    const response = await this.request<{ ticket: RepairShoprTicketDetail }>(
       `/tickets/${id}?api_key=${encodeURIComponent(apiToken.trim())}`
     );
 
     return response.ticket;
+  }
+
+  /**
+   * Update an existing ticket
+   *
+   * @param apiToken - API token for authentication
+   * @param id - Ticket ID
+   * @param data - Fields to update
+   * @returns Updated ticket details
+   *
+   * @example
+   * ```typescript
+   * const ticket = await client.updateTicket(apiToken, 67890, {
+   *   status: 'In Progress',
+   *   priority: 'High'
+   * });
+   * ```
+   */
+  async updateTicket(
+    apiToken: string,
+    id: number,
+    data: UpdateTicketInput
+  ): Promise<RepairShoprTicketDetail> {
+    if (!apiToken || !apiToken.trim()) {
+      throw new RepairShoprAPIError(
+        'API token is required',
+        400,
+        'VALIDATION_ERROR'
+      );
+    }
+
+    if (!id || id <= 0) {
+      throw new RepairShoprAPIError(
+        'Valid ticket ID is required',
+        400,
+        'VALIDATION_ERROR'
+      );
+    }
+
+    const response = await this.request<{ ticket: RepairShoprTicketDetail }>(
+      `/tickets/${id}?api_key=${encodeURIComponent(apiToken.trim())}`,
+      {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      }
+    );
+
+    return response.ticket;
+  }
+
+  /**
+   * Add a comment to a ticket
+   *
+   * @param apiToken - API token for authentication
+   * @param ticketId - Ticket ID
+   * @param data - Comment data
+   * @returns Created comment
+   *
+   * @example
+   * ```typescript
+   * const comment = await client.addTicketComment(apiToken, 67890, {
+   *   body: 'Replaced the hard drive',
+   *   hidden: true // private note
+   * });
+   * ```
+   */
+  async addTicketComment(
+    apiToken: string,
+    ticketId: number,
+    data: AddTicketCommentInput
+  ): Promise<RepairShoprTicketComment> {
+    if (!apiToken || !apiToken.trim()) {
+      throw new RepairShoprAPIError(
+        'API token is required',
+        400,
+        'VALIDATION_ERROR'
+      );
+    }
+
+    if (!ticketId || ticketId <= 0) {
+      throw new RepairShoprAPIError(
+        'Valid ticket ID is required',
+        400,
+        'VALIDATION_ERROR'
+      );
+    }
+
+    if (!data.body || !data.body.trim()) {
+      throw new RepairShoprAPIError(
+        'Comment body is required',
+        400,
+        'VALIDATION_ERROR'
+      );
+    }
+
+    const response = await this.request<{ comment: RepairShoprTicketComment }>(
+      `/tickets/${ticketId}/comment?api_key=${encodeURIComponent(apiToken.trim())}`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }
+    );
+
+    return response.comment;
   }
 
   /**

@@ -490,9 +490,24 @@ export default function TicketsPage() {
   const getMergedNotes = (): UnifiedNote[] => {
     const notes: UnifiedNote[] = [];
 
-    // Add RepairShopr comments
+    // Build a set of public note contents for duplicate detection
+    const publicNoteContents = new Set(publicNotes.map((n) => n.content.trim()));
+
+    // Add RepairShopr comments (filtering out our outgoing SMS/email duplicates)
     if (selectedTicket?.comments) {
       for (const comment of selectedTicket.comments) {
+        // Skip outgoing messages sent via our public notes system
+        // These are logged by RepairShopr when we send SMS/email, but we already
+        // show them via the Supabase public notes
+        // Filter by subject OR by matching content with a public note
+        const isOurOutgoingMessage =
+          comment.subject === 'Update from The Computer Store' ||
+          publicNoteContents.has(comment.body?.trim() || '');
+
+        if (isOurOutgoingMessage && !comment.hidden) {
+          continue;
+        }
+
         let noteType: 'private' | 'customer' | 'staff';
 
         if (comment.hidden) {

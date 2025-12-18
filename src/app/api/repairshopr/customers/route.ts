@@ -40,6 +40,19 @@ export async function GET(request: NextRequest) {
     const client = createRepairShoprClient();
     const customers = await client.searchCustomers(apiToken, query);
 
+    // Debug: Log what RepairShopr returns for first customer
+    if (customers.length > 0) {
+      console.log(`[API] Customer search results (first customer):`, JSON.stringify({
+        id: customers[0].id,
+        fullname: customers[0].fullname,
+        properties: customers[0].properties,
+        custom_fields: customers[0].custom_fields,
+        customer_fields: customers[0].customer_fields,
+        tags: customers[0].tags,
+        tag_list: customers[0].tag_list,
+      }, null, 2));
+    }
+
     // Get existing silver plan statuses from Supabase
     const customerIds = customers.map(c => c.id);
     const existingSilverPlans = await getCustomerSilverPlans(customerIds);
@@ -54,8 +67,12 @@ export async function GET(request: NextRequest) {
         const apiSaysSilver = isSilverPlanCustomer(customer);
         const dbSaysSilver = silverPlanMap.get(customer.id) ?? false;
 
+        // Debug: Log silver plan detection for each customer
+        console.log(`[API] Customer ${customer.id} (${customer.fullname}): API says silver=${apiSaysSilver}, DB says silver=${dbSaysSilver}`);
+
         // If API says silver but DB doesn't have it, sync to DB
         if (apiSaysSilver && !dbSaysSilver && supabaseAdmin) {
+          console.log(`[API] Syncing silver plan to DB for customer ${customer.id}`);
           await setCustomerSilverPlan(customer.id, true);
           silverPlanMap.set(customer.id, true);
         }

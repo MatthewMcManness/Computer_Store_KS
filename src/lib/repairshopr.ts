@@ -301,6 +301,8 @@ export interface UpdateCustomerInput {
   get_sms?: boolean;
   opt_out?: boolean;
   no_email?: boolean;
+  /** Custom fields stored in properties object */
+  properties?: Record<string, unknown>;
 }
 
 /**

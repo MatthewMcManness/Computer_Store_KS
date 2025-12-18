@@ -38,6 +38,10 @@ export async function GET(
     const client = createRepairShoprClient();
     const customer = await client.getCustomer(apiToken, customerId);
 
+    // Debug: Log what properties/custom fields RepairShopr returns
+    console.log(`[API] Customer ${customerId} properties:`, JSON.stringify(customer.properties, null, 2));
+    console.log(`[API] Customer ${customerId} custom_fields:`, JSON.stringify(customer.custom_fields, null, 2));
+
     return NextResponse.json({ customer });
   } catch (error) {
     if (error instanceof RepairShoprAPIError) {
@@ -92,7 +96,8 @@ export async function PUT(
     const allowedFields: (keyof UpdateCustomerInput)[] = [
       'firstname', 'lastname', 'email', 'phone', 'mobile',
       'address', 'address_2', 'city', 'state', 'zip',
-      'business_name', 'notes', 'get_sms', 'opt_out', 'no_email'
+      'business_name', 'notes', 'get_sms', 'opt_out', 'no_email',
+      'properties'
     ];
 
     const updateData: UpdateCustomerInput = {};
@@ -101,6 +106,9 @@ export async function PUT(
         updateData[field] = body[field];
       }
     }
+
+    // Debug: Log what we're sending to RepairShopr
+    console.log(`[API] Updating customer ${customerId} with:`, JSON.stringify(updateData, null, 2));
 
     if (Object.keys(updateData).length === 0) {
       return NextResponse.json(

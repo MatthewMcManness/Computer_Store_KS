@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCurrentUser } from '@/lib/auth';
+import { getCurrentUser, getSessionToken } from '@/lib/auth';
 import { getCustomerSilverPlan, setCustomerSilverPlan } from '@/lib/supabase';
+import { createRepairShoprClient } from '@/lib/repairshopr';
 
 export const dynamic = 'force-dynamic';
+
+// The custom field name in RepairShopr for protection plan
+const PROTECTION_PLAN_FIELD = 'Protection Plan';
 
 /**
  * GET /api/admin/silver-plan
@@ -36,11 +40,17 @@ export async function GET(request: NextRequest) {
 /**
  * POST /api/admin/silver-plan
  * Set silver plan status for a customer
+ * Updates both Supabase AND RepairShopr
  */
 export async function POST(request: NextRequest) {
   const user = await getCurrentUser();
   if (!user || user.userType !== 'employee') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const apiToken = await getSessionToken();
+  if (!apiToken) {
+    return NextResponse.json({ error: 'Session expired' }, { status: 401 });
   }
 
   let body;
@@ -60,16 +70,48 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    // Update Supabase first
     const plan = await setCustomerSilverPlan(customer_id, is_silver_plan);
 
     if (!plan) {
-      return NextResponse.json({ error: 'Failed to update silver plan' }, { status: 500 });
+      return NextResponse.json({ error: 'Failed to update silver plan in database' }, { status: 500 });
+    }
+
+    // Also update RepairShopr custom field
+    let repairshoprUpdated = false;
+    try {
+      const client = createRepairShoprClient();
+
+      // First get the current customer to see their properties
+      const currentCustomer = await client.getCustomer(apiToken, customer_id);
+      console.log(`[API] Current customer ${customer_id} properties:`, JSON.stringify(currentCustomer.properties, null, 2));
+
+      // Merge with existing properties
+      const existingProperties = currentCustomer.properties || {};
+      const updatedProperties = {
+        ...existingProperties,
+        [PROTECTION_PLAN_FIELD]: is_silver_plan ? 'Silver' : '',
+      };
+
+      console.log(`[API] Updating customer ${customer_id} properties to:`, JSON.stringify(updatedProperties, null, 2));
+
+      // Update the customer in RepairShopr
+      const updatedCustomer = await client.updateCustomer(apiToken, customer_id, {
+        properties: updatedProperties,
+      });
+
+      console.log(`[API] RepairShopr update response properties:`, JSON.stringify(updatedCustomer.properties, null, 2));
+      repairshoprUpdated = true;
+    } catch (rsError) {
+      // Log but don't fail - Supabase update succeeded
+      console.error('[API] Failed to update RepairShopr:', rsError);
     }
 
     return NextResponse.json({
       success: true,
       is_silver_plan: plan.is_silver_plan,
-      plan
+      plan,
+      repairshopr_updated: repairshoprUpdated,
     });
   } catch (error) {
     console.error('[API] Silver plan update error:', error);

@@ -514,7 +514,6 @@ export default function ProtectionPlansPage() {
               <li>Everything in Silver, plus:</li>
               <li className="highlight">Premium antivirus suite</li>
               <li className="highlight">75% discount on virus removal</li>
-              <li className="highlight">50% off house calls</li>
               <li className="highlight">1 FREE account recovery/month</li>
               <li>Extended remote support (4 hrs/month)</li>
               <li>25% discount on labor</li>

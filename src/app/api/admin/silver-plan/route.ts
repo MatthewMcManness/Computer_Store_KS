@@ -7,6 +7,8 @@ export const dynamic = 'force-dynamic';
 
 // The custom field name in RepairShopr for protection plan
 const PROTECTION_PLAN_FIELD = 'Protection Plan';
+// RepairShopr dropdown answer ID for "Silver"
+const SILVER_PLAN_ANSWER_ID = '4027';
 
 /**
  * GET /api/admin/silver-plan
@@ -87,10 +89,11 @@ export async function POST(request: NextRequest) {
       console.log(`[API] Current customer ${customer_id} properties:`, JSON.stringify(currentCustomer.properties, null, 2));
 
       // Merge with existing properties
+      // Use answer ID for dropdowns - RepairShopr expects the ID, not the text
       const existingProperties = currentCustomer.properties || {};
       const updatedProperties = {
         ...existingProperties,
-        [PROTECTION_PLAN_FIELD]: is_silver_plan ? 'Silver' : '',
+        [PROTECTION_PLAN_FIELD]: is_silver_plan ? SILVER_PLAN_ANSWER_ID : '',
       };
 
       console.log(`[API] Updating customer ${customer_id} properties to:`, JSON.stringify(updatedProperties, null, 2));

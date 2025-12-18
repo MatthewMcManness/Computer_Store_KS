@@ -122,6 +122,12 @@ export interface RepairShoprCustomer {
 }
 
 /**
+ * Known answer IDs for Silver Plan in RepairShopr dropdown custom fields
+ * RepairShopr returns answer IDs instead of text values for dropdowns
+ */
+const SILVER_PLAN_ANSWER_IDS = ['4027'];
+
+/**
  * Determine if a customer is on the Silver Plan based on available metadata.
  * Checks multiple potential fields to be resilient to API shape changes.
  */
@@ -159,7 +165,12 @@ export function isSilverPlanCustomer(customer: Partial<RepairShoprCustomer> | nu
     if (!source) continue;
     for (const [key, value] of Object.entries(source)) {
       if (key.toLowerCase().includes('protection plan')) {
-        if (typeof value === 'string' && value.toLowerCase().includes('silver')) return true;
+        // Check for text value "silver"
+        if (typeof value === 'string') {
+          if (value.toLowerCase().includes('silver')) return true;
+          // Check for known answer IDs (RepairShopr returns IDs for dropdowns)
+          if (SILVER_PLAN_ANSWER_IDS.includes(value)) return true;
+        }
         if (Array.isArray(value) && value.some((v) => typeof v === 'string' && v.toLowerCase().includes('silver'))) {
           return true;
         }

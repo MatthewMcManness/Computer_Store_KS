@@ -182,13 +182,32 @@ export function getProtectionPlanTier(customer: Partial<RepairShoprCustomer> | n
     if (!source) continue;
     for (const [key, value] of Object.entries(source)) {
       if (key.toLowerCase().includes('protection plan')) {
+        // Log the raw value to help identify answer IDs
+        console.log(`[RepairShopr] Protection Plan field "${key}" raw value:`, JSON.stringify(value));
+
         if (typeof value === 'string') {
           // Check for known answer IDs first (RepairShopr returns IDs for dropdowns)
-          if (GOLD_PLAN_ANSWER_IDS.includes(value)) return 'gold';
-          if (SILVER_PLAN_ANSWER_IDS.includes(value)) return 'silver';
+          if (GOLD_PLAN_ANSWER_IDS.includes(value)) {
+            console.log(`[RepairShopr] Matched Gold plan answer ID: ${value}`);
+            return 'gold';
+          }
+          if (SILVER_PLAN_ANSWER_IDS.includes(value)) {
+            console.log(`[RepairShopr] Matched Silver plan answer ID: ${value}`);
+            return 'silver';
+          }
           // Check for text values
-          if (value.toLowerCase().includes('gold')) return 'gold';
-          if (value.toLowerCase().includes('silver')) return 'silver';
+          if (value.toLowerCase().includes('gold')) {
+            console.log(`[RepairShopr] Matched Gold plan by text: ${value}`);
+            return 'gold';
+          }
+          if (value.toLowerCase().includes('silver')) {
+            console.log(`[RepairShopr] Matched Silver plan by text: ${value}`);
+            return 'silver';
+          }
+          // Log unrecognized non-empty values for debugging
+          if (value && value.trim() !== '') {
+            console.log(`[RepairShopr] ⚠️ Unrecognized Protection Plan value: "${value}" - may need to add this ID`);
+          }
         }
         if (Array.isArray(value)) {
           if (value.some((v) => typeof v === 'string' && v.toLowerCase().includes('gold'))) return 'gold';

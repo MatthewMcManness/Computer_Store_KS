@@ -12,30 +12,27 @@ export default function PlanProposalPage() {
       <style>{`
         .proposal-page {
           font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-          background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+          background: #f8f9fb;
           min-height: 100vh;
-          color: #e4e4e7;
+          color: #374151;
         }
 
         .proposal-header {
-          background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+          background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
           padding: 3rem 2rem;
           text-align: center;
-          border-bottom: 3px solid #3b82f6;
+          border-bottom: 4px solid #1e40af;
         }
 
         .proposal-header h1 {
           font-size: 2.5rem;
           font-weight: 700;
-          background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
+          color: #ffffff;
           margin-bottom: 0.5rem;
         }
 
         .proposal-header p {
-          color: #94a3b8;
+          color: #dbeafe;
           font-size: 1.1rem;
         }
 
@@ -52,10 +49,10 @@ export default function PlanProposalPage() {
         .section-title {
           font-size: 1.75rem;
           font-weight: 600;
-          color: #f1f5f9;
+          color: #111827;
           margin-bottom: 1.5rem;
           padding-bottom: 0.75rem;
-          border-bottom: 2px solid #3b82f6;
+          border-bottom: 3px solid #2563eb;
         }
 
         /* Tier Cards */
@@ -73,7 +70,7 @@ export default function PlanProposalPage() {
         }
 
         .tier-card {
-          border-radius: 1rem;
+          border-radius: 16px;
           padding: 2rem;
           position: relative;
           overflow: hidden;
@@ -86,21 +83,21 @@ export default function PlanProposalPage() {
 
         /* Bronze */
         .tier-bronze {
-          background: linear-gradient(135deg, #44403c 0%, #292524 100%);
-          border: 2px solid #a8a29e;
-          box-shadow: 0 4px 20px rgba(168, 162, 158, 0.2);
+          background: linear-gradient(135deg, #faf5f0 0%, #f5ebe0 100%);
+          border: 2px solid #d4a574;
+          box-shadow: 0 4px 20px rgba(212, 165, 116, 0.2);
         }
 
         .tier-bronze .tier-badge {
-          background: linear-gradient(135deg, #d6d3d1 0%, #a8a29e 50%, #78716c 100%);
-          color: #292524;
+          background: linear-gradient(135deg, #e8d4b8 0%, #d4a574 50%, #b8860b 100%);
+          color: #422006;
         }
 
         /* Silver */
         .tier-silver {
-          background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
-          border: 2px solid #9ca3af;
-          box-shadow: 0 4px 20px rgba(156, 163, 175, 0.3);
+          background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+          border: 2px solid #94a3b8;
+          box-shadow: 0 4px 20px rgba(148, 163, 184, 0.3);
           transform: scale(1.02);
         }
 
@@ -111,7 +108,7 @@ export default function PlanProposalPage() {
           left: -100%;
           width: 200%;
           height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
           animation: silver-shimmer 3s ease-in-out infinite;
         }
 
@@ -130,7 +127,7 @@ export default function PlanProposalPage() {
           position: absolute;
           top: 1rem;
           right: 1rem;
-          background: #22c55e;
+          background: #10b981;
           color: white;
           padding: 0.25rem 0.75rem;
           border-radius: 9999px;
@@ -140,7 +137,7 @@ export default function PlanProposalPage() {
 
         /* Gold */
         .tier-gold {
-          background: linear-gradient(135deg, #854d0e 0%, #422006 100%);
+          background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%);
           border: 2px solid #fbbf24;
           box-shadow: 0 4px 20px rgba(251, 191, 36, 0.3);
         }
@@ -152,7 +149,7 @@ export default function PlanProposalPage() {
           left: -100%;
           width: 200%;
           height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.2), transparent);
+          background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.3), transparent);
           animation: gold-shimmer 2.5s ease-in-out infinite;
         }
 
@@ -179,18 +176,18 @@ export default function PlanProposalPage() {
         .tier-price {
           font-size: 3rem;
           font-weight: 700;
-          color: #f1f5f9;
+          color: #111827;
           margin: 1rem 0;
         }
 
         .tier-price span {
           font-size: 1rem;
           font-weight: 400;
-          color: #94a3b8;
+          color: #6b7280;
         }
 
         .tier-target {
-          color: #94a3b8;
+          color: #6b7280;
           font-size: 0.9rem;
           margin-bottom: 1.5rem;
           font-style: italic;
@@ -206,8 +203,8 @@ export default function PlanProposalPage() {
           padding: 0.5rem 0;
           padding-left: 1.75rem;
           position: relative;
-          color: #e4e4e7;
-          border-bottom: 1px solid rgba(255,255,255,0.1);
+          color: #374151;
+          border-bottom: 1px solid rgba(0,0,0,0.08);
         }
 
         .tier-features li:last-child {
@@ -218,18 +215,63 @@ export default function PlanProposalPage() {
           content: '✓';
           position: absolute;
           left: 0;
-          color: #22c55e;
+          color: #10b981;
           font-weight: bold;
         }
 
         .tier-features li.highlight {
-          color: #fbbf24;
+          color: #d97706;
           font-weight: 600;
         }
 
         .tier-features li.highlight::before {
           content: '★';
-          color: #fbbf24;
+          color: #d97706;
+        }
+
+        /* Tools Section */
+        .tools-banner {
+          background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+          border: 2px solid #2563eb;
+          border-radius: 12px;
+          padding: 1.5rem 2rem;
+          margin-bottom: 2rem;
+          display: flex;
+          align-items: center;
+          gap: 2rem;
+          flex-wrap: wrap;
+        }
+
+        .tools-banner h3 {
+          color: #1e40af;
+          margin: 0;
+          font-size: 1.1rem;
+        }
+
+        .tools-list {
+          display: flex;
+          gap: 2rem;
+          flex-wrap: wrap;
+        }
+
+        .tool-item {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          color: #374151;
+          font-weight: 500;
+        }
+
+        .tool-item .icon {
+          width: 24px;
+          height: 24px;
+          background: #2563eb;
+          border-radius: 6px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          font-size: 0.75rem;
         }
 
         /* Business Value Section */
@@ -246,20 +288,21 @@ export default function PlanProposalPage() {
         }
 
         .value-card {
-          background: rgba(255,255,255,0.05);
-          border-radius: 0.75rem;
+          background: #ffffff;
+          border-radius: 12px;
           padding: 1.5rem;
-          border: 1px solid rgba(255,255,255,0.1);
+          border: 1px solid #e5e7eb;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
 
         .value-card h4 {
-          color: #60a5fa;
+          color: #2563eb;
           font-size: 1.1rem;
           margin-bottom: 1rem;
         }
 
         .value-card p {
-          color: #94a3b8;
+          color: #6b7280;
           line-height: 1.6;
         }
 
@@ -268,73 +311,79 @@ export default function PlanProposalPage() {
           width: 100%;
           border-collapse: collapse;
           margin-top: 1rem;
+          background: #ffffff;
+          border-radius: 12px;
+          overflow: hidden;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
 
         .revenue-table th,
         .revenue-table td {
           padding: 1rem;
           text-align: left;
-          border-bottom: 1px solid rgba(255,255,255,0.1);
+          border-bottom: 1px solid #e5e7eb;
         }
 
         .revenue-table th {
-          background: rgba(59, 130, 246, 0.2);
-          color: #60a5fa;
+          background: #2563eb;
+          color: #ffffff;
           font-weight: 600;
         }
 
         .revenue-table tr:hover {
-          background: rgba(255,255,255,0.05);
+          background: #f8f9fb;
         }
 
         .revenue-table .total-row {
-          background: rgba(34, 197, 94, 0.1);
+          background: #d1fae5;
           font-weight: 700;
-          color: #22c55e;
+          color: #065f46;
         }
 
         /* Comparison Chart */
         .comparison-chart {
-          background: rgba(255,255,255,0.05);
-          border-radius: 1rem;
+          background: #ffffff;
+          border-radius: 16px;
           padding: 2rem;
           margin-top: 1rem;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+          border: 1px solid #e5e7eb;
         }
 
         .comparison-row {
           display: grid;
           grid-template-columns: 2fr repeat(3, 1fr);
           padding: 0.75rem 0;
-          border-bottom: 1px solid rgba(255,255,255,0.1);
+          border-bottom: 1px solid #e5e7eb;
           align-items: center;
         }
 
         .comparison-row:first-child {
           font-weight: 700;
-          color: #60a5fa;
+          color: #2563eb;
           padding-bottom: 1rem;
-          border-bottom: 2px solid rgba(59, 130, 246, 0.3);
+          border-bottom: 2px solid #2563eb;
         }
 
         .comparison-row .feature-name {
-          color: #e4e4e7;
+          color: #374151;
         }
 
         .comparison-row .check {
           text-align: center;
-          color: #22c55e;
+          color: #10b981;
           font-size: 1.25rem;
         }
 
         .comparison-row .x {
           text-align: center;
-          color: #ef4444;
+          color: #9ca3af;
           font-size: 1.25rem;
         }
 
         .comparison-row .value {
           text-align: center;
-          color: #fbbf24;
+          color: #d97706;
           font-weight: 600;
         }
 
@@ -346,28 +395,35 @@ export default function PlanProposalPage() {
           margin-top: 1.5rem;
         }
 
+        @media (max-width: 768px) {
+          .psychology-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+
         .psychology-card {
-          background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
-          border-radius: 0.75rem;
+          background: #ffffff;
+          border-radius: 12px;
           padding: 1.5rem;
-          border: 1px solid rgba(59, 130, 246, 0.3);
+          border: 2px solid #dbeafe;
+          box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
         }
 
         .psychology-card h4 {
-          color: #a78bfa;
+          color: #1e40af;
           margin-bottom: 0.75rem;
         }
 
         .psychology-card p {
-          color: #94a3b8;
+          color: #6b7280;
           font-size: 0.95rem;
           line-height: 1.6;
         }
 
         /* CTA Section */
         .cta-section {
-          background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%);
-          border-radius: 1rem;
+          background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+          border-radius: 16px;
           padding: 3rem;
           text-align: center;
           margin-top: 3rem;
@@ -376,10 +432,11 @@ export default function PlanProposalPage() {
         .cta-section h2 {
           font-size: 2rem;
           margin-bottom: 1rem;
+          color: #ffffff;
         }
 
         .cta-section p {
-          color: #e0e7ff;
+          color: #dbeafe;
           margin-bottom: 2rem;
           font-size: 1.1rem;
         }
@@ -393,7 +450,7 @@ export default function PlanProposalPage() {
 
         .cta-btn {
           padding: 1rem 2rem;
-          border-radius: 0.5rem;
+          border-radius: 8px;
           font-weight: 600;
           font-size: 1rem;
           cursor: pointer;
@@ -406,7 +463,7 @@ export default function PlanProposalPage() {
         }
 
         .cta-btn-primary {
-          background: #22c55e;
+          background: #10b981;
           color: white;
           border: none;
         }
@@ -432,32 +489,69 @@ export default function PlanProposalPage() {
         }
 
         .stat-card {
-          background: rgba(255,255,255,0.05);
-          border-radius: 0.75rem;
+          background: #ffffff;
+          border-radius: 12px;
           padding: 1.5rem;
           text-align: center;
-          border: 1px solid rgba(255,255,255,0.1);
+          border: 1px solid #e5e7eb;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
 
         .stat-value {
           font-size: 2.5rem;
           font-weight: 700;
-          color: #22c55e;
+          color: #10b981;
         }
 
         .stat-label {
-          color: #94a3b8;
+          color: #6b7280;
           font-size: 0.9rem;
           margin-top: 0.5rem;
         }
 
+        /* Cost Analysis */
+        .cost-analysis {
+          background: #fef3c7;
+          border: 2px solid #f59e0b;
+          border-radius: 12px;
+          padding: 1.5rem;
+          margin: 2rem 0;
+        }
+
+        .cost-analysis h4 {
+          color: #92400e;
+          margin-bottom: 1rem;
+        }
+
+        .cost-analysis table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+
+        .cost-analysis td {
+          padding: 0.5rem;
+          border-bottom: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .cost-analysis td:last-child {
+          text-align: right;
+          font-weight: 600;
+          color: #92400e;
+        }
+
+        .cost-analysis .profit-row {
+          background: rgba(16, 185, 129, 0.2);
+          color: #065f46;
+          font-weight: 700;
+        }
+
         .disclaimer {
           text-align: center;
-          color: #64748b;
+          color: #9ca3af;
           font-size: 0.85rem;
           margin-top: 2rem;
           padding-top: 2rem;
-          border-top: 1px solid rgba(255,255,255,0.1);
+          border-top: 1px solid #e5e7eb;
         }
       `}</style>
 
@@ -467,6 +561,21 @@ export default function PlanProposalPage() {
       </header>
 
       <div className="container">
+        {/* Tools Banner */}
+        <div className="tools-banner">
+          <h3>Powered By:</h3>
+          <div className="tools-list">
+            <div className="tool-item">
+              <span className="icon">🛡️</span>
+              <span>Seraph Secure (Antivirus)</span>
+            </div>
+            <div className="tool-item">
+              <span className="icon">🖥️</span>
+              <span>NinjaRMM (Remote Support)</span>
+            </div>
+          </div>
+        </div>
+
         {/* Key Stats */}
         <section className="section">
           <div className="stats-grid">
@@ -475,11 +584,11 @@ export default function PlanProposalPage() {
               <div className="stat-label">Expected Subscriber Growth</div>
             </div>
             <div className="stat-card">
-              <div className="stat-value">+40%</div>
+              <div className="stat-value">+45%</div>
               <div className="stat-label">Revenue Increase Year 1</div>
             </div>
             <div className="stat-card">
-              <div className="stat-value">$15.5K</div>
+              <div className="stat-value">$16K+</div>
               <div className="stat-label">Projected ARR Year 1</div>
             </div>
             <div className="stat-card">
@@ -499,7 +608,7 @@ export default function PlanProposalPage() {
               <div className="tier-price">$14.99<span>/month</span></div>
               <div className="tier-target">Budget-conscious users, seniors, light users</div>
               <ul className="tier-features">
-                <li>Antivirus software included</li>
+                <li>Seraph Secure antivirus included</li>
                 <li>25% discount on virus removal</li>
                 <li>10% discount on labor</li>
                 <li>Free in-store diagnostics</li>
@@ -517,10 +626,9 @@ export default function PlanProposalPage() {
               <ul className="tier-features">
                 <li>Everything in Bronze, plus:</li>
                 <li className="highlight">50% discount on virus removal</li>
-                <li className="highlight">Half-price house calls</li>
+                <li className="highlight">50% off house calls ($50 savings)</li>
                 <li>50% off account recovery</li>
-                <li>Preventive maintenance service</li>
-                <li>Remote support (2hrs/month)</li>
+                <li>Remote support via Ninja (2hrs/month)</li>
                 <li>Performance monitoring & alerts</li>
                 <li>15% discount on labor</li>
                 <li>Priority scheduling</li>
@@ -534,19 +642,59 @@ export default function PlanProposalPage() {
               <div className="tier-target">Power users, home office, small business</div>
               <ul className="tier-features">
                 <li>Everything in Silver, plus:</li>
-                <li className="highlight">Premium antivirus + malware suite</li>
-                <li className="highlight">75% discount on virus removal</li>
-                <li className="highlight">FREE house calls (2/month)</li>
-                <li className="highlight">FREE account recovery</li>
-                <li>Monthly preventive maintenance</li>
-                <li>Extended remote support (4hrs/month)</li>
+                <li className="highlight">Seraph Secure Premium Suite</li>
+                <li className="highlight">75% off virus removal</li>
+                <li className="highlight">75% off house calls ($75 savings)</li>
+                <li className="highlight">1 FREE account recovery/month</li>
+                <li>Extended Ninja remote support (4hrs/month)</li>
                 <li>25% discount on labor</li>
-                <li>Annual comprehensive tune-up</li>
+                <li className="highlight">Annual comprehensive tune-up</li>
                 <li>Data backup consultation</li>
                 <li className="highlight">VIP same-day scheduling</li>
                 <li>10% off hardware purchases</li>
               </ul>
             </div>
+          </div>
+        </section>
+
+        {/* Cost Analysis */}
+        <section className="section">
+          <h2 className="section-title">Gold Tier Profitability Analysis</h2>
+          <div className="cost-analysis">
+            <h4>Why This Gold Tier Works (Per Customer/Month)</h4>
+            <table>
+              <tbody>
+                <tr>
+                  <td>Monthly subscription revenue</td>
+                  <td>+$39.99</td>
+                </tr>
+                <tr>
+                  <td>Seraph Secure license cost (est.)</td>
+                  <td>-$5.00</td>
+                </tr>
+                <tr>
+                  <td>1 free account recovery (normally $50, avg usage ~0.3/mo)</td>
+                  <td>-$15.00</td>
+                </tr>
+                <tr>
+                  <td>Annual tune-up amortized ($75 ÷ 12)</td>
+                  <td>-$6.25</td>
+                </tr>
+                <tr>
+                  <td>Ninja RMM seat cost (est.)</td>
+                  <td>-$3.00</td>
+                </tr>
+                <tr className="profit-row">
+                  <td>Estimated Monthly Profit</td>
+                  <td>~$10.74</td>
+                </tr>
+              </tbody>
+            </table>
+            <p style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#92400e' }}>
+              <strong>Note:</strong> House calls at 75% off still generates $25/call revenue.
+              The 1 free account recovery/month prevents abuse while providing real value.
+              Most customers won&apos;t use all benefits every month, increasing actual margin.
+            </p>
           </div>
         </section>
 
@@ -561,7 +709,7 @@ export default function PlanProposalPage() {
               <div>Gold</div>
             </div>
             <div className="comparison-row">
-              <div className="feature-name">Antivirus Software</div>
+              <div className="feature-name">Seraph Secure Antivirus</div>
               <div className="check">✓</div>
               <div className="check">✓</div>
               <div className="value">Premium</div>
@@ -579,28 +727,28 @@ export default function PlanProposalPage() {
               <div className="value">25%</div>
             </div>
             <div className="comparison-row">
-              <div className="feature-name">House Call Discount</div>
+              <div className="feature-name">House Call Discount ($100 normal)</div>
               <div className="x">—</div>
-              <div className="value">50%</div>
-              <div className="value">FREE (2/mo)</div>
+              <div className="value">50% ($50)</div>
+              <div className="value">75% ($25)</div>
             </div>
             <div className="comparison-row">
-              <div className="feature-name">Account Recovery</div>
+              <div className="feature-name">Account Recovery ($50 normal)</div>
               <div className="x">—</div>
               <div className="value">50% off</div>
-              <div className="value">FREE</div>
+              <div className="value">1 FREE/mo</div>
             </div>
             <div className="comparison-row">
-              <div className="feature-name">Remote Support</div>
+              <div className="feature-name">Ninja Remote Support</div>
               <div className="x">Email only</div>
               <div className="value">2 hrs/mo</div>
               <div className="value">4 hrs/mo</div>
             </div>
             <div className="comparison-row">
-              <div className="feature-name">Preventive Maintenance</div>
-              <div className="value">Quarterly</div>
-              <div className="value">As needed</div>
-              <div className="value">Monthly</div>
+              <div className="feature-name">System Tune-up</div>
+              <div className="value">Quarterly check</div>
+              <div className="x">As needed</div>
+              <div className="value">Annual full tune-up</div>
             </div>
             <div className="comparison-row">
               <div className="feature-name">Performance Monitoring</div>
@@ -620,12 +768,6 @@ export default function PlanProposalPage() {
               <div className="x">—</div>
               <div className="value">10%</div>
             </div>
-            <div className="comparison-row">
-              <div className="feature-name">Annual Tune-up</div>
-              <div className="x">—</div>
-              <div className="x">—</div>
-              <div className="check">✓</div>
-            </div>
           </div>
         </section>
 
@@ -635,15 +777,15 @@ export default function PlanProposalPage() {
           <div className="value-grid">
             <div className="value-card">
               <h4>Bronze Captures New Customers</h4>
-              <p>Price-sensitive customers who would never pay $24.99 will pay $14.99. Lower discounts mean higher margins on paid services. Perfect entry point to upsell to Silver later.</p>
+              <p>Price-sensitive customers who would never pay $24.99 will pay $14.99. Lower discounts (25% vs 50%) mean higher margins on paid services. Perfect entry point to upsell to Silver later.</p>
             </div>
             <div className="value-card">
               <h4>Silver Remains the Sweet Spot</h4>
               <p>Your current plan is already proven. With Bronze below it, Silver looks like even better value. Most customers will naturally gravitate here - exactly where you want them.</p>
             </div>
             <div className="value-card">
-              <h4>Gold Creates Premium Revenue</h4>
-              <p>Power users and small businesses will gladly pay $40/month for VIP treatment. Free house calls are capped at 2/month, keeping costs predictable while feeling unlimited to customers.</p>
+              <h4>Gold: Premium Without the Loss</h4>
+              <p>75% off house calls still generates $25/call. One free account recovery/month is capped exposure ($50 max). Annual tune-up spreads cost across 12 months. High perceived value, sustainable margins.</p>
             </div>
           </div>
         </section>
@@ -662,7 +804,7 @@ export default function PlanProposalPage() {
             </div>
             <div className="psychology-card">
               <h4>Value Perception</h4>
-              <p>The jump from Bronze to Silver (+$10 for 2x the features) feels better than Silver to Gold (+$15 for premium perks). This guides most customers to Silver - your highest-margin tier.</p>
+              <p>The jump from Bronze to Silver (+$10 for 2x the features) feels better than Silver to Gold (+$15 for premium perks). This guides most customers to Silver - your proven tier.</p>
             </div>
           </div>
         </section>
@@ -671,7 +813,7 @@ export default function PlanProposalPage() {
         <section className="section">
           <h2 className="section-title">Revenue Projections</h2>
 
-          <h3 style={{ color: '#94a3b8', marginBottom: '1rem' }}>Year 1 (Conservative Estimate)</h3>
+          <h3 style={{ color: '#6b7280', marginBottom: '1rem' }}>Year 1 (Conservative Estimate)</h3>
           <table className="revenue-table">
             <thead>
               <tr>
@@ -688,7 +830,7 @@ export default function PlanProposalPage() {
                 <td>15</td>
                 <td>$224.85</td>
                 <td>$2,698</td>
-                <td>65-70%</td>
+                <td>70-75%</td>
               </tr>
               <tr>
                 <td>Silver ($24.99)</td>
@@ -699,22 +841,22 @@ export default function PlanProposalPage() {
               </tr>
               <tr>
                 <td>Gold ($39.99)</td>
-                <td>8</td>
-                <td>$319.92</td>
-                <td>$3,839</td>
-                <td>50-55%</td>
+                <td>10</td>
+                <td>$399.90</td>
+                <td>$4,799</td>
+                <td>25-35%</td>
               </tr>
               <tr className="total-row">
                 <td>TOTAL</td>
-                <td>53</td>
-                <td>$1,294.47</td>
-                <td>$15,533</td>
-                <td>~58%</td>
+                <td>55</td>
+                <td>$1,374.45</td>
+                <td>$16,493</td>
+                <td>~55%</td>
               </tr>
             </tbody>
           </table>
 
-          <h3 style={{ color: '#94a3b8', marginBottom: '1rem', marginTop: '2rem' }}>Year 2 (With Growth)</h3>
+          <h3 style={{ color: '#6b7280', marginBottom: '1rem', marginTop: '2rem' }}>Year 2 (With Growth)</h3>
           <table className="revenue-table">
             <thead>
               <tr>
@@ -731,7 +873,7 @@ export default function PlanProposalPage() {
                 <td>25</td>
                 <td>$374.75</td>
                 <td>$4,497</td>
-                <td>65-70%</td>
+                <td>70-75%</td>
               </tr>
               <tr>
                 <td>Silver ($24.99)</td>
@@ -742,17 +884,17 @@ export default function PlanProposalPage() {
               </tr>
               <tr>
                 <td>Gold ($39.99)</td>
-                <td>15</td>
-                <td>$599.85</td>
-                <td>$7,198</td>
-                <td>50-55%</td>
+                <td>18</td>
+                <td>$719.82</td>
+                <td>$8,638</td>
+                <td>25-35%</td>
               </tr>
               <tr className="total-row">
                 <td>TOTAL</td>
-                <td>85</td>
-                <td>$2,099.15</td>
-                <td>$25,190</td>
-                <td>~58%</td>
+                <td>88</td>
+                <td>$2,219.12</td>
+                <td>$26,630</td>
+                <td>~55%</td>
               </tr>
             </tbody>
           </table>
@@ -764,15 +906,15 @@ export default function PlanProposalPage() {
           <div className="value-grid">
             <div className="value-card">
               <h4>Bronze: Entry-Level Peace of Mind</h4>
-              <p>Perfect for seniors on fixed incomes or light users. $14.99/month gets them protected without breaking the bank. Antivirus alone is worth $5-10/month - they&apos;re already saving.</p>
+              <p>Perfect for seniors on fixed incomes or light users. $14.99/month gets them Seraph Secure protection without breaking the bank. One virus removal at 25% off saves them $25+ immediately.</p>
             </div>
             <div className="value-card">
               <h4>Silver: Best Value for Most</h4>
-              <p>Families and home users get comprehensive coverage. One virus removal (normally $100+) at 50% off pays for 2 months of the plan. House calls at half price? That&apos;s $50+ savings per visit.</p>
+              <p>Families and home users get comprehensive coverage. One house call at 50% off ($50 savings) pays for 2 months of the plan. Remote support via Ninja means help without leaving home.</p>
             </div>
             <div className="value-card">
               <h4>Gold: Premium for Power Users</h4>
-              <p>People who depend on their computers for work will gladly pay for VIP treatment. FREE house calls alone (normally $100+) make the plan pay for itself after just one visit.</p>
+              <p>People who depend on their computers for work get VIP treatment. One free account recovery ($50) plus one 75% off house call ($75 savings) = $125 value in just two services.</p>
             </div>
           </div>
         </section>
@@ -788,37 +930,37 @@ export default function PlanProposalPage() {
               <div>Status</div>
             </div>
             <div className="comparison-row">
-              <div className="feature-name">Add Bronze/Gold custom fields to RepairShopr</div>
-              <div className="value">1 hour</div>
-              <div className="value">High</div>
-              <div className="x">Pending</div>
-            </div>
-            <div className="comparison-row">
-              <div className="feature-name">Create Supabase schema for all tiers</div>
+              <div className="feature-name">Add Bronze/Gold to RepairShopr Protection Plan dropdown</div>
               <div className="value">30 min</div>
               <div className="value">High</div>
               <div className="x">Pending</div>
             </div>
             <div className="comparison-row">
-              <div className="feature-name">Update website with all three plan pages</div>
+              <div className="feature-name">Update Supabase schema for all tiers</div>
+              <div className="value">30 min</div>
+              <div className="value">High</div>
+              <div className="x">Pending</div>
+            </div>
+            <div className="comparison-row">
+              <div className="feature-name">Create Bronze and Gold plan pages on website</div>
               <div className="value">3-4 hours</div>
               <div className="value">High</div>
               <div className="x">Pending</div>
             </div>
             <div className="comparison-row">
-              <div className="feature-name">Update admin UI for tier detection</div>
+              <div className="feature-name">Update /silver-plan to /plans comparison page</div>
+              <div className="value">2 hours</div>
+              <div className="value">High</div>
+              <div className="x">Pending</div>
+            </div>
+            <div className="comparison-row">
+              <div className="feature-name">Update admin UI for Bronze/Gold detection</div>
               <div className="value">2 hours</div>
               <div className="value">Medium</div>
               <div className="x">Pending</div>
             </div>
             <div className="comparison-row">
-              <div className="feature-name">Create marketing materials</div>
-              <div className="value">2-3 hours</div>
-              <div className="value">Medium</div>
-              <div className="x">Pending</div>
-            </div>
-            <div className="comparison-row">
-              <div className="feature-name">Staff training on new tiers</div>
+              <div className="feature-name">Staff training on new tiers & selling points</div>
               <div className="value">1 hour</div>
               <div className="value">Low</div>
               <div className="x">Pending</div>
@@ -829,7 +971,7 @@ export default function PlanProposalPage() {
         {/* CTA */}
         <section className="cta-section">
           <h2>Ready to Implement?</h2>
-          <p>This tiered approach captures more customers while increasing average revenue per subscriber.</p>
+          <p>This tiered approach captures more customers while maintaining sustainable margins on every plan.</p>
           <div className="cta-buttons">
             <span className="cta-btn cta-btn-primary">Approve This Plan</span>
             <span className="cta-btn cta-btn-secondary">Request Changes</span>
@@ -838,6 +980,8 @@ export default function PlanProposalPage() {
 
         <p className="disclaimer">
           This is an internal proposal document. All projections are estimates based on market research and conservative growth assumptions.
+          <br />
+          Seraph Secure and NinjaRMM costs are estimates - verify with actual licensing agreements.
           <br />
           Created for Computer Store KS by Resilient Web Solutions.
         </p>

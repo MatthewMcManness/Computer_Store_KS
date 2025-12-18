@@ -446,29 +446,29 @@ export default function TicketsPage() {
   const getCustomStatusColor = (status: string) => {
     switch (status) {
       case 'new':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300';
       case 'diagnosing':
-        return 'bg-purple-100 text-purple-800';
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300';
       case 'repairing':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300';
       case 'data_transferring':
-        return 'bg-indigo-100 text-indigo-800';
+        return 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-300';
       case 'installing':
-        return 'bg-cyan-100 text-cyan-800';
+        return 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/50 dark:text-cyan-300';
       case 'waiting_for_parts':
-        return 'bg-orange-100 text-orange-800';
+        return 'bg-orange-100 text-orange-800 dark:bg-orange-900/50 dark:text-orange-300';
       case 'building':
-        return 'bg-pink-100 text-pink-800';
+        return 'bg-pink-100 text-pink-800 dark:bg-pink-900/50 dark:text-pink-300';
       case 'call_customer':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300';
       case 'waiting_for_customer_reply':
-        return 'bg-amber-100 text-amber-800';
+        return 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300';
       case 'ready_for_pickup':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300';
       case 'completed':
-        return 'bg-emerald-100 text-emerald-800';
+        return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
     }
   };
 
@@ -553,34 +553,34 @@ export default function TicketsPage() {
     switch (type) {
       case 'private':
         return {
-          border: 'border-amber-400',
-          bg: 'bg-amber-50',
+          border: 'border-amber-400 dark:border-amber-600',
+          bg: 'bg-amber-50 dark:bg-amber-900/30',
           icon: EyeOff,
-          iconColor: 'text-amber-600',
+          iconColor: 'text-amber-600 dark:text-amber-400',
           label: 'Private Note',
         };
       case 'customer':
         return {
-          border: 'border-purple-400',
-          bg: 'bg-purple-50',
+          border: 'border-purple-400 dark:border-purple-600',
+          bg: 'bg-purple-50 dark:bg-purple-900/30',
           icon: User,
-          iconColor: 'text-purple-600',
+          iconColor: 'text-purple-600 dark:text-purple-400',
           label: 'Customer',
         };
       case 'staff':
         return {
-          border: 'border-blue-400',
-          bg: 'bg-blue-50',
+          border: 'border-blue-400 dark:border-blue-600',
+          bg: 'bg-blue-50 dark:bg-blue-900/30',
           icon: Eye,
-          iconColor: 'text-blue-600',
+          iconColor: 'text-blue-600 dark:text-blue-400',
           label: 'Staff Comment',
         };
       case 'public':
         return {
-          border: 'border-green-400',
-          bg: 'bg-green-50',
+          border: 'border-green-400 dark:border-green-600',
+          bg: 'bg-green-50 dark:bg-green-900/30',
           icon: Eye,
-          iconColor: 'text-green-600',
+          iconColor: 'text-green-600 dark:text-green-400',
           label: 'Public Note',
         };
     }
@@ -589,18 +589,18 @@ export default function TicketsPage() {
   const getStatusColor = (status?: string) => {
     switch (status?.toLowerCase()) {
       case 'new':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300';
       case 'in progress':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300';
       case 'resolved':
       case 'completed':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300';
       case 'customer reply':
-        return 'bg-purple-100 text-purple-800';
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300';
       case 'waiting on customer':
-        return 'bg-orange-100 text-orange-800';
+        return 'bg-orange-100 text-orange-800 dark:bg-orange-900/50 dark:text-orange-300';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
     }
   };
 

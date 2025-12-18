@@ -270,11 +270,11 @@ export function IntakeWizard() {
         }
         if (!state.customerType) {
           return (
-            <div className="rounded-lg bg-white p-8 shadow-sm">
-              <h2 className="mb-4 text-2xl font-bold text-gray-900">
+            <div className="rounded-lg bg-white dark:bg-gray-900 p-8 shadow-sm">
+              <h2 className="mb-4 text-2xl font-bold text-gray-900 dark:text-white">
                 Step 2: Customer Details
               </h2>
-              <p className="text-red-600">
+              <p className="text-red-600 dark:text-red-400">
                 Error: No customer type selected. Please go back and select individual or business.
               </p>
             </div>
@@ -290,11 +290,11 @@ export function IntakeWizard() {
       case 3:
         if (!state.customer) {
           return (
-            <div className="rounded-lg bg-white p-8 shadow-sm">
-              <h2 className="mb-4 text-2xl font-bold text-gray-900">
+            <div className="rounded-lg bg-white dark:bg-gray-900 p-8 shadow-sm">
+              <h2 className="mb-4 text-2xl font-bold text-gray-900 dark:text-white">
                 Step 3: Select Device
               </h2>
-              <p className="text-red-600">
+              <p className="text-red-600 dark:text-red-400">
                 Error: No customer selected. Please go back and select a customer.
               </p>
             </div>
@@ -310,11 +310,11 @@ export function IntakeWizard() {
       case 4:
         if (!state.customer || !state.device) {
           return (
-            <div className="rounded-lg bg-white p-8 shadow-sm">
-              <h2 className="mb-4 text-2xl font-bold text-gray-900">
+            <div className="rounded-lg bg-white dark:bg-gray-900 p-8 shadow-sm">
+              <h2 className="mb-4 text-2xl font-bold text-gray-900 dark:text-white">
                 Step 4: Ticket Information
               </h2>
-              <p className="text-red-600">
+              <p className="text-red-600 dark:text-red-400">
                 Error: Customer and device are required. Please go back and complete previous steps.
               </p>
             </div>
@@ -331,11 +331,11 @@ export function IntakeWizard() {
       case 5:
         if (!state.customer || !state.device || !state.createdTicket) {
           return (
-            <div className="rounded-lg bg-white p-8 shadow-sm">
-              <h2 className="mb-4 text-2xl font-bold text-red-600">
+            <div className="rounded-lg bg-white dark:bg-gray-900 p-8 shadow-sm">
+              <h2 className="mb-4 text-2xl font-bold text-red-600 dark:text-red-400">
                 Error
               </h2>
-              <p className="text-red-600">
+              <p className="text-red-600 dark:text-red-400">
                 Missing required data. Please start a new intake.
               </p>
               <button
@@ -375,11 +375,11 @@ export function IntakeWizard() {
 
       {/* Loading overlay when checking portal account */}
       {checkingPortalAccount && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-gray-900/50">
-          <div className="rounded-lg bg-white p-6 shadow-xl">
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-gray-900/50 dark:bg-gray-950/70">
+          <div className="rounded-lg bg-white dark:bg-gray-900 p-6 shadow-xl">
             <div className="flex items-center gap-3">
               <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
-              <span className="text-gray-700">Checking portal account...</span>
+              <span className="text-gray-700 dark:text-gray-300">Checking portal account...</span>
             </div>
           </div>
         </div>
@@ -397,12 +397,12 @@ export function IntakeWizard() {
                       ? 'border-blue-600 bg-blue-600 text-white'
                       : stepNumber < state.step
                       ? 'border-green-600 bg-green-600 text-white'
-                      : 'border-gray-300 bg-white text-gray-500'
+                      : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400'
                   }`}
                 >
                   {stepNumber}
                 </div>
-                <div className="mt-2 text-xs font-medium text-gray-600">
+                <div className="mt-2 text-xs font-medium text-gray-600 dark:text-gray-400">
                   {stepNumber === 1 && 'Customer'}
                   {stepNumber === 2 && 'Details'}
                   {stepNumber === 3 && 'Device'}
@@ -413,7 +413,7 @@ export function IntakeWizard() {
               {stepNumber < 5 && (
                 <div
                   className={`mx-2 h-1 flex-1 transition-colors ${
-                    stepNumber < state.step ? 'bg-green-600' : 'bg-gray-300'
+                    stepNumber < state.step ? 'bg-green-600' : 'bg-gray-300 dark:bg-gray-700'
                   }`}
                 />
               )}
@@ -421,7 +421,7 @@ export function IntakeWizard() {
           ))}
         </div>
         <div className="mt-6 text-center">
-          <p className="text-sm font-medium text-gray-600">
+          <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
             Step {state.step} of 5
           </p>
         </div>
@@ -436,7 +436,7 @@ export function IntakeWizard() {
           <button
             onClick={handleBack}
             disabled={state.step === 1}
-            className="inline-flex items-center gap-2 rounded-lg bg-white px-6 py-3 font-medium text-gray-700 shadow-sm hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg bg-white dark:bg-gray-800 px-6 py-3 font-medium text-gray-700 dark:text-gray-300 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 border border-gray-200 dark:border-gray-700"
           >
             <ChevronLeft className="h-5 w-5" />
             Back

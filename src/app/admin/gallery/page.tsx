@@ -106,8 +106,8 @@ export default function AdminGalleryPage() {
       {/* Header */}
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Gallery Management</h1>
-          <p className="mt-1 text-gray-500">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Gallery Management</h1>
+          <p className="mt-1 text-gray-500 dark:text-gray-400">
             Manage your computer inventory
           </p>
         </div>
@@ -124,16 +124,16 @@ export default function AdminGalleryPage() {
 
       {/* Error Message */}
       {error && (
-        <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4">
-          <p className="text-sm text-red-600">{error}</p>
+        <div className="mb-6 rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-4">
+          <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
         </div>
       )}
 
       {/* Filters */}
       <div className="mb-6 flex items-center gap-4">
         <div className="flex items-center gap-2">
-          <Filter className="h-4 w-4 text-gray-500" />
-          <span className="text-sm font-medium text-gray-700">Filter:</span>
+          <Filter className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Filter:</span>
         </div>
         <div className="flex gap-2">
           {filters.map(filter => (
@@ -143,7 +143,7 @@ export default function AdminGalleryPage() {
               className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
                 currentFilter === filter.value
                   ? 'bg-blue-600 text-white'
-                  : 'bg-white text-gray-700 hover:bg-gray-50'
+                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
               }`}
             >
               {filter.label}
@@ -154,7 +154,7 @@ export default function AdminGalleryPage() {
 
       {/* Computer count */}
       <div className="mb-4">
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-gray-500 dark:text-gray-400">
           Showing {filteredComputers.length} of {computers.length} computers
         </p>
       </div>
@@ -170,17 +170,17 @@ export default function AdminGalleryPage() {
       {toast && (
         <div className={`fixed bottom-6 right-6 z-50 max-w-md rounded-lg p-4 shadow-lg ${
           toast.type === 'success'
-            ? 'border-l-4 border-green-500 bg-white'
+            ? 'border-l-4 border-green-500 bg-white dark:bg-gray-800'
             : toast.type === 'info'
-            ? 'border-l-4 border-blue-500 bg-white'
-            : 'border-l-4 border-red-500 bg-white'
+            ? 'border-l-4 border-blue-500 bg-white dark:bg-gray-800'
+            : 'border-l-4 border-red-500 bg-white dark:bg-gray-800'
         }`}>
           <p className={`text-sm font-medium ${
             toast.type === 'success'
-              ? 'text-green-800'
+              ? 'text-green-800 dark:text-green-400'
               : toast.type === 'info'
-              ? 'text-blue-800'
-              : 'text-red-800'
+              ? 'text-blue-800 dark:text-blue-400'
+              : 'text-red-800 dark:text-red-400'
           }`}>
             {toast.message}
           </p>

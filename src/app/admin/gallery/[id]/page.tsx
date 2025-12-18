@@ -26,8 +26,8 @@ export default async function EditComputerPage({
 
   if (!isSupabaseAdminConfigured()) {
     return (
-      <div className="rounded-xl bg-red-50 p-6">
-        <p className="text-red-700">Database not configured. Please check your environment variables.</p>
+      <div className="rounded-xl bg-red-50 dark:bg-red-900/20 p-6">
+        <p className="text-red-700 dark:text-red-400">Database not configured. Please check your environment variables.</p>
       </div>
     );
   }
@@ -44,19 +44,19 @@ export default async function EditComputerPage({
       <div className="mb-8">
         <Link
           href="/admin/gallery"
-          className="mb-4 inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700"
+          className="mb-4 inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Gallery
         </Link>
-        <h1 className="text-3xl font-bold text-gray-900">Edit Computer</h1>
-        <p className="mt-1 text-gray-500">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Edit Computer</h1>
+        <p className="mt-1 text-gray-500 dark:text-gray-400">
           Update the information for {computer.name}
         </p>
       </div>
 
       {/* Form */}
-      <div className="rounded-xl bg-white p-6 shadow-sm">
+      <div className="rounded-xl bg-white dark:bg-gray-900 p-6 shadow-sm">
         <ComputerForm computer={computer} />
       </div>
     </div>

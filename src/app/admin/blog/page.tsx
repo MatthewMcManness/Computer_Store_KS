@@ -81,19 +81,19 @@ export default function AdminBlogPage() {
     switch (status) {
       case 'published':
         return (
-          <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+          <span className="inline-flex items-center rounded-full bg-green-100 dark:bg-green-900/20 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:text-green-400">
             Published
           </span>
         );
       case 'draft':
         return (
-          <span className="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">
+          <span className="inline-flex items-center rounded-full bg-yellow-100 dark:bg-yellow-900/20 px-2.5 py-0.5 text-xs font-medium text-yellow-800 dark:text-yellow-400">
             Draft
           </span>
         );
       case 'archived':
         return (
-          <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
+          <span className="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-700 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:text-gray-300">
             Archived
           </span>
         );
@@ -115,8 +115,8 @@ export default function AdminBlogPage() {
       {/* Header */}
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Blog Posts</h1>
-          <p className="mt-1 text-gray-500">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Blog Posts</h1>
+          <p className="mt-1 text-gray-500 dark:text-gray-400">
             Manage your blog content
           </p>
         </div>
@@ -131,9 +131,9 @@ export default function AdminBlogPage() {
 
       {/* Error Message */}
       {error && (
-        <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4">
-          <p className="text-sm text-red-600">{error}</p>
-          <p className="mt-2 text-xs text-red-500">
+        <div className="mb-6 rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-4">
+          <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+          <p className="mt-2 text-xs text-red-500 dark:text-red-400">
             Make sure Supabase is configured correctly in your environment variables.
           </p>
         </div>
@@ -141,18 +141,18 @@ export default function AdminBlogPage() {
 
       {/* Stats */}
       <div className="mb-8 grid gap-6 sm:grid-cols-3">
-        <div className="rounded-xl bg-white p-6 shadow-sm">
-          <p className="text-sm text-gray-500">Total Posts</p>
-          <p className="mt-1 text-3xl font-bold text-gray-900">{posts.length}</p>
+        <div className="rounded-xl bg-white dark:bg-gray-900 p-6 shadow-sm">
+          <p className="text-sm text-gray-500 dark:text-gray-400">Total Posts</p>
+          <p className="mt-1 text-3xl font-bold text-gray-900 dark:text-white">{posts.length}</p>
         </div>
-        <div className="rounded-xl bg-white p-6 shadow-sm">
-          <p className="text-sm text-gray-500">Published</p>
+        <div className="rounded-xl bg-white dark:bg-gray-900 p-6 shadow-sm">
+          <p className="text-sm text-gray-500 dark:text-gray-400">Published</p>
           <p className="mt-1 text-3xl font-bold text-green-600">
             {posts.filter(p => p.status === 'published').length}
           </p>
         </div>
-        <div className="rounded-xl bg-white p-6 shadow-sm">
-          <p className="text-sm text-gray-500">Drafts</p>
+        <div className="rounded-xl bg-white dark:bg-gray-900 p-6 shadow-sm">
+          <p className="text-sm text-gray-500 dark:text-gray-400">Drafts</p>
           <p className="mt-1 text-3xl font-bold text-yellow-600">
             {posts.filter(p => p.status === 'draft').length}
           </p>
@@ -161,12 +161,12 @@ export default function AdminBlogPage() {
 
       {/* Posts Table */}
       {posts.length === 0 ? (
-        <div className="rounded-xl bg-white p-12 text-center shadow-sm">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
+        <div className="rounded-xl bg-white dark:bg-gray-900 p-12 text-center shadow-sm">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/20">
             <Plus className="h-6 w-6 text-blue-600" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900">No blog posts yet</h3>
-          <p className="mt-1 text-gray-500">Get started by creating your first post.</p>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white">No blog posts yet</h3>
+          <p className="mt-1 text-gray-500 dark:text-gray-400">Get started by creating your first post.</p>
           <Link
             href="/admin/blog/new"
             className="mt-4 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
@@ -176,38 +176,38 @@ export default function AdminBlogPage() {
           </Link>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-xl bg-white shadow-sm">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+        <div className="overflow-hidden rounded-xl bg-white dark:bg-gray-900 shadow-sm">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                   Title
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                   Status
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                   Category
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                   Author
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                   Date
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 bg-white">
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-900">
               {posts.map((post) => (
-                <tr key={post.id} className="hover:bg-gray-50">
+                <tr key={post.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                   <td className="whitespace-nowrap px-6 py-4">
                     <div className="flex items-center">
                       <div>
-                        <div className="font-medium text-gray-900">{post.title}</div>
-                        <div className="text-sm text-gray-500">/blog/{post.slug}</div>
+                        <div className="font-medium text-gray-900 dark:text-white">{post.title}</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">/blog/{post.slug}</div>
                       </div>
                     </div>
                   </td>
@@ -216,7 +216,7 @@ export default function AdminBlogPage() {
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
                     {post.category ? (
-                      <span className="inline-flex items-center gap-1 text-sm text-gray-600">
+                      <span className="inline-flex items-center gap-1 text-sm text-gray-600 dark:text-gray-300">
                         <Tag className="h-3 w-3" />
                         {post.category.name}
                       </span>
@@ -225,13 +225,13 @@ export default function AdminBlogPage() {
                     )}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
-                    <span className="inline-flex items-center gap-1 text-sm text-gray-600">
+                    <span className="inline-flex items-center gap-1 text-sm text-gray-600 dark:text-gray-300">
                       <User className="h-3 w-3" />
                       {post.author_name}
                     </span>
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
-                    <span className="inline-flex items-center gap-1 text-sm text-gray-600">
+                    <span className="inline-flex items-center gap-1 text-sm text-gray-600 dark:text-gray-300">
                       <Calendar className="h-3 w-3" />
                       {formatDate(post.published_at || post.created_at)}
                     </span>
@@ -243,7 +243,7 @@ export default function AdminBlogPage() {
                           href={`/blog/${post.slug}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                          className="rounded-lg p-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300"
                           title="View post"
                         >
                           <Eye className="h-4 w-4" />
@@ -251,7 +251,7 @@ export default function AdminBlogPage() {
                       )}
                       <Link
                         href={`/admin/blog/${post.id}`}
-                        className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-blue-600"
+                        className="rounded-lg p-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-blue-600"
                         title="Edit post"
                       >
                         <Edit className="h-4 w-4" />
@@ -259,7 +259,7 @@ export default function AdminBlogPage() {
                       <button
                         onClick={() => handleDelete(post.id, post.title)}
                         disabled={deletingId === post.id}
-                        className="rounded-lg p-2 text-gray-500 hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+                        className="rounded-lg p-2 text-gray-500 dark:text-gray-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 disabled:opacity-50"
                         title="Delete post"
                       >
                         {deletingId === post.id ? (
@@ -281,11 +281,11 @@ export default function AdminBlogPage() {
       {toast && (
         <div className={`fixed bottom-6 right-6 z-50 max-w-md rounded-lg p-4 shadow-lg ${
           toast.type === 'success'
-            ? 'border-l-4 border-green-500 bg-white'
-            : 'border-l-4 border-red-500 bg-white'
+            ? 'border-l-4 border-green-500 bg-white dark:bg-gray-900'
+            : 'border-l-4 border-red-500 bg-white dark:bg-gray-900'
         }`}>
           <p className={`text-sm font-medium ${
-            toast.type === 'success' ? 'text-green-800' : 'text-red-800'
+            toast.type === 'success' ? 'text-green-800 dark:text-green-400' : 'text-red-800 dark:text-red-400'
           }`}>
             {toast.message}
           </p>

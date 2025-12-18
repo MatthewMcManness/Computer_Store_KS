@@ -292,16 +292,16 @@ export default function BusinessesPage() {
     <div>
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Business Management</h1>
-        <p className="mt-1 text-gray-500">Search businesses and manage their customers</p>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Business Management</h1>
+        <p className="mt-1 text-gray-500 dark:text-gray-400">Search businesses and manage their customers</p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Left Panel - Search & List */}
-        <div className="rounded-xl bg-white p-6 shadow-sm">
+        <div className="rounded-xl bg-white dark:bg-gray-900 p-6 shadow-sm">
           {/* Search Bar */}
           <div className="mb-6">
-            <label className="mb-2 block text-sm font-medium text-gray-700">
+            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
               Search Businesses
             </label>
             <div className="relative">
@@ -311,11 +311,11 @@ export default function BusinessesPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by business name..."
-                className="w-full rounded-lg border border-gray-300 py-3 pl-10 pr-4 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white py-3 pl-10 pr-4 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               />
             </div>
             {searchQuery.length > 0 && searchQuery.length < 2 && (
-              <p className="mt-2 text-sm text-gray-500">
+              <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                 Type at least 2 characters to search
               </p>
             )}
@@ -325,13 +325,13 @@ export default function BusinessesPage() {
           {searching && (
             <div className="mb-6 flex items-center justify-center py-8">
               <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600"></div>
-              <span className="ml-3 text-gray-600">Searching...</span>
+              <span className="ml-3 text-gray-600 dark:text-gray-300">Searching...</span>
             </div>
           )}
 
           {/* Error */}
           {error && (
-            <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-800">
+            <div className="mb-4 rounded-lg bg-red-50 dark:bg-red-900/50 p-3 text-sm text-red-800 dark:text-red-200">
               {error}
             </div>
           )}
@@ -341,7 +341,7 @@ export default function BusinessesPage() {
             <div className="space-y-2">
               {businesses.length > 0 ? (
                 <>
-                  <p className="text-sm font-medium text-gray-700">
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     Found {businesses.length} business{businesses.length !== 1 ? 'es' : ''}
                   </p>
                   <div className="max-h-96 space-y-2 overflow-y-auto">
@@ -351,23 +351,23 @@ export default function BusinessesPage() {
                         onClick={() => selectBusiness(business)}
                         className={'w-full rounded-lg border p-4 text-left transition-colors ' +
                           (selectedBusiness?.name === business.name
-                            ? 'border-blue-500 bg-blue-50'
-                            : 'border-gray-200 bg-white hover:border-blue-300 hover:bg-blue-50/50')
+                            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/50'
+                            : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-blue-300 hover:bg-blue-50/50 dark:hover:bg-blue-900/30')
                         }
                       >
                         <div className="flex items-start gap-3">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100">
-                            <Building2 className="h-5 w-5 text-indigo-600" />
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/50">
+                            <Building2 className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="font-medium text-gray-900 truncate">
+                            <p className="font-medium text-gray-900 dark:text-white truncate">
                               {business.name}
                             </p>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
                               {business.customerCount} customer{business.customerCount !== 1 ? 's' : ''}
                             </p>
                             {business.primaryCustomer.email && (
-                              <p className="text-sm text-gray-500 truncate">
+                              <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
                                 {business.primaryCustomer.email}
                               </p>
                             )}
@@ -378,8 +378,8 @@ export default function BusinessesPage() {
                   </div>
                 </>
               ) : (
-                <div className="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-8 text-center">
-                  <p className="text-gray-600">No businesses found for &quot;{searchQuery}&quot;</p>
+                <div className="rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-8 text-center">
+                  <p className="text-gray-600 dark:text-gray-400">No businesses found for &quot;{searchQuery}&quot;</p>
                 </div>
               )}
             </div>
@@ -387,35 +387,35 @@ export default function BusinessesPage() {
 
           {/* Initial State */}
           {!searching && !hasSearched && (
-            <p className="py-8 text-center text-gray-500">
+            <p className="py-8 text-center text-gray-500 dark:text-gray-400">
               Search for businesses to get started
             </p>
           )}
         </div>
 
         {/* Right Panel - Business Details */}
-        <div className="rounded-xl bg-white p-6 shadow-sm">
+        <div className="rounded-xl bg-white dark:bg-gray-900 p-6 shadow-sm">
           {!selectedBusiness ? (
             <div className="flex h-full items-center justify-center py-12">
               <div className="text-center">
-                <Building2 className="mx-auto h-12 w-12 text-gray-300" />
-                <p className="mt-2 text-gray-500">Select a business to view details</p>
+                <Building2 className="mx-auto h-12 w-12 text-gray-300 dark:text-gray-600" />
+                <p className="mt-2 text-gray-500 dark:text-gray-400">Select a business to view details</p>
               </div>
             </div>
           ) : (
             <div>
               {/* Business Header */}
-              <div className="mb-6 border-b border-gray-200 pb-6">
+              <div className="mb-6 border-b border-gray-200 dark:border-gray-700 pb-6">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-start gap-4">
-                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-indigo-100">
-                      <Building2 className="h-7 w-7 text-indigo-600" />
+                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/50">
+                      <Building2 className="h-7 w-7 text-indigo-600 dark:text-indigo-400" />
                     </div>
                     <div>
-                      <h2 className="text-xl font-bold text-gray-900">
+                      <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                         {selectedBusiness.name}
                       </h2>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
                         {selectedBusiness.customerCount} customer{selectedBusiness.customerCount !== 1 ? 's' : ''}
                       </p>
                     </div>
@@ -433,8 +433,8 @@ export default function BusinessesPage() {
               {/* Customers List */}
               <div>
                 <div className="mb-4 flex items-center gap-2">
-                  <Users className="h-5 w-5 text-gray-600" />
-                  <h3 className="font-semibold text-gray-900">Customers</h3>
+                  <Users className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                  <h3 className="font-semibold text-gray-900 dark:text-white">Customers</h3>
                 </div>
 
                 {loadingCustomers ? (
@@ -447,25 +447,25 @@ export default function BusinessesPage() {
                     {businessCustomers.map((customer) => (
                       <div
                         key={customer.id}
-                        className="rounded-lg border border-gray-200 p-4"
+                        className="rounded-lg border border-gray-200 dark:border-gray-700 p-4"
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex items-start gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100">
-                              <User className="h-5 w-5 text-gray-600" />
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
+                              <User className="h-5 w-5 text-gray-600 dark:text-gray-300" />
                             </div>
                             <div>
-                              <p className="font-medium text-gray-900">
+                              <p className="font-medium text-gray-900 dark:text-white">
                                 {customer.fullname}
                               </p>
                               {customer.email && (
-                                <div className="flex items-center gap-2 text-sm text-gray-500">
+                                <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                                   <Mail className="h-3.5 w-3.5" />
                                   {customer.email}
                                 </div>
                               )}
                               {customer.phone && (
-                                <div className="flex items-center gap-2 text-sm text-gray-500">
+                                <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                                   <Phone className="h-3.5 w-3.5" />
                                   {customer.phone}
                                 </div>
@@ -474,7 +474,7 @@ export default function BusinessesPage() {
                           </div>
                           <button
                             onClick={() => openEditModal(customer)}
-                            className="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
+                            className="rounded-lg p-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
                           >
                             <Edit2 className="h-4 w-4" />
                           </button>
@@ -483,7 +483,7 @@ export default function BusinessesPage() {
                     ))}
                   </div>
                 ) : (
-                  <p className="py-8 text-center text-gray-500">
+                  <p className="py-8 text-center text-gray-500 dark:text-gray-400">
                     No customers found for this business
                   </p>
                 )}
@@ -496,19 +496,19 @@ export default function BusinessesPage() {
       {/* Edit Customer Modal */}
       {showEditModal && editingCustomer && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-2xl rounded-xl bg-white p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+          <div className="w-full max-w-2xl rounded-xl bg-white dark:bg-gray-900 p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
             <div className="mb-6 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-gray-900">Edit Customer</h2>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Edit Customer</h2>
               <button
                 onClick={() => setShowEditModal(false)}
-                className="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
+                className="rounded-lg p-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
             {editError && (
-              <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-800">
+              <div className="mb-4 rounded-lg bg-red-50 dark:bg-red-900/50 p-3 text-sm text-red-800 dark:text-red-200">
                 {editError}
               </div>
             )}
@@ -516,112 +516,112 @@ export default function BusinessesPage() {
             <div className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">First Name</label>
+                  <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">First Name</label>
                   <input
                     type="text"
                     value={editFormData.firstname}
                     onChange={(e) => handleEditInputChange('firstname', e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">Last Name</label>
+                  <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Last Name</label>
                   <input
                     type="text"
                     value={editFormData.lastname}
                     onChange={(e) => handleEditInputChange('lastname', e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">Email</label>
+                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
                 <input
                   type="email"
                   value={editFormData.email}
                   onChange={(e) => handleEditInputChange('email', e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                 />
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">Phone</label>
+                  <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Phone</label>
                   <input
                     type="tel"
                     value={editFormData.phone}
                     onChange={(e) => handleEditInputChange('phone', e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">Mobile</label>
+                  <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Mobile</label>
                   <input
                     type="tel"
                     value={editFormData.mobile}
                     onChange={(e) => handleEditInputChange('mobile', e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">Business Name</label>
+                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Business Name</label>
                 <input
                   type="text"
                   value={editFormData.business_name}
                   onChange={(e) => handleEditInputChange('business_name', e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                 />
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">Address</label>
+                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Address</label>
                 <input
                   type="text"
                   value={editFormData.address}
                   onChange={(e) => handleEditInputChange('address', e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                 />
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">Address Line 2</label>
+                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Address Line 2</label>
                 <input
                   type="text"
                   value={editFormData.address_2}
                   onChange={(e) => handleEditInputChange('address_2', e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                 />
               </div>
 
               <div className="grid gap-4 sm:grid-cols-3">
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">City</label>
+                  <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">City</label>
                   <input
                     type="text"
                     value={editFormData.city}
                     onChange={(e) => handleEditInputChange('city', e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">State</label>
+                  <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">State</label>
                   <input
                     type="text"
                     value={editFormData.state}
                     onChange={(e) => handleEditInputChange('state', e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">ZIP Code</label>
+                  <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">ZIP Code</label>
                   <input
                     type="text"
                     value={editFormData.zip}
                     onChange={(e) => handleEditInputChange('zip', e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   />
                 </div>
               </div>
@@ -631,7 +631,7 @@ export default function BusinessesPage() {
               <button
                 onClick={() => setShowEditModal(false)}
                 disabled={savingEdit}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                className="rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -651,22 +651,22 @@ export default function BusinessesPage() {
       {/* Add Customer Modal */}
       {showAddModal && selectedBusiness && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-2xl rounded-xl bg-white p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+          <div className="w-full max-w-2xl rounded-xl bg-white dark:bg-gray-900 p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
             <div className="mb-6 flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-bold text-gray-900">Add Customer</h2>
-                <p className="text-sm text-gray-500">to {selectedBusiness.name}</p>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Add Customer</h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400">to {selectedBusiness.name}</p>
               </div>
               <button
                 onClick={() => setShowAddModal(false)}
-                className="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
+                className="rounded-lg p-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
             {addError && (
-              <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-800">
+              <div className="mb-4 rounded-lg bg-red-50 dark:bg-red-900/50 p-3 text-sm text-red-800 dark:text-red-200">
                 {addError}
               </div>
             )}
@@ -674,71 +674,71 @@ export default function BusinessesPage() {
             <div className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                  <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
                     First Name <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     value={addFormData.firstname}
                     onChange={(e) => handleAddInputChange('firstname', e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                  <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Last Name <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     value={addFormData.lastname}
                     onChange={(e) => handleAddInputChange('lastname', e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
+                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Email <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="email"
                   value={addFormData.email}
                   onChange={(e) => handleAddInputChange('email', e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                 />
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">Phone</label>
+                  <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Phone</label>
                   <input
                     type="tel"
                     value={addFormData.phone}
                     onChange={(e) => handleAddInputChange('phone', e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">Mobile</label>
+                  <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Mobile</label>
                   <input
                     type="tel"
                     value={addFormData.mobile}
                     onChange={(e) => handleAddInputChange('mobile', e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">Business Name</label>
+                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Business Name</label>
                 <input
                   type="text"
                   value={addFormData.business_name}
                   disabled
-                  className="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-gray-500"
+                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-gray-500 dark:text-gray-400"
                 />
-                <p className="mt-1 text-xs text-gray-500">Pre-filled with the selected business</p>
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Pre-filled with the selected business</p>
               </div>
             </div>
 
@@ -746,7 +746,7 @@ export default function BusinessesPage() {
               <button
                 onClick={() => setShowAddModal(false)}
                 disabled={savingAdd}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                className="rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50"
               >
                 Cancel
               </button>

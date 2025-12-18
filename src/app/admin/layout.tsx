@@ -25,7 +25,7 @@ export default async function AdminLayout({
   // Note: This check happens at the layout level, individual pages can override
 
   return (
-    <div className="admin-layout min-h-screen bg-gray-50">
+    <div className="admin-layout min-h-screen bg-gray-50 dark:bg-gray-950">
       {authenticated ? (
         <div className="flex">
           <AdminSidebar />

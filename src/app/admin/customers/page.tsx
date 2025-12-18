@@ -23,6 +23,7 @@ import {
   DollarSign,
   ChevronRight,
   FileText,
+  Plus,
 } from 'lucide-react';
 import type { RepairShoprCustomer, RepairShoprAsset, RepairShoprTicket, RepairShoprInvoice, RepairShoprPayment } from '@/lib/repairshopr';
 
@@ -56,6 +57,21 @@ interface EditFormData {
   zip: string;
   business_name: string;
   plan_tier: ProtectionPlanTier;
+}
+
+interface AddCustomerFormData {
+  firstname: string;
+  lastname: string;
+  email: string;
+  phone: string;
+  mobile: string;
+  address: string;
+  address_2: string;
+  city: string;
+  state: string;
+  zip: string;
+  business_name: string;
+  password: string;
 }
 
 type TabType = 'assets' | 'tickets' | 'invoices' | 'payments';
@@ -99,6 +115,25 @@ export default function CustomersPage() {
   const [editError, setEditError] = useState<string | null>(null);
   const [planTier, setPlanTier] = useState<ProtectionPlanTier>(null);
   const [loadingPlanTier, setLoadingPlanTier] = useState(false);
+
+  // Add customer modal state
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [addFormData, setAddFormData] = useState<AddCustomerFormData>({
+    firstname: '',
+    lastname: '',
+    email: '',
+    phone: '',
+    mobile: '',
+    address: '',
+    address_2: '',
+    city: '',
+    state: '',
+    zip: '',
+    business_name: '',
+    password: '',
+  });
+  const [savingAdd, setSavingAdd] = useState(false);
+  const [addError, setAddError] = useState<string | null>(null);
 
   // Check authentication
   useEffect(() => {
@@ -262,6 +297,68 @@ export default function CustomersPage() {
     setEditFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  // Open add customer modal
+  const openAddModal = () => {
+    setAddFormData({
+      firstname: '',
+      lastname: '',
+      email: '',
+      phone: '',
+      mobile: '',
+      address: '',
+      address_2: '',
+      city: '',
+      state: '',
+      zip: '',
+      business_name: '',
+      password: '',
+    });
+    setAddError(null);
+    setShowAddModal(true);
+  };
+
+  // Handle add form input change
+  const handleAddInputChange = (field: keyof AddCustomerFormData, value: string) => {
+    setAddFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  // Create new customer
+  const handleAddCustomer = async () => {
+    // Validate required fields
+    if (!addFormData.firstname.trim() || !addFormData.lastname.trim() || !addFormData.email.trim()) {
+      setAddError('First name, last name, and email are required');
+      return;
+    }
+
+    setSavingAdd(true);
+    setAddError(null);
+
+    try {
+      const response = await fetch('/api/repairshopr/customers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(addFormData),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to create customer');
+      }
+
+      const data = await response.json();
+      const newCustomer = data.customer as CustomerWithPlanStatus;
+
+      // Add to customer list and select
+      setCustomers(prev => [newCustomer, ...prev]);
+      selectCustomer(newCustomer);
+      setShowAddModal(false);
+    } catch (err) {
+      setAddError(err instanceof Error ? err.message : 'Failed to create customer');
+    } finally {
+      setSavingAdd(false);
+    }
+  };
+
   // Save customer edits
   const handleSaveEdit = async () => {
     if (!selectedCustomer) return;
@@ -390,9 +487,18 @@ export default function CustomersPage() {
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Customers</h1>
-        <p className="text-gray-600 dark:text-gray-400">Search and manage customer information</p>
+      <div className="mb-8 flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Customers</h1>
+          <p className="text-gray-600 dark:text-gray-400">Search and manage customer information</p>
+        </div>
+        <button
+          onClick={openAddModal}
+          className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+        >
+          <Plus className="h-4 w-4" />
+          Add Customer
+        </button>
       </div>
 
         {error && (
@@ -1047,6 +1153,220 @@ export default function CustomersPage() {
                 >
                   {savingEdit && <Loader2 className="h-4 w-4 animate-spin" />}
                   {savingEdit ? 'Saving...' : 'Save Changes'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Add Customer Modal */}
+        {showAddModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="w-full max-w-2xl rounded-xl bg-white dark:bg-gray-900 p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+              <div className="mb-6 flex items-center justify-between">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Add New Customer</h2>
+                <button
+                  onClick={() => setShowAddModal(false)}
+                  className="rounded-lg p-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {addError && (
+                <div className="mb-4 rounded-lg bg-red-50 dark:bg-red-900/50 p-3 text-sm text-red-800 dark:text-red-200">
+                  {addError}
+                </div>
+              )}
+
+              <div className="space-y-4">
+                {/* Name Fields */}
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      First Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={addFormData.firstname}
+                      onChange={(e) => handleAddInputChange('firstname', e.target.value)}
+                      className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                      placeholder="John"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Last Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={addFormData.lastname}
+                      onChange={(e) => handleAddInputChange('lastname', e.target.value)}
+                      className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                      placeholder="Doe"
+                    />
+                  </div>
+                </div>
+
+                {/* Email */}
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Email <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    value={addFormData.email}
+                    onChange={(e) => handleAddInputChange('email', e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    placeholder="john.doe@example.com"
+                  />
+                </div>
+
+                {/* Phone Numbers */}
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Phone
+                    </label>
+                    <input
+                      type="tel"
+                      value={addFormData.phone}
+                      onChange={(e) => handleAddInputChange('phone', e.target.value)}
+                      placeholder="(555) 123-4567"
+                      className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Mobile
+                    </label>
+                    <input
+                      type="tel"
+                      value={addFormData.mobile}
+                      onChange={(e) => handleAddInputChange('mobile', e.target.value)}
+                      placeholder="(555) 987-6543"
+                      className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    />
+                  </div>
+                </div>
+
+                {/* Business Name */}
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Business Name
+                  </label>
+                  <input
+                    type="text"
+                    value={addFormData.business_name}
+                    onChange={(e) => handleAddInputChange('business_name', e.target.value)}
+                    placeholder="Optional business name"
+                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  />
+                </div>
+
+                {/* Address */}
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Address
+                  </label>
+                  <input
+                    type="text"
+                    value={addFormData.address}
+                    onChange={(e) => handleAddInputChange('address', e.target.value)}
+                    placeholder="123 Main St"
+                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Address Line 2
+                  </label>
+                  <input
+                    type="text"
+                    value={addFormData.address_2}
+                    onChange={(e) => handleAddInputChange('address_2', e.target.value)}
+                    placeholder="Apt, suite, unit, etc."
+                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  />
+                </div>
+
+                {/* City, State, Zip */}
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      City
+                    </label>
+                    <input
+                      type="text"
+                      value={addFormData.city}
+                      onChange={(e) => handleAddInputChange('city', e.target.value)}
+                      placeholder="Topeka"
+                      className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      State
+                    </label>
+                    <input
+                      type="text"
+                      value={addFormData.state}
+                      onChange={(e) => handleAddInputChange('state', e.target.value)}
+                      placeholder="KS"
+                      className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      ZIP Code
+                    </label>
+                    <input
+                      type="text"
+                      value={addFormData.zip}
+                      onChange={(e) => handleAddInputChange('zip', e.target.value)}
+                      placeholder="66604"
+                      className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    />
+                  </div>
+                </div>
+
+                {/* Portal Password */}
+                <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Portal Password
+                    </label>
+                    <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">
+                      Optional: Set a password to enable customer portal access
+                    </p>
+                    <input
+                      type="password"
+                      value={addFormData.password}
+                      onChange={(e) => handleAddInputChange('password', e.target.value)}
+                      placeholder="Leave blank to skip portal account"
+                      className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Modal Actions */}
+              <div className="mt-6 flex items-center justify-end gap-3">
+                <button
+                  onClick={() => setShowAddModal(false)}
+                  disabled={savingAdd}
+                  className="rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAddCustomer}
+                  disabled={savingAdd}
+                  className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {savingAdd && <Loader2 className="h-4 w-4 animate-spin" />}
+                  {savingAdd ? 'Creating...' : 'Create Customer'}
                 </button>
               </div>
             </div>

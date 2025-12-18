@@ -24,6 +24,8 @@ import {
   ChevronRight,
   FileText,
   Plus,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import type { RepairShoprCustomer, RepairShoprAsset, RepairShoprTicket, RepairShoprInvoice, RepairShoprPayment } from '@/lib/repairshopr';
 
@@ -134,6 +136,7 @@ export default function CustomersPage() {
   });
   const [savingAdd, setSavingAdd] = useState(false);
   const [addError, setAddError] = useState<string | null>(null);
+  const [showAddPassword, setShowAddPassword] = useState(false);
 
   // Check authentication
   useEffect(() => {
@@ -1345,13 +1348,22 @@ export default function CustomersPage() {
                     <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">
                       Password for customer portal access
                     </p>
-                    <input
-                      type="password"
-                      value={addFormData.password}
-                      onChange={(e) => handleAddInputChange('password', e.target.value)}
-                      placeholder="Enter portal password"
-                      className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                    />
+                    <div className="relative">
+                      <input
+                        type={showAddPassword ? 'text' : 'password'}
+                        value={addFormData.password}
+                        onChange={(e) => handleAddInputChange('password', e.target.value)}
+                        placeholder="Enter portal password"
+                        className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 pr-10 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowAddPassword(!showAddPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                      >
+                        {showAddPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

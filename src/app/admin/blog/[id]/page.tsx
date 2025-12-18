@@ -1,17 +1,17 @@
 'use client';
 
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Save, Eye, Loader2, Trash2, Upload } from 'lucide-react';
 import type { BlogPost, BlogCategory, BlogTag } from '@/lib/supabase';
 
 interface PageProps {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }
 
 export default function EditBlogPostPage({ params }: PageProps) {
-  const { id } = use(params);
+  const { id } = params;
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);

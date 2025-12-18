@@ -23,8 +23,10 @@ import {
   Key,
   Check,
   Loader2,
+  Sparkles,
 } from 'lucide-react';
 import type { RepairShoprCustomer } from '@/lib/repairshopr';
+import { isSilverPlanCustomer } from '@/lib/repairshopr';
 
 interface TicketComment {
   id: number;
@@ -718,7 +720,7 @@ export default function TicketsPage() {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Customer Info Panel */}
           <div className="lg:col-span-1">
-            <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-900">
+            <div className={`rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-900 ${selectedCustomer && isSilverPlanCustomer(selectedCustomer) ? 'silver-plan-card' : ''}`}>
               {!selectedCustomer ? (
                 <div className="flex flex-col items-center justify-center py-8">
                   <User className="h-12 w-12 text-gray-300 dark:text-gray-600" />
@@ -735,10 +737,18 @@ export default function TicketsPage() {
                         <User className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <h3 className="truncate font-bold text-gray-900 dark:text-white">
-                          {selectedCustomer.fullname ||
-                            `${selectedCustomer.firstname} ${selectedCustomer.lastname}`}
-                        </h3>
+                        <div className="flex items-center gap-2">
+                          <h3 className="truncate font-bold text-gray-900 dark:text-white">
+                            {selectedCustomer.fullname ||
+                              `${selectedCustomer.firstname} ${selectedCustomer.lastname}`}
+                          </h3>
+                          {isSilverPlanCustomer(selectedCustomer) && (
+                            <span className="silver-plan-badge inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold">
+                              <Sparkles className="h-3 w-3" />
+                              Silver Plan
+                            </span>
+                          )}
+                        </div>
                         <p className="text-sm text-gray-500 dark:text-gray-400">ID: {selectedCustomer.id}</p>
                       </div>
                     </div>

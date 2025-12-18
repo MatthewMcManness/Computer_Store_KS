@@ -109,6 +109,43 @@ export interface RepairShoprCustomer {
   zip?: string | null;
   created_at?: string;
   updated_at?: string;
+  // Optional fields returned by RepairShopr we may receive
+  tags?: string[] | null;
+  tag_list?: string | null;
+  customer_tags?: string[] | null;
+  is_silver_plan?: boolean;
+  silver_plan?: boolean;
+  plan_name?: string | null;
+}
+
+/**
+ * Determine if a customer is on the Silver Plan based on available metadata.
+ * Checks multiple potential fields to be resilient to API shape changes.
+ */
+export function isSilverPlanCustomer(customer: Partial<RepairShoprCustomer> | null | undefined): boolean {
+  if (!customer) return false;
+
+  // Explicit boolean flags
+  if (customer.is_silver_plan || customer.silver_plan) return true;
+
+  const possibleValues: Array<string | string[] | null | undefined> = [
+    customer.tags,
+    customer.customer_tags,
+    customer.tag_list,
+    customer.plan_name,
+  ];
+
+  for (const value of possibleValues) {
+    if (!value) continue;
+
+    if (Array.isArray(value)) {
+      if (value.some((v) => v && v.toLowerCase().includes('silver'))) return true;
+    } else if (typeof value === 'string') {
+      if (value.toLowerCase().includes('silver')) return true;
+    }
+  }
+
+  return false;
 }
 
 /**

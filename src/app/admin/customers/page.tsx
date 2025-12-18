@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, User, Mail, Phone, Building, Key, Check, X, Loader2, Edit2 } from 'lucide-react';
+import { Search, User, Mail, Phone, Building, Key, Check, X, Loader2, Edit2, Sparkles } from 'lucide-react';
 import type { RepairShoprCustomer } from '@/lib/repairshopr';
+import { isSilverPlanCustomer } from '@/lib/repairshopr';
 
 interface CustomerAccount {
   id: string;
@@ -253,7 +254,9 @@ export default function CustomersPage() {
                     Found {customers.length} customer{customers.length !== 1 ? 's' : ''}
                   </p>
                   <div className="max-h-96 space-y-2 overflow-y-auto">
-                    {customers.map((customer) => (
+                    {customers.map((customer) => {
+                      const isSilver = isSilverPlanCustomer(customer);
+                      return (
                       <button
                         key={customer.id}
                         onClick={() => selectCustomer(customer)}
@@ -261,16 +264,24 @@ export default function CustomersPage() {
                           selectedCustomer?.id === customer.id
                             ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/50'
                             : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-blue-300 hover:bg-blue-50/50 dark:hover:bg-blue-900/30'
-                        }`}
+                        } ${isSilver ? 'silver-plan-card' : ''}`}
                       >
                         <div className="flex items-start gap-3">
                           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
                             <User className="h-5 w-5 text-gray-600 dark:text-gray-300" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="font-medium text-gray-900 dark:text-white truncate">
+                            <div className="flex items-center gap-2">
+                              <p className="font-medium text-gray-900 dark:text-white truncate">
                               {customer.fullname || customer.firstname + ' ' + customer.lastname}
                             </p>
+                              {isSilver && (
+                                <span className="silver-plan-badge inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold">
+                                  <Sparkles className="h-3 w-3" />
+                                  Silver Plan
+                                </span>
+                              )}
+                            </div>
                             {customer.email && (
                               <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{customer.email}</p>
                             )}
@@ -283,7 +294,7 @@ export default function CustomersPage() {
                           </div>
                         </div>
                       </button>
-                    ))}
+                    );})}
                   </div>
                 </>
               ) : (
@@ -312,7 +323,7 @@ export default function CustomersPage() {
               </div>
             </div>
           ) : (
-            <div>
+            <div className={`relative rounded-xl ${isSilverPlanCustomer(selectedCustomer) ? 'silver-plan-card p-5' : ''}`}>
               {/* Customer Info Header */}
               <div className="mb-6 border-b border-gray-200 dark:border-gray-700 pb-6">
                 <div className="flex items-start justify-between gap-4">
@@ -321,9 +332,17 @@ export default function CustomersPage() {
                       <User className="h-7 w-7 text-blue-600 dark:text-blue-400" />
                     </div>
                     <div>
-                      <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                        {selectedCustomer.fullname}
-                      </h2>
+                      <div className="flex items-center gap-2">
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                          {selectedCustomer.fullname}
+                        </h2>
+                        {isSilverPlanCustomer(selectedCustomer) && (
+                          <span className="silver-plan-badge inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold">
+                            <Sparkles className="h-3 w-3" />
+                            Silver Plan
+                          </span>
+                        )}
+                      </div>
                       <p className="text-sm text-gray-500 dark:text-gray-400">ID: {selectedCustomer.id}</p>
                     </div>
                   </div>

@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, Building2, User, Mail, Phone, Loader2, Edit2, X, UserPlus, Users } from 'lucide-react';
+import { Search, Building2, User, Mail, Phone, Loader2, Edit2, X, UserPlus, Users, Sparkles } from 'lucide-react';
 import type { RepairShoprCustomer } from '@/lib/repairshopr';
+import { isSilverPlanCustomer } from '@/lib/repairshopr';
 
 interface Business {
   name: string;
@@ -345,14 +346,18 @@ export default function BusinessesPage() {
                     Found {businesses.length} business{businesses.length !== 1 ? 'es' : ''}
                   </p>
                   <div className="max-h-96 space-y-2 overflow-y-auto">
-                    {businesses.map((business) => (
+                    {businesses.map((business) => {
+                      const isSilver = isSilverPlanCustomer(business.primaryCustomer);
+                      return (
                       <button
                         key={business.name}
                         onClick={() => selectBusiness(business)}
-                        className={'w-full rounded-lg border p-4 text-left transition-colors ' +
+                        className={
+                          'w-full rounded-lg border p-4 text-left transition-colors ' +
                           (selectedBusiness?.name === business.name
                             ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/50'
-                            : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-blue-300 hover:bg-blue-50/50 dark:hover:bg-blue-900/30')
+                            : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-blue-300 hover:bg-blue-50/50 dark:hover:bg-blue-900/30') +
+                          (isSilver ? ' silver-plan-card' : '')
                         }
                       >
                         <div className="flex items-start gap-3">
@@ -360,9 +365,17 @@ export default function BusinessesPage() {
                             <Building2 className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="font-medium text-gray-900 dark:text-white truncate">
-                              {business.name}
-                            </p>
+                            <div className="flex items-center gap-2">
+                              <p className="font-medium text-gray-900 dark:text-white truncate">
+                                {business.name}
+                              </p>
+                              {isSilver && (
+                                <span className="silver-plan-badge inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold">
+                                  <Sparkles className="h-3 w-3" />
+                                  Silver Plan
+                                </span>
+                              )}
+                            </div>
                             <p className="text-sm text-gray-500 dark:text-gray-400">
                               {business.customerCount} customer{business.customerCount !== 1 ? 's' : ''}
                             </p>
@@ -374,7 +387,7 @@ export default function BusinessesPage() {
                           </div>
                         </div>
                       </button>
-                    ))}
+                    );})}
                   </div>
                 </>
               ) : (
@@ -394,7 +407,7 @@ export default function BusinessesPage() {
         </div>
 
         {/* Right Panel - Business Details */}
-        <div className="rounded-xl bg-white dark:bg-gray-900 p-6 shadow-sm">
+        <div className={`rounded-xl bg-white dark:bg-gray-900 p-6 shadow-sm ${selectedBusiness && isSilverPlanCustomer(selectedBusiness.primaryCustomer) ? 'silver-plan-card' : ''}`}>
           {!selectedBusiness ? (
             <div className="flex h-full items-center justify-center py-12">
               <div className="text-center">
@@ -412,9 +425,17 @@ export default function BusinessesPage() {
                       <Building2 className="h-7 w-7 text-indigo-600 dark:text-indigo-400" />
                     </div>
                     <div>
-                      <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                        {selectedBusiness.name}
-                      </h2>
+                      <div className="flex items-center gap-2">
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                          {selectedBusiness.name}
+                        </h2>
+                        {isSilverPlanCustomer(selectedBusiness.primaryCustomer) && (
+                          <span className="silver-plan-badge inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold">
+                            <Sparkles className="h-3 w-3" />
+                            Silver Plan
+                          </span>
+                        )}
+                      </div>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
                         {selectedBusiness.customerCount} customer{selectedBusiness.customerCount !== 1 ? 's' : ''}
                       </p>
@@ -444,10 +465,12 @@ export default function BusinessesPage() {
                   </div>
                 ) : businessCustomers.length > 0 ? (
                   <div className="space-y-3 max-h-96 overflow-y-auto">
-                    {businessCustomers.map((customer) => (
+                    {businessCustomers.map((customer) => {
+                      const isSilver = isSilverPlanCustomer(customer);
+                      return (
                       <div
                         key={customer.id}
-                        className="rounded-lg border border-gray-200 dark:border-gray-700 p-4"
+                        className={`rounded-lg border border-gray-200 dark:border-gray-700 p-4 ${isSilver ? 'silver-plan-card' : ''}`}
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex items-start gap-3">
@@ -455,9 +478,17 @@ export default function BusinessesPage() {
                               <User className="h-5 w-5 text-gray-600 dark:text-gray-300" />
                             </div>
                             <div>
-                              <p className="font-medium text-gray-900 dark:text-white">
-                                {customer.fullname}
-                              </p>
+                              <div className="flex items-center gap-2">
+                                <p className="font-medium text-gray-900 dark:text-white">
+                                  {customer.fullname}
+                                </p>
+                                {isSilver && (
+                                  <span className="silver-plan-badge inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold">
+                                    <Sparkles className="h-3 w-3" />
+                                    Silver Plan
+                                  </span>
+                                )}
+                              </div>
                               {customer.email && (
                                 <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                                   <Mail className="h-3.5 w-3.5" />
@@ -480,7 +511,7 @@ export default function BusinessesPage() {
                           </button>
                         </div>
                       </div>
-                    ))}
+                    );})}
                   </div>
                 ) : (
                   <p className="py-8 text-center text-gray-500 dark:text-gray-400">

@@ -1,7 +1,8 @@
 'use client';
 
 import type { RepairShoprCustomer, RepairShoprAsset, RepairShoprTicket } from '@/lib/repairshopr';
-import { CheckCircle2, User, Laptop, FileText, ShieldCheck, X, Plus } from 'lucide-react';
+import { isSilverPlanCustomer } from '@/lib/repairshopr';
+import { CheckCircle2, User, Laptop, FileText, ShieldCheck, X, Plus, Sparkles } from 'lucide-react';
 
 interface SuccessStepProps {
   customer: RepairShoprCustomer;
@@ -49,12 +50,20 @@ export function SuccessStep({
       {/* Summary Details */}
       <div className="mb-8 space-y-4">
         {/* Customer */}
-        <div className="flex items-start gap-4 rounded-lg bg-gray-50 dark:bg-gray-800 p-4">
+        <div className={`flex items-start gap-4 rounded-lg bg-gray-50 dark:bg-gray-800 p-4 ${isSilverPlanCustomer(customer) ? 'silver-plan-card' : ''}`}>
           <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/50">
             <User className="h-5 w-5 text-blue-600 dark:text-blue-400" />
           </div>
           <div className="flex-1">
-            <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Customer</p>
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Customer</p>
+              {isSilverPlanCustomer(customer) && (
+                <span className="silver-plan-badge inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold">
+                  <Sparkles className="h-3 w-3" />
+                  Silver Plan
+                </span>
+              )}
+            </div>
             <p className="text-lg font-semibold text-gray-900 dark:text-white">{customer.fullname}</p>
             {customer.email && (
               <p className="text-sm text-gray-600 dark:text-gray-400">{customer.email}</p>

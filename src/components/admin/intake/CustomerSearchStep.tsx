@@ -69,8 +69,8 @@ export function CustomerSearchStep({
   };
 
   return (
-    <div className="rounded-lg bg-white p-8 shadow-sm">
-      <h2 className="mb-6 text-2xl font-bold text-gray-900">
+    <div className="rounded-lg bg-white dark:bg-gray-900 p-8 shadow-sm">
+      <h2 className="mb-6 text-2xl font-bold text-gray-900 dark:text-white">
         Step 1: Search Customer
       </h2>
 
@@ -78,7 +78,7 @@ export function CustomerSearchStep({
       <div className="mb-6">
         <label
           htmlFor="customer-search"
-          className="mb-2 block text-sm font-medium text-gray-700"
+          className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
         >
           Search for existing customer
         </label>
@@ -92,11 +92,11 @@ export function CustomerSearchStep({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by name, email, or phone"
-            className="block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 py-3 pl-10 pr-3 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
         {searchQuery.length > 0 && searchQuery.length < 2 && (
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
             Type at least 2 characters to search
           </p>
         )}
@@ -106,7 +106,7 @@ export function CustomerSearchStep({
       {isLoading && (
         <div className="mb-6 flex items-center justify-center py-8">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600"></div>
-          <span className="ml-3 text-gray-600">Searching...</span>
+          <span className="ml-3 text-gray-600 dark:text-gray-300">Searching...</span>
         </div>
       )}
 
@@ -115,28 +115,28 @@ export function CustomerSearchStep({
         <div className="mb-6">
           {results.length > 0 ? (
             <div className="space-y-2">
-              <p className="text-sm font-medium text-gray-700">
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Found {results.length} customer{results.length !== 1 ? 's' : ''}
               </p>
               <div className="max-h-96 space-y-2 overflow-y-auto">
                 {results.map((customer) => (
                   <div
                     key={customer.id}
-                    className="flex items-center justify-between rounded-lg border border-gray-200 p-4 transition-colors hover:border-blue-300 hover:bg-blue-50"
+                    className="flex items-center justify-between rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 transition-colors hover:border-blue-300 hover:bg-blue-50 dark:hover:border-blue-600 dark:hover:bg-blue-900/30"
                   >
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <h3 className="font-semibold text-gray-900">
+                        <h3 className="font-semibold text-gray-900 dark:text-white">
                           {customer.fullname}
                         </h3>
                         {customer.business_name && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 dark:bg-blue-900 px-2 py-1 text-xs font-medium text-blue-800 dark:text-blue-200">
                             <Building2 className="h-3 w-3" />
                             {customer.business_name}
                           </span>
                         )}
                       </div>
-                      <div className="mt-1 space-y-0.5 text-sm text-gray-600">
+                      <div className="mt-1 space-y-0.5 text-sm text-gray-600 dark:text-gray-400">
                         {customer.email && (
                           <p>
                             <span className="font-medium">Email:</span>{' '}
@@ -159,7 +159,7 @@ export function CustomerSearchStep({
                     </div>
                     <button
                       onClick={() => handleSelectCustomer(customer)}
-                      className="ml-4 rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-all hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                      className="ml-4 rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-all hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
                     >
                       Select
                     </button>
@@ -168,11 +168,11 @@ export function CustomerSearchStep({
               </div>
             </div>
           ) : (
-            <div className="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-8 text-center">
-              <p className="text-gray-600">
+            <div className="rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-8 text-center">
+              <p className="text-gray-600 dark:text-gray-400">
                 No customers found for "{searchQuery}"
               </p>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 Try a different search or create a new customer below
               </p>
             </div>
@@ -181,21 +181,21 @@ export function CustomerSearchStep({
       )}
 
       {/* Create New Customer Buttons */}
-      <div className="border-t border-gray-200 pt-6">
-        <p className="mb-4 text-sm font-medium text-gray-700">
+      <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+        <p className="mb-4 text-sm font-medium text-gray-700 dark:text-gray-300">
           Or create a new customer:
         </p>
         <div className="flex gap-4">
           <button
             onClick={() => onCreateNew('individual')}
-            className="flex flex-1 items-center justify-center gap-2 rounded-lg border-2 border-blue-200 bg-white px-6 py-4 font-medium text-blue-700 transition-all hover:border-blue-400 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="flex flex-1 items-center justify-center gap-2 rounded-lg border-2 border-blue-200 dark:border-blue-700 bg-white dark:bg-gray-800 px-6 py-4 font-medium text-blue-700 dark:text-blue-400 transition-all hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
           >
             <UserPlus className="h-5 w-5" />
             Create New Individual Customer
           </button>
           <button
             onClick={() => onCreateNew('business')}
-            className="flex flex-1 items-center justify-center gap-2 rounded-lg border-2 border-indigo-200 bg-white px-6 py-4 font-medium text-indigo-700 transition-all hover:border-indigo-400 hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            className="flex flex-1 items-center justify-center gap-2 rounded-lg border-2 border-indigo-200 dark:border-indigo-700 bg-white dark:bg-gray-800 px-6 py-4 font-medium text-indigo-700 dark:text-indigo-400 transition-all hover:border-indigo-400 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
           >
             <Building2 className="h-5 w-5" />
             Create New Business Customer

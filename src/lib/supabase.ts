@@ -1102,11 +1102,11 @@ export const TICKET_STATUS_DEFINITIONS: TicketStatusDefinition[] = [
   { status: 'repairing', display_name: 'Repairing', description: 'Repair in progress', repairshopr_status: 'In Progress', show_customer_question: false, customer_visible_status: 'Being Repaired', sort_order: 3, is_active: true },
   { status: 'data_transferring', display_name: 'Data Transferring', description: 'Transferring data', repairshopr_status: 'In Progress', show_customer_question: false, customer_visible_status: 'Data Transfer in Progress', sort_order: 4, is_active: true },
   { status: 'installing', display_name: 'Installing', description: 'Installing software/components', repairshopr_status: 'In Progress', show_customer_question: false, customer_visible_status: 'Installation in Progress', sort_order: 5, is_active: true },
-  { status: 'waiting_for_parts', display_name: 'Waiting for Parts', description: 'Waiting for parts', repairshopr_status: 'On Hold', show_customer_question: false, customer_visible_status: 'Waiting for Parts', sort_order: 6, is_active: true },
+  { status: 'waiting_for_parts', display_name: 'Waiting for Parts', description: 'Waiting for parts', repairshopr_status: 'Waiting for Parts', show_customer_question: false, customer_visible_status: 'Waiting for Parts', sort_order: 6, is_active: true },
   { status: 'building', display_name: 'Building', description: 'Building custom system', repairshopr_status: 'In Progress', show_customer_question: false, customer_visible_status: 'Being Built', sort_order: 7, is_active: true },
   { status: 'call_customer', display_name: 'Call Customer', description: 'Need to call customer', repairshopr_status: 'Customer Reply', show_customer_question: true, customer_visible_status: 'We Have a Question', sort_order: 8, is_active: true },
   { status: 'waiting_for_customer_reply', display_name: 'Waiting for Customer Reply', description: 'Waiting for response', repairshopr_status: 'Customer Reply', show_customer_question: true, customer_visible_status: 'Awaiting Your Response', sort_order: 9, is_active: true },
-  { status: 'ready_for_pickup', display_name: 'Ready for Pickup', description: 'On done shelf', repairshopr_status: 'Resolved', show_customer_question: false, customer_visible_status: 'Ready for Pickup', sort_order: 10, is_active: true },
+  { status: 'ready_for_pickup', display_name: 'Ready for Pickup', description: 'On done shelf', repairshopr_status: 'Done Shelf', show_customer_question: false, customer_visible_status: 'Ready for Pickup', sort_order: 10, is_active: true },
   { status: 'completed', display_name: 'Completed', description: 'Fully resolved', repairshopr_status: 'Resolved', show_customer_question: false, customer_visible_status: 'Completed', sort_order: 11, is_active: true },
 ];
 

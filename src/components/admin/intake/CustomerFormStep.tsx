@@ -273,13 +273,13 @@ export function CustomerFormStep({
   // =============================================================================
 
   return (
-    <div className="rounded-lg bg-white p-8 shadow-sm">
-      <h2 className="mb-6 text-2xl font-bold text-gray-900">
+    <div className="rounded-lg bg-white dark:bg-gray-900 p-8 shadow-sm">
+      <h2 className="mb-6 text-2xl font-bold text-gray-900 dark:text-white">
         {customerType === 'individual' ? 'New Individual Customer' : 'New Business Customer'}
       </h2>
 
       {submitError && (
-        <div className="mb-6 flex items-center gap-2 rounded-lg bg-red-50 p-4 text-red-800">
+        <div className="mb-6 flex items-center gap-2 rounded-lg bg-red-50 dark:bg-red-900/30 p-4 text-red-800 dark:text-red-300">
           <AlertCircle className="h-5 w-5 flex-shrink-0" />
           <p>{submitError}</p>
         </div>
@@ -289,7 +289,7 @@ export function CustomerFormStep({
         {/* Business Search (for business customers) */}
         {customerType === 'business' && !showBusinessForm && (
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700">
+            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
               <Building2 className="mr-1 inline-block h-4 w-4" />
               Business Name
             </label>
@@ -299,7 +299,7 @@ export function CustomerFormStep({
                 value={businessSearchQuery}
                 onChange={(e) => setBusinessSearchQuery(e.target.value)}
                 placeholder="Search for existing business or enter new name..."
-                className="w-full rounded-lg border border-gray-300 px-4 py-2 pr-10 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 px-4 py-2 pr-10 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               {isSearchingBusinesses && (
                 <Loader2 className="absolute right-3 top-3 h-5 w-5 animate-spin text-gray-400" />
@@ -311,9 +311,9 @@ export function CustomerFormStep({
 
             {/* Search Results */}
             {searchResults.length > 0 && (
-              <div className="mt-2 rounded-lg border border-gray-200 bg-white shadow-lg">
+              <div className="mt-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg">
                 <div className="p-2">
-                  <p className="px-2 py-1 text-xs font-medium text-gray-500">
+                  <p className="px-2 py-1 text-xs font-medium text-gray-500 dark:text-gray-400">
                     Existing Businesses
                   </p>
                   {searchResults.map((business) => (
@@ -321,17 +321,17 @@ export function CustomerFormStep({
                       key={business.id}
                       type="button"
                       onClick={() => handleSelectBusiness(business)}
-                      className="w-full rounded px-3 py-2 text-left hover:bg-gray-100"
+                      className="w-full rounded px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
-                      <p className="font-medium text-gray-900">{business.name}</p>
+                      <p className="font-medium text-gray-900 dark:text-white">{business.name}</p>
                     </button>
                   ))}
                 </div>
-                <div className="border-t border-gray-200 p-2">
+                <div className="border-t border-gray-200 dark:border-gray-700 p-2">
                   <button
                     type="button"
                     onClick={handleCreateNewBusiness}
-                    className="w-full rounded px-3 py-2 text-left text-blue-600 hover:bg-blue-50"
+                    className="w-full rounded px-3 py-2 text-left text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30"
                   >
                     + Create new business "{businessSearchQuery}"
                   </button>
@@ -346,25 +346,25 @@ export function CustomerFormStep({
                 <button
                   type="button"
                   onClick={handleCreateNewBusiness}
-                  className="mt-2 w-full rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-left text-blue-700 hover:bg-blue-100"
+                  className="mt-2 w-full rounded-lg border border-blue-200 dark:border-blue-700 bg-blue-50 dark:bg-blue-900/30 px-4 py-2 text-left text-blue-700 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50"
                 >
                   + Create new business "{businessSearchQuery}"
                 </button>
               )}
 
             {errors.business_name && (
-              <p className="mt-1 text-sm text-red-600">{errors.business_name}</p>
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.business_name}</p>
             )}
           </div>
         )}
 
         {/* Business Address Fields (if creating new business) */}
         {customerType === 'business' && showBusinessForm && (
-          <div className="space-y-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
-            <p className="text-sm font-medium text-gray-700">Business Information</p>
+          <div className="space-y-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-4">
+            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Business Information</p>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="md:col-span-2">
-                <label className="mb-1 block text-sm font-medium text-gray-700">
+                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Business Name
                 </label>
                 <input
@@ -373,42 +373,42 @@ export function CustomerFormStep({
                   value={formData.business_name}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 {errors.business_name && (
-                  <p className="mt-1 text-sm text-red-600">{errors.business_name}</p>
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.business_name}</p>
                 )}
               </div>
               <div className="md:col-span-2">
-                <label className="mb-1 block text-sm text-gray-600">Address (optional)</label>
+                <label className="mb-1 block text-sm text-gray-600 dark:text-gray-400">Address (optional)</label>
                 <input
                   type="text"
                   name="address"
                   value={formData.address}
                   onChange={handleChange}
                   placeholder="Street address"
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-sm text-gray-600">City</label>
+                <label className="mb-1 block text-sm text-gray-600 dark:text-gray-400">City</label>
                 <input
                   type="text"
                   name="city"
                   value={formData.city}
                   onChange={handleChange}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-sm text-gray-600">State</label>
+                <label className="mb-1 block text-sm text-gray-600 dark:text-gray-400">State</label>
                 <input
                   type="text"
                   name="state"
                   value={formData.state}
                   onChange={handleChange}
                   placeholder="KS"
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </div>
@@ -417,7 +417,7 @@ export function CustomerFormStep({
 
         {/* Contact Person Fields */}
         <div className="space-y-4">
-          <p className="text-sm font-medium text-gray-700">
+          <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
             <User className="mr-1 inline-block h-4 w-4" />
             {customerType === 'business' ? 'Contact Person' : 'Customer Information'}
           </p>
@@ -425,7 +425,7 @@ export function CustomerFormStep({
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {/* First Name */}
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
+              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 First Name <span className="text-red-500">*</span>
               </label>
               <input
@@ -435,16 +435,16 @@ export function CustomerFormStep({
                 onChange={handleChange}
                 onBlur={handleBlur}
                 required
-                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               {errors.firstname && (
-                <p className="mt-1 text-sm text-red-600">{errors.firstname}</p>
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.firstname}</p>
               )}
             </div>
 
             {/* Last Name */}
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
+              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Last Name <span className="text-red-500">*</span>
               </label>
               <input
@@ -454,16 +454,16 @@ export function CustomerFormStep({
                 onChange={handleChange}
                 onBlur={handleBlur}
                 required
-                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               {errors.lastname && (
-                <p className="mt-1 text-sm text-red-600">{errors.lastname}</p>
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.lastname}</p>
               )}
             </div>
 
             {/* Email */}
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
+              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Email <span className="text-red-500">*</span>
               </label>
               <input
@@ -473,14 +473,14 @@ export function CustomerFormStep({
                 onChange={handleChange}
                 onBlur={handleBlur}
                 required
-                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-              {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+              {errors.email && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email}</p>}
             </div>
 
             {/* Phone */}
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
+              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Phone <span className="text-red-500">*</span>
               </label>
               <input
@@ -491,16 +491,16 @@ export function CustomerFormStep({
                 onBlur={handleBlur}
                 required
                 placeholder="(555) 123-4567"
-                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-              {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
+              {errors.phone && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.phone}</p>}
             </div>
           </div>
 
           {/* Address (optional for individuals) */}
           {customerType === 'individual' && (
-            <div className="space-y-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
-              <p className="text-sm font-medium text-gray-700">Address (optional)</p>
+            <div className="space-y-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-4">
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Address (optional)</p>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="md:col-span-2">
                   <input
@@ -509,7 +509,7 @@ export function CustomerFormStep({
                     value={formData.address}
                     onChange={handleChange}
                     placeholder="Street address"
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 <div>
@@ -519,7 +519,7 @@ export function CustomerFormStep({
                     value={formData.city}
                     onChange={handleChange}
                     placeholder="City"
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-2">
@@ -529,7 +529,7 @@ export function CustomerFormStep({
                     value={formData.state}
                     onChange={handleChange}
                     placeholder="State"
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <input
                     type="text"
@@ -537,7 +537,7 @@ export function CustomerFormStep({
                     value={formData.zip}
                     onChange={handleChange}
                     placeholder="ZIP"
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
@@ -546,19 +546,19 @@ export function CustomerFormStep({
         </div>
 
         {/* Portal Password Section */}
-        <div className="space-y-4 rounded-lg border border-blue-200 bg-blue-50 p-4">
-          <p className="text-sm font-medium text-gray-700">
+        <div className="space-y-4 rounded-lg border border-blue-200 dark:border-blue-700 bg-blue-50 dark:bg-blue-900/30 p-4">
+          <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
             <Lock className="mr-1 inline-block h-4 w-4" />
             Customer Portal Password
           </p>
-          <p className="text-xs text-gray-600">
+          <p className="text-xs text-gray-600 dark:text-gray-400">
             This password will allow the customer to access their repair status online.
           </p>
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {/* Password */}
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
+              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Password <span className="text-red-500">*</span>
               </label>
               <input
@@ -569,16 +569,16 @@ export function CustomerFormStep({
                 onBlur={handleBlur}
                 required
                 placeholder="Minimum 8 characters"
-                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               {errors.password && (
-                <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.password}</p>
               )}
             </div>
 
             {/* Confirm Password */}
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
+              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Confirm Password <span className="text-red-500">*</span>
               </label>
               <input
@@ -589,10 +589,10 @@ export function CustomerFormStep({
                 onBlur={handleBlur}
                 required
                 placeholder="Re-enter password"
-                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               {errors.confirmPassword && (
-                <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.confirmPassword}</p>
               )}
             </div>
           </div>
@@ -604,7 +604,7 @@ export function CustomerFormStep({
             type="button"
             onClick={onBack}
             disabled={isSubmitting}
-            className="rounded-lg bg-white px-6 py-3 font-medium text-gray-700 shadow-sm hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-lg bg-white dark:bg-gray-800 px-6 py-3 font-medium text-gray-700 dark:text-gray-300 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 border border-gray-200 dark:border-gray-700"
           >
             Back
           </button>

@@ -315,18 +315,18 @@ export function DeviceStep({ customer, onSelectDevice, onBack }: DeviceStepProps
   const availableModels = getAvailableModels();
 
   return (
-    <div className="rounded-lg bg-white p-8 shadow-sm">
+    <div className="rounded-lg bg-white dark:bg-gray-900 p-8 shadow-sm">
       {/* Header */}
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Step 3: Select Device</h2>
-        <p className="mt-2 text-sm text-gray-600">
-          Customer: <span className="font-medium text-gray-900">{customer.fullname}</span>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Step 3: Select Device</h2>
+        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+          Customer: <span className="font-medium text-gray-900 dark:text-white">{customer.fullname}</span>
         </p>
       </div>
 
       {/* Error message */}
       {error && (
-        <div className="mb-4 rounded-lg bg-red-50 p-4 text-sm text-red-800">
+        <div className="mb-4 rounded-lg bg-red-50 dark:bg-red-900/30 p-4 text-sm text-red-800 dark:text-red-300">
           {error}
         </div>
       )}
@@ -335,7 +335,7 @@ export function DeviceStep({ customer, onSelectDevice, onBack }: DeviceStepProps
       {loading && (
         <div className="py-8 text-center">
           <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
-          <p className="mt-2 text-sm text-gray-600">Loading devices...</p>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">Loading devices...</p>
         </div>
       )}
 
@@ -344,23 +344,23 @@ export function DeviceStep({ customer, onSelectDevice, onBack }: DeviceStepProps
         <>
           {devices.length > 0 ? (
             <div className="mb-6">
-              <h3 className="mb-3 text-sm font-medium text-gray-700">
+              <h3 className="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">
                 Existing Devices
               </h3>
               <div className="space-y-2">
                 {devices.map((device) => (
                   <div
                     key={device.id}
-                    className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 transition-colors hover:border-blue-300 hover:bg-blue-50"
+                    className="flex items-center justify-between rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 transition-colors hover:border-blue-300 hover:bg-blue-50 dark:hover:border-blue-600 dark:hover:bg-blue-900/30"
                   >
                     <div className="flex items-center gap-3">
                       <span className="text-2xl">
                         {getDeviceIcon(device.asset_type_name)}
                       </span>
                       <div>
-                        <p className="font-medium text-gray-900">{device.name}</p>
+                        <p className="font-medium text-gray-900 dark:text-white">{device.name}</p>
                         {device.asset_type_name && (
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
                             {device.asset_type_name}
                           </p>
                         )}
@@ -377,15 +377,15 @@ export function DeviceStep({ customer, onSelectDevice, onBack }: DeviceStepProps
               </div>
             </div>
           ) : (
-            <div className="mb-6 rounded-lg bg-gray-50 p-6 text-center">
-              <p className="text-sm text-gray-600">No devices on file</p>
+            <div className="mb-6 rounded-lg bg-gray-50 dark:bg-gray-800 p-6 text-center">
+              <p className="text-sm text-gray-600 dark:text-gray-400">No devices on file</p>
             </div>
           )}
 
           {/* Add New Device button */}
           <button
             onClick={() => setShowForm(true)}
-            className="w-full rounded-lg border-2 border-dashed border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 hover:border-blue-400 hover:bg-blue-50 hover:text-blue-700"
+            className="w-full rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-700 dark:hover:text-blue-400"
           >
             + Add New Device
           </button>
@@ -395,11 +395,11 @@ export function DeviceStep({ customer, onSelectDevice, onBack }: DeviceStepProps
       {/* New device form */}
       {showForm && (
         <form onSubmit={handleCreateDevice} className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-900">Add New Device</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Add New Device</h3>
 
           {/* Device Type */}
           <div>
-            <label htmlFor="deviceType" className="mb-1 block text-sm font-medium text-gray-700">
+            <label htmlFor="deviceType" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
               Device Type <span className="text-red-500">*</span>
             </label>
             <select
@@ -407,7 +407,7 @@ export function DeviceStep({ customer, onSelectDevice, onBack }: DeviceStepProps
               value={deviceType}
               onChange={(e) => handleDeviceTypeChange(e.target.value as 'Desktop' | 'Laptop')}
               required
-              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               {deviceTypes.map((type) => (
                 <option key={type.value} value={type.value}>
@@ -419,7 +419,7 @@ export function DeviceStep({ customer, onSelectDevice, onBack }: DeviceStepProps
 
           {/* Brand */}
           <div>
-            <label htmlFor="brand" className="mb-1 block text-sm font-medium text-gray-700">
+            <label htmlFor="brand" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
               Brand <span className="text-red-500">*</span>
             </label>
             <select
@@ -427,7 +427,7 @@ export function DeviceStep({ customer, onSelectDevice, onBack }: DeviceStepProps
               value={brand}
               onChange={(e) => handleBrandChange(e.target.value as Brand | '')}
               required
-              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Select a brand...</option>
               {brands.map((b) => (
@@ -441,7 +441,7 @@ export function DeviceStep({ customer, onSelectDevice, onBack }: DeviceStepProps
           {/* Model - only show if brand is selected and not Custom Build */}
           {brand && !isCustomBuild && (
             <div>
-              <label htmlFor="model" className="mb-1 block text-sm font-medium text-gray-700">
+              <label htmlFor="model" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Model <span className="text-red-500">*</span>
               </label>
               {availableModels.length > 0 ? (
@@ -450,7 +450,7 @@ export function DeviceStep({ customer, onSelectDevice, onBack }: DeviceStepProps
                   value={model}
                   onChange={(e) => setModel(e.target.value)}
                   required
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Select a model...</option>
                   {availableModels.map((m) => (
@@ -460,7 +460,7 @@ export function DeviceStep({ customer, onSelectDevice, onBack }: DeviceStepProps
                   ))}
                 </select>
               ) : (
-                <p className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-800">
+                <p className="rounded-lg border border-amber-200 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/30 px-4 py-2 text-sm text-amber-800 dark:text-amber-300">
                   No {deviceType.toLowerCase()} models available for {brand}.
                   Please select a different brand or device type.
                 </p>
@@ -470,7 +470,7 @@ export function DeviceStep({ customer, onSelectDevice, onBack }: DeviceStepProps
 
           {/* Custom Build notice */}
           {isCustomBuild && (
-            <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
+            <div className="rounded-lg border border-green-200 dark:border-green-700 bg-green-50 dark:bg-green-900/30 px-4 py-3 text-sm text-green-800 dark:text-green-300">
               Custom Build selected - no model needed.
             </div>
           )}
@@ -481,7 +481,7 @@ export function DeviceStep({ customer, onSelectDevice, onBack }: DeviceStepProps
               type="button"
               onClick={handleCancelForm}
               disabled={creating}
-              className="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2 font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-2 font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Cancel
             </button>

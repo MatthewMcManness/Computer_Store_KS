@@ -121,10 +121,10 @@ export function ImageUpload({ currentImage, computerType, onImageChange }: Image
         className={cn(
           'relative cursor-pointer rounded-lg border-2 border-dashed p-6 text-center transition-colors',
           isDragging
-            ? 'border-blue-500 bg-blue-50'
+            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
             : preview
-            ? 'border-green-500 bg-green-50'
-            : 'border-gray-300 hover:border-blue-500 hover:bg-blue-50'
+            ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
+            : 'border-gray-300 dark:border-gray-600 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20'
         )}
       >
         {preview ? (
@@ -142,9 +142,9 @@ export function ImageUpload({ currentImage, computerType, onImageChange }: Image
                 e.stopPropagation();
                 clearImage();
               }}
-              className="absolute right-2 top-2 rounded-full bg-white p-1 shadow-md hover:bg-gray-100"
+              className="absolute right-2 top-2 rounded-full bg-white dark:bg-gray-800 p-1 shadow-md hover:bg-gray-100 dark:hover:bg-gray-700"
             >
-              <X className="h-4 w-4 text-gray-600" />
+              <X className="h-4 w-4 text-gray-600 dark:text-gray-400" />
             </button>
           </div>
         ) : (
@@ -152,15 +152,15 @@ export function ImageUpload({ currentImage, computerType, onImageChange }: Image
             {isUploading ? (
               <div className="flex flex-col items-center">
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-r-transparent"></div>
-                <p className="mt-2 text-sm text-gray-600">Uploading...</p>
+                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">Uploading...</p>
               </div>
             ) : (
               <>
                 <Upload className="mx-auto h-8 w-8 text-gray-400" />
-                <p className="mt-2 text-sm font-medium text-gray-600">
+                <p className="mt-2 text-sm font-medium text-gray-600 dark:text-gray-400">
                   Click to upload or drag and drop
                 </p>
-                <p className="mt-1 text-xs text-gray-500">
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                   JPG or PNG, max 5MB
                 </p>
               </>
@@ -178,7 +178,7 @@ export function ImageUpload({ currentImage, computerType, onImageChange }: Image
       </div>
 
       {error && (
-        <p className="mt-2 text-sm text-red-600">{error}</p>
+        <p className="mt-2 text-sm text-red-600 dark:text-red-400">{error}</p>
       )}
     </div>
   );

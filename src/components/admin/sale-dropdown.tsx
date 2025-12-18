@@ -91,7 +91,7 @@ export function SaleDropdown({ onSaleChange }: SaleDropdownProps) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm text-gray-500">
+      <div className="flex items-center gap-2 rounded-lg bg-white dark:bg-gray-800 px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
         <Loader2 className="h-4 w-4 animate-spin" />
         Loading...
       </div>
@@ -107,7 +107,7 @@ export function SaleDropdown({ onSaleChange }: SaleDropdownProps) {
         className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
           currentSale !== 'none'
             ? 'bg-gradient-to-r from-red-600 to-orange-600 text-white hover:from-red-700 hover:to-orange-700'
-            : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
+            : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600'
         } ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
       >
         {isSaving ? (
@@ -129,8 +129,8 @@ export function SaleDropdown({ onSaleChange }: SaleDropdownProps) {
           />
 
           {/* Menu */}
-          <div className="absolute right-0 top-full z-20 mt-2 w-56 rounded-lg bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
-            <div className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
+          <div className="absolute right-0 top-full z-20 mt-2 w-56 rounded-lg bg-white dark:bg-gray-800 py-1 shadow-lg ring-1 ring-black dark:ring-gray-700 ring-opacity-5">
+            <div className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
               Select Sale
             </div>
             {availableSales.map((sale) => (
@@ -139,13 +139,13 @@ export function SaleDropdown({ onSaleChange }: SaleDropdownProps) {
                 onClick={() => handleSelectSale(sale.type)}
                 className={`flex w-full items-center justify-between px-4 py-2 text-sm transition-colors ${
                   currentSale === sale.type
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'text-gray-700 hover:bg-gray-50'
+                    ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
+                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
                 }`}
               >
                 <span>{sale.name}</span>
                 {currentSale === sale.type && (
-                  <Check className="h-4 w-4 text-blue-600" />
+                  <Check className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                 )}
               </button>
             ))}
@@ -157,11 +157,11 @@ export function SaleDropdown({ onSaleChange }: SaleDropdownProps) {
       {toast && (
         <div className={`fixed bottom-6 right-6 z-50 rounded-lg p-4 shadow-lg ${
           toast.type === 'success'
-            ? 'border-l-4 border-green-500 bg-white'
-            : 'border-l-4 border-red-500 bg-white'
+            ? 'border-l-4 border-green-500 bg-white dark:bg-gray-800'
+            : 'border-l-4 border-red-500 bg-white dark:bg-gray-800'
         }`}>
           <p className={`text-sm font-medium ${
-            toast.type === 'success' ? 'text-green-800' : 'text-red-800'
+            toast.type === 'success' ? 'text-green-800 dark:text-green-400' : 'text-red-800 dark:text-red-400'
           }`}>
             {toast.message}
           </p>

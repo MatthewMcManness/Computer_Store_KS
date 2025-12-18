@@ -3,7 +3,7 @@ import { isAuthenticated } from '@/lib/auth';
 import { IntakeWizard } from '@/components/admin/intake/IntakeWizard';
 
 export const metadata = {
-  title: 'Customer Intake - Admin Panel',
+  title: 'Customer Intake - Employee Portal',
   robots: {
     index: false,
     follow: false,
@@ -22,8 +22,8 @@ export default async function IntakePage() {
     <div>
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Customer Intake</h1>
-        <p className="mt-1 text-gray-500">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Customer Intake</h1>
+        <p className="mt-1 text-gray-500 dark:text-gray-400">
           Create a new customer ticket and device entry
         </p>
       </div>

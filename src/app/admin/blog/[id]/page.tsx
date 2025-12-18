@@ -155,9 +155,9 @@ export default function EditBlogPostPage({ params }: PageProps) {
 
   if (!post && !isLoading) {
     return (
-      <div className="rounded-xl bg-white p-12 text-center shadow-sm">
-        <h3 className="text-lg font-medium text-gray-900">Post not found</h3>
-        <p className="mt-1 text-gray-500">The blog post you're looking for doesn't exist.</p>
+      <div className="rounded-xl bg-white dark:bg-gray-900 p-12 text-center shadow-sm">
+        <h3 className="text-lg font-medium text-gray-900 dark:text-white">Post not found</h3>
+        <p className="mt-1 text-gray-500 dark:text-gray-400">The blog post you're looking for doesn't exist.</p>
         <Link
           href="/admin/blog"
           className="mt-4 inline-flex items-center gap-2 text-blue-600 hover:text-blue-700"
@@ -175,19 +175,19 @@ export default function EditBlogPostPage({ params }: PageProps) {
       <div className="mb-8">
         <Link
           href="/admin/blog"
-          className="mb-4 inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700"
+          className="mb-4 inline-flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Posts
         </Link>
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Edit Post</h1>
-            <p className="mt-1 text-gray-500">Update your blog post.</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Edit Post</h1>
+            <p className="mt-1 text-gray-500 dark:text-gray-400">Update your blog post.</p>
           </div>
           <button
             onClick={handleDelete}
-            className="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-white px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
+            className="inline-flex items-center gap-2 rounded-lg border border-red-200 dark:border-red-800 bg-white dark:bg-gray-800 px-3 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
           >
             <Trash2 className="h-4 w-4" />
             Delete
@@ -197,16 +197,16 @@ export default function EditBlogPostPage({ params }: PageProps) {
 
       {/* Error */}
       {error && (
-        <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4">
-          <p className="text-sm text-red-600">{error}</p>
+        <div className="mb-6 rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-4">
+          <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
         </div>
       )}
 
       <form onSubmit={(e) => handleSubmit(e)}>
         <div className="space-y-6">
           {/* Title */}
-          <div className="rounded-xl bg-white p-6 shadow-sm">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+          <div className="rounded-xl bg-white dark:bg-gray-900 p-6 shadow-sm">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Title <span className="text-red-500">*</span>
             </label>
             <input
@@ -214,48 +214,48 @@ export default function EditBlogPostPage({ params }: PageProps) {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
-              className="w-full rounded-lg border border-gray-300 px-4 py-2 text-lg font-medium focus:border-blue-500 focus:ring-blue-500"
+              className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2 text-lg font-medium focus:border-blue-500 focus:ring-blue-500"
               placeholder="Enter post title..."
             />
           </div>
 
           {/* Slug */}
-          <div className="rounded-xl bg-white p-6 shadow-sm">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+          <div className="rounded-xl bg-white dark:bg-gray-900 p-6 shadow-sm">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               URL Slug
             </label>
             <div className="flex items-center gap-2">
-              <span className="text-gray-500">/blog/</span>
+              <span className="text-gray-500 dark:text-gray-400">/blog/</span>
               <input
                 type="text"
                 value={slug}
                 onChange={(e) => setSlug(e.target.value)}
-                className="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500"
+                className="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2 focus:border-blue-500 focus:ring-blue-500"
                 placeholder="url-slug"
               />
             </div>
           </div>
 
           {/* Excerpt */}
-          <div className="rounded-xl bg-white p-6 shadow-sm">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+          <div className="rounded-xl bg-white dark:bg-gray-900 p-6 shadow-sm">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Excerpt
             </label>
             <textarea
               value={excerpt}
               onChange={(e) => setExcerpt(e.target.value)}
               rows={2}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500"
+              className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2 focus:border-blue-500 focus:ring-blue-500"
               placeholder="Brief summary of the post (shown in previews)..."
             />
           </div>
 
           {/* Content */}
-          <div className="rounded-xl bg-white p-6 shadow-sm">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+          <div className="rounded-xl bg-white dark:bg-gray-900 p-6 shadow-sm">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Content <span className="text-red-500">*</span>
             </label>
-            <div className="mb-2 text-xs text-gray-500">
+            <div className="mb-2 text-xs text-gray-500 dark:text-gray-400">
               Supports basic markdown: **bold**, *italic*, ## headers, [links](url), `code`
             </div>
             <textarea
@@ -263,14 +263,14 @@ export default function EditBlogPostPage({ params }: PageProps) {
               onChange={(e) => setContent(e.target.value)}
               required
               rows={15}
-              className="w-full rounded-lg border border-gray-300 px-4 py-3 font-mono text-sm focus:border-blue-500 focus:ring-blue-500"
+              className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-3 font-mono text-sm focus:border-blue-500 focus:ring-blue-500"
               placeholder="Write your post content here..."
             />
           </div>
 
           {/* Featured Image */}
-          <div className="rounded-xl bg-white p-6 shadow-sm">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+          <div className="rounded-xl bg-white dark:bg-gray-900 p-6 shadow-sm">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Featured Image
             </label>
             <div className="flex items-start gap-4">
@@ -280,10 +280,10 @@ export default function EditBlogPostPage({ params }: PageProps) {
                     type="url"
                     value={featuredImageUrl}
                     onChange={(e) => setFeaturedImageUrl(e.target.value)}
-                    className="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500"
+                    className="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2 focus:border-blue-500 focus:ring-blue-500"
                     placeholder="https://example.com/image.jpg"
                   />
-                  <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                  <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
                     {isUploading ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
@@ -333,14 +333,14 @@ export default function EditBlogPostPage({ params }: PageProps) {
                     />
                   </label>
                 </div>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-500 dark:text-gray-400">
                   {isUploading
                     ? 'Uploading and optimizing image...'
                     : 'Upload an image (max 10MB) or paste a URL. Images are optimized automatically.'}
                 </p>
               </div>
               {featuredImageUrl && (
-                <div className="h-20 w-32 overflow-hidden rounded-lg border border-gray-200">
+                <div className="h-20 w-32 overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
                   <img
                     src={featuredImageUrl}
                     alt="Preview"
@@ -355,17 +355,17 @@ export default function EditBlogPostPage({ params }: PageProps) {
           </div>
 
           {/* Category & Tags */}
-          <div className="rounded-xl bg-white p-6 shadow-sm">
+          <div className="rounded-xl bg-white dark:bg-gray-900 p-6 shadow-sm">
             <div className="grid gap-6 md:grid-cols-2">
               {/* Category */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Category
                 </label>
                 <select
                   value={categoryId}
                   onChange={(e) => setCategoryId(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500"
+                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2 focus:border-blue-500 focus:ring-blue-500"
                 >
                   <option value="">Select a category</option>
                   {categories.map((cat) => (
@@ -378,7 +378,7 @@ export default function EditBlogPostPage({ params }: PageProps) {
 
               {/* Tags */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Tags
                 </label>
                 <div className="flex flex-wrap gap-2">
@@ -390,14 +390,14 @@ export default function EditBlogPostPage({ params }: PageProps) {
                       className={`rounded-full px-3 py-1 text-sm font-medium transition-colors ${
                         selectedTags.includes(tag.id)
                           ? 'bg-blue-600 text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                       }`}
                     >
                       {tag.name}
                     </button>
                   ))}
                   {tags.length === 0 && (
-                    <p className="text-sm text-gray-500">No tags available</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">No tags available</p>
                   )}
                 </div>
               </div>
@@ -405,13 +405,13 @@ export default function EditBlogPostPage({ params }: PageProps) {
           </div>
 
           {/* Status & Actions */}
-          <div className="flex items-center justify-between rounded-xl bg-white p-6 shadow-sm">
+          <div className="flex items-center justify-between rounded-xl bg-white dark:bg-gray-900 p-6 shadow-sm">
             <div className="flex items-center gap-4">
-              <label className="text-sm font-medium text-gray-700">Status:</label>
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Status:</label>
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value as 'draft' | 'published' | 'archived')}
-                className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-blue-500"
+                className="rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-blue-500"
               >
                 <option value="draft">Draft</option>
                 <option value="published">Published</option>
@@ -423,7 +423,7 @@ export default function EditBlogPostPage({ params }: PageProps) {
                 type="button"
                 onClick={(e) => handleSubmit(e as React.FormEvent, 'draft')}
                 disabled={isSubmitting || !title || !content}
-                className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50"
               >
                 {isSubmitting ? (
                   <Loader2 className="h-4 w-4 animate-spin" />

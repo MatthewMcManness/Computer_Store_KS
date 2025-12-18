@@ -185,14 +185,14 @@ export function ComputerForm({ computer, onSubmit, isLoading }: ComputerFormProp
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
-        <div className="rounded-lg bg-red-50 border border-red-200 p-4">
-          <p className="text-sm text-red-600">{error}</p>
+        <div className="rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4">
+          <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
         </div>
       )}
 
       {/* Name */}
       <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
           Computer Name *
         </label>
         <input
@@ -201,7 +201,7 @@ export function ComputerForm({ computer, onSubmit, isLoading }: ComputerFormProp
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           placeholder="e.g., Gaming Pro Desktop"
-          className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
           required
         />
       </div>
@@ -209,14 +209,14 @@ export function ComputerForm({ computer, onSubmit, isLoading }: ComputerFormProp
       {/* Type and Category */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="type" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Type *
           </label>
           <select
             id="type"
             value={formData.type}
             onChange={(e) => setFormData({ ...formData, type: e.target.value as 'desktop' | 'laptop' })}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
             required
           >
             <option value="desktop">Desktop</option>
@@ -224,14 +224,14 @@ export function ComputerForm({ computer, onSubmit, isLoading }: ComputerFormProp
           </select>
         </div>
         <div>
-          <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Category *
           </label>
           <select
             id="category"
             value={formData.category}
             onChange={(e) => setFormData({ ...formData, category: e.target.value as 'custom' | 'refurbished' | 'new' })}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
             required
           >
             <option value="custom">{formData.type === 'laptop' ? 'New' : 'Custom Build'}</option>
@@ -243,7 +243,7 @@ export function ComputerForm({ computer, onSubmit, isLoading }: ComputerFormProp
 
       {/* Price */}
       <div>
-        <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="price" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
           Price *
         </label>
         <input
@@ -252,14 +252,14 @@ export function ComputerForm({ computer, onSubmit, isLoading }: ComputerFormProp
           value={formData.price}
           onChange={(e) => setFormData({ ...formData, price: e.target.value })}
           placeholder="$1,299"
-          className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
           required
         />
       </div>
 
       {/* Image Upload */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
           Image *
         </label>
         <ImageUpload
@@ -271,7 +271,7 @@ export function ComputerForm({ computer, onSubmit, isLoading }: ComputerFormProp
 
       {/* Specifications */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-3">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
           Specifications *
         </label>
         <div className="space-y-3">
@@ -281,14 +281,14 @@ export function ComputerForm({ computer, onSubmit, isLoading }: ComputerFormProp
                 type="text"
                 value={spec.label}
                 readOnly
-                className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-2 text-gray-600"
+                className="rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 px-4 py-2 text-gray-600 dark:text-gray-400"
               />
               <input
                 type="text"
                 value={spec.value}
                 onChange={(e) => updateSpec(index, e.target.value)}
                 placeholder={specConfigs[formData.type]?.find(s => s.label === spec.label)?.placeholder || 'Enter value'}
-                className="col-span-2 rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="col-span-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                 required
               />
             </div>
@@ -299,7 +299,7 @@ export function ComputerForm({ computer, onSubmit, isLoading }: ComputerFormProp
           <button
             type="button"
             onClick={addGraphicsCard}
-            className="mt-3 text-sm font-medium text-blue-600 hover:text-blue-700"
+            className="mt-3 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
           >
             + Add Graphics Card
           </button>
@@ -311,7 +311,7 @@ export function ComputerForm({ computer, onSubmit, isLoading }: ComputerFormProp
         <button
           type="button"
           onClick={() => router.back()}
-          className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          className="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
         >
           Cancel
         </button>

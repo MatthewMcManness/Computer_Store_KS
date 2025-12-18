@@ -295,6 +295,8 @@ export interface AddTicketCommentInput {
   tech?: string;
   hidden?: boolean;
   do_not_email?: boolean;
+  /** SMS message body - if provided, sends SMS to customer */
+  sms_body?: string;
 }
 
 /**
@@ -1079,11 +1081,17 @@ export class RepairShoprClient {
       );
     }
 
+    // RepairShopr requires a subject - use a default if not provided
+    const commentData = {
+      ...data,
+      subject: data.subject || (data.hidden ? 'Private Note' : 'Comment'),
+    };
+
     const response = await this.request<{ comment: RepairShoprTicketComment }>(
       `/tickets/${ticketId}/comment?api_key=${encodeURIComponent(apiToken.trim())}`,
       {
         method: 'POST',
-        body: JSON.stringify(data),
+        body: JSON.stringify(commentData),
       }
     );
 

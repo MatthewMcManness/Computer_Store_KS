@@ -3,10 +3,10 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import NextImage from 'next/image';
 import {
   LayoutDashboard,
   Image,
-  Settings,
   LogOut,
   Home,
   RefreshCw,
@@ -97,11 +97,16 @@ export function AdminSidebar({ onLogout }: AdminSidebarProps) {
         {/* Header */}
         <div className="flex h-16 items-center border-b border-gray-200 px-6 dark:border-gray-700">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
-              <Settings className="h-4 w-4 text-white" />
-            </div>
+            <NextImage
+              src="/assets/logo.png"
+              alt="Computer Store KS logo"
+              width={32}
+              height={32}
+              className="h-8 w-8 rounded-lg bg-gray-100 p-1 object-contain dark:bg-gray-800"
+              priority
+            />
             <div>
-              <h1 className="text-sm font-bold text-gray-900 dark:text-white">Admin Panel</h1>
+              <h1 className="text-sm font-bold text-gray-900 dark:text-white">Employee Portal</h1>
               <p className="text-xs text-gray-500 dark:text-gray-400">Computer Store KS</p>
             </div>
           </div>

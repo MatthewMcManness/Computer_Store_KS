@@ -3,7 +3,7 @@ import { isAuthenticated } from '@/lib/auth';
 import { IntakeWizard } from '@/components/admin/intake/IntakeWizard';
 
 export const metadata = {
-  title: 'Customer Intake - Admin Panel',
+  title: 'Customer Intake - Employee Portal',
   robots: {
     index: false,
     follow: false,

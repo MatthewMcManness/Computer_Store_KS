@@ -6,7 +6,7 @@ import './admin.css';
 export const dynamic = 'force-dynamic';
 
 export const metadata = {
-  title: 'Admin Panel',
+  title: 'Employee Portal',
   robots: {
     index: false,
     follow: false,

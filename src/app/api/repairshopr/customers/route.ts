@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser, getSessionToken } from '@/lib/auth';
-import { createRepairShoprClient, RepairShoprAPIError, isSilverPlanCustomer } from '@/lib/repairshopr';
-import { supabaseAdmin, getCustomerSilverPlans, setCustomerSilverPlan } from '@/lib/supabase';
+import { createRepairShoprClient, RepairShoprAPIError, getProtectionPlanTier } from '@/lib/repairshopr';
+import { supabaseAdmin, getCustomerProtectionPlans, setCustomerProtectionPlan, type ProtectionPlanTier } from '@/lib/supabase';
 import bcrypt from 'bcryptjs';
 
 export const dynamic = 'force-dynamic';
@@ -53,39 +53,45 @@ export async function GET(request: NextRequest) {
       }, null, 2));
     }
 
-    // Get existing silver plan statuses from Supabase
+    // Get existing protection plan statuses from Supabase
     const customerIds = customers.map(c => c.id);
-    const existingSilverPlans = await getCustomerSilverPlans(customerIds);
-    const silverPlanMap = new Map(
-      existingSilverPlans.map(sp => [sp.repairshopr_customer_id, sp.is_silver_plan])
+    const existingPlans = await getCustomerProtectionPlans(customerIds);
+    const planTierMap = new Map<number, ProtectionPlanTier>(
+      existingPlans.map(sp => [sp.repairshopr_customer_id, sp.plan_tier])
     );
 
-    // Check each customer for silver plan status and auto-sync
-    const customersWithSilverStatus = await Promise.all(
+    // Check each customer for protection plan status and auto-sync
+    const customersWithPlanStatus = await Promise.all(
       customers.map(async (customer) => {
-        // Check if RepairShopr indicates silver plan
-        const apiSaysSilver = isSilverPlanCustomer(customer);
-        const dbSaysSilver = silverPlanMap.get(customer.id) ?? false;
+        // Check if RepairShopr indicates a plan tier (silver or gold - bronze is Supabase-only)
+        const apiPlanTier = getProtectionPlanTier(customer);
+        const dbPlanTier = planTierMap.get(customer.id) ?? null;
 
-        // Debug: Log silver plan detection for each customer
-        console.log(`[API] Customer ${customer.id} (${customer.fullname}): API says silver=${apiSaysSilver}, DB says silver=${dbSaysSilver}`);
+        // Debug: Log plan tier detection for each customer
+        console.log(`[API] Customer ${customer.id} (${customer.fullname}): API tier=${apiPlanTier}, DB tier=${dbPlanTier}`);
 
-        // If API says silver but DB doesn't have it, sync to DB
-        if (apiSaysSilver && !dbSaysSilver && supabaseAdmin) {
-          console.log(`[API] Syncing silver plan to DB for customer ${customer.id}`);
-          await setCustomerSilverPlan(customer.id, true);
-          silverPlanMap.set(customer.id, true);
+        // Determine effective plan tier (DB takes priority for bronze, API for silver/gold)
+        let effectiveTier: ProtectionPlanTier = dbPlanTier;
+
+        // If API says silver/gold and DB doesn't match, sync to DB
+        if (apiPlanTier && apiPlanTier !== dbPlanTier && supabaseAdmin) {
+          console.log(`[API] Syncing plan tier "${apiPlanTier}" to DB for customer ${customer.id}`);
+          await setCustomerProtectionPlan(customer.id, apiPlanTier);
+          effectiveTier = apiPlanTier;
+        } else if (apiPlanTier && !dbPlanTier) {
+          effectiveTier = apiPlanTier;
         }
 
-        // Return customer with silver status from either source
+        // Return customer with plan tier from best source
         return {
           ...customer,
-          is_silver_plan: apiSaysSilver || silverPlanMap.get(customer.id) || false,
+          plan_tier: effectiveTier,
+          is_silver_plan: effectiveTier === 'silver' || effectiveTier === 'gold', // Legacy field
         };
       })
     );
 
-    return NextResponse.json({ customers: customersWithSilverStatus });
+    return NextResponse.json({ customers: customersWithPlanStatus });
   } catch (error) {
     if (error instanceof RepairShoprAPIError) {
       return NextResponse.json(

@@ -3,7 +3,11 @@
 import { useState, useEffect } from 'react';
 import { Search, UserPlus, Building2, Sparkles } from 'lucide-react';
 import type { RepairShoprCustomer } from '@/lib/repairshopr';
-import { isSilverPlanCustomer } from '@/lib/repairshopr';
+
+// Extended customer type with silver plan status from API
+interface CustomerWithSilverStatus extends RepairShoprCustomer {
+  is_silver_plan?: boolean;
+}
 
 // =============================================================================
 // Types
@@ -23,7 +27,7 @@ export function CustomerSearchStep({
   onCreateNew,
 }: CustomerSearchStepProps) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [results, setResults] = useState<RepairShoprCustomer[]>([]);
+  const [results, setResults] = useState<CustomerWithSilverStatus[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
 
@@ -120,19 +124,17 @@ export function CustomerSearchStep({
                 Found {results.length} customer{results.length !== 1 ? 's' : ''}
               </p>
               <div className="max-h-96 space-y-2 overflow-y-auto">
-                {results.map((customer) => {
-                  const isSilver = isSilverPlanCustomer(customer);
-                  return (
+                {results.map((customer) => (
                   <div
                     key={customer.id}
-                    className={`flex items-center justify-between rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 transition-colors hover:border-blue-300 hover:bg-blue-50 dark:hover:border-blue-600 dark:hover:bg-blue-900/30 ${isSilver ? 'silver-plan-card' : ''}`}
+                    className={`flex items-center justify-between rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 transition-colors hover:border-blue-300 hover:bg-blue-50 dark:hover:border-blue-600 dark:hover:bg-blue-900/30 ${customer.is_silver_plan ? 'silver-plan-card' : ''}`}
                   >
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
                         <h3 className="font-semibold text-gray-900 dark:text-white">
                           {customer.fullname}
                         </h3>
-                        {isSilver && (
+                        {customer.is_silver_plan && (
                           <span className="silver-plan-badge inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold">
                             <Sparkles className="h-3 w-3" />
                             Silver Plan
@@ -173,7 +175,7 @@ export function CustomerSearchStep({
                       Select
                     </button>
                   </div>
-                );})}
+                ))}
               </div>
             </div>
           ) : (

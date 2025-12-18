@@ -1233,3 +1233,100 @@ export function statusRequiresCustomerQuestion(
 ): boolean {
   return customStatus === 'call_customer' || customStatus === 'waiting_for_customer_reply';
 }
+
+// =============================================================================
+// Customer Silver Plan Type Definitions
+// =============================================================================
+
+export interface CustomerSilverPlan {
+  id: string;
+  repairshopr_customer_id: number;
+  is_silver_plan: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+// =============================================================================
+// Customer Silver Plan Functions
+// =============================================================================
+
+/**
+ * Get silver plan status for a customer
+ */
+export async function getCustomerSilverPlan(
+  customerId: number
+): Promise<CustomerSilverPlan | null> {
+  if (!supabaseAdmin) return null;
+
+  const { data, error } = await supabaseAdmin
+    .from('customer_silver_plans')
+    .select('*')
+    .eq('repairshopr_customer_id', customerId)
+    .single();
+
+  if (error && error.code !== 'PGRST116') {
+    console.error('Error fetching customer silver plan:', error);
+    return null;
+  }
+
+  return data;
+}
+
+/**
+ * Get silver plan statuses for multiple customers
+ */
+export async function getCustomerSilverPlans(
+  customerIds: number[]
+): Promise<CustomerSilverPlan[]> {
+  if (!supabaseAdmin || customerIds.length === 0) return [];
+
+  const { data, error } = await supabaseAdmin
+    .from('customer_silver_plans')
+    .select('*')
+    .in('repairshopr_customer_id', customerIds);
+
+  if (error) {
+    console.error('Error fetching customer silver plans:', error);
+    return [];
+  }
+
+  return data || [];
+}
+
+/**
+ * Set or update customer silver plan status
+ */
+export async function setCustomerSilverPlan(
+  customerId: number,
+  isSilverPlan: boolean
+): Promise<CustomerSilverPlan | null> {
+  if (!supabaseAdmin) return null;
+
+  const { data, error } = await supabaseAdmin
+    .from('customer_silver_plans')
+    .upsert(
+      {
+        repairshopr_customer_id: customerId,
+        is_silver_plan: isSilverPlan,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'repairshopr_customer_id' }
+    )
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error setting customer silver plan:', error);
+    return null;
+  }
+
+  return data;
+}
+
+/**
+ * Check if a customer has silver plan (from Supabase only)
+ */
+export async function isCustomerSilverPlan(customerId: number): Promise<boolean> {
+  const plan = await getCustomerSilverPlan(customerId);
+  return plan?.is_silver_plan ?? false;
+}

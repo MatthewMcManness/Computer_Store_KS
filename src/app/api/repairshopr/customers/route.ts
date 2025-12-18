@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser, getSessionToken } from '@/lib/auth';
-import { createRepairShoprClient, RepairShoprAPIError } from '@/lib/repairshopr';
-import { supabaseAdmin } from '@/lib/supabase';
+import { createRepairShoprClient, RepairShoprAPIError, isSilverPlanCustomer } from '@/lib/repairshopr';
+import { supabaseAdmin, getCustomerSilverPlans, setCustomerSilverPlan } from '@/lib/supabase';
 import bcrypt from 'bcryptjs';
 
 export const dynamic = 'force-dynamic';
@@ -10,6 +10,8 @@ export const dynamic = 'force-dynamic';
  * GET /api/repairshopr/customers
  * Search for customers by query string
  * Query params: ?q=search_term
+ *
+ * Auto-syncs silver plan status from RepairShopr custom fields to Supabase
  */
 export async function GET(request: NextRequest) {
   // Check employee authentication
@@ -38,7 +40,35 @@ export async function GET(request: NextRequest) {
     const client = createRepairShoprClient();
     const customers = await client.searchCustomers(apiToken, query);
 
-    return NextResponse.json({ customers });
+    // Get existing silver plan statuses from Supabase
+    const customerIds = customers.map(c => c.id);
+    const existingSilverPlans = await getCustomerSilverPlans(customerIds);
+    const silverPlanMap = new Map(
+      existingSilverPlans.map(sp => [sp.repairshopr_customer_id, sp.is_silver_plan])
+    );
+
+    // Check each customer for silver plan status and auto-sync
+    const customersWithSilverStatus = await Promise.all(
+      customers.map(async (customer) => {
+        // Check if RepairShopr indicates silver plan
+        const apiSaysSilver = isSilverPlanCustomer(customer);
+        const dbSaysSilver = silverPlanMap.get(customer.id) ?? false;
+
+        // If API says silver but DB doesn't have it, sync to DB
+        if (apiSaysSilver && !dbSaysSilver && supabaseAdmin) {
+          await setCustomerSilverPlan(customer.id, true);
+          silverPlanMap.set(customer.id, true);
+        }
+
+        // Return customer with silver status from either source
+        return {
+          ...customer,
+          is_silver_plan: apiSaysSilver || silverPlanMap.get(customer.id) || false,
+        };
+      })
+    );
+
+    return NextResponse.json({ customers: customersWithSilverStatus });
   } catch (error) {
     if (error instanceof RepairShoprAPIError) {
       return NextResponse.json(

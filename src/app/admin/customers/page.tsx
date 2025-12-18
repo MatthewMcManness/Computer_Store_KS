@@ -4,7 +4,11 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, User, Mail, Phone, Building, Key, Check, X, Loader2, Edit2, Sparkles } from 'lucide-react';
 import type { RepairShoprCustomer } from '@/lib/repairshopr';
-import { isSilverPlanCustomer } from '@/lib/repairshopr';
+
+// Extended customer type with silver plan status from API
+interface CustomerWithSilverStatus extends RepairShoprCustomer {
+  is_silver_plan?: boolean;
+}
 
 interface CustomerAccount {
   id: string;
@@ -26,12 +30,13 @@ interface EditFormData {
   state: string;
   zip: string;
   business_name: string;
+  is_silver_plan: boolean;
 }
 
 export default function CustomersPage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
-  const [customers, setCustomers] = useState<RepairShoprCustomer[]>([]);
+  const [customers, setCustomers] = useState<CustomerWithSilverStatus[]>([]);
   const [searching, setSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<RepairShoprCustomer | null>(null);
@@ -53,9 +58,12 @@ export default function CustomersPage() {
     state: '',
     zip: '',
     business_name: '',
+    is_silver_plan: false,
   });
   const [savingEdit, setSavingEdit] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
+  const [silverPlanStatus, setSilverPlanStatus] = useState<boolean>(false);
+  const [loadingSilverPlan, setLoadingSilverPlan] = useState(false);
 
   // Check authentication
   useEffect(() => {
@@ -101,22 +109,37 @@ export default function CustomersPage() {
     }
   };
 
-  // Select a customer and load their portal account
-  const selectCustomer = async (customer: RepairShoprCustomer) => {
+  // Select a customer and load their portal account + silver plan status
+  const selectCustomer = async (customer: CustomerWithSilverStatus) => {
     setSelectedCustomer(customer);
     setPortalAccount(null);
     setLoadingAccount(true);
+    // Use is_silver_plan from customer object if available (from search results)
+    setSilverPlanStatus(customer.is_silver_plan ?? false);
+    setLoadingSilverPlan(true);
 
     try {
-      const response = await fetch(`/api/admin/customer-accounts?customer_id=${customer.id}`);
-      if (!response.ok) throw new Error('Failed to fetch account');
+      // Fetch portal account and verify silver plan from DB in parallel
+      const [accountRes, silverPlanRes] = await Promise.all([
+        fetch(`/api/admin/customer-accounts?customer_id=${customer.id}`),
+        fetch(`/api/admin/silver-plan?customer_id=${customer.id}`)
+      ]);
 
-      const data = await response.json();
-      setPortalAccount(data.account);
+      if (accountRes.ok) {
+        const accountData = await accountRes.json();
+        setPortalAccount(accountData.account);
+      }
+
+      if (silverPlanRes.ok) {
+        const silverPlanData = await silverPlanRes.json();
+        // Use DB status as source of truth (may have been manually toggled)
+        setSilverPlanStatus(silverPlanData.is_silver_plan ?? customer.is_silver_plan ?? false);
+      }
     } catch (err) {
-      console.error('Failed to load portal account:', err);
+      console.error('Failed to load customer data:', err);
     } finally {
       setLoadingAccount(false);
+      setLoadingSilverPlan(false);
     }
   };
 
@@ -136,13 +159,14 @@ export default function CustomersPage() {
       state: selectedCustomer.state || '',
       zip: selectedCustomer.zip || '',
       business_name: selectedCustomer.business_name || '',
+      is_silver_plan: silverPlanStatus,
     });
     setEditError(null);
     setShowEditModal(true);
   };
 
   // Handle edit form input change
-  const handleEditInputChange = (field: keyof EditFormData, value: string) => {
+  const handleEditInputChange = (field: keyof EditFormData, value: string | boolean) => {
     setEditFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -154,40 +178,60 @@ export default function CustomersPage() {
     setEditError(null);
 
     try {
-      // Only send fields that have changed
-      const updateData: Partial<EditFormData> = {};
-      for (const [key, value] of Object.entries(editFormData)) {
+      // Separate silver plan from other fields
+      const { is_silver_plan, ...otherFields } = editFormData;
+
+      // Only send fields that have changed (excluding silver plan)
+      const updateData: Partial<Omit<EditFormData, 'is_silver_plan'>> = {};
+      for (const [key, value] of Object.entries(otherFields)) {
         const originalValue = selectedCustomer[key as keyof RepairShoprCustomer] || '';
         if (value !== originalValue) {
-          updateData[key as keyof EditFormData] = value;
+          updateData[key as keyof Omit<EditFormData, 'is_silver_plan'>] = value as string;
         }
       }
 
-      if (Object.keys(updateData).length === 0) {
-        setShowEditModal(false);
-        return;
-      }
+      // Update RepairShopr customer data if there are changes
+      if (Object.keys(updateData).length > 0) {
+        const response = await fetch(`/api/repairshopr/customers/${selectedCustomer.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updateData),
+        });
 
-      const response = await fetch(`/api/repairshopr/customers/${selectedCustomer.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updateData),
-      });
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.error || 'Failed to update customer');
+        }
 
-      if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || 'Failed to update customer');
+
+        // Update selected customer with new data
+        setSelectedCustomer(data.customer);
+
+        // Update customer in list
+        setCustomers(prev =>
+          prev.map(c => (c.id === data.customer.id ? data.customer : c))
+        );
       }
 
-      const data = await response.json();
+      // Update silver plan status if changed
+      if (is_silver_plan !== silverPlanStatus) {
+        const silverPlanRes = await fetch('/api/admin/silver-plan', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            customer_id: selectedCustomer.id,
+            is_silver_plan: is_silver_plan,
+          }),
+        });
 
-      // Update selected customer with new data
-      setSelectedCustomer(data.customer);
+        if (!silverPlanRes.ok) {
+          throw new Error('Failed to update silver plan status');
+        }
 
-      // Update customer in list
-      setCustomers(prev =>
-        prev.map(c => (c.id === data.customer.id ? data.customer : c))
-      );
+        // Update local silver plan status
+        setSilverPlanStatus(is_silver_plan);
+      }
 
       setShowEditModal(false);
     } catch (err) {
@@ -254,9 +298,7 @@ export default function CustomersPage() {
                     Found {customers.length} customer{customers.length !== 1 ? 's' : ''}
                   </p>
                   <div className="max-h-96 space-y-2 overflow-y-auto">
-                    {customers.map((customer) => {
-                      const isSilver = isSilverPlanCustomer(customer);
-                      return (
+                    {customers.map((customer) => (
                       <button
                         key={customer.id}
                         onClick={() => selectCustomer(customer)}
@@ -264,7 +306,7 @@ export default function CustomersPage() {
                           selectedCustomer?.id === customer.id
                             ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/50'
                             : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-blue-300 hover:bg-blue-50/50 dark:hover:bg-blue-900/30'
-                        } ${isSilver ? 'silver-plan-card' : ''}`}
+                        } ${customer.is_silver_plan ? 'silver-plan-card' : ''}`}
                       >
                         <div className="flex items-start gap-3">
                           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
@@ -275,7 +317,7 @@ export default function CustomersPage() {
                               <p className="font-medium text-gray-900 dark:text-white truncate">
                               {customer.fullname || customer.firstname + ' ' + customer.lastname}
                             </p>
-                              {isSilver && (
+                              {customer.is_silver_plan && (
                                 <span className="silver-plan-badge inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold">
                                   <Sparkles className="h-3 w-3" />
                                   Silver Plan
@@ -294,7 +336,7 @@ export default function CustomersPage() {
                           </div>
                         </div>
                       </button>
-                    );})}
+                    ))}
                   </div>
                 </>
               ) : (
@@ -323,7 +365,7 @@ export default function CustomersPage() {
               </div>
             </div>
           ) : (
-            <div className={`relative rounded-xl ${isSilverPlanCustomer(selectedCustomer) ? 'silver-plan-card p-5' : ''}`}>
+            <div className={`relative rounded-xl ${silverPlanStatus ? 'silver-plan-card p-5' : ''}`}>
               {/* Customer Info Header */}
               <div className="mb-6 border-b border-gray-200 dark:border-gray-700 pb-6">
                 <div className="flex items-start justify-between gap-4">
@@ -336,7 +378,9 @@ export default function CustomersPage() {
                         <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                           {selectedCustomer.fullname}
                         </h2>
-                        {isSilverPlanCustomer(selectedCustomer) && (
+                        {loadingSilverPlan ? (
+                          <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+                        ) : silverPlanStatus && (
                           <span className="silver-plan-badge inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold">
                             <Sparkles className="h-3 w-3" />
                             Silver Plan
@@ -597,6 +641,36 @@ export default function CustomersPage() {
                     onChange={(e) => handleEditInputChange('zip', e.target.value)}
                     className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   />
+                </div>
+              </div>
+
+              {/* Silver Plan Toggle */}
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Sparkles className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Silver Plan Member
+                      </label>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Enable to show silver plan badge and styling
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleEditInputChange('is_silver_plan', !editFormData.is_silver_plan)}
+                    className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 ${
+                      editFormData.is_silver_plan ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
+                    }`}
+                  >
+                    <span
+                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                        editFormData.is_silver_plan ? 'translate-x-5' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
                 </div>
               </div>
             </div>

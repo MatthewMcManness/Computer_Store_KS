@@ -75,9 +75,9 @@ const services = [
   },
   {
     href: '/silver-plan',
-    title: 'Silver Plan',
-    description: 'Annual protection plan with priority service, free diagnostics, discounts on repairs, and peace of mind.',
-    icon: '🥈',
+    title: 'Protection Plans',
+    description: 'Bronze, Silver, and Gold protection plans with antivirus, discounts on repairs, priority service, and peace of mind.',
+    icon: '🛡️',
     silver: true,
   },
 ];

@@ -17,7 +17,7 @@ const serviceLinks = [
   { href: '/services/debloat', label: 'Windows Debloat' },
   { href: '/services/antivirus', label: 'Antivirus & Protection' },
   { href: '/why-linux', label: 'Why Linux?', className: 'linux' },
-  { href: '/silver-plan', label: 'Silver Plan', className: 'silver' },
+  { href: '/silver-plan', label: 'Protection Plans', className: 'silver' },
 ];
 
 export function Header() {

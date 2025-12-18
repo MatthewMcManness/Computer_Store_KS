@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { AdminSidebar } from '@/components/admin/admin-sidebar';
 import {
   Search,
   User,
@@ -358,14 +357,11 @@ export default function CustomersPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <AdminSidebar />
-
-      <main className="ml-64 p-8">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Customers</h1>
-          <p className="text-gray-600 dark:text-gray-400">Search and manage customer information</p>
-        </div>
+    <div>
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Customers</h1>
+        <p className="text-gray-600 dark:text-gray-400">Search and manage customer information</p>
+      </div>
 
         {error && (
           <div className="mb-4 rounded-lg bg-red-50 p-4 text-red-700 dark:bg-red-900/30 dark:text-red-400">
@@ -1024,7 +1020,6 @@ export default function CustomersPage() {
             </div>
           </div>
         )}
-      </main>
     </div>
   );
 }

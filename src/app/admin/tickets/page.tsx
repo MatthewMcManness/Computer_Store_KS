@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { AdminSidebar } from '@/components/admin/admin-sidebar';
 import {
   Search,
   Ticket,
@@ -607,14 +606,11 @@ export default function TicketsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <AdminSidebar />
-
-      <main className="ml-64 p-8">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Tickets</h1>
-          <p className="text-gray-600 dark:text-gray-400">Search and manage service tickets</p>
-        </div>
+    <div>
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Tickets</h1>
+        <p className="text-gray-600 dark:text-gray-400">Search and manage service tickets</p>
+      </div>
 
         {error && (
           <div className="mb-4 rounded-lg bg-red-50 p-4 text-red-700 dark:bg-red-900/30 dark:text-red-400">
@@ -1198,7 +1194,6 @@ export default function TicketsPage() {
             </div>
           </div>
         )}
-      </main>
     </div>
   );
 }

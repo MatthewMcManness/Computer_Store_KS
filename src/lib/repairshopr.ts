@@ -122,35 +122,52 @@ export interface RepairShoprCustomer {
 }
 
 /**
- * Known answer IDs for Silver Plan in RepairShopr dropdown custom fields
- * RepairShopr returns answer IDs instead of text values for dropdowns
+ * Protection plan tier type (matches Supabase type)
  */
-const SILVER_PLAN_ANSWER_IDS = ['4027'];
+export type ProtectionPlanTier = 'bronze' | 'silver' | 'gold' | null;
 
 /**
- * Determine if a customer is on the Silver Plan based on available metadata.
- * Checks multiple potential fields to be resilient to API shape changes.
+ * Known answer IDs for protection plans in RepairShopr dropdown custom fields
+ * RepairShopr returns answer IDs instead of text values for dropdowns
+ * Note: Bronze is NOT in RepairShopr - it's Supabase-only
  */
-export function isSilverPlanCustomer(customer: Partial<RepairShoprCustomer> | null | undefined): boolean {
-  if (!customer) return false;
+const SILVER_PLAN_ANSWER_IDS = ['4027'];
+const GOLD_PLAN_ANSWER_IDS = ['4028']; // Gold plan answer ID in RepairShopr
 
-  // Explicit boolean flags
-  if (customer.is_silver_plan || customer.silver_plan) return true;
+/**
+ * Get the protection plan tier for a customer from RepairShopr data.
+ * Returns 'silver', 'gold', or null (no plan from RepairShopr).
+ * Note: Bronze plans are NOT stored in RepairShopr, only in Supabase.
+ */
+export function getProtectionPlanTier(customer: Partial<RepairShoprCustomer> | null | undefined): ProtectionPlanTier {
+  if (!customer) return null;
 
-  const possibleValues: Array<string | string[] | null | undefined> = [
+  // Check explicit boolean flags first (these indicate silver)
+  if (customer.is_silver_plan || customer.silver_plan) return 'silver';
+
+  // Check plan_name field
+  if (customer.plan_name) {
+    const planName = customer.plan_name.toLowerCase();
+    if (planName.includes('gold')) return 'gold';
+    if (planName.includes('silver')) return 'silver';
+  }
+
+  // Check tags for plan info
+  const tagSources: Array<string | string[] | null | undefined> = [
     customer.tags,
     customer.customer_tags,
     customer.tag_list,
-    customer.plan_name,
   ];
 
-  for (const value of possibleValues) {
+  for (const value of tagSources) {
     if (!value) continue;
 
     if (Array.isArray(value)) {
-      if (value.some((v) => v && v.toLowerCase().includes('silver'))) return true;
+      if (value.some((v) => v && v.toLowerCase().includes('gold'))) return 'gold';
+      if (value.some((v) => v && v.toLowerCase().includes('silver'))) return 'silver';
     } else if (typeof value === 'string') {
-      if (value.toLowerCase().includes('silver')) return true;
+      if (value.toLowerCase().includes('gold')) return 'gold';
+      if (value.toLowerCase().includes('silver')) return 'silver';
     }
   }
 
@@ -165,20 +182,47 @@ export function isSilverPlanCustomer(customer: Partial<RepairShoprCustomer> | nu
     if (!source) continue;
     for (const [key, value] of Object.entries(source)) {
       if (key.toLowerCase().includes('protection plan')) {
-        // Check for text value "silver"
         if (typeof value === 'string') {
-          if (value.toLowerCase().includes('silver')) return true;
-          // Check for known answer IDs (RepairShopr returns IDs for dropdowns)
-          if (SILVER_PLAN_ANSWER_IDS.includes(value)) return true;
+          // Check for known answer IDs first (RepairShopr returns IDs for dropdowns)
+          if (GOLD_PLAN_ANSWER_IDS.includes(value)) return 'gold';
+          if (SILVER_PLAN_ANSWER_IDS.includes(value)) return 'silver';
+          // Check for text values
+          if (value.toLowerCase().includes('gold')) return 'gold';
+          if (value.toLowerCase().includes('silver')) return 'silver';
         }
-        if (Array.isArray(value) && value.some((v) => typeof v === 'string' && v.toLowerCase().includes('silver'))) {
-          return true;
+        if (Array.isArray(value)) {
+          if (value.some((v) => typeof v === 'string' && v.toLowerCase().includes('gold'))) return 'gold';
+          if (value.some((v) => typeof v === 'string' && v.toLowerCase().includes('silver'))) return 'silver';
         }
       }
     }
   }
 
-  return false;
+  return null;
+}
+
+/**
+ * Determine if a customer is on the Silver Plan based on available metadata.
+ * @deprecated Use getProtectionPlanTier instead
+ */
+export function isSilverPlanCustomer(customer: Partial<RepairShoprCustomer> | null | undefined): boolean {
+  const tier = getProtectionPlanTier(customer);
+  return tier === 'silver' || tier === 'gold';
+}
+
+/**
+ * Get the RepairShopr answer ID for a protection plan tier
+ * Returns empty string for bronze (not in RepairShopr) or null
+ */
+export function getProtectionPlanAnswerId(tier: ProtectionPlanTier): string {
+  switch (tier) {
+    case 'gold':
+      return GOLD_PLAN_ANSWER_IDS[0];
+    case 'silver':
+      return SILVER_PLAN_ANSWER_IDS[0];
+    default:
+      return '';
+  }
 }
 
 /**

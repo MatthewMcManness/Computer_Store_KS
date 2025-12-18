@@ -26,9 +26,13 @@ import {
 } from 'lucide-react';
 import type { RepairShoprCustomer, RepairShoprAsset, RepairShoprTicket, RepairShoprInvoice, RepairShoprPayment } from '@/lib/repairshopr';
 
-// Extended customer type with silver plan status from API
-interface CustomerWithSilverStatus extends RepairShoprCustomer {
+// Protection plan tier type
+type ProtectionPlanTier = 'bronze' | 'silver' | 'gold' | null;
+
+// Extended customer type with protection plan status from API
+interface CustomerWithPlanStatus extends RepairShoprCustomer {
   is_silver_plan?: boolean;
+  plan_tier?: ProtectionPlanTier;
 }
 
 interface CustomerAccount {
@@ -51,7 +55,7 @@ interface EditFormData {
   state: string;
   zip: string;
   business_name: string;
-  is_silver_plan: boolean;
+  plan_tier: ProtectionPlanTier;
 }
 
 type TabType = 'assets' | 'tickets' | 'invoices' | 'payments';
@@ -59,10 +63,10 @@ type TabType = 'assets' | 'tickets' | 'invoices' | 'payments';
 export default function CustomersPage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
-  const [customers, setCustomers] = useState<CustomerWithSilverStatus[]>([]);
+  const [customers, setCustomers] = useState<CustomerWithPlanStatus[]>([]);
   const [searching, setSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
-  const [selectedCustomer, setSelectedCustomer] = useState<CustomerWithSilverStatus | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<CustomerWithPlanStatus | null>(null);
   const [portalAccount, setPortalAccount] = useState<CustomerAccount | null>(null);
   const [loadingAccount, setLoadingAccount] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -89,12 +93,12 @@ export default function CustomersPage() {
     state: '',
     zip: '',
     business_name: '',
-    is_silver_plan: false,
+    plan_tier: null,
   });
   const [savingEdit, setSavingEdit] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
-  const [silverPlanStatus, setSilverPlanStatus] = useState<boolean>(false);
-  const [loadingSilverPlan, setLoadingSilverPlan] = useState(false);
+  const [planTier, setPlanTier] = useState<ProtectionPlanTier>(null);
+  const [loadingPlanTier, setLoadingPlanTier] = useState(false);
 
   // Check authentication
   useEffect(() => {
@@ -193,13 +197,13 @@ export default function CustomersPage() {
     }
   }, [selectedCustomer, activeTab, loadTabData]);
 
-  // Select a customer and load their portal account + silver plan status
-  const selectCustomer = async (customer: CustomerWithSilverStatus) => {
+  // Select a customer and load their portal account + protection plan status
+  const selectCustomer = async (customer: CustomerWithPlanStatus) => {
     setSelectedCustomer(customer);
     setPortalAccount(null);
     setLoadingAccount(true);
-    setSilverPlanStatus(customer.is_silver_plan ?? false);
-    setLoadingSilverPlan(true);
+    setPlanTier(customer.plan_tier ?? null);
+    setLoadingPlanTier(true);
     setActiveTab('assets');
     // Clear previous tab data
     setAssets([]);
@@ -208,8 +212,8 @@ export default function CustomersPage() {
     setPayments([]);
 
     try {
-      // Fetch portal account and verify silver plan from DB in parallel
-      const [accountRes, silverPlanRes] = await Promise.all([
+      // Fetch portal account and verify protection plan from DB in parallel
+      const [accountRes, planRes] = await Promise.all([
         fetch(`/api/admin/customer-accounts?customer_id=${customer.id}`),
         fetch(`/api/admin/silver-plan?customer_id=${customer.id}`)
       ]);
@@ -219,15 +223,15 @@ export default function CustomersPage() {
         setPortalAccount(accountData.account);
       }
 
-      if (silverPlanRes.ok) {
-        const silverPlanData = await silverPlanRes.json();
-        setSilverPlanStatus(silverPlanData.is_silver_plan ?? customer.is_silver_plan ?? false);
+      if (planRes.ok) {
+        const planData = await planRes.json();
+        setPlanTier(planData.plan_tier ?? null);
       }
     } catch (err) {
       console.error('Failed to load customer data:', err);
     } finally {
       setLoadingAccount(false);
-      setLoadingSilverPlan(false);
+      setLoadingPlanTier(false);
     }
   };
 
@@ -247,14 +251,14 @@ export default function CustomersPage() {
       state: selectedCustomer.state || '',
       zip: selectedCustomer.zip || '',
       business_name: selectedCustomer.business_name || '',
-      is_silver_plan: silverPlanStatus,
+      plan_tier: planTier,
     });
     setEditError(null);
     setShowEditModal(true);
   };
 
   // Handle edit form input change
-  const handleEditInputChange = (field: keyof EditFormData, value: string | boolean) => {
+  const handleEditInputChange = (field: keyof EditFormData, value: string | boolean | ProtectionPlanTier) => {
     setEditFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -266,13 +270,13 @@ export default function CustomersPage() {
     setEditError(null);
 
     try {
-      const { is_silver_plan, ...otherFields } = editFormData;
+      const { plan_tier: newPlanTier, ...otherFields } = editFormData;
 
-      const updateData: Partial<Omit<EditFormData, 'is_silver_plan'>> = {};
+      const updateData: Partial<Omit<EditFormData, 'plan_tier'>> = {};
       for (const [key, value] of Object.entries(otherFields)) {
         const originalValue = selectedCustomer[key as keyof RepairShoprCustomer] || '';
         if (value !== originalValue) {
-          updateData[key as keyof Omit<EditFormData, 'is_silver_plan'>] = value as string;
+          updateData[key as keyof Omit<EditFormData, 'plan_tier'>] = value as string;
         }
       }
 
@@ -295,21 +299,21 @@ export default function CustomersPage() {
         );
       }
 
-      if (is_silver_plan !== silverPlanStatus) {
-        const silverPlanRes = await fetch('/api/admin/silver-plan', {
+      if (newPlanTier !== planTier) {
+        const planRes = await fetch('/api/admin/silver-plan', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             customer_id: selectedCustomer.id,
-            is_silver_plan: is_silver_plan,
+            plan_tier: newPlanTier,
           }),
         });
 
-        if (!silverPlanRes.ok) {
-          throw new Error('Failed to update silver plan status');
+        if (!planRes.ok) {
+          throw new Error('Failed to update protection plan');
         }
 
-        setSilverPlanStatus(is_silver_plan);
+        setPlanTier(newPlanTier);
       }
 
       setShowEditModal(false);
@@ -355,6 +359,34 @@ export default function CustomersPage() {
     { id: 'invoices', label: 'Invoices', icon: Receipt },
     { id: 'payments', label: 'Payments', icon: CreditCard },
   ];
+
+  // Helper function to get plan tier display info
+  const getPlanDisplay = (tier: ProtectionPlanTier) => {
+    switch (tier) {
+      case 'bronze':
+        return { label: 'Bronze', className: 'bronze-plan-badge' };
+      case 'silver':
+        return { label: 'Silver', className: 'silver-plan-badge' };
+      case 'gold':
+        return { label: 'Gold', className: 'gold-plan-badge' };
+      default:
+        return null;
+    }
+  };
+
+  // Helper function to get card class based on plan tier
+  const getPlanCardClass = (tier: ProtectionPlanTier) => {
+    switch (tier) {
+      case 'bronze':
+        return 'bronze-plan-card';
+      case 'silver':
+        return 'silver-plan-card';
+      case 'gold':
+        return 'gold-plan-card';
+      default:
+        return '';
+    }
+  };
 
   return (
     <div>
@@ -409,32 +441,35 @@ export default function CustomersPage() {
               </div>
             ) : (
               <div className="flex flex-wrap gap-2">
-                {customers.map((customer) => (
-                  <button
-                    key={customer.id}
-                    onClick={() => selectCustomer(customer)}
-                    className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-left transition-colors ${
-                      selectedCustomer?.id === customer.id
-                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30'
-                        : 'border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800'
-                    } ${customer.is_silver_plan ? 'silver-plan-card' : ''}`}
-                  >
-                    <User className="h-4 w-4 text-gray-400" />
-                    <span className="font-medium text-gray-900 dark:text-white">
-                      {customer.fullname || `${customer.firstname} ${customer.lastname}`}
-                    </span>
-                    {customer.is_silver_plan && (
-                      <span className="silver-plan-badge inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold">
-                        <Sparkles className="h-3 w-3" />
+                {customers.map((customer) => {
+                  const customerPlanDisplay = getPlanDisplay(customer.plan_tier ?? null);
+                  return (
+                    <button
+                      key={customer.id}
+                      onClick={() => selectCustomer(customer)}
+                      className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-left transition-colors ${
+                        selectedCustomer?.id === customer.id
+                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30'
+                          : 'border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800'
+                      } ${getPlanCardClass(customer.plan_tier ?? null)}`}
+                    >
+                      <User className="h-4 w-4 text-gray-400" />
+                      <span className="font-medium text-gray-900 dark:text-white">
+                        {customer.fullname || `${customer.firstname} ${customer.lastname}`}
                       </span>
-                    )}
-                    {customer.email && (
-                      <span className="max-w-[150px] truncate text-sm text-gray-600 dark:text-gray-400">
-                        {customer.email}
-                      </span>
-                    )}
-                  </button>
-                ))}
+                      {customerPlanDisplay && (
+                        <span className={`${customerPlanDisplay.className} inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold`}>
+                          <Sparkles className="h-3 w-3" />
+                        </span>
+                      )}
+                      {customer.email && (
+                        <span className="max-w-[150px] truncate text-sm text-gray-600 dark:text-gray-400">
+                          {customer.email}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -443,7 +478,7 @@ export default function CustomersPage() {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Customer Info Panel */}
           <div className="lg:col-span-1">
-            <div className={`rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-900 ${selectedCustomer && silverPlanStatus ? 'silver-plan-card' : ''}`}>
+            <div className={`rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-900 ${selectedCustomer ? getPlanCardClass(planTier) : ''}`}>
               {!selectedCustomer ? (
                 <div className="flex flex-col items-center justify-center py-8">
                   <User className="h-12 w-12 text-gray-300 dark:text-gray-600" />
@@ -469,12 +504,12 @@ export default function CustomersPage() {
                           </div>
                           <div className="flex items-center gap-2 mt-1">
                             <p className="text-sm text-gray-500 dark:text-gray-400">ID: {selectedCustomer.id}</p>
-                            {loadingSilverPlan ? (
+                            {loadingPlanTier ? (
                               <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
-                            ) : silverPlanStatus && (
-                              <span className="silver-plan-badge inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold">
+                            ) : getPlanDisplay(planTier) && (
+                              <span className={`${getPlanDisplay(planTier)!.className} inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold`}>
                                 <Sparkles className="h-3 w-3" />
-                                Silver Plan
+                                {getPlanDisplay(planTier)!.label} Plan
                               </span>
                             )}
                           </div>
@@ -968,33 +1003,30 @@ export default function CustomersPage() {
                   </div>
                 </div>
 
-                {/* Silver Plan Toggle */}
+                {/* Protection Plan Dropdown */}
                 <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <Sparkles className="h-5 w-5 text-gray-500 dark:text-gray-400" />
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                          Silver Plan Member
+                          Protection Plan
                         </label>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
-                          Enable to show silver plan badge and styling
+                          Select customer&apos;s protection plan tier
                         </p>
                       </div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => handleEditInputChange('is_silver_plan', !editFormData.is_silver_plan)}
-                      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 ${
-                        editFormData.is_silver_plan ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
-                      }`}
+                    <select
+                      value={editFormData.plan_tier || ''}
+                      onChange={(e) => handleEditInputChange('plan_tier', e.target.value === '' ? null : e.target.value as ProtectionPlanTier)}
+                      className="rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                     >
-                      <span
-                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                          editFormData.is_silver_plan ? 'translate-x-5' : 'translate-x-0'
-                        }`}
-                      />
-                    </button>
+                      <option value="">None</option>
+                      <option value="bronze">Bronze</option>
+                      <option value="silver">Silver</option>
+                      <option value="gold">Gold</option>
+                    </select>
                   </div>
                 </div>
               </div>

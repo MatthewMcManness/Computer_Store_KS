@@ -1,18 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser, getSessionToken } from '@/lib/auth';
-import { getCustomerSilverPlan, setCustomerSilverPlan } from '@/lib/supabase';
-import { createRepairShoprClient } from '@/lib/repairshopr';
+import { getCustomerProtectionPlan, setCustomerProtectionPlan, type ProtectionPlanTier } from '@/lib/supabase';
+import { createRepairShoprClient, getProtectionPlanAnswerId } from '@/lib/repairshopr';
 
 export const dynamic = 'force-dynamic';
 
 // The custom field name in RepairShopr for protection plan
 const PROTECTION_PLAN_FIELD = 'Protection Plan';
-// RepairShopr dropdown answer ID for "Silver"
-const SILVER_PLAN_ANSWER_ID = '4027';
+
+/**
+ * Validate that a value is a valid protection plan tier
+ */
+function isValidPlanTier(value: unknown): value is ProtectionPlanTier {
+  return value === null || value === 'bronze' || value === 'silver' || value === 'gold';
+}
 
 /**
  * GET /api/admin/silver-plan
- * Get silver plan status for a customer
+ * Get protection plan status for a customer
  */
 export async function GET(request: NextRequest) {
   const user = await getCurrentUser();
@@ -28,21 +33,24 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const plan = await getCustomerSilverPlan(parseInt(customerId, 10));
+    const plan = await getCustomerProtectionPlan(parseInt(customerId, 10));
     return NextResponse.json({
+      // Legacy field for backwards compatibility
       is_silver_plan: plan?.is_silver_plan ?? false,
+      // New tier field
+      plan_tier: plan?.plan_tier ?? null,
       plan
     });
   } catch (error) {
-    console.error('[API] Silver plan fetch error:', error);
+    console.error('[API] Protection plan fetch error:', error);
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }
 
 /**
  * POST /api/admin/silver-plan
- * Set silver plan status for a customer
- * Updates both Supabase AND RepairShopr
+ * Set protection plan tier for a customer
+ * Updates both Supabase AND RepairShopr (for silver/gold only)
  */
 export async function POST(request: NextRequest) {
   const user = await getCurrentUser();
@@ -62,24 +70,41 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
   }
 
-  const { customer_id, is_silver_plan } = body;
+  const { customer_id, plan_tier, is_silver_plan } = body;
 
-  if (!customer_id || typeof is_silver_plan !== 'boolean') {
+  if (!customer_id) {
+    return NextResponse.json({ error: 'customer_id is required' }, { status: 400 });
+  }
+
+  // Support both new plan_tier and legacy is_silver_plan
+  let tier: ProtectionPlanTier;
+  if (plan_tier !== undefined) {
+    if (!isValidPlanTier(plan_tier)) {
+      return NextResponse.json(
+        { error: 'plan_tier must be null, "bronze", "silver", or "gold"' },
+        { status: 400 }
+      );
+    }
+    tier = plan_tier;
+  } else if (typeof is_silver_plan === 'boolean') {
+    // Legacy support
+    tier = is_silver_plan ? 'silver' : null;
+  } else {
     return NextResponse.json(
-      { error: 'customer_id and is_silver_plan (boolean) are required' },
+      { error: 'plan_tier or is_silver_plan is required' },
       { status: 400 }
     );
   }
 
   try {
     // Update Supabase first
-    const plan = await setCustomerSilverPlan(customer_id, is_silver_plan);
+    const plan = await setCustomerProtectionPlan(customer_id, tier);
 
     if (!plan) {
-      return NextResponse.json({ error: 'Failed to update silver plan in database' }, { status: 500 });
+      return NextResponse.json({ error: 'Failed to update protection plan in database' }, { status: 500 });
     }
 
-    // Also update RepairShopr custom field
+    // Also update RepairShopr custom field (for silver/gold only - bronze is Supabase-only)
     let repairshoprUpdated = false;
     try {
       const client = createRepairShoprClient();
@@ -91,9 +116,10 @@ export async function POST(request: NextRequest) {
       // Merge with existing properties
       // Use answer ID for dropdowns - RepairShopr expects the ID, not the text
       const existingProperties = currentCustomer.properties || {};
+      const answerId = getProtectionPlanAnswerId(tier);
       const updatedProperties = {
         ...existingProperties,
-        [PROTECTION_PLAN_FIELD]: is_silver_plan ? SILVER_PLAN_ANSWER_ID : '',
+        [PROTECTION_PLAN_FIELD]: answerId,
       };
 
       console.log(`[API] Updating customer ${customer_id} properties to:`, JSON.stringify(updatedProperties, null, 2));
@@ -107,17 +133,26 @@ export async function POST(request: NextRequest) {
       repairshoprUpdated = true;
     } catch (rsError) {
       // Log but don't fail - Supabase update succeeded
-      console.error('[API] Failed to update RepairShopr:', rsError);
+      // Note: Bronze plan not being in RepairShopr is expected behavior
+      if (tier !== 'bronze') {
+        console.error('[API] Failed to update RepairShopr:', rsError);
+      } else {
+        console.log('[API] Bronze plan - skipping RepairShopr update (bronze is Supabase-only)');
+        repairshoprUpdated = true; // Consider it "successful" for bronze
+      }
     }
 
     return NextResponse.json({
       success: true,
+      // Legacy field
       is_silver_plan: plan.is_silver_plan,
+      // New tier field
+      plan_tier: plan.plan_tier,
       plan,
       repairshopr_updated: repairshoprUpdated,
     });
   } catch (error) {
-    console.error('[API] Silver plan update error:', error);
+    console.error('[API] Protection plan update error:', error);
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }

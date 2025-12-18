@@ -1235,27 +1235,33 @@ export function statusRequiresCustomerQuestion(
 }
 
 // =============================================================================
-// Customer Silver Plan Type Definitions
+// Customer Protection Plan Type Definitions
 // =============================================================================
 
-export interface CustomerSilverPlan {
+export type ProtectionPlanTier = 'bronze' | 'silver' | 'gold' | null;
+
+export interface CustomerProtectionPlan {
   id: string;
   repairshopr_customer_id: number;
-  is_silver_plan: boolean;
+  is_silver_plan: boolean; // Legacy field, kept for backwards compatibility
+  plan_tier: ProtectionPlanTier;
   created_at: string;
   updated_at: string;
 }
 
+// Legacy type alias for backwards compatibility
+export type CustomerSilverPlan = CustomerProtectionPlan;
+
 // =============================================================================
-// Customer Silver Plan Functions
+// Customer Protection Plan Functions
 // =============================================================================
 
 /**
- * Get silver plan status for a customer
+ * Get protection plan status for a customer
  */
-export async function getCustomerSilverPlan(
+export async function getCustomerProtectionPlan(
   customerId: number
-): Promise<CustomerSilverPlan | null> {
+): Promise<CustomerProtectionPlan | null> {
   if (!supabaseAdmin) return null;
 
   const { data, error } = await supabaseAdmin
@@ -1265,19 +1271,22 @@ export async function getCustomerSilverPlan(
     .single();
 
   if (error && error.code !== 'PGRST116') {
-    console.error('Error fetching customer silver plan:', error);
+    console.error('Error fetching customer protection plan:', error);
     return null;
   }
 
   return data;
 }
 
+// Legacy alias
+export const getCustomerSilverPlan = getCustomerProtectionPlan;
+
 /**
- * Get silver plan statuses for multiple customers
+ * Get protection plan statuses for multiple customers
  */
-export async function getCustomerSilverPlans(
+export async function getCustomerProtectionPlans(
   customerIds: number[]
-): Promise<CustomerSilverPlan[]> {
+): Promise<CustomerProtectionPlan[]> {
   if (!supabaseAdmin || customerIds.length === 0) return [];
 
   const { data, error } = await supabaseAdmin
@@ -1286,21 +1295,27 @@ export async function getCustomerSilverPlans(
     .in('repairshopr_customer_id', customerIds);
 
   if (error) {
-    console.error('Error fetching customer silver plans:', error);
+    console.error('Error fetching customer protection plans:', error);
     return [];
   }
 
   return data || [];
 }
 
+// Legacy alias
+export const getCustomerSilverPlans = getCustomerProtectionPlans;
+
 /**
- * Set or update customer silver plan status
+ * Set or update customer protection plan tier
  */
-export async function setCustomerSilverPlan(
+export async function setCustomerProtectionPlan(
   customerId: number,
-  isSilverPlan: boolean
-): Promise<CustomerSilverPlan | null> {
+  planTier: ProtectionPlanTier
+): Promise<CustomerProtectionPlan | null> {
   if (!supabaseAdmin) return null;
+
+  // Determine legacy is_silver_plan value based on tier
+  const isSilverPlan = planTier === 'silver' || planTier === 'gold';
 
   const { data, error } = await supabaseAdmin
     .from('customer_silver_plans')
@@ -1308,6 +1323,7 @@ export async function setCustomerSilverPlan(
       {
         repairshopr_customer_id: customerId,
         is_silver_plan: isSilverPlan,
+        plan_tier: planTier,
         updated_at: new Date().toISOString(),
       },
       { onConflict: 'repairshopr_customer_id' }
@@ -1316,7 +1332,7 @@ export async function setCustomerSilverPlan(
     .single();
 
   if (error) {
-    console.error('Error setting customer silver plan:', error);
+    console.error('Error setting customer protection plan:', error);
     return null;
   }
 
@@ -1324,9 +1340,37 @@ export async function setCustomerSilverPlan(
 }
 
 /**
+ * Legacy function - Set silver plan status
+ * @deprecated Use setCustomerProtectionPlan instead
+ */
+export async function setCustomerSilverPlan(
+  customerId: number,
+  isSilverPlan: boolean
+): Promise<CustomerProtectionPlan | null> {
+  return setCustomerProtectionPlan(customerId, isSilverPlan ? 'silver' : null);
+}
+
+/**
+ * Get customer's protection plan tier
+ */
+export async function getCustomerPlanTier(customerId: number): Promise<ProtectionPlanTier> {
+  const plan = await getCustomerProtectionPlan(customerId);
+  return plan?.plan_tier ?? null;
+}
+
+/**
+ * Check if a customer has any protection plan
+ */
+export async function hasProtectionPlan(customerId: number): Promise<boolean> {
+  const tier = await getCustomerPlanTier(customerId);
+  return tier !== null;
+}
+
+/**
  * Check if a customer has silver plan (from Supabase only)
+ * @deprecated Use getCustomerPlanTier instead
  */
 export async function isCustomerSilverPlan(customerId: number): Promise<boolean> {
-  const plan = await getCustomerSilverPlan(customerId);
+  const plan = await getCustomerProtectionPlan(customerId);
   return plan?.is_silver_plan ?? false;
 }

@@ -33,8 +33,8 @@ export default function DiagnosticsPage() {
           </p>
 
           <div className="linux-highlight">
-            <h3>Small Problems? Fixed on the Spot.</h3>
-            <p>If the issue turns out to be something minor that doesn&apos;t require parts or significant labor, we just fix it—included in the diagnostic fee. You leave with a working computer.</p>
+            <h3>Diagnostic Fee Rolls Into Your Repair</h3>
+            <p>If you proceed with the repair, the diagnostic fee gets applied toward the cost of the repair—you&apos;re not paying twice. Small fixes that don&apos;t require parts are included in the diagnostic fee at no extra charge.</p>
           </div>
         </div>
       </section>
@@ -131,6 +131,7 @@ export default function DiagnosticsPage() {
               <li>We run comprehensive diagnostics (usually same day, 48 hours max)</li>
               <li>If it&apos;s a quick fix, we handle it—included in the diagnostic fee</li>
               <li>If it needs parts or significant repair, we contact you with options</li>
+              <li>Proceed with repair? The diagnostic fee rolls into the repair cost</li>
               <li>You decide how to proceed—no work happens without your approval</li>
             </ul>
           </div>

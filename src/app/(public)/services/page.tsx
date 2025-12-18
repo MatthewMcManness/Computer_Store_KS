@@ -15,7 +15,7 @@ const services = [
   {
     href: '/services/diagnostics',
     title: 'Diagnostics',
-    description: 'Thorough troubleshooting to identify issues quickly and accurately. Small fixes included at no extra charge.',
+    description: 'Thorough troubleshooting to identify issues quickly and accurately. Diagnostic fee rolls into the repair cost.',
     icon: '🔍',
   },
   {
@@ -140,7 +140,7 @@ export default function ServicesPage() {
       <section className="cta" style={{ background: 'linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%)' }}>
         <div className="container">
           <h2>Not Sure What You Need?</h2>
-          <p>Bring in your computer and we&apos;ll take a look. Our diagnostic service identifies the problem and gives you options—no pressure, just honest advice.</p>
+          <p>Bring in your computer and we&apos;ll take a look. Our diagnostic fee rolls into the repair cost if you proceed—no pressure, just honest advice.</p>
           <Link href="/services/diagnostics" className="btn btn-white">Learn About Diagnostics</Link>
         </div>
       </section>

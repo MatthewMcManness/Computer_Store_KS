@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Intake System - Testing & Deployment Guide</title>
+    <style>
+        :root {
+            --purple-600: #9333ea;
+            --purple-700: #7e22ce;
+            --indigo-600: #4f46e5;
+            --green-600: #16a34a;
+            --green-100: #dcfce7;
+            --red-600: #dc2626;
+            --red-100: #fee2e2;
+            --yellow-600: #ca8a04;
+            --yellow-100: #fef9c3;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-600: #4b5563;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--gray-800);
+            background: var(--gray-50);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--purple-600), var(--indigo-600));
+            color: white;
+            padding: 3rem 2rem;
+            margin-bottom: 2rem;
+            border-radius: 12px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        h2 {
+            color: var(--gray-900);
+            font-size: 1.75rem;
+            margin: 2rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--purple-600);
+        }
+
+        h3 {
+            color: var(--gray-800);
+            font-size: 1.25rem;
+            margin: 1.5rem 0 0.75rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: var(--gray-600);
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid var(--gray-200);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-header .icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .card-header h3 {
+            margin: 0;
+        }
+
+        .step-number {
+            background: var(--purple-600);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 0.75rem;
+        }
+
+        code {
+            background: var(--gray-100);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            color: var(--purple-700);
+        }
+
+        pre {
+            background: var(--gray-900);
+            color: #e5e7eb;
+            padding: 1rem 1.25rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+            color: inherit;
+        }
+
+        .alert {
+            padding: 1rem 1.25rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .alert-warning {
+            background: var(--yellow-100);
+            border: 1px solid var(--yellow-600);
+            color: #92400e;
+        }
+
+        .alert-success {
+            background: var(--green-100);
+            border: 1px solid var(--green-600);
+            color: #166534;
+        }
+
+        .alert-error {
+            background: var(--red-100);
+            border: 1px solid var(--red-600);
+            color: #991b1b;
+        }
+
+        .alert-icon {
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        ul, ol {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+            color: var(--gray-600);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        th {
+            background: var(--gray-100);
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-purple {
+            background: #f3e8ff;
+            color: var(--purple-700);
+        }
+
+        .badge-green {
+            background: var(--green-100);
+            color: var(--green-600);
+        }
+
+        .checklist {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .checklist li {
+            padding: 0.5rem 0;
+            padding-left: 2rem;
+            position: relative;
+        }
+
+        .checklist li::before {
+            content: "☐";
+            position: absolute;
+            left: 0;
+            color: var(--gray-400);
+            font-size: 1.25rem;
+        }
+
+        .toc {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--gray-200);
+        }
+
+        .toc h3 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+
+        .toc ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .toc a {
+            color: var(--purple-600);
+            text-decoration: none;
+        }
+
+        .toc a:hover {
+            text-decoration: underline;
+        }
+
+        .flow-diagram {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            text-align: center;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.875rem;
+            overflow-x: auto;
+        }
+
+        footer {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--gray-200);
+            text-align: center;
+            color: var(--gray-600);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Employee Intake System</h1>
+            <p>Testing & Deployment Guide for Computer Store KS</p>
+        </header>
+
+        <nav class="toc">
+            <h3>Table of Contents</h3>
+            <ul>
+                <li><a href="#overview">1. System Overview</a></li>
+                <li><a href="#prerequisites">2. Prerequisites</a></li>
+                <li><a href="#database-setup">3. Database Setup (Supabase)</a></li>
+                <li><a href="#local-testing">4. Local Testing</a></li>
+                <li><a href="#test-scenarios">5. Test Scenarios</a></li>
+                <li><a href="#render-deployment">6. Render Deployment</a></li>
+                <li><a href="#post-deployment">7. Post-Deployment Verification</a></li>
+                <li><a href="#troubleshooting">8. Troubleshooting</a></li>
+            </ul>
+        </nav>
+
+        <section id="overview">
+            <h2>1. System Overview</h2>
+
+            <p>The Employee Intake System is a guided wizard at <code>/admin/intake</code> that streamlines the process of creating customer repair tickets. It integrates with RepairShopr API and Supabase for customer portal accounts.</p>
+
+            <div class="flow-diagram">
+<pre style="background: white; color: var(--gray-800); text-align: left;">
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│  Step 1         │    │  Step 2         │    │  Step 3         │    │  Step 4         │    │  Step 5         │
+│  Customer       │ ─► │  Customer       │ ─► │  Device         │ ─► │  Ticket         │ ─► │  Success        │
+│  Search         │    │  Form           │    │  Selection      │    │  Creation       │    │  Confirmation   │
+└─────────────────┘    └─────────────────┘    └─────────────────┘    └─────────────────┘    └─────────────────┘
+        │                      │                      │                      │                      │
+        ▼                      ▼                      ▼                      ▼                      ▼
+   RepairShopr            Supabase              RepairShopr            RepairShopr            Display
+   Customer API           + RepairShopr         Assets API             Tickets API            Ticket #
+</pre>
+            </div>
+
+            <h3>Key Features</h3>
+            <ul>
+                <li>Search existing customers or create new ones</li>
+                <li>Support for individual and business customers</li>
+                <li>Automatic customer portal account creation (Supabase)</li>
+                <li>Device selection or creation</li>
+                <li>Ticket creation with issue description</li>
+                <li>Confirmation with ticket number</li>
+            </ul>
+        </section>
+
+        <section id="prerequisites">
+            <h2>2. Prerequisites</h2>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="icon" style="background: #dbeafe;">🔑</div>
+                    <h3>Required Environment Variables</h3>
+                </div>
+                <p>Ensure these are set in your <code>.env.local</code> file and Render dashboard:</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Variable</th>
+                            <th>Description</th>
+                            <th>Required</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>REPAIRSHOPR_API_KEY</code></td>
+                            <td>RepairShopr API token</td>
+                            <td><span class="badge badge-green">Yes</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>REPAIRSHOPR_SUBDOMAIN</code></td>
+                            <td>Your RepairShopr subdomain (e.g., "thecomputerstore")</td>
+                            <td><span class="badge badge-green">Yes</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>NEXT_PUBLIC_SUPABASE_URL</code></td>
+                            <td>Supabase project URL</td>
+                            <td><span class="badge badge-green">Yes</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code></td>
+                            <td>Supabase anonymous key</td>
+                            <td><span class="badge badge-green">Yes</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>SUPABASE_SERVICE_ROLE_KEY</code></td>
+                            <td>Supabase service role key (for server-side)</td>
+                            <td><span class="badge badge-green">Yes</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>SESSION_SECRET</code></td>
+                            <td>64-character hex string for session encryption</td>
+                            <td><span class="badge badge-green">Yes</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="alert alert-warning">
+                <span class="alert-icon">⚠️</span>
+                <div>
+                    <strong>Important:</strong> The <code>SUPABASE_SERVICE_ROLE_KEY</code> is required for creating customer portal accounts. This key bypasses Row Level Security and should never be exposed to the client.
+                </div>
+            </div>
+        </section>
+
+        <section id="database-setup">
+            <h2>3. Database Setup (Supabase)</h2>
+
+            <p>Before testing, you must run the database migration to create the <code>customer_accounts</code> table.</p>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="step-number">1</span>
+                    <h3>Open Supabase SQL Editor</h3>
+                </div>
+                <ol>
+                    <li>Go to <a href="https://supabase.com/dashboard" target="_blank">Supabase Dashboard</a></li>
+                    <li>Select your project</li>
+                    <li>Navigate to <strong>SQL Editor</strong> in the left sidebar</li>
+                    <li>Click <strong>New Query</strong></li>
+                </ol>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="step-number">2</span>
+                    <h3>Run the Migration</h3>
+                </div>
+                <p>Copy and paste the following SQL:</p>
+                <pre><code>-- Customer Accounts Table for Portal Authentication
+-- This table stores customer portal credentials separately from RepairShopr
+
+CREATE TABLE IF NOT EXISTS customer_accounts (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    repairshopr_customer_id INTEGER NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Index for faster lookups by email (login)
+CREATE INDEX IF NOT EXISTS idx_customer_accounts_email
+    ON customer_accounts(email);
+
+-- Index for RepairShopr customer ID lookups
+CREATE INDEX IF NOT EXISTS idx_customer_accounts_repairshopr_id
+    ON customer_accounts(repairshopr_customer_id);
+
+-- Enable Row Level Security
+ALTER TABLE customer_accounts ENABLE ROW LEVEL SECURITY;
+
+-- Policy: Only service role can access (server-side only)
+CREATE POLICY "Service role access only" ON customer_accounts
+    FOR ALL
+    USING (auth.role() = 'service_role');
+
+-- Trigger to update updated_at timestamp
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+CREATE TRIGGER update_customer_accounts_updated_at
+    BEFORE UPDATE ON customer_accounts
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();</code></pre>
+                <p>Click <strong>Run</strong> to execute the migration.</p>
+            </div>
+
+            <div class="alert alert-success">
+                <span class="alert-icon">✅</span>
+                <div>
+                    <strong>Success:</strong> You should see "Success. No rows returned" - this means the table was created successfully.
+                </div>
+            </div>
+        </section>
+
+        <section id="local-testing">
+            <h2>4. Local Testing</h2>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="step-number">1</span>
+                    <h3>Start Development Server</h3>
+                </div>
+                <pre><code>cd /home/matthew/Computer_Store_KS
+bun run dev</code></pre>
+                <p>The server will start at <code>http://localhost:3000</code></p>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="step-number">2</span>
+                    <h3>Login to Admin</h3>
+                </div>
+                <ol>
+                    <li>Navigate to <code>http://localhost:3000/admin</code></li>
+                    <li>Login with your RepairShopr credentials</li>
+                    <li>You should see the admin dashboard</li>
+                </ol>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="step-number">3</span>
+                    <h3>Access the Intake Wizard</h3>
+                </div>
+                <ol>
+                    <li>Click <strong>"Intake"</strong> in the sidebar navigation</li>
+                    <li>Or navigate directly to <code>http://localhost:3000/admin/intake</code></li>
+                    <li>You should see the 5-step wizard interface</li>
+                </ol>
+            </div>
+        </section>
+
+        <section id="test-scenarios">
+            <h2>5. Test Scenarios</h2>
+
+            <h3>Scenario A: Existing Customer Flow</h3>
+            <div class="card">
+                <ul class="checklist">
+                    <li>Search for an existing customer by name, email, or phone</li>
+                    <li>Verify search results appear after typing 2+ characters</li>
+                    <li>Select an existing customer</li>
+                    <li>Verify you skip to Step 3 (Device Selection)</li>
+                    <li>Select an existing device OR create a new one</li>
+                    <li>Enter an issue description (minimum 10 characters)</li>
+                    <li>Click "Create Ticket"</li>
+                    <li>Verify success screen shows ticket number</li>
+                    <li>Verify ticket exists in RepairShopr</li>
+                </ul>
+            </div>
+
+            <h3>Scenario B: New Individual Customer</h3>
+            <div class="card">
+                <ul class="checklist">
+                    <li>Click "Create New Individual Customer"</li>
+                    <li>Fill in required fields: First Name, Last Name, Email, Phone</li>
+                    <li>Set a portal password (minimum 8 characters)</li>
+                    <li>Confirm password matches</li>
+                    <li>Click "Create Customer"</li>
+                    <li>Verify customer is created in RepairShopr</li>
+                    <li>Verify portal account is created in Supabase</li>
+                    <li>Continue with device and ticket creation</li>
+                </ul>
+            </div>
+
+            <h3>Scenario C: New Business Customer</h3>
+            <div class="card">
+                <ul class="checklist">
+                    <li>Click "Create New Business Customer"</li>
+                    <li>Search for existing business OR create new</li>
+                    <li>Fill in contact person details</li>
+                    <li>Set portal password</li>
+                    <li>Verify business customer is created in RepairShopr</li>
+                    <li>Continue with device and ticket creation</li>
+                </ul>
+            </div>
+
+            <h3>Scenario D: New Device</h3>
+            <div class="card">
+                <ul class="checklist">
+                    <li>On Step 3, click "Add New Device"</li>
+                    <li>Select device type from dropdown</li>
+                    <li>Enter brand (e.g., "Dell")</li>
+                    <li>Enter model (e.g., "OptiPlex 7090")</li>
+                    <li>Click "Add Device"</li>
+                    <li>Verify device is created and linked to customer in RepairShopr</li>
+                </ul>
+            </div>
+
+            <h3>Scenario E: Validation Testing</h3>
+            <div class="card">
+                <ul class="checklist">
+                    <li>Try submitting customer form with empty required fields</li>
+                    <li>Try submitting with invalid email format</li>
+                    <li>Try password less than 8 characters</li>
+                    <li>Try mismatched password confirmation</li>
+                    <li>Try ticket description less than 10 characters</li>
+                    <li>Verify all validation errors display correctly</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="render-deployment">
+            <h2>6. Render Deployment</h2>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="step-number">1</span>
+                    <h3>Push Changes to GitHub</h3>
+                </div>
+                <pre><code># Ensure all changes are committed
+git status
+
+# Push to your branch
+git push origin Computer-Store-KS</code></pre>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="step-number">2</span>
+                    <h3>Verify Environment Variables on Render</h3>
+                </div>
+                <ol>
+                    <li>Go to <a href="https://dashboard.render.com" target="_blank">Render Dashboard</a></li>
+                    <li>Select your web service</li>
+                    <li>Go to <strong>Environment</strong> tab</li>
+                    <li>Ensure all required variables are set (see Prerequisites section)</li>
+                </ol>
+
+                <div class="alert alert-warning">
+                    <span class="alert-icon">⚠️</span>
+                    <div>
+                        <strong>New Variable:</strong> Make sure <code>SUPABASE_SERVICE_ROLE_KEY</code> is added if it wasn't there before. This is required for customer portal account creation.
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="step-number">3</span>
+                    <h3>Trigger Deployment</h3>
+                </div>
+                <p>Render should auto-deploy when you push to the connected branch. If not:</p>
+                <ol>
+                    <li>Go to <strong>Manual Deploy</strong> in the Render dashboard</li>
+                    <li>Click <strong>Deploy latest commit</strong></li>
+                    <li>Wait for build to complete (usually 2-5 minutes)</li>
+                </ol>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="step-number">4</span>
+                    <h3>Monitor Build Logs</h3>
+                </div>
+                <p>Watch the deployment logs for any errors. A successful build will show:</p>
+                <pre><code>✓ Compiled successfully
+✓ Linting and checking validity of types
+✓ Collecting page data
+✓ Generating static pages
+✓ Finalizing page optimization</code></pre>
+            </div>
+        </section>
+
+        <section id="post-deployment">
+            <h2>7. Post-Deployment Verification</h2>
+
+            <div class="card">
+                <h3>Quick Smoke Test</h3>
+                <ol>
+                    <li>Go to <code>https://computerstoreks.com/admin</code></li>
+                    <li>Login with RepairShopr credentials</li>
+                    <li>Navigate to <strong>Intake</strong></li>
+                    <li>Verify the wizard loads without errors</li>
+                    <li>Test customer search functionality</li>
+                    <li>Create a test ticket (can be deleted in RepairShopr afterward)</li>
+                </ol>
+            </div>
+
+            <div class="card">
+                <h3>API Endpoint Verification</h3>
+                <p>The following endpoints should be accessible (requires authentication):</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Endpoint</th>
+                            <th>Method</th>
+                            <th>Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>/api/repairshopr/customers</code></td>
+                            <td>GET / POST</td>
+                            <td>Search / Create customers</td>
+                        </tr>
+                        <tr>
+                            <td><code>/api/repairshopr/customers/[id]</code></td>
+                            <td>GET</td>
+                            <td>Get customer by ID</td>
+                        </tr>
+                        <tr>
+                            <td><code>/api/repairshopr/customers/[id]/assets</code></td>
+                            <td>GET</td>
+                            <td>Get customer's devices</td>
+                        </tr>
+                        <tr>
+                            <td><code>/api/repairshopr/assets</code></td>
+                            <td>POST</td>
+                            <td>Create device</td>
+                        </tr>
+                        <tr>
+                            <td><code>/api/repairshopr/tickets</code></td>
+                            <td>POST</td>
+                            <td>Create ticket</td>
+                        </tr>
+                        <tr>
+                            <td><code>/api/repairshopr/businesses</code></td>
+                            <td>GET / POST</td>
+                            <td>Search / Create businesses</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="troubleshooting">
+            <h2>8. Troubleshooting</h2>
+
+            <div class="card">
+                <h3>Issue: "Failed to search customers"</h3>
+                <p><strong>Possible causes:</strong></p>
+                <ul>
+                    <li>Invalid or expired <code>REPAIRSHOPR_API_KEY</code></li>
+                    <li>Incorrect <code>REPAIRSHOPR_SUBDOMAIN</code></li>
+                    <li>Network connectivity issues</li>
+                </ul>
+                <p><strong>Solution:</strong> Check environment variables and verify API key in RepairShopr settings.</p>
+            </div>
+
+            <div class="card">
+                <h3>Issue: "Failed to create customer" with portal account</h3>
+                <p><strong>Possible causes:</strong></p>
+                <ul>
+                    <li>Missing <code>SUPABASE_SERVICE_ROLE_KEY</code></li>
+                    <li><code>customer_accounts</code> table not created</li>
+                    <li>Email already exists in customer_accounts</li>
+                </ul>
+                <p><strong>Solution:</strong> Run the database migration and verify Supabase credentials.</p>
+            </div>
+
+            <div class="card">
+                <h3>Issue: "Unauthorized" when accessing /admin/intake</h3>
+                <p><strong>Possible causes:</strong></p>
+                <ul>
+                    <li>Session expired</li>
+                    <li>Invalid <code>SESSION_SECRET</code></li>
+                    <li>Cookies blocked by browser</li>
+                </ul>
+                <p><strong>Solution:</strong> Try logging out and back in. Clear cookies if necessary.</p>
+            </div>
+
+            <div class="card">
+                <h3>Issue: Build fails on Render</h3>
+                <p><strong>Check:</strong></p>
+                <ul>
+                    <li>All environment variables are set correctly</li>
+                    <li>No TypeScript errors in the build log</li>
+                    <li>Node/Bun version compatibility</li>
+                </ul>
+                <p><strong>Local test:</strong> Run <code>bun run build</code> locally to identify issues.</p>
+            </div>
+
+            <div class="card">
+                <h3>Issue: Device types not showing correctly</h3>
+                <p>RepairShopr asset types must match expected values. The system expects:</p>
+                <ul>
+                    <li>Desktop</li>
+                    <li>Laptop</li>
+                    <li>Tablet</li>
+                    <li>Phone</li>
+                    <li>Other</li>
+                </ul>
+                <p>If RepairShopr uses different type names, update the <code>deviceTypes</code> array in <code>DeviceStep.tsx</code>.</p>
+            </div>
+        </section>
+
+        <footer>
+            <p>Employee Intake System Guide | Computer Store KS</p>
+            <p>Generated: December 2025</p>
+        </footer>
+    </div>
+</body>
+</html>

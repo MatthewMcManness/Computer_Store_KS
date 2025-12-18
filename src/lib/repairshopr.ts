@@ -268,6 +268,60 @@ export interface RepairShoprBusiness {
   updated_at?: string;
 }
 
+/**
+ * Invoice information from the RepairShopr API
+ */
+export interface RepairShoprInvoice {
+  id: number;
+  number: string;
+  customer_id: number;
+  customer_business_then_name?: string;
+  total: string;
+  balance_due: string;
+  status?: string;
+  date?: string;
+  due_date?: string;
+  created_at?: string;
+  updated_at?: string;
+  ticket_id?: number;
+  po_number?: string;
+  note?: string;
+  is_paid?: boolean;
+  line_items?: RepairShoprLineItem[];
+}
+
+/**
+ * Line item on an invoice
+ */
+export interface RepairShoprLineItem {
+  id: number;
+  item: string;
+  name?: string;
+  description?: string;
+  quantity: number;
+  price: string;
+  cost?: string;
+  total?: string;
+  taxable?: boolean;
+  product_id?: number;
+}
+
+/**
+ * Payment information from the RepairShopr API
+ */
+export interface RepairShoprPayment {
+  id: number;
+  invoice_id: number;
+  customer_id: number;
+  customer_business_then_name?: string;
+  amount: string;
+  payment_method?: string;
+  reference?: string;
+  applied_at?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
 // =============================================================================
 // Input Types for Create/Update Operations
 // =============================================================================
@@ -1307,6 +1361,157 @@ export class RepairShoprClient {
     );
 
     return response.contact;
+  }
+
+  // =============================================================================
+  // Invoice Operations
+  // =============================================================================
+
+  /**
+   * Get all invoices for a customer
+   *
+   * @param apiToken - API token for authentication
+   * @param customerId - Customer ID
+   * @returns Array of customer's invoices
+   *
+   * @example
+   * ```typescript
+   * const invoices = await client.getCustomerInvoices(apiToken, 12345);
+   * ```
+   */
+  async getCustomerInvoices(
+    apiToken: string,
+    customerId: number
+  ): Promise<RepairShoprInvoice[]> {
+    if (!apiToken || !apiToken.trim()) {
+      throw new RepairShoprAPIError(
+        'API token is required',
+        400,
+        'VALIDATION_ERROR'
+      );
+    }
+
+    if (!customerId || customerId <= 0) {
+      throw new RepairShoprAPIError(
+        'Valid customer ID is required',
+        400,
+        'VALIDATION_ERROR'
+      );
+    }
+
+    const response = await this.request<{ invoices: RepairShoprInvoice[] }>(
+      `/invoices?api_key=${encodeURIComponent(apiToken.trim())}&customer_id=${customerId}`
+    );
+
+    return response.invoices || [];
+  }
+
+  /**
+   * Get a single invoice by ID
+   *
+   * @param apiToken - API token for authentication
+   * @param id - Invoice ID
+   * @returns Invoice details with line items
+   */
+  async getInvoice(apiToken: string, id: number): Promise<RepairShoprInvoice> {
+    if (!apiToken || !apiToken.trim()) {
+      throw new RepairShoprAPIError(
+        'API token is required',
+        400,
+        'VALIDATION_ERROR'
+      );
+    }
+
+    if (!id || id <= 0) {
+      throw new RepairShoprAPIError(
+        'Valid invoice ID is required',
+        400,
+        'VALIDATION_ERROR'
+      );
+    }
+
+    const response = await this.request<{ invoice: RepairShoprInvoice }>(
+      `/invoices/${id}?api_key=${encodeURIComponent(apiToken.trim())}`
+    );
+
+    return response.invoice;
+  }
+
+  // =============================================================================
+  // Payment Operations
+  // =============================================================================
+
+  /**
+   * Get all payments for a customer
+   *
+   * @param apiToken - API token for authentication
+   * @param customerId - Customer ID
+   * @returns Array of customer's payments
+   *
+   * @example
+   * ```typescript
+   * const payments = await client.getCustomerPayments(apiToken, 12345);
+   * ```
+   */
+  async getCustomerPayments(
+    apiToken: string,
+    customerId: number
+  ): Promise<RepairShoprPayment[]> {
+    if (!apiToken || !apiToken.trim()) {
+      throw new RepairShoprAPIError(
+        'API token is required',
+        400,
+        'VALIDATION_ERROR'
+      );
+    }
+
+    if (!customerId || customerId <= 0) {
+      throw new RepairShoprAPIError(
+        'Valid customer ID is required',
+        400,
+        'VALIDATION_ERROR'
+      );
+    }
+
+    const response = await this.request<{ payments: RepairShoprPayment[] }>(
+      `/payments?api_key=${encodeURIComponent(apiToken.trim())}&customer_id=${customerId}`
+    );
+
+    return response.payments || [];
+  }
+
+  /**
+   * Get tickets for a specific customer
+   *
+   * @param apiToken - API token for authentication
+   * @param customerId - Customer ID
+   * @returns Array of customer's tickets
+   */
+  async getCustomerTickets(
+    apiToken: string,
+    customerId: number
+  ): Promise<RepairShoprTicket[]> {
+    if (!apiToken || !apiToken.trim()) {
+      throw new RepairShoprAPIError(
+        'API token is required',
+        400,
+        'VALIDATION_ERROR'
+      );
+    }
+
+    if (!customerId || customerId <= 0) {
+      throw new RepairShoprAPIError(
+        'Valid customer ID is required',
+        400,
+        'VALIDATION_ERROR'
+      );
+    }
+
+    const response = await this.request<{ tickets: RepairShoprTicket[] }>(
+      `/tickets?api_key=${encodeURIComponent(apiToken.trim())}&customer_id=${customerId}`
+    );
+
+    return response.tickets || [];
   }
 }
 

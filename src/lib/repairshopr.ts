@@ -116,6 +116,9 @@ export interface RepairShoprCustomer {
   is_silver_plan?: boolean;
   silver_plan?: boolean;
   plan_name?: string | null;
+  custom_fields?: Record<string, unknown> | null;
+  customer_fields?: Record<string, unknown> | null;
+  properties?: Record<string, unknown> | null;
 }
 
 /**
@@ -142,6 +145,25 @@ export function isSilverPlanCustomer(customer: Partial<RepairShoprCustomer> | nu
       if (value.some((v) => v && v.toLowerCase().includes('silver'))) return true;
     } else if (typeof value === 'string') {
       if (value.toLowerCase().includes('silver')) return true;
+    }
+  }
+
+  // Check custom fields for "protection plan" entries
+  const customSources: Array<Record<string, unknown> | null | undefined> = [
+    customer.custom_fields,
+    customer.customer_fields,
+    customer.properties,
+  ];
+
+  for (const source of customSources) {
+    if (!source) continue;
+    for (const [key, value] of Object.entries(source)) {
+      if (key.toLowerCase().includes('protection plan')) {
+        if (typeof value === 'string' && value.toLowerCase().includes('silver')) return true;
+        if (Array.isArray(value) && value.some((v) => typeof v === 'string' && v.toLowerCase().includes('silver'))) {
+          return true;
+        }
+      }
     }
   }
 

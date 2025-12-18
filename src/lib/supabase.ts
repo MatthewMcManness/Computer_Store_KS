@@ -729,15 +729,23 @@ export async function getComputerById(id: string): Promise<GalleryComputer | nul
 /**
  * Get all computers including inactive (Admin)
  */
-export async function getAllComputers(): Promise<GalleryComputer[]> {
+export async function getAllComputers(options: { includeInactive?: boolean } = {}): Promise<GalleryComputer[]> {
   if (!supabaseAdmin) return [];
+
+  const { includeInactive = false } = options;
 
   // Get active sale first
   const activeSale = await getActiveSaleAdmin();
 
-  const { data, error } = await supabaseAdmin
+  let query = supabaseAdmin
     .from('gallery_computers')
-    .select('*')
+    .select('*');
+
+  if (!includeInactive) {
+    query = query.eq('is_active', true);
+  }
+
+  const { data, error } = await query
     .order('sort_order')
     .order('created_at', { ascending: false });
 

@@ -23,6 +23,7 @@ export async function GET(request: NextRequest) {
     // Check if admin mode requested
     const { searchParams } = new URL(request.url);
     const isAdmin = searchParams.get('admin') === 'true';
+    const includeInactive = searchParams.get('includeInactive') === 'true';
 
     let computers;
     if (isAdmin) {
@@ -33,7 +34,7 @@ export async function GET(request: NextRequest) {
           { status: 401 }
         );
       }
-      computers = await getAllComputers();
+      computers = await getAllComputers({ includeInactive });
     } else {
       computers = await getComputers();
     }

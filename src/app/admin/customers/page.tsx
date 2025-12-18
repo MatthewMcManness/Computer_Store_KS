@@ -330,6 +330,11 @@ export default function CustomersPage() {
       return;
     }
 
+    if (!addFormData.password.trim()) {
+      setAddError('Portal password is required');
+      return;
+    }
+
     setSavingAdd(true);
     setAddError(null);
 
@@ -1335,16 +1340,16 @@ export default function CustomersPage() {
                 <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
                   <div>
                     <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Portal Password
+                      Portal Password <span className="text-red-500">*</span>
                     </label>
                     <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">
-                      Optional: Set a password to enable customer portal access
+                      Password for customer portal access
                     </p>
                     <input
                       type="password"
                       value={addFormData.password}
                       onChange={(e) => handleAddInputChange('password', e.target.value)}
-                      placeholder="Leave blank to skip portal account"
+                      placeholder="Enter portal password"
                       className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                     />
                   </div>

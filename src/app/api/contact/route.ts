@@ -53,7 +53,7 @@ const contactFormSchema = z.object({
     .max(20, 'Phone number must be less than 20 characters')
     .optional()
     .transform((val) => val?.trim() || undefined),
-  subject: z.enum(['General', 'Repair', 'Custom Build', 'Silver Plan', 'Other'], {
+  subject: z.enum(['General', 'Repair', 'Custom Build', 'Protection Plans', 'Other'], {
     message: 'Please select a valid subject',
   }),
   message: z

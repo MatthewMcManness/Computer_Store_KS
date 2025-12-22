@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 const serviceLinks = [
   { href: '/services/custom-computers', label: 'Custom-Built PCs', className: 'featured' },
@@ -25,7 +25,18 @@ export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const servicesRef = useRef<HTMLLIElement>(null);
+
+  // Check if mobile on mount and resize
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -41,8 +52,9 @@ export function Header() {
     setServicesOpen(false);
   }, [pathname]);
 
-  // Close dropdown when clicking outside
+  // Close dropdown when clicking outside (desktop only)
   useEffect(() => {
+    if (isMobile) return;
     const handleClickOutside = (event: MouseEvent) => {
       if (servicesRef.current && !servicesRef.current.contains(event.target as Node)) {
         setServicesOpen(false);
@@ -50,7 +62,7 @@ export function Header() {
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [isMobile]);
 
   const isActive = (path: string) => pathname === path;
   const isServicesActive = pathname?.startsWith('/services') || pathname === '/why-linux' || pathname === '/silver-plan';
@@ -91,42 +103,38 @@ export function Header() {
               </Link>
             </li>
             <li
-              className="has-dropdown"
+              className={`has-dropdown ${isMobile ? 'mobile-no-dropdown' : ''}`}
               ref={servicesRef}
-              onMouseEnter={() => setServicesOpen(true)}
-              onMouseLeave={() => setServicesOpen(false)}
+              onMouseEnter={() => !isMobile && setServicesOpen(true)}
+              onMouseLeave={() => !isMobile && setServicesOpen(false)}
             >
               <Link
                 className={`nav-link ${isServicesActive ? 'active' : ''}`}
                 href="/services"
-                onClick={(e) => {
-                  // On mobile, toggle dropdown instead of navigating
-                  if (menuOpen) {
-                    e.preventDefault();
-                    setServicesOpen(!servicesOpen);
-                  }
-                }}
               >
                 Services
-                <span className="dropdown-arrow">▾</span>
+                {!isMobile && <span className="dropdown-arrow">▾</span>}
               </Link>
-              <ul className={`dropdown-menu ${servicesOpen ? 'show' : ''}`}>
-                <li>
-                  <Link href="/services" className="dropdown-link view-all">
-                    View All Services
-                  </Link>
-                </li>
-                {serviceLinks.map((service) => (
-                  <li key={service.href}>
-                    <Link
-                      href={service.href}
-                      className={`dropdown-link ${isActive(service.href) ? 'active' : ''} ${(service as { className?: string }).className || ''}`}
-                    >
-                      {service.label}
+              {/* Only show dropdown on desktop */}
+              {!isMobile && (
+                <ul className={`dropdown-menu ${servicesOpen ? 'show' : ''}`}>
+                  <li>
+                    <Link href="/services" className="dropdown-link view-all">
+                      View All Services
                     </Link>
                   </li>
-                ))}
-              </ul>
+                  {serviceLinks.map((service) => (
+                    <li key={service.href}>
+                      <Link
+                        href={service.href}
+                        className={`dropdown-link ${isActive(service.href) ? 'active' : ''} ${(service as { className?: string }).className || ''}`}
+                      >
+                        {service.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </li>
             <li>
               <Link className={`nav-link ${isActive('/gallery') ? 'active' : ''}`} href="/gallery">

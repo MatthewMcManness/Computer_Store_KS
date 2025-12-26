@@ -129,7 +129,7 @@ Migrate from fragmented authentication (RepairShopr API + custom bcrypt) to unif
 | Email deliverability | Use existing Resend config, test templates |
 | Role confusion during transition | Clear communication, training toggle for demos |
 
-## Open Questions (from PRD)
+## Resolved Questions
 
-1. **Existing Sessions:** Recommend force logout on migration day - clean cutover
-2. **Customer Migration:** Recommend auto-migration with password reset email - better UX than re-registration
+1. **Existing Sessions:** ✅ Force logout on migration day - clean cutover
+2. **Customer Migration:** ✅ Auto-migrate existing users, send password reset email to set new credentials

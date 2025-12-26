@@ -529,10 +529,8 @@ The existing `customer_accounts` table will be migrated:
    - **Self-registration:** Customers can create accounts themselves through the website
    - **Intake requirement:** During ticket intake, check if customer has portal account. If not, employee MUST create one as part of the intake process.
 
-### Still Open
-
-1. **Existing Sessions:** How to handle existing logged-in users during migration? Force logout?
-2. **Customer Migration:** Should existing customer_accounts be auto-migrated or require re-registration?
+5. **Existing Sessions:** ✅ **ANSWERED** - Force logout on migration day for clean cutover
+6. **Customer Migration:** ✅ **ANSWERED** - Auto-migrate existing users, send password reset email to set new credentials
 
 ---
 

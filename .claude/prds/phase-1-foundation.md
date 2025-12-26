@@ -47,7 +47,7 @@ Phase 1 establishes the core infrastructure for The Computer Store's unified pla
 **Acceptance Criteria:**
 - [ ] Employee can log in with email/password via Supabase Auth
 - [ ] Employee's RepairShopr user ID is linked to their Supabase account
-- [ ] Employee role (admin/technician) is stored and enforced
+- [ ] Employee role (admin/technician/receptionist) is stored and enforced
 - [ ] Failed login attempts are rate-limited
 - [ ] Session persists across browser refreshes
 
@@ -129,7 +129,7 @@ Phase 1 establishes the core infrastructure for The Computer Store's unified pla
 ### Must Have (P0)
 - [ ] All users authenticate via Supabase Auth (no RepairShopr auth)
 - [ ] User profiles link Supabase Auth ID to RepairShopr ID
-- [ ] Role-based access control (admin, technician, customer)
+- [ ] Role-based access control (admin, technician, receptionist, customer)
 - [ ] Protected routes enforce authentication
 - [ ] Session management with secure JWT handling
 - [ ] Password reset via email
@@ -138,6 +138,7 @@ Phase 1 establishes the core infrastructure for The Computer Store's unified pla
 - [ ] Email verification for new accounts
 - [ ] MFA option for admin accounts
 - [ ] NinjaOne API wrapper for device data
+- [ ] View switching for employees (admin→tech→reception, tech→reception)
 
 ### Nice to Have (P2)
 - [ ] Social login (Google) for customers
@@ -175,7 +176,7 @@ CREATE TABLE user_profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   email TEXT UNIQUE NOT NULL,
   full_name TEXT,
-  role TEXT NOT NULL CHECK (role IN ('admin', 'technician', 'customer')),
+  role TEXT NOT NULL CHECK (role IN ('admin', 'technician', 'receptionist', 'customer')),
   repairshopr_user_id INTEGER,      -- For employees
   repairshopr_customer_id INTEGER,  -- For customers
   protection_plan_tier TEXT CHECK (tier IN ('bronze', 'silver', 'gold')),
@@ -209,7 +210,7 @@ CREATE POLICY "Users can update their own profile"
 
 **Employee Onboarding (Admin-initiated):**
 1. Admin navigates to employee management
-2. Admin enters employee email and selects role (admin/technician)
+2. Admin enters employee email and selects role (admin/technician/receptionist)
 3. Admin enters RepairShopr user ID to link
 4. System creates Supabase Auth user with temporary password
 5. Supabase sends "Set your password" email
@@ -222,7 +223,11 @@ CREATE POLICY "Users can update their own profile"
 2. Supabase Auth validates credentials
 3. Load user_profile from database
 4. Set session cookies
-5. Redirect to appropriate portal (employee [admin, technician] vs customer)
+5. Redirect based on role:
+   - Admin → Admin dashboard (can switch to Technician/Reception views)
+   - Technician → Technician dashboard (can switch to Reception view)
+   - Receptionist → Reception dashboard
+   - Customer → Customer portal
 
 **Password Reset:**
 1. User requests reset via email
@@ -248,9 +253,23 @@ The existing intake wizard must be updated to require customer portal accounts:
 - Handle session invalidation on password change
 
 ### FR-5: Role-Based Access Control
-- **Admin:** Full access to all features, can manage employees
-- **Technician:** Access to employee portal, cannot manage other employees
-- **Customer:** Access to customer portal only, cannot access admin features
+
+**Employee Roles (hierarchical view access):**
+- **Admin:** Full access to all features, can manage employees. Can switch between Admin, Technician, and Reception views.
+- **Technician:** Access to technician portal for repairs/diagnostics. Can switch between Technician and Reception views.
+- **Receptionist:** Access to reception view only (intake, customer check-in, basic ticket status). Cannot access technician or admin features.
+
+**Customer Role:**
+- **Customer:** Access to customer portal only. Cannot access any employee features.
+
+**View Switching:**
+Higher-level roles can "step down" to lower views for training, coverage, or context:
+| Role | Available Views |
+|------|----------------|
+| Admin | Admin, Technician, Reception |
+| Technician | Technician, Reception |
+| Receptionist | Reception only |
+| Customer | Customer Portal only |
 
 ### FR-6: NinjaOne API Integration
 Create typed API wrapper (`src/lib/ninjaone.ts`):
@@ -391,7 +410,7 @@ Create typed API wrapper (`src/lib/ninjaone.ts`):
 | id | UUID | PK, references auth.users(id) |
 | email | TEXT | Unique, user's email |
 | full_name | TEXT | Display name |
-| role | TEXT | 'admin', 'technician', 'customer' |
+| role | TEXT | 'admin', 'technician', 'receptionist', 'customer' |
 | repairshopr_user_id | INTEGER | For employees (nullable) |
 | repairshopr_customer_id | INTEGER | For customers (nullable) |
 | protection_plan_tier | TEXT | 'bronze', 'silver', 'gold' (nullable) |

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>You're Invited - Computer Store KS</title>
+  <!--
+    Supabase Email Template: Invite User
+
+    Template Variables:
+    - {{ .ConfirmationURL }} - The invitation acceptance link
+    - {{ .Token }} - OTP token (if using OTP)
+    - {{ .SiteURL }} - The configured site URL
+
+    Use Case: Employee onboarding - admins can invite new technicians,
+    receptionists, or other staff members.
+
+    To use: Copy the content below into Supabase Dashboard:
+    Authentication > Email Templates > Invite user
+  -->
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f4f4f5;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f4f4f5;">
+    <tr>
+      <td style="padding: 40px 20px;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+          <!-- Header -->
+          <tr>
+            <td style="padding: 40px 40px 20px; text-align: center; background-color: #1e3a5f; border-radius: 8px 8px 0 0;">
+              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700;">Computer Store KS</h1>
+              <p style="margin: 8px 0 0; color: #94a3b8; font-size: 14px;">Topeka's Trusted Computer Repair</p>
+            </td>
+          </tr>
+
+          <!-- Content -->
+          <tr>
+            <td style="padding: 40px;">
+              <h2 style="margin: 0 0 16px; color: #1e293b; font-size: 24px; font-weight: 600;">Welcome to the Team!</h2>
+
+              <p style="margin: 0 0 16px; color: #475569; font-size: 16px; line-height: 1.6;">
+                You've been invited to join the Computer Store KS team. We're excited to have you on board!
+              </p>
+
+              <p style="margin: 0 0 24px; color: #475569; font-size: 16px; line-height: 1.6;">
+                Click the button below to accept your invitation and set up your account. You'll be able to access the employee dashboard and start working with our systems.
+              </p>
+
+              <!-- CTA Button -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                  <td style="padding: 0 0 24px;">
+                    <a href="{{ .ConfirmationURL }}" style="display: inline-block; padding: 14px 32px; background-color: #16a34a; color: #ffffff; text-decoration: none; font-size: 16px; font-weight: 600; border-radius: 6px;">
+                      Accept Invitation
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin: 0 0 16px; color: #475569; font-size: 14px; line-height: 1.6;">
+                Or copy and paste this link into your browser:
+              </p>
+
+              <p style="margin: 0 0 24px; padding: 12px; background-color: #f1f5f9; border-radius: 4px; word-break: break-all; color: #64748b; font-size: 13px; font-family: monospace;">
+                {{ .ConfirmationURL }}
+              </p>
+
+              <!-- What to Expect Box -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f0fdf4; border-radius: 6px; border-left: 4px solid #22c55e;">
+                <tr>
+                  <td style="padding: 16px;">
+                    <p style="margin: 0; color: #166534; font-size: 14px; font-weight: 600;">What's Next?</p>
+                    <ul style="margin: 12px 0 0; padding-left: 20px; color: #166534; font-size: 14px; line-height: 1.6;">
+                      <li>Accept this invitation to create your account</li>
+                      <li>Set up a secure password</li>
+                      <li>Complete your profile information</li>
+                      <li>Access the employee dashboard</li>
+                    </ul>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin: 24px 0 0; color: #64748b; font-size: 13px; line-height: 1.5;">
+                This invitation expires in 7 days. If you have any questions about your role or account setup, please contact your manager or our admin team.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 24px 40px; background-color: #f8fafc; border-radius: 0 0 8px 8px; border-top: 1px solid #e2e8f0;">
+              <p style="margin: 0 0 8px; color: #64748b; font-size: 14px; text-align: center;">
+                Questions? Contact us at <a href="mailto:contact@computerstoreks.com" style="color: #2563eb; text-decoration: none;">contact@computerstoreks.com</a>
+              </p>
+              <p style="margin: 0 0 8px; color: #64748b; font-size: 14px; text-align: center;">
+                2540 NW Topeka Blvd, Topeka, KS 66617
+              </p>
+              <p style="margin: 0; color: #94a3b8; font-size: 12px; text-align: center;">
+                Computer Store KS | (785) 506-7435
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

@@ -251,6 +251,72 @@
         .badge-low { background: #e5e7eb; color: #374151; }
         .badge-phase { background: #dbeafe; color: #1e40af; }
 
+        /* Implementation Status Badges */
+        .badge-complete { background: #dcfce7; color: #166534; }
+        .badge-partial { background: #fef3c7; color: #92400e; }
+        .badge-not-started { background: #f3f4f6; color: #6b7280; }
+
+        .status-icon { margin-right: 6px; }
+        .status-complete { color: #16a34a; }
+        .status-partial { color: #f59e0b; }
+        .status-pending { color: #9ca3af; }
+
+        /* Progress bar */
+        .progress-container {
+            background: #e5e7eb;
+            border-radius: 10px;
+            height: 20px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 10px;
+            background: linear-gradient(90deg, #16a34a, #22c55e);
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .progress-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+        }
+
+        .progress-section h4 {
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .overall-progress {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 2px solid #16a34a;
+        }
+
+        .step-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .step-status.done { background: #dcfce7; color: #166534; }
+        .step-status.partial { background: #fef3c7; color: #92400e; }
+        .step-status.todo { background: #f3f4f6; color: #6b7280; }
+
         .timeline-header {
             display: flex;
             justify-content: space-between;
@@ -578,6 +644,7 @@
 
     <nav>
         <ul>
+            <li><a href="#progress" style="background: #16a34a; color: white;">Progress</a></li>
             <li><a href="#vision">Vision</a></li>
             <li><a href="#architecture">Architecture</a></li>
             <li><a href="#phase-1">Foundation</a></li>
@@ -590,6 +657,153 @@
             <li><a href="#costs">Costs</a></li>
         </ul>
     </nav>
+
+    <section id="progress" style="background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);">
+        <div class="container">
+            <h2>Implementation Progress</h2>
+
+            <div class="progress-section overall-progress">
+                <h4>
+                    Overall Project Status
+                    <span class="badge badge-partial">In Progress</span>
+                </h4>
+                <p><strong>Last Updated:</strong> December 26, 2025</p>
+                <div class="progress-container" style="height: 30px;">
+                    <div class="progress-bar" style="width: 35%;">~35% Complete</div>
+                </div>
+                <p style="margin-bottom: 0;">Phases 1-2 are partially complete with core authentication, customer management, and ticket systems working. NinjaOne, Customer Portal, PC Builder, and Social Media automation remain to be built.</p>
+            </div>
+
+            <div class="card-grid">
+                <div class="progress-section">
+                    <h4>
+                        Phase 1: Foundation
+                        <span class="badge badge-partial">75% Done</span>
+                    </h4>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: 75%;">75%</div>
+                    </div>
+                    <ul style="margin: 0; padding-left: 20px; font-size: 0.9rem;">
+                        <li><span class="status-icon status-complete">✓</span> RepairShopr authentication</li>
+                        <li><span class="status-icon status-complete">✓</span> Supabase customer accounts</li>
+                        <li><span class="status-icon status-complete">✓</span> Session management (AES-256)</li>
+                        <li><span class="status-icon status-complete">✓</span> RepairShopr API wrapper</li>
+                        <li><span class="status-icon status-complete">✓</span> Database schema</li>
+                        <li><span class="status-icon status-complete">✓</span> Route protection middleware</li>
+                        <li><span class="status-icon status-pending">○</span> NinjaOne API wrapper</li>
+                        <li><span class="status-icon status-pending">○</span> Stripe integration</li>
+                    </ul>
+                </div>
+
+                <div class="progress-section">
+                    <h4>
+                        Phase 2: RepairShopr
+                        <span class="badge badge-partial">45% Done</span>
+                    </h4>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: 45%;">45%</div>
+                    </div>
+                    <ul style="margin: 0; padding-left: 20px; font-size: 0.9rem;">
+                        <li><span class="status-icon status-complete">✓</span> Customer search & management</li>
+                        <li><span class="status-icon status-complete">✓</span> Ticket creation (5-step intake)</li>
+                        <li><span class="status-icon status-complete">✓</span> Ticket detail view & comments</li>
+                        <li><span class="status-icon status-complete">✓</span> Business management</li>
+                        <li><span class="status-icon status-complete">✓</span> Blog & Gallery management</li>
+                        <li><span class="status-icon status-pending">○</span> Ticket templates system</li>
+                        <li><span class="status-icon status-pending">○</span> Kanban dashboard</li>
+                        <li><span class="status-icon status-pending">○</span> Invoice creation</li>
+                        <li><span class="status-icon status-pending">○</span> Quote system</li>
+                        <li><span class="status-icon status-pending">○</span> POS / Cash drawer</li>
+                        <li><span class="status-icon status-pending">○</span> Leads management</li>
+                        <li><span class="status-icon status-pending">○</span> Cytracom voicemail</li>
+                    </ul>
+                </div>
+
+                <div class="progress-section">
+                    <h4>
+                        Phase 3: NinjaOne
+                        <span class="badge badge-not-started">Not Started</span>
+                    </h4>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: 0%; background: #9ca3af;"></div>
+                    </div>
+                    <ul style="margin: 0; padding-left: 20px; font-size: 0.9rem;">
+                        <li><span class="status-icon status-pending">○</span> Device-customer mapping</li>
+                        <li><span class="status-icon status-pending">○</span> Customer 360 view</li>
+                        <li><span class="status-icon status-pending">○</span> Device detail view</li>
+                        <li><span class="status-icon status-pending">○</span> Remote access</li>
+                        <li><span class="status-icon status-pending">○</span> Quick actions</li>
+                        <li><span class="status-icon status-pending">○</span> Hardware monitoring</li>
+                    </ul>
+                </div>
+
+                <div class="progress-section">
+                    <h4>
+                        Phase 4: Customer Portal
+                        <span class="badge badge-partial">10% Done</span>
+                    </h4>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: 10%;">10%</div>
+                    </div>
+                    <ul style="margin: 0; padding-left: 20px; font-size: 0.9rem;">
+                        <li><span class="status-icon status-complete">✓</span> Placeholder page exists</li>
+                        <li><span class="status-icon status-complete">✓</span> Backend auth ready</li>
+                        <li><span class="status-icon status-pending">○</span> Registration & linking</li>
+                        <li><span class="status-icon status-pending">○</span> Repair status tracking</li>
+                        <li><span class="status-icon status-pending">○</span> Invoice & payments</li>
+                        <li><span class="status-icon status-pending">○</span> Protection plan signup</li>
+                    </ul>
+                </div>
+
+                <div class="progress-section">
+                    <h4>
+                        Phase 5: PC Builder
+                        <span class="badge badge-not-started">Not Started</span>
+                    </h4>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: 0%; background: #9ca3af;"></div>
+                    </div>
+                    <ul style="margin: 0; padding-left: 20px; font-size: 0.9rem;">
+                        <li><span class="status-icon status-pending">○</span> Parts database</li>
+                        <li><span class="status-icon status-pending">○</span> Supplier price integration</li>
+                        <li><span class="status-icon status-pending">○</span> Compatibility engine</li>
+                        <li><span class="status-icon status-pending">○</span> Customer configurator</li>
+                    </ul>
+                </div>
+
+                <div class="progress-section">
+                    <h4>
+                        Phase 6: Social Media
+                        <span class="badge badge-not-started">Not Started</span>
+                    </h4>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: 0%; background: #9ca3af;"></div>
+                    </div>
+                    <ul style="margin: 0; padding-left: 20px; font-size: 0.9rem;">
+                        <li><span class="status-icon status-pending">○</span> Content calendar</li>
+                        <li><span class="status-icon status-pending">○</span> AI content generator</li>
+                        <li><span class="status-icon status-pending">○</span> Platform connectors</li>
+                        <li><span class="status-icon status-pending">○</span> Analytics dashboard</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="warning-box" style="margin-top: 30px;">
+                <h4>What's Already Working</h4>
+                <p style="margin-bottom: 10px;">The following features are live and functional in the admin portal:</p>
+                <ul style="margin: 0; padding-left: 20px;">
+                    <li><strong>Authentication:</strong> Employee login via RepairShopr, customer accounts in Supabase</li>
+                    <li><strong>Customer Management:</strong> Search, view, edit customers with protection plan status</li>
+                    <li><strong>Ticket System:</strong> 5-step intake wizard, ticket detail view, status updates, comments</li>
+                    <li><strong>Business Management:</strong> Search businesses, view associated customers</li>
+                    <li><strong>Gallery:</strong> Full CRUD for computer inventory with GitHub image storage</li>
+                    <li><strong>Blog:</strong> Full CMS with categories, tags, featured images</li>
+                    <li><strong>Contact Form:</strong> Bot protection, email notifications via Resend</li>
+                    <li><strong>Google Business:</strong> Reviews widget integration</li>
+                </ul>
+            </div>
+        </div>
+    </section>
 
     <section id="vision">
         <div class="container">
@@ -759,6 +973,7 @@
                         <p>Build the foundation that everything else depends on.</p>
                     </div>
                     <div class="phase-meta">
+                        <span class="badge badge-partial">75% Complete</span>
                         <span class="badge badge-critical">Critical Path</span>
                         <span class="hours-badge">~40-50 hours</span>
                     </div>
@@ -766,72 +981,76 @@
 
                 <ol class="step-list">
                     <li>
-                        <h4>Set Up Supabase Authentication</h4>
-                        <p>Replace RepairShopr auth with custom Supabase auth for both employees and customers.</p>
+                        <h4>Set Up Authentication System <span class="step-status done">✓ Complete</span></h4>
+                        <p>Dual-mode authentication with RepairShopr for employees and Supabase for customers.</p>
                         <ul class="substep-list">
-                            <li>Configure Supabase Auth in project</li>
-                            <li>Create user roles: <code>admin</code>, <code>technician</code>, <code>customer</code></li>
-                            <li>Set up email verification flow</li>
-                            <li>Create <code>profiles</code> table linking to RepairShopr customer IDs</li>
-                            <li>Implement password reset flow</li>
-                            <li>Add MFA option for employees (recommended for admin)</li>
+                            <li><strong>✓</strong> RepairShopr API authentication for employees</li>
+                            <li><strong>✓</strong> Supabase customer accounts table with bcrypt passwords</li>
+                            <li><strong>✓</strong> User roles: <code>admin</code>, <code>employee</code>, <code>limited</code>, <code>customer</code></li>
+                            <li><strong>✓</strong> AES-256-GCM encrypted session cookies</li>
+                            <li><strong>✓</strong> Rate limiting: 5 attempts per 15 min per IP</li>
+                            <li>○ Email verification flow (not implemented)</li>
+                            <li>○ Password reset flow (not implemented)</li>
+                            <li>○ MFA for admin (not implemented)</li>
                         </ul>
                     </li>
                     <li>
-                        <h4>Create User Profile System</h4>
-                        <p>Link Supabase users to RepairShopr records.</p>
+                        <h4>Create User Profile System <span class="step-status done">✓ Complete</span></h4>
+                        <p>Link accounts to RepairShopr records.</p>
                         <ul class="substep-list">
-                            <li>Create <code>user_profiles</code> table with <code>repairshopr_customer_id</code></li>
-                            <li>Create <code>employee_profiles</code> table with role and permissions</li>
-                            <li>Build account linking flow for existing RepairShopr customers</li>
-                            <li>Auto-create RepairShopr customer on new signup</li>
+                            <li><strong>✓</strong> <code>customer_accounts</code> table with <code>repairshopr_customer_id</code></li>
+                            <li><strong>✓</strong> Employee profiles via RepairShopr user data</li>
+                            <li><strong>✓</strong> Account linking during intake wizard</li>
+                            <li><strong>✓</strong> Protection plan tier tracking (bronze/silver/gold)</li>
                         </ul>
                     </li>
                     <li>
-                        <h4>Build API Wrapper Services</h4>
+                        <h4>Build API Wrapper Services <span class="step-status partial">Partial</span></h4>
                         <p>Create typed, cached wrappers for external APIs.</p>
                         <ul class="substep-list">
-                            <li>RepairShopr API service (<code>src/lib/repairshopr.ts</code>)</li>
-                            <li>NinjaOne API service (<code>src/lib/ninjaone.ts</code>)</li>
-                            <li>Implement rate limiting (RepairShopr: 180/min, NinjaOne: check docs)</li>
-                            <li>Add response caching layer (5-minute TTL for lists, 1-minute for detail)</li>
-                            <li>Error handling and retry logic</li>
+                            <li><strong>✓</strong> RepairShopr API service (<code>src/lib/repairshopr.ts</code>) - full implementation</li>
+                            <li><strong>✓</strong> Rate limiting (RepairShopr: 180/min)</li>
+                            <li><strong>✓</strong> Response caching with TTL</li>
+                            <li><strong>✓</strong> Error handling and retry logic</li>
+                            <li>○ NinjaOne API service - NOT STARTED</li>
                         </ul>
                     </li>
                     <li>
-                        <h4>Create Database Schema</h4>
-                        <p>Local tables for features beyond RepairShopr.</p>
+                        <h4>Create Database Schema <span class="step-status done">✓ Complete</span></h4>
+                        <p>Supabase tables for features beyond RepairShopr.</p>
                         <ul class="substep-list">
-                            <li><code>user_profiles</code> - Auth user to RepairShopr mapping</li>
-                            <li><code>employee_profiles</code> - Role, permissions, preferences</li>
-                            <li><code>ticket_templates</code> - Standardized ticket templates</li>
-                            <li><code>note_templates</code> - Standardized note formats</li>
-                            <li><code>workflow_steps</code> - Custom workflow definitions</li>
-                            <li><code>device_mappings</code> - RepairShopr Asset ID to NinjaOne Device ID</li>
-                            <li><code>hardware_alerts</code> - Push notifications for failing hardware</li>
+                            <li><strong>✓</strong> <code>customer_accounts</code> - Auth user to RepairShopr mapping</li>
+                            <li><strong>✓</strong> <code>customer_silver_plans</code> / <code>customer_protection_plans</code> - Plan tracking</li>
+                            <li><strong>✓</strong> <code>ticket_status_overrides</code> - Custom status system</li>
+                            <li><strong>✓</strong> <code>ticket_status_definitions</code> - Status metadata</li>
+                            <li><strong>✓</strong> <code>ticket_public_notes</code> - Customer-visible notes</li>
+                            <li><strong>✓</strong> <code>blog_posts</code>, <code>blog_categories</code>, <code>blog_tags</code> - Blog system</li>
+                            <li><strong>✓</strong> <code>gallery_computers</code>, <code>gallery_sales</code> - Gallery system</li>
+                            <li>○ <code>ticket_templates</code> - Not implemented</li>
+                            <li>○ <code>device_mappings</code> - Needs NinjaOne integration</li>
                         </ul>
                     </li>
                     <li>
-                        <h4>Set Up Route Protection</h4>
+                        <h4>Set Up Route Protection <span class="step-status done">✓ Complete</span></h4>
                         <p>Middleware to protect employee and customer routes.</p>
                         <ul class="substep-list">
-                            <li>Create auth middleware for API routes</li>
-                            <li>Protect <code>/employee/*</code> routes (employee role required)</li>
-                            <li>Protect <code>/portal/*</code> routes (customer role required)</li>
-                            <li>Protect <code>/admin/*</code> routes (admin role required)</li>
+                            <li><strong>✓</strong> Auth middleware for API routes</li>
+                            <li><strong>✓</strong> Protect <code>/admin/*</code> routes (employee role required)</li>
+                            <li><strong>✓</strong> Role-based access control in session</li>
+                            <li><strong>✓</strong> Automatic redirect to login for unauthenticated users</li>
                         </ul>
                     </li>
                     <li>
-                        <h4>Configure Stripe Integration</h4>
+                        <h4>Configure Stripe Integration <span class="step-status todo">Not Started</span></h4>
                         <p>Set up Stripe for all payment processing.</p>
                         <ul class="substep-list">
-                            <li>Verify Stripe account is active and verified</li>
-                            <li>Configure Stripe in RepairShopr settings</li>
-                            <li>Set up Stripe API keys in environment variables</li>
-                            <li>Create Stripe webhook endpoint (<code>/api/webhooks/stripe</code>)</li>
-                            <li>Test payment flow with small transaction</li>
-                            <li>Order Stripe Terminal hardware (2x Reader M2 @ $59 each)</li>
-                            <li>Configure Stripe Billing products for Protection Plans</li>
+                            <li>○ Verify Stripe account is active and verified</li>
+                            <li>○ Configure Stripe in RepairShopr settings</li>
+                            <li>○ Set up Stripe API keys in environment variables</li>
+                            <li>○ Create Stripe webhook endpoint (<code>/api/webhooks/stripe</code>)</li>
+                            <li>○ Test payment flow with small transaction</li>
+                            <li>○ Order Stripe Terminal hardware (2x Reader M2 @ $59 each)</li>
+                            <li>○ Configure Stripe Billing products for Protection Plans</li>
                         </ul>
                     </li>
                 </ol>
@@ -884,6 +1103,7 @@
                         <p>Replace RepairShopr's cluttered interface with a streamlined, workflow-driven experience.</p>
                     </div>
                     <div class="phase-meta">
+                        <span class="badge badge-partial">45% Complete</span>
                         <span class="badge badge-critical">Critical Path</span>
                         <span class="hours-badge">~80-100 hours</span>
                     </div>
@@ -899,137 +1119,157 @@
 
                 <ol class="step-list">
                     <li>
-                        <h4>Build Customer Search & Management</h4>
-                        <p>Fast, keyboard-friendly customer lookup.</p>
+                        <h4>Build Customer Search & Management <span class="step-status done">✓ Complete</span></h4>
+                        <p>Fast customer lookup and management.</p>
                         <ul class="substep-list">
-                            <li>Global search bar (Cmd/Ctrl + K) for customers</li>
-                            <li>Search by name, phone, email</li>
-                            <li>Quick-create customer inline (minimal fields)</li>
-                            <li>Customer detail view with only relevant info</li>
-                            <li>Link to their tickets, invoices, assets</li>
+                            <li><strong>✓</strong> Search by name, phone, email</li>
+                            <li><strong>✓</strong> Customer detail view with relevant info</li>
+                            <li><strong>✓</strong> View customer's tickets, invoices, assets</li>
+                            <li><strong>✓</strong> Edit customer information</li>
+                            <li><strong>✓</strong> Protection plan tier management</li>
+                            <li>○ Global search bar (Cmd/Ctrl + K) - not implemented</li>
+                            <li>○ Quick-create customer inline - not implemented</li>
                         </ul>
                     </li>
                     <li>
-                        <h4>Create Ticket Templates System</h4>
+                        <h4>Create Ticket Templates System <span class="step-status todo">Not Started</span></h4>
                         <p>Pre-defined templates for common repair types.</p>
                         <ul class="substep-list">
-                            <li>Template builder in admin settings</li>
-                            <li>Templates include: default status, problem type, required fields, estimated time</li>
-                            <li>Example templates: Virus Removal, Hardware Diagnostic, Data Transfer, Screen Repair</li>
-                            <li>Templates can auto-set ticket properties and pre-fill descriptions</li>
+                            <li>○ Template builder in admin settings</li>
+                            <li>○ Templates include: default status, problem type, required fields, estimated time</li>
+                            <li>○ Example templates: Virus Removal, Hardware Diagnostic, Data Transfer, Screen Repair</li>
+                            <li>○ Templates can auto-set ticket properties and pre-fill descriptions</li>
                         </ul>
                     </li>
                     <li>
-                        <h4>Build Ticket Creation Workflow</h4>
-                        <p>Guided, step-by-step ticket creation.</p>
+                        <h4>Build Ticket Creation Workflow <span class="step-status done">✓ Complete</span></h4>
+                        <p>Guided, step-by-step ticket creation via 5-step intake wizard.</p>
                         <ul class="substep-list">
-                            <li>Step 1: Select or create customer</li>
-                            <li>Step 2: Choose ticket template (or blank)</li>
-                            <li>Step 3: Fill required fields (template-driven)</li>
-                            <li>Step 4: Asset selection or creation</li>
-                            <li>Step 5: Confirmation with intake checklist</li>
-                            <li>Auto-create in RepairShopr on submit</li>
+                            <li><strong>✓</strong> Step 1: Customer search/creation</li>
+                            <li><strong>✓</strong> Step 2: Device selection/creation</li>
+                            <li><strong>✓</strong> Step 3: Device specifications</li>
+                            <li><strong>✓</strong> Step 4: Ticket description</li>
+                            <li><strong>✓</strong> Step 5: Optional portal account creation</li>
+                            <li><strong>✓</strong> Auto-create in RepairShopr on submit</li>
+                            <li>○ Template selection step - not implemented</li>
                         </ul>
                     </li>
                     <li>
-                        <h4>Build Ticket Dashboard</h4>
+                        <h4>Build Ticket Dashboard <span class="step-status todo">Not Started</span></h4>
                         <p>Kanban-style view of all open tickets.</p>
                         <ul class="substep-list">
-                            <li>Columns by status: Intake, Diagnosing, Waiting for Parts, In Progress, Ready for Pickup</li>
-                            <li>Drag-and-drop to change status</li>
-                            <li>Quick filters: assigned to me, unassigned, by ticket type</li>
-                            <li>Color coding by priority and age</li>
-                            <li>Click to expand ticket details inline</li>
+                            <li>○ Columns by status: Intake, Diagnosing, Waiting for Parts, In Progress, Ready for Pickup</li>
+                            <li>○ Drag-and-drop to change status</li>
+                            <li>○ Quick filters: assigned to me, unassigned, by ticket type</li>
+                            <li>○ Color coding by priority and age</li>
+                            <li>○ Click to expand ticket details inline</li>
+                            <li><em>Note: Basic ticket list view exists at /admin/tickets</em></li>
                         </ul>
                     </li>
                     <li>
-                        <h4>Build Ticket Detail View</h4>
+                        <h4>Build Ticket Detail View <span class="step-status done">✓ Complete</span></h4>
                         <p>Clean, focused ticket management.</p>
                         <ul class="substep-list">
-                            <li>Customer info summary at top</li>
-                            <li>Asset info with NinjaOne link (if available)</li>
-                            <li>Status change with required note</li>
-                            <li>Time tracking integration</li>
-                            <li>Structured note entry (what was done, what's next, parts used)</li>
-                            <li>Invoice creation button</li>
+                            <li><strong>✓</strong> Customer info summary at top</li>
+                            <li><strong>✓</strong> Asset info display</li>
+                            <li><strong>✓</strong> Status change with custom status system</li>
+                            <li><strong>✓</strong> Comment/note entry (public & private)</li>
+                            <li><strong>✓</strong> Customer-visible notes section</li>
+                            <li>○ NinjaOne device link - not implemented</li>
+                            <li>○ Time tracking - not implemented</li>
+                            <li>○ Invoice creation button - not implemented</li>
                         </ul>
                     </li>
                     <li>
-                        <h4>Build Standardized Notes System</h4>
-                        <p>No more freeform notes without structure.</p>
+                        <h4>Build Standardized Notes System <span class="step-status partial">Partial</span></h4>
+                        <p>Structured note entry system.</p>
                         <ul class="substep-list">
-                            <li>Note types: Diagnostic, Work Performed, Customer Communication, Internal</li>
-                            <li>Required fields per note type</li>
-                            <li>Time spent tracking</li>
-                            <li>Parts/materials used selection</li>
-                            <li>Auto-timestamp and employee attribution</li>
+                            <li><strong>✓</strong> Public notes (customer-visible) with <code>ticket_public_notes</code> table</li>
+                            <li><strong>✓</strong> Private notes via RepairShopr comments</li>
+                            <li><strong>✓</strong> Auto-timestamp and employee attribution</li>
+                            <li>○ Note type categories (Diagnostic, Work Performed, etc.) - not implemented</li>
+                            <li>○ Required fields per note type - not implemented</li>
+                            <li>○ Parts/materials used selection - not implemented</li>
                         </ul>
                     </li>
                     <li>
-                        <h4>Build Invoice Management</h4>
-                        <p>Streamlined invoice creation from tickets.</p>
+                        <h4>Build Invoice Management <span class="step-status partial">Partial (Read-Only)</span></h4>
+                        <p>Invoice viewing and creation from tickets.</p>
                         <ul class="substep-list">
-                            <li>One-click invoice from ticket (pulls line items from notes)</li>
-                            <li>Add labor, parts, services</li>
-                            <li>Apply discounts and protection plan benefits</li>
-                            <li>Send invoice email directly</li>
-                            <li>Payment processing (link to existing Stripe/Square integration)</li>
+                            <li><strong>✓</strong> View customer invoices from RepairShopr</li>
+                            <li><strong>✓</strong> View invoice details with line items</li>
+                            <li>○ One-click invoice creation from ticket - not implemented</li>
+                            <li>○ Add labor, parts, services - not implemented</li>
+                            <li>○ Apply protection plan discounts - not implemented</li>
+                            <li>○ Send invoice email - not implemented</li>
+                            <li>○ Payment processing - not implemented</li>
                         </ul>
                     </li>
                     <li>
-                        <h4>Build Inventory Quick-Access</h4>
+                        <h4>Build Inventory Quick-Access <span class="step-status todo">Not Started</span></h4>
                         <p>Search and use inventory without leaving ticket.</p>
                         <ul class="substep-list">
-                            <li>Search inventory by name, SKU, category</li>
-                            <li>Add to ticket/invoice inline</li>
-                            <li>Stock level warnings</li>
-                            <li>Link to full inventory management (future phase)</li>
+                            <li>○ Search inventory by name, SKU, category</li>
+                            <li>○ Add to ticket/invoice inline</li>
+                            <li>○ Stock level warnings</li>
+                            <li>○ Link to full inventory management (future phase)</li>
                         </ul>
                     </li>
                     <li>
-                        <h4>Build Quote (Estimate) System</h4>
+                        <h4>Build Quote (Estimate) System <span class="step-status todo">Not Started</span></h4>
                         <p>Renamed from "Estimates" per your preference.</p>
                         <ul class="substep-list">
-                            <li>Create quote from ticket or standalone</li>
-                            <li>Add line items with descriptions</li>
-                            <li>Convert quote to invoice when approved</li>
-                            <li>Email quote to customer</li>
-                            <li>Quote expiration tracking</li>
+                            <li>○ Create quote from ticket or standalone</li>
+                            <li>○ Add line items with descriptions</li>
+                            <li>○ Convert quote to invoice when approved</li>
+                            <li>○ Email quote to customer</li>
+                            <li>○ Quote expiration tracking</li>
                         </ul>
                     </li>
                     <li>
-                        <h4>Build POS Functionality</h4>
+                        <h4>Build POS Functionality <span class="step-status todo">Not Started</span></h4>
                         <p>Cash drawer control and point-of-sale.</p>
                         <ul class="substep-list">
-                            <li>Open drawer button (API call to hardware)</li>
-                            <li>Close drawer / end-of-day reconciliation</li>
-                            <li>Quick sale mode (walk-in purchases without ticket)</li>
-                            <li>Receipt printing (integrate with existing printer)</li>
+                            <li>○ Open drawer button (API call to hardware)</li>
+                            <li>○ Close drawer / end-of-day reconciliation</li>
+                            <li>○ Quick sale mode (walk-in purchases without ticket)</li>
+                            <li>○ Receipt printing (integrate with existing printer)</li>
                         </ul>
                     </li>
                     <li>
-                        <h4>Build Leads Management</h4>
+                        <h4>Build Leads Management <span class="step-status todo">Not Started</span></h4>
                         <p>Capture and track sales leads.</p>
                         <ul class="substep-list">
-                            <li>Lead inbox view</li>
-                            <li>Convert lead to customer + ticket</li>
-                            <li>Lead status tracking (new, contacted, quoted, won, lost)</li>
-                            <li>Integrate with Cytracom voicemail (see below)</li>
+                            <li>○ Lead inbox view</li>
+                            <li>○ Convert lead to customer + ticket</li>
+                            <li>○ Lead status tracking (new, contacted, quoted, won, lost)</li>
+                            <li>○ Integrate with Cytracom voicemail (see below)</li>
                         </ul>
                     </li>
                     <li>
-                        <h4>Cytracom Voicemail Integration</h4>
+                        <h4>Cytracom Voicemail Integration <span class="step-status todo">Not Started</span></h4>
                         <p>Direct voicemail to website instead of RepairShopr.</p>
                         <ul class="substep-list">
-                            <li>Research Cytracom API capabilities</li>
-                            <li>Set up webhook for new voicemail notifications</li>
-                            <li>Create voicemail inbox in employee portal</li>
-                            <li>Transcription display (if Cytracom provides)</li>
-                            <li>One-click convert to lead or ticket</li>
-                            <li>Link voicemail to customer if phone number matches</li>
+                            <li>○ Research Cytracom API capabilities</li>
+                            <li>○ Set up webhook for new voicemail notifications</li>
+                            <li>○ Create voicemail inbox in employee portal</li>
+                            <li>○ Transcription display (if Cytracom provides)</li>
+                            <li>○ One-click convert to lead or ticket</li>
+                            <li>○ Link voicemail to customer if phone number matches</li>
                         </ul>
                     </li>
                 </ol>
+
+                <div class="info-box" style="margin-top: 20px;">
+                    <h4>Additional Completed Features (Not in Original Roadmap)</h4>
+                    <ul style="margin: 10px 0 0 20px; color: #6d28d9;">
+                        <li><strong>Business Management:</strong> Search businesses, view associated customers, edit customer info under business</li>
+                        <li><strong>Blog CMS:</strong> Full blog management with categories, tags, featured images, draft/published status</li>
+                        <li><strong>Gallery Management:</strong> Computer inventory CRUD with GitHub image storage, Black Friday pricing</li>
+                        <li><strong>Google Business:</strong> Reviews widget, business posts, profile info integration</li>
+                        <li><strong>Contact Form:</strong> Bot protection, spam detection, email notifications via Resend</li>
+                    </ul>
+                </div>
 
                 <div class="info-box">
                     <h4>Cytracom Research Needed</h4>
@@ -1114,6 +1354,7 @@
                         <p>Unified device management without leaving the portal.</p>
                     </div>
                     <div class="phase-meta">
+                        <span class="badge badge-not-started">Not Started</span>
                         <span class="badge badge-critical">Critical Path</span>
                         <span class="hours-badge">~50-60 hours</span>
                     </div>
@@ -1261,9 +1502,22 @@
                         <p>24/7 access to repairs, payments, and account management.</p>
                     </div>
                     <div class="phase-meta">
+                        <span class="badge badge-partial">10% Complete</span>
                         <span class="badge badge-high">High Priority</span>
                         <span class="hours-badge">~60-80 hours</span>
                     </div>
+                </div>
+
+                <div class="info-box">
+                    <h4>Current Status: Foundation Ready</h4>
+                    <p>The backend infrastructure for the customer portal is in place:</p>
+                    <ul style="margin: 10px 0 0 20px; color: #6d28d9;">
+                        <li><strong>✓</strong> <code>customer_accounts</code> table with Supabase authentication</li>
+                        <li><strong>✓</strong> Account linking to RepairShopr customer IDs</li>
+                        <li><strong>✓</strong> Placeholder page at <code>/portal</code> with "Coming Soon" message</li>
+                        <li><strong>✓</strong> Ticket public notes system for customer communication</li>
+                        <li><strong>✓</strong> Protection plan tier tracking</li>
+                    </ul>
                 </div>
 
                 <ol class="step-list">
@@ -1370,6 +1624,7 @@
                         <p>iBuyPower-style build experience for customers and technicians.</p>
                     </div>
                     <div class="phase-meta">
+                        <span class="badge badge-not-started">Not Started</span>
                         <span class="badge badge-medium">Medium Priority</span>
                         <span class="hours-badge">~100-120 hours</span>
                     </div>
@@ -1498,6 +1753,7 @@
                         <p>AI-powered content calendar and automated posting.</p>
                     </div>
                     <div class="phase-meta">
+                        <span class="badge badge-not-started">Not Started</span>
                         <span class="badge badge-medium">Medium Priority</span>
                         <span class="hours-badge">~80-100 hours</span>
                     </div>
@@ -1831,33 +2087,53 @@
         <div class="container">
             <h2>Immediate Next Steps</h2>
 
+            <div class="exec-summary" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left-color: #f59e0b;">
+                <p style="color: #92400e;"><strong>Current Focus:</strong> Complete remaining Phase 1 items (NinjaOne API, Stripe) and high-value Phase 2 features (Kanban dashboard, invoice creation) before moving to Phase 3.</p>
+            </div>
+
             <div class="card-grid">
                 <div class="card phase-1">
-                    <h3>This Week</h3>
+                    <h3>Phase 1 Remaining</h3>
                     <ol>
-                        <li>Set up Supabase Auth in the project</li>
-                        <li>Create user_profiles and employee_profiles tables</li>
-                        <li>Build login/signup pages</li>
-                        <li>Start RepairShopr API wrapper</li>
+                        <li><strong>NinjaOne API wrapper</strong> - Create <code>src/lib/ninjaone.ts</code> with typed client</li>
+                        <li><strong>Stripe integration</strong> - Set up API keys, webhook endpoint, test transactions</li>
+                        <li><strong>Order Stripe hardware</strong> - 2x Reader M2 ($118 total)</li>
+                        <li>Email verification flow (optional enhancement)</li>
+                        <li>Password reset flow (optional enhancement)</li>
                     </ol>
                 </div>
                 <div class="card phase-2">
-                    <h3>Research Needed</h3>
+                    <h3>Phase 2 Priorities</h3>
                     <ol>
-                        <li>Schedule 30-min session with tech for NinjaOne workflow</li>
-                        <li>Research Cytracom API documentation</li>
-                        <li>Review Ingram Micro/TD SYNNEX API access requirements</li>
+                        <li><strong>Ticket Kanban dashboard</strong> - High value, visual workflow</li>
+                        <li><strong>Invoice creation</strong> - Currently read-only, need full CRUD</li>
+                        <li><strong>Quote system</strong> - Create and send estimates</li>
+                        <li><strong>Ticket templates</strong> - Standardize intake process</li>
+                        <li><strong>Cytracom research</strong> - Determine API capabilities</li>
                     </ol>
                 </div>
                 <div class="card phase-3">
-                    <h3>Decisions Needed</h3>
+                    <h3>Research Needed</h3>
                     <ol>
-                        <li>Confirm ticket statuses/workflow steps to use</li>
-                        <li>Define required fields for each ticket type</li>
-                        <li>Define note types and required fields</li>
-                        <li>Decide on protection plan pricing tiers</li>
+                        <li><strong>NinjaOne API docs</strong> - Remote access, scripting, alerts</li>
+                        <li><strong>Technician interview</strong> - 30-min session on NinjaOne workflow</li>
+                        <li><strong>Cytracom API</strong> - Voicemail webhook capabilities</li>
+                        <li><strong>Supplier APIs</strong> - Ingram Micro, TD SYNNEX access</li>
                     </ol>
                 </div>
+            </div>
+
+            <div class="warning-box" style="margin-top: 30px;">
+                <h4>What's Already Working - Don't Rebuild!</h4>
+                <p style="margin-bottom: 10px;">These features are complete and functional. Focus new work on missing features:</p>
+                <ul style="margin: 0; padding-left: 20px; color: #92400e;">
+                    <li><strong>✓ Authentication</strong> - RepairShopr + Supabase dual-mode working</li>
+                    <li><strong>✓ Customer management</strong> - Full CRUD with protection plan tiers</li>
+                    <li><strong>✓ Ticket intake wizard</strong> - 5-step process creates tickets in RepairShopr</li>
+                    <li><strong>✓ Ticket detail view</strong> - Status updates, comments, notes</li>
+                    <li><strong>✓ Blog & Gallery CMS</strong> - Full management with image uploads</li>
+                    <li><strong>✓ Contact form</strong> - Bot protection, email notifications</li>
+                </ul>
             </div>
         </div>
     </section>
@@ -1865,7 +2141,7 @@
     <footer>
         <p><strong>The Computer Store</strong> | Topeka & Holton, Kansas</p>
         <p>Master Development Roadmap - Internal Planning Document</p>
-        <p style="margin-top: 15px; font-size: 0.85rem; opacity: 0.7;">Prepared by Bast Project Management | December 2025</p>
+        <p style="margin-top: 15px; font-size: 0.85rem; opacity: 0.7;">Prepared by Bast Project Management | Last Updated: December 26, 2025</p>
     </footer>
 </body>
 </html>

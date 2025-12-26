@@ -1054,16 +1054,17 @@
                         </ul>
                     </li>
                     <li>
-                        <h4>Configure Stripe Integration <span class="step-status todo">Not Started</span></h4>
-                        <p>Set up Stripe for all payment processing.</p>
+                        <h4>Payment Integration <span class="step-status" style="background: #fef3c7; color: #92400e;">ON HOLD</span></h4>
+                        <p>Payment processing integration - awaiting provider decision.</p>
+                        <div class="warning-box" style="margin: 10px 0; background: #fef3c7;">
+                            <p style="margin: 0; color: #92400e;"><strong>On Hold:</strong> Boss is evaluating US Bank payment services vs Stripe. Will prepare infrastructure but not connect to live accounts until decision is made.</p>
+                        </div>
                         <ul class="substep-list">
-                            <li>○ Verify Stripe account is active and verified</li>
-                            <li>○ Configure Stripe in RepairShopr settings</li>
-                            <li>○ Set up Stripe API keys in environment variables</li>
-                            <li>○ Create Stripe webhook endpoint (<code>/api/webhooks/stripe</code>)</li>
-                            <li>○ Test payment flow with small transaction</li>
-                            <li>○ Order Stripe Terminal hardware (2x Reader M2 @ $59 each)</li>
-                            <li>○ Configure Stripe Billing products for Protection Plans</li>
+                            <li>○ <strong>Decision needed:</strong> US Bank vs Stripe</li>
+                            <li>○ Create payment abstraction layer (provider-agnostic)</li>
+                            <li>○ Create webhook endpoint skeleton (<code>/api/webhooks/payments</code>)</li>
+                            <li>○ Document hardware requirements for chosen provider</li>
+                            <li><em>Note: Do not connect to live accounts until provider is selected</em></li>
                         </ul>
                     </li>
                 </ol>
@@ -2122,8 +2123,7 @@
                     <h3>Phase 1 Remaining (After Auth)</h3>
                     <ol>
                         <li><strong>NinjaOne API wrapper</strong> - Create <code>src/lib/ninjaone.ts</code></li>
-                        <li><strong>Stripe integration</strong> - API keys, webhook endpoint</li>
-                        <li><strong>Order Stripe hardware</strong> - 2x Reader M2 ($118 total)</li>
+                        <li><strong style="color: #92400e;">Payment integration (ON HOLD)</strong> - Awaiting US Bank vs Stripe decision</li>
                     </ol>
                 </div>
                 <div class="card phase-2">

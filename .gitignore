@@ -40,6 +40,5 @@ out/
 .sessions/
 
 # CCPM local workspace
-.claude/epics/
 .claude/settings.local.json
 # Trigger rebuild Thu Nov 27 09:25:25 AM CST 2025

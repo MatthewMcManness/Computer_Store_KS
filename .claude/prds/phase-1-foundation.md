@@ -47,21 +47,45 @@ Phase 1 establishes the core infrastructure for The Computer Store's unified pla
 **Acceptance Criteria:**
 - [ ] Employee can log in with email/password via Supabase Auth
 - [ ] Employee's RepairShopr user ID is linked to their Supabase account
-- [ ] Employee role (admin/employee) is stored and enforced
+- [ ] Employee role (admin/technician) is stored and enforced
 - [ ] Failed login attempts are rate-limited
 - [ ] Session persists across browser refreshes
 
-### Primary User Story: Customer Registration
+### Primary User Story: Customer Self-Registration
 **As a** customer of The Computer Store
-**I want** to create an account on the customer portal
+**I want** to create an account on the customer portal myself
 **So that** I can track my repairs and view my invoices online
 
 **Acceptance Criteria:**
-- [ ] Customer can register with email/password
+- [ ] Customer can register with email/password on website
 - [ ] Email verification is required before full access
 - [ ] Account is linked to RepairShopr customer record (if exists)
 - [ ] New RepairShopr customer is created if none exists
 - [ ] Customer receives welcome email with next steps
+
+### Primary User Story: Intake Account Creation
+**As an** employee creating a ticket for a customer
+**I want** the intake wizard to check if the customer has a portal account
+**So that** every customer with a ticket has portal access
+
+**Acceptance Criteria:**
+- [ ] Intake wizard checks if customer has existing portal account
+- [ ] If no account exists, employee MUST create one during intake
+- [ ] Account creation is a required step (cannot skip)
+- [ ] Password setup email is sent to customer
+- [ ] Account is linked to RepairShopr customer record
+
+### Secondary User Story: Employee Onboarding
+**As an** admin
+**I want** to create employee accounts and send them setup links
+**So that** new employees can securely set up their own passwords
+
+**Acceptance Criteria:**
+- [ ] Admin can create employee account with email and role
+- [ ] Employee receives email with password setup link
+- [ ] Password setup link expires after 24 hours
+- [ ] Employee sets their own password via the link
+- [ ] Account is linked to RepairShopr user record
 
 ### Secondary User Story: Password Reset
 **As a** user who forgot my password
@@ -105,7 +129,7 @@ Phase 1 establishes the core infrastructure for The Computer Store's unified pla
 ### Must Have (P0)
 - [ ] All users authenticate via Supabase Auth (no RepairShopr auth)
 - [ ] User profiles link Supabase Auth ID to RepairShopr ID
-- [ ] Role-based access control (admin, employee, customer)
+- [ ] Role-based access control (admin, technician, customer)
 - [ ] Protected routes enforce authentication
 - [ ] Session management with secure JWT handling
 - [ ] Password reset via email
@@ -151,7 +175,7 @@ CREATE TABLE user_profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   email TEXT UNIQUE NOT NULL,
   full_name TEXT,
-  role TEXT NOT NULL CHECK (role IN ('admin', 'employee', 'customer')),
+  role TEXT NOT NULL CHECK (role IN ('admin', 'technician', 'customer')),
   repairshopr_user_id INTEGER,      -- For employees
   repairshopr_customer_id INTEGER,  -- For customers
   protection_plan_tier TEXT CHECK (tier IN ('bronze', 'silver', 'gold')),
@@ -172,11 +196,50 @@ CREATE POLICY "Users can update their own profile"
 ```
 
 ### FR-3: Authentication Flows
-- **Login:** Email/password → Supabase Auth → Load profile → Redirect
-- **Registration (Customer):** Email/password → Verify email → Link/create RepairShopr customer → Create profile
-- **Registration (Employee):** Admin creates account → Employee sets password via email → Link RepairShopr user
-- **Password Reset:** Email → Reset link → New password → Invalidate old sessions
-- **Logout:** Clear session → Redirect to login
+
+**Customer Self-Registration:**
+1. Customer visits `/register` page
+2. Enters email and password
+3. Supabase sends verification email
+4. Customer clicks verification link
+5. System checks for existing RepairShopr customer by email
+6. If exists → link accounts; if not → create RepairShopr customer
+7. Create user_profile with role='customer'
+8. Redirect to customer portal
+
+**Employee Onboarding (Admin-initiated):**
+1. Admin navigates to employee management
+2. Admin enters employee email and selects role (admin/technician)
+3. Admin enters RepairShopr user ID to link
+4. System creates Supabase Auth user with temporary password
+5. Supabase sends "Set your password" email
+6. Employee clicks link and sets password (link expires in 24 hours)
+7. Create user_profile with role and repairshopr_user_id
+8. Employee can now log in
+
+**Login Flow:**
+1. User enters email/password
+2. Supabase Auth validates credentials
+3. Load user_profile from database
+4. Set session cookies
+5. Redirect to appropriate portal (employee [admin, technician] vs customer)
+
+**Password Reset:**
+1. User requests reset via email
+2. Supabase sends reset link (expires in 1 hour)
+3. User clicks link and sets new password
+4. All existing sessions are invalidated
+5. User must log in with new password
+
+### FR-3.5: Intake Wizard Account Requirement
+The existing intake wizard must be updated to require customer portal accounts:
+
+1. **Account Check Step:** After selecting/creating customer, check if portal account exists
+2. **Required Creation:** If no account exists, display account creation form (cannot skip)
+3. **Minimal Fields:** Email (pre-filled from RepairShopr) + generate temporary password
+4. **Email Notification:** Send "Set your password" email to customer
+5. **Continue Intake:** After account creation, continue with device/ticket creation
+6. **Visual Indicator:** Show account status (existing/new) throughout intake
 
 ### FR-4: Session Management
 - Use Supabase Auth session (JWT + refresh token)
@@ -186,7 +249,7 @@ CREATE POLICY "Users can update their own profile"
 
 ### FR-5: Role-Based Access Control
 - **Admin:** Full access to all features, can manage employees
-- **Employee:** Access to employee portal, cannot manage other employees
+- **Technician:** Access to employee portal, cannot manage other employees
 - **Customer:** Access to customer portal only, cannot access admin features
 
 ### FR-6: NinjaOne API Integration
@@ -328,7 +391,7 @@ Create typed API wrapper (`src/lib/ninjaone.ts`):
 | id | UUID | PK, references auth.users(id) |
 | email | TEXT | Unique, user's email |
 | full_name | TEXT | Display name |
-| role | TEXT | 'admin', 'employee', 'customer' |
+| role | TEXT | 'admin', 'technician', 'customer' |
 | repairshopr_user_id | INTEGER | For employees (nullable) |
 | repairshopr_customer_id | INTEGER | For customers (nullable) |
 | protection_plan_tier | TEXT | 'bronze', 'silver', 'gold' (nullable) |
@@ -435,11 +498,19 @@ The existing `customer_accounts` table will be migrated:
 
 ## Open Questions
 
-1. **Payment Provider Decision (BLOCKING):** US Bank vs Stripe? Boss is evaluating US Bank payment services. Decision needed before payment integration can proceed.
-2. **NinjaOne API Access:** What tier of NinjaOne subscription is active? Does it include API access?
-3. **Employee Onboarding:** How should new employees be added? Admin creates account or self-registration with domain verification?
-4. **Existing Sessions:** How to handle existing logged-in users during migration? Force logout?
-5. **Customer Migration:** Should existing customer_accounts be auto-migrated or require re-registration?
+### Resolved
+
+1. **NinjaOne API Access:** ✅ **ANSWERED** - Full API access available
+2. **Payment Provider Decision:** ✅ **ANSWERED** - On hold pending US Bank evaluation
+3. **Employee Onboarding:** ✅ **ANSWERED** - Admin creates account → sends password setup link via email
+4. **Customer Account Creation:** ✅ **ANSWERED** - Two paths:
+   - **Self-registration:** Customers can create accounts themselves through the website
+   - **Intake requirement:** During ticket intake, check if customer has portal account. If not, employee MUST create one as part of the intake process.
+
+### Still Open
+
+1. **Existing Sessions:** How to handle existing logged-in users during migration? Force logout?
+2. **Customer Migration:** Should existing customer_accounts be auto-migrated or require re-registration?
 
 ---
 

@@ -4,7 +4,7 @@ status: backlog
 created: 2025-12-26T22:06:59Z
 progress: 0%
 prd: .claude/prds/phase-1-foundation.md
-github: [Will be updated when synced to GitHub]
+github: https://github.com/MatthewMcManness/Computer_Store_KS/issues/49
 ---
 
 # Epic: Phase 1 - Foundation
@@ -138,20 +138,20 @@ Migrate from fragmented authentication (RepairShopr API + custom bcrypt) to unif
 
 | # | Task | Size | Parallel | Depends On |
 |---|------|------|----------|------------|
-| 001 | Database Schema | S | ✅ | - |
-| 002 | Supabase Auth Configuration | S | ❌ | 001 |
-| 003 | Auth Library & Middleware | M | ❌ | 001, 002 |
-| 004 | Auth Pages | M | ❌ | 003 |
-| 005 | Employee Onboarding | M | ✅ | 004 |
-| 006 | Intake Wizard Update | S | ✅ | 004 |
-| 007 | NinjaOne API Wrapper | M | ✅ | 001 |
-| 008 | User Migration Script | M | ❌ | 001-004 |
-| 009 | Validation & Cleanup | M | ❌ | 008 |
+| [#50](https://github.com/MatthewMcManness/Computer_Store_KS/issues/50) | Database Schema | S | ✅ | - |
+| [#51](https://github.com/MatthewMcManness/Computer_Store_KS/issues/51) | Supabase Auth Configuration | S | ❌ | #50 |
+| [#52](https://github.com/MatthewMcManness/Computer_Store_KS/issues/52) | Auth Library & Middleware | M | ❌ | #50, #51 |
+| [#53](https://github.com/MatthewMcManness/Computer_Store_KS/issues/53) | Auth Pages | M | ❌ | #52 |
+| [#54](https://github.com/MatthewMcManness/Computer_Store_KS/issues/54) | Employee Onboarding | M | ✅ | #53 |
+| [#55](https://github.com/MatthewMcManness/Computer_Store_KS/issues/55) | Intake Wizard Update | S | ✅ | #53 |
+| [#56](https://github.com/MatthewMcManness/Computer_Store_KS/issues/56) | NinjaOne API Wrapper | M | ✅ | #50 |
+| [#57](https://github.com/MatthewMcManness/Computer_Store_KS/issues/57) | User Migration Script | M | ❌ | #50-#53 |
+| [#58](https://github.com/MatthewMcManness/Computer_Store_KS/issues/58) | Validation & Cleanup | M | ❌ | #57 |
 
 **Summary:**
 - Total tasks: 9
-- Parallel tasks: 4 (001, 005, 006, 007)
-- Sequential tasks: 5 (002, 003, 004, 008, 009)
+- Parallel tasks: 4 (#50, #54, #55, #56)
+- Sequential tasks: 5 (#51, #52, #53, #57, #58)
 - Estimated total effort: 22-32 hours
 
-**Critical Path:** 001 → 002 → 003 → 004 → 008 → 009
+**Critical Path:** #50 → #51 → #52 → #53 → #57 → #58

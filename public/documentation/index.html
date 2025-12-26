@@ -11,6 +11,8 @@
             --secondary: #10b981;
             --secondary-dark: #059669;
             --accent: #f59e0b;
+            --purple: #8b5cf6;
+            --purple-dark: #7c3aed;
             --dark: #1e293b;
             --light: #f8fafc;
             --gray: #64748b;
@@ -144,6 +146,10 @@
             border-top-color: var(--accent);
         }
 
+        .doc-card.technical {
+            border-top-color: var(--purple);
+        }
+
         .doc-card .badge {
             display: inline-block;
             padding: 4px 12px;
@@ -167,6 +173,11 @@
         .badge-decision {
             background: #fef3c7;
             color: #b45309;
+        }
+
+        .badge-technical {
+            background: #ede9fe;
+            color: var(--purple-dark);
         }
 
         .doc-card h3 {
@@ -245,6 +256,15 @@
 
         .btn-accent:hover {
             background: #d97706;
+        }
+
+        .btn-purple {
+            background: var(--purple);
+            color: white;
+        }
+
+        .btn-purple:hover {
+            background: var(--purple-dark);
         }
 
         .section-title {
@@ -387,6 +407,25 @@
                     <li>Build-your-own analysis (Tactical RMM)</li>
                 </ul>
                 <a href="/documentation/rmm_platform_comparison.html" class="btn btn-accent">View Comparison →</a>
+            </div>
+        </div>
+
+        <!-- Technical Guides -->
+        <h2 class="section-title">Technical Guides</h2>
+
+        <div class="doc-grid">
+            <div class="doc-card technical">
+                <span class="badge badge-technical">Technical Guide</span>
+                <h3>Unified Technician Portal</h3>
+                <p>Architecture and implementation guide for building a custom frontend that integrates NinjaOne RMM with RepairShopr PSA.</p>
+                <ul>
+                    <li>NinjaOne API v2 integration</li>
+                    <li>RepairShopr REST API usage</li>
+                    <li>Customer 360 view design</li>
+                    <li>Device management & quick actions</li>
+                    <li>Code examples & implementation timeline</li>
+                </ul>
+                <a href="/documentation/unified_technician_portal.html" class="btn btn-purple">View Portal Guide →</a>
             </div>
         </div>
     </div>

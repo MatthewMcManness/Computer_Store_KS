@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unified Technician Portal | NinjaOne + RepairShopr Integration</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #10b981;
+            --secondary-dark: #059669;
+            --accent: #f59e0b;
+            --accent-dark: #d97706;
+            --purple: #8b5cf6;
+            --purple-dark: #7c3aed;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --code-bg: #1e1e1e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background: var(--light);
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--purple) 0%, var(--purple-dark) 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        header .subtitle {
+            font-size: 1.4rem;
+            color: #ffffff;
+            font-weight: 400;
+            position: relative;
+            opacity: 0.95;
+        }
+
+        .badge-header {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 25px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            position: relative;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 50px 20px;
+        }
+
+        .intro {
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto 50px;
+        }
+
+        .intro h2 {
+            color: var(--dark);
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+
+        .intro p {
+            font-size: 1.1rem;
+            color: var(--gray);
+        }
+
+        .toc {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 50px;
+        }
+
+        .toc h3 {
+            color: var(--dark);
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .toc ol {
+            list-style: none;
+            counter-reset: toc;
+        }
+
+        .toc > ol > li {
+            counter-increment: toc;
+            margin-bottom: 10px;
+        }
+
+        .toc > ol > li::before {
+            content: counter(toc) ". ";
+            color: var(--purple);
+            font-weight: 600;
+        }
+
+        .toc a {
+            color: var(--dark);
+            text-decoration: none;
+        }
+
+        .toc a:hover {
+            color: var(--purple);
+            text-decoration: underline;
+        }
+
+        .toc ul {
+            list-style: none;
+            margin-left: 25px;
+            margin-top: 8px;
+        }
+
+        .toc ul li {
+            margin-bottom: 5px;
+        }
+
+        .toc ul li::before {
+            content: "→ ";
+            color: var(--gray);
+        }
+
+        .section {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            color: var(--dark);
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid var(--purple);
+        }
+
+        .section h3 {
+            color: var(--dark);
+            font-size: 1.4rem;
+            margin: 30px 0 15px;
+        }
+
+        .section h4 {
+            color: var(--gray);
+            font-size: 1.1rem;
+            margin: 20px 0 10px;
+            font-weight: 600;
+        }
+
+        .section p {
+            color: var(--gray);
+            margin-bottom: 15px;
+        }
+
+        .section ul, .section ol {
+            margin: 15px 0;
+            padding-left: 25px;
+        }
+
+        .section li {
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+            border: 2px solid var(--purple);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+
+        .highlight-box h4 {
+            color: var(--purple-dark);
+            margin-top: 0;
+        }
+
+        .highlight-box p {
+            color: #5b21b6;
+            margin-bottom: 0;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid var(--accent);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+
+        .warning-box h4 {
+            color: var(--accent-dark);
+            margin-top: 0;
+        }
+
+        .warning-box p {
+            color: #92400e;
+            margin-bottom: 0;
+        }
+
+        .success-box {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border: 2px solid var(--secondary);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+
+        .success-box h4 {
+            color: var(--secondary-dark);
+            margin-top: 0;
+        }
+
+        .success-box p {
+            color: #065f46;
+            margin-bottom: 0;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+
+        .info-box h4 {
+            color: var(--primary-dark);
+            margin-top: 0;
+        }
+
+        .info-box p {
+            color: #1e40af;
+            margin-bottom: 0;
+        }
+
+        .code-block {
+            background: var(--code-bg);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+
+        .code-block pre {
+            color: #d4d4d4;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .code-block .comment {
+            color: #6a9955;
+        }
+
+        .code-block .keyword {
+            color: #569cd6;
+        }
+
+        .code-block .string {
+            color: #ce9178;
+        }
+
+        .code-block .function {
+            color: #dcdcaa;
+        }
+
+        .code-block .variable {
+            color: #9cdcfe;
+        }
+
+        .endpoint-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .endpoint-card .method {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-right: 10px;
+        }
+
+        .method-get {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .method-post {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .method-put {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .method-delete {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .method-patch {
+            background: #ede9fe;
+            color: #7c3aed;
+        }
+
+        .endpoint-card .path {
+            font-family: 'Consolas', 'Monaco', monospace;
+            color: var(--dark);
+        }
+
+        .endpoint-card .description {
+            color: var(--gray);
+            font-size: 0.95rem;
+            margin-top: 10px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+        }
+
+        .comparison-table th {
+            background: var(--purple);
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: #f8fafc;
+        }
+
+        .comparison-table tr:hover {
+            background: #ede9fe;
+        }
+
+        .architecture-diagram {
+            background: #f8fafc;
+            border: 2px dashed #e2e8f0;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 25px 0;
+            text-align: center;
+        }
+
+        .architecture-diagram h4 {
+            color: var(--dark);
+            margin-bottom: 20px;
+        }
+
+        .flow-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .flow-box {
+            background: white;
+            border: 2px solid var(--purple);
+            border-radius: 10px;
+            padding: 15px 25px;
+            min-width: 150px;
+            text-align: center;
+        }
+
+        .flow-box.ninja {
+            border-color: #00a4e4;
+            background: linear-gradient(135deg, #e0f7ff 0%, #b3ecff 100%);
+        }
+
+        .flow-box.repair {
+            border-color: #ff6b35;
+            background: linear-gradient(135deg, #ffe5d5 0%, #ffccb3 100%);
+        }
+
+        .flow-box.portal {
+            border-color: var(--purple);
+            background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+        }
+
+        .flow-box h5 {
+            margin: 0 0 5px;
+            color: var(--dark);
+        }
+
+        .flow-box p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        .flow-arrow {
+            font-size: 1.5rem;
+            color: var(--gray);
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 25px 0;
+        }
+
+        .feature-card {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 25px;
+            border-left: 4px solid var(--purple);
+        }
+
+        .feature-card h4 {
+            color: var(--dark);
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .feature-card p {
+            color: var(--gray);
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        .phase-timeline {
+            position: relative;
+            padding-left: 30px;
+            margin: 25px 0;
+        }
+
+        .phase-timeline::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(to bottom, var(--purple), var(--secondary));
+        }
+
+        .phase-item {
+            position: relative;
+            margin-bottom: 30px;
+            padding-left: 25px;
+        }
+
+        .phase-item::before {
+            content: '';
+            position: absolute;
+            left: -24px;
+            top: 5px;
+            width: 15px;
+            height: 15px;
+            background: white;
+            border: 3px solid var(--purple);
+            border-radius: 50%;
+        }
+
+        .phase-item h4 {
+            color: var(--purple);
+            margin: 0 0 8px;
+        }
+
+        .phase-item p {
+            color: var(--gray);
+            margin: 0;
+        }
+
+        .phase-item ul {
+            margin: 10px 0 0;
+            padding-left: 20px;
+        }
+
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            margin-top: 60px;
+        }
+
+        footer p {
+            color: #94a3b8;
+            margin: 5px 0;
+        }
+
+        footer a {
+            color: var(--purple);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 12px 24px;
+            background: var(--purple);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .back-link:hover {
+            background: var(--purple-dark);
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .flow-container {
+                flex-direction: column;
+            }
+
+            .flow-arrow {
+                transform: rotate(90deg);
+            }
+
+            .section {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Unified Technician Portal</h1>
+        <p class="subtitle">NinjaOne + RepairShopr Integration Architecture</p>
+        <span class="badge-header">Technical Implementation Guide</span>
+    </header>
+
+    <div class="container">
+        <div class="intro">
+            <h2>One Interface for All Technician Workflows</h2>
+            <p>This document provides a comprehensive guide to building a unified technician portal that integrates NinjaOne RMM data with RepairShopr PSA workflows, allowing technicians to manage devices, tickets, and customer interactions from a single custom frontend.</p>
+        </div>
+
+        <!-- Table of Contents -->
+        <div class="toc">
+            <h3>📋 Table of Contents</h3>
+            <ol>
+                <li><a href="#overview">System Overview & Architecture</a>
+                    <ul>
+                        <li><a href="#current-state">Current State Analysis</a></li>
+                        <li><a href="#target-state">Target Architecture</a></li>
+                    </ul>
+                </li>
+                <li><a href="#api-overview">API Capabilities Overview</a>
+                    <ul>
+                        <li><a href="#ninjaone-api">NinjaOne API v2</a></li>
+                        <li><a href="#repairshopr-api">RepairShopr REST API</a></li>
+                    </ul>
+                </li>
+                <li><a href="#integration-strategy">Integration Strategy</a>
+                    <ul>
+                        <li><a href="#data-flow">Data Flow Design</a></li>
+                        <li><a href="#caching">Caching Strategy</a></li>
+                    </ul>
+                </li>
+                <li><a href="#portal-features">Unified Portal Features</a></li>
+                <li><a href="#implementation">Implementation Guide</a>
+                    <ul>
+                        <li><a href="#auth-setup">Authentication Setup</a></li>
+                        <li><a href="#api-integration">API Integration Code</a></li>
+                        <li><a href="#ui-components">UI Components</a></li>
+                    </ul>
+                </li>
+                <li><a href="#timeline">Development Timeline</a></li>
+                <li><a href="#considerations">Security & Performance Considerations</a></li>
+            </ol>
+        </div>
+
+        <!-- Section 1: System Overview -->
+        <section class="section" id="overview">
+            <h2>1. System Overview & Architecture</h2>
+
+            <h3 id="current-state">Current State Analysis</h3>
+            <p>Currently, technicians at The Computer Store must navigate between multiple systems:</p>
+
+            <div class="comparison-table">
+                <table style="width: 100%;">
+                    <tr>
+                        <th>System</th>
+                        <th>Purpose</th>
+                        <th>Pain Points</th>
+                    </tr>
+                    <tr>
+                        <td><strong>RepairShopr</strong></td>
+                        <td>Tickets, invoices, customer records, appointments</td>
+                        <td>No real-time device status, requires separate login</td>
+                    </tr>
+                    <tr>
+                        <td><strong>NinjaOne</strong></td>
+                        <td>Device monitoring, remote access, scripting, patching</td>
+                        <td>Separate interface, customer context not visible</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Current Website</strong></td>
+                        <td>Public-facing, gallery, contact forms</td>
+                        <td>No technician workflows</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="warning-box">
+                <h4>⚠️ Current Workflow Inefficiency</h4>
+                <p>Technicians must switch between 2-3 browser tabs constantly, leading to context switching, data re-entry, and missed alerts. A unified portal eliminates this friction.</p>
+            </div>
+
+            <h3 id="target-state">Target Architecture</h3>
+
+            <div class="architecture-diagram">
+                <h4>Unified Portal Data Flow</h4>
+                <div class="flow-container">
+                    <div class="flow-box ninja">
+                        <h5>NinjaOne</h5>
+                        <p>Devices, Alerts, Scripts</p>
+                    </div>
+                    <span class="flow-arrow">←</span>
+                    <div class="flow-box portal">
+                        <h5>Custom Portal</h5>
+                        <p>Next.js + API Layer</p>
+                    </div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-box repair">
+                        <h5>RepairShopr</h5>
+                        <p>Tickets, Customers, Invoices</p>
+                    </div>
+                </div>
+            </div>
+
+            <p>The unified portal acts as a <strong>middleware layer</strong> that aggregates data from both NinjaOne and RepairShopr, presenting a single interface optimized for technician workflows.</p>
+
+            <div class="success-box">
+                <h4>✅ Key Benefits</h4>
+                <p><strong>Single Login:</strong> One authentication flow using RepairShopr credentials<br>
+                <strong>Unified View:</strong> Customer + Device + Ticket data on one screen<br>
+                <strong>Quick Actions:</strong> Create tickets, run scripts, remote access with one click<br>
+                <strong>Real-Time Status:</strong> Live device health alongside ticket updates</p>
+            </div>
+        </section>
+
+        <!-- Section 2: API Overview -->
+        <section class="section" id="api-overview">
+            <h2>2. API Capabilities Overview</h2>
+
+            <h3 id="ninjaone-api">NinjaOne Public API v2</h3>
+
+            <div class="info-box">
+                <h4>📚 API Documentation</h4>
+                <p><strong>Base URL:</strong> <code>https://app.ninjarmm.com/api/v2/</code><br>
+                <strong>Auth:</strong> OAuth 2.0 (Client Credentials or Authorization Code)<br>
+                <strong>Docs:</strong> <a href="https://app.ninjarmm.com/apidocs/" target="_blank">app.ninjarmm.com/apidocs</a></p>
+            </div>
+
+            <h4>Key Endpoints for Technician Portal</h4>
+
+            <div class="endpoint-card">
+                <span class="method method-get">GET</span>
+                <span class="path">/api/v2/device/{id}</span>
+                <p class="description">Retrieve comprehensive device details including OS, hardware specs, last seen, policy, and custom fields.</p>
+            </div>
+
+            <div class="endpoint-card">
+                <span class="method method-get">GET</span>
+                <span class="path">/api/v2/device/{id}/alerts</span>
+                <p class="description">List active alerts for a specific device with severity, type, and timestamp.</p>
+            </div>
+
+            <div class="endpoint-card">
+                <span class="method method-get">GET</span>
+                <span class="path">/api/v2/device/{id}/activities</span>
+                <p class="description">Retrieve activity log including script runs, patches, user actions.</p>
+            </div>
+
+            <div class="endpoint-card">
+                <span class="method method-get">GET</span>
+                <span class="path">/api/v2/device/{id}/software</span>
+                <p class="description">Get installed software inventory with versions and publishers.</p>
+            </div>
+
+            <div class="endpoint-card">
+                <span class="method method-post">POST</span>
+                <span class="path">/api/v2/device/{id}/script/{scriptId}</span>
+                <p class="description">Run a script or built-in action on the device (reboot, shutdown, etc.).</p>
+            </div>
+
+            <div class="endpoint-card">
+                <span class="method method-get">GET</span>
+                <span class="path">/api/v2/device/{id}/dashboard-url</span>
+                <p class="description">Get authenticated URL to device dashboard for quick navigation.</p>
+            </div>
+
+            <div class="endpoint-card">
+                <span class="method method-get">GET</span>
+                <span class="path">/api/v2/organizations</span>
+                <p class="description">List all organizations (customers) with their devices.</p>
+            </div>
+
+            <div class="endpoint-card">
+                <span class="method method-delete">DELETE</span>
+                <span class="path">/api/v2/alert/{uid}</span>
+                <p class="description">Clear/acknowledge an alert after resolving the issue.</p>
+            </div>
+
+            <div class="endpoint-card">
+                <span class="method method-post">POST</span>
+                <span class="path">/api/v2/device/{id}/reboot/{mode}</span>
+                <p class="description">Initiate normal or forced device restart with optional reason.</p>
+            </div>
+
+            <h4>API Scopes Required</h4>
+            <ul>
+                <li><strong>Monitoring:</strong> Read-only access to device data, alerts, and organizations</li>
+                <li><strong>Management:</strong> Ability to run scripts, reboot devices, modify custom fields</li>
+                <li><strong>Control:</strong> Remote access session initiation (optional)</li>
+            </ul>
+
+            <h3 id="repairshopr-api">RepairShopr REST API</h3>
+
+            <div class="info-box">
+                <h4>📚 API Documentation</h4>
+                <p><strong>Base URL:</strong> <code>https://thecomputerstore.repairshopr.com/api/v1/</code><br>
+                <strong>Auth:</strong> API Key (append <code>?api_key=YOUR_KEY</code>)<br>
+                <strong>Rate Limit:</strong> 180 requests/minute per IP<br>
+                <strong>Docs:</strong> <a href="https://api-docs.repairshopr.com/" target="_blank">api-docs.repairshopr.com</a></p>
+            </div>
+
+            <h4>Key Endpoints for Technician Portal</h4>
+
+            <div class="endpoint-card">
+                <span class="method method-get">GET</span>
+                <span class="path">/api/v1/tickets</span>
+                <p class="description">List tickets with filtering by status, customer, date range. Supports pagination.</p>
+            </div>
+
+            <div class="endpoint-card">
+                <span class="method method-post">POST</span>
+                <span class="path">/api/v1/tickets</span>
+                <p class="description">Create a new ticket with customer_id, subject, problem_type, status.</p>
+            </div>
+
+            <div class="endpoint-card">
+                <span class="method method-put">PUT</span>
+                <span class="path">/api/v1/tickets/{id}</span>
+                <p class="description">Update ticket status, add comments, change assignment.</p>
+            </div>
+
+            <div class="endpoint-card">
+                <span class="method method-get">GET</span>
+                <span class="path">/api/v1/customers/{id}</span>
+                <p class="description">Get customer details including contacts, addresses, custom fields.</p>
+            </div>
+
+            <div class="endpoint-card">
+                <span class="method method-get">GET</span>
+                <span class="path">/api/v1/customers/{id}/assets</span>
+                <p class="description">List all assets (devices) linked to a customer.</p>
+            </div>
+
+            <div class="endpoint-card">
+                <span class="method method-get">GET</span>
+                <span class="path">/api/v1/invoices</span>
+                <p class="description">List invoices with filtering by customer, status, date.</p>
+            </div>
+
+            <div class="endpoint-card">
+                <span class="method method-get">GET</span>
+                <span class="path">/api/v1/appointments</span>
+                <p class="description">Get upcoming appointments for scheduling view.</p>
+            </div>
+
+            <div class="endpoint-card">
+                <span class="method method-get">GET</span>
+                <span class="path">/api/v1/rmm_alerts</span>
+                <p class="description">Get RMM alerts that have been synced from NinjaOne.</p>
+            </div>
+        </section>
+
+        <!-- Section 3: Integration Strategy -->
+        <section class="section" id="integration-strategy">
+            <h2>3. Integration Strategy</h2>
+
+            <h3 id="data-flow">Data Flow Design</h3>
+
+            <p>The unified portal uses a <strong>Backend-for-Frontend (BFF)</strong> pattern where your Next.js API routes act as a proxy to both NinjaOne and RepairShopr APIs.</p>
+
+            <div class="code-block">
+                <pre><span class="comment">// Simplified data flow architecture</span>
+
+<span class="keyword">Browser (Technician)</span>
+    │
+    ├── <span class="function">GET /api/portal/customer/:id</span>
+    │       │
+    │       └── <span class="variable">Next.js API Route</span>
+    │               │
+    │               ├── <span class="string">RepairShopr: GET /customers/:id</span>
+    │               ├── <span class="string">RepairShopr: GET /customers/:id/assets</span>
+    │               ├── <span class="string">RepairShopr: GET /tickets?customer_id=:id</span>
+    │               └── <span class="string">NinjaOne: GET /devices (mapped by asset)</span>
+    │
+    └── Returns unified customer object with:
+        • Customer info
+        • Assets with NinjaOne device status
+        • Open tickets
+        • Recent invoices</pre>
+            </div>
+
+            <div class="highlight-box">
+                <h4>🔗 Customer-Device Mapping</h4>
+                <p>The existing NinjaOne + RepairShopr integration maps Ninja "Organizations" to RepairShopr "Customers" and Ninja "Devices" to RepairShopr "Assets". Your portal can use the RepairShopr asset's serial number or custom field to look up the corresponding NinjaOne device ID.</p>
+            </div>
+
+            <h3 id="caching">Caching Strategy</h3>
+
+            <p>To stay within API rate limits and ensure fast response times:</p>
+
+            <div class="comparison-table">
+                <table style="width: 100%;">
+                    <tr>
+                        <th>Data Type</th>
+                        <th>Cache Duration</th>
+                        <th>Refresh Trigger</th>
+                    </tr>
+                    <tr>
+                        <td>Customer List</td>
+                        <td>5 minutes</td>
+                        <td>Manual refresh, new ticket</td>
+                    </tr>
+                    <tr>
+                        <td>Device Status</td>
+                        <td>30 seconds</td>
+                        <td>Page load, polling</td>
+                    </tr>
+                    <tr>
+                        <td>Alerts</td>
+                        <td>15 seconds</td>
+                        <td>Real-time with webhooks (optional)</td>
+                    </tr>
+                    <tr>
+                        <td>Tickets</td>
+                        <td>1 minute</td>
+                        <td>Ticket creation, status change</td>
+                    </tr>
+                    <tr>
+                        <td>Software Inventory</td>
+                        <td>1 hour</td>
+                        <td>Manual scan</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="code-block">
+                <pre><span class="comment">// Example: Redis caching in API route</span>
+<span class="keyword">import</span> { Redis } <span class="keyword">from</span> <span class="string">'@upstash/redis'</span>
+
+<span class="keyword">const</span> redis = <span class="keyword">new</span> <span class="function">Redis</span>({
+  url: process.env.UPSTASH_REDIS_URL,
+  token: process.env.UPSTASH_REDIS_TOKEN,
+})
+
+<span class="keyword">async function</span> <span class="function">getDeviceStatus</span>(deviceId: <span class="variable">string</span>) {
+  <span class="keyword">const</span> cacheKey = <span class="string">`ninja:device:</span>${deviceId}<span class="string">`</span>
+
+  <span class="comment">// Check cache first</span>
+  <span class="keyword">const</span> cached = <span class="keyword">await</span> redis.<span class="function">get</span>(cacheKey)
+  <span class="keyword">if</span> (cached) <span class="keyword">return</span> cached
+
+  <span class="comment">// Fetch from NinjaOne API</span>
+  <span class="keyword">const</span> device = <span class="keyword">await</span> <span class="function">fetchNinjaDevice</span>(deviceId)
+
+  <span class="comment">// Cache for 30 seconds</span>
+  <span class="keyword">await</span> redis.<span class="function">setex</span>(cacheKey, 30, device)
+
+  <span class="keyword">return</span> device
+}</pre>
+            </div>
+        </section>
+
+        <!-- Section 4: Portal Features -->
+        <section class="section" id="portal-features">
+            <h2>4. Unified Portal Features</h2>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>📊 Technician Dashboard</h4>
+                    <p>At-a-glance view of open tickets, device alerts, upcoming appointments, and quick actions.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🔍 Unified Search</h4>
+                    <p>Search across customers, tickets, devices, and assets from a single search bar.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🖥️ Customer 360 View</h4>
+                    <p>Full customer profile with contact info, all devices with live status, ticket history, and invoices.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>⚡ Quick Actions</h4>
+                    <p>One-click remote access, reboot, script execution, and ticket creation.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🚨 Alert Center</h4>
+                    <p>Unified view of all NinjaOne alerts with ability to acknowledge, convert to ticket, or dismiss.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>📝 Ticket Management</h4>
+                    <p>Create, update, and close tickets with device context automatically attached.</p>
+                </div>
+            </div>
+
+            <h3>Customer 360 View Wireframe</h3>
+            <div class="architecture-diagram">
+                <pre style="text-align: left; font-family: monospace; font-size: 0.9rem;">
+┌─────────────────────────────────────────────────────────────────────────┐
+│  CUSTOMER: ABC Company                                    [Edit] [Call] │
+├─────────────────────────────────────────────────────────────────────────┤
+│  📧 contact@abc.com   📱 555-123-4567   📍 123 Main St, Topeka KS       │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  DEVICES (3)                                                           │
+│  ┌─────────────────────────────────────────────────────────────────┐   │
+│  │ 🟢 FRONT-DESK-PC      Windows 11 Pro    Last seen: 2 min ago    │   │
+│  │    [Remote] [Reboot] [Run Script] [View in Ninja]               │   │
+│  ├─────────────────────────────────────────────────────────────────┤   │
+│  │ 🟡 BACK-OFFICE-PC     Windows 10 Pro    Alert: High CPU         │   │
+│  │    [Remote] [Reboot] [Run Script] [View in Ninja]               │   │
+│  ├─────────────────────────────────────────────────────────────────┤   │
+│  │ 🔴 FILE-SERVER        Windows Server    OFFLINE                 │   │
+│  │    [Create Ticket] [View History]                               │   │
+│  └─────────────────────────────────────────────────────────────────┘   │
+│                                                                         │
+│  OPEN TICKETS (2)                                    [+ New Ticket]    │
+│  ┌─────────────────────────────────────────────────────────────────┐   │
+│  │ #4521  Slow computer - BACK-OFFICE-PC         In Progress       │   │
+│  │ #4519  Email not syncing                      New                │   │
+│  └─────────────────────────────────────────────────────────────────┘   │
+│                                                                         │
+│  RECENT INVOICES                                      [View All]       │
+│  ┌─────────────────────────────────────────────────────────────────┐   │
+│  │ INV-1234   $150.00   Paid       Dec 15, 2025                    │   │
+│  │ INV-1198   $75.00    Paid       Nov 28, 2025                    │   │
+│  └─────────────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────────┘</pre>
+            </div>
+        </section>
+
+        <!-- Section 5: Implementation -->
+        <section class="section" id="implementation">
+            <h2>5. Implementation Guide</h2>
+
+            <h3 id="auth-setup">Authentication Setup</h3>
+
+            <h4>NinjaOne OAuth 2.0 Configuration</h4>
+
+            <ol>
+                <li>Go to <strong>Administration → Apps → API</strong> in NinjaOne</li>
+                <li>Create a new application (select "Client Credentials" for server-to-server)</li>
+                <li>Note your <strong>Client ID</strong> and <strong>Client Secret</strong></li>
+                <li>Set scopes: <code>monitoring</code>, <code>management</code></li>
+            </ol>
+
+            <div class="code-block">
+                <pre><span class="comment">// lib/ninjaone.ts - NinjaOne API client</span>
+
+<span class="keyword">class</span> <span class="function">NinjaOneClient</span> {
+  <span class="keyword">private</span> accessToken: <span class="variable">string</span> | <span class="variable">null</span> = <span class="variable">null</span>
+  <span class="keyword">private</span> tokenExpiry: <span class="variable">Date</span> | <span class="variable">null</span> = <span class="variable">null</span>
+
+  <span class="keyword">private</span> baseUrl = <span class="string">'https://app.ninjarmm.com/api/v2'</span>
+  <span class="keyword">private</span> authUrl = <span class="string">'https://app.ninjarmm.com/oauth/token'</span>
+
+  <span class="keyword">async</span> <span class="function">getToken</span>(): Promise&lt;<span class="variable">string</span>&gt; {
+    <span class="comment">// Return cached token if still valid</span>
+    <span class="keyword">if</span> (<span class="keyword">this</span>.accessToken && <span class="keyword">this</span>.tokenExpiry && <span class="keyword">new</span> <span class="function">Date</span>() < <span class="keyword">this</span>.tokenExpiry) {
+      <span class="keyword">return</span> <span class="keyword">this</span>.accessToken
+    }
+
+    <span class="comment">// Request new token</span>
+    <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">fetch</span>(<span class="keyword">this</span>.authUrl, {
+      method: <span class="string">'POST'</span>,
+      headers: { <span class="string">'Content-Type'</span>: <span class="string">'application/x-www-form-urlencoded'</span> },
+      body: <span class="keyword">new</span> <span class="function">URLSearchParams</span>({
+        grant_type: <span class="string">'client_credentials'</span>,
+        client_id: process.env.NINJAONE_CLIENT_ID!,
+        client_secret: process.env.NINJAONE_CLIENT_SECRET!,
+        scope: <span class="string">'monitoring management'</span>,
+      }),
+    })
+
+    <span class="keyword">const</span> data = <span class="keyword">await</span> response.<span class="function">json</span>()
+    <span class="keyword">this</span>.accessToken = data.access_token
+    <span class="keyword">this</span>.tokenExpiry = <span class="keyword">new</span> <span class="function">Date</span>(<span class="function">Date</span>.<span class="function">now</span>() + data.expires_in * 1000)
+
+    <span class="keyword">return</span> <span class="keyword">this</span>.accessToken
+  }
+
+  <span class="keyword">async</span> <span class="function">getDevice</span>(deviceId: <span class="variable">string</span>) {
+    <span class="keyword">const</span> token = <span class="keyword">await</span> <span class="keyword">this</span>.<span class="function">getToken</span>()
+    <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">fetch</span>(<span class="string">`</span>${<span class="keyword">this</span>.baseUrl}<span class="string">/device/</span>${deviceId}<span class="string">`</span>, {
+      headers: { Authorization: <span class="string">`Bearer </span>${token}<span class="string">`</span> },
+    })
+    <span class="keyword">return</span> response.<span class="function">json</span>()
+  }
+
+  <span class="keyword">async</span> <span class="function">getDeviceAlerts</span>(deviceId: <span class="variable">string</span>) {
+    <span class="keyword">const</span> token = <span class="keyword">await</span> <span class="keyword">this</span>.<span class="function">getToken</span>()
+    <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">fetch</span>(<span class="string">`</span>${<span class="keyword">this</span>.baseUrl}<span class="string">/device/</span>${deviceId}<span class="string">/alerts`</span>, {
+      headers: { Authorization: <span class="string">`Bearer </span>${token}<span class="string">`</span> },
+    })
+    <span class="keyword">return</span> response.<span class="function">json</span>()
+  }
+
+  <span class="keyword">async</span> <span class="function">runScript</span>(deviceId: <span class="variable">string</span>, scriptId: <span class="variable">string</span>) {
+    <span class="keyword">const</span> token = <span class="keyword">await</span> <span class="keyword">this</span>.<span class="function">getToken</span>()
+    <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">fetch</span>(
+      <span class="string">`</span>${<span class="keyword">this</span>.baseUrl}<span class="string">/device/</span>${deviceId}<span class="string">/script/</span>${scriptId}<span class="string">`</span>,
+      {
+        method: <span class="string">'POST'</span>,
+        headers: { Authorization: <span class="string">`Bearer </span>${token}<span class="string">`</span> },
+      }
+    )
+    <span class="keyword">return</span> response.<span class="function">json</span>()
+  }
+
+  <span class="keyword">async</span> <span class="function">rebootDevice</span>(deviceId: <span class="variable">string</span>, mode: <span class="string">'NORMAL'</span> | <span class="string">'FORCED'</span> = <span class="string">'NORMAL'</span>) {
+    <span class="keyword">const</span> token = <span class="keyword">await</span> <span class="keyword">this</span>.<span class="function">getToken</span>()
+    <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">fetch</span>(
+      <span class="string">`</span>${<span class="keyword">this</span>.baseUrl}<span class="string">/device/</span>${deviceId}<span class="string">/reboot/</span>${mode}<span class="string">`</span>,
+      {
+        method: <span class="string">'POST'</span>,
+        headers: { Authorization: <span class="string">`Bearer </span>${token}<span class="string">`</span> },
+      }
+    )
+    <span class="keyword">return</span> response.<span class="function">json</span>()
+  }
+}
+
+<span class="keyword">export</span> <span class="keyword">const</span> ninjaOne = <span class="keyword">new</span> <span class="function">NinjaOneClient</span>()</pre>
+            </div>
+
+            <h4>RepairShopr API Configuration</h4>
+
+            <div class="code-block">
+                <pre><span class="comment">// lib/repairshopr.ts - RepairShopr API client</span>
+
+<span class="keyword">class</span> <span class="function">RepairShoprClient</span> {
+  <span class="keyword">private</span> baseUrl = <span class="string">`https://</span>${process.env.REPAIRSHOPR_SUBDOMAIN}<span class="string">.repairshopr.com/api/v1`</span>
+  <span class="keyword">private</span> apiKey = process.env.REPAIRSHOPR_API_KEY
+
+  <span class="keyword">private</span> <span class="function">buildUrl</span>(endpoint: <span class="variable">string</span>, params: Record&lt;<span class="variable">string</span>, <span class="variable">string</span>&gt; = {}) {
+    <span class="keyword">const</span> url = <span class="keyword">new</span> <span class="function">URL</span>(<span class="string">`</span>${<span class="keyword">this</span>.baseUrl}${endpoint}<span class="string">`</span>)
+    url.searchParams.set(<span class="string">'api_key'</span>, <span class="keyword">this</span>.apiKey!)
+    Object.<span class="function">entries</span>(params).<span class="function">forEach</span>(([key, value]) => {
+      url.searchParams.set(key, value)
+    })
+    <span class="keyword">return</span> url.<span class="function">toString</span>()
+  }
+
+  <span class="keyword">async</span> <span class="function">getCustomer</span>(customerId: <span class="variable">string</span>) {
+    <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">fetch</span>(<span class="keyword">this</span>.<span class="function">buildUrl</span>(<span class="string">`/customers/</span>${customerId}<span class="string">`</span>))
+    <span class="keyword">return</span> response.<span class="function">json</span>()
+  }
+
+  <span class="keyword">async</span> <span class="function">getCustomerAssets</span>(customerId: <span class="variable">string</span>) {
+    <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">fetch</span>(<span class="keyword">this</span>.<span class="function">buildUrl</span>(<span class="string">`/customers/</span>${customerId}<span class="string">/assets`</span>))
+    <span class="keyword">return</span> response.<span class="function">json</span>()
+  }
+
+  <span class="keyword">async</span> <span class="function">getTickets</span>(filters: { customerId?: <span class="variable">string</span>; status?: <span class="variable">string</span> } = {}) {
+    <span class="keyword">const</span> params: Record&lt;<span class="variable">string</span>, <span class="variable">string</span>&gt; = {}
+    <span class="keyword">if</span> (filters.customerId) params.customer_id = filters.customerId
+    <span class="keyword">if</span> (filters.status) params.status = filters.status
+
+    <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">fetch</span>(<span class="keyword">this</span>.<span class="function">buildUrl</span>(<span class="string">'/tickets'</span>, params))
+    <span class="keyword">return</span> response.<span class="function">json</span>()
+  }
+
+  <span class="keyword">async</span> <span class="function">createTicket</span>(data: {
+    customer_id: <span class="variable">number</span>
+    subject: <span class="variable">string</span>
+    problem_type: <span class="variable">string</span>
+    status?: <span class="variable">string</span>
+    asset_ids?: <span class="variable">number</span>[]
+  }) {
+    <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">fetch</span>(<span class="keyword">this</span>.<span class="function">buildUrl</span>(<span class="string">'/tickets'</span>), {
+      method: <span class="string">'POST'</span>,
+      headers: { <span class="string">'Content-Type'</span>: <span class="string">'application/json'</span> },
+      body: <span class="function">JSON.stringify</span>(data),
+    })
+    <span class="keyword">return</span> response.<span class="function">json</span>()
+  }
+
+  <span class="keyword">async</span> <span class="function">updateTicket</span>(ticketId: <span class="variable">string</span>, data: { status?: <span class="variable">string</span>; comment?: <span class="variable">string</span> }) {
+    <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">fetch</span>(<span class="keyword">this</span>.<span class="function">buildUrl</span>(<span class="string">`/tickets/</span>${ticketId}<span class="string">`</span>), {
+      method: <span class="string">'PUT'</span>,
+      headers: { <span class="string">'Content-Type'</span>: <span class="string">'application/json'</span> },
+      body: <span class="function">JSON.stringify</span>(data),
+    })
+    <span class="keyword">return</span> response.<span class="function">json</span>()
+  }
+
+  <span class="keyword">async</span> <span class="function">getInvoices</span>(customerId: <span class="variable">string</span>) {
+    <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">fetch</span>(<span class="keyword">this</span>.<span class="function">buildUrl</span>(<span class="string">'/invoices'</span>, { customer_id: customerId }))
+    <span class="keyword">return</span> response.<span class="function">json</span>()
+  }
+}
+
+<span class="keyword">export</span> <span class="keyword">const</span> repairShopr = <span class="keyword">new</span> <span class="function">RepairShoprClient</span>()</pre>
+            </div>
+
+            <h3 id="api-integration">Unified API Route Example</h3>
+
+            <div class="code-block">
+                <pre><span class="comment">// app/api/portal/customer/[id]/route.ts</span>
+
+<span class="keyword">import</span> { NextRequest, NextResponse } <span class="keyword">from</span> <span class="string">'next/server'</span>
+<span class="keyword">import</span> { ninjaOne } <span class="keyword">from</span> <span class="string">'@/lib/ninjaone'</span>
+<span class="keyword">import</span> { repairShopr } <span class="keyword">from</span> <span class="string">'@/lib/repairshopr'</span>
+
+<span class="keyword">export</span> <span class="keyword">async</span> <span class="keyword">function</span> <span class="function">GET</span>(
+  request: NextRequest,
+  { params }: { params: { id: <span class="variable">string</span> } }
+) {
+  <span class="keyword">try</span> {
+    <span class="comment">// Fetch data from both APIs in parallel</span>
+    <span class="keyword">const</span> [customer, assets, tickets, invoices] = <span class="keyword">await</span> <span class="function">Promise.all</span>([
+      repairShopr.<span class="function">getCustomer</span>(params.id),
+      repairShopr.<span class="function">getCustomerAssets</span>(params.id),
+      repairShopr.<span class="function">getTickets</span>({ customerId: params.id }),
+      repairShopr.<span class="function">getInvoices</span>(params.id),
+    ])
+
+    <span class="comment">// Enrich assets with NinjaOne device data</span>
+    <span class="keyword">const</span> enrichedAssets = <span class="keyword">await</span> <span class="function">Promise.all</span>(
+      assets.assets.<span class="function">map</span>(<span class="keyword">async</span> (asset: <span class="variable">any</span>) => {
+        <span class="comment">// Look up NinjaOne device by serial number or custom field</span>
+        <span class="keyword">if</span> (asset.ninja_device_id) {
+          <span class="keyword">try</span> {
+            <span class="keyword">const</span> [device, alerts] = <span class="keyword">await</span> <span class="function">Promise.all</span>([
+              ninjaOne.<span class="function">getDevice</span>(asset.ninja_device_id),
+              ninjaOne.<span class="function">getDeviceAlerts</span>(asset.ninja_device_id),
+            ])
+            <span class="keyword">return</span> {
+              ...asset,
+              ninjaDevice: device,
+              alerts: alerts,
+              status: <span class="function">calculateDeviceStatus</span>(device, alerts),
+            }
+          } <span class="keyword">catch</span> (e) {
+            <span class="keyword">return</span> { ...asset, status: <span class="string">'unknown'</span> }
+          }
+        }
+        <span class="keyword">return</span> { ...asset, status: <span class="string">'unmonitored'</span> }
+      })
+    )
+
+    <span class="keyword">return</span> NextResponse.<span class="function">json</span>({
+      customer: customer.customer,
+      assets: enrichedAssets,
+      tickets: tickets.tickets.<span class="function">filter</span>((t: <span class="variable">any</span>) => t.status !== <span class="string">'Resolved'</span>),
+      invoices: invoices.invoices.<span class="function">slice</span>(0, 5),
+    })
+  } <span class="keyword">catch</span> (error) {
+    <span class="keyword">return</span> NextResponse.<span class="function">json</span>(
+      { error: <span class="string">'Failed to fetch customer data'</span> },
+      { status: 500 }
+    )
+  }
+}
+
+<span class="keyword">function</span> <span class="function">calculateDeviceStatus</span>(device: <span class="variable">any</span>, alerts: <span class="variable">any</span>[]): <span class="variable">string</span> {
+  <span class="keyword">if</span> (!device.online) <span class="keyword">return</span> <span class="string">'offline'</span>
+  <span class="keyword">if</span> (alerts.<span class="function">some</span>((a: <span class="variable">any</span>) => a.severity === <span class="string">'critical'</span>)) <span class="keyword">return</span> <span class="string">'critical'</span>
+  <span class="keyword">if</span> (alerts.<span class="function">some</span>((a: <span class="variable">any</span>) => a.severity === <span class="string">'warning'</span>)) <span class="keyword">return</span> <span class="string">'warning'</span>
+  <span class="keyword">return</span> <span class="string">'healthy'</span>
+}</pre>
+            </div>
+
+            <h3 id="ui-components">UI Component Example</h3>
+
+            <div class="code-block">
+                <pre><span class="comment">// components/portal/CustomerDevices.tsx</span>
+
+<span class="string">'use client'</span>
+
+<span class="keyword">import</span> { useState } <span class="keyword">from</span> <span class="string">'react'</span>
+
+<span class="keyword">interface</span> <span class="variable">Device</span> {
+  id: <span class="variable">number</span>
+  name: <span class="variable">string</span>
+  asset_serial: <span class="variable">string</span>
+  ninja_device_id?: <span class="variable">string</span>
+  status: <span class="string">'healthy'</span> | <span class="string">'warning'</span> | <span class="string">'critical'</span> | <span class="string">'offline'</span> | <span class="string">'unmonitored'</span>
+  ninjaDevice?: {
+    systemName: <span class="variable">string</span>
+    os: { name: <span class="variable">string</span> }
+    lastContact: <span class="variable">string</span>
+  }
+  alerts?: <span class="variable">any</span>[]
+}
+
+<span class="keyword">export function</span> <span class="function">CustomerDevices</span>({ devices }: { devices: <span class="variable">Device</span>[] }) {
+  <span class="keyword">const</span> [loading, setLoading] = <span class="function">useState</span>&lt;<span class="variable">string</span> | <span class="variable">null</span>&gt;(<span class="variable">null</span>)
+
+  <span class="keyword">const</span> <span class="function">handleReboot</span> = <span class="keyword">async</span> (deviceId: <span class="variable">string</span>) => {
+    <span class="function">setLoading</span>(deviceId)
+    <span class="keyword">await</span> <span class="function">fetch</span>(<span class="string">`/api/portal/device/</span>${deviceId}<span class="string">/reboot`</span>, { method: <span class="string">'POST'</span> })
+    <span class="function">setLoading</span>(<span class="variable">null</span>)
+    <span class="comment">// Show toast notification</span>
+  }
+
+  <span class="keyword">const</span> <span class="function">handleRemote</span> = <span class="keyword">async</span> (deviceId: <span class="variable">string</span>) => {
+    <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">fetch</span>(<span class="string">`/api/portal/device/</span>${deviceId}<span class="string">/remote-url`</span>)
+    <span class="keyword">const</span> { url } = <span class="keyword">await</span> response.<span class="function">json</span>()
+    window.<span class="function">open</span>(url, <span class="string">'_blank'</span>)
+  }
+
+  <span class="keyword">const</span> <span class="function">statusColors</span> = {
+    healthy: <span class="string">'bg-green-100 text-green-800'</span>,
+    warning: <span class="string">'bg-yellow-100 text-yellow-800'</span>,
+    critical: <span class="string">'bg-red-100 text-red-800'</span>,
+    offline: <span class="string">'bg-gray-100 text-gray-800'</span>,
+    unmonitored: <span class="string">'bg-gray-50 text-gray-500'</span>,
+  }
+
+  <span class="keyword">return</span> (
+    &lt;div className=<span class="string">"space-y-4"</span>&gt;
+      {devices.<span class="function">map</span>((device) =&gt; (
+        &lt;div key={device.id} className=<span class="string">"border rounded-lg p-4 hover:shadow-md"</span>&gt;
+          &lt;div className=<span class="string">"flex items-center justify-between"</span>&gt;
+            &lt;div className=<span class="string">"flex items-center gap-3"</span>&gt;
+              &lt;span className={<span class="string">`px-2 py-1 rounded text-sm </span>${statusColors[device.status]}<span class="string">`</span>}&gt;
+                {device.status.<span class="function">toUpperCase</span>()}
+              &lt;/span&gt;
+              &lt;div&gt;
+                &lt;h4 className=<span class="string">"font-medium"</span>&gt;{device.name}&lt;/h4&gt;
+                &lt;p className=<span class="string">"text-sm text-gray-500"</span>&gt;
+                  {device.ninjaDevice?.os?.name || <span class="string">'Unknown OS'</span>}
+                &lt;/p&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+
+            {device.ninja_device_id && (
+              &lt;div className=<span class="string">"flex gap-2"</span>&gt;
+                &lt;button
+                  onClick={() =&gt; <span class="function">handleRemote</span>(device.ninja_device_id!)}
+                  className=<span class="string">"px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"</span>
+                &gt;
+                  Remote
+                &lt;/button&gt;
+                &lt;button
+                  onClick={() =&gt; <span class="function">handleReboot</span>(device.ninja_device_id!)}
+                  disabled={loading === device.ninja_device_id}
+                  className=<span class="string">"px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700"</span>
+                &gt;
+                  {loading === device.ninja_device_id ? <span class="string">'...'</span> : <span class="string">'Reboot'</span>}
+                &lt;/button&gt;
+              &lt;/div&gt;
+            )}
+          &lt;/div&gt;
+
+          {device.alerts && device.alerts.length &gt; 0 && (
+            &lt;div className=<span class="string">"mt-3 p-2 bg-yellow-50 rounded"</span>&gt;
+              &lt;p className=<span class="string">"text-sm text-yellow-800"</span>&gt;
+                ⚠️ {device.alerts.length} active alert(s)
+              &lt;/p&gt;
+            &lt;/div&gt;
+          )}
+        &lt;/div&gt;
+      ))}
+    &lt;/div&gt;
+  )
+}</pre>
+            </div>
+        </section>
+
+        <!-- Section 6: Timeline -->
+        <section class="section" id="timeline">
+            <h2>6. Development Timeline</h2>
+
+            <div class="phase-timeline">
+                <div class="phase-item">
+                    <h4>Phase 1: Foundation</h4>
+                    <p>Set up API clients and authentication flows</p>
+                    <ul>
+                        <li>Create NinjaOne OAuth client library</li>
+                        <li>Create RepairShopr API client library</li>
+                        <li>Implement API route proxy layer</li>
+                        <li>Set up Redis caching (optional)</li>
+                    </ul>
+                </div>
+
+                <div class="phase-item">
+                    <h4>Phase 2: Core Views</h4>
+                    <p>Build primary technician interfaces</p>
+                    <ul>
+                        <li>Technician dashboard with summary widgets</li>
+                        <li>Customer 360 view with devices + tickets</li>
+                        <li>Unified search across all entities</li>
+                        <li>Basic device actions (reboot, remote access links)</li>
+                    </ul>
+                </div>
+
+                <div class="phase-item">
+                    <h4>Phase 3: Workflows</h4>
+                    <p>Implement ticket and device management</p>
+                    <ul>
+                        <li>Create ticket from device context</li>
+                        <li>Run scripts on devices from portal</li>
+                        <li>Alert center with acknowledgement</li>
+                        <li>Quick status updates</li>
+                    </ul>
+                </div>
+
+                <div class="phase-item">
+                    <h4>Phase 4: Polish</h4>
+                    <p>Refinement and optimization</p>
+                    <ul>
+                        <li>Real-time updates via polling or webhooks</li>
+                        <li>Mobile-responsive design</li>
+                        <li>Keyboard shortcuts for power users</li>
+                        <li>Performance optimization</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 7: Considerations -->
+        <section class="section" id="considerations">
+            <h2>7. Security & Performance Considerations</h2>
+
+            <h3>Security Best Practices</h3>
+
+            <div class="warning-box">
+                <h4>🔐 API Keys Must Be Server-Side Only</h4>
+                <p>Never expose NinjaOne or RepairShopr API keys to the browser. All API calls must go through your Next.js API routes.</p>
+            </div>
+
+            <ul>
+                <li><strong>Authentication:</strong> Use existing RepairShopr login (already implemented) to gate portal access</li>
+                <li><strong>Authorization:</strong> Verify technician permissions before allowing device actions</li>
+                <li><strong>Audit Logging:</strong> Log all destructive actions (reboots, script runs) with user and timestamp</li>
+                <li><strong>Rate Limiting:</strong> Implement rate limiting on your API routes to prevent abuse</li>
+                <li><strong>HTTPS Only:</strong> Ensure all communications are encrypted (Render provides this automatically)</li>
+            </ul>
+
+            <h3>Performance Optimization</h3>
+
+            <ul>
+                <li><strong>Parallel Requests:</strong> Always fetch from multiple APIs simultaneously using <code>Promise.all()</code></li>
+                <li><strong>Caching:</strong> Cache device status, customer data to reduce API calls</li>
+                <li><strong>Pagination:</strong> Implement infinite scroll or pagination for large lists</li>
+                <li><strong>Optimistic Updates:</strong> Update UI immediately before API confirms for snappy feel</li>
+                <li><strong>Background Refresh:</strong> Use <code>setInterval</code> or Server-Sent Events for live updates</li>
+            </ul>
+
+            <h3>Environment Variables Required</h3>
+
+            <div class="code-block">
+                <pre><span class="comment"># Add to .env.local and Render dashboard</span>
+
+<span class="comment"># NinjaOne OAuth 2.0</span>
+NINJAONE_CLIENT_ID=<span class="string">your_client_id</span>
+NINJAONE_CLIENT_SECRET=<span class="string">your_client_secret</span>
+
+<span class="comment"># RepairShopr API</span>
+REPAIRSHOPR_SUBDOMAIN=<span class="string">thecomputerstore</span>
+REPAIRSHOPR_API_KEY=<span class="string">your_api_key</span>
+
+<span class="comment"># Optional: Redis caching (Upstash)</span>
+UPSTASH_REDIS_URL=<span class="string">https://xxx.upstash.io</span>
+UPSTASH_REDIS_TOKEN=<span class="string">your_token</span></pre>
+            </div>
+
+            <div class="success-box">
+                <h4>✅ Ready to Build</h4>
+                <p>With both NinjaOne and RepairShopr providing comprehensive REST APIs, building a unified technician portal is entirely feasible. Start with the core customer view and iterate from there based on technician feedback.</p>
+            </div>
+        </section>
+
+        <div style="text-align: center; margin-top: 40px;">
+            <a href="/documentation/" class="back-link">← Back to Documentation</a>
+        </div>
+    </div>
+
+    <footer>
+        <p><strong>The Computer Store</strong> | Topeka & Holton, Kansas</p>
+        <p>Documentation prepared by <a href="https://computerstoreks.com">Bast Project Management</a></p>
+        <p style="margin-top: 15px; font-size: 0.85rem; opacity: 0.7;">Last updated: December 2025</p>
+    </footer>
+</body>
+</html>

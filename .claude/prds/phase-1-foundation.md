@@ -254,10 +254,13 @@ The existing intake wizard must be updated to require customer portal accounts:
 
 ### FR-5: Role-Based Access Control
 
-**Employee Roles (hierarchical view access):**
-- **Admin:** Full access to all features, can manage employees and inventory (descriptions, ordering). Can switch between Admin, Technician, and Reception views.
-- **Technician:** Access to technician portal for repairs/diagnostics. Can switch between Technician and Reception views.
-- **Receptionist:** Access to reception view only (intake, customer check-in, checkout, invoices for in-store items, basic ticket status). Cannot access technician diagnostics or admin features.
+**Employee Roles (additive hierarchy - each level includes all capabilities below it):**
+
+| Level | Role | Capabilities |
+|-------|------|--------------|
+| 1 | **Receptionist** | Intake, customer check-in, checkout, invoices (in-store items), ticket notes, customer communications (messaging/calling), basic ticket status |
+| 2 | **Technician** | *All Receptionist capabilities* + repairs, diagnostics, technical ticket updates, device management |
+| 3 | **Admin** | *All Technician capabilities* + employee management, inventory management (descriptions, pricing, ordering), system settings |
 
 **Customer Role:**
 - **Customer:** Access to customer portal only. Cannot access any employee features.
@@ -270,11 +273,6 @@ Higher-level roles can "step down" to lower views for training, coverage, or con
 | Technician | Technician, Reception |
 | Receptionist | Reception only |
 | Customer | Customer Portal only |
-
-**Admin-Exclusive Features:**
-- Employee management (create/edit/disable accounts)
-- Inventory management (item descriptions, pricing, ordering)
-- System settings and configuration
 
 ### FR-6: NinjaOne API Integration
 Create typed API wrapper (`src/lib/ninjaone.ts`):

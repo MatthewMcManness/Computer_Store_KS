@@ -138,7 +138,7 @@ Phase 1 establishes the core infrastructure for The Computer Store's unified pla
 - [ ] Email verification for new accounts
 - [ ] MFA option for admin accounts
 - [ ] NinjaOne API wrapper for device data
-- [ ] View switching for employees (admin→tech→reception, tech→reception)
+- [ ] View switching toggle for training (admin→tech/reception, tech→reception)
 
 ### Nice to Have (P2)
 - [ ] Social login (Google) for customers
@@ -265,14 +265,14 @@ The existing intake wizard must be updated to require customer portal accounts:
 **Customer Role:**
 - **Customer:** Access to customer portal only. Cannot access any employee features.
 
-**View Switching:**
-Higher-level roles can "step down" to lower views for training, coverage, or context:
-| Role | Available Views |
-|------|----------------|
-| Admin | Admin, Technician, Reception |
-| Technician | Technician, Reception |
-| Receptionist | Reception only |
-| Customer | Customer Portal only |
+**View Switching (for training new employees):**
+Higher roles can toggle to lower views to demonstrate workflows during training:
+| Role | Can Switch To |
+|------|--------------|
+| Admin | Technician view, Reception view |
+| Technician | Reception view |
+| Receptionist | No switching (single view) |
+| Customer | No switching (portal only) |
 
 ### FR-6: NinjaOne API Integration
 Create typed API wrapper (`src/lib/ninjaone.ts`):

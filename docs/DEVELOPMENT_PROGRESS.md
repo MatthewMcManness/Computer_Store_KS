@@ -5,7 +5,7 @@
 **Epic:** Phase 1 Foundation - Supabase Auth Migration
 **Branch:** `epic/phase-1-foundation`
 **Started:** 2025-12-26
-**Status:** In Progress (5 of 9 issues complete)
+**Status:** In Progress (7 of 9 issues complete)
 
 ---
 
@@ -20,19 +20,14 @@
 | #52 | Auth Library & Middleware | Created `supabase-server.ts` for SSR, updated middleware with Supabase + legacy auth fallback, added security headers. |
 | #53 | Auth Pages | Built `/login`, `/register`, `/reset-password` pages with role-based redirects. |
 | #56 | NinjaOne API Wrapper | Full API client with OAuth2 auth, caching, and device endpoints. |
-
-### In Progress (Running in Parallel)
-
-| Issue | Title | Agent |
-|-------|-------|-------|
-| #54 | Employee Onboarding | Creating admin employee management UI |
-| #55 | Intake Wizard Update | Adding portal account requirement to intake wizard |
+| #54 | Employee Onboarding | Admin employee management UI, invitation flow via Supabase. |
+| #55 | Intake Wizard Update | Portal account check/creation, status badges, blocks device selection without account. |
 
 ### Remaining
 
 | Issue | Title | Dependencies |
 |-------|-------|--------------|
-| #57 | Customer Portal Dashboard | #54, #55 |
+| #57 | Customer Portal Dashboard | Ready to start |
 | #58 | Testing & Polish | #57 |
 
 ---
@@ -61,6 +56,16 @@
 - `docs/supabase/auth-configuration.md` - Dashboard setup guide
 - `docs/supabase/email-templates/` - 4 branded HTML templates
 
+### Employee Management (Issue #54)
+- `src/app/admin/employees/page.tsx` - Employee list with role management
+- `src/app/admin/employees/new/page.tsx` - New employee invitation form
+- `src/app/api/admin/employees/route.ts` - Employee CRUD API
+- `src/app/api/admin/employees/[id]/route.ts` - Single employee API
+
+### Intake Wizard (Issue #55)
+- `src/app/api/customers/portal-account/route.ts` - Portal account check/create API
+- `src/components/admin/intake/IntakeWizard.tsx` - Updated with portal account flow
+
 ---
 
 ## Manual Tasks Outstanding
@@ -76,6 +81,7 @@ See `.claude/epics/phase-1-foundation/MANUAL_TASKS.md` for full list:
 ## Git Commits (Today)
 
 ```
+87cc332 Issue #54 & #55: Employee onboarding and intake wizard portal accounts
 c17f104 Issue #53: Add unified authentication pages
 13d5762 Issue #52: Add auth library, middleware, and role-based access control
 0420be8 Issue #56: Add NinjaOne RMM API wrapper with typed client and caching
@@ -87,12 +93,11 @@ c44064a Issue #51: Configure Supabase Auth with Resend SMTP
 
 ## Next Steps
 
-1. Complete Issues #54 and #55 (currently running)
-2. Launch Issue #57 (Customer Portal Dashboard) once dependencies complete
-3. Complete Issue #58 (Testing & Polish)
-4. Complete manual Supabase Dashboard configuration
-5. Merge `epic/phase-1-foundation` to `main`
+1. Launch Issue #57 (Customer Portal Dashboard) - Ready to start
+2. Complete Issue #58 (Testing & Polish)
+3. Complete manual Supabase Dashboard configuration
+4. Merge `epic/phase-1-foundation` to `main`
 
 ---
 
-*Last updated: 2025-12-26 ~11:15 PM CT*
+*Last updated: 2025-12-27 ~12:30 AM CT*

@@ -560,3 +560,51 @@ export function getAuthErrorMessage(error: Error): string {
 
   return 'An error occurred. Please try again.';
 }
+
+// =============================================================================
+// Role Checking Utilities
+// =============================================================================
+
+/**
+ * Check if user profile has admin role
+ */
+export function isAdmin(profile: UserProfile | null): boolean {
+  return profile?.role === 'admin';
+}
+
+/**
+ * Check if user profile has technician role
+ */
+export function isTechnician(profile: UserProfile | null): boolean {
+  return profile?.role === 'technician';
+}
+
+/**
+ * Check if user profile has receptionist role
+ */
+export function isReceptionist(profile: UserProfile | null): boolean {
+  return profile?.role === 'receptionist';
+}
+
+/**
+ * Check if user profile has customer role
+ */
+export function isCustomer(profile: UserProfile | null): boolean {
+  return profile?.role === 'customer';
+}
+
+/**
+ * Check if user profile has any staff role (admin, technician, or receptionist)
+ */
+export function isStaff(profile: UserProfile | null): boolean {
+  if (!profile) return false;
+  return isEmployeeRole(profile.role);
+}
+
+/**
+ * Check if user profile has any of the specified roles
+ */
+export function hasRole(profile: UserProfile | null, roles: UserRole[]): boolean {
+  if (!profile) return false;
+  return roles.includes(profile.role);
+}

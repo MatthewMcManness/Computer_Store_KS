@@ -17,6 +17,7 @@
     "@fingerprintjs/fingerprintjs": "^5.0.1",
     "@marsidev/react-turnstile": "^1.4.0",
     "@octokit/rest": "^22.0.1",
+    "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.88.0",
     "@types/node": "^24.10.1",
     "@types/react": "18",

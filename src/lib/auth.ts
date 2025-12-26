@@ -1,3 +1,12 @@
+/**
+ * @deprecated This file contains legacy RepairShopr authentication.
+ * New code should use supabase-auth.ts and supabase-server.ts instead.
+ * This file is kept for backward compatibility during the migration period.
+ *
+ * @see src/lib/supabase-auth.ts - New Supabase auth utilities
+ * @see src/lib/supabase-server.ts - Server-side Supabase client
+ */
+
 import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
 import { createRepairShoprClient, RepairShoprAPIError } from './repairshopr';

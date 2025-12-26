@@ -257,7 +257,7 @@ The existing intake wizard must be updated to require customer portal accounts:
 **Employee Roles (hierarchical view access):**
 - **Admin:** Full access to all features, can manage employees. Can switch between Admin, Technician, and Reception views.
 - **Technician:** Access to technician portal for repairs/diagnostics. Can switch between Technician and Reception views.
-- **Receptionist:** Access to reception view only (intake, customer check-in, basic ticket status). Cannot access technician or admin features.
+- **Receptionist:** Access to reception view only (intake, customer check-in, checkout, invoices for in-store items, basic ticket status). Cannot access technician diagnostics or admin features.
 
 **Customer Role:**
 - **Customer:** Access to customer portal only. Cannot access any employee features.

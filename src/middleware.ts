@@ -30,6 +30,7 @@ const PUBLIC_ROUTES = [
   '/login',
   '/register',
   '/reset-password',
+  '/reset-password/confirm',
   '/about',
   '/contact',
   '/gallery',
@@ -48,6 +49,7 @@ const PUBLIC_PREFIXES = [
   '/api/public',
   '/api/contact',
   '/api/health',
+  '/auth/callback',
   '/_next',
   '/static',
   '/images',
@@ -57,7 +59,7 @@ const PUBLIC_PREFIXES = [
 /**
  * Auth routes (login, register, etc.) - redirect if already authenticated
  */
-const AUTH_ROUTES = ['/login', '/register', '/reset-password'];
+const AUTH_ROUTES = ['/login', '/register', '/reset-password', '/reset-password/confirm'];
 
 /**
  * Route permission matrix

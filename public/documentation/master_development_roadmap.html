@@ -669,26 +669,25 @@
                 </h4>
                 <p><strong>Last Updated:</strong> December 26, 2025</p>
                 <div class="progress-container" style="height: 30px;">
-                    <div class="progress-bar" style="width: 35%;">~35% Complete</div>
+                    <div class="progress-bar" style="width: 25%;">~25% Complete</div>
                 </div>
-                <p style="margin-bottom: 0;">Phases 1-2 are partially complete with core authentication, customer management, and ticket systems working. NinjaOne, Customer Portal, PC Builder, and Social Media automation remain to be built.</p>
+                <p style="margin-bottom: 0;"><strong>Priority:</strong> Migrate authentication from RepairShopr API to 100% Supabase Auth. Customer management and ticket systems are functional but need auth updates. NinjaOne, Customer Portal, PC Builder, and Social Media automation remain to be built.</p>
             </div>
 
             <div class="card-grid">
                 <div class="progress-section">
                     <h4>
                         Phase 1: Foundation
-                        <span class="badge badge-partial">75% Done</span>
+                        <span class="badge badge-partial">40% Done</span>
                     </h4>
                     <div class="progress-container">
-                        <div class="progress-bar" style="width: 75%;">75%</div>
+                        <div class="progress-bar" style="width: 40%;">40%</div>
                     </div>
                     <ul style="margin: 0; padding-left: 20px; font-size: 0.9rem;">
-                        <li><span class="status-icon status-complete">✓</span> RepairShopr authentication</li>
-                        <li><span class="status-icon status-complete">✓</span> Supabase customer accounts</li>
-                        <li><span class="status-icon status-complete">✓</span> Session management (AES-256)</li>
+                        <li><span class="status-icon status-partial">◐</span> <strong>Supabase Auth migration needed</strong> (replace RepairShopr auth)</li>
+                        <li><span class="status-icon status-partial">◐</span> User profiles (needs Supabase Auth linking)</li>
                         <li><span class="status-icon status-complete">✓</span> RepairShopr API wrapper</li>
-                        <li><span class="status-icon status-complete">✓</span> Database schema</li>
+                        <li><span class="status-icon status-complete">✓</span> Database schema (partial)</li>
                         <li><span class="status-icon status-complete">✓</span> Route protection middleware</li>
                         <li><span class="status-icon status-pending">○</span> NinjaOne API wrapper</li>
                         <li><span class="status-icon status-pending">○</span> Stripe integration</li>
@@ -788,11 +787,15 @@
                 </div>
             </div>
 
-            <div class="warning-box" style="margin-top: 30px;">
-                <h4>What's Already Working</h4>
-                <p style="margin-bottom: 10px;">The following features are live and functional in the admin portal:</p>
-                <ul style="margin: 0; padding-left: 20px;">
-                    <li><strong>Authentication:</strong> Employee login via RepairShopr, customer accounts in Supabase</li>
+            <div class="warning-box" style="margin-top: 30px; background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); border-left-color: #dc2626;">
+                <h4 style="color: #991b1b;">Priority: Supabase Auth Migration</h4>
+                <p style="margin-bottom: 10px; color: #991b1b;">Current auth uses RepairShopr API for employees. <strong>Goal:</strong> Replace with 100% Supabase Auth for all users.</p>
+            </div>
+
+            <div class="info-box" style="margin-top: 20px;">
+                <h4>Features Working (will need auth updates)</h4>
+                <p style="margin-bottom: 10px;">These features are functional but will need updates when auth migrates to Supabase:</p>
+                <ul style="margin: 0; padding-left: 20px; color: #6d28d9;">
                     <li><strong>Customer Management:</strong> Search, view, edit customers with protection plan status</li>
                     <li><strong>Ticket System:</strong> 5-step intake wizard, ticket detail view, status updates, comments</li>
                     <li><strong>Business Management:</strong> Search businesses, view associated customers</li>
@@ -981,26 +984,36 @@
 
                 <ol class="step-list">
                     <li>
-                        <h4>Set Up Authentication System <span class="step-status done">✓ Complete</span></h4>
-                        <p>Dual-mode authentication with RepairShopr for employees and Supabase for customers.</p>
+                        <h4>Set Up Supabase Authentication <span class="step-status partial">Migration Needed</span></h4>
+                        <p>Replace current RepairShopr auth with unified Supabase Auth for ALL users (employees + customers).</p>
+                        <div class="warning-box" style="margin: 10px 0;">
+                            <h4 style="margin-top: 0;">Auth Migration Required</h4>
+                            <p style="margin-bottom: 0;">Current system uses RepairShopr API for employee auth. <strong>Goal:</strong> 100% Supabase Auth with RepairShopr ID linking only for data sync (not authentication).</p>
+                        </div>
                         <ul class="substep-list">
-                            <li><strong>✓</strong> RepairShopr API authentication for employees</li>
-                            <li><strong>✓</strong> Supabase customer accounts table with bcrypt passwords</li>
-                            <li><strong>✓</strong> User roles: <code>admin</code>, <code>employee</code>, <code>limited</code>, <code>customer</code></li>
-                            <li><strong>✓</strong> AES-256-GCM encrypted session cookies</li>
-                            <li><strong>✓</strong> Rate limiting: 5 attempts per 15 min per IP</li>
-                            <li>○ Email verification flow (not implemented)</li>
-                            <li>○ Password reset flow (not implemented)</li>
-                            <li>○ MFA for admin (not implemented)</li>
+                            <li><span style="color: #dc2626;">✗ Current (to be replaced):</span> RepairShopr API authentication for employees</li>
+                            <li><span style="color: #f59e0b;">◐</span> Supabase customer accounts table exists (needs migration to Supabase Auth)</li>
+                            <li>○ Configure Supabase Auth (email/password provider)</li>
+                            <li>○ Create <code>user_profiles</code> table linking Supabase Auth users to RepairShopr IDs</li>
+                            <li>○ Create user roles in Supabase: <code>admin</code>, <code>employee</code>, <code>customer</code></li>
+                            <li>○ Migrate existing employee accounts to Supabase Auth</li>
+                            <li>○ Migrate existing customer accounts to Supabase Auth</li>
+                            <li>○ Update login/signup flows to use Supabase Auth client</li>
+                            <li>○ Implement email verification flow</li>
+                            <li>○ Implement password reset flow</li>
+                            <li>○ Add MFA option for admin accounts</li>
+                            <li><strong>✓</strong> Rate limiting infrastructure exists (can reuse)</li>
                         </ul>
                     </li>
                     <li>
-                        <h4>Create User Profile System <span class="step-status done">✓ Complete</span></h4>
-                        <p>Link accounts to RepairShopr records.</p>
+                        <h4>Create User Profile System <span class="step-status partial">Needs Update</span></h4>
+                        <p>Link Supabase Auth users to RepairShopr records for data sync.</p>
                         <ul class="substep-list">
-                            <li><strong>✓</strong> <code>customer_accounts</code> table with <code>repairshopr_customer_id</code></li>
-                            <li><strong>✓</strong> Employee profiles via RepairShopr user data</li>
-                            <li><strong>✓</strong> Account linking during intake wizard</li>
+                            <li><span style="color: #f59e0b;">◐</span> <code>customer_accounts</code> exists (needs to link to Supabase Auth user IDs)</li>
+                            <li>○ Create unified <code>user_profiles</code> table for all users</li>
+                            <li>○ Link <code>auth.users.id</code> to <code>repairshopr_customer_id</code> or <code>repairshopr_user_id</code></li>
+                            <li>○ Store user role and permissions in profile</li>
+                            <li><strong>✓</strong> Account linking flow during intake wizard (adapt for Supabase Auth)</li>
                             <li><strong>✓</strong> Protection plan tier tracking (bronze/silver/gold)</li>
                         </ul>
                     </li>
@@ -2087,52 +2100,62 @@
         <div class="container">
             <h2>Immediate Next Steps</h2>
 
-            <div class="exec-summary" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left-color: #f59e0b;">
-                <p style="color: #92400e;"><strong>Current Focus:</strong> Complete remaining Phase 1 items (NinjaOne API, Stripe) and high-value Phase 2 features (Kanban dashboard, invoice creation) before moving to Phase 3.</p>
+            <div class="exec-summary" style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); border-left-color: #dc2626;">
+                <p style="color: #991b1b;"><strong>#1 Priority:</strong> Migrate authentication from RepairShopr API to 100% Supabase Auth. This is the foundation for everything else and must be completed first.</p>
             </div>
 
             <div class="card-grid">
-                <div class="card phase-1">
-                    <h3>Phase 1 Remaining</h3>
+                <div class="card" style="border-top-color: #dc2626;">
+                    <h3 style="color: #dc2626;">🔐 Supabase Auth Migration</h3>
                     <ol>
-                        <li><strong>NinjaOne API wrapper</strong> - Create <code>src/lib/ninjaone.ts</code> with typed client</li>
-                        <li><strong>Stripe integration</strong> - Set up API keys, webhook endpoint, test transactions</li>
+                        <li><strong>Enable Supabase Auth</strong> - Configure email/password provider in Supabase dashboard</li>
+                        <li><strong>Create user_profiles table</strong> - Links <code>auth.users.id</code> to RepairShopr IDs</li>
+                        <li><strong>Update auth.ts</strong> - Replace RepairShopr login with Supabase Auth client</li>
+                        <li><strong>Build new login/signup pages</strong> - Use Supabase Auth UI or custom forms</li>
+                        <li><strong>Migrate existing accounts</strong> - Script to create Supabase users for existing employees</li>
+                        <li><strong>Add email verification</strong> - Supabase handles this automatically</li>
+                        <li><strong>Add password reset</strong> - Supabase handles this automatically</li>
+                        <li><strong>Optional: MFA for admins</strong> - Enable in Supabase settings</li>
+                    </ol>
+                </div>
+                <div class="card phase-1">
+                    <h3>Phase 1 Remaining (After Auth)</h3>
+                    <ol>
+                        <li><strong>NinjaOne API wrapper</strong> - Create <code>src/lib/ninjaone.ts</code></li>
+                        <li><strong>Stripe integration</strong> - API keys, webhook endpoint</li>
                         <li><strong>Order Stripe hardware</strong> - 2x Reader M2 ($118 total)</li>
-                        <li>Email verification flow (optional enhancement)</li>
-                        <li>Password reset flow (optional enhancement)</li>
                     </ol>
                 </div>
                 <div class="card phase-2">
-                    <h3>Phase 2 Priorities</h3>
+                    <h3>Phase 2 Priorities (After Auth)</h3>
                     <ol>
-                        <li><strong>Ticket Kanban dashboard</strong> - High value, visual workflow</li>
-                        <li><strong>Invoice creation</strong> - Currently read-only, need full CRUD</li>
+                        <li><strong>Ticket Kanban dashboard</strong> - Visual workflow</li>
+                        <li><strong>Invoice creation</strong> - Full CRUD</li>
                         <li><strong>Quote system</strong> - Create and send estimates</li>
-                        <li><strong>Ticket templates</strong> - Standardize intake process</li>
-                        <li><strong>Cytracom research</strong> - Determine API capabilities</li>
-                    </ol>
-                </div>
-                <div class="card phase-3">
-                    <h3>Research Needed</h3>
-                    <ol>
-                        <li><strong>NinjaOne API docs</strong> - Remote access, scripting, alerts</li>
-                        <li><strong>Technician interview</strong> - 30-min session on NinjaOne workflow</li>
-                        <li><strong>Cytracom API</strong> - Voicemail webhook capabilities</li>
-                        <li><strong>Supplier APIs</strong> - Ingram Micro, TD SYNNEX access</li>
+                        <li><strong>Cytracom research</strong> - Voicemail API</li>
                     </ol>
                 </div>
             </div>
 
-            <div class="warning-box" style="margin-top: 30px;">
-                <h4>What's Already Working - Don't Rebuild!</h4>
-                <p style="margin-bottom: 10px;">These features are complete and functional. Focus new work on missing features:</p>
+            <div class="info-box" style="margin-top: 30px;">
+                <h4>Why Supabase Auth First?</h4>
+                <ul style="margin: 10px 0 0 20px; color: #6d28d9;">
+                    <li><strong>Customer Portal:</strong> Needs unified auth for customers to register and login</li>
+                    <li><strong>Built-in features:</strong> Email verification, password reset, MFA - all handled by Supabase</li>
+                    <li><strong>Security:</strong> Supabase Auth is battle-tested, no need to maintain custom auth code</li>
+                    <li><strong>Session management:</strong> Supabase handles JWT tokens, refresh, and RLS integration</li>
+                    <li><strong>Simplicity:</strong> One auth system for employees AND customers, not two separate systems</li>
+                </ul>
+            </div>
+
+            <div class="warning-box" style="margin-top: 20px;">
+                <h4>Features That Will Need Updates After Auth Migration</h4>
+                <p style="margin-bottom: 10px;">These work now with RepairShopr auth, but will need session handling updates:</p>
                 <ul style="margin: 0; padding-left: 20px; color: #92400e;">
-                    <li><strong>✓ Authentication</strong> - RepairShopr + Supabase dual-mode working</li>
-                    <li><strong>✓ Customer management</strong> - Full CRUD with protection plan tiers</li>
-                    <li><strong>✓ Ticket intake wizard</strong> - 5-step process creates tickets in RepairShopr</li>
-                    <li><strong>✓ Ticket detail view</strong> - Status updates, comments, notes</li>
-                    <li><strong>✓ Blog & Gallery CMS</strong> - Full management with image uploads</li>
-                    <li><strong>✓ Contact form</strong> - Bot protection, email notifications</li>
+                    <li>Customer management (API auth headers)</li>
+                    <li>Ticket system (API auth headers)</li>
+                    <li>Admin dashboard (session checks)</li>
+                    <li>Middleware route protection (use Supabase session)</li>
                 </ul>
             </div>
         </div>

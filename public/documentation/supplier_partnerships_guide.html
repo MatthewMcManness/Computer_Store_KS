@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supplier Partnerships Guide | The Computer Store</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #10b981;
+            --secondary-dark: #059669;
+            --accent: #f59e0b;
+            --accent-dark: #d97706;
+            --purple: #8b5cf6;
+            --purple-dark: #7c3aed;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #64748b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background: var(--light);
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        header .subtitle {
+            font-size: 1.4rem;
+            color: #ffffff;
+            font-weight: 400;
+            position: relative;
+            opacity: 0.95;
+        }
+
+        .badge-header {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 25px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            position: relative;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 50px 20px;
+        }
+
+        .intro {
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto 50px;
+        }
+
+        .intro h2 {
+            color: var(--dark);
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+
+        .intro p {
+            font-size: 1.1rem;
+            color: var(--gray);
+        }
+
+        .toc {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 50px;
+        }
+
+        .toc h3 {
+            color: var(--dark);
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .toc ol {
+            list-style: none;
+            counter-reset: toc;
+        }
+
+        .toc > ol > li {
+            counter-increment: toc;
+            margin-bottom: 10px;
+        }
+
+        .toc > ol > li::before {
+            content: counter(toc) ". ";
+            color: var(--secondary);
+            font-weight: 600;
+        }
+
+        .toc a {
+            color: var(--dark);
+            text-decoration: none;
+        }
+
+        .toc a:hover {
+            color: var(--secondary);
+            text-decoration: underline;
+        }
+
+        .section {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            color: var(--dark);
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid var(--secondary);
+        }
+
+        .section h3 {
+            color: var(--dark);
+            font-size: 1.4rem;
+            margin: 30px 0 15px;
+        }
+
+        .section h4 {
+            color: var(--gray);
+            font-size: 1.1rem;
+            margin: 20px 0 10px;
+            font-weight: 600;
+        }
+
+        .section p {
+            color: var(--gray);
+            margin-bottom: 15px;
+        }
+
+        .section ul, .section ol {
+            margin: 15px 0;
+            padding-left: 25px;
+        }
+
+        .section li {
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
+        .priority-high {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border: 2px solid var(--secondary);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+
+        .priority-high h4 {
+            color: var(--secondary-dark);
+            margin-top: 0;
+        }
+
+        .priority-high p, .priority-high li {
+            color: #065f46;
+        }
+
+        .priority-medium {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+
+        .priority-medium h4 {
+            color: var(--primary-dark);
+            margin-top: 0;
+        }
+
+        .priority-medium p, .priority-medium li {
+            color: #1e40af;
+        }
+
+        .priority-low {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid var(--accent);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+
+        .priority-low h4 {
+            color: var(--accent-dark);
+            margin-top: 0;
+        }
+
+        .priority-low p, .priority-low li {
+            color: #92400e;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+            border: 2px solid var(--purple);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+
+        .info-box h4 {
+            color: var(--purple-dark);
+            margin-top: 0;
+        }
+
+        .info-box p, .info-box li {
+            color: #5b21b6;
+        }
+
+        .supplier-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            border-left: 4px solid var(--secondary);
+        }
+
+        .supplier-card.tier-1 {
+            border-left-color: var(--secondary);
+        }
+
+        .supplier-card.tier-2 {
+            border-left-color: var(--primary);
+        }
+
+        .supplier-card.tier-3 {
+            border-left-color: var(--accent);
+        }
+
+        .supplier-card h4 {
+            color: var(--dark);
+            font-size: 1.2rem;
+            margin: 0 0 10px;
+        }
+
+        .supplier-card .contact-info {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .supplier-card .contact-info p {
+            margin: 5px 0;
+            font-size: 0.95rem;
+        }
+
+        .supplier-card .benefits {
+            margin-top: 15px;
+        }
+
+        .supplier-card .benefits li {
+            font-size: 0.95rem;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            font-size: 0.95rem;
+        }
+
+        .comparison-table th {
+            background: var(--secondary);
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: #f8fafc;
+        }
+
+        .comparison-table tr:hover {
+            background: #d1fae5;
+        }
+
+        .script-box {
+            background: #1e1e1e;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #d4d4d4;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+        }
+
+        .script-box h5 {
+            color: #9cdcfe;
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+
+        .script-box p {
+            margin: 10px 0;
+            color: #d4d4d4;
+        }
+
+        .script-box .label {
+            color: #6a9955;
+            font-weight: bold;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+            margin: 25px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(to bottom, var(--secondary), var(--primary));
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+            padding-left: 25px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -24px;
+            top: 5px;
+            width: 15px;
+            height: 15px;
+            background: white;
+            border: 3px solid var(--secondary);
+            border-radius: 50%;
+        }
+
+        .timeline-item h4 {
+            color: var(--secondary);
+            margin: 0 0 8px;
+        }
+
+        .timeline-item p {
+            color: var(--gray);
+            margin: 0;
+        }
+
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+
+        .checklist li {
+            padding: 10px 0 10px 35px;
+            position: relative;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .checklist li::before {
+            content: '☐';
+            position: absolute;
+            left: 0;
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            margin-top: 60px;
+        }
+
+        footer p {
+            color: #94a3b8;
+            margin: 5px 0;
+        }
+
+        footer a {
+            color: var(--secondary);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 12px 24px;
+            background: var(--secondary);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .back-link:hover {
+            background: var(--secondary-dark);
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .section {
+                padding: 25px;
+            }
+
+            .comparison-table {
+                font-size: 0.85rem;
+            }
+
+            .comparison-table th, .comparison-table td {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Supplier Partnerships Guide</h1>
+        <p class="subtitle">Building Strategic Vendor Relationships</p>
+        <span class="badge-header">Procurement & Partnerships</span>
+    </header>
+
+    <div class="container">
+        <div class="intro">
+            <h2>Establishing Profitable Supplier Networks</h2>
+            <p>This guide provides a comprehensive overview of potential supplier partnerships for The Computer Store, including major distributors, manufacturer partner programs, component suppliers, and repair parts vendors. Each section includes contact information, partnership benefits, and recommended outreach strategies.</p>
+        </div>
+
+        <!-- Table of Contents -->
+        <div class="toc">
+            <h3>Table of Contents</h3>
+            <ol>
+                <li><a href="#priority-summary">Priority Summary & Quick Wins</a></li>
+                <li><a href="#distributors">Major IT Distributors</a></li>
+                <li><a href="#manufacturers">Manufacturer Partner Programs</a></li>
+                <li><a href="#components">Component Suppliers</a></li>
+                <li><a href="#repair-parts">Repair Parts Suppliers</a></li>
+                <li><a href="#refurbished">Refurbished Computer Suppliers</a></li>
+                <li><a href="#outreach">Outreach Templates & Scripts</a></li>
+                <li><a href="#timeline">Implementation Timeline</a></li>
+                <li><a href="#checklist">Partnership Application Checklist</a></li>
+            </ol>
+        </div>
+
+        <!-- Section 1: Priority Summary -->
+        <section class="section" id="priority-summary">
+            <h2>1. Priority Summary & Quick Wins</h2>
+
+            <p>Based on The Computer Store's business model (retail sales, repairs, custom builds, and MSP services), here are the recommended partnership priorities:</p>
+
+            <div class="priority-high">
+                <h4>HIGH PRIORITY - Apply Immediately</h4>
+                <ul>
+                    <li><strong>D&H Distributing</strong> - Best for SMB-focused resellers, dedicated account reps, excellent training</li>
+                    <li><strong>iFixit Pro</strong> - 30% savings on repair parts, Microsoft/Google/Valve official parts</li>
+                    <li><strong>Ingram Micro</strong> - Largest selection (280,000+ products), essential for inventory depth</li>
+                    <li><strong>Lenovo Partner Program</strong> - Low barrier to entry, good margins on business laptops</li>
+                </ul>
+            </div>
+
+            <div class="priority-medium">
+                <h4>MEDIUM PRIORITY - Apply Within 30 Days</h4>
+                <ul>
+                    <li><strong>ASUS Valued Partner Program</strong> - Essential for custom gaming builds (motherboards, GPUs)</li>
+                    <li><strong>MSI Partner Program</strong> - Gaming laptops and components</li>
+                    <li><strong>Dell Partner Program</strong> - Business systems, refurbished outlet access</li>
+                    <li><strong>HP Partner Program</strong> - Printers, business systems, consumer PCs</li>
+                </ul>
+            </div>
+
+            <div class="priority-low">
+                <h4>LONGER-TERM - Apply as Volume Increases</h4>
+                <ul>
+                    <li><strong>TD Synnex</strong> - Advanced solutions focus, better for larger MSPs</li>
+                    <li><strong>Intel Partner Alliance</strong> - Points/rewards system, useful at higher volumes</li>
+                    <li><strong>AMD Partner Network</strong> - Training and rebates, good for Ryzen builds</li>
+                    <li><strong>Refurbished Bulk Suppliers</strong> - Dell Refurbished, System Liquidation (need volume)</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 2: Major IT Distributors -->
+        <section class="section" id="distributors">
+            <h2>2. Major IT Distributors</h2>
+
+            <p>These broadline distributors carry products from hundreds of manufacturers and should be your primary sourcing channels for inventory.</p>
+
+            <div class="supplier-card tier-1">
+                <h4>D&H Distributing</h4>
+                <p><strong>Best For:</strong> SMB-focused resellers, personalized service, training programs</p>
+                <p>D&H is a privately-held distributor founded in 1918, specifically focused on resellers serving small-to-midsize businesses. Every customer gets a dedicated account representative who functions as a partner in your ongoing strategy.</p>
+
+                <div class="benefits">
+                    <strong>Key Benefits:</strong>
+                    <ul>
+                        <li>Dedicated personal account representative for every customer</li>
+                        <li>PartnerFi community with incentives and live networking</li>
+                        <li>SuccessPath Premier enablement program (UC, security, ProAV, gaming/esports)</li>
+                        <li>Extended-day terms through DLL financing partnership</li>
+                        <li>Discounts on services: asset tagging, laser etching, "green shipping"</li>
+                        <li>Pre- and post-sales technical support</li>
+                    </ul>
+                </div>
+
+                <div class="contact-info">
+                    <p><strong>Website:</strong> <a href="https://www.dandh.com" target="_blank">dandh.com</a></p>
+                    <p><strong>Phone:</strong> 800-877-1200</p>
+                    <p><strong>Email:</strong> Partnerfi@dandh.com</p>
+                    <p><strong>Partner Manager:</strong> Corey Quick - cquick@dandh.com</p>
+                    <p><strong>Major Vendors:</strong> Microsoft, Cisco, HP, Lenovo, Intel, Samsung, Dell</p>
+                </div>
+            </div>
+
+            <div class="supplier-card tier-1">
+                <h4>Ingram Micro</h4>
+                <p><strong>Best For:</strong> Largest product selection, global reach, cloud marketplace</p>
+                <p>The world's largest technology distributor with over 160,000 solution providers globally. Access to 280,000+ products from 1,400 manufacturers.</p>
+
+                <div class="benefits">
+                    <strong>Key Benefits:</strong>
+                    <ul>
+                        <li>280,000+ products from 1,400+ manufacturers</li>
+                        <li>Xvantage digital experience platform for discovery and purchasing</li>
+                        <li>Financing, education, training, and business development resources</li>
+                        <li>Marketing services and pre/post-sale technical assistance</li>
+                        <li>Choice Advantage partner program with flexible tiers</li>
+                        <li>Special programs for minority, women, and disabled veteran-owned businesses</li>
+                    </ul>
+                </div>
+
+                <div class="contact-info">
+                    <p><strong>Application Portal:</strong> <a href="https://www.ingrammicroresellerapplication.com/" target="_blank">ingrammicroresellerapplication.com</a></p>
+                    <p><strong>Sign Up:</strong> <a href="https://www.ingrammicro.com/en-us/sign-up/sign-up" target="_blank">ingrammicro.com/sign-up</a></p>
+                    <p><strong>API Support:</strong> api@ingrammicro.com</p>
+                    <p><strong>Product Mix:</strong> 40% Peripherals, 35% Systems, 20% Software, 15% Networking</p>
+                </div>
+            </div>
+
+            <div class="supplier-card tier-2">
+                <h4>TD Synnex</h4>
+                <p><strong>Best For:</strong> Advanced solutions (AI, cloud, security), enterprise-focused</p>
+                <p>Major distributor formed from Tech Data and Synnex merger. Strong focus on cloud, security, and advanced infrastructure solutions.</p>
+
+                <div class="benefits">
+                    <strong>Key Benefits:</strong>
+                    <ul>
+                        <li>New Partner Loyalty program (2025) with growth incentives</li>
+                        <li>Specialized resources and sales support for advanced solutions</li>
+                        <li>AI, modern infrastructure, security, cloud, and analytics focus</li>
+                        <li>Skills-building opportunities and specialized training</li>
+                        <li>Microsoft Surface authorization available through them</li>
+                    </ul>
+                </div>
+
+                <div class="contact-info">
+                    <p><strong>Become a Customer:</strong> <a href="https://www.tdsynnex.com/na/us/become-a-customer/" target="_blank">tdsynnex.com/become-a-customer</a></p>
+                    <p><strong>Partner Portal:</strong> <a href="https://partner.tdsynnex.com/" target="_blank">partner.tdsynnex.com</a></p>
+                    <p><strong>Note:</strong> Better suited once MSP business scales to enterprise clients</p>
+                </div>
+            </div>
+
+            <h3>Distributor Comparison</h3>
+            <table class="comparison-table">
+                <tr>
+                    <th>Distributor</th>
+                    <th>Best For</th>
+                    <th>MOQ</th>
+                    <th>Account Rep</th>
+                    <th>Recommended</th>
+                </tr>
+                <tr>
+                    <td><strong>D&H</strong></td>
+                    <td>SMB, personalized service</td>
+                    <td>None</td>
+                    <td>Dedicated</td>
+                    <td>Start Here</td>
+                </tr>
+                <tr>
+                    <td><strong>Ingram Micro</strong></td>
+                    <td>Product selection, scale</td>
+                    <td>None</td>
+                    <td>Assigned</td>
+                    <td>Essential</td>
+                </tr>
+                <tr>
+                    <td><strong>TD Synnex</strong></td>
+                    <td>Enterprise, cloud/AI</td>
+                    <td>None</td>
+                    <td>Assigned</td>
+                    <td>Later</td>
+                </tr>
+            </table>
+        </section>
+
+        <!-- Section 3: Manufacturer Partner Programs -->
+        <section class="section" id="manufacturers">
+            <h2>3. Manufacturer Partner Programs</h2>
+
+            <p>Direct manufacturer partnerships provide better margins, co-marketing opportunities, and access to deal registration that protects your pricing.</p>
+
+            <h3>System Manufacturers</h3>
+
+            <div class="supplier-card tier-1">
+                <h4>Lenovo Partner Program</h4>
+                <p><strong>Best For:</strong> Business laptops (ThinkPad), low barrier to entry</p>
+
+                <div class="benefits">
+                    <strong>Tier Structure:</strong>
+                    <ul>
+                        <li><strong>Authorized:</strong> $0-$249K annual revenue - Entry level</li>
+                        <li><strong>Silver:</strong> $250K-$999K - Enhanced benefits</li>
+                        <li><strong>Gold:</strong> $1M-$9.9M - Premium support</li>
+                        <li><strong>Platinum:</strong> $10M+ - Top tier benefits</li>
+                    </ul>
+                    <strong>Key Benefits:</strong>
+                    <ul>
+                        <li>Deal registration for pricing protection</li>
+                        <li>Lenovo Pro pricing plus 1% volume rebates</li>
+                        <li>Up to 60 days interest-free credit (DLL partnership)</li>
+                        <li>Tech specialist support for volume orders</li>
+                        <li>Arena training program with points for courses</li>
+                    </ul>
+                </div>
+
+                <div class="contact-info">
+                    <p><strong>Partner Hub:</strong> <a href="https://www.lenovopartnerhub.com" target="_blank">lenovopartnerhub.com</a></p>
+                    <p><strong>Registration:</strong> <a href="https://www.partnerwithlenovo.com" target="_blank">partnerwithlenovo.com</a></p>
+                    <p><strong>Financing Partners:</strong> D&H, Ingram Micro, Synnex, Tech Data</p>
+                </div>
+            </div>
+
+            <div class="supplier-card tier-2">
+                <h4>Dell Technologies Partner Program</h4>
+                <p><strong>Best For:</strong> Business systems, servers, refurbished outlet</p>
+
+                <div class="benefits">
+                    <strong>Program Tiers:</strong> Authorized → Gold → Platinum → Titanium
+                    <br><br>
+                    <strong>Requirements:</strong>
+                    <ul>
+                        <li>Sponsoring distributor reference (D&H, Ingram, etc.)</li>
+                        <li>Tax ID/VAT and proof of business registration</li>
+                        <li>Corporate URL with matching email domain</li>
+                        <li>Reseller certificate or license (if applicable)</li>
+                    </ul>
+                    <strong>Key Benefits:</strong>
+                    <ul>
+                        <li>Access to Dell Partner Portal with tools and resources</li>
+                        <li>Training and certification programs</li>
+                        <li>Configuration, quoting, and purchasing tools</li>
+                        <li>Dell Outlet Authorized Reseller Program for refurbished</li>
+                    </ul>
+                </div>
+
+                <div class="contact-info">
+                    <p><strong>Registration Guide:</strong> <a href="https://www.delltechnologies.com/partner/en-us/partner/partner-registration-guide.htm" target="_blank">Dell Partner Registration</a></p>
+                    <p><strong>Support:</strong> <a href="https://www.delltechnologies.com/partner/en-us/partner/support.htm" target="_blank">Partner Support Portal</a></p>
+                    <p><strong>Outlet Program:</strong> <a href="https://www.dell.com/en-us/dfh/lp/dell-outlet-authorized-reseller-program" target="_blank">Dell Outlet Reseller</a></p>
+                </div>
+            </div>
+
+            <div class="supplier-card tier-2">
+                <h4>HP Partner Program</h4>
+                <p><strong>Best For:</strong> Printers, consumer PCs, business systems</p>
+
+                <div class="benefits">
+                    <strong>Two Paths to Reseller Status:</strong>
+                    <ol>
+                        <li><strong>Direct:</strong> Register at HP Partner Portal, sign HP Partner Agreement</li>
+                        <li><strong>Open Distribution:</strong> Apply through D&H, Synnex, TechData, or Ingram Micro</li>
+                    </ol>
+                    <strong>Requirements:</strong>
+                    <ul>
+                        <li>Must be an incorporated business</li>
+                        <li>HP Partner Agreement required</li>
+                        <li>HP Qualified Partner Program has specific eligibility criteria</li>
+                    </ul>
+                </div>
+
+                <div class="contact-info">
+                    <p><strong>Partner Portal:</strong> <a href="https://partner.hp.com" target="_blank">partner.hp.com</a></p>
+                    <p><strong>Apply:</strong> <a href="https://partner.hp.com/web/upp-ww/apply-to-be-an-hp-partner" target="_blank">HP Partner Application</a></p>
+                    <p><strong>USA Qualified Programs:</strong> hpusqualifiedpartnerprograms@hp.com</p>
+                </div>
+            </div>
+
+            <h3>Component Manufacturers (Custom Builds)</h3>
+
+            <div class="supplier-card tier-1">
+                <h4>ASUS Valued Partner Program (AVP)</h4>
+                <p><strong>Best For:</strong> Gaming builds, motherboards, GPUs, ROG products</p>
+
+                <div class="benefits">
+                    <strong>Key Benefits:</strong>
+                    <ul>
+                        <li>Rebates on items sold, discounts on demo notebooks</li>
+                        <li>Access to ASUS Advantage website (price lists, marketing materials)</li>
+                        <li>Accrue up to 6,000 points per quarter</li>
+                        <li>MAP policy support (no more than 3% below MSRP)</li>
+                    </ul>
+                    <strong>Authorized Distributors:</strong> ASI, D&H, Ingram Micro, Ma Labs, Synnex
+                </div>
+
+                <div class="contact-info">
+                    <p><strong>AVP Program:</strong> <a href="https://avp.asus.com/" target="_blank">avp.asus.com</a></p>
+                    <p><strong>Sign Up:</strong> <a href="https://avp.asus.com/signup/" target="_blank">AVP Signup</a></p>
+                    <p><strong>Systems Reseller:</strong> <a href="https://www.asus.com/us/site/systems-reseller/" target="_blank">ASUS Systems Reseller</a></p>
+                    <p><strong>Partner Portal:</strong> <a href="https://partner-portal.asus.com/" target="_blank">ASUS Partner Alliance</a></p>
+                </div>
+            </div>
+
+            <div class="supplier-card tier-2">
+                <h4>MSI Partner Program</h4>
+                <p><strong>Best For:</strong> Gaming laptops, graphics cards, gaming desktops</p>
+
+                <div class="benefits">
+                    <strong>Partner Tiers:</strong> Silver, Gold, Platinum
+                    <br><br>
+                    <strong>Key Benefits:</strong>
+                    <ul>
+                        <li>Sales and marketing materials and resources</li>
+                        <li>Complete one-stop service for customer base expansion</li>
+                        <li>Authorized Solutions Provider Channel Partner resources</li>
+                    </ul>
+                </div>
+
+                <div class="contact-info">
+                    <p><strong>Partner Portal:</strong> <a href="https://partner.msi.com/" target="_blank">partner.msi.com</a></p>
+                    <p><strong>Partner Program:</strong> <a href="https://mpp.msi.com/" target="_blank">mpp.msi.com</a></p>
+                    <p><strong>US Registration:</strong> <a href="https://www.msipartner.com/newreseller" target="_blank">msipartner.com/newreseller</a></p>
+                    <p><strong>Email:</strong> USpartner@msi.com</p>
+                    <p><strong>Phone:</strong> 626-913-0828</p>
+                </div>
+            </div>
+
+            <h3>Processor/Platform Vendors</h3>
+
+            <div class="supplier-card tier-3">
+                <h4>Intel Partner Alliance</h4>
+                <p><strong>Best For:</strong> Training, points rewards, processor promotions</p>
+
+                <div class="benefits">
+                    <strong>2025 Program Changes:</strong>
+                    <ul>
+                        <li>Simplified from 3-tier+8-role to 2-tier+5-role structure</li>
+                        <li>25% increase in points per unit delivered</li>
+                        <li>Higher caps on earnings for all partners</li>
+                        <li>Quarterly "boosts" on strategic products</li>
+                        <li>Storefronts now open to all partners</li>
+                    </ul>
+                    <strong>Benefits:</strong>
+                    <ul>
+                        <li>Points redeemable for distribution vouchers and rewards</li>
+                        <li>Market development funds (MDF)</li>
+                        <li>Training and industry insights</li>
+                        <li>Advanced Warranty Replacement (Gold/Titanium)</li>
+                    </ul>
+                </div>
+
+                <div class="contact-info">
+                    <p><strong>Partner Alliance:</strong> <a href="https://www.intel.com/content/www/us/en/partner-alliance/overview.html" target="_blank">Intel Partner Alliance</a></p>
+                    <p><strong>How to Join:</strong> <a href="https://www.intel.com/content/www/us/en/support/articles/000088242/programs/intel-partner-alliance.html" target="_blank">Intel Partner Join Guide</a></p>
+                </div>
+            </div>
+
+            <div class="supplier-card tier-3">
+                <h4>AMD Partner Network (APN)</h4>
+                <p><strong>Best For:</strong> Ryzen builds, training, sales enablement</p>
+
+                <div class="benefits">
+                    <strong>Who Can Join:</strong> Solution providers, retailers, system builders, VARs, distributors
+                    <br><br>
+                    <strong>Key Benefits:</strong>
+                    <ul>
+                        <li>AMD Arena training program</li>
+                        <li>Meet the Experts monthly webinars</li>
+                        <li>Partner newsletters and seller toolkit</li>
+                        <li>Incentive monitoring/management dashboards</li>
+                        <li>Marketing and operations resources</li>
+                    </ul>
+                </div>
+
+                <div class="contact-info">
+                    <p><strong>Partner Network:</strong> <a href="https://www.amd.com/en/partner/partner-network.html" target="_blank">AMD Partner Network</a></p>
+                    <p><strong>Partner Hub:</strong> <a href="https://www.amd.com/en/partner.html" target="_blank">AMD Partner Hub</a></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Component Suppliers -->
+        <section class="section" id="components">
+            <h2>4. Component Suppliers</h2>
+
+            <p>These suppliers are useful for specific parts, retail pricing comparison, and filling gaps in distributor inventory.</p>
+
+            <div class="supplier-card tier-2">
+                <h4>Newegg Business</h4>
+                <p><strong>Best For:</strong> Components, quick shipping, backup sourcing</p>
+
+                <div class="benefits">
+                    <strong>B2B Account Types:</strong>
+                    <ul>
+                        <li><strong>Non-Elite:</strong> Free - basic access</li>
+                        <li><strong>Professional:</strong> $29.95/month - better pricing</li>
+                        <li><strong>Enterprise:</strong> $99.95/month - volume discounts</li>
+                    </ul>
+                    <strong>Fulfillment for Reseller (FFR) Program:</strong>
+                    <ul>
+                        <li>Blind dropshipping from Newegg to your customers</li>
+                        <li>Daily pricing and inventory feeds</li>
+                        <li>No inventory required</li>
+                    </ul>
+                </div>
+
+                <div class="contact-info">
+                    <p><strong>B2B Registration:</strong> <a href="https://secure.neweggbusiness.com/new/newmyaccount/b2baccountregistration.aspx" target="_blank">Newegg Business Signup</a></p>
+                    <p><strong>Seller Portal:</strong> <a href="https://www.newegg.com/sellers/" target="_blank">Newegg Marketplace</a></p>
+                    <p><strong>Note:</strong> Sole proprietorships not allowed for marketplace selling</p>
+                </div>
+            </div>
+
+            <div class="supplier-card tier-2">
+                <h4>Micro Center Business Sales (MCBS)</h4>
+                <p><strong>Best For:</strong> Local pickup, quick needs, consumer components</p>
+
+                <div class="benefits">
+                    <strong>Services:</strong>
+                    <ul>
+                        <li>Personalized quotes for business orders</li>
+                        <li>Net30 account options available</li>
+                        <li>Computer diagnostic services</li>
+                        <li>Commercial data migration services</li>
+                        <li>Custom commercial PC building</li>
+                    </ul>
+                    <strong>Note:</strong> Great for same-day needs when distributor shipping won't work
+                </div>
+
+                <div class="contact-info">
+                    <p><strong>Email:</strong> mcbs@microcenter.com</p>
+                    <p><strong>Phone:</strong> 1-800-743-7537</p>
+                    <p><strong>Website:</strong> <a href="https://www.microcenter.com/site/products/smb-technology.aspx" target="_blank">Micro Center SMB</a></p>
+                    <p><strong>Nearest Location:</strong> Kansas City area</p>
+                </div>
+            </div>
+
+            <div class="supplier-card tier-3">
+                <h4>Amazon Business</h4>
+                <p><strong>Best For:</strong> Quick shipping, price comparison, emergency parts</p>
+
+                <div class="benefits">
+                    <strong>Account Requirements:</strong>
+                    <ul>
+                        <li>Professional Seller Account ($39.99/month)</li>
+                        <li>Resale Certificate or Sales Tax Permit</li>
+                        <li>Business verification</li>
+                    </ul>
+                    <strong>B2B Features:</strong>
+                    <ul>
+                        <li>Quantity discounts for bulk orders</li>
+                        <li>Business-only pricing</li>
+                        <li>Quote requests for large orders</li>
+                        <li>Tax-exempt purchasing</li>
+                    </ul>
+                </div>
+
+                <div class="contact-info">
+                    <p><strong>Business Account:</strong> <a href="https://business.amazon.com/" target="_blank">Amazon Business</a></p>
+                    <p><strong>Sell B2B:</strong> <a href="https://sell.amazon.com/programs/amazon-business" target="_blank">Amazon Business Seller</a></p>
+                </div>
+            </div>
+
+            <div class="supplier-card tier-3">
+                <h4>Ma Labs</h4>
+                <p><strong>Best For:</strong> PC components, VARs, system integrators</p>
+
+                <div class="benefits">
+                    <strong>Services:</strong>
+                    <ul>
+                        <li>Premier IT distributor for components</li>
+                        <li>Just-in-time integration services</li>
+                        <li>Flexible payment options</li>
+                        <li>Best value for VARs, resellers, SIs, and OEMs</li>
+                    </ul>
+                </div>
+
+                <div class="contact-info">
+                    <p><strong>Website:</strong> <a href="https://www.malabs.com/" target="_blank">malabs.com</a></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Repair Parts Suppliers -->
+        <section class="section" id="repair-parts">
+            <h2>5. Repair Parts Suppliers</h2>
+
+            <p>Critical for your repair business - these suppliers provide screens, batteries, keyboards, and other replacement parts.</p>
+
+            <div class="priority-high">
+                <h4>iFixit Pro - TOP PRIORITY</h4>
+                <p>iFixit partners directly with Google, Microsoft, Valve, Logitech, and more. This aligns perfectly with your Right to Repair positioning.</p>
+            </div>
+
+            <div class="supplier-card tier-1">
+                <h4>iFixit Pro (Wholesale Program)</h4>
+                <p><strong>Best For:</strong> Official parts, tools, repair shop credibility</p>
+
+                <div class="benefits">
+                    <strong>Key Benefits:</strong>
+                    <ul>
+                        <li><strong>30% average savings</strong> on parts</li>
+                        <li>Exclusive discounts on professional-grade tools</li>
+                        <li>Lifetime warranty on parts</li>
+                        <li>No restocking fees on returns</li>
+                        <li>PO and bulk order support</li>
+                        <li>Saturday shipping available</li>
+                    </ul>
+                    <strong>Official Parts Available:</strong>
+                    <ul>
+                        <li>Google Pixel (exclusive pricing all models)</li>
+                        <li>Valve Steam Deck</li>
+                        <li>Microsoft Surface & Xbox</li>
+                        <li>iPhone and Android screens/batteries</li>
+                        <li>Mac & PC laptop parts</li>
+                        <li>iPads, tablets, gaming consoles, VR headsets</li>
+                    </ul>
+                    <strong>Approval Process:</strong> 2-3 business days
+                </div>
+
+                <div class="contact-info">
+                    <p><strong>iFixit Pro:</strong> <a href="https://www.ifixit.com/pro" target="_blank">ifixit.com/pro</a></p>
+                    <p><strong>Repair Shops:</strong> <a href="https://pro.ifixit.com/wholesale-program" target="_blank">iFixit Wholesale Program</a></p>
+                    <p><strong>Reseller Program:</strong> <a href="https://www.ifixit.com/Info/Reseller" target="_blank">iFixit Reseller Info</a></p>
+                    <p><strong>RepairShopr Integration:</strong> <a href="https://www.repairshopr.com/ifixit" target="_blank">RepairShopr + iFixit</a></p>
+                </div>
+            </div>
+
+            <div class="supplier-card tier-2">
+                <h4>LaptopInventory.com</h4>
+                <p><strong>Best For:</strong> Wide selection of laptop parts, fast shipping</p>
+
+                <div class="benefits">
+                    <strong>Brands Covered:</strong>
+                    Acer, Alienware, Apple, Asus, Dell, Gateway, HP Pavilion, IBM Thinkpad, Lenovo, Sony Vaio, Toshiba, and more
+                    <br><br>
+                    <strong>Parts Available:</strong>
+                    <ul>
+                        <li>AC Adapters & Batteries</li>
+                        <li>LCD Screens & Bezels</li>
+                        <li>Keyboards & Motherboards</li>
+                        <li>DC Jacks & Fans</li>
+                        <li>CD/DVD drives, CPUs, RAM</li>
+                    </ul>
+                    <strong>Location:</strong> Los Angeles, CA - millions of parts in stock
+                </div>
+
+                <div class="contact-info">
+                    <p><strong>Website:</strong> <a href="https://www.laptopinventory.com/" target="_blank">laptopinventory.com</a></p>
+                </div>
+            </div>
+
+            <div class="supplier-card tier-2">
+                <h4>Injured Gadgets</h4>
+                <p><strong>Best For:</strong> MacBook parts, wholesale pricing</p>
+
+                <div class="benefits">
+                    <strong>Specialty:</strong> MacBook replacement parts
+                    <ul>
+                        <li>Quality parts for MacBook rebuilds</li>
+                        <li>Wholesale distributor for screens and small parts</li>
+                        <li>Covers various MacBook models</li>
+                    </ul>
+                </div>
+
+                <div class="contact-info">
+                    <p><strong>MacBook Parts:</strong> <a href="https://www.injuredgadgets.com/apple/macbook/" target="_blank">Injured Gadgets MacBook</a></p>
+                </div>
+            </div>
+
+            <div class="supplier-card tier-3">
+                <h4>GotLaptopParts.com</h4>
+                <p><strong>Best For:</strong> Tested parts, international shipping</p>
+
+                <div class="benefits">
+                    <strong>Features:</strong>
+                    <ul>
+                        <li>All parts tested and guaranteed</li>
+                        <li>Fast worldwide shipping</li>
+                        <li>Easy returns</li>
+                        <li>Batteries, screens, fans, small parts</li>
+                    </ul>
+                </div>
+
+                <div class="contact-info">
+                    <p><strong>Website:</strong> <a href="https://www.gotlaptopparts.com/" target="_blank">gotlaptopparts.com</a></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Refurbished Suppliers -->
+        <section class="section" id="refurbished">
+            <h2>6. Refurbished Computer Suppliers</h2>
+
+            <p>For your gallery inventory and wholesale refurbished systems. These require volume to get the best pricing.</p>
+
+            <div class="supplier-card tier-2">
+                <h4>Dell Refurbished (Official)</h4>
+                <p><strong>Best For:</strong> Certified Dell systems with warranty</p>
+
+                <div class="benefits">
+                    <strong>Bulk Discount Requirements:</strong>
+                    <ul>
+                        <li>Minimum order: 100 assets</li>
+                        <li>Must be licensed U.S. business</li>
+                        <li>Ship to U.S. business address only</li>
+                        <li>No freight forwarders</li>
+                        <li>Resellers must sign agreement</li>
+                    </ul>
+                    <strong>Benefits:</strong>
+                    <ul>
+                        <li>Secure, reliable, tested systems</li>
+                        <li>Dell warranty options</li>
+                        <li>Bulk pricing discounts</li>
+                    </ul>
+                </div>
+
+                <div class="contact-info">
+                    <p><strong>Bulk Discount:</strong> <a href="https://www.dellrefurbished.com/bulk-discount" target="_blank">Dell Refurbished Bulk</a></p>
+                    <p><strong>Outlet:</strong> <a href="https://www.dell.com/en-us/dfh/lp/outlet" target="_blank">Dell Outlet</a></p>
+                </div>
+            </div>
+
+            <div class="supplier-card tier-2">
+                <h4>System Liquidation</h4>
+                <p><strong>Best For:</strong> Microsoft Authorized Refurbisher, Windows 11 included</p>
+
+                <div class="benefits">
+                    <strong>Key Features:</strong>
+                    <ul>
+                        <li>Microsoft Authorized Refurbisher (MAR)</li>
+                        <li>Genuine Windows 11 included</li>
+                        <li>Brands: Dell, HP, Lenovo, Acer, Samsung, Apple</li>
+                        <li>Expertly repaired and tested</li>
+                    </ul>
+                </div>
+
+                <div class="contact-info">
+                    <p><strong>Website:</strong> <a href="https://systemliquidation.com/collections/refurbished-laptops" target="_blank">systemliquidation.com</a></p>
+                </div>
+            </div>
+
+            <div class="supplier-card tier-3">
+                <h4>Foxway Reseller Store</h4>
+                <p><strong>Best For:</strong> European supplier, individually tested devices</p>
+
+                <div class="benefits">
+                    <strong>Stock Includes:</strong>
+                    <ul>
+                        <li>Apple MacBook Pro/Air</li>
+                        <li>Lenovo ThinkPad</li>
+                        <li>HP EliteBook</li>
+                        <li>Dell Precision</li>
+                        <li>Various Chromebooks</li>
+                    </ul>
+                    <strong>Note:</strong> Minimum order ~2000 euros
+                </div>
+
+                <div class="contact-info">
+                    <p><strong>Website:</strong> <a href="https://resellers.foxway.com/used-computers-and-laptops/" target="_blank">Foxway Reseller Store</a></p>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h4>Refurbished Supplier Selection Criteria</h4>
+                <ul>
+                    <li>Verify NIST 800-88 data wiping certification</li>
+                    <li>Look for 3+ years business history</li>
+                    <li>Require minimum 12-month warranty</li>
+                    <li>Check cosmetic grading systems (A/B/C)</li>
+                    <li>Expect 30-50% savings vs. new devices at volume</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 7: Outreach Templates -->
+        <section class="section" id="outreach">
+            <h2>7. Outreach Templates & Scripts</h2>
+
+            <p>Use these templates when reaching out to suppliers. Customize with your specific details.</p>
+
+            <h3>Distributor Application Email</h3>
+            <div class="script-box">
+                <h5>Subject: Reseller Account Application - The Computer Store (Topeka, KS)</h5>
+                <p><span class="label">Dear [D&H/Ingram Micro] Partner Team,</span></p>
+                <p>I am writing to apply for a reseller account with [Distributor Name]. The Computer Store is a computer repair and sales business serving the Topeka and Holton, Kansas area since 2003.</p>
+                <p><strong>Our Business:</strong><br>
+                - Retail computer sales (new and refurbished)<br>
+                - Computer repair services<br>
+                - Custom PC builds (gaming and workstations)<br>
+                - Managed IT Services for small businesses</p>
+                <p><strong>What We're Looking For:</strong><br>
+                - Business laptops and desktops (Lenovo, Dell, HP)<br>
+                - Components for custom builds (ASUS, MSI motherboards/GPUs)<br>
+                - Peripherals, accessories, and networking equipment<br>
+                - Access to training and marketing resources</p>
+                <p>Our tax ID is [TAX ID] and we are registered as [BUSINESS ENTITY TYPE] in the state of Kansas. I've attached our reseller certificate and W-9 for your records.</p>
+                <p>I would appreciate the opportunity to discuss how we can establish a partnership. Please let me know what additional information you need to process our application.</p>
+                <p>Best regards,<br>
+                [Max Beyer]<br>
+                Owner, The Computer Store<br>
+                [Phone] | [Email]<br>
+                computerstoreks.com</p>
+            </div>
+
+            <h3>Manufacturer Partner Program Inquiry</h3>
+            <div class="script-box">
+                <h5>Subject: Partner Program Application - The Computer Store</h5>
+                <p><span class="label">Hello [Lenovo/ASUS/MSI] Partner Team,</span></p>
+                <p>The Computer Store is interested in joining the [COMPANY] Partner Program. We are a computer retail and repair business in Topeka, Kansas, and we're expanding our custom PC building and business sales divisions.</p>
+                <p><strong>Why We Want to Partner:</strong><br>
+                - Growing demand for [ThinkPads/ROG gaming systems/MSI gaming laptops] in our market<br>
+                - Expanding MSP services requiring reliable business-class systems<br>
+                - Custom gaming PC builds showcasing [brand] components<br>
+                - Committed to providing excellent customer experience</p>
+                <p><strong>Our Capabilities:</strong><br>
+                - Established retail location with demo/display area<br>
+                - Trained technicians for warranty service<br>
+                - Marketing presence in Topeka and Holton markets<br>
+                - Growing B2B and MSP client base</p>
+                <p>We currently purchase through [existing distributor] and would like to explore direct partnership benefits including training, deal registration, and marketing support.</p>
+                <p>Could you please send the application requirements or schedule a call to discuss the partnership opportunity?</p>
+                <p>Thank you,<br>
+                [Max Beyer]<br>
+                Owner, The Computer Store</p>
+            </div>
+
+            <h3>iFixit Pro Application Note</h3>
+            <div class="script-box">
+                <h5>When Applying to iFixit Pro:</h5>
+                <p><span class="label">Key Points to Mention:</span></p>
+                <p>- Active computer repair shop (repairs per month estimate)<br>
+                - Right to Repair advocate in Kansas market<br>
+                - Interest in becoming iFixit toolkit reseller<br>
+                - Currently using RepairShopr (mention integration)<br>
+                - Specific interest in Microsoft Surface, Google Pixel, Steam Deck parts</p>
+            </div>
+
+            <h3>Phone Call Script - Distributor First Contact</h3>
+            <div class="script-box">
+                <h5>When Calling to Follow Up:</h5>
+                <p><span class="label">"Hi, my name is [NAME] from The Computer Store in Topeka, Kansas."</span></p>
+                <p>"I recently submitted a reseller application and wanted to follow up. We're a computer repair and sales shop that's been serving the community since 2003."</p>
+                <p>"I'm particularly interested in:<br>
+                [FOR D&H:] The PartnerFi program and getting a dedicated account rep<br>
+                [FOR INGRAM:] Setting up our Xvantage platform access<br>
+                [FOR MANUFACTURERS:] The deal registration process and training resources"</p>
+                <p>"What's the typical approval timeline, and is there anything else you need from me to expedite the process?"</p>
+            </div>
+        </section>
+
+        <!-- Section 8: Timeline -->
+        <section class="section" id="timeline">
+            <h2>8. Implementation Timeline</h2>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <h4>Week 1: Foundation</h4>
+                    <p>Prepare documentation, apply to D&H and Ingram Micro</p>
+                    <ul>
+                        <li>Gather all required documents (tax ID, reseller cert, W-9)</li>
+                        <li>Submit D&H Distributing application</li>
+                        <li>Submit Ingram Micro reseller application</li>
+                        <li>Apply to iFixit Pro wholesale program</li>
+                    </ul>
+                </div>
+
+                <div class="timeline-item">
+                    <h4>Week 2: Manufacturer Programs</h4>
+                    <p>Apply to key manufacturer partner programs</p>
+                    <ul>
+                        <li>Submit Lenovo Partner Program application</li>
+                        <li>Apply to ASUS Valued Partner Program</li>
+                        <li>Complete HP Partner Portal registration</li>
+                        <li>Follow up on distributor applications</li>
+                    </ul>
+                </div>
+
+                <div class="timeline-item">
+                    <h4>Week 3-4: Secondary Applications</h4>
+                    <p>Expand network with additional suppliers</p>
+                    <ul>
+                        <li>Apply to Dell Partner Program</li>
+                        <li>Register for MSI Partner Program</li>
+                        <li>Set up Newegg Business account</li>
+                        <li>Contact Micro Center Business Sales</li>
+                    </ul>
+                </div>
+
+                <div class="timeline-item">
+                    <h4>Month 2: Training & Onboarding</h4>
+                    <p>Complete training, establish pricing, test orders</p>
+                    <ul>
+                        <li>Complete distributor onboarding and training</li>
+                        <li>Register for manufacturer certifications</li>
+                        <li>Place test orders to verify processes</li>
+                        <li>Set up account portals and ordering systems</li>
+                    </ul>
+                </div>
+
+                <div class="timeline-item">
+                    <h4>Month 3+: Optimization</h4>
+                    <p>Evaluate performance, expand partnerships</p>
+                    <ul>
+                        <li>Review pricing and margins by supplier</li>
+                        <li>Apply for Intel/AMD partner programs</li>
+                        <li>Explore refurbished bulk suppliers (once volume supports)</li>
+                        <li>Negotiate better terms based on order history</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 9: Checklist -->
+        <section class="section" id="checklist">
+            <h2>9. Partnership Application Checklist</h2>
+
+            <p>Gather these documents before applying to any supplier:</p>
+
+            <h3>Required Documents</h3>
+            <ul class="checklist">
+                <li>Business License / Certificate of Formation</li>
+                <li>Kansas Sales Tax Certificate (Reseller Certificate)</li>
+                <li>Federal Tax ID (EIN)</li>
+                <li>W-9 Form (completed and signed)</li>
+                <li>Certificate of Insurance (General Liability)</li>
+                <li>Bank Account Information (for credit applications)</li>
+                <li>Trade References (2-3 other suppliers you work with)</li>
+            </ul>
+
+            <h3>Business Information Needed</h3>
+            <ul class="checklist">
+                <li>Legal Business Name and DBA</li>
+                <li>Business Address (physical location, not PO Box)</li>
+                <li>Years in Business</li>
+                <li>Number of Employees</li>
+                <li>Annual Revenue (estimated)</li>
+                <li>Primary Business Type (retail, repair, MSP, etc.)</li>
+                <li>Website URL with matching email domain</li>
+            </ul>
+
+            <h3>For Manufacturer Programs</h3>
+            <ul class="checklist">
+                <li>Existing distributor relationship (sponsor reference)</li>
+                <li>Estimated annual purchases by product category</li>
+                <li>Target market (consumer, SMB, enterprise)</li>
+                <li>Sales team size (if applicable)</li>
+                <li>Showroom/demo capability description</li>
+                <li>Technical certification plans</li>
+            </ul>
+
+            <div class="info-box">
+                <h4>Pro Tip: Prepare a One-Pager</h4>
+                <p>Create a single-page overview of The Computer Store that includes: company history, services offered, target market, current suppliers, and growth plans. This can be attached to any application to strengthen your case.</p>
+            </div>
+        </section>
+
+        <div style="text-align: center; margin-top: 40px;">
+            <a href="/documentation/" class="back-link">← Back to Documentation</a>
+        </div>
+    </div>
+
+    <footer>
+        <p><strong>The Computer Store</strong> | Topeka & Holton, Kansas</p>
+        <p>Documentation prepared by <a href="https://computerstoreks.com">Bast Project Management</a></p>
+        <p style="margin-top: 15px; font-size: 0.85rem; opacity: 0.7;">Last updated: December 2025</p>
+    </footer>
+</body>
+</html>

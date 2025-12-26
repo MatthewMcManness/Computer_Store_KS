@@ -133,3 +133,25 @@ Migrate from fragmented authentication (RepairShopr API + custom bcrypt) to unif
 
 1. **Existing Sessions:** ✅ Force logout on migration day - clean cutover
 2. **Customer Migration:** ✅ Auto-migrate existing users, send password reset email to set new credentials
+
+## Tasks Created
+
+| # | Task | Size | Parallel | Depends On |
+|---|------|------|----------|------------|
+| 001 | Database Schema | S | ✅ | - |
+| 002 | Supabase Auth Configuration | S | ❌ | 001 |
+| 003 | Auth Library & Middleware | M | ❌ | 001, 002 |
+| 004 | Auth Pages | M | ❌ | 003 |
+| 005 | Employee Onboarding | M | ✅ | 004 |
+| 006 | Intake Wizard Update | S | ✅ | 004 |
+| 007 | NinjaOne API Wrapper | M | ✅ | 001 |
+| 008 | User Migration Script | M | ❌ | 001-004 |
+| 009 | Validation & Cleanup | M | ❌ | 008 |
+
+**Summary:**
+- Total tasks: 9
+- Parallel tasks: 4 (001, 005, 006, 007)
+- Sequential tasks: 5 (002, 003, 004, 008, 009)
+- Estimated total effort: 22-32 hours
+
+**Critical Path:** 001 → 002 → 003 → 004 → 008 → 009

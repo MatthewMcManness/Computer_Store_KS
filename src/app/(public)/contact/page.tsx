@@ -105,7 +105,7 @@ export default function ContactPage() {
                     <option value="General">General Inquiry</option>
                     <option value="Repair">Computer Repair</option>
                     <option value="Custom Build">Custom Build</option>
-                    <option value="Silver Plan">Silver Plan</option>
+                    <option value="Protection Plans">Protection Plans</option>
                     <option value="Other">Other</option>
                   </select>
                 </div>

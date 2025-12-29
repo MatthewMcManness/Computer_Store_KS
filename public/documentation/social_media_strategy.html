@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Computer Store - Social Media Audit & Expansion Plan</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-light: #3b82f6;
+            --primary-dark: #1e40af;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --danger: #dc2626;
+            --dark: #111827;
+            --text-secondary: #374151;
+            --text-muted: #6b7280;
+            --light: #f8f9fb;
+            --background-dark: #f0f2f5;
+            --gradient-1: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            --gradient-2: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background: var(--light);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background: var(--gradient-1);
+            color: white;
+            padding: 60px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        header h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        header .subtitle {
+            font-size: 1.6rem;
+            color: #ffffff;
+            font-weight: 500;
+            position: relative;
+        }
+
+        header .date {
+            margin-top: 15px;
+            font-size: 1.1rem;
+            color: #ffffff;
+            opacity: 0.95;
+            position: relative;
+        }
+
+        nav {
+            background: white;
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        nav a {
+            color: var(--primary);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        nav a:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        section {
+            padding: 60px 0;
+        }
+
+        section:nth-child(even) {
+            background: white;
+        }
+
+        h2 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid var(--primary-light);
+            display: inline-block;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            color: var(--dark);
+            margin: 25px 0 15px;
+        }
+
+        h4 {
+            font-size: 1.1rem;
+            color: var(--primary);
+            margin: 20px 0 10px;
+        }
+
+        p {
+            margin-bottom: 15px;
+            color: #4b5563;
+        }
+
+        .exec-summary {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-left: 5px solid var(--primary);
+            padding: 30px;
+            border-radius: 0 10px 10px 0;
+            margin-bottom: 30px;
+        }
+
+        .exec-summary p {
+            font-size: 1.1rem;
+            color: var(--dark);
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: var(--shadow-lg);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border-top: 4px solid var(--primary);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .card.status-active {
+            border-top-color: var(--secondary);
+        }
+
+        .card.status-inactive {
+            border-top-color: var(--danger);
+        }
+
+        .card.status-missing {
+            border-top-color: var(--text-muted);
+        }
+
+        .card.priority-high {
+            border-top-color: #dc2626;
+        }
+
+        .card.priority-medium {
+            border-top-color: var(--accent);
+        }
+
+        .card.priority-low {
+            border-top-color: var(--secondary);
+        }
+
+        .card h3 {
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card .icon {
+            font-size: 1.8rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-active {
+            background: #d1fae5;
+            color: #047857;
+        }
+
+        .badge-inactive {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .badge-missing {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .badge-priority-high {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .badge-priority-medium {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .badge-priority-low {
+            background: #d1fae5;
+            color: #047857;
+        }
+
+        .stat-box {
+            background: var(--background-dark);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .stat-box .label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .stat-box .value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .link {
+            color: var(--primary);
+            text-decoration: none;
+            word-break: break-all;
+        }
+
+        .link:hover {
+            text-decoration: underline;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f9fafb;
+        }
+
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+
+        .checklist li {
+            padding: 12px 0;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .checklist li:last-child {
+            border-bottom: none;
+        }
+
+        .checklist .check {
+            color: var(--secondary);
+            font-weight: bold;
+        }
+
+        .checklist .x {
+            color: var(--danger);
+            font-weight: bold;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--primary-light);
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 30px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -24px;
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: 2px solid white;
+        }
+
+        .timeline-item h4 {
+            margin-top: 0;
+        }
+
+        .phase-box {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .phase-box h4 {
+            color: var(--primary-dark);
+            margin-top: 0;
+        }
+
+        .content-ideas {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .content-card {
+            background: #f9fafb;
+            border-radius: 8px;
+            padding: 20px;
+            border-left: 3px solid var(--primary);
+        }
+
+        .content-card h5 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+            margin-top: 60px;
+        }
+
+        footer p {
+            color: #9ca3af;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+
+            nav ul {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Social Media Audit & Expansion Plan</h1>
+        <div class="subtitle">The Computer Store | Topeka, Kansas</div>
+        <div class="date">Prepared: December 2025</div>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#audit">Current Audit</a></li>
+            <li><a href="#gaps">Gap Analysis</a></li>
+            <li><a href="#strategy">Expansion Strategy</a></li>
+            <li><a href="#content">Content Plan</a></li>
+            <li><a href="#timeline">Implementation</a></li>
+            <li><a href="#metrics">Success Metrics</a></li>
+        </ul>
+    </nav>
+
+    <section id="executive-summary">
+        <div class="container">
+            <h2>Executive Summary</h2>
+            <div class="exec-summary">
+                <p><strong>The Computer Store has a minimal but established social media presence.</strong> Currently active on Facebook, Instagram, X (Twitter), and Nextdoor, but with low engagement and inconsistent posting. Major opportunities exist on Google Business Profile optimization, YouTube, LinkedIn (for B2B MSP services), and TikTok. Given the 2026 growth plans including MSP expansion and Holton location, a robust social media strategy will be essential for brand awareness and lead generation.</p>
+            </div>
+
+            <h3>Key Findings</h3>
+            <table>
+                <tr>
+                    <th>Platform</th>
+                    <th>Status</th>
+                    <th>Followers</th>
+                    <th>Activity</th>
+                    <th>Priority</th>
+                </tr>
+                <tr>
+                    <td>Facebook</td>
+                    <td><span class="badge badge-active">Active</span></td>
+                    <td>~Unknown</td>
+                    <td>Irregular</td>
+                    <td><span class="badge badge-priority-high">High</span></td>
+                </tr>
+                <tr>
+                    <td>Instagram</td>
+                    <td><span class="badge badge-active">Active</span></td>
+                    <td>23</td>
+                    <td>47 posts, irregular</td>
+                    <td><span class="badge badge-priority-medium">Medium</span></td>
+                </tr>
+                <tr>
+                    <td>X (Twitter)</td>
+                    <td><span class="badge badge-inactive">Inactive</span></td>
+                    <td>~Low</td>
+                    <td>Joined 2015, dormant</td>
+                    <td><span class="badge badge-priority-low">Low</span></td>
+                </tr>
+                <tr>
+                    <td>Google Business</td>
+                    <td><span class="badge badge-active">Active</span></td>
+                    <td>N/A</td>
+                    <td>4.5 stars, 88+ reviews</td>
+                    <td><span class="badge badge-priority-high">High</span></td>
+                </tr>
+                <tr>
+                    <td>Nextdoor</td>
+                    <td><span class="badge badge-active">Active</span></td>
+                    <td>N/A</td>
+                    <td>Listed, some inquiries</td>
+                    <td><span class="badge badge-priority-medium">Medium</span></td>
+                </tr>
+                <tr>
+                    <td>Yelp</td>
+                    <td><span class="badge badge-active">Active</span></td>
+                    <td>N/A</td>
+                    <td>4.5 stars, 10 reviews</td>
+                    <td><span class="badge badge-priority-medium">Medium</span></td>
+                </tr>
+                <tr>
+                    <td>YouTube</td>
+                    <td><span class="badge badge-missing">Missing</span></td>
+                    <td>-</td>
+                    <td>No presence</td>
+                    <td><span class="badge badge-priority-high">High</span></td>
+                </tr>
+                <tr>
+                    <td>LinkedIn</td>
+                    <td><span class="badge badge-missing">Missing</span></td>
+                    <td>-</td>
+                    <td>No company page</td>
+                    <td><span class="badge badge-priority-high">High</span></td>
+                </tr>
+                <tr>
+                    <td>TikTok</td>
+                    <td><span class="badge badge-missing">Missing</span></td>
+                    <td>-</td>
+                    <td>No presence</td>
+                    <td><span class="badge badge-priority-medium">Medium</span></td>
+                </tr>
+            </table>
+        </div>
+    </section>
+
+    <section id="audit">
+        <div class="container">
+            <h2>Current Social Media Audit</h2>
+
+            <div class="card-grid">
+                <div class="card status-active">
+                    <h3><span class="icon">📘</span> Facebook</h3>
+                    <span class="badge badge-active">Active</span>
+                    <div class="stat-box">
+                        <div class="label">Handle</div>
+                        <div class="value">@thecomputerstoreks</div>
+                    </div>
+                    <p><strong>URL:</strong> <a href="https://facebook.com/thecomputerstoreks" class="link">facebook.com/thecomputerstoreks</a></p>
+                    <p><strong>Assessment:</strong> Page exists and is claimed. Listed in business directories as active social channel. Needs regular content and engagement optimization.</p>
+                    <h4>Recommendations:</h4>
+                    <ul class="checklist">
+                        <li><span class="x">!</span> Post consistently (3-4x per week)</li>
+                        <li><span class="x">!</span> Respond to all messages within 1 hour during business hours</li>
+                        <li><span class="x">!</span> Add call-to-action button (Book Appointment/Contact)</li>
+                        <li><span class="x">!</span> Share customer success stories and before/after repairs</li>
+                    </ul>
+                </div>
+
+                <div class="card status-active">
+                    <h3><span class="icon">📸</span> Instagram</h3>
+                    <span class="badge badge-active">Active</span>
+                    <div class="stat-box">
+                        <div class="label">Handle</div>
+                        <div class="value">@thecomputerstoreks</div>
+                    </div>
+                    <p><strong>Followers:</strong> 23 | <strong>Following:</strong> 4 | <strong>Posts:</strong> 47</p>
+                    <p><strong>Bio:</strong> "We make your computer work how it is supposed to and keep your data safe!"</p>
+                    <p><strong>URL:</strong> <a href="https://instagram.com/thecomputerstoreks" class="link">instagram.com/thecomputerstoreks</a></p>
+                    <h4>Recommendations:</h4>
+                    <ul class="checklist">
+                        <li><span class="x">!</span> Increase posting frequency (daily stories, 3x/week posts)</li>
+                        <li><span class="x">!</span> Use local hashtags (#TopekaTech #TopekaBusiness #KansasSmallBusiness)</li>
+                        <li><span class="x">!</span> Share Reels of repair processes and custom builds</li>
+                        <li><span class="x">!</span> Engage with other local Topeka businesses</li>
+                    </ul>
+                </div>
+
+                <div class="card status-inactive">
+                    <h3><span class="icon">🐦</span> X (Twitter)</h3>
+                    <span class="badge badge-inactive">Inactive/Dormant</span>
+                    <div class="stat-box">
+                        <div class="label">Handle</div>
+                        <div class="value">@thecompstoreks</div>
+                    </div>
+                    <p><strong>Joined:</strong> June 2015</p>
+                    <p><strong>URL:</strong> <a href="https://x.com/thecompstoreks" class="link">x.com/thecompstoreks</a></p>
+                    <p><strong>Assessment:</strong> Account exists but appears dormant. Low priority for computer repair shop targeting local customers, but useful for tech news sharing and B2B credibility.</p>
+                    <h4>Recommendations:</h4>
+                    <ul class="checklist">
+                        <li><span class="x">!</span> Maintain presence but lower priority than Facebook/Instagram</li>
+                        <li><span class="x">!</span> Share tech tips and security alerts</li>
+                        <li><span class="x">!</span> Cross-post from other platforms</li>
+                    </ul>
+                </div>
+
+                <div class="card status-active">
+                    <h3><span class="icon">📍</span> Google Business Profile</h3>
+                    <span class="badge badge-active">Active</span>
+                    <div class="stat-box">
+                        <div class="label">Rating</div>
+                        <div class="value">4.5 Stars (88+ reviews)</div>
+                    </div>
+                    <p><strong>Address:</strong> 2008 SW Gage Blvd, Topeka, KS 66604</p>
+                    <p><strong>Hours:</strong> Mon-Fri 10am-6pm, Sat 10am-2pm</p>
+                    <p><strong>Assessment:</strong> Strong review base. Critical for local SEO and customer discovery. This is likely the #1 driver of walk-in and call-in customers.</p>
+                    <h4>Recommendations:</h4>
+                    <ul class="checklist">
+                        <li><span class="check">✓</span> Claimed and verified</li>
+                        <li><span class="x">!</span> Add more photos (storefront, team, workbench, custom builds)</li>
+                        <li><span class="x">!</span> Post Google Updates weekly (offers, tips, news)</li>
+                        <li><span class="x">!</span> Respond to ALL reviews (positive and negative)</li>
+                        <li><span class="x">!</span> Add all services to the Services section</li>
+                        <li><span class="x">!</span> Enable messaging feature</li>
+                    </ul>
+                </div>
+
+                <div class="card status-active">
+                    <h3><span class="icon">🏘️</span> Nextdoor</h3>
+                    <span class="badge badge-active">Active</span>
+                    <div class="stat-box">
+                        <div class="label">Status</div>
+                        <div class="value">Neighborhood Favorite (2023)</div>
+                    </div>
+                    <p><strong>URL:</strong> <a href="https://nextdoor.com/pages/the-computer-store-1/" class="link">nextdoor.com/pages/the-computer-store-1/</a></p>
+                    <p><strong>Assessment:</strong> Listed and receiving customer inquiries. Won Neighborhood Favorite award in West Hills area. High-value platform for local service business.</p>
+                    <h4>Recommendations:</h4>
+                    <ul class="checklist">
+                        <li><span class="check">✓</span> Page claimed</li>
+                        <li><span class="x">!</span> Respond to all inquiries promptly</li>
+                        <li><span class="x">!</span> Post neighborhood deals and tips</li>
+                        <li><span class="x">!</span> Request reviews from satisfied customers</li>
+                    </ul>
+                </div>
+
+                <div class="card status-active">
+                    <h3><span class="icon">⭐</span> Yelp</h3>
+                    <span class="badge badge-active">Active</span>
+                    <div class="stat-box">
+                        <div class="label">Rating</div>
+                        <div class="value">4.5 Stars (10 reviews)</div>
+                    </div>
+                    <p><strong>Listed as:</strong> The Computer Store / Network Technologies</p>
+                    <p><strong>URL:</strong> <a href="https://www.yelp.com/biz/the-computer-store-network-technologies-topeka-2" class="link">yelp.com/biz/the-computer-store-network-technologies-topeka-2</a></p>
+                    <h4>Recommendations:</h4>
+                    <ul class="checklist">
+                        <li><span class="x">!</span> Claim business page if not already claimed</li>
+                        <li><span class="x">!</span> Add photos and update business info</li>
+                        <li><span class="x">!</span> Respond to all reviews</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="gaps">
+        <div class="container">
+            <h2>Gap Analysis - Missing Platforms</h2>
+
+            <div class="card-grid">
+                <div class="card priority-high">
+                    <h3><span class="icon">📺</span> YouTube</h3>
+                    <span class="badge badge-priority-high">High Priority</span>
+                    <p><strong>Current Status:</strong> No presence found</p>
+                    <p><strong>Why It Matters:</strong></p>
+                    <ul>
+                        <li>Second largest search engine in the world</li>
+                        <li>Perfect for "how to" computer repair content</li>
+                        <li>Establishes expertise and builds trust</li>
+                        <li>Long-form content has SEO benefits</li>
+                        <li>Differentiator from big-box competitors</li>
+                    </ul>
+                    <h4>Content Opportunities:</h4>
+                    <ul>
+                        <li>Repair tutorials and tips</li>
+                        <li>Custom PC build showcases</li>
+                        <li>Tech reviews relevant to customers</li>
+                        <li>Right to Repair advocacy content</li>
+                        <li>Behind-the-scenes at the shop</li>
+                    </ul>
+                </div>
+
+                <div class="card priority-high">
+                    <h3><span class="icon">💼</span> LinkedIn</h3>
+                    <span class="badge badge-priority-high">High Priority</span>
+                    <p><strong>Current Status:</strong> No company page found</p>
+                    <p><strong>Why It Matters:</strong></p>
+                    <ul>
+                        <li><strong>Critical for MSP expansion</strong> - B2B decision makers are on LinkedIn</li>
+                        <li>Network Technologies (B2B arm) needs professional presence</li>
+                        <li>Establishes credibility with business clients</li>
+                        <li>Employee advocacy and hiring platform</li>
+                    </ul>
+                    <h4>Recommended Actions:</h4>
+                    <ul>
+                        <li>Create company page for "The Computer Store / Network Technologies"</li>
+                        <li>Jim Driggers personal profile optimization</li>
+                        <li>Share B2B-focused content (cybersecurity, IT management)</li>
+                        <li>Connect with Topeka business community</li>
+                    </ul>
+                </div>
+
+                <div class="card priority-medium">
+                    <h3><span class="icon">🎵</span> TikTok</h3>
+                    <span class="badge badge-priority-medium">Medium Priority</span>
+                    <p><strong>Current Status:</strong> No presence found</p>
+                    <p><strong>Why It Matters:</strong></p>
+                    <ul>
+                        <li>Massive reach potential with tech content</li>
+                        <li>Younger demographic (future customers)</li>
+                        <li>"Tech repair" content performs well on platform</li>
+                        <li>Lower production quality expectations than YouTube</li>
+                    </ul>
+                    <h4>Content That Works:</h4>
+                    <ul>
+                        <li>Satisfying repair videos (screen replacements, cleanups)</li>
+                        <li>Before/after transformations</li>
+                        <li>Tech fails and fixes</li>
+                        <li>Quick tips and tricks</li>
+                    </ul>
+                </div>
+
+                <div class="card priority-low">
+                    <h3><span class="icon">📌</span> Pinterest</h3>
+                    <span class="badge badge-priority-low">Low Priority</span>
+                    <p><strong>Current Status:</strong> Not researched</p>
+                    <p><strong>Why Low Priority:</strong> Not a primary platform for local service businesses. Could be useful for custom PC build galleries but limited ROI.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="strategy">
+        <div class="container">
+            <h2>Social Media Expansion Strategy</h2>
+
+            <div class="exec-summary">
+                <p><strong>Strategic Focus:</strong> Prioritize platforms that drive local customer discovery (Google, Facebook, Nextdoor) and B2B lead generation (LinkedIn). Build YouTube presence for long-term SEO and authority. Use Instagram and TikTok for engagement and brand awareness with younger demographics.</p>
+            </div>
+
+            <h3>Platform Prioritization Matrix</h3>
+            <table>
+                <tr>
+                    <th>Tier</th>
+                    <th>Platforms</th>
+                    <th>Audience</th>
+                    <th>Primary Goal</th>
+                </tr>
+                <tr>
+                    <td><strong>Tier 1 - Critical</strong></td>
+                    <td>Google Business, Facebook, LinkedIn</td>
+                    <td>Local consumers, B2B clients</td>
+                    <td>Lead generation, local SEO, MSP credibility</td>
+                </tr>
+                <tr>
+                    <td><strong>Tier 2 - Growth</strong></td>
+                    <td>YouTube, Instagram</td>
+                    <td>Broad audience, DIYers, enthusiasts</td>
+                    <td>Authority building, engagement, brand awareness</td>
+                </tr>
+                <tr>
+                    <td><strong>Tier 3 - Experimental</strong></td>
+                    <td>TikTok, X (Twitter)</td>
+                    <td>Younger demo, tech community</td>
+                    <td>Viral potential, brand personality</td>
+                </tr>
+                <tr>
+                    <td><strong>Tier 4 - Maintain</strong></td>
+                    <td>Nextdoor, Yelp</td>
+                    <td>Local neighbors</td>
+                    <td>Reputation management, local presence</td>
+                </tr>
+            </table>
+
+            <h3>Content Pillar Strategy</h3>
+            <div class="content-ideas">
+                <div class="content-card">
+                    <h5>Educational (40%)</h5>
+                    <p>Tech tips, how-tos, security advice, maintenance guides. Positions The Computer Store as the trusted local expert.</p>
+                </div>
+                <div class="content-card">
+                    <h5>Behind-the-Scenes (25%)</h5>
+                    <p>Repair process videos, custom build showcases, team introductions, shop tours. Builds trust and humanizes the brand.</p>
+                </div>
+                <div class="content-card">
+                    <h5>Community (20%)</h5>
+                    <p>Customer success stories, local events, Topeka/Holton news, Right to Repair advocacy. Connects with community.</p>
+                </div>
+                <div class="content-card">
+                    <h5>Promotional (15%)</h5>
+                    <p>Sales, protection plans, new inventory, holiday specials. Drive revenue but keep minimal to avoid being "salesy."</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="content">
+        <div class="container">
+            <h2>Content Plan by Platform</h2>
+
+            <div class="phase-box">
+                <h4>Facebook Content Strategy</h4>
+                <p><strong>Posting Frequency:</strong> 4-5 posts per week</p>
+                <ul>
+                    <li><strong>Monday:</strong> Tech Tip Monday - Quick computer maintenance or security tip</li>
+                    <li><strong>Wednesday:</strong> Workshop Wednesday - Behind-the-scenes repair or custom build progress</li>
+                    <li><strong>Friday:</strong> Feature Friday - Showcase refurbished computers, customer stories, or team member spotlights</li>
+                    <li><strong>Weekend:</strong> Engagement posts - Questions, polls, local community content</li>
+                </ul>
+            </div>
+
+            <div class="phase-box">
+                <h4>Instagram Content Strategy</h4>
+                <p><strong>Posting Frequency:</strong> 3-4 feed posts per week + daily stories</p>
+                <ul>
+                    <li><strong>Feed:</strong> High-quality photos of repairs, custom builds, before/after transformations</li>
+                    <li><strong>Reels:</strong> 2x per week - Quick repair clips, tech tips, trending audio mashups</li>
+                    <li><strong>Stories:</strong> Daily - Shop life, team moments, quick polls, customer shoutouts</li>
+                    <li><strong>Hashtags:</strong> #TopekaTech #KansasSmallBusiness #ComputerRepair #PCBuilds #RightToRepair</li>
+                </ul>
+            </div>
+
+            <div class="phase-box">
+                <h4>YouTube Content Strategy (New)</h4>
+                <p><strong>Posting Frequency:</strong> 1-2 videos per week (start with 2 per month)</p>
+                <ul>
+                    <li><strong>Tutorial Series:</strong> "5 Minute Fixes" - Quick tips homeowners can do</li>
+                    <li><strong>Build Logs:</strong> Custom PC build process from parts to finished product</li>
+                    <li><strong>Tech Reviews:</strong> Budget laptops, refurbished computers, peripherals</li>
+                    <li><strong>Right to Repair:</strong> Advocacy content, repair vs replace economics</li>
+                    <li><strong>Shop Tours:</strong> Meet the team, see the workshop</li>
+                </ul>
+            </div>
+
+            <div class="phase-box">
+                <h4>LinkedIn Content Strategy (New - B2B Focus)</h4>
+                <p><strong>Posting Frequency:</strong> 3 posts per week</p>
+                <ul>
+                    <li><strong>Cybersecurity Updates:</strong> Threats affecting Topeka businesses</li>
+                    <li><strong>MSP Benefits:</strong> Cost savings, productivity, peace of mind</li>
+                    <li><strong>Case Studies:</strong> How we helped local businesses</li>
+                    <li><strong>Industry Insights:</strong> IT trends relevant to small business</li>
+                    <li><strong>Networking:</strong> Engage with Greater Topeka Partnership, Chamber members</li>
+                </ul>
+            </div>
+
+            <div class="phase-box">
+                <h4>Google Business Posts</h4>
+                <p><strong>Posting Frequency:</strong> 2-3 updates per week</p>
+                <ul>
+                    <li><strong>Offers:</strong> Current promotions and specials</li>
+                    <li><strong>What's New:</strong> New services, inventory arrivals</li>
+                    <li><strong>Events:</strong> Workshops, community involvement</li>
+                    <li><strong>Photos:</strong> Regular updates of work, team, shop</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section id="timeline">
+        <div class="container">
+            <h2>Implementation Timeline</h2>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <h4>Week 1-2: Foundation</h4>
+                    <ul>
+                        <li>Audit and optimize existing Facebook page (complete profile, add CTA button)</li>
+                        <li>Claim/verify Google Business Profile, add all services and photos</li>
+                        <li>Create LinkedIn company page for "The Computer Store / Network Technologies"</li>
+                        <li>Set up social media management tool (Buffer, Hootsuite, or Later)</li>
+                        <li>Create branded graphics templates in Canva</li>
+                    </ul>
+                </div>
+
+                <div class="timeline-item">
+                    <h4>Week 3-4: Content Production</h4>
+                    <ul>
+                        <li>Photograph shop, team, workbench, and recent projects</li>
+                        <li>Record first 2-3 YouTube videos (can be simple smartphone videos)</li>
+                        <li>Create content calendar for first month</li>
+                        <li>Set up Instagram Reels workflow</li>
+                        <li>Write LinkedIn posts introducing the business to B2B audience</li>
+                    </ul>
+                </div>
+
+                <div class="timeline-item">
+                    <h4>Month 2: Launch & Consistency</h4>
+                    <ul>
+                        <li>Launch YouTube channel with 2-3 initial videos</li>
+                        <li>Begin consistent posting schedule across all platforms</li>
+                        <li>Respond to all reviews and messages within 4 hours</li>
+                        <li>Cross-promote content across platforms</li>
+                        <li>Start engaging with local Topeka business accounts</li>
+                    </ul>
+                </div>
+
+                <div class="timeline-item">
+                    <h4>Month 3: Optimization</h4>
+                    <ul>
+                        <li>Analyze metrics and adjust strategy</li>
+                        <li>A/B test content types and posting times</li>
+                        <li>Consider TikTok launch if Instagram Reels performing well</li>
+                        <li>Begin customer review request program</li>
+                        <li>Explore paid promotion for top-performing content</li>
+                    </ul>
+                </div>
+
+                <div class="timeline-item">
+                    <h4>Month 4-6: Scale & Refine</h4>
+                    <ul>
+                        <li>Increase YouTube content to weekly</li>
+                        <li>Launch customer referral social campaign</li>
+                        <li>Prepare Holton expansion social strategy</li>
+                        <li>Create location-specific content for new market</li>
+                        <li>Build influencer/partnership relationships with local content creators</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="metrics">
+        <div class="container">
+            <h2>Success Metrics & KPIs</h2>
+
+            <table>
+                <tr>
+                    <th>Metric</th>
+                    <th>Current Baseline</th>
+                    <th>3-Month Target</th>
+                    <th>6-Month Target</th>
+                </tr>
+                <tr>
+                    <td>Instagram Followers</td>
+                    <td>23</td>
+                    <td>150</td>
+                    <td>500</td>
+                </tr>
+                <tr>
+                    <td>Facebook Page Likes</td>
+                    <td>Unknown</td>
+                    <td>+100 from baseline</td>
+                    <td>+300 from baseline</td>
+                </tr>
+                <tr>
+                    <td>YouTube Subscribers</td>
+                    <td>0</td>
+                    <td>100</td>
+                    <td>500</td>
+                </tr>
+                <tr>
+                    <td>LinkedIn Followers</td>
+                    <td>0</td>
+                    <td>200</td>
+                    <td>500</td>
+                </tr>
+                <tr>
+                    <td>Google Reviews</td>
+                    <td>88</td>
+                    <td>110</td>
+                    <td>150</td>
+                </tr>
+                <tr>
+                    <td>Average Review Rating</td>
+                    <td>4.5</td>
+                    <td>4.6</td>
+                    <td>4.7+</td>
+                </tr>
+                <tr>
+                    <td>Monthly Website Traffic from Social</td>
+                    <td>Unknown</td>
+                    <td>+25%</td>
+                    <td>+50%</td>
+                </tr>
+                <tr>
+                    <td>Social-Attributed Leads</td>
+                    <td>Unknown</td>
+                    <td>5/month</td>
+                    <td>15/month</td>
+                </tr>
+            </table>
+
+            <h3>Tools & Resources Needed</h3>
+            <div class="card-grid">
+                <div class="card">
+                    <h4>Social Media Management</h4>
+                    <ul>
+                        <li><strong>Buffer or Later:</strong> Schedule posts, manage multiple platforms (~$15/month)</li>
+                        <li><strong>Canva Pro:</strong> Branded graphics and video editing (~$13/month)</li>
+                        <li><strong>Google Analytics:</strong> Track social traffic (Free)</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>Content Creation</h4>
+                    <ul>
+                        <li><strong>Smartphone:</strong> Modern smartphone camera is sufficient for most content</li>
+                        <li><strong>Ring Light:</strong> Better lighting for videos (~$25)</li>
+                        <li><strong>Tripod/Phone Mount:</strong> Stable shots (~$30)</li>
+                        <li><strong>Basic Microphone:</strong> Better audio for YouTube (~$50)</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>Time Investment</h4>
+                    <ul>
+                        <li><strong>Content Creation:</strong> 3-4 hours/week</li>
+                        <li><strong>Engagement & Replies:</strong> 30 min/day</li>
+                        <li><strong>Analytics Review:</strong> 1 hour/week</li>
+                        <li><strong>Total:</strong> ~7-10 hours/week</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="appendix">
+        <div class="container">
+            <h2>Quick Reference - Account Handles</h2>
+
+            <table>
+                <tr>
+                    <th>Platform</th>
+                    <th>Handle</th>
+                    <th>URL</th>
+                </tr>
+                <tr>
+                    <td>Facebook</td>
+                    <td>@thecomputerstoreks</td>
+                    <td><a href="https://facebook.com/thecomputerstoreks" class="link">facebook.com/thecomputerstoreks</a></td>
+                </tr>
+                <tr>
+                    <td>Instagram</td>
+                    <td>@thecomputerstoreks</td>
+                    <td><a href="https://instagram.com/thecomputerstoreks" class="link">instagram.com/thecomputerstoreks</a></td>
+                </tr>
+                <tr>
+                    <td>X (Twitter)</td>
+                    <td>@thecompstoreks</td>
+                    <td><a href="https://x.com/thecompstoreks" class="link">x.com/thecompstoreks</a></td>
+                </tr>
+                <tr>
+                    <td>YouTube (Suggested)</td>
+                    <td>@ComputerStoreKS or @TheComputerStoreTopeka</td>
+                    <td>To be created</td>
+                </tr>
+                <tr>
+                    <td>LinkedIn (Suggested)</td>
+                    <td>The Computer Store / Network Technologies</td>
+                    <td>To be created</td>
+                </tr>
+                <tr>
+                    <td>TikTok (Suggested)</td>
+                    <td>@thecomputerstoreks or @ComputerStoreKS</td>
+                    <td>To be created</td>
+                </tr>
+            </table>
+
+            <h3>Podcast Appearance</h3>
+            <p><strong>Topeka Business Uncensored - Episode #10:</strong> Jim Driggers (Owner) was featured discussing The Computer Store's history and move to the current location. This appearance demonstrates existing media relationships and could be leveraged for future PR opportunities.</p>
+            <p><a href="https://podcasts.apple.com/pt/podcast/episode-10-jim-driggers-with-the-computer-store/id1514247887?i=1000560799941" class="link">Listen on Apple Podcasts</a></p>
+        </div>
+    </section>
+
+    <footer>
+        <p><strong>The Computer Store</strong> | Topeka, Kansas</p>
+        <p>Social Media Audit prepared by Bast Project Management</p>
+        <p style="margin-top: 15px; font-size: 0.85rem; opacity: 0.7;">December 2025</p>
+    </footer>
+</body>
+</html>

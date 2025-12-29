@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Right to Repair Positioning - Implementation Plan | Computer Store KS</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #10b981;
+            --secondary-dark: #059669;
+            --accent: #f59e0b;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --success: #22c55e;
+            --warning: #eab308;
+            --danger: #ef4444;
+            --repair-green: #22c55e;
+            --ifixit-orange: #ff6b00;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background: var(--light);
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--repair-green) 0%, var(--secondary-dark) 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        header .subtitle {
+            font-size: 1.6rem;
+            color: #ffffff;
+            font-weight: 500;
+            position: relative;
+        }
+
+        header .date {
+            margin-top: 15px;
+            font-size: 1.1rem;
+            color: #ffffff;
+            opacity: 0.95;
+            position: relative;
+        }
+
+        nav.breadcrumb {
+            background: var(--dark);
+            padding: 15px 20px;
+        }
+
+        nav.breadcrumb a {
+            color: var(--secondary);
+            text-decoration: none;
+        }
+
+        nav.breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        nav.breadcrumb span {
+            color: #94a3b8;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .executive-summary {
+            background: linear-gradient(135deg, var(--dark) 0%, #0f172a 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 16px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .executive-summary h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--repair-green);
+        }
+
+        .executive-summary p {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: #e2e8f0;
+        }
+
+        .key-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .metric-card .value {
+            font-size: 2rem;
+            font-weight: bold;
+            display: block;
+            color: var(--repair-green);
+        }
+
+        .metric-card .label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .phase-section {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border-left: 5px solid var(--repair-green);
+        }
+
+        .phase-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .phase-number {
+            background: var(--repair-green);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .phase-title {
+            font-size: 1.6rem;
+            color: var(--dark);
+        }
+
+        .phase-duration {
+            background: var(--light);
+            color: var(--gray);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-left: auto;
+        }
+
+        .step {
+            background: var(--light);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .step h4 {
+            color: var(--dark);
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .step-number {
+            background: var(--primary);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .step p {
+            color: var(--gray);
+            margin-bottom: 15px;
+        }
+
+        .step ul {
+            margin-left: 20px;
+            color: var(--dark);
+        }
+
+        .step li {
+            margin-bottom: 8px;
+        }
+
+        .ifixit-section {
+            background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+            border: 2px solid var(--ifixit-orange);
+            border-radius: 16px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .ifixit-section h3 {
+            color: var(--ifixit-orange);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.4rem;
+        }
+
+        .program-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 25px 0;
+        }
+
+        .program-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border-top: 4px solid var(--primary);
+        }
+
+        .program-card.recommended {
+            border-top-color: var(--ifixit-orange);
+            position: relative;
+        }
+
+        .program-card.recommended::before {
+            content: 'RECOMMENDED';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--ifixit-orange);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .program-name {
+            font-size: 1.4rem;
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+
+        .program-cost {
+            font-size: 1.8rem;
+            color: var(--primary);
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .program-cost span {
+            font-size: 1rem;
+            color: var(--gray);
+            font-weight: normal;
+        }
+
+        .program-features {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+
+        .program-features li {
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .program-features li:last-child {
+            border-bottom: none;
+        }
+
+        .program-features .check {
+            color: var(--repair-green);
+            font-weight: bold;
+        }
+
+        .legislation-map {
+            background: var(--dark);
+            border-radius: 16px;
+            padding: 30px;
+            color: white;
+            margin: 25px 0;
+        }
+
+        .legislation-map h3 {
+            color: var(--repair-green);
+            margin-bottom: 20px;
+        }
+
+        .state-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .state-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .state-card .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .status-passed {
+            background: var(--repair-green);
+            color: white;
+        }
+
+        .status-pending {
+            background: var(--accent);
+            color: white;
+        }
+
+        .status-focus {
+            background: var(--primary);
+            color: white;
+        }
+
+        .messaging-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .messaging-table th {
+            background: var(--repair-green);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .messaging-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+            vertical-align: top;
+        }
+
+        .messaging-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+            border-left: 4px solid var(--primary);
+            padding: 20px 25px;
+            border-radius: 0 12px 12px 0;
+            margin: 25px 0;
+        }
+
+        .info-box h4 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left: 4px solid var(--accent);
+            padding: 20px 25px;
+            border-radius: 0 12px 12px 0;
+            margin: 25px 0;
+        }
+
+        .warning-box h4 {
+            color: #b45309;
+            margin-bottom: 10px;
+        }
+
+        .success-box {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border-left: 4px solid var(--repair-green);
+            padding: 20px 25px;
+            border-radius: 0 12px 12px 0;
+            margin: 25px 0;
+        }
+
+        .success-box h4 {
+            color: var(--secondary-dark);
+            margin-bottom: 10px;
+        }
+
+        .advocacy-timeline {
+            position: relative;
+            padding-left: 30px;
+            margin: 30px 0;
+        }
+
+        .advocacy-timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--repair-green);
+            border-radius: 4px;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -34px;
+            top: 25px;
+            width: 12px;
+            height: 12px;
+            background: var(--repair-green);
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px var(--repair-green);
+        }
+
+        .timeline-item h4 {
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+
+        .timeline-item .date {
+            color: var(--repair-green);
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .parts-sources {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .source-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid var(--primary);
+        }
+
+        .source-card h4 {
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+
+        .source-card .category {
+            color: var(--primary);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .source-card ul {
+            list-style: none;
+        }
+
+        .source-card li {
+            padding: 5px 0;
+            color: var(--gray);
+        }
+
+        .sources {
+            background: var(--dark);
+            color: white;
+            padding: 40px;
+            border-radius: 16px;
+            margin-top: 40px;
+        }
+
+        .sources h3 {
+            color: var(--repair-green);
+            margin-bottom: 20px;
+        }
+
+        .sources ol {
+            margin-left: 20px;
+        }
+
+        .sources li {
+            margin-bottom: 10px;
+            color: #94a3b8;
+        }
+
+        .sources a {
+            color: var(--repair-green);
+            text-decoration: none;
+        }
+
+        .sources a:hover {
+            text-decoration: underline;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--primary);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: 30px;
+            transition: background 0.3s;
+        }
+
+        .back-link:hover {
+            background: var(--primary-dark);
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .phase-header {
+                flex-wrap: wrap;
+            }
+
+            .phase-duration {
+                margin-left: 0;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Right to Repair Positioning</h1>
+        <p class="subtitle">Complete Implementation Guide</p>
+        <p class="date">Implementation Timeline: Q1 2026 & Ongoing</p>
+    </header>
+
+    <nav class="breadcrumb">
+        <a href="/documentation/business_growth_plan_2026.html">← Business Growth Plan 2026</a>
+        <span> / Right to Repair Positioning</span>
+    </nav>
+
+    <div class="container">
+        <section class="executive-summary">
+            <h2>🔧 Executive Summary</h2>
+            <p>The Right to Repair movement is transforming consumer expectations. 87% of Americans support Right to Repair legislation, and states are passing laws requiring manufacturers to provide repair parts and documentation. By positioning Computer Store KS as the local champion of repair rights, you differentiate from disposable-culture competitors while building deep customer loyalty and recurring revenue.</p>
+            <p>This guide covers iFixit partnership programs, messaging strategy, parts sourcing, community building, and advocacy opportunities specific to Kansas.</p>
+
+            <div class="key-metrics">
+                <div class="metric-card">
+                    <span class="value">87%</span>
+                    <span class="label">Americans Support R2R</span>
+                </div>
+                <div class="metric-card">
+                    <span class="value">30+</span>
+                    <span class="label">States with R2R Bills</span>
+                </div>
+                <div class="metric-card">
+                    <span class="value">$40B+</span>
+                    <span class="label">Annual Repair Market</span>
+                </div>
+                <div class="metric-card">
+                    <span class="value">3</span>
+                    <span class="label">States Passed R2R Laws</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Phase 1: iFixit Partnership -->
+        <section class="phase-section">
+            <div class="phase-header">
+                <div class="phase-number">1</div>
+                <h2 class="phase-title">iFixit Partnership Programs</h2>
+                <span class="phase-duration">Week 1-2</span>
+            </div>
+
+            <div class="step">
+                <h4><span class="step-number">1</span> Understand iFixit Partnership Options</h4>
+                <p>iFixit offers two distinct programs for repair businesses. Choose based on your repair volume and business model.</p>
+            </div>
+
+            <div class="ifixit-section">
+                <h3>🛠️ iFixit Partnership Programs</h3>
+
+                <div class="program-cards">
+                    <div class="program-card recommended">
+                        <h3 class="program-name">iFixit Pro</h3>
+                        <p class="program-cost">Free <span>to join</span></p>
+                        <ul class="program-features">
+                            <li><span class="check">✓</span> Wholesale pricing (15-40% off retail)</li>
+                            <li><span class="check">✓</span> Access to professional-grade parts</li>
+                            <li><span class="check">✓</span> Priority support from iFixit team</li>
+                            <li><span class="check">✓</span> Marketing materials and co-branding</li>
+                            <li><span class="check">✓</span> Access to repair guides and documentation</li>
+                            <li><span class="check">✓</span> Listed in iFixit's repair shop directory</li>
+                            <li><span class="check">✓</span> Free toolkits for qualifying shops</li>
+                        </ul>
+                        <p style="color: var(--gray); font-size: 0.9rem;"><strong>Best for:</strong> Computer repair shops doing regular iPhone, laptop, and device repairs</p>
+                    </div>
+
+                    <div class="program-card">
+                        <h3 class="program-name">iFixit Reseller</h3>
+                        <p class="program-cost">Application <span>required</span></p>
+                        <ul class="program-features">
+                            <li><span class="check">✓</span> Deeper wholesale discounts</li>
+                            <li><span class="check">✓</span> Sell iFixit products to consumers</li>
+                            <li><span class="check">✓</span> Complete toolkit inventory</li>
+                            <li><span class="check">✓</span> Parts kits for common repairs</li>
+                            <li><span class="check">✓</span> Retail display materials</li>
+                            <li><span class="check">✓</span> Higher volume requirements</li>
+                        </ul>
+                        <p style="color: var(--gray); font-size: 0.9rem;"><strong>Best for:</strong> Shops wanting to sell iFixit toolkits and parts retail</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step">
+                <h4><span class="step-number">2</span> Apply for iFixit Pro</h4>
+                <p>The application process is straightforward. Here's what you need:</p>
+                <ul>
+                    <li><strong>Business verification:</strong> EIN, business license, physical location</li>
+                    <li><strong>Repair experience:</strong> Description of your repair services</li>
+                    <li><strong>Website:</strong> Professional web presence (you have this!)</li>
+                    <li><strong>Apply at:</strong> <a href="https://pro.ifixit.com" target="_blank">pro.ifixit.com</a></li>
+                </ul>
+            </div>
+
+            <div class="success-box">
+                <h4>✓ iFixit Pro Benefits for Computer Store KS</h4>
+                <ul>
+                    <li>Wholesale pricing on iPhone/Samsung/laptop batteries, screens, and parts</li>
+                    <li>Professional Mako Driver Kit and Pro Tech Toolkit at cost</li>
+                    <li>Listed in iFixit's "Find a Repair Shop" directory for Kansas</li>
+                    <li>Co-branded "iFixit Repair Partner" badge for your website and store</li>
+                    <li>Access to comprehensive repair guides (even for devices you rarely see)</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Phase 2: Parts Sourcing -->
+        <section class="phase-section">
+            <div class="phase-header">
+                <div class="phase-number">2</div>
+                <h2 class="phase-title">Parts Sourcing Network</h2>
+                <span class="phase-duration">Week 2-4</span>
+            </div>
+
+            <div class="step">
+                <h4><span class="step-number">3</span> Build a Reliable Parts Network</h4>
+                <p>Beyond iFixit, establish relationships with multiple suppliers for different repair categories.</p>
+            </div>
+
+            <div class="parts-sources">
+                <div class="source-card">
+                    <div class="category">PHONE/TABLET PARTS</div>
+                    <h4>Mobile Device Repair</h4>
+                    <ul>
+                        <li><strong>iFixit Pro</strong> - Highest quality, best guides</li>
+                        <li><strong>Injured Gadgets</strong> - Budget-friendly screens</li>
+                        <li><strong>Mobile Defenders</strong> - Wholesale iPhone parts</li>
+                        <li><strong>Replacebase</strong> - European quality parts</li>
+                    </ul>
+                </div>
+
+                <div class="source-card">
+                    <div class="category">LAPTOP PARTS</div>
+                    <h4>Laptop Repair</h4>
+                    <ul>
+                        <li><strong>iFixit Pro</strong> - MacBook batteries, keyboards</li>
+                        <li><strong>Parts-People</strong> - Dell specialist</li>
+                        <li><strong>LaptopScreen.com</strong> - LCD/LED panels</li>
+                        <li><strong>eBay (OEM)</strong> - Genuine manufacturer pulls</li>
+                    </ul>
+                </div>
+
+                <div class="source-card">
+                    <div class="category">DESKTOP/PC PARTS</div>
+                    <h4>Computer Repair</h4>
+                    <ul>
+                        <li><strong>Ingram Micro/D&H</strong> - New components</li>
+                        <li><strong>Newegg Business</strong> - Quick fills</li>
+                        <li><strong>Local recyclers</strong> - Refurbished parts</li>
+                        <li><strong>eBay (verified sellers)</strong> - Legacy components</li>
+                    </ul>
+                </div>
+
+                <div class="source-card">
+                    <div class="category">TOOLS & SUPPLIES</div>
+                    <h4>Shop Supplies</h4>
+                    <ul>
+                        <li><strong>iFixit Pro</strong> - Professional toolkits</li>
+                        <li><strong>Amazon Business</strong> - Consumables</li>
+                        <li><strong>Kaisi Tools</strong> - Budget workstation gear</li>
+                        <li><strong>Kingsdun</strong> - ESD-safe equipment</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h4>💡 DIY Repair Kits - Revenue Opportunity</h4>
+                <p>Offer curated DIY repair kits for customers who want to fix their own devices. Bundle iFixit parts with printed guides and charge a small markup. This builds trust, differentiates you from "we won't help you" shops, and creates upsell opportunities when DIY customers realize they need professional help.</p>
+                <p><strong>Example:</strong> iPhone Battery Kit ($35 parts + guide) → Customer attempts → Comes back for screen repair → Becomes loyal customer</p>
+            </div>
+        </section>
+
+        <!-- Phase 3: Messaging Strategy -->
+        <section class="phase-section">
+            <div class="phase-header">
+                <div class="phase-number">3</div>
+                <h2 class="phase-title">Messaging & Brand Positioning</h2>
+                <span class="phase-duration">Week 3-5</span>
+            </div>
+
+            <div class="step">
+                <h4><span class="step-number">4</span> Define Your Right to Repair Message</h4>
+                <p>Craft messaging that resonates with Kansas values: independence, thrift, sustainability, and supporting local.</p>
+            </div>
+
+            <table class="messaging-table">
+                <thead>
+                    <tr>
+                        <th>Message Pillar</th>
+                        <th>Key Points</th>
+                        <th>Example Copy</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Choice & Independence</strong></td>
+                        <td>
+                            • You own it, you should be able to fix it<br>
+                            • Don't be forced to buy new<br>
+                            • Take control of your devices
+                        </td>
+                        <td>"Your device, your choice. We believe if you buy it, you should be able to fix it — or have someone local do it for you."</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Save Money</strong></td>
+                        <td>
+                            • Repair costs fraction of replacement<br>
+                            • Extend device lifespan<br>
+                            • Kansas families work hard for their money
+                        </td>
+                        <td>"Why spend $1,000 on a new laptop when a $150 repair gives you 3 more years? We help Topeka families stretch their tech dollars."</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Environmental</strong></td>
+                        <td>
+                            • 50M tons of e-waste annually<br>
+                            • Repair reduces landfill<br>
+                            • Sustainability without sacrifice
+                        </td>
+                        <td>"Every repair keeps electronics out of landfills. When you choose repair, you're choosing a cleaner Kansas."</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Support Local</strong></td>
+                        <td>
+                            • Money stays in Topeka/Holton<br>
+                            • We're your neighbors<br>
+                            • Face-to-face service
+                        </td>
+                        <td>"Skip the Genius Bar. We're right here in Topeka, and we'll treat your devices like our own."</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Right to Know</strong></td>
+                        <td>
+                            • Transparency in pricing<br>
+                            • We explain every repair<br>
+                            • Education, not intimidation
+                        </td>
+                        <td>"We'll always tell you what's wrong, what it costs, and whether it's worth fixing. No secrets, no surprises."</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="step">
+                <h4><span class="step-number">5</span> Create Right to Repair Content</h4>
+                <ul>
+                    <li><strong>Website page:</strong> "Why We Support Right to Repair" — values statement + local positioning</li>
+                    <li><strong>Blog series:</strong> "DIY Repair Guides" for common issues (links to iFixit guides when appropriate)</li>
+                    <li><strong>Social media:</strong> Repair vs Replace cost comparisons, before/after photos</li>
+                    <li><strong>Signage:</strong> "Repair Champion" badge in-store, window decal</li>
+                    <li><strong>Email signature:</strong> "Proud supporter of the Right to Repair"</li>
+                </ul>
+            </div>
+
+            <div class="warning-box">
+                <h4>⚠️ Messaging Balance</h4>
+                <p>Don't be preachy or political. Focus on <strong>practical benefits</strong> (saving money, convenience, local service) rather than abstract advocacy. Kansas customers respond to common-sense economics more than environmental messaging. Lead with savings, follow with sustainability.</p>
+            </div>
+        </section>
+
+        <!-- Phase 4: Legislative Landscape -->
+        <section class="phase-section">
+            <div class="phase-header">
+                <div class="phase-number">4</div>
+                <h2 class="phase-title">Legislative Landscape & Advocacy</h2>
+                <span class="phase-duration">Ongoing</span>
+            </div>
+
+            <div class="step">
+                <h4><span class="step-number">6</span> Understand the Current State of R2R Laws</h4>
+                <p>Right to Repair legislation is gaining momentum. Understanding the landscape positions you as a thought leader.</p>
+            </div>
+
+            <div class="legislation-map">
+                <h3>Right to Repair Legislative Status (2025)</h3>
+                <div class="state-grid">
+                    <div class="state-card">
+                        <span class="status status-passed">PASSED</span>
+                        <h4>New York</h4>
+                        <p>First state to pass broad R2R law (2023)</p>
+                    </div>
+                    <div class="state-card">
+                        <span class="status status-passed">PASSED</span>
+                        <h4>Minnesota</h4>
+                        <p>Electronics R2R (2023)</p>
+                    </div>
+                    <div class="state-card">
+                        <span class="status status-passed">PASSED</span>
+                        <h4>California</h4>
+                        <p>Electronics R2R (2023)</p>
+                    </div>
+                    <div class="state-card">
+                        <span class="status status-pending">PENDING</span>
+                        <h4>Kansas</h4>
+                        <p>Bills introduced, not yet passed</p>
+                    </div>
+                    <div class="state-card">
+                        <span class="status status-focus">YOUR FOCUS</span>
+                        <h4>Federal</h4>
+                        <p>FTC guidance supporting R2R</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step">
+                <h4><span class="step-number">7</span> Local Advocacy Opportunities</h4>
+                <ul>
+                    <li><strong>Kansas Legislature:</strong> Track bills at <a href="http://www.kslegislature.org" target="_blank">kslegislature.org</a></li>
+                    <li><strong>US PIRG:</strong> Join the Right to Repair coalition at <a href="https://uspirg.org/feature/usp/right-repair" target="_blank">uspirg.org</a></li>
+                    <li><strong>Repair.org:</strong> Official advocacy network at <a href="https://www.repair.org" target="_blank">repair.org</a></li>
+                    <li><strong>iFixit Advocacy:</strong> They provide testimony templates and talking points</li>
+                    <li><strong>Local media:</strong> Offer yourself as a source for R2R stories</li>
+                </ul>
+            </div>
+
+            <div class="advocacy-timeline">
+                <div class="timeline-item">
+                    <div class="date">January 2026</div>
+                    <h4>Join Advocacy Networks</h4>
+                    <p>Sign up for Repair.org alerts, US PIRG Kansas updates, and iFixit advocacy newsletter. No cost, minimal time commitment.</p>
+                </div>
+                <div class="timeline-item">
+                    <div class="date">Q1 2026 (Kansas Legislative Session)</div>
+                    <h4>Monitor Kansas Bills</h4>
+                    <p>Watch for any R2R bills introduced. If one comes up, submit written testimony supporting it (Repair.org provides templates).</p>
+                </div>
+                <div class="timeline-item">
+                    <div class="date">Ongoing</div>
+                    <h4>Become a Local Voice</h4>
+                    <p>When local news covers R2R topics, offer yourself as a quote source. "Local repair shop owner supports Right to Repair" makes great local news.</p>
+                </div>
+                <div class="timeline-item">
+                    <div class="date">Repair Day (Third Saturday of October)</div>
+                    <h4>Host Community Repair Event</h4>
+                    <p>International Repair Day is a global movement. Host a free diagnostic day or repair clinic to build community awareness.</p>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h4>💡 Kansas Farm Equipment Context</h4>
+                <p>Right to Repair has strong bipartisan support in Kansas due to the farm equipment angle. John Deere's repair restrictions have frustrated Kansas farmers for years. Mentioning farm equipment R2R builds bridges with rural Holton customers and positions you as part of a broader movement.</p>
+            </div>
+        </section>
+
+        <!-- Phase 5: Community Building -->
+        <section class="phase-section">
+            <div class="phase-header">
+                <div class="phase-number">5</div>
+                <h2 class="phase-title">Community Building & Events</h2>
+                <span class="phase-duration">Q2 2026 & Ongoing</span>
+            </div>
+
+            <div class="step">
+                <h4><span class="step-number">8</span> Launch Community Initiatives</h4>
+                <p>Build loyalty and awareness through community engagement around repair culture.</p>
+                <ul>
+                    <li><strong>Repair Café:</strong> Monthly free diagnostic events (bring any device, we'll tell you what's wrong)</li>
+                    <li><strong>DIY Workshops:</strong> Teach basic repairs (phone screen, RAM upgrade, SSD installation)</li>
+                    <li><strong>School Partnerships:</strong> STEM presentations about electronics and repair careers</li>
+                    <li><strong>Library Events:</strong> Partner with Topeka/Holton libraries for tech help days</li>
+                    <li><strong>Senior Tech Help:</strong> Special hours for seniors to get devices explained</li>
+                </ul>
+            </div>
+
+            <div class="step">
+                <h4><span class="step-number">9</span> Create a Repair Loyalty Program</h4>
+                <p>Reward customers who choose repair over replacement:</p>
+                <ul>
+                    <li><strong>"Repair Champion" Card:</strong> Get stamped for each repair, 5th repair gets 20% off</li>
+                    <li><strong>Referral Bonus:</strong> Refer a friend, both get $15 off next repair</li>
+                    <li><strong>Trade-In Credit:</strong> Bring in old devices for recycling, get store credit</li>
+                    <li><strong>DIY Discount:</strong> Customers who try DIY first get 10% off professional repair</li>
+                </ul>
+            </div>
+
+            <div class="success-box">
+                <h4>✓ Community Event ROI</h4>
+                <p>Repair cafés and workshops cost little (staff time, basic supplies) but generate significant returns:</p>
+                <ul>
+                    <li>Free diagnostics convert to paid repairs ~40% of the time</li>
+                    <li>Workshop attendees become long-term customers (they trust you)</li>
+                    <li>Local media coverage worth thousands in advertising</li>
+                    <li>Google reviews and word-of-mouth from grateful attendees</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Phase 6: Marketing Integration -->
+        <section class="phase-section">
+            <div class="phase-header">
+                <div class="phase-number">6</div>
+                <h2 class="phase-title">Marketing Integration</h2>
+                <span class="phase-duration">Ongoing</span>
+            </div>
+
+            <div class="step">
+                <h4><span class="step-number">10</span> Website Integration</h4>
+                <ul>
+                    <li><strong>New page:</strong> /right-to-repair — Your values, iFixit partnership, local advocacy</li>
+                    <li><strong>Blog category:</strong> "Repair Culture" with DIY tips, R2R news, success stories</li>
+                    <li><strong>Service pages:</strong> Add "We support Right to Repair" messaging</li>
+                    <li><strong>Footer badge:</strong> iFixit Pro Partner logo + Repair.org badge</li>
+                    <li><strong>Repair vs Replace Calculator:</strong> Interactive tool showing cost savings</li>
+                </ul>
+            </div>
+
+            <div class="step">
+                <h4><span class="step-number">11</span> Social Media Strategy</h4>
+                <ul>
+                    <li><strong>Weekly content:</strong> "Repair of the Week" before/after photos</li>
+                    <li><strong>DIY tips:</strong> Short videos on simple fixes (cleaning fans, replacing batteries)</li>
+                    <li><strong>Myth busting:</strong> "No, replacing your screen doesn't void your warranty"</li>
+                    <li><strong>R2R news:</strong> Share victories from other states, federal updates</li>
+                    <li><strong>Customer stories:</strong> "This laptop was destined for the landfill until..."</li>
+                </ul>
+            </div>
+
+            <div class="step">
+                <h4><span class="step-number">12</span> Local SEO for Repair Keywords</h4>
+                <ul>
+                    <li><strong>Target keywords:</strong> "laptop repair Topeka", "iPhone screen repair Kansas", "computer fix near me"</li>
+                    <li><strong>Google Business:</strong> Update categories, add "Right to Repair" to description</li>
+                    <li><strong>Reviews:</strong> Ask satisfied customers to mention "repair" in reviews</li>
+                    <li><strong>Local citations:</strong> Repair shop directories, iFixit listing, Yelp</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- KPIs -->
+        <section class="phase-section">
+            <div class="phase-header">
+                <div class="phase-number">📊</div>
+                <h2 class="phase-title">Success Metrics & KPIs</h2>
+            </div>
+
+            <div class="key-metrics" style="margin-top: 0;">
+                <div class="metric-card" style="background: var(--repair-green); color: white;">
+                    <span class="value">+25%</span>
+                    <span class="label">Repair Revenue Growth</span>
+                </div>
+                <div class="metric-card" style="background: var(--primary); color: white;">
+                    <span class="value">30%</span>
+                    <span class="label">iFixit Parts Margin</span>
+                </div>
+                <div class="metric-card" style="background: var(--ifixit-orange); color: white;">
+                    <span class="value">4</span>
+                    <span class="label">Community Events/Year</span>
+                </div>
+                <div class="metric-card" style="background: var(--dark); color: white;">
+                    <span class="value">Top 3</span>
+                    <span class="label">Google "repair Topeka"</span>
+                </div>
+            </div>
+
+            <div class="step" style="margin-top: 30px;">
+                <h4>Monthly Tracking Checklist</h4>
+                <ul>
+                    <li><strong>Repair volume:</strong> Number of repairs, types, average ticket</li>
+                    <li><strong>Parts sourcing:</strong> iFixit orders, margins, availability issues</li>
+                    <li><strong>Website traffic:</strong> R2R page visits, blog engagement</li>
+                    <li><strong>Community engagement:</strong> Event attendance, workshop signups</li>
+                    <li><strong>Brand mentions:</strong> Social shares, media coverage, customer testimonials</li>
+                    <li><strong>Competitive positioning:</strong> Google ranking for repair keywords</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Sources -->
+        <section class="sources">
+            <h3>Sources & References</h3>
+            <ol>
+                <li>iFixit Pro Program: <a href="https://pro.ifixit.com">pro.ifixit.com</a></li>
+                <li>iFixit Reseller Information: <a href="https://www.ifixit.com/Reseller">ifixit.com/Reseller</a></li>
+                <li>US PIRG Right to Repair Campaign: <a href="https://uspirg.org/feature/usp/right-repair">uspirg.org</a></li>
+                <li>Repair.org - The Repair Association: <a href="https://www.repair.org">repair.org</a></li>
+                <li>FTC Report: "Nixing the Fix" (2021): <a href="https://www.ftc.gov/reports/nixing-fix-ftc-report-congress-repair-restrictions">ftc.gov</a></li>
+                <li>Consumer Reports - 87% Support R2R: <a href="https://www.consumerreports.org">consumerreports.org</a></li>
+                <li>Kansas Legislature Bill Tracker: <a href="http://www.kslegislature.org">kslegislature.org</a></li>
+                <li>New York Right to Repair Law (Digital Fair Repair Act): <a href="https://www.nysenate.gov">nysenate.gov</a></li>
+                <li>Minnesota Electronics Right to Repair: <a href="https://www.revisor.mn.gov">revisor.mn.gov</a></li>
+                <li>California SB 244 - Right to Repair Act: <a href="https://leginfo.legislature.ca.gov">leginfo.legislature.ca.gov</a></li>
+                <li>International Repair Day: <a href="https://openrepair.org/repair-day">openrepair.org</a></li>
+                <li>E-waste Statistics - Global E-waste Monitor: <a href="https://ewastemonitor.info">ewastemonitor.info</a></li>
+            </ol>
+        </section>
+
+        <a href="/documentation/business_growth_plan_2026.html" class="back-link">← Back to Business Growth Plan</a>
+    </div>
+</body>
+</html>

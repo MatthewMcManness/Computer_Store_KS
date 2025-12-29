@@ -1,0 +1,2170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Development Roadmap | Computer Store KS Platform</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-light: #3b82f6;
+            --primary-dark: #1e40af;
+            --secondary: #10b981;
+            --secondary-dark: #059669;
+            --accent: #f59e0b;
+            --accent-dark: #d97706;
+            --purple: #8b5cf6;
+            --pink: #ec4899;
+            --danger: #dc2626;
+            --dark: #111827;
+            --text-secondary: #374151;
+            --text-muted: #6b7280;
+            --light: #f8f9fb;
+            --background-dark: #f0f2f5;
+            --gradient-1: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%);
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background: var(--light);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background: var(--gradient-1);
+            color: white;
+            padding: 60px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        header h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        header .subtitle {
+            font-size: 1.4rem;
+            color: #ffffff;
+            font-weight: 500;
+            position: relative;
+            opacity: 0.95;
+        }
+
+        header .deadline-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 10px 20px;
+            border-radius: 25px;
+            margin-top: 20px;
+            font-size: 1rem;
+            position: relative;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        nav {
+            background: white;
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        nav a {
+            color: var(--primary);
+            text-decoration: none;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        nav a:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        section {
+            padding: 60px 0;
+        }
+
+        section:nth-child(even) {
+            background: white;
+        }
+
+        h2 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid var(--primary-light);
+            display: inline-block;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            color: var(--dark);
+            margin: 25px 0 15px;
+        }
+
+        h4 {
+            font-size: 1.1rem;
+            color: var(--primary);
+            margin: 20px 0 10px;
+        }
+
+        p {
+            margin-bottom: 15px;
+            color: #4b5563;
+        }
+
+        .exec-summary {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-left: 5px solid var(--primary);
+            padding: 30px;
+            border-radius: 0 10px 10px 0;
+            margin-bottom: 30px;
+        }
+
+        .exec-summary p {
+            font-size: 1.1rem;
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left: 5px solid var(--accent);
+            padding: 20px 25px;
+            border-radius: 0 10px 10px 0;
+            margin: 20px 0;
+        }
+
+        .warning-box h4 {
+            color: #b45309;
+            margin-top: 0;
+        }
+
+        .warning-box p {
+            color: #92400e;
+            margin-bottom: 0;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+            border-left: 5px solid var(--purple);
+            padding: 20px 25px;
+            border-radius: 0 10px 10px 0;
+            margin: 20px 0;
+        }
+
+        .info-box h4 {
+            color: #6d28d9;
+            margin-top: 0;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: var(--shadow-lg);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border-top: 4px solid var(--primary);
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .card.phase-1 { border-top-color: #dc2626; }
+        .card.phase-2 { border-top-color: #f59e0b; }
+        .card.phase-3 { border-top-color: #10b981; }
+        .card.phase-4 { border-top-color: #3b82f6; }
+        .card.phase-5 { border-top-color: #8b5cf6; }
+        .card.phase-6 { border-top-color: #ec4899; }
+
+        .card h3 {
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-critical { background: #fee2e2; color: #b91c1c; }
+        .badge-high { background: #fef3c7; color: #b45309; }
+        .badge-medium { background: #d1fae5; color: #047857; }
+        .badge-low { background: #e5e7eb; color: #374151; }
+        .badge-phase { background: #dbeafe; color: #1e40af; }
+
+        /* Implementation Status Badges */
+        .badge-complete { background: #dcfce7; color: #166534; }
+        .badge-partial { background: #fef3c7; color: #92400e; }
+        .badge-not-started { background: #f3f4f6; color: #6b7280; }
+
+        .status-icon { margin-right: 6px; }
+        .status-complete { color: #16a34a; }
+        .status-partial { color: #f59e0b; }
+        .status-pending { color: #9ca3af; }
+
+        /* Progress bar */
+        .progress-container {
+            background: #e5e7eb;
+            border-radius: 10px;
+            height: 20px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 10px;
+            background: linear-gradient(90deg, #16a34a, #22c55e);
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .progress-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+        }
+
+        .progress-section h4 {
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .overall-progress {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 2px solid #16a34a;
+        }
+
+        .step-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .step-status.done { background: #dcfce7; color: #166534; }
+        .step-status.partial { background: #fef3c7; color: #92400e; }
+        .step-status.todo { background: #f3f4f6; color: #6b7280; }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .hours-badge {
+            background: var(--primary);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f9fafb;
+        }
+
+        .phase-section {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: var(--shadow-lg);
+            border-left: 5px solid var(--primary);
+        }
+
+        .phase-section.critical { border-left-color: #dc2626; }
+        .phase-section.high { border-left-color: #f59e0b; }
+        .phase-section.medium { border-left-color: #10b981; }
+
+        .phase-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .phase-header h3 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .phase-meta {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .step-list {
+            list-style: none;
+            padding: 0;
+            counter-reset: step;
+        }
+
+        .step-list > li {
+            position: relative;
+            padding: 20px 20px 20px 60px;
+            margin-bottom: 15px;
+            background: #f9fafb;
+            border-radius: 8px;
+            counter-increment: step;
+        }
+
+        .step-list > li::before {
+            content: counter(step);
+            position: absolute;
+            left: 15px;
+            top: 20px;
+            width: 30px;
+            height: 30px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .step-list h4 {
+            margin: 0 0 10px 0;
+            color: var(--dark);
+        }
+
+        .step-list p {
+            margin: 0;
+            color: var(--text-secondary);
+        }
+
+        .substep-list {
+            list-style: disc;
+            margin: 10px 0 0 20px;
+            color: var(--text-secondary);
+        }
+
+        .substep-list li {
+            margin-bottom: 5px;
+        }
+
+        .tech-stack {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .tech-item {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .tech-item .icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .tech-item h5 {
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+
+        .tech-item p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .module-card {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .module-card h5 {
+            color: var(--dark);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .module-card ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .module-card li {
+            padding: 5px 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .module-card li::before {
+            content: '→';
+            color: var(--primary);
+        }
+
+        .dependency-arrow {
+            text-align: center;
+            font-size: 2rem;
+            color: var(--primary);
+            margin: 20px 0;
+        }
+
+        .gantt-simple {
+            overflow-x: auto;
+        }
+
+        .gantt-bar {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        .gantt-label {
+            width: 200px;
+            flex-shrink: 0;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .gantt-track {
+            flex: 1;
+            height: 30px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gantt-fill {
+            height: 100%;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .gantt-fill.phase-1 { background: linear-gradient(90deg, #dc2626, #ef4444); }
+        .gantt-fill.phase-2 { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+        .gantt-fill.phase-3 { background: linear-gradient(90deg, #10b981, #34d399); }
+        .gantt-fill.phase-4 { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+        .gantt-fill.phase-5 { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+        .gantt-fill.phase-6 { background: linear-gradient(90deg, #ec4899, #f472b6); }
+
+        .api-table {
+            font-size: 0.9rem;
+        }
+
+        .api-table code {
+            background: #f3f4f6;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        .cost-card {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .cost-card h4 {
+            color: #166534;
+            margin-top: 0;
+        }
+
+        .cost-card .free {
+            color: #16a34a;
+            font-weight: 600;
+        }
+
+        .cost-card .paid {
+            color: #dc2626;
+        }
+
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+            margin-top: 60px;
+        }
+
+        footer p {
+            color: #9ca3af;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+
+            nav ul {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .gantt-label {
+                width: 120px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Master Development Roadmap</h1>
+        <div class="subtitle">Computer Store KS - Unified Business Platform</div>
+        <div class="deadline-badge">
+            <strong>Target:</strong> Q1 2026 (Holton Launch) | <strong>Developer:</strong> Matthew | <strong>Hours:</strong> 20-30/week
+        </div>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#progress" style="background: #16a34a; color: white;">Progress</a></li>
+            <li><a href="#vision">Vision</a></li>
+            <li><a href="#architecture">Architecture</a></li>
+            <li><a href="#phase-1">Foundation</a></li>
+            <li><a href="#phase-2">RepairShopr</a></li>
+            <li><a href="#phase-3">NinjaOne</a></li>
+            <li><a href="#phase-4">Customer Portal</a></li>
+            <li><a href="#phase-5">PC Builder</a></li>
+            <li><a href="#phase-6">Social Media</a></li>
+            <li><a href="#timeline">Timeline</a></li>
+            <li><a href="#costs">Costs</a></li>
+        </ul>
+    </nav>
+
+    <section id="progress" style="background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);">
+        <div class="container">
+            <h2>Implementation Progress</h2>
+
+            <div class="progress-section overall-progress">
+                <h4>
+                    Overall Project Status
+                    <span class="badge badge-partial">In Progress</span>
+                </h4>
+                <p><strong>Last Updated:</strong> December 26, 2025</p>
+                <div class="progress-container" style="height: 30px;">
+                    <div class="progress-bar" style="width: 25%;">~25% Complete</div>
+                </div>
+                <p style="margin-bottom: 0;"><strong>Priority:</strong> Migrate authentication from RepairShopr API to 100% Supabase Auth. Customer management and ticket systems are functional but need auth updates. NinjaOne, Customer Portal, PC Builder, and Social Media automation remain to be built.</p>
+            </div>
+
+            <div class="card-grid">
+                <div class="progress-section">
+                    <h4>
+                        Phase 1: Foundation
+                        <span class="badge badge-partial">40% Done</span>
+                    </h4>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: 40%;">40%</div>
+                    </div>
+                    <ul style="margin: 0; padding-left: 20px; font-size: 0.9rem;">
+                        <li><span class="status-icon status-partial">◐</span> <strong>Supabase Auth migration needed</strong> (replace RepairShopr auth)</li>
+                        <li><span class="status-icon status-partial">◐</span> User profiles (needs Supabase Auth linking)</li>
+                        <li><span class="status-icon status-complete">✓</span> RepairShopr API wrapper</li>
+                        <li><span class="status-icon status-complete">✓</span> Database schema (partial)</li>
+                        <li><span class="status-icon status-complete">✓</span> Route protection middleware</li>
+                        <li><span class="status-icon status-pending">○</span> NinjaOne API wrapper</li>
+                        <li><span class="status-icon status-pending">○</span> Stripe integration</li>
+                    </ul>
+                </div>
+
+                <div class="progress-section">
+                    <h4>
+                        Phase 2: RepairShopr
+                        <span class="badge badge-partial">45% Done</span>
+                    </h4>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: 45%;">45%</div>
+                    </div>
+                    <ul style="margin: 0; padding-left: 20px; font-size: 0.9rem;">
+                        <li><span class="status-icon status-complete">✓</span> Customer search & management</li>
+                        <li><span class="status-icon status-complete">✓</span> Ticket creation (5-step intake)</li>
+                        <li><span class="status-icon status-complete">✓</span> Ticket detail view & comments</li>
+                        <li><span class="status-icon status-complete">✓</span> Business management</li>
+                        <li><span class="status-icon status-complete">✓</span> Blog & Gallery management</li>
+                        <li><span class="status-icon status-pending">○</span> Ticket templates system</li>
+                        <li><span class="status-icon status-pending">○</span> Kanban dashboard</li>
+                        <li><span class="status-icon status-pending">○</span> Invoice creation</li>
+                        <li><span class="status-icon status-pending">○</span> Quote system</li>
+                        <li><span class="status-icon status-pending">○</span> POS / Cash drawer</li>
+                        <li><span class="status-icon status-pending">○</span> Leads management</li>
+                        <li><span class="status-icon status-pending">○</span> Cytracom voicemail</li>
+                    </ul>
+                </div>
+
+                <div class="progress-section">
+                    <h4>
+                        Phase 3: NinjaOne
+                        <span class="badge badge-not-started">Not Started</span>
+                    </h4>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: 0%; background: #9ca3af;"></div>
+                    </div>
+                    <ul style="margin: 0; padding-left: 20px; font-size: 0.9rem;">
+                        <li><span class="status-icon status-pending">○</span> Device-customer mapping</li>
+                        <li><span class="status-icon status-pending">○</span> Customer 360 view</li>
+                        <li><span class="status-icon status-pending">○</span> Device detail view</li>
+                        <li><span class="status-icon status-pending">○</span> Remote access</li>
+                        <li><span class="status-icon status-pending">○</span> Quick actions</li>
+                        <li><span class="status-icon status-pending">○</span> Hardware monitoring</li>
+                    </ul>
+                </div>
+
+                <div class="progress-section">
+                    <h4>
+                        Phase 4: Customer Portal
+                        <span class="badge badge-partial">10% Done</span>
+                    </h4>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: 10%;">10%</div>
+                    </div>
+                    <ul style="margin: 0; padding-left: 20px; font-size: 0.9rem;">
+                        <li><span class="status-icon status-complete">✓</span> Placeholder page exists</li>
+                        <li><span class="status-icon status-complete">✓</span> Backend auth ready</li>
+                        <li><span class="status-icon status-pending">○</span> Registration & linking</li>
+                        <li><span class="status-icon status-pending">○</span> Repair status tracking</li>
+                        <li><span class="status-icon status-pending">○</span> Invoice & payments</li>
+                        <li><span class="status-icon status-pending">○</span> Protection plan signup</li>
+                    </ul>
+                </div>
+
+                <div class="progress-section">
+                    <h4>
+                        Phase 5: PC Builder
+                        <span class="badge badge-not-started">Not Started</span>
+                    </h4>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: 0%; background: #9ca3af;"></div>
+                    </div>
+                    <ul style="margin: 0; padding-left: 20px; font-size: 0.9rem;">
+                        <li><span class="status-icon status-pending">○</span> Parts database</li>
+                        <li><span class="status-icon status-pending">○</span> Supplier price integration</li>
+                        <li><span class="status-icon status-pending">○</span> Compatibility engine</li>
+                        <li><span class="status-icon status-pending">○</span> Customer configurator</li>
+                    </ul>
+                </div>
+
+                <div class="progress-section">
+                    <h4>
+                        Phase 6: Social Media
+                        <span class="badge badge-not-started">Not Started</span>
+                    </h4>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: 0%; background: #9ca3af;"></div>
+                    </div>
+                    <ul style="margin: 0; padding-left: 20px; font-size: 0.9rem;">
+                        <li><span class="status-icon status-pending">○</span> Content calendar</li>
+                        <li><span class="status-icon status-pending">○</span> AI content generator</li>
+                        <li><span class="status-icon status-pending">○</span> Platform connectors</li>
+                        <li><span class="status-icon status-pending">○</span> Analytics dashboard</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="warning-box" style="margin-top: 30px; background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); border-left-color: #dc2626;">
+                <h4 style="color: #991b1b;">Priority: Supabase Auth Migration</h4>
+                <p style="margin-bottom: 10px; color: #991b1b;">Current auth uses RepairShopr API for employees. <strong>Goal:</strong> Replace with 100% Supabase Auth for all users.</p>
+            </div>
+
+            <div class="info-box" style="margin-top: 20px;">
+                <h4>Features Working (will need auth updates)</h4>
+                <p style="margin-bottom: 10px;">These features are functional but will need updates when auth migrates to Supabase:</p>
+                <ul style="margin: 0; padding-left: 20px; color: #6d28d9;">
+                    <li><strong>Customer Management:</strong> Search, view, edit customers with protection plan status</li>
+                    <li><strong>Ticket System:</strong> 5-step intake wizard, ticket detail view, status updates, comments</li>
+                    <li><strong>Business Management:</strong> Search businesses, view associated customers</li>
+                    <li><strong>Gallery:</strong> Full CRUD for computer inventory with GitHub image storage</li>
+                    <li><strong>Blog:</strong> Full CMS with categories, tags, featured images</li>
+                    <li><strong>Contact Form:</strong> Bot protection, email notifications via Resend</li>
+                    <li><strong>Google Business:</strong> Reviews widget integration</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section id="vision">
+        <div class="container">
+            <h2>Vision & Goals</h2>
+
+            <div class="exec-summary">
+                <p><strong>The Goal:</strong> Build a unified platform where employees never need to leave computerstoreks.com to do their jobs, and customers have full self-service access to their accounts, repairs, and purchases.</p>
+                <p><strong>The Result:</strong> Consistent workflows, faster service, better customer experience, and a scalable foundation for MSP expansion and multi-location growth.</p>
+            </div>
+
+            <h3>Core Objectives</h3>
+            <div class="card-grid">
+                <div class="card phase-1">
+                    <h3>Employee Efficiency</h3>
+                    <p>Eliminate context-switching between RepairShopr and NinjaOne. Standardized workflows ensure every employee follows the same process.</p>
+                    <ul>
+                        <li>One interface for all tasks</li>
+                        <li>Templated ticket creation</li>
+                        <li>Required fields enforcement</li>
+                        <li>Standardized note formats</li>
+                    </ul>
+                </div>
+                <div class="card phase-2">
+                    <h3>Customer Self-Service</h3>
+                    <p>Customers can check status, pay invoices, and manage their accounts 24/7 without calling the store.</p>
+                    <ul>
+                        <li>Ticket status tracking</li>
+                        <li>Online payments</li>
+                        <li>Asset management</li>
+                        <li>Protection plan signup</li>
+                    </ul>
+                </div>
+                <div class="card phase-3">
+                    <h3>Revenue Growth</h3>
+                    <p>New revenue streams through PC builder, automated marketing, and MSP service expansion.</p>
+                    <ul>
+                        <li>Custom PC configurator</li>
+                        <li>Automated social media</li>
+                        <li>B2B MSP portal ready</li>
+                        <li>Multi-location support</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <h4>Critical Deadline: Q1 2026</h4>
+                <p>The Holton location launch requires the RepairShopr and NinjaOne integrations to be complete. This means <strong>Phases 1-3 are non-negotiable</strong> for the deadline. Phases 4-6 can continue after launch but should be in progress.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="architecture">
+        <div class="container">
+            <h2>System Architecture</h2>
+
+            <h3>Tech Stack</h3>
+            <div class="tech-stack">
+                <div class="tech-item">
+                    <div class="icon">⚛️</div>
+                    <h5>Next.js 14</h5>
+                    <p>App Router, Server Components</p>
+                </div>
+                <div class="tech-item">
+                    <div class="icon">📘</div>
+                    <h5>TypeScript</h5>
+                    <p>Strict mode, full type safety</p>
+                </div>
+                <div class="tech-item">
+                    <div class="icon">🗄️</div>
+                    <h5>Supabase</h5>
+                    <p>Auth, Database, Realtime</p>
+                </div>
+                <div class="tech-item">
+                    <div class="icon">🎨</div>
+                    <h5>Tailwind CSS</h5>
+                    <p>Utility-first styling</p>
+                </div>
+                <div class="tech-item">
+                    <div class="icon">🔧</div>
+                    <h5>RepairShopr API</h5>
+                    <p>Tickets, Customers, Invoices</p>
+                </div>
+                <div class="tech-item">
+                    <div class="icon">🖥️</div>
+                    <h5>NinjaOne API</h5>
+                    <p>RMM, Remote Access, Monitoring</p>
+                </div>
+                <div class="tech-item">
+                    <div class="icon">💳</div>
+                    <h5>Stripe</h5>
+                    <p>Payments, Subscriptions, BNPL</p>
+                </div>
+                <div class="tech-item">
+                    <div class="icon">🤖</div>
+                    <h5>Claude API</h5>
+                    <p>AI Content Generation</p>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h4>Payment Processing: Stripe</h4>
+                <p>Stripe is the unified payment platform for all transactions. See <a href="stripe_integration_plan.html">Stripe Integration Plan</a> for complete details including fee structures, BNPL options, and implementation timeline.</p>
+                <ul style="margin: 10px 0 0 20px; color: #6d28d9;">
+                    <li><strong>In-Person:</strong> 2.7% + $0.05 (Stripe Terminal)</li>
+                    <li><strong>Online:</strong> 2.9% + $0.30 (Stripe Checkout)</li>
+                    <li><strong>ACH:</strong> 0.8% max $5 (for large MSP invoices)</li>
+                    <li><strong>Subscriptions:</strong> 2.9% + $0.30 + 0.5% (Protection Plans, MSP)</li>
+                    <li><strong>BNPL:</strong> Affirm, Klarna, Afterpay integrated (4-6% fee, you get paid immediately)</li>
+                </ul>
+            </div>
+
+            <h3>Data Flow Architecture</h3>
+            <div class="info-box">
+                <h4>Principle: RepairShopr as Source of Truth</h4>
+                <p>RepairShopr remains the master database for customers, tickets, and invoices. Our platform reads from and writes to RepairShopr, ensuring data consistency and providing a fallback if our system has issues. This also means Max can still access RepairShopr directly for accounting as needed.</p>
+            </div>
+
+            <div class="module-grid">
+                <div class="module-card">
+                    <h5>🔐 Authentication Layer</h5>
+                    <ul>
+                        <li>Custom Supabase Auth (not RepairShopr)</li>
+                        <li>Employee vs Customer roles</li>
+                        <li>Link accounts to RepairShopr IDs</li>
+                        <li>Session management</li>
+                    </ul>
+                </div>
+                <div class="module-card">
+                    <h5>📡 API Gateway Layer</h5>
+                    <ul>
+                        <li>Next.js API routes</li>
+                        <li>RepairShopr API wrapper</li>
+                        <li>NinjaOne API wrapper</li>
+                        <li>Rate limiting & caching</li>
+                    </ul>
+                </div>
+                <div class="module-card">
+                    <h5>💾 Local Cache Layer</h5>
+                    <ul>
+                        <li>Supabase for session data</li>
+                        <li>Redis/Upstash for hot cache (optional)</li>
+                        <li>Customer search index</li>
+                        <li>Device mappings</li>
+                    </ul>
+                </div>
+                <div class="module-card">
+                    <h5>🖥️ Frontend Layer</h5>
+                    <ul>
+                        <li>Employee Portal (protected)</li>
+                        <li>Customer Portal (authenticated)</li>
+                        <li>Public pages (unauthenticated)</li>
+                        <li>Admin settings</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="phase-1">
+        <div class="container">
+            <h2>Phase 1: Foundation</h2>
+
+            <div class="phase-section critical">
+                <div class="phase-header">
+                    <div>
+                        <h3>🏗️ Authentication & Core Infrastructure</h3>
+                        <p>Build the foundation that everything else depends on.</p>
+                    </div>
+                    <div class="phase-meta">
+                        <span class="badge badge-partial">75% Complete</span>
+                        <span class="badge badge-critical">Critical Path</span>
+                        <span class="hours-badge">~40-50 hours</span>
+                    </div>
+                </div>
+
+                <ol class="step-list">
+                    <li>
+                        <h4>Set Up Supabase Authentication <span class="step-status partial">Migration Needed</span></h4>
+                        <p>Replace current RepairShopr auth with unified Supabase Auth for ALL users (employees + customers).</p>
+                        <div class="warning-box" style="margin: 10px 0;">
+                            <h4 style="margin-top: 0;">Auth Migration Required</h4>
+                            <p style="margin-bottom: 0;">Current system uses RepairShopr API for employee auth. <strong>Goal:</strong> 100% Supabase Auth with RepairShopr ID linking only for data sync (not authentication).</p>
+                        </div>
+                        <ul class="substep-list">
+                            <li><span style="color: #dc2626;">✗ Current (to be replaced):</span> RepairShopr API authentication for employees</li>
+                            <li><span style="color: #f59e0b;">◐</span> Supabase customer accounts table exists (needs migration to Supabase Auth)</li>
+                            <li>○ Configure Supabase Auth (email/password provider)</li>
+                            <li>○ Create <code>user_profiles</code> table linking Supabase Auth users to RepairShopr IDs</li>
+                            <li>○ Create user roles in Supabase: <code>admin</code>, <code>employee</code>, <code>customer</code></li>
+                            <li>○ Migrate existing employee accounts to Supabase Auth</li>
+                            <li>○ Migrate existing customer accounts to Supabase Auth</li>
+                            <li>○ Update login/signup flows to use Supabase Auth client</li>
+                            <li>○ Implement email verification flow</li>
+                            <li>○ Implement password reset flow</li>
+                            <li>○ Add MFA option for admin accounts</li>
+                            <li><strong>✓</strong> Rate limiting infrastructure exists (can reuse)</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Create User Profile System <span class="step-status partial">Needs Update</span></h4>
+                        <p>Link Supabase Auth users to RepairShopr records for data sync.</p>
+                        <ul class="substep-list">
+                            <li><span style="color: #f59e0b;">◐</span> <code>customer_accounts</code> exists (needs to link to Supabase Auth user IDs)</li>
+                            <li>○ Create unified <code>user_profiles</code> table for all users</li>
+                            <li>○ Link <code>auth.users.id</code> to <code>repairshopr_customer_id</code> or <code>repairshopr_user_id</code></li>
+                            <li>○ Store user role and permissions in profile</li>
+                            <li><strong>✓</strong> Account linking flow during intake wizard (adapt for Supabase Auth)</li>
+                            <li><strong>✓</strong> Protection plan tier tracking (bronze/silver/gold)</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Build API Wrapper Services <span class="step-status partial">Partial</span></h4>
+                        <p>Create typed, cached wrappers for external APIs.</p>
+                        <ul class="substep-list">
+                            <li><strong>✓</strong> RepairShopr API service (<code>src/lib/repairshopr.ts</code>) - full implementation</li>
+                            <li><strong>✓</strong> Rate limiting (RepairShopr: 180/min)</li>
+                            <li><strong>✓</strong> Response caching with TTL</li>
+                            <li><strong>✓</strong> Error handling and retry logic</li>
+                            <li>○ NinjaOne API service - NOT STARTED</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Create Database Schema <span class="step-status done">✓ Complete</span></h4>
+                        <p>Supabase tables for features beyond RepairShopr.</p>
+                        <ul class="substep-list">
+                            <li><strong>✓</strong> <code>customer_accounts</code> - Auth user to RepairShopr mapping</li>
+                            <li><strong>✓</strong> <code>customer_silver_plans</code> / <code>customer_protection_plans</code> - Plan tracking</li>
+                            <li><strong>✓</strong> <code>ticket_status_overrides</code> - Custom status system</li>
+                            <li><strong>✓</strong> <code>ticket_status_definitions</code> - Status metadata</li>
+                            <li><strong>✓</strong> <code>ticket_public_notes</code> - Customer-visible notes</li>
+                            <li><strong>✓</strong> <code>blog_posts</code>, <code>blog_categories</code>, <code>blog_tags</code> - Blog system</li>
+                            <li><strong>✓</strong> <code>gallery_computers</code>, <code>gallery_sales</code> - Gallery system</li>
+                            <li>○ <code>ticket_templates</code> - Not implemented</li>
+                            <li>○ <code>device_mappings</code> - Needs NinjaOne integration</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Set Up Route Protection <span class="step-status done">✓ Complete</span></h4>
+                        <p>Middleware to protect employee and customer routes.</p>
+                        <ul class="substep-list">
+                            <li><strong>✓</strong> Auth middleware for API routes</li>
+                            <li><strong>✓</strong> Protect <code>/admin/*</code> routes (employee role required)</li>
+                            <li><strong>✓</strong> Role-based access control in session</li>
+                            <li><strong>✓</strong> Automatic redirect to login for unauthenticated users</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Payment Integration <span class="step-status" style="background: #fef3c7; color: #92400e;">ON HOLD</span></h4>
+                        <p>Payment processing integration - awaiting provider decision.</p>
+                        <div class="warning-box" style="margin: 10px 0; background: #fef3c7;">
+                            <p style="margin: 0; color: #92400e;"><strong>On Hold:</strong> Boss is evaluating US Bank payment services vs Stripe. Will prepare infrastructure but not connect to live accounts until decision is made.</p>
+                        </div>
+                        <ul class="substep-list">
+                            <li>○ <strong>Decision needed:</strong> US Bank vs Stripe</li>
+                            <li>○ Create payment abstraction layer (provider-agnostic)</li>
+                            <li>○ Create webhook endpoint skeleton (<code>/api/webhooks/payments</code>)</li>
+                            <li>○ Document hardware requirements for chosen provider</li>
+                            <li><em>Note: Do not connect to live accounts until provider is selected</em></li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Deliverables</h4>
+                <table>
+                    <tr>
+                        <th>Item</th>
+                        <th>Description</th>
+                        <th>Test Criteria</th>
+                    </tr>
+                    <tr>
+                        <td>Login/Signup pages</td>
+                        <td>Customer and employee authentication</td>
+                        <td>Can create account, login, logout, reset password</td>
+                    </tr>
+                    <tr>
+                        <td>RepairShopr API wrapper</td>
+                        <td>Typed service with caching</td>
+                        <td>Can fetch customers, tickets, invoices</td>
+                    </tr>
+                    <tr>
+                        <td>NinjaOne API wrapper</td>
+                        <td>Typed service with caching</td>
+                        <td>Can fetch organizations, devices, alerts</td>
+                    </tr>
+                    <tr>
+                        <td>Database schema</td>
+                        <td>Supabase tables with RLS</td>
+                        <td>Migrations applied, RLS policies active</td>
+                    </tr>
+                    <tr>
+                        <td>Protected routes</td>
+                        <td>Middleware enforcement</td>
+                        <td>Unauthorized users redirected to login</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <section id="phase-2">
+        <div class="container">
+            <h2>Phase 2: Employee Portal - RepairShopr</h2>
+
+            <div class="phase-section critical">
+                <div class="phase-header">
+                    <div>
+                        <h3>🎫 Ticket & Customer Management</h3>
+                        <p>Replace RepairShopr's cluttered interface with a streamlined, workflow-driven experience.</p>
+                    </div>
+                    <div class="phase-meta">
+                        <span class="badge badge-partial">45% Complete</span>
+                        <span class="badge badge-critical">Critical Path</span>
+                        <span class="hours-badge">~80-100 hours</span>
+                    </div>
+                </div>
+
+                <h4>Pain Points to Solve</h4>
+                <ul style="margin-bottom: 20px; padding-left: 20px;">
+                    <li><strong>Too much information:</strong> Show only relevant fields, hide the rest</li>
+                    <li><strong>No standardized workflows:</strong> Force consistent steps for every ticket type</li>
+                    <li><strong>Manual everything:</strong> Auto-fill from templates, auto-create invoices</li>
+                    <li><strong>Inconsistent notes:</strong> Structured note entry with required fields</li>
+                </ul>
+
+                <ol class="step-list">
+                    <li>
+                        <h4>Build Customer Search & Management <span class="step-status done">✓ Complete</span></h4>
+                        <p>Fast customer lookup and management.</p>
+                        <ul class="substep-list">
+                            <li><strong>✓</strong> Search by name, phone, email</li>
+                            <li><strong>✓</strong> Customer detail view with relevant info</li>
+                            <li><strong>✓</strong> View customer's tickets, invoices, assets</li>
+                            <li><strong>✓</strong> Edit customer information</li>
+                            <li><strong>✓</strong> Protection plan tier management</li>
+                            <li>○ Global search bar (Cmd/Ctrl + K) - not implemented</li>
+                            <li>○ Quick-create customer inline - not implemented</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Create Ticket Templates System <span class="step-status todo">Not Started</span></h4>
+                        <p>Pre-defined templates for common repair types.</p>
+                        <ul class="substep-list">
+                            <li>○ Template builder in admin settings</li>
+                            <li>○ Templates include: default status, problem type, required fields, estimated time</li>
+                            <li>○ Example templates: Virus Removal, Hardware Diagnostic, Data Transfer, Screen Repair</li>
+                            <li>○ Templates can auto-set ticket properties and pre-fill descriptions</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Build Ticket Creation Workflow <span class="step-status done">✓ Complete</span></h4>
+                        <p>Guided, step-by-step ticket creation via 5-step intake wizard.</p>
+                        <ul class="substep-list">
+                            <li><strong>✓</strong> Step 1: Customer search/creation</li>
+                            <li><strong>✓</strong> Step 2: Device selection/creation</li>
+                            <li><strong>✓</strong> Step 3: Device specifications</li>
+                            <li><strong>✓</strong> Step 4: Ticket description</li>
+                            <li><strong>✓</strong> Step 5: Optional portal account creation</li>
+                            <li><strong>✓</strong> Auto-create in RepairShopr on submit</li>
+                            <li>○ Template selection step - not implemented</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Build Ticket Dashboard <span class="step-status todo">Not Started</span></h4>
+                        <p>Kanban-style view of all open tickets.</p>
+                        <ul class="substep-list">
+                            <li>○ Columns by status: Intake, Diagnosing, Waiting for Parts, In Progress, Ready for Pickup</li>
+                            <li>○ Drag-and-drop to change status</li>
+                            <li>○ Quick filters: assigned to me, unassigned, by ticket type</li>
+                            <li>○ Color coding by priority and age</li>
+                            <li>○ Click to expand ticket details inline</li>
+                            <li><em>Note: Basic ticket list view exists at /admin/tickets</em></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Build Ticket Detail View <span class="step-status done">✓ Complete</span></h4>
+                        <p>Clean, focused ticket management.</p>
+                        <ul class="substep-list">
+                            <li><strong>✓</strong> Customer info summary at top</li>
+                            <li><strong>✓</strong> Asset info display</li>
+                            <li><strong>✓</strong> Status change with custom status system</li>
+                            <li><strong>✓</strong> Comment/note entry (public & private)</li>
+                            <li><strong>✓</strong> Customer-visible notes section</li>
+                            <li>○ NinjaOne device link - not implemented</li>
+                            <li>○ Time tracking - not implemented</li>
+                            <li>○ Invoice creation button - not implemented</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Build Standardized Notes System <span class="step-status partial">Partial</span></h4>
+                        <p>Structured note entry system.</p>
+                        <ul class="substep-list">
+                            <li><strong>✓</strong> Public notes (customer-visible) with <code>ticket_public_notes</code> table</li>
+                            <li><strong>✓</strong> Private notes via RepairShopr comments</li>
+                            <li><strong>✓</strong> Auto-timestamp and employee attribution</li>
+                            <li>○ Note type categories (Diagnostic, Work Performed, etc.) - not implemented</li>
+                            <li>○ Required fields per note type - not implemented</li>
+                            <li>○ Parts/materials used selection - not implemented</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Build Invoice Management <span class="step-status partial">Partial (Read-Only)</span></h4>
+                        <p>Invoice viewing and creation from tickets.</p>
+                        <ul class="substep-list">
+                            <li><strong>✓</strong> View customer invoices from RepairShopr</li>
+                            <li><strong>✓</strong> View invoice details with line items</li>
+                            <li>○ One-click invoice creation from ticket - not implemented</li>
+                            <li>○ Add labor, parts, services - not implemented</li>
+                            <li>○ Apply protection plan discounts - not implemented</li>
+                            <li>○ Send invoice email - not implemented</li>
+                            <li>○ Payment processing - not implemented</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Build Inventory Quick-Access <span class="step-status todo">Not Started</span></h4>
+                        <p>Search and use inventory without leaving ticket.</p>
+                        <ul class="substep-list">
+                            <li>○ Search inventory by name, SKU, category</li>
+                            <li>○ Add to ticket/invoice inline</li>
+                            <li>○ Stock level warnings</li>
+                            <li>○ Link to full inventory management (future phase)</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Build Quote (Estimate) System <span class="step-status todo">Not Started</span></h4>
+                        <p>Renamed from "Estimates" per your preference.</p>
+                        <ul class="substep-list">
+                            <li>○ Create quote from ticket or standalone</li>
+                            <li>○ Add line items with descriptions</li>
+                            <li>○ Convert quote to invoice when approved</li>
+                            <li>○ Email quote to customer</li>
+                            <li>○ Quote expiration tracking</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Build POS Functionality <span class="step-status todo">Not Started</span></h4>
+                        <p>Cash drawer control and point-of-sale.</p>
+                        <ul class="substep-list">
+                            <li>○ Open drawer button (API call to hardware)</li>
+                            <li>○ Close drawer / end-of-day reconciliation</li>
+                            <li>○ Quick sale mode (walk-in purchases without ticket)</li>
+                            <li>○ Receipt printing (integrate with existing printer)</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Build Leads Management <span class="step-status todo">Not Started</span></h4>
+                        <p>Capture and track sales leads.</p>
+                        <ul class="substep-list">
+                            <li>○ Lead inbox view</li>
+                            <li>○ Convert lead to customer + ticket</li>
+                            <li>○ Lead status tracking (new, contacted, quoted, won, lost)</li>
+                            <li>○ Integrate with Cytracom voicemail (see below)</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Cytracom Voicemail Integration <span class="step-status todo">Not Started</span></h4>
+                        <p>Direct voicemail to website instead of RepairShopr.</p>
+                        <ul class="substep-list">
+                            <li>○ Research Cytracom API capabilities</li>
+                            <li>○ Set up webhook for new voicemail notifications</li>
+                            <li>○ Create voicemail inbox in employee portal</li>
+                            <li>○ Transcription display (if Cytracom provides)</li>
+                            <li>○ One-click convert to lead or ticket</li>
+                            <li>○ Link voicemail to customer if phone number matches</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <div class="info-box" style="margin-top: 20px;">
+                    <h4>Additional Completed Features (Not in Original Roadmap)</h4>
+                    <ul style="margin: 10px 0 0 20px; color: #6d28d9;">
+                        <li><strong>Business Management:</strong> Search businesses, view associated customers, edit customer info under business</li>
+                        <li><strong>Blog CMS:</strong> Full blog management with categories, tags, featured images, draft/published status</li>
+                        <li><strong>Gallery Management:</strong> Computer inventory CRUD with GitHub image storage, Black Friday pricing</li>
+                        <li><strong>Google Business:</strong> Reviews widget, business posts, profile info integration</li>
+                        <li><strong>Contact Form:</strong> Bot protection, spam detection, email notifications via Resend</li>
+                    </ul>
+                </div>
+
+                <div class="info-box">
+                    <h4>Cytracom Research Needed</h4>
+                    <p>Before implementing voicemail integration, research Cytracom's API documentation. Key questions: Do they have a webhook for new voicemails? Can we retrieve audio files? Do they provide transcriptions? If no API exists, alternative is email parsing if they send voicemail notifications via email.</p>
+                </div>
+
+                <h4>Deliverables</h4>
+                <table>
+                    <tr>
+                        <th>Item</th>
+                        <th>Description</th>
+                        <th>Est. Hours</th>
+                    </tr>
+                    <tr>
+                        <td>Customer search & management</td>
+                        <td>Global search, quick-create, detail view</td>
+                        <td>8-10</td>
+                    </tr>
+                    <tr>
+                        <td>Ticket template system</td>
+                        <td>Builder and template library</td>
+                        <td>10-12</td>
+                    </tr>
+                    <tr>
+                        <td>Ticket creation workflow</td>
+                        <td>Guided step-by-step creation</td>
+                        <td>12-15</td>
+                    </tr>
+                    <tr>
+                        <td>Ticket dashboard (Kanban)</td>
+                        <td>Drag-drop status board</td>
+                        <td>10-12</td>
+                    </tr>
+                    <tr>
+                        <td>Ticket detail view</td>
+                        <td>Full ticket management</td>
+                        <td>8-10</td>
+                    </tr>
+                    <tr>
+                        <td>Standardized notes</td>
+                        <td>Structured note entry</td>
+                        <td>6-8</td>
+                    </tr>
+                    <tr>
+                        <td>Invoice management</td>
+                        <td>Create, send, payment</td>
+                        <td>8-10</td>
+                    </tr>
+                    <tr>
+                        <td>Quote system</td>
+                        <td>Create, send, convert</td>
+                        <td>6-8</td>
+                    </tr>
+                    <tr>
+                        <td>POS / Cash drawer</td>
+                        <td>Open/close drawer, quick sale</td>
+                        <td>4-6</td>
+                    </tr>
+                    <tr>
+                        <td>Leads management</td>
+                        <td>Inbox, conversion, tracking</td>
+                        <td>6-8</td>
+                    </tr>
+                    <tr>
+                        <td>Cytracom integration</td>
+                        <td>Voicemail to leads</td>
+                        <td>8-12 (research dependent)</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <section id="phase-3">
+        <div class="container">
+            <h2>Phase 3: Employee Portal - NinjaOne</h2>
+
+            <div class="phase-section critical">
+                <div class="phase-header">
+                    <div>
+                        <h3>🖥️ RMM & Remote Access Integration</h3>
+                        <p>Unified device management without leaving the portal.</p>
+                    </div>
+                    <div class="phase-meta">
+                        <span class="badge badge-not-started">Not Started</span>
+                        <span class="badge badge-critical">Critical Path</span>
+                        <span class="hours-badge">~50-60 hours</span>
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    <h4>Action Required: Technician Input</h4>
+                    <p>You mentioned needing to ask a technician about specific NinjaOne features. Before starting this phase, schedule a 30-minute session with a tech to document: which NinjaOne features they use daily, their workflow for remote sessions, and what frustrations they have.</p>
+                </div>
+
+                <ol class="step-list">
+                    <li>
+                        <h4>Build Device-Customer Mapping</h4>
+                        <p>Link NinjaOne devices to RepairShopr customers and assets.</p>
+                        <ul class="substep-list">
+                            <li>Create mapping table in Supabase</li>
+                            <li>Auto-match by serial number (RepairShopr asset → NinjaOne device)</li>
+                            <li>Manual linking UI for unmatched devices</li>
+                            <li>Sync NinjaOne organizations to RepairShopr customers</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Build Customer 360 View</h4>
+                        <p>See customer, tickets, AND devices on one screen.</p>
+                        <ul class="substep-list">
+                            <li>Customer info from RepairShopr</li>
+                            <li>Device list from NinjaOne (with status indicators)</li>
+                            <li>Open tickets from RepairShopr</li>
+                            <li>Invoice history</li>
+                            <li>Protection plan status</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Build Device Detail View</h4>
+                        <p>Full device information from NinjaOne.</p>
+                        <ul class="substep-list">
+                            <li>System info: OS, RAM, storage, CPU</li>
+                            <li>Hardware health indicators</li>
+                            <li>Last seen / online status</li>
+                            <li>Installed software list</li>
+                            <li>Patch status</li>
+                            <li>Recent alerts and events</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Implement Remote Access</h4>
+                        <p>Launch remote session directly from portal.</p>
+                        <ul class="substep-list">
+                            <li>Research NinjaOne remote access API (Splashtop/TeamViewer)</li>
+                            <li>One-click "Connect" button on device</li>
+                            <li>Opens remote session in new tab/window</li>
+                            <li>Log remote sessions for audit trail</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Build Quick Actions</h4>
+                        <p>Common tasks without full NinjaOne access.</p>
+                        <ul class="substep-list">
+                            <li>Restart device remotely</li>
+                            <li>Run driver updates</li>
+                            <li>Run Windows Update</li>
+                            <li>Clear temp files (if scripted in Ninja)</li>
+                            <li>Run antivirus scan</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Build Hardware Monitoring & Alerts</h4>
+                        <p>Proactive alerts for failing hardware.</p>
+                        <ul class="substep-list">
+                            <li>Poll NinjaOne for hardware health (S.M.A.R.T., temps, etc.)</li>
+                            <li>Define alert thresholds (disk health critical, CPU overheating)</li>
+                            <li>Push notifications to employee portal (toast + notification center)</li>
+                            <li>Email/SMS alert to customer (optional per customer setting)</li>
+                            <li>Auto-create ticket when critical alert fires</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Build MSP Dashboard View</h4>
+                        <p>Overview for B2B managed clients.</p>
+                        <ul class="substep-list">
+                            <li>Organization/company selector</li>
+                            <li>All devices for that organization</li>
+                            <li>Health summary (% healthy, % needs attention)</li>
+                            <li>Open alerts across all devices</li>
+                            <li>Quick filters by status</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>NinjaOne API Endpoints Needed</h4>
+                <table class="api-table">
+                    <tr>
+                        <th>Feature</th>
+                        <th>Endpoint</th>
+                        <th>Purpose</th>
+                    </tr>
+                    <tr>
+                        <td>List organizations</td>
+                        <td><code>GET /v2/organizations</code></td>
+                        <td>Sync to RepairShopr customers</td>
+                    </tr>
+                    <tr>
+                        <td>List devices</td>
+                        <td><code>GET /v2/devices</code></td>
+                        <td>Device inventory</td>
+                    </tr>
+                    <tr>
+                        <td>Device details</td>
+                        <td><code>GET /v2/device/{id}</code></td>
+                        <td>Full device info</td>
+                    </tr>
+                    <tr>
+                        <td>Device alerts</td>
+                        <td><code>GET /v2/alerts</code></td>
+                        <td>Hardware/software alerts</td>
+                    </tr>
+                    <tr>
+                        <td>Remote access</td>
+                        <td><code>POST /v2/device/{id}/remote</code></td>
+                        <td>Launch remote session (research)</td>
+                    </tr>
+                    <tr>
+                        <td>Run script</td>
+                        <td><code>POST /v2/device/{id}/script</code></td>
+                        <td>Driver updates, maintenance</td>
+                    </tr>
+                    <tr>
+                        <td>Reboot</td>
+                        <td><code>POST /v2/device/{id}/reboot</code></td>
+                        <td>Remote restart</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <section id="phase-4">
+        <div class="container">
+            <h2>Phase 4: Customer Portal</h2>
+
+            <div class="phase-section high">
+                <div class="phase-header">
+                    <div>
+                        <h3>👤 Customer Self-Service</h3>
+                        <p>24/7 access to repairs, payments, and account management.</p>
+                    </div>
+                    <div class="phase-meta">
+                        <span class="badge badge-partial">10% Complete</span>
+                        <span class="badge badge-high">High Priority</span>
+                        <span class="hours-badge">~60-80 hours</span>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <h4>Current Status: Foundation Ready</h4>
+                    <p>The backend infrastructure for the customer portal is in place:</p>
+                    <ul style="margin: 10px 0 0 20px; color: #6d28d9;">
+                        <li><strong>✓</strong> <code>customer_accounts</code> table with Supabase authentication</li>
+                        <li><strong>✓</strong> Account linking to RepairShopr customer IDs</li>
+                        <li><strong>✓</strong> Placeholder page at <code>/portal</code> with "Coming Soon" message</li>
+                        <li><strong>✓</strong> Ticket public notes system for customer communication</li>
+                        <li><strong>✓</strong> Protection plan tier tracking</li>
+                    </ul>
+                </div>
+
+                <ol class="step-list">
+                    <li>
+                        <h4>Build Customer Registration & Linking</h4>
+                        <p>New account creation that links to existing RepairShopr data.</p>
+                        <ul class="substep-list">
+                            <li>Signup with email + password (Supabase Auth)</li>
+                            <li>During signup, check if email exists in RepairShopr</li>
+                            <li>If exists: link account automatically</li>
+                            <li>If not: create new RepairShopr customer</li>
+                            <li>Profile completion wizard (phone, address)</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Build Repair Status Tracking</h4>
+                        <p>See status of all current and past repairs.</p>
+                        <ul class="substep-list">
+                            <li>List of customer's tickets from RepairShopr</li>
+                            <li>Status timeline visualization</li>
+                            <li>Latest update/note (customer-visible notes only)</li>
+                            <li>Estimated completion (if set by tech)</li>
+                            <li>Push notification on status change (optional)</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Build Asset Management</h4>
+                        <p>View and manage registered devices.</p>
+                        <ul class="substep-list">
+                            <li>List of customer's assets from RepairShopr</li>
+                            <li>Device specs and repair history</li>
+                            <li>Protection plan status per device</li>
+                            <li>Register new device request</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Build Invoice & Payment Center</h4>
+                        <p>View and pay invoices online.</p>
+                        <ul class="substep-list">
+                            <li>List of invoices (paid and unpaid)</li>
+                            <li>Invoice detail with line items</li>
+                            <li>Online payment (Stripe integration)</li>
+                            <li>Download PDF receipt</li>
+                            <li>Payment history</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Build Protection Plan Signup</h4>
+                        <p>Self-service enrollment in Bronze/Silver/Gold plans.</p>
+                        <ul class="substep-list">
+                            <li>Plan comparison page</li>
+                            <li>Select plan and device(s) to cover</li>
+                            <li>Recurring payment setup (Stripe Subscriptions)</li>
+                            <li>Plan management (upgrade, cancel)</li>
+                            <li>Sync subscription to RepairShopr</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Build Ticket Communication</h4>
+                        <p>Chat with techs through ticket system.</p>
+                        <ul class="substep-list">
+                            <li>Message thread per ticket</li>
+                            <li>Customer can ask questions, provide info</li>
+                            <li>Tech receives notification in employee portal</li>
+                            <li>Messages sync to RepairShopr ticket notes</li>
+                            <li>Photo/file attachment support</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Build Appointment Scheduling</h4>
+                        <p>Book drop-off or pickup times.</p>
+                        <ul class="substep-list">
+                            <li>Calendar view of available slots</li>
+                            <li>Book drop-off appointment</li>
+                            <li>Book pickup time (when repair ready)</li>
+                            <li>Email confirmation and reminders</li>
+                            <li>Integrate with employee calendar/schedule</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Build Online Store (Basic)</h4>
+                        <p>Purchase items from inventory.</p>
+                        <ul class="substep-list">
+                            <li>Product catalog from RepairShopr inventory</li>
+                            <li>Category browsing</li>
+                            <li>Add to cart, checkout</li>
+                            <li>In-store pickup or shipping options</li>
+                            <li>Creates invoice in RepairShopr</li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
+        </div>
+    </section>
+
+    <section id="phase-5">
+        <div class="container">
+            <h2>Phase 5: PC Builder</h2>
+
+            <div class="phase-section medium">
+                <div class="phase-header">
+                    <div>
+                        <h3>🖥️ Custom PC Configurator</h3>
+                        <p>iBuyPower-style build experience for customers and technicians.</p>
+                    </div>
+                    <div class="phase-meta">
+                        <span class="badge badge-not-started">Not Started</span>
+                        <span class="badge badge-medium">Medium Priority</span>
+                        <span class="hours-badge">~100-120 hours</span>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <h4>Reference: Custom PC Implementation Plan</h4>
+                    <p>Detailed supplier relationships and pricing strategy are documented in <a href="implementation_plan_custom_pc.html">implementation_plan_custom_pc.html</a>. This phase focuses on the software implementation.</p>
+                </div>
+
+                <ol class="step-list">
+                    <li>
+                        <h4>Build Parts Database</h4>
+                        <p>Central catalog of PC components with compatibility data.</p>
+                        <ul class="substep-list">
+                            <li>Create <code>pc_parts</code> table in Supabase</li>
+                            <li>Categories: CPU, Motherboard, RAM, GPU, Storage, PSU, Case, Cooling</li>
+                            <li>Compatibility fields: socket type, form factor, wattage, etc.</li>
+                            <li>Pricing fields: cost, markup, retail price</li>
+                            <li>Supplier fields: source, SKU, availability</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Build Supplier Price Integration</h4>
+                        <p>Pull live pricing from distributors.</p>
+                        <ul class="substep-list">
+                            <li>Ingram Micro API integration (if available)</li>
+                            <li>TD SYNNEX API integration (if available)</li>
+                            <li>Newegg Business API integration</li>
+                            <li>Fallback: manual price updates with import tool</li>
+                            <li>Auto-calculate markup based on rules</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Build Compatibility Engine</h4>
+                        <p>Ensure all selected parts work together.</p>
+                        <ul class="substep-list">
+                            <li>CPU + Motherboard socket match</li>
+                            <li>RAM type matches motherboard</li>
+                            <li>PSU wattage sufficient for components</li>
+                            <li>Case form factor fits motherboard and GPU</li>
+                            <li>Cooling compatibility (tower height, AIO mount)</li>
+                            <li>Display warnings/errors for incompatibilities</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Build Customer-Facing Configurator</h4>
+                        <p>Visual builder interface for customers.</p>
+                        <ul class="substep-list">
+                            <li>Start with pre-built tiers (Budget Gaming, Mid-Range, High-End, Workstation)</li>
+                            <li>Customize any component</li>
+                            <li>Real-time price updates</li>
+                            <li>Performance estimates (gaming FPS, workstation benchmarks)</li>
+                            <li>Save build for later</li>
+                            <li>Request quote → creates Quote in RepairShopr</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Build Technician View</h4>
+                        <p>Additional info for internal use.</p>
+                        <ul class="substep-list">
+                            <li>Shows cost price and margin</li>
+                            <li>Shows supplier and availability</li>
+                            <li>Quick order from supplier</li>
+                            <li>Build notes and special instructions</li>
+                            <li>Convert quote to ticket for assembly</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Build Quote/Invoice Integration</h4>
+                        <p>Seamless handoff to RepairShopr.</p>
+                        <ul class="substep-list">
+                            <li>Generate quote with all components as line items</li>
+                            <li>Include labor for assembly and testing</li>
+                            <li>Customer approval triggers ticket creation</li>
+                            <li>Parts checklist for order tracking</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Pre-Built Tier Examples</h4>
+                <table>
+                    <tr>
+                        <th>Tier</th>
+                        <th>Target Use Case</th>
+                        <th>Price Range</th>
+                    </tr>
+                    <tr>
+                        <td>Budget Gaming</td>
+                        <td>1080p gaming, esports titles</td>
+                        <td>$600-$800</td>
+                    </tr>
+                    <tr>
+                        <td>Mid-Range Gaming</td>
+                        <td>1440p gaming, most AAA titles</td>
+                        <td>$1,000-$1,300</td>
+                    </tr>
+                    <tr>
+                        <td>High-End Gaming</td>
+                        <td>4K gaming, VR ready</td>
+                        <td>$1,800-$2,500</td>
+                    </tr>
+                    <tr>
+                        <td>Workstation</td>
+                        <td>Video editing, 3D rendering</td>
+                        <td>$1,500-$3,000</td>
+                    </tr>
+                    <tr>
+                        <td>Office/Home</td>
+                        <td>Productivity, web browsing</td>
+                        <td>$400-$600</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <section id="phase-6">
+        <div class="container">
+            <h2>Phase 6: Social Media Automation</h2>
+
+            <div class="phase-section medium">
+                <div class="phase-header">
+                    <div>
+                        <h3>📱 Content Generation & Scheduling</h3>
+                        <p>AI-powered content calendar and automated posting.</p>
+                    </div>
+                    <div class="phase-meta">
+                        <span class="badge badge-not-started">Not Started</span>
+                        <span class="badge badge-medium">Medium Priority</span>
+                        <span class="hours-badge">~80-100 hours</span>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <h4>Reference: Social Media Strategy</h4>
+                    <p>Platform priorities and content pillars are documented in <a href="social_media_strategy.html">social_media_strategy.html</a>. This phase implements the automation system.</p>
+                </div>
+
+                <ol class="step-list">
+                    <li>
+                        <h4>Build Content Calendar System</h4>
+                        <p>Visual calendar for planning posts.</p>
+                        <ul class="substep-list">
+                            <li>Monthly calendar view</li>
+                            <li>Drag-drop post scheduling</li>
+                            <li>Post types: Blog, Social (FB, IG, LinkedIn), Google Business</li>
+                            <li>Status: Draft, Scheduled, Published</li>
+                            <li>Content pillar tags (Educational, BTS, Community, Promo)</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Build AI Content Generator</h4>
+                        <p>Claude API integration for content creation.</p>
+                        <ul class="substep-list">
+                            <li>Monthly "Generate Calendar" button</li>
+                            <li>Inputs: month, focus topics, promotions, inventory highlights</li>
+                            <li>AI researches keywords and SEO trends</li>
+                            <li>Generates post topics for each day</li>
+                            <li>Generates draft content for each post</li>
+                            <li>Employee reviews and edits before scheduling</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Build Blog Integration</h4>
+                        <p>Connect social posts to blog system.</p>
+                        <ul class="substep-list">
+                            <li>Generate blog post from calendar topic</li>
+                            <li>Auto-generate social posts promoting blog</li>
+                            <li>Pull excerpts and images for social</li>
+                            <li>Track blog → social post relationships</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Build Inventory/Promo Integration</h4>
+                        <p>Auto-generate posts from business data.</p>
+                        <ul class="substep-list">
+                            <li>New inventory arrival → suggest post</li>
+                            <li>Sale/promotion → auto-create promotional posts</li>
+                            <li>Featured refurbished PCs → gallery posts</li>
+                            <li>Pull product images and specs</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Build Platform Connectors</h4>
+                        <p>API integrations for auto-posting.</p>
+                        <ul class="substep-list">
+                            <li>Facebook Pages API (posts, scheduling)</li>
+                            <li>Instagram Graph API (posts, reels metadata)</li>
+                            <li>LinkedIn Pages API (company posts)</li>
+                            <li>Google Business Profile API (updates, posts)</li>
+                            <li>X/Twitter API (if desired)</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Build Video Content Guide Generator</h4>
+                        <p>Scripts and guides for photographer/videographer.</p>
+                        <ul class="substep-list">
+                            <li>Generate video topic from calendar</li>
+                            <li>Create script outline</li>
+                            <li>Shot list suggestions</li>
+                            <li>Talking points for on-camera</li>
+                            <li>Export as printable guide</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Build Analytics Dashboard</h4>
+                        <p>Track performance across all platforms.</p>
+                        <ul class="substep-list">
+                            <li>Pull analytics from each platform API</li>
+                            <li>Unified dashboard view</li>
+                            <li>Metrics: reach, engagement, clicks, followers</li>
+                            <li>Best performing content analysis</li>
+                            <li>Recommendations for future content</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>AI Content Generation Flow</h4>
+                <div class="module-grid">
+                    <div class="module-card" style="border-left-color: #8b5cf6;">
+                        <h5>Step 1: Input</h5>
+                        <ul>
+                            <li>Select month/week</li>
+                            <li>Enter focus topics</li>
+                            <li>Select promotions</li>
+                            <li>Highlight inventory</li>
+                        </ul>
+                    </div>
+                    <div class="module-card" style="border-left-color: #8b5cf6;">
+                        <h5>Step 2: Research</h5>
+                        <ul>
+                            <li>AI researches trends</li>
+                            <li>Keyword analysis</li>
+                            <li>Competitor content review</li>
+                            <li>Local event awareness</li>
+                        </ul>
+                    </div>
+                    <div class="module-card" style="border-left-color: #8b5cf6;">
+                        <h5>Step 3: Generate</h5>
+                        <ul>
+                            <li>Create content calendar</li>
+                            <li>Draft each post</li>
+                            <li>Generate hashtags</li>
+                            <li>Suggest images</li>
+                        </ul>
+                    </div>
+                    <div class="module-card" style="border-left-color: #8b5cf6;">
+                        <h5>Step 4: Review</h5>
+                        <ul>
+                            <li>Employee reviews drafts</li>
+                            <li>Edit as needed</li>
+                            <li>Approve and schedule</li>
+                            <li>Auto-post at scheduled time</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="timeline">
+        <div class="container">
+            <h2>Implementation Timeline</h2>
+
+            <div class="warning-box">
+                <h4>Holton Launch Deadline: Q1 2026</h4>
+                <p>At 20-30 hours/week, you have approximately <strong>300-450 hours</strong> between now and end of Q1 2026 (assuming ~15 weeks). Phases 1-3 are estimated at 170-210 hours total, leaving buffer for testing and iterations. Phases 4-6 can continue post-launch.</p>
+            </div>
+
+            <h3>Gantt Chart Overview</h3>
+            <div class="gantt-simple">
+                <div class="gantt-bar">
+                    <div class="gantt-label">Phase 1: Foundation</div>
+                    <div class="gantt-track">
+                        <div class="gantt-fill phase-1" style="width: 15%; margin-left: 0;">Wk 1-3</div>
+                    </div>
+                </div>
+                <div class="gantt-bar">
+                    <div class="gantt-label">Phase 2: RepairShopr</div>
+                    <div class="gantt-track">
+                        <div class="gantt-fill phase-2" style="width: 35%; margin-left: 12%;">Wk 3-10</div>
+                    </div>
+                </div>
+                <div class="gantt-bar">
+                    <div class="gantt-label">Phase 3: NinjaOne</div>
+                    <div class="gantt-track">
+                        <div class="gantt-fill phase-3" style="width: 25%; margin-left: 40%;">Wk 8-14</div>
+                    </div>
+                </div>
+                <div class="gantt-bar">
+                    <div class="gantt-label">Phase 4: Customer Portal</div>
+                    <div class="gantt-track">
+                        <div class="gantt-fill phase-4" style="width: 30%; margin-left: 55%;">Wk 12-20</div>
+                    </div>
+                </div>
+                <div class="gantt-bar">
+                    <div class="gantt-label">Phase 5: PC Builder</div>
+                    <div class="gantt-track">
+                        <div class="gantt-fill phase-5" style="width: 35%; margin-left: 65%;">Wk 16-26</div>
+                    </div>
+                </div>
+                <div class="gantt-bar">
+                    <div class="gantt-label">Phase 6: Social Media</div>
+                    <div class="gantt-track">
+                        <div class="gantt-fill phase-6" style="width: 30%; margin-left: 70%;">Wk 18-28</div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Milestone Schedule</h3>
+            <table>
+                <tr>
+                    <th>Milestone</th>
+                    <th>Target</th>
+                    <th>Key Deliverables</th>
+                </tr>
+                <tr>
+                    <td><strong>M1: Auth & APIs Ready</strong></td>
+                    <td>Week 3</td>
+                    <td>Login working, API wrappers complete, database schema deployed</td>
+                </tr>
+                <tr>
+                    <td><strong>M2: Basic Ticket Flow</strong></td>
+                    <td>Week 6</td>
+                    <td>Customer search, ticket creation with templates, ticket dashboard</td>
+                </tr>
+                <tr>
+                    <td><strong>M3: Full RepairShopr MVP</strong></td>
+                    <td>Week 10</td>
+                    <td>Invoices, quotes, POS, leads, notes - employees can work without RS</td>
+                </tr>
+                <tr>
+                    <td><strong>M4: NinjaOne Integration</strong></td>
+                    <td>Week 14</td>
+                    <td>Device view, remote access, quick actions, hardware alerts</td>
+                </tr>
+                <tr>
+                    <td style="background: #dcfce7;"><strong>🎯 HOLTON LAUNCH</strong></td>
+                    <td style="background: #dcfce7;"><strong>Week 15</strong></td>
+                    <td style="background: #dcfce7;"><strong>Employee portal fully operational for both locations</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>M5: Customer Portal MVP</strong></td>
+                    <td>Week 20</td>
+                    <td>Login, ticket status, payments, basic store</td>
+                </tr>
+                <tr>
+                    <td><strong>M6: PC Builder MVP</strong></td>
+                    <td>Week 26</td>
+                    <td>Pre-built tiers, customization, quote generation</td>
+                </tr>
+                <tr>
+                    <td><strong>M7: Social Automation MVP</strong></td>
+                    <td>Week 28</td>
+                    <td>Content calendar, AI generation, auto-posting to 2-3 platforms</td>
+                </tr>
+            </table>
+        </div>
+    </section>
+
+    <section id="costs">
+        <div class="container">
+            <h2>Cost Analysis</h2>
+
+            <div class="cost-card">
+                <h4>Services Already Paid For (No Additional Cost)</h4>
+                <ul style="list-style: none; padding: 0;">
+                    <li class="free">✓ Supabase - Free tier (or existing plan)</li>
+                    <li class="free">✓ RepairShopr API - Included in subscription</li>
+                    <li class="free">✓ NinjaOne API - Included in subscription</li>
+                    <li class="free">✓ Render Hosting - Already deployed</li>
+                    <li class="free">✓ GitHub - Already using</li>
+                    <li class="free">✓ Stripe Account - No monthly fees, pay-per-transaction</li>
+                </ul>
+            </div>
+
+            <h3>One-Time Hardware Costs</h3>
+            <table>
+                <tr>
+                    <th>Item</th>
+                    <th>Purpose</th>
+                    <th>Cost</th>
+                    <th>Qty</th>
+                    <th>Total</th>
+                </tr>
+                <tr>
+                    <td><strong>Stripe Reader M2</strong></td>
+                    <td>In-person card payments (Topeka + Holton)</td>
+                    <td>$59 each</td>
+                    <td>2</td>
+                    <td>$118</td>
+                </tr>
+                <tr>
+                    <td>Stripe WisePOS E (optional)</td>
+                    <td>Customer-facing display terminal</td>
+                    <td>$249</td>
+                    <td>1</td>
+                    <td>$249</td>
+                </tr>
+                <tr>
+                    <td colspan="4" style="text-align: right;"><strong>Total Hardware:</strong></td>
+                    <td><strong>$118-$367</strong></td>
+                </tr>
+            </table>
+
+            <h3>Recurring Costs</h3>
+            <table>
+                <tr>
+                    <th>Service</th>
+                    <th>Purpose</th>
+                    <th>Cost</th>
+                    <th>Required?</th>
+                </tr>
+                <tr>
+                    <td><strong>Claude API (Anthropic)</strong></td>
+                    <td>AI content generation for social media</td>
+                    <td>~$20-50/month usage-based</td>
+                    <td class="paid">Required for Phase 6</td>
+                </tr>
+                <tr>
+                    <td>Stripe Transaction Fees</td>
+                    <td>Payment processing</td>
+                    <td>2.7%-2.9% + $0.05-$0.30 per transaction</td>
+                    <td>Already using</td>
+                </tr>
+                <tr>
+                    <td>Upstash Redis</td>
+                    <td>API response caching</td>
+                    <td>Free tier (10K requests/day)</td>
+                    <td>Optional optimization</td>
+                </tr>
+                <tr>
+                    <td>Resend</td>
+                    <td>Transactional email</td>
+                    <td>Free tier (100/day)</td>
+                    <td>Already using</td>
+                </tr>
+                <tr>
+                    <td>Ingram Micro API</td>
+                    <td>Live pricing for PC Builder</td>
+                    <td>Free (with reseller account)</td>
+                    <td>Nice to have</td>
+                </tr>
+            </table>
+
+            <div class="info-box">
+                <h4>Total Estimated Costs</h4>
+                <ul style="margin: 10px 0 0 20px; color: #6d28d9;">
+                    <li><strong>One-Time:</strong> $118-$367 (Stripe hardware)</li>
+                    <li><strong>Monthly:</strong> $20-50 (Claude API for social media)</li>
+                    <li><strong>Transaction Fees:</strong> ~2.8% average (already paying, no change)</li>
+                </ul>
+                <p style="margin-top: 15px;">All other services are either already paid for, included in existing subscriptions, or have sufficient free tiers. See <a href="stripe_integration_plan.html">Stripe Integration Plan</a> for detailed fee analysis.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="next-steps">
+        <div class="container">
+            <h2>Immediate Next Steps</h2>
+
+            <div class="exec-summary" style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); border-left-color: #dc2626;">
+                <p style="color: #991b1b;"><strong>#1 Priority:</strong> Migrate authentication from RepairShopr API to 100% Supabase Auth. This is the foundation for everything else and must be completed first.</p>
+            </div>
+
+            <div class="card-grid">
+                <div class="card" style="border-top-color: #dc2626;">
+                    <h3 style="color: #dc2626;">🔐 Supabase Auth Migration</h3>
+                    <ol>
+                        <li><strong>Enable Supabase Auth</strong> - Configure email/password provider in Supabase dashboard</li>
+                        <li><strong>Create user_profiles table</strong> - Links <code>auth.users.id</code> to RepairShopr IDs</li>
+                        <li><strong>Update auth.ts</strong> - Replace RepairShopr login with Supabase Auth client</li>
+                        <li><strong>Build new login/signup pages</strong> - Use Supabase Auth UI or custom forms</li>
+                        <li><strong>Migrate existing accounts</strong> - Script to create Supabase users for existing employees</li>
+                        <li><strong>Add email verification</strong> - Supabase handles this automatically</li>
+                        <li><strong>Add password reset</strong> - Supabase handles this automatically</li>
+                        <li><strong>Optional: MFA for admins</strong> - Enable in Supabase settings</li>
+                    </ol>
+                </div>
+                <div class="card phase-1">
+                    <h3>Phase 1 Remaining (After Auth)</h3>
+                    <ol>
+                        <li><strong>NinjaOne API wrapper</strong> - Create <code>src/lib/ninjaone.ts</code></li>
+                        <li><strong style="color: #92400e;">Payment integration (ON HOLD)</strong> - Awaiting US Bank vs Stripe decision</li>
+                    </ol>
+                </div>
+                <div class="card phase-2">
+                    <h3>Phase 2 Priorities (After Auth)</h3>
+                    <ol>
+                        <li><strong>Ticket Kanban dashboard</strong> - Visual workflow</li>
+                        <li><strong>Invoice creation</strong> - Full CRUD</li>
+                        <li><strong>Quote system</strong> - Create and send estimates</li>
+                        <li><strong>Cytracom research</strong> - Voicemail API</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="info-box" style="margin-top: 30px;">
+                <h4>Why Supabase Auth First?</h4>
+                <ul style="margin: 10px 0 0 20px; color: #6d28d9;">
+                    <li><strong>Customer Portal:</strong> Needs unified auth for customers to register and login</li>
+                    <li><strong>Built-in features:</strong> Email verification, password reset, MFA - all handled by Supabase</li>
+                    <li><strong>Security:</strong> Supabase Auth is battle-tested, no need to maintain custom auth code</li>
+                    <li><strong>Session management:</strong> Supabase handles JWT tokens, refresh, and RLS integration</li>
+                    <li><strong>Simplicity:</strong> One auth system for employees AND customers, not two separate systems</li>
+                </ul>
+            </div>
+
+            <div class="warning-box" style="margin-top: 20px;">
+                <h4>Features That Will Need Updates After Auth Migration</h4>
+                <p style="margin-bottom: 10px;">These work now with RepairShopr auth, but will need session handling updates:</p>
+                <ul style="margin: 0; padding-left: 20px; color: #92400e;">
+                    <li>Customer management (API auth headers)</li>
+                    <li>Ticket system (API auth headers)</li>
+                    <li>Admin dashboard (session checks)</li>
+                    <li>Middleware route protection (use Supabase session)</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p><strong>The Computer Store</strong> | Topeka & Holton, Kansas</p>
+        <p>Master Development Roadmap - Internal Planning Document</p>
+        <p style="margin-top: 15px; font-size: 0.85rem; opacity: 0.7;">Prepared by Bast Project Management | Last Updated: December 26, 2025</p>
+    </footer>
+</body>
+</html>

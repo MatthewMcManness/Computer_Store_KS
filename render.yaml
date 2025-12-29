@@ -3,7 +3,7 @@ services:
   # PRODUCTION - Main Website (deploys from Production branch)
   # =============================================================================
   - type: web
-    name: computer-store-ks
+    name: CSK-Production
     env: node
     branch: Production
     buildCommand: npm install && npm run build && cp -r .next/static .next/standalone/.next/static && rm -rf .next/standalone/public && cp -R public .next/standalone/ && cp -r node_modules .next/standalone/ && cp package.json .next/standalone/
@@ -54,7 +54,7 @@ services:
   # DEVELOPMENT - Staging/Test Environment (deploys from Development branch)
   # =============================================================================
   - type: web
-    name: computer-store-ks-dev
+    name: CSK-Development
     env: node
     branch: Development
     buildCommand: npm install && npm run build && cp -r .next/static .next/standalone/.next/static && rm -rf .next/standalone/public && cp -R public .next/standalone/ && cp -r node_modules .next/standalone/ && cp package.json .next/standalone/
@@ -92,7 +92,7 @@ services:
         value: Development
       # Static site URL for "View Site" link (dev URL)
       - key: NEXT_PUBLIC_SITE_URL
-        value: https://computer-store-ks-dev.onrender.com
+        value: https://csk-development.onrender.com
       # Supabase (REQUIRED for customer portal and blog)
       - key: NEXT_PUBLIC_SUPABASE_URL
         sync: false

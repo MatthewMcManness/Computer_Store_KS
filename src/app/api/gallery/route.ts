@@ -92,6 +92,7 @@ export async function POST(request: NextRequest) {
       category: body.category,
       price: priceValue,
       image_url: body.image || body.image_url || null,
+      thumbnail_url: body.thumbnail || body.thumbnail_url || null,
       specs: (body.specs || []) as GallerySpec[],
       sort_order: body.sort_order || 0,
     });

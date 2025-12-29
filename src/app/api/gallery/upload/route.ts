@@ -8,7 +8,21 @@ import path from 'path';
 // Local gallery directory for development
 const LOCAL_GALLERY_DIR = path.join(process.cwd(), 'public/assets/gallery');
 
-// POST /api/gallery/upload - Upload image
+// Maximum file size: 50MB
+const MAX_FILE_SIZE = 50 * 1024 * 1024;
+
+// Allowed image types
+const ALLOWED_TYPES = [
+  'image/jpeg',
+  'image/jpg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+  'image/heic',
+  'image/heif',
+];
+
+// POST /api/gallery/upload - Upload image with thumbnail generation
 export async function POST(request: NextRequest) {
   try {
     // Check authentication
@@ -39,17 +53,20 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate file type
-    if (!file.type.match(/image\/(jpeg|jpg|png)/)) {
+    if (!ALLOWED_TYPES.includes(file.type)) {
       return NextResponse.json(
-        { success: false, error: 'Only JPEG and PNG images are allowed' },
+        {
+          success: false,
+          error: 'Only JPEG, PNG, WebP, GIF, and HEIC images are allowed',
+        },
         { status: 400 }
       );
     }
 
-    // Validate file size (5MB max)
-    if (file.size > 5 * 1024 * 1024) {
+    // Validate file size (50MB max)
+    if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
-        { success: false, error: 'Image must be less than 5MB' },
+        { success: false, error: 'Image must be less than 50MB' },
         { status: 400 }
       );
     }
@@ -58,48 +75,76 @@ export async function POST(request: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Optimize image with Sharp
-    const optimizedBuffer = await sharp(buffer)
+    // Generate filenames
+    const timestamp = Date.now();
+    const fullFilename = `${type}-${timestamp}-full.webp`;
+    const thumbFilename = `${type}-${timestamp}-thumb.webp`;
+
+    // Generate full-size image (1200x900 WebP)
+    const fullBuffer = await sharp(buffer)
       .resize(1200, 900, {
         fit: 'cover',
         position: 'center',
       })
-      .jpeg({
+      .webp({
         quality: 85,
-        progressive: true,
       })
       .toBuffer();
 
-    // Generate filename
-    const timestamp = Date.now();
-    const filename = `${type}-${timestamp}.jpg`;
+    // Generate thumbnail (400x300 WebP)
+    const thumbBuffer = await sharp(buffer)
+      .resize(400, 300, {
+        fit: 'cover',
+        position: 'center',
+      })
+      .webp({
+        quality: 80,
+      })
+      .toBuffer();
 
     // Save locally for development
     if (process.env.NODE_ENV === 'development' || !isGitHubConfigured()) {
       await fs.mkdir(LOCAL_GALLERY_DIR, { recursive: true });
-      const localPath = path.join(LOCAL_GALLERY_DIR, filename);
-      await fs.writeFile(localPath, optimizedBuffer);
+
+      // Save full-size image
+      const fullPath = path.join(LOCAL_GALLERY_DIR, fullFilename);
+      await fs.writeFile(fullPath, fullBuffer);
+
+      // Save thumbnail
+      const thumbPath = path.join(LOCAL_GALLERY_DIR, thumbFilename);
+      await fs.writeFile(thumbPath, thumbBuffer);
 
       return NextResponse.json({
         success: true,
-        filename,
-        path: `/assets/gallery/${filename}`,
-        url: `/assets/gallery/${filename}`,
+        filename: fullFilename,
+        path: `/assets/gallery/${fullFilename}`,
+        url: `/assets/gallery/${fullFilename}`,
+        thumbnailUrl: `/assets/gallery/${thumbFilename}`,
+        thumbnailPath: `/assets/gallery/${thumbFilename}`,
       });
     }
 
-    // Upload to GitHub
-    const result = await uploadImageToGitHub(
-      filename,
-      optimizedBuffer,
-      `Add gallery image: ${filename}`
-    );
+    // Upload both images to GitHub
+    const [fullResult, thumbResult] = await Promise.all([
+      uploadImageToGitHub(
+        fullFilename,
+        fullBuffer,
+        `Add gallery image: ${fullFilename}`
+      ),
+      uploadImageToGitHub(
+        thumbFilename,
+        thumbBuffer,
+        `Add gallery thumbnail: ${thumbFilename}`
+      ),
+    ]);
 
     return NextResponse.json({
       success: true,
-      filename,
-      path: result.path,
-      url: `/assets/gallery/${filename}`,
+      filename: fullFilename,
+      path: fullResult.path,
+      url: `/assets/gallery/${fullFilename}`,
+      thumbnailUrl: `/assets/gallery/${thumbFilename}`,
+      thumbnailPath: thumbResult.path,
     });
   } catch (error) {
     console.error('Error uploading image:', error);

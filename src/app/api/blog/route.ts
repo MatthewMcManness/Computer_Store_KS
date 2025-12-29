@@ -112,6 +112,7 @@ export async function POST(request: NextRequest) {
       excerpt: body.excerpt || null,
       content: body.content,
       featured_image_url: body.featured_image_url || null,
+      featured_image_thumbnail: body.featured_image_thumbnail || null,
       category_id: body.category_id || null,
       author_name: user?.name || body.author_name || 'Unknown',
       author_email: user?.email || body.author_email || null,

@@ -14,6 +14,7 @@ interface GalleryItem {
   price: number;
   salePrice?: number;
   imageUrl: string;
+  thumbnailUrl?: string;
   specs: Array<{ label: string; value: string }>;
   isBlackFridaySale?: boolean;
 }
@@ -33,6 +34,7 @@ function transformComputer(computer: GalleryComputer): GalleryItem {
     price,
     salePrice,
     imageUrl: computer.image || '/assets/logo.png',
+    thumbnailUrl: computer.thumbnail || undefined,
     specs: computer.specs || [],
     isBlackFridaySale: computer.blackFriday?.enabled || false,
   };
@@ -170,7 +172,7 @@ function GalleryContent() {
                     )}
                     <div className="gallery-card-image">
                       <Image
-                        src={item.imageUrl}
+                        src={item.thumbnailUrl || item.imageUrl}
                         alt={item.name}
                         width={300}
                         height={200}

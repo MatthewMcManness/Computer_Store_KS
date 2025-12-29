@@ -111,6 +111,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     if (body.excerpt !== undefined) updateData.excerpt = body.excerpt;
     if (body.content !== undefined) updateData.content = body.content;
     if (body.featured_image_url !== undefined) updateData.featured_image_url = body.featured_image_url;
+    if (body.featured_image_thumbnail !== undefined) updateData.featured_image_thumbnail = body.featured_image_thumbnail;
     if (body.category_id !== undefined) updateData.category_id = body.category_id;
     if (body.author_name !== undefined) updateData.author_name = body.author_name;
     if (body.author_email !== undefined) updateData.author_email = body.author_email;

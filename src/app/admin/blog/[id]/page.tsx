@@ -29,6 +29,7 @@ export default function EditBlogPostPage({ params }: PageProps) {
   const [categoryId, setCategoryId] = useState<string>('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [featuredImageUrl, setFeaturedImageUrl] = useState('');
+  const [featuredImageThumbnail, setFeaturedImageThumbnail] = useState('');
   const [status, setStatus] = useState<'draft' | 'published' | 'archived'>('draft');
 
   // Load post and metadata
@@ -54,6 +55,7 @@ export default function EditBlogPostPage({ params }: PageProps) {
         setCategoryId(loadedPost.category_id || '');
         setSelectedTags(loadedPost.tags?.map((t: BlogTag) => t.id) || []);
         setFeaturedImageUrl(loadedPost.featured_image_url || '');
+        setFeaturedImageThumbnail(loadedPost.featured_image_thumbnail || '');
         setStatus(loadedPost.status);
 
         // Load metadata
@@ -101,6 +103,7 @@ export default function EditBlogPostPage({ params }: PageProps) {
           category_id: categoryId || null,
           tag_ids: selectedTags,
           featured_image_url: featuredImageUrl || null,
+          featured_image_thumbnail: featuredImageThumbnail || null,
           status: finalStatus,
           published_at: finalStatus === 'published' && status !== 'published'
             ? new Date().toISOString()
@@ -299,9 +302,9 @@ export default function EditBlogPostPage({ params }: PageProps) {
                         const file = e.target.files?.[0];
                         if (!file) return;
 
-                        // Check file size before upload (10MB max)
-                        if (file.size > 10 * 1024 * 1024) {
-                          setError('Image must be less than 10MB');
+                        // Check file size before upload (50MB max)
+                        if (file.size > 50 * 1024 * 1024) {
+                          setError('Image must be less than 50MB');
                           e.target.value = '';
                           return;
                         }
@@ -320,6 +323,7 @@ export default function EditBlogPostPage({ params }: PageProps) {
                           const result = await response.json();
                           if (result.success) {
                             setFeaturedImageUrl(result.url);
+                            setFeaturedImageThumbnail(result.thumbnailUrl || '');
                           } else {
                             setError(result.error || 'Failed to upload image');
                           }
@@ -336,7 +340,7 @@ export default function EditBlogPostPage({ params }: PageProps) {
                 <p className="text-xs text-gray-500 dark:text-gray-400">
                   {isUploading
                     ? 'Uploading and optimizing image...'
-                    : 'Upload an image (max 10MB) or paste a URL. Images are optimized automatically.'}
+                    : 'Upload an image (max 50MB) or paste a URL. Images are optimized to WebP automatically.'}
                 </p>
               </div>
               {featuredImageUrl && (

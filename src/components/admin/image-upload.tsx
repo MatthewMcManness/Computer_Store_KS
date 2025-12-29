@@ -5,31 +5,58 @@ import Image from 'next/image';
 import { Upload, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-interface ImageUploadProps {
-  currentImage?: string;
-  computerType: 'desktop' | 'laptop';
-  onImageChange: (imageUrl: string) => void;
+// Maximum file size: 50MB
+const MAX_FILE_SIZE = 50 * 1024 * 1024;
+
+// Allowed file types
+const ALLOWED_TYPES = [
+  'image/jpeg',
+  'image/jpg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+  'image/heic',
+  'image/heif',
+];
+
+interface ImageUploadResult {
+  url: string;
+  thumbnailUrl?: string;
 }
 
-export function ImageUpload({ currentImage, computerType, onImageChange }: ImageUploadProps) {
+interface ImageUploadProps {
+  currentImage?: string;
+  currentThumbnail?: string;
+  computerType: 'desktop' | 'laptop';
+  onImageChange: (result: ImageUploadResult) => void;
+}
+
+export function ImageUpload({
+  currentImage,
+  currentThumbnail,
+  computerType,
+  onImageChange,
+}: ImageUploadProps) {
   const [preview, setPreview] = useState<string | null>(currentImage || null);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = async (file: File) => {
     setError(null);
+    setUploadProgress(0);
 
     // Validate file type
-    if (!file.type.match(/image\/(jpeg|jpg|png)/)) {
-      setError('Please select a JPG or PNG image');
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      setError('Please select a JPG, PNG, WebP, or GIF image');
       return;
     }
 
-    // Validate file size (5MB max)
-    if (file.size > 5 * 1024 * 1024) {
-      setError('Image must be less than 5MB');
+    // Validate file size (50MB max)
+    if (file.size > MAX_FILE_SIZE) {
+      setError('Image must be less than 50MB');
       return;
     }
 
@@ -41,34 +68,69 @@ export function ImageUpload({ currentImage, computerType, onImageChange }: Image
       reader.onload = (e) => {
         const result = e.target?.result as string;
         setPreview(result);
-        // For now, use data URL. In production, upload to server
-        onImageChange(result);
       };
       reader.readAsDataURL(file);
+
+      // Simulate initial progress for large files
+      setUploadProgress(10);
 
       // Upload to server
       const formData = new FormData();
       formData.append('image', file);
       formData.append('type', computerType);
 
-      const response = await fetch('/api/gallery/upload', {
-        method: 'POST',
-        body: formData,
+      // Use XMLHttpRequest for progress tracking
+      const xhr = new XMLHttpRequest();
+
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const percent = Math.round((event.loaded / event.total) * 90) + 10;
+          setUploadProgress(percent);
+        }
+      };
+
+      const uploadPromise = new Promise<{
+        success: boolean;
+        url?: string;
+        thumbnailUrl?: string;
+        error?: string;
+      }>((resolve, reject) => {
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              resolve(JSON.parse(xhr.responseText));
+            } catch {
+              reject(new Error('Invalid response'));
+            }
+          } else {
+            reject(new Error(`Upload failed: ${xhr.status}`));
+          }
+        };
+        xhr.onerror = () => reject(new Error('Network error'));
       });
 
-      const result = await response.json();
+      xhr.open('POST', '/api/gallery/upload');
+      xhr.send(formData);
 
-      if (result.success) {
-        onImageChange(result.url);
+      const result = await uploadPromise;
+      setUploadProgress(100);
+
+      if (result.success && result.url) {
+        onImageChange({
+          url: result.url,
+          thumbnailUrl: result.thumbnailUrl,
+        });
       } else {
-        // If upload fails, keep the data URL
+        // If upload fails, use the preview as fallback
         console.warn('Upload to server failed:', result.error);
+        setError(result.error || 'Upload failed');
       }
     } catch (err) {
       console.error('Upload error:', err);
-      // Keep the preview even if server upload fails
+      setError('Failed to upload image. Please try again.');
     } finally {
       setIsUploading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -105,7 +167,7 @@ export function ImageUpload({ currentImage, computerType, onImageChange }: Image
 
   const clearImage = () => {
     setPreview(null);
-    onImageChange('');
+    onImageChange({ url: '', thumbnailUrl: undefined });
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -123,8 +185,8 @@ export function ImageUpload({ currentImage, computerType, onImageChange }: Image
           isDragging
             ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
             : preview
-            ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
-            : 'border-gray-300 dark:border-gray-600 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20'
+              ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
+              : 'border-gray-300 dark:border-gray-600 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20'
         )}
       >
         {preview ? (
@@ -152,7 +214,16 @@ export function ImageUpload({ currentImage, computerType, onImageChange }: Image
             {isUploading ? (
               <div className="flex flex-col items-center">
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-r-transparent"></div>
-                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">Uploading...</p>
+                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                  Uploading... {uploadProgress}%
+                </p>
+                {/* Progress bar */}
+                <div className="mt-2 w-full max-w-xs bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                  <div
+                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${uploadProgress}%` }}
+                  ></div>
+                </div>
               </div>
             ) : (
               <>
@@ -161,7 +232,7 @@ export function ImageUpload({ currentImage, computerType, onImageChange }: Image
                   Click to upload or drag and drop
                 </p>
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  JPG or PNG, max 5MB
+                  JPG, PNG, WebP, or GIF up to 50MB
                 </p>
               </>
             )}
@@ -171,7 +242,7 @@ export function ImageUpload({ currentImage, computerType, onImageChange }: Image
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/jpeg,image/jpg,image/png"
+          accept="image/jpeg,image/jpg,image/png,image/webp,image/gif,image/heic,image/heif"
           onChange={handleInputChange}
           className="hidden"
         />

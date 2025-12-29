@@ -25,12 +25,15 @@ function formatDate(dateString: string): string {
 }
 
 function BlogPostCard({ post }: { post: BlogPost }) {
+  // Use thumbnail for grid cards, fallback to full image
+  const imageUrl = post.featured_image_thumbnail || post.featured_image_url;
+
   return (
     <article className="blog-card">
-      {post.featured_image_url && (
+      {imageUrl && (
         <Link href={`/blog/${post.slug}`} className="blog-card-image">
           <Image
-            src={post.featured_image_url}
+            src={imageUrl}
             alt={post.title}
             width={400}
             height={225}

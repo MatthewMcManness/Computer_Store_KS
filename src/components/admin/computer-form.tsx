@@ -52,6 +52,7 @@ export function ComputerForm({ computer, onSubmit, isLoading }: ComputerFormProp
     category: computer?.category || 'custom' as 'custom' | 'refurbished' | 'new',
     price: computer?.price || '',
     image: computer?.image || '',
+    thumbnail: computer?.thumbnail || '',
   });
 
   const [specs, setSpecs] = useState<GallerySpec[]>([]);
@@ -148,6 +149,7 @@ export function ComputerForm({ computer, onSubmit, isLoading }: ComputerFormProp
         category: formData.category,
         price: formData.price,
         image: formData.image,
+        thumbnail: formData.thumbnail || undefined,
         specs: specs.filter(s => s.value.trim() !== ''),
       };
 
@@ -264,8 +266,15 @@ export function ComputerForm({ computer, onSubmit, isLoading }: ComputerFormProp
         </label>
         <ImageUpload
           currentImage={formData.image}
+          currentThumbnail={formData.thumbnail}
           computerType={formData.type}
-          onImageChange={(image) => setFormData({ ...formData, image })}
+          onImageChange={(result) =>
+            setFormData({
+              ...formData,
+              image: result.url,
+              thumbnail: result.thumbnailUrl || '',
+            })
+          }
         />
       </div>
 

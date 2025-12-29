@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { updatePassword, getAuthErrorMessage } from '@/lib/supabase-auth';
+import { createBrowserClient } from '@supabase/ssr';
 
 /**
  * Loading spinner component
@@ -29,56 +29,8 @@ function LoadingSpinner({ className = 'h-5 w-5' }: { className?: string }) {
   );
 }
 
-/**
- * Password requirements display
- */
-function PasswordRequirements({ password }: { password: string }) {
-  const requirements = [
-    {
-      label: 'At least 12 characters',
-      met: password.length >= 12,
-    },
-  ];
-
-  return (
-    <div className="mt-2 space-y-1">
-      {requirements.map((req, index) => (
-        <div
-          key={index}
-          className={`flex items-center gap-2 text-xs ${
-            req.met ? 'text-green-600' : 'text-gray-500'
-          }`}
-        >
-          <span className="flex-shrink-0">
-            {req.met ? (
-              <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            ) : (
-              <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            )}
-          </span>
-          <span>{req.label}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function ResetPasswordConfirmContent() {
+export default function ResetPasswordConfirmPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
@@ -86,56 +38,62 @@ function ResetPasswordConfirmContent() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [isValidToken, setIsValidToken] = useState<boolean | null>(null);
 
-  // Check if we have a valid recovery token in the URL
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  // Check for valid session from the recovery link
   useEffect(() => {
-    // Supabase adds the token in the URL hash after email link click
-    // The auth callback route should have already processed this
-    // and the user should have a valid recovery session
+    const checkSession = async () => {
+      // The hash fragment contains the access token from the email link
+      // Supabase client automatically handles this when the page loads
+      const { data: { session }, error } = await supabase.auth.getSession();
 
-    // For now, assume the token is valid if we reached this page
-    // The actual token validation happens when we call updatePassword
-    setIsValidToken(true);
-  }, [searchParams]);
+      if (error || !session) {
+        setIsValidToken(false);
+      } else {
+        setIsValidToken(true);
+      }
+    };
 
-  const validateForm = (): boolean => {
-    setError('');
-
-    // Validate password length
-    if (password.length < 12) {
-      setError('Password must be at least 12 characters long.');
-      return false;
-    }
-
-    // Validate password match
-    if (password !== confirmPassword) {
-      setError('Passwords do not match.');
-      return false;
-    }
-
-    return true;
-  };
+    // Small delay to allow Supabase to process the hash fragment
+    const timer = setTimeout(checkSession, 500);
+    return () => clearTimeout(timer);
+  }, [supabase.auth]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+    setIsLoading(true);
 
-    if (!validateForm()) {
+    // Validate passwords match
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.');
+      setIsLoading(false);
       return;
     }
 
-    setIsLoading(true);
-    setError('');
+    // Validate password strength
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long.');
+      setIsLoading(false);
+      return;
+    }
 
     try {
-      const { error: updateError } = await updatePassword(password);
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: password,
+      });
 
       if (updateError) {
-        setError(getAuthErrorMessage(updateError));
+        setError(updateError.message);
         return;
       }
 
       setIsSuccess(true);
 
-      // Redirect to login after a delay
+      // Redirect to login after 3 seconds
       setTimeout(() => {
         router.push('/login');
       }, 3000);
@@ -149,11 +107,9 @@ function ResetPasswordConfirmContent() {
   // Still checking token validity
   if (isValidToken === null) {
     return (
-      <div className="flex items-center justify-center py-8">
-        <div className="text-center text-gray-600 dark:text-gray-400">
-          <LoadingSpinner className="mx-auto h-8 w-8" />
-          <p className="mt-2">Verifying...</p>
-        </div>
+      <div className="text-center">
+        <LoadingSpinner className="mx-auto h-8 w-8 text-blue-600" />
+        <p className="mt-4 text-gray-600 dark:text-gray-400">Verifying reset link...</p>
       </div>
     );
   }
@@ -181,8 +137,7 @@ function ResetPasswordConfirmContent() {
           Invalid or Expired Link
         </h1>
         <p className="mb-6 text-gray-600 dark:text-gray-400">
-          This password reset link is invalid or has expired. Please request a
-          new one.
+          This password reset link is invalid or has expired. Please request a new one.
         </p>
         <Link
           href="/reset-password"
@@ -194,7 +149,7 @@ function ResetPasswordConfirmContent() {
     );
   }
 
-  // Show success message
+  // Success state
   if (isSuccess) {
     return (
       <div className="text-center">
@@ -214,17 +169,16 @@ function ResetPasswordConfirmContent() {
           </svg>
         </div>
         <h1 className="mb-2 text-2xl font-bold text-gray-900 dark:text-white">
-          Password Updated
+          Password Updated!
         </h1>
         <p className="mb-6 text-gray-600 dark:text-gray-400">
-          Your password has been successfully updated. You will be redirected to
-          the login page shortly.
+          Your password has been successfully updated. Redirecting to login...
         </p>
         <Link
           href="/login"
-          className="text-blue-600 hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
+          className="text-blue-600 hover:text-blue-700 hover:underline dark:text-blue-400"
         >
-          Go to Sign In
+          Go to Login Now
         </Link>
       </div>
     );
@@ -237,7 +191,7 @@ function ResetPasswordConfirmContent() {
         Set New Password
       </h1>
       <p className="mb-6 text-center text-sm text-gray-600 dark:text-gray-400">
-        Please enter your new password below.
+        Enter your new password below.
       </p>
 
       {/* Error Message */}
@@ -251,8 +205,8 @@ function ResetPasswordConfirmContent() {
         </div>
       )}
 
-      {/* New Password Form */}
-      <form onSubmit={handleSubmit} className="space-y-5">
+      {/* Password Form */}
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div>
           <label
             htmlFor="password"
@@ -269,12 +223,11 @@ function ResetPasswordConfirmContent() {
             placeholder="Enter new password"
             autoComplete="new-password"
             required
-            minLength={12}
             autoFocus
             disabled={isLoading}
+            minLength={8}
             className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:bg-gray-100 disabled:cursor-not-allowed dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 dark:disabled:bg-gray-700"
           />
-          <PasswordRequirements password={password} />
         </div>
 
         <div>
@@ -293,13 +246,10 @@ function ResetPasswordConfirmContent() {
             placeholder="Confirm new password"
             autoComplete="new-password"
             required
-            minLength={12}
             disabled={isLoading}
+            minLength={8}
             className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:bg-gray-100 disabled:cursor-not-allowed dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 dark:disabled:bg-gray-700"
           />
-          {confirmPassword && password !== confirmPassword && (
-            <p className="mt-1 text-xs text-red-500">Passwords do not match</p>
-          )}
         </div>
 
         <button
@@ -310,7 +260,7 @@ function ResetPasswordConfirmContent() {
           {isLoading ? (
             <span className="flex items-center justify-center">
               <LoadingSpinner className="mr-2 h-5 w-5" />
-              Updating password...
+              Updating...
             </span>
           ) : (
             'Update Password'
@@ -328,22 +278,5 @@ function ResetPasswordConfirmContent() {
         </Link>
       </div>
     </>
-  );
-}
-
-export default function ResetPasswordConfirmPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="flex items-center justify-center py-8">
-          <div className="text-center text-gray-600 dark:text-gray-400">
-            <LoadingSpinner className="mx-auto h-8 w-8" />
-            <p className="mt-2">Loading...</p>
-          </div>
-        </div>
-      }
-    >
-      <ResetPasswordConfirmContent />
-    </Suspense>
   );
 }

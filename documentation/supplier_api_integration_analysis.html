@@ -657,19 +657,19 @@
             <p>This document analyzes which IT suppliers offer real-time API access for pricing integration and dropshipping capabilities to support the Phase 5 PC Builder feature.</p>
         </div>
 
-        <!-- CRITICAL WARNING - Amazon -->
+        <!-- WARNING - Amazon Business Limitations -->
         <div class="danger-banner">
             <div class="icon">&#9888;</div>
-            <h3>PROHIBITED: Amazon Business for Resale</h3>
-            <p><strong>Using Amazon Business to purchase products for resale is strictly prohibited and violates Amazon's Terms of Service.</strong></p>
+            <h3>NOT RECOMMENDED: Amazon Business for Reseller Sourcing</h3>
+            <p><strong>While retail arbitrage is legal under the First Sale Doctrine, Amazon Business has specific Terms of Service restrictions that make it unsuitable for reseller sourcing.</strong></p>
             <ul>
-                <li><strong>Business Prime explicitly states:</strong> "Amazon Business customers are not permitted to use Business Prime shipping benefits to purchase products for the purpose of resale, rental, or to ship products to their customers or other parties."</li>
-                <li><strong>Dropshipping to customers is banned:</strong> Using Amazon to fulfill orders for your customers violates their Acceptable Use Policy</li>
-                <li><strong>Retail arbitrage violates seller code:</strong> Buying from Amazon retail to resell is against their policies</li>
-                <li><strong>No buyer API exists:</strong> There is no legitimate API to programmatically purchase from Amazon for resale purposes</li>
+                <li><strong>Business Prime Shipping Restriction:</strong> "Amazon Business customers are not permitted to use Business Prime shipping benefits to purchase products for the purpose of resale, rental, or to ship products to their customers or other parties." <a href="https://www.amazon.com/gp/help/customer/display.html?nodeId=202159880" target="_blank" style="color: #fca5a5;">(Source)</a></li>
+                <li><strong>No Third-Party Shipping:</strong> "Amazon Business customers are not permitted to use their Business Account to ship products to their customers or other third parties who are not linked to their organization."</li>
+                <li><strong>No Dropship Capability:</strong> Amazon does not offer a dropship or fulfillment program for resellers</li>
+                <li><strong>No Buyer API:</strong> There is no legitimate API to programmatically purchase from Amazon or retrieve real-time pricing for integration</li>
             </ul>
             <div class="legal-note">
-                <p><strong>Legal Implications:</strong> Violating Amazon's Terms of Service constitutes breach of contract. Amazon actively monitors and terminates accounts engaged in unauthorized resale activities. Account termination results in loss of all Business Prime benefits, forfeiture of any pending orders, and potential legal action for damages.</p>
+                <p><strong>Important Distinction:</strong> Retail arbitrage (buying products and reselling them) is <em>legal</em> under the US First Sale Doctrine. However, using Amazon Business Prime benefits for resale purchases violates Amazon's Terms of Service, which can result in account suspension. This is a breach of contract, not a criminal matter. For PC Builder integration, Amazon lacks the APIs, dropship programs, and reseller infrastructure that proper IT distributors provide.</p>
             </div>
         </div>
 
@@ -752,10 +752,10 @@
                 </tr>
                 <tr>
                     <td><strong>Amazon Business</strong></td>
-                    <td class="x">&#10007; Prohibited</td>
-                    <td class="x">&#10007; Not for Resale</td>
-                    <td class="x">&#10007; Prohibited</td>
-                    <td><span class="badge badge-prohibited">DO NOT USE</span></td>
+                    <td class="x">&#10007; None Available</td>
+                    <td class="x">&#10007; ToS Restricted</td>
+                    <td class="x">&#10007; Not Available</td>
+                    <td><span class="badge badge-prohibited">NOT SUITABLE</span></td>
                 </tr>
             </table>
         </section>
@@ -1031,39 +1031,41 @@
             </div>
         </section>
 
-        <!-- Section 5: Prohibited Sources -->
-        <section class="section" id="prohibited">
-            <h2>5. Prohibited Sources</h2>
+        <!-- Section 5: Not Recommended Sources -->
+        <section class="section" id="not-recommended">
+            <h2>5. Not Recommended for PC Builder Integration</h2>
 
             <div class="supplier-card prohibited">
-                <h4>&#9888; Amazon Business <span class="badge badge-prohibited">DO NOT USE FOR RESALE</span></h4>
+                <h4>&#9888; Amazon Business <span class="badge badge-prohibited">NOT SUITABLE</span></h4>
 
-                <p style="color: var(--danger-dark); font-weight: 600; font-size: 1.1rem;">Using Amazon Business to purchase products for resale is explicitly prohibited by Amazon's Terms of Service and constitutes a breach of contract.</p>
+                <p style="color: var(--danger-dark); font-weight: 600; font-size: 1.1rem;">Amazon Business lacks the reseller infrastructure needed for PC Builder integration and has ToS restrictions on using Business Prime for resale.</p>
 
-                <h4 style="color: var(--danger-dark);">Explicit Prohibitions:</h4>
+                <h4 style="color: var(--danger-dark);">Terms of Service Restrictions:</h4>
                 <ul style="color: #7f1d1d;">
-                    <li><strong>Business Prime Terms:</strong> "Amazon Business customers are not permitted to use Business Prime shipping benefits to purchase products for the purpose of resale, rental, or to ship products to their customers or other parties."</li>
-                    <li><strong>Dropshipping Ban:</strong> Using Amazon to fulfill orders for your customers violates their Acceptable Use Policy</li>
-                    <li><strong>Retail Arbitrage:</strong> Buying from Amazon retail to resell is against seller code of conduct</li>
+                    <li><strong>Business Prime Shipping:</strong> "Amazon Business customers are not permitted to use Business Prime shipping benefits to purchase products for the purpose of resale, rental, or to ship products to their customers or other parties." <a href="https://www.amazon.com/gp/help/customer/display.html?nodeId=202159880" target="_blank" style="color: var(--primary);">(Source)</a></li>
+                    <li><strong>No Third-Party Shipping:</strong> Cannot ship to customers or third parties not linked to your organization</li>
+                    <li><strong>No Dropship Program:</strong> Amazon does not offer dropship or fulfillment services for resellers</li>
                 </ul>
 
-                <h4 style="color: var(--danger-dark);">Why No API Exists:</h4>
-                <ul style="color: #7f1d1d;">
-                    <li>Amazon does not provide a buyer API for programmatic purchasing</li>
-                    <li>The Selling Partner API is for sellers managing their own listings</li>
-                    <li>Product Advertising API requires affiliate sales (not procurement)</li>
-                    <li>Third-party scraping APIs violate Amazon ToS</li>
+                <h4 style="color: var(--accent-dark);">Legal Context:</h4>
+                <ul style="color: #78350f;">
+                    <li><strong>First Sale Doctrine:</strong> Retail arbitrage (buying and reselling products) IS legal under US law</li>
+                    <li><strong>ToS vs. Law:</strong> Using Business Prime benefits for resale violates Amazon's Terms of Service, which is a breach of contract—not a criminal matter</li>
+                    <li><strong>Risk:</strong> Account suspension/termination, not legal prosecution</li>
                 </ul>
 
-                <div style="background: white; border-radius: 8px; padding: 20px; margin-top: 20px; border: 2px solid var(--danger);">
-                    <h4 style="color: var(--danger-dark); margin-top: 0;">&#9888; Consequences of Violation:</h4>
-                    <ul style="color: #7f1d1d; margin-bottom: 0;">
-                        <li>Immediate account termination</li>
-                        <li>Loss of all Business Prime benefits</li>
-                        <li>Forfeiture of pending orders</li>
-                        <li>Potential legal action for breach of contract</li>
-                        <li>Ban from future Amazon Business accounts</li>
-                    </ul>
+                <h4 style="color: var(--danger-dark);">Why It's Not Suitable for PC Builder:</h4>
+                <ul style="color: #7f1d1d;">
+                    <li>No buyer API for programmatic purchasing or real-time pricing</li>
+                    <li>No reseller program or volume pricing structure</li>
+                    <li>No dropship capability—you'd need to receive and reship all orders</li>
+                    <li>Product Advertising API is for affiliates, not procurement</li>
+                    <li>Third-party scraping tools violate Amazon ToS</li>
+                </ul>
+
+                <div style="background: #fef3c7; border-radius: 8px; padding: 20px; margin-top: 20px; border: 2px solid var(--accent);">
+                    <h4 style="color: #92400e; margin-top: 0;">&#128161; Bottom Line:</h4>
+                    <p style="color: #78350f; margin-bottom: 0;">Amazon Business is designed for companies purchasing supplies for internal use, not for resellers. For PC Builder integration, use proper IT distributors (Ingram Micro, TD Synnex, D&H) which offer reseller APIs, volume pricing, and dropship programs specifically designed for this purpose.</p>
                 </div>
             </div>
         </section>

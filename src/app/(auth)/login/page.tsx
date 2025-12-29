@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
@@ -37,10 +37,10 @@ function LoadingSpinner({ className = 'h-5 w-5' }: { className?: string }) {
   );
 }
 
-export default function LoginPage() {
+function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const returnTo = searchParams.get('returnTo');
+  const returnTo = searchParams?.get('returnTo') ?? null;
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -255,5 +255,22 @@ export default function LoginPage() {
         </div>
       </div>
     </>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center py-8">
+          <div className="text-center text-gray-600 dark:text-gray-400">
+            <LoadingSpinner className="mx-auto h-8 w-8" />
+            <p className="mt-2">Loading...</p>
+          </div>
+        </div>
+      }
+    >
+      <LoginPageContent />
+    </Suspense>
   );
 }

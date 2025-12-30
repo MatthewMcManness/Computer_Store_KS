@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createBrowserClient } from '@supabase/ssr';
@@ -37,64 +37,72 @@ export default function ResetPasswordConfirmPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isValidToken, setIsValidToken] = useState<boolean | null>(null);
+  const hasCheckedToken = useRef(false);
 
-  const supabase = createBrowserClient(
+  // Create Supabase client once using useMemo
+  const supabase = useMemo(() => createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+  ), []);
 
-  // Listen for auth state changes to detect recovery token
+  // Handle token detection on mount
   useEffect(() => {
-    // Check if there's a hash fragment with tokens
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const accessToken = hashParams.get('access_token');
-    const type = hashParams.get('type');
+    // Prevent double execution in React Strict Mode
+    if (hasCheckedToken.current) return;
+    hasCheckedToken.current = true;
 
-    if (!accessToken) {
-      // No token in URL, invalid link
-      setIsValidToken(false);
-      return;
-    }
-
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (event === 'PASSWORD_RECOVERY' || (event === 'SIGNED_IN' && type === 'recovery')) {
-          // Valid recovery session
-          setIsValidToken(true);
-        } else if (event === 'TOKEN_REFRESHED' && session) {
-          // Token was refreshed, still valid
-          setIsValidToken(true);
-        } else if (event === 'SIGNED_OUT') {
-          setIsValidToken(false);
-        }
+    const checkToken = async () => {
+      // Check if there's a hash fragment with tokens
+      const hash = window.location.hash;
+      if (!hash || hash.length < 2) {
+        console.log('No hash fragment found');
+        setIsValidToken(false);
+        return;
       }
-    );
 
-    // Also check current session after a brief delay
-    const timer = setTimeout(async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session && isValidToken === null) {
-        setIsValidToken(true);
-      } else if (!session && isValidToken === null) {
-        // Try to exchange the token manually
-        const { error } = await supabase.auth.setSession({
+      const hashParams = new URLSearchParams(hash.substring(1));
+      const accessToken = hashParams.get('access_token');
+      const refreshToken = hashParams.get('refresh_token');
+      const type = hashParams.get('type');
+
+      console.log('Hash params:', { hasAccessToken: !!accessToken, type });
+
+      if (!accessToken) {
+        console.log('No access token in URL');
+        setIsValidToken(false);
+        return;
+      }
+
+      // Try to set the session with the tokens from the URL
+      try {
+        const { data, error: sessionError } = await supabase.auth.setSession({
           access_token: accessToken,
-          refresh_token: hashParams.get('refresh_token') || '',
+          refresh_token: refreshToken || '',
         });
-        if (!error) {
+
+        if (sessionError) {
+          console.error('Error setting session:', sessionError.message);
+          setIsValidToken(false);
+          return;
+        }
+
+        if (data.session) {
+          console.log('Session established successfully');
           setIsValidToken(true);
         } else {
+          console.log('No session returned');
           setIsValidToken(false);
         }
+      } catch (err) {
+        console.error('Exception setting session:', err);
+        setIsValidToken(false);
       }
-    }, 1000);
-
-    return () => {
-      subscription.unsubscribe();
-      clearTimeout(timer);
     };
-  }, [supabase.auth, isValidToken]);
+
+    // Small delay to ensure the page is fully loaded
+    const timer = setTimeout(checkToken, 100);
+    return () => clearTimeout(timer);
+  }, [supabase]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

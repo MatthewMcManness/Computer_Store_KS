@@ -9,12 +9,27 @@ import path from 'path';
 export const maxDuration = 60; // 60 seconds timeout for large uploads
 export const dynamic = 'force-dynamic';
 
+// Maximum file size: 50MB
+const MAX_FILE_SIZE = 50 * 1024 * 1024;
+
+// Allowed MIME types (including raw formats from phones)
+const ALLOWED_TYPES = [
+  'image/jpeg',
+  'image/jpg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+  'image/heic',
+  'image/heif',
+];
+
 // Local blog images directory for development
 const LOCAL_BLOG_DIR = path.join(process.cwd(), 'public/assets/blog');
 
 /**
  * POST /api/blog/upload
  * Upload an image for blog posts
+ * Generates two sizes: full (1200x800) and thumbnail (400x267) as WebP
  */
 export async function POST(request: NextRequest) {
   try {
@@ -38,17 +53,18 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate file type
-    if (!file.type.match(/image\/(jpeg|jpg|png|gif|webp)/)) {
+    const fileType = file.type.toLowerCase();
+    if (!ALLOWED_TYPES.includes(fileType)) {
       return NextResponse.json(
-        { success: false, error: 'Only JPEG, PNG, GIF, and WebP images are allowed' },
+        { success: false, error: 'Invalid image format. Allowed: JPEG, PNG, WebP, GIF, HEIC' },
         { status: 400 }
       );
     }
 
-    // Validate file size (10MB max)
-    if (file.size > 10 * 1024 * 1024) {
+    // Validate file size (50MB max)
+    if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
-        { success: false, error: 'Image must be less than 10MB' },
+        { success: false, error: 'Image must be less than 50MB' },
         { status: 400 }
       );
     }
@@ -57,47 +73,76 @@ export async function POST(request: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Optimize image with Sharp
-    const optimizedBuffer = await sharp(buffer)
+    // Generate filenames
+    const timestamp = Date.now();
+    const fullFilename = `blog-${timestamp}-full.webp`;
+    const thumbFilename = `blog-${timestamp}-thumb.webp`;
+
+    // Generate full-size image (1200x800 WebP)
+    const fullBuffer = await sharp(buffer)
       .resize(1200, 800, {
-        fit: 'inside',
-        withoutEnlargement: true,
+        fit: 'cover',
+        position: 'center',
       })
-      .jpeg({
+      .webp({
         quality: 85,
-        progressive: true,
       })
       .toBuffer();
 
-    // Generate filename
-    const timestamp = Date.now();
-    const filename = `blog-${timestamp}.jpg`;
+    // Generate thumbnail (400x267 WebP - maintains 3:2 aspect ratio for blog cards)
+    const thumbBuffer = await sharp(buffer)
+      .resize(400, 267, {
+        fit: 'cover',
+        position: 'center',
+      })
+      .webp({
+        quality: 80,
+      })
+      .toBuffer();
 
-    // Save locally for development
+    // Save locally for development or if GitHub not configured
     if (process.env.NODE_ENV === 'development' || !isGitHubConfigured()) {
       await fs.mkdir(LOCAL_BLOG_DIR, { recursive: true });
-      const localPath = path.join(LOCAL_BLOG_DIR, filename);
-      await fs.writeFile(localPath, optimizedBuffer);
+
+      const fullPath = path.join(LOCAL_BLOG_DIR, fullFilename);
+      const thumbPath = path.join(LOCAL_BLOG_DIR, thumbFilename);
+
+      await Promise.all([
+        fs.writeFile(fullPath, fullBuffer),
+        fs.writeFile(thumbPath, thumbBuffer),
+      ]);
 
       return NextResponse.json({
         success: true,
-        filename,
-        url: `/assets/blog/${filename}`,
+        filename: fullFilename,
+        url: `/assets/blog/${fullFilename}`,
+        thumbnailUrl: `/assets/blog/${thumbFilename}`,
+        thumbnailFilename: thumbFilename,
       });
     }
 
-    // Upload to GitHub
-    const result = await uploadImageToGitHub(
-      filename,
-      optimizedBuffer,
-      `Add blog image: ${filename}`,
-      'public/assets/blog'
-    );
+    // Upload both images to GitHub in parallel
+    await Promise.all([
+      uploadImageToGitHub(
+        fullFilename,
+        fullBuffer,
+        `Add blog image: ${fullFilename}`,
+        'public/assets/blog'
+      ),
+      uploadImageToGitHub(
+        thumbFilename,
+        thumbBuffer,
+        `Add blog thumbnail: ${thumbFilename}`,
+        'public/assets/blog'
+      ),
+    ]);
 
     return NextResponse.json({
       success: true,
-      filename,
-      url: `/assets/blog/${filename}`,
+      filename: fullFilename,
+      url: `/assets/blog/${fullFilename}`,
+      thumbnailUrl: `/assets/blog/${thumbFilename}`,
+      thumbnailFilename: thumbFilename,
     });
   } catch (error) {
     console.error('Error uploading blog image:', error);

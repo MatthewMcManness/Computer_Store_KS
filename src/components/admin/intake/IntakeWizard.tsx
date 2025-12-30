@@ -1,7 +1,7 @@
 'use client';
 
 import { useReducer, useState } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CheckCircle, Mail, Loader2 } from 'lucide-react';
 import type { RepairShoprCustomer, RepairShoprAsset, RepairShoprTicket } from '@/lib/repairshopr';
 import { CustomerSearchStep } from './CustomerSearchStep';
 import { CustomerFormStep } from './CustomerFormStep';
@@ -14,6 +14,8 @@ import { PasswordSetupModal } from './PasswordSetupModal';
 // Types
 // =============================================================================
 
+type PortalAccountStatus = 'unknown' | 'checking' | 'active' | 'creating' | 'created' | 'none';
+
 interface IntakeState {
   step: number;
   customer: RepairShoprCustomer | null;
@@ -24,6 +26,7 @@ interface IntakeState {
   ticketDescription: string;
   createdTicket: RepairShoprTicket | null;
   hasPortalAccount: boolean;
+  portalAccountStatus: PortalAccountStatus;
 }
 
 type IntakeAction =
@@ -35,6 +38,7 @@ type IntakeAction =
   | { type: 'SET_TICKET_DESCRIPTION'; description: string }
   | { type: 'SET_CREATED_TICKET'; ticket: RepairShoprTicket }
   | { type: 'SET_PORTAL_ACCOUNT'; hasAccount: boolean }
+  | { type: 'SET_PORTAL_ACCOUNT_STATUS'; status: PortalAccountStatus }
   | { type: 'CONTINUE_WITH_CUSTOMER' }
   | { type: 'RESET' };
 
@@ -52,6 +56,7 @@ const initialState: IntakeState = {
   ticketDescription: '',
   createdTicket: null,
   hasPortalAccount: false,
+  portalAccountStatus: 'unknown',
 };
 
 function intakeReducer(state: IntakeState, action: IntakeAction): IntakeState {
@@ -90,6 +95,12 @@ function intakeReducer(state: IntakeState, action: IntakeAction): IntakeState {
         ...state,
         hasPortalAccount: action.hasAccount,
       };
+    case 'SET_PORTAL_ACCOUNT_STATUS':
+      return {
+        ...state,
+        portalAccountStatus: action.status,
+        hasPortalAccount: action.status === 'active' || action.status === 'created',
+      };
     case 'CONTINUE_WITH_CUSTOMER':
       // Keep customer selected, clear device/ticket, go to device step
       return {
@@ -115,6 +126,8 @@ export function IntakeWizard() {
   const [state, dispatch] = useReducer(intakeReducer, initialState);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [checkingPortalAccount, setCheckingPortalAccount] = useState(false);
+  const [portalAccountEmail, setPortalAccountEmail] = useState('');
+  const [portalAccountError, setPortalAccountError] = useState<string | null>(null);
 
   const handleNext = () => {
     dispatch({ type: 'NEXT_STEP' });
@@ -127,10 +140,76 @@ export function IntakeWizard() {
   const handleNewIntake = () => {
     dispatch({ type: 'RESET' });
     setShowPasswordModal(false);
+    setPortalAccountEmail('');
+    setPortalAccountError(null);
   };
 
-  const handleSelectCustomer = (customer: RepairShoprCustomer, skipToDevice: boolean) => {
+  // Check if customer has a portal account in user_profiles
+  const checkPortalAccount = async (customerId: number): Promise<boolean> => {
+    try {
+      dispatch({ type: 'SET_PORTAL_ACCOUNT_STATUS', status: 'checking' });
+      const response = await fetch(
+        `/api/customers/portal-account?repairshopr_customer_id=${customerId}`
+      );
+      const data = await response.json();
+
+      if (data.hasAccount) {
+        dispatch({ type: 'SET_PORTAL_ACCOUNT_STATUS', status: 'active' });
+        return true;
+      } else {
+        dispatch({ type: 'SET_PORTAL_ACCOUNT_STATUS', status: 'none' });
+        return false;
+      }
+    } catch (error) {
+      console.error('[Intake] Error checking portal account:', error);
+      dispatch({ type: 'SET_PORTAL_ACCOUNT_STATUS', status: 'none' });
+      return false;
+    }
+  };
+
+  // Create portal account for customer
+  const createPortalAccount = async (customer: RepairShoprCustomer, email: string) => {
+    setPortalAccountError(null);
+    dispatch({ type: 'SET_PORTAL_ACCOUNT_STATUS', status: 'creating' });
+
+    try {
+      const response = await fetch('/api/customers/portal-account', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          repairshoprCustomerId: customer.id,
+          email: email,
+          fullName: customer.fullname,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create portal account');
+      }
+
+      dispatch({ type: 'SET_PORTAL_ACCOUNT_STATUS', status: 'created' });
+      return true;
+    } catch (error) {
+      console.error('[Intake] Error creating portal account:', error);
+      setPortalAccountError(
+        error instanceof Error ? error.message : 'Failed to create portal account'
+      );
+      dispatch({ type: 'SET_PORTAL_ACCOUNT_STATUS', status: 'none' });
+      return false;
+    }
+  };
+
+  const handleSelectCustomer = async (customer: RepairShoprCustomer, skipToDevice: boolean) => {
     dispatch({ type: 'SET_CUSTOMER', customer, isNew: false });
+    // Pre-fill email for portal account creation
+    setPortalAccountEmail(customer.email || '');
+    setPortalAccountError(null);
+
+    // Check for existing portal account
+    await checkPortalAccount(customer.id);
+
     if (skipToDevice) {
       // Skip step 2 (customer details) and go directly to step 3 (device selection)
       dispatch({ type: 'JUMP_TO_STEP', step: 3 });
@@ -149,8 +228,13 @@ export function IntakeWizard() {
     dispatch({ type: 'NEXT_STEP' });
   };
 
-  const handleCustomerCreated = (customer: RepairShoprCustomer) => {
+  const handleCustomerCreated = async (customer: RepairShoprCustomer) => {
     dispatch({ type: 'SET_CUSTOMER', customer, isNew: true });
+    // Pre-fill email for portal account creation
+    setPortalAccountEmail(customer.email || '');
+    setPortalAccountError(null);
+    // New customers won't have a portal account yet, set status to 'none'
+    dispatch({ type: 'SET_PORTAL_ACCOUNT_STATUS', status: 'none' });
     dispatch({ type: 'NEXT_STEP' });
   };
 
@@ -251,6 +335,48 @@ export function IntakeWizard() {
     }
   };
 
+  // Render portal account status badge
+  const renderPortalAccountBadge = () => {
+    switch (state.portalAccountStatus) {
+      case 'checking':
+        return (
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 dark:bg-gray-700 px-3 py-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Checking...
+          </span>
+        );
+      case 'active':
+        return (
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-green-100 dark:bg-green-900/30 px-3 py-1 text-sm font-medium text-green-700 dark:text-green-400">
+            <CheckCircle className="h-4 w-4" />
+            Portal Account Active
+          </span>
+        );
+      case 'creating':
+        return (
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 dark:bg-amber-900/30 px-3 py-1 text-sm font-medium text-amber-700 dark:text-amber-400">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Creating Portal Account...
+          </span>
+        );
+      case 'created':
+        return (
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-green-100 dark:bg-green-900/30 px-3 py-1 text-sm font-medium text-green-700 dark:text-green-400">
+            <Mail className="h-4 w-4" />
+            Portal Account Created - Email Sent
+          </span>
+        );
+      case 'none':
+        return (
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-red-100 dark:bg-red-900/30 px-3 py-1 text-sm font-medium text-red-700 dark:text-red-400">
+            No Portal Account
+          </span>
+        );
+      default:
+        return null;
+    }
+  };
+
   // Render current step content
   const renderStepContent = () => {
     switch (state.step) {
@@ -301,11 +427,102 @@ export function IntakeWizard() {
           );
         }
         return (
-          <DeviceStep
-            customer={state.customer}
-            onSelectDevice={handleSelectDevice}
-            onBack={handleBack}
-          />
+          <>
+            {/* Portal Account Status Section */}
+            <div className="mb-6 rounded-lg bg-white dark:bg-gray-900 p-6 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    Customer Portal Account
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {state.customer.fullname} - {state.customer.email || 'No email'}
+                  </p>
+                </div>
+                {renderPortalAccountBadge()}
+              </div>
+
+              {/* Inline Account Creation Form */}
+              {state.portalAccountStatus === 'none' && (
+                <div className="mt-4 rounded-lg border border-amber-200 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 p-4">
+                  <p className="mb-3 text-sm font-medium text-amber-800 dark:text-amber-300">
+                    Portal account required to continue. Create one now:
+                  </p>
+                  <div className="flex gap-3">
+                    <div className="flex-1">
+                      <label htmlFor="portal-email" className="sr-only">
+                        Email address
+                      </label>
+                      <input
+                        type="email"
+                        id="portal-email"
+                        value={portalAccountEmail}
+                        onChange={(e) => setPortalAccountEmail(e.target.value)}
+                        placeholder="Email address"
+                        className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-2 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                      />
+                    </div>
+                    <button
+                      onClick={() =>
+                        state.customer && createPortalAccount(state.customer, portalAccountEmail)
+                      }
+                      disabled={!portalAccountEmail || !portalAccountEmail.includes('@')}
+                      className="rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      Create Portal Account
+                    </button>
+                  </div>
+                  {portalAccountError && (
+                    <p className="mt-2 text-sm text-red-600 dark:text-red-400">
+                      {portalAccountError}
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Device Selection - Only show if portal account exists */}
+            {(state.portalAccountStatus === 'active' || state.portalAccountStatus === 'created') && (
+              <DeviceStep
+                customer={state.customer}
+                onSelectDevice={handleSelectDevice}
+                onBack={handleBack}
+              />
+            )}
+
+            {/* Show message if still checking */}
+            {state.portalAccountStatus === 'checking' && (
+              <div className="rounded-lg bg-white dark:bg-gray-900 p-8 shadow-sm">
+                <div className="flex items-center justify-center gap-3">
+                  <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+                  <span className="text-gray-700 dark:text-gray-300">
+                    Checking portal account status...
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Show message if creating */}
+            {state.portalAccountStatus === 'creating' && (
+              <div className="rounded-lg bg-white dark:bg-gray-900 p-8 shadow-sm">
+                <div className="flex items-center justify-center gap-3">
+                  <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+                  <span className="text-gray-700 dark:text-gray-300">
+                    Creating portal account...
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Show placeholder message if no portal account */}
+            {state.portalAccountStatus === 'none' && (
+              <div className="rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-8 text-center">
+                <p className="text-gray-600 dark:text-gray-400">
+                  Please create a portal account above to continue with device selection.
+                </p>
+              </div>
+            )}
+          </>
         );
       case 4:
         if (!state.customer || !state.device) {

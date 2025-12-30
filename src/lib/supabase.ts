@@ -74,6 +74,7 @@ export interface BlogPost {
   excerpt: string | null;
   content: string;
   featured_image_url: string | null;
+  featured_image_thumbnail: string | null;
   category_id: string | null;
   author_name: string;
   author_email: string | null;
@@ -92,6 +93,7 @@ export interface CreateBlogPostInput {
   excerpt?: string;
   content: string;
   featured_image_url?: string;
+  featured_image_thumbnail?: string;
   category_id?: string;
   author_name: string;
   author_email?: string;
@@ -106,6 +108,7 @@ export interface UpdateBlogPostInput {
   excerpt?: string;
   content?: string;
   featured_image_url?: string;
+  featured_image_thumbnail?: string | null;
   category_id?: string | null;
   author_name?: string;
   author_email?: string;
@@ -521,6 +524,7 @@ export interface GalleryComputerDB {
   category: 'refurbished' | 'custom' | 'new';
   price: number;
   image_url: string | null;
+  thumbnail_url: string | null;
   specs: GallerySpec[];
   is_active: boolean;
   sort_order: number;
@@ -604,6 +608,7 @@ function applySalePricing(
     category: computer.category,
     price: formatPrice(computer.price),
     image: computer.image_url || '',
+    thumbnail: computer.thumbnail_url || undefined,
     specs: computer.specs || [],
     created_at: computer.created_at,
     updated_at: computer.updated_at,
@@ -812,6 +817,7 @@ export async function createComputer(input: CreateComputerInput): Promise<Galler
       category: input.category,
       price: input.price,
       image_url: input.image_url || null,
+      thumbnail_url: input.thumbnail_url || null,
       specs: input.specs || [],
       sort_order: input.sort_order || 0,
     })

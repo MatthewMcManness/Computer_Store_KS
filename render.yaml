@@ -1,11 +1,11 @@
 services:
   # =============================================================================
-  # PRODUCTION - Main Website (deploys from Computer-Store-KS branch)
+  # PRODUCTION - Main Website (deploys from Production branch)
   # =============================================================================
   - type: web
-    name: computer-store-ks
+    name: CSK-Production
     env: node
-    branch: Computer-Store-KS
+    branch: Production
     buildCommand: npm install && npm run build && cp -r .next/static .next/standalone/.next/static && rm -rf .next/standalone/public && cp -R public .next/standalone/ && cp -r node_modules .next/standalone/ && cp package.json .next/standalone/
     startCommand: cd .next/standalone && node server.js
     envVars:
@@ -38,7 +38,7 @@ services:
       - key: GITHUB_REPO
         value: Computer_Store_KS
       - key: GITHUB_BRANCH
-        value: Computer-Store-KS
+        value: Production
       # Static site URL for "View Site" link
       - key: NEXT_PUBLIC_SITE_URL
         value: https://computerstoreks.com
@@ -51,12 +51,12 @@ services:
         sync: false
 
   # =============================================================================
-  # DEVELOPMENT - Staging/Test Environment (deploys from dev branch)
+  # DEVELOPMENT - Staging/Test Environment (deploys from Development branch)
   # =============================================================================
   - type: web
-    name: computer-store-ks-dev
+    name: CSK-Development
     env: node
-    branch: dev
+    branch: Development
     buildCommand: npm install && npm run build && cp -r .next/static .next/standalone/.next/static && rm -rf .next/standalone/public && cp -R public .next/standalone/ && cp -r node_modules .next/standalone/ && cp package.json .next/standalone/
     startCommand: cd .next/standalone && node server.js
     envVars:
@@ -89,10 +89,10 @@ services:
       - key: GITHUB_REPO
         value: Computer_Store_KS
       - key: GITHUB_BRANCH
-        value: dev
+        value: Development
       # Static site URL for "View Site" link (dev URL)
       - key: NEXT_PUBLIC_SITE_URL
-        value: https://computer-store-ks-dev.onrender.com
+        value: https://csk-development.onrender.com
       # Supabase (REQUIRED for customer portal and blog)
       - key: NEXT_PUBLIC_SUPABASE_URL
         sync: false

@@ -20,6 +20,7 @@ export interface GalleryComputer {
   category: 'custom' | 'refurbished' | 'new';
   price: string;
   image: string;
+  thumbnail?: string; // Small 400x300 WebP for grid display
   specs: GallerySpec[];
   blackFriday?: BlackFridayData;
   created_at?: string;
@@ -74,6 +75,8 @@ export interface ImageUploadResponse {
   filename: string;
   path: string;
   url: string;
+  thumbnailUrl?: string; // Small 400x300 WebP thumbnail
+  thumbnailPath?: string;
 }
 
 // Form data for creating/editing computers
@@ -83,6 +86,7 @@ export interface ComputerFormData {
   category: 'custom' | 'refurbished' | 'new';
   price: string;
   image: string;
+  thumbnail?: string;
   specs: GallerySpec[];
 }
 
@@ -93,6 +97,7 @@ export interface CreateComputerInput {
   category: 'refurbished' | 'custom' | 'new';
   price: number;
   image_url?: string;
+  thumbnail_url?: string;
   specs?: GallerySpec[];
   sort_order?: number;
 }
@@ -103,6 +108,7 @@ export interface UpdateComputerInput {
   category?: 'refurbished' | 'custom' | 'new';
   price?: number;
   image_url?: string;
+  thumbnail_url?: string;
   specs?: GallerySpec[];
   is_active?: boolean;
   sort_order?: number;

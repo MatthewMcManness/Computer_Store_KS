@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RMM Platform Comparison | Computer Store KS</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #10b981;
+            --secondary-dark: #059669;
+            --accent: #f59e0b;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --success: #22c55e;
+            --warning: #eab308;
+            --danger: #ef4444;
+            --ninja-blue: #00b4d8;
+            --syncro-purple: #7c3aed;
+            --connectwise-red: #dc2626;
+            --datto-blue: #0077b6;
+            --opensource-green: #059669;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background: var(--light);
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        header .subtitle {
+            font-size: 1.6rem;
+            color: #ffffff;
+            font-weight: 500;
+            position: relative;
+        }
+
+        header .date {
+            margin-top: 15px;
+            font-size: 1.1rem;
+            color: #ffffff;
+            opacity: 0.95;
+            position: relative;
+        }
+
+        nav.breadcrumb {
+            background: var(--dark);
+            padding: 15px 20px;
+        }
+
+        nav.breadcrumb a {
+            color: var(--secondary);
+            text-decoration: none;
+        }
+
+        nav.breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        nav.breadcrumb span {
+            color: #94a3b8;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .executive-summary {
+            background: linear-gradient(135deg, var(--dark) 0%, #0f172a 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 16px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .executive-summary h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--secondary);
+        }
+
+        .executive-summary p {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: #e2e8f0;
+        }
+
+        .recommendation-box {
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+            padding: 30px;
+            border-radius: 12px;
+            margin-top: 25px;
+        }
+
+        .recommendation-box h3 {
+            color: white;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+
+        .recommendation-box p {
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        .current-situation {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border-left: 5px solid var(--ninja-blue);
+        }
+
+        .current-situation h2 {
+            color: var(--dark);
+            margin-bottom: 20px;
+        }
+
+        .situation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        .situation-card {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .situation-card h4 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .section {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .section h2 {
+            color: var(--dark);
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        .platform-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .platform-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border-top: 5px solid var(--primary);
+            position: relative;
+        }
+
+        .platform-card.current {
+            border-top-color: var(--ninja-blue);
+            box-shadow: 0 4px 30px rgba(0, 180, 216, 0.2);
+        }
+
+        .platform-card.current::before {
+            content: 'CURRENT';
+            position: absolute;
+            top: -12px;
+            right: 20px;
+            background: var(--ninja-blue);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .platform-card.recommended {
+            border-top-color: var(--secondary);
+        }
+
+        .platform-card.recommended::before {
+            content: 'RECOMMENDED';
+            position: absolute;
+            top: -12px;
+            right: 20px;
+            background: var(--secondary);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .platform-card.syncro {
+            border-top-color: var(--syncro-purple);
+        }
+
+        .platform-card.connectwise {
+            border-top-color: var(--connectwise-red);
+        }
+
+        .platform-card.datto {
+            border-top-color: var(--datto-blue);
+        }
+
+        .platform-card.opensource {
+            border-top-color: var(--opensource-green);
+        }
+
+        .platform-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .platform-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .platform-name {
+            font-size: 1.4rem;
+            color: var(--dark);
+        }
+
+        .platform-tagline {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .pricing-highlight {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .pricing-highlight .price {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .pricing-highlight .period {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .pricing-highlight .model {
+            color: var(--dark);
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+
+        .pros-cons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .pros, .cons {
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .pros {
+            background: #ecfdf5;
+        }
+
+        .cons {
+            background: #fef2f2;
+        }
+
+        .pros h5 {
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+
+        .cons h5 {
+            color: var(--danger);
+            margin-bottom: 10px;
+        }
+
+        .pros ul, .cons ul {
+            list-style: none;
+            margin: 0;
+        }
+
+        .pros li, .cons li {
+            padding: 5px 0;
+            font-size: 0.9rem;
+        }
+
+        .pros li::before {
+            content: '+';
+            color: var(--secondary);
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .cons li::before {
+            content: '-';
+            color: var(--danger);
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            display: block;
+        }
+
+        .comparison-table th, .comparison-table td {
+            padding: 15px 12px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+
+        .comparison-table th {
+            background: var(--dark);
+            color: white;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        .comparison-table th:first-child {
+            text-align: left;
+            min-width: 200px;
+        }
+
+        .comparison-table td:first-child {
+            text-align: left;
+            font-weight: 500;
+            background: var(--light);
+        }
+
+        .comparison-table tr:hover {
+            background: #f8fafc;
+        }
+
+        .comparison-table .check {
+            color: var(--secondary);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .comparison-table .cross {
+            color: var(--danger);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .comparison-table .partial {
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        .comparison-table .highlight-col {
+            background: rgba(0, 180, 216, 0.05);
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+            border-left: 4px solid var(--primary);
+            padding: 20px 25px;
+            border-radius: 0 12px 12px 0;
+            margin: 25px 0;
+        }
+
+        .info-box h4 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left: 4px solid var(--accent);
+            padding: 20px 25px;
+            border-radius: 0 12px 12px 0;
+            margin: 25px 0;
+        }
+
+        .warning-box h4 {
+            color: #b45309;
+            margin-bottom: 10px;
+        }
+
+        .success-box {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border-left: 4px solid var(--secondary);
+            padding: 20px 25px;
+            border-radius: 0 12px 12px 0;
+            margin: 25px 0;
+        }
+
+        .success-box h4 {
+            color: var(--secondary-dark);
+            margin-bottom: 10px;
+        }
+
+        .danger-box {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border-left: 4px solid var(--danger);
+            padding: 20px 25px;
+            border-radius: 0 12px 12px 0;
+            margin: 25px 0;
+        }
+
+        .danger-box h4 {
+            color: var(--danger);
+            margin-bottom: 10px;
+        }
+
+        .scenario-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 25px 0;
+        }
+
+        .scenario-card {
+            background: var(--light);
+            border-radius: 12px;
+            padding: 25px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .scenario-card h4 {
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .scenario-card .verdict {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-weight: 600;
+        }
+
+        .scenario-card .verdict.stay {
+            color: var(--ninja-blue);
+            border: 2px solid var(--ninja-blue);
+        }
+
+        .scenario-card .verdict.switch {
+            color: var(--syncro-purple);
+            border: 2px solid var(--syncro-purple);
+        }
+
+        .cost-calculator {
+            background: var(--dark);
+            border-radius: 16px;
+            padding: 30px;
+            color: white;
+            margin: 30px 0;
+        }
+
+        .cost-calculator h3 {
+            color: var(--secondary);
+            margin-bottom: 20px;
+        }
+
+        .cost-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .cost-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .cost-item .platform {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            margin-bottom: 10px;
+        }
+
+        .cost-item .amount {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--secondary);
+        }
+
+        .cost-item .per {
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+
+        .decision-matrix {
+            margin: 30px 0;
+        }
+
+        .decision-matrix h3 {
+            color: var(--dark);
+            margin-bottom: 20px;
+        }
+
+        .matrix-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .matrix-cell {
+            background: var(--light);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .matrix-cell.header {
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+        }
+
+        .matrix-cell.winner {
+            background: #d1fae5;
+            border: 2px solid var(--secondary);
+        }
+
+        .sources {
+            background: var(--dark);
+            color: white;
+            padding: 40px;
+            border-radius: 16px;
+            margin-top: 40px;
+        }
+
+        .sources h3 {
+            color: var(--secondary);
+            margin-bottom: 20px;
+        }
+
+        .sources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .sources-column h4 {
+            color: var(--primary-light);
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+
+        .sources-column ul {
+            list-style: none;
+            margin: 0;
+        }
+
+        .sources-column li {
+            margin-bottom: 8px;
+        }
+
+        .sources-column a {
+            color: var(--secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .sources-column a:hover {
+            text-decoration: underline;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--primary);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: 30px;
+            transition: background 0.3s;
+        }
+
+        .back-link:hover {
+            background: var(--primary-dark);
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .pros-cons {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-table {
+                font-size: 0.8rem;
+            }
+
+            .comparison-table th, .comparison-table td {
+                padding: 10px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>RMM Platform Comparison</h1>
+        <p class="subtitle">NinjaOne vs. Alternatives for MSP Expansion</p>
+        <p class="date">Decision Document | December 2025</p>
+    </header>
+
+    <nav class="breadcrumb">
+        <a href="/documentation/business_growth_plan_2026.html">← Business Growth Plan 2026</a>
+        <span> / </span>
+        <a href="/documentation/implementation_plan_msp.html">MSP Implementation Plan</a>
+        <span> / RMM Comparison</span>
+    </nav>
+
+    <div class="container">
+        <!-- Executive Summary -->
+        <section class="executive-summary">
+            <h2>Executive Summary</h2>
+            <p>This document provides a comprehensive comparison of RMM (Remote Monitoring & Management) platforms to help Computer Store KS decide whether to continue with NinjaOne (currently used for consumer protection plans) or switch to an alternative as you expand into MSP services.</p>
+            <p>We evaluate five options: <strong>NinjaOne</strong> (current), <strong>Syncro</strong>, <strong>ConnectWise</strong>, <strong>Datto RMM</strong>, and <strong>building your own solution</strong> with open-source tools like Tactical RMM.</p>
+
+            <div class="recommendation-box">
+                <h3>Bottom Line Recommendation: Stay with NinjaOne</h3>
+                <p><strong>For your situation, staying with NinjaOne is the right choice.</strong> You already have it deployed for consumer plans, it integrates directly with RepairShopr (your existing PSA), and expanding it for business MSP clients requires zero migration. The per-device pricing works in your favor at small scale, and NinjaOne's patch management is industry-leading. Switching platforms would cost you time, money, and introduce risk for minimal benefit.</p>
+                <p style="margin-top: 15px;"><strong>Exception:</strong> If you grow past 200+ managed devices AND want to consolidate to a single platform (eliminating RepairShopr), then Syncro becomes worth reconsidering.</p>
+            </div>
+        </section>
+
+        <!-- Current Situation -->
+        <section class="current-situation">
+            <h2>Your Current Situation</h2>
+            <p>Before comparing platforms, let's assess where you are today:</p>
+
+            <div class="situation-grid">
+                <div class="situation-card">
+                    <h4>Current RMM</h4>
+                    <p><strong>NinjaOne (NinjaRMM)</strong></p>
+                    <p>Used for Bronze/Silver/Gold consumer protection plans</p>
+                </div>
+                <div class="situation-card">
+                    <h4>Current PSA</h4>
+                    <p><strong>RepairShopr</strong></p>
+                    <p>Ticketing, invoicing, customer management</p>
+                </div>
+                <div class="situation-card">
+                    <h4>Integration Status</h4>
+                    <p><strong>NinjaOne + RepairShopr</strong></p>
+                    <p>Native two-way integration available</p>
+                </div>
+                <div class="situation-card">
+                    <h4>MSP Goal</h4>
+                    <p><strong>10-15 business clients by end of 2026</strong></p>
+                    <p>Estimated 50-150 endpoints to manage</p>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h4>Key Consideration: You're Already Invested</h4>
+                <p>You've already deployed NinjaOne agents to consumer devices. Switching platforms means:</p>
+                <ul>
+                    <li>Uninstalling NinjaOne agents from existing devices</li>
+                    <li>Installing new RMM agents on all devices</li>
+                    <li>Recreating all your policies, scripts, and automations</li>
+                    <li>Learning a new platform and retraining your team</li>
+                    <li>Potential disruption to existing customers</li>
+                </ul>
+                <p><strong>This switching cost is real and significant.</strong> Only switch if the benefits dramatically outweigh these costs.</p>
+            </div>
+        </section>
+
+        <!-- Platform Comparison -->
+        <section class="section">
+            <h2>Platform Deep Dives</h2>
+
+            <div class="platform-cards">
+                <!-- NinjaOne -->
+                <div class="platform-card current recommended">
+                    <div class="platform-header">
+                        <div class="platform-logo" style="background: var(--ninja-blue);">N1</div>
+                        <div>
+                            <h3 class="platform-name">NinjaOne</h3>
+                            <p class="platform-tagline">Your current platform</p>
+                        </div>
+                    </div>
+
+                    <div class="pricing-highlight">
+                        <div class="price">$3-4</div>
+                        <div class="period">per device/month (at your scale)</div>
+                        <div class="model">Per-device pricing, volume discounts available</div>
+                    </div>
+
+                    <div class="pros-cons">
+                        <div class="pros">
+                            <h5>Strengths</h5>
+                            <ul>
+                                <li>You already have it deployed</li>
+                                <li>Native RepairShopr integration</li>
+                                <li>Industry-leading patch management</li>
+                                <li>AI Patch Intelligence feature</li>
+                                <li>200+ third-party app patches</li>
+                                <li>24/7 support included</li>
+                                <li>Clean, modern UI</li>
+                                <li>Built-in backup option</li>
+                            </ul>
+                        </div>
+                        <div class="cons">
+                            <h5>Weaknesses</h5>
+                            <ul>
+                                <li>No built-in PSA (need RepairShopr)</li>
+                                <li>Pricing not transparent</li>
+                                <li>Per-device can get expensive at scale</li>
+                                <li>Remote access is add-on (Splashtop)</li>
+                                <li>Some report patching inaccuracies</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <p><strong>Best for:</strong> MSPs who want best-in-class RMM and are okay using a separate PSA tool.</p>
+                </div>
+
+                <!-- Syncro -->
+                <div class="platform-card syncro">
+                    <div class="platform-header">
+                        <div class="platform-logo" style="background: var(--syncro-purple);">S</div>
+                        <div>
+                            <h3 class="platform-name">Syncro</h3>
+                            <p class="platform-tagline">All-in-one RMM + PSA</p>
+                        </div>
+                    </div>
+
+                    <div class="pricing-highlight">
+                        <div class="price">$139-189</div>
+                        <div class="period">per technician/month</div>
+                        <div class="model">Unlimited endpoints included</div>
+                    </div>
+
+                    <div class="pros-cons">
+                        <div class="pros">
+                            <h5>Strengths</h5>
+                            <ul>
+                                <li>True all-in-one (RMM + PSA + billing)</li>
+                                <li>Unlimited endpoints per tech</li>
+                                <li>Transparent pricing</li>
+                                <li>Splashtop included free</li>
+                                <li>Strong scripting/automation</li>
+                                <li>Built-in invoicing</li>
+                            </ul>
+                        </div>
+                        <div class="cons">
+                            <h5>Weaknesses</h5>
+                            <ul>
+                                <li>Would replace RepairShopr (learning curve)</li>
+                                <li>UI feels dated to some</li>
+                                <li>Support ticket resolution can be slow</li>
+                                <li>No built-in backup (Acronis add-on)</li>
+                                <li>Less polished than NinjaOne</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <p><strong>Best for:</strong> New MSPs starting fresh who want one platform for everything.</p>
+                </div>
+
+                <!-- ConnectWise -->
+                <div class="platform-card connectwise">
+                    <div class="platform-header">
+                        <div class="platform-logo" style="background: var(--connectwise-red);">CW</div>
+                        <div>
+                            <h3 class="platform-name">ConnectWise</h3>
+                            <p class="platform-tagline">Enterprise MSP Standard</p>
+                        </div>
+                    </div>
+
+                    <div class="pricing-highlight">
+                        <div class="price">Custom Quote</div>
+                        <div class="period">Contact sales required</div>
+                        <div class="model">Modular pricing, often expensive for small MSPs</div>
+                    </div>
+
+                    <div class="pros-cons">
+                        <div class="pros">
+                            <h5>Strengths</h5>
+                            <ul>
+                                <li>Industry standard for large MSPs</li>
+                                <li>Most integrations available</li>
+                                <li>Extremely powerful automation</li>
+                                <li>Complete ecosystem (Manage, Automate, Sell)</li>
+                                <li>Strong enterprise features</li>
+                            </ul>
+                        </div>
+                        <div class="cons">
+                            <h5>Weaknesses</h5>
+                            <ul>
+                                <li>Expensive for small MSPs</li>
+                                <li>Complex to configure and learn</li>
+                                <li>No transparent pricing</li>
+                                <li>Often overkill for &lt;200 endpoints</li>
+                                <li>Long contracts common</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <p><strong>Best for:</strong> Established MSPs with 500+ endpoints who need enterprise-grade tools.</p>
+                </div>
+
+                <!-- Datto RMM -->
+                <div class="platform-card datto">
+                    <div class="platform-header">
+                        <div class="platform-logo" style="background: var(--datto-blue);">D</div>
+                        <div>
+                            <h3 class="platform-name">Datto RMM</h3>
+                            <p class="platform-tagline">Backup-focused RMM</p>
+                        </div>
+                    </div>
+
+                    <div class="pricing-highlight">
+                        <div class="price">~$3</div>
+                        <div class="period">per endpoint/month (reported)</div>
+                        <div class="model">Per-endpoint, three tiers (Essentials/Premium/Ultimate)</div>
+                    </div>
+
+                    <div class="pros-cons">
+                        <div class="pros">
+                            <h5>Strengths</h5>
+                            <ul>
+                                <li>Excellent backup integration</li>
+                                <li>Strong ransomware detection</li>
+                                <li>Good cross-platform support</li>
+                                <li>Competitive pricing</li>
+                                <li>Security-first design</li>
+                            </ul>
+                        </div>
+                        <div class="cons">
+                            <h5>Weaknesses</h5>
+                            <ul>
+                                <li>No PSA included (separate Autotask)</li>
+                                <li>Highly customizable = complex setup</li>
+                                <li>Needs dedicated admin for larger deployments</li>
+                                <li>Less intuitive than NinjaOne</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <p><strong>Best for:</strong> MSPs who prioritize backup/DR and security features.</p>
+                </div>
+
+                <!-- Build Your Own -->
+                <div class="platform-card opensource">
+                    <div class="platform-header">
+                        <div class="platform-logo" style="background: var(--opensource-green);">DIY</div>
+                        <div>
+                            <h3 class="platform-name">Build Your Own</h3>
+                            <p class="platform-tagline">Tactical RMM + Open Source</p>
+                        </div>
+                    </div>
+
+                    <div class="pricing-highlight">
+                        <div class="price">$20-100</div>
+                        <div class="period">per month (server costs only)</div>
+                        <div class="model">Self-hosted, your time is the cost</div>
+                    </div>
+
+                    <div class="pros-cons">
+                        <div class="pros">
+                            <h5>Strengths</h5>
+                            <ul>
+                                <li>No per-device licensing fees</li>
+                                <li>Full control and customization</li>
+                                <li>Tactical RMM is MSP-focused</li>
+                                <li>Active community development</li>
+                                <li>Complete ownership of data</li>
+                            </ul>
+                        </div>
+                        <div class="cons">
+                            <h5>Weaknesses</h5>
+                            <ul>
+                                <li>Significant setup time (days/weeks)</li>
+                                <li>You are the support team</li>
+                                <li>No SLA or guaranteed uptime</li>
+                                <li>Security is your responsibility</li>
+                                <li>No PSA integration out of box</li>
+                                <li>Docker not recommended for production</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <p><strong>Best for:</strong> Technical MSPs with time to invest and desire for complete control.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Feature Comparison Table -->
+        <section class="section">
+            <h2>Feature Comparison Matrix</h2>
+
+            <div style="overflow-x: auto;">
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th class="highlight-col">NinjaOne (Current)</th>
+                            <th>Syncro</th>
+                            <th>ConnectWise</th>
+                            <th>Datto RMM</th>
+                            <th>Tactical RMM</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Pricing Model</strong></td>
+                            <td class="highlight-col">Per-device ($3-4)</td>
+                            <td>Per-tech ($139-189)</td>
+                            <td>Custom quote</td>
+                            <td>Per-device (~$3)</td>
+                            <td>Self-hosted ($20-100/mo)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Unlimited Endpoints</strong></td>
+                            <td class="highlight-col"><span class="cross">✗</span></td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="check">✓</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Built-in PSA</strong></td>
+                            <td class="highlight-col"><span class="cross">✗</span></td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="check">✓</span> (Manage)</td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="cross">✗</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>RepairShopr Integration</strong></td>
+                            <td class="highlight-col"><span class="check">✓</span> Native</td>
+                            <td><span class="partial">Zapier</span></td>
+                            <td><span class="partial">Limited</span></td>
+                            <td><span class="partial">Manual</span></td>
+                            <td><span class="cross">✗</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Patch Management</strong></td>
+                            <td class="highlight-col"><span class="check">✓</span> Industry-leading</td>
+                            <td><span class="check">✓</span> Good</td>
+                            <td><span class="check">✓</span> Excellent</td>
+                            <td><span class="check">✓</span> Good</td>
+                            <td><span class="check">✓</span> Basic</td>
+                        </tr>
+                        <tr>
+                            <td><strong>AI-Powered Features</strong></td>
+                            <td class="highlight-col"><span class="check">✓</span> Patch Intelligence</td>
+                            <td><span class="partial">Some</span></td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="cross">✗</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Remote Access Included</strong></td>
+                            <td class="highlight-col"><span class="partial">Add-on</span></td>
+                            <td><span class="check">✓</span> Splashtop</td>
+                            <td><span class="check">✓</span> ScreenConnect</td>
+                            <td><span class="partial">Add-on</span></td>
+                            <td><span class="check">✓</span> MeshCentral</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Built-in Backup</strong></td>
+                            <td class="highlight-col"><span class="check">✓</span></td>
+                            <td><span class="partial">Acronis add-on</span></td>
+                            <td><span class="partial">Separate</span></td>
+                            <td><span class="check">✓</span> Excellent</td>
+                            <td><span class="cross">✗</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>24/7 Support</strong></td>
+                            <td class="highlight-col"><span class="check">✓</span></td>
+                            <td><span class="cross">✗</span> Slower</td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="cross">✗</span> Community</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Windows Patching</strong></td>
+                            <td class="highlight-col"><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Mac Support</strong></td>
+                            <td class="highlight-col"><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Linux Support</strong></td>
+                            <td class="highlight-col"><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Mobile App</strong></td>
+                            <td class="highlight-col"><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="cross">✗</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Scripting</strong></td>
+                            <td class="highlight-col"><span class="check">✓</span></td>
+                            <td><span class="check">✓</span> Strong</td>
+                            <td><span class="check">✓</span> Excellent</td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Setup Complexity</strong></td>
+                            <td class="highlight-col">Low</td>
+                            <td>Low-Medium</td>
+                            <td>High</td>
+                            <td>Medium</td>
+                            <td>High</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Time to Productivity</strong></td>
+                            <td class="highlight-col">Hours</td>
+                            <td>Days</td>
+                            <td>Weeks</td>
+                            <td>Days</td>
+                            <td>Days-Weeks</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Cost Analysis -->
+        <section class="section">
+            <h2>Cost Analysis: Your First Year of MSP</h2>
+
+            <p>Let's model costs based on your MSP goals: <strong>10-15 business clients with ~100 endpoints by end of 2026.</strong></p>
+
+            <div class="cost-calculator">
+                <h3>Estimated Annual Costs (100 Endpoints, 2 Technicians)</h3>
+                <div class="cost-grid">
+                    <div class="cost-item">
+                        <div class="platform">NinjaOne (Current)</div>
+                        <div class="amount">$4,800</div>
+                        <div class="per">$4/device × 100 × 12 months</div>
+                    </div>
+                    <div class="cost-item">
+                        <div class="platform">Syncro</div>
+                        <div class="amount">$3,336</div>
+                        <div class="per">$139/tech × 2 × 12 months</div>
+                    </div>
+                    <div class="cost-item">
+                        <div class="platform">ConnectWise</div>
+                        <div class="amount">$8,000+</div>
+                        <div class="per">Estimated (custom quote)</div>
+                    </div>
+                    <div class="cost-item">
+                        <div class="platform">Datto RMM</div>
+                        <div class="amount">$3,600</div>
+                        <div class="per">$3/device × 100 × 12 months</div>
+                    </div>
+                    <div class="cost-item">
+                        <div class="platform">Tactical RMM</div>
+                        <div class="amount">$600</div>
+                        <div class="per">~$50/mo VPS + your time</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <h4>Hidden Costs of Switching</h4>
+                <p>The numbers above don't include switching costs. If you leave NinjaOne, factor in:</p>
+                <ul>
+                    <li><strong>Migration time:</strong> 20-40 hours to reinstall agents, recreate policies, and test</li>
+                    <li><strong>Learning curve:</strong> 10-20 hours per technician to learn new platform</li>
+                    <li><strong>Disruption risk:</strong> Potential for monitoring gaps during transition</li>
+                    <li><strong>RepairShopr integration:</strong> If switching to Syncro, you lose RepairShopr OR pay for both</li>
+                </ul>
+                <p><strong>At $50/hour labor cost, migration alone could cost $1,000-$2,000+</strong></p>
+            </div>
+
+            <div class="success-box">
+                <h4>The Real Math: NinjaOne Makes Sense</h4>
+                <p>Yes, Syncro is ~$1,500/year cheaper at 100 endpoints. But:</p>
+                <ul>
+                    <li>You already have NinjaOne deployed and working</li>
+                    <li>Native RepairShopr integration saves you time every day</li>
+                    <li>Switching costs eat the first year's "savings"</li>
+                    <li>NinjaOne's patch management and support are superior</li>
+                </ul>
+                <p><strong>The break-even point for switching is ~18-24 months, assuming no hiccups.</strong></p>
+            </div>
+        </section>
+
+        <!-- Decision Scenarios -->
+        <section class="section">
+            <h2>Decision Scenarios: When to Stay vs. Switch</h2>
+
+            <div class="scenario-cards">
+                <div class="scenario-card">
+                    <h4>Scenario A: You're Happy with RepairShopr</h4>
+                    <p>You like RepairShopr for ticketing and invoicing. It works well for your retail repair business and you don't want to change.</p>
+                    <div class="verdict stay">STAY with NinjaOne</div>
+                    <p style="margin-top: 10px; font-size: 0.9rem;">NinjaOne has native RepairShopr integration. No other RMM integrates as well (Syncro would replace it).</p>
+                </div>
+
+                <div class="scenario-card">
+                    <h4>Scenario B: You Want One Platform</h4>
+                    <p>Managing two platforms (RMM + PSA) feels like overhead. You want everything in one place and would consider ditching RepairShopr.</p>
+                    <div class="verdict switch">CONSIDER Syncro</div>
+                    <p style="margin-top: 10px; font-size: 0.9rem;">Syncro is a true all-in-one. But only switch when you're ready to fully commit and migrate everything.</p>
+                </div>
+
+                <div class="scenario-card">
+                    <h4>Scenario C: You Have 10-50 Devices</h4>
+                    <p>You're just starting MSP with a handful of endpoints from 2-3 pilot customers.</p>
+                    <div class="verdict stay">STAY with NinjaOne</div>
+                    <p style="margin-top: 10px; font-size: 0.9rem;">At low volume, per-device pricing isn't painful. Focus on winning clients, not switching platforms.</p>
+                </div>
+
+                <div class="scenario-card">
+                    <h4>Scenario D: You're at 200+ Devices</h4>
+                    <p>Your MSP has grown significantly and per-device costs are mounting.</p>
+                    <div class="verdict switch">RE-EVALUATE Options</div>
+                    <p style="margin-top: 10px; font-size: 0.9rem;">At scale, per-technician pricing (Syncro) becomes more economical. But negotiate volume discounts with NinjaOne first.</p>
+                </div>
+
+                <div class="scenario-card">
+                    <h4>Scenario E: You're Technical & Have Time</h4>
+                    <p>Matthew or another team member loves tinkering with servers, has Linux experience, and enjoys self-hosting.</p>
+                    <div class="verdict switch">CONSIDER Tactical RMM (for fun/testing)</div>
+                    <p style="margin-top: 10px; font-size: 0.9rem;">Set up Tactical RMM on a spare VPS as a learning project. But don't bet your business on it yet.</p>
+                </div>
+
+                <div class="scenario-card">
+                    <h4>Scenario F: Enterprise Clients Come Knocking</h4>
+                    <p>You land a 100+ seat client with complex compliance requirements (HIPAA, etc.).</p>
+                    <div class="verdict switch">CONSIDER ConnectWise or Datto</div>
+                    <p style="margin-top: 10px; font-size: 0.9rem;">Enterprise clients may require enterprise-grade tools. But this is a champagne problem you don't have yet.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- RepairShopr Integration Detail -->
+        <section class="section">
+            <h2>RepairShopr Integration: Why It Matters</h2>
+
+            <p>Since you already use RepairShopr, the integration story is critical:</p>
+
+            <div class="info-box">
+                <h4>NinjaOne + RepairShopr Integration Features</h4>
+                <ul>
+                    <li><strong>Automatic device sync:</strong> Devices in NinjaOne automatically appear in RepairShopr as assets</li>
+                    <li><strong>Alert-to-ticket conversion:</strong> NinjaOne alerts can create RepairShopr tickets automatically</li>
+                    <li><strong>Customer matching:</strong> Devices are linked to the correct RepairShopr customer</li>
+                    <li><strong>Two-way data sync:</strong> Changes in either platform stay synchronized</li>
+                    <li><strong>No Zapier needed:</strong> Native integration, not a third-party connector</li>
+                </ul>
+            </div>
+
+            <div class="danger-box">
+                <h4>What You'd Lose by Switching to Syncro</h4>
+                <p>Syncro is an all-in-one platform that REPLACES RepairShopr. If you switch:</p>
+                <ul>
+                    <li>You'd need to migrate ALL customer data from RepairShopr to Syncro</li>
+                    <li>Your retail repair workflow would change (new ticketing system)</li>
+                    <li>Invoicing, inventory, and reporting would all be different</li>
+                    <li>Training for your team on the new PSA</li>
+                </ul>
+                <p><strong>This is a much bigger change than just switching RMM.</strong></p>
+            </div>
+
+            <div class="warning-box">
+                <h4>Syncro + RepairShopr via Zapier?</h4>
+                <p>Technically you could run both and connect them via Zapier, but:</p>
+                <ul>
+                    <li>You'd be paying for two PSA platforms (wasteful)</li>
+                    <li>Zapier adds latency and potential failure points</li>
+                    <li>No native integration means manual workarounds</li>
+                </ul>
+                <p><strong>If you switch to Syncro, you should fully commit and leave RepairShopr.</strong></p>
+            </div>
+        </section>
+
+        <!-- Build Your Own Deep Dive -->
+        <section class="section">
+            <h2>Should You Build Your Own RMM?</h2>
+
+            <p>Building your own solution with open-source tools like Tactical RMM is tempting. Here's the reality:</p>
+
+            <div class="platform-cards" style="grid-template-columns: 1fr 1fr;">
+                <div class="platform-card">
+                    <h3 style="color: var(--secondary);">When DIY Makes Sense</h3>
+                    <ul>
+                        <li>You have strong Linux/DevOps skills on your team</li>
+                        <li>You manage 500+ endpoints (licensing savings become significant)</li>
+                        <li>You have specific customization needs commercial tools can't meet</li>
+                        <li>You enjoy the technical challenge and learning</li>
+                        <li>You have time to maintain and troubleshoot the system</li>
+                        <li>Data sovereignty is critical (healthcare, government)</li>
+                    </ul>
+                </div>
+
+                <div class="platform-card">
+                    <h3 style="color: var(--danger);">When DIY Doesn't Make Sense</h3>
+                    <ul>
+                        <li>You're just starting your MSP (focus on sales, not servers)</li>
+                        <li>Your team is already stretched thin</li>
+                        <li>You need guaranteed uptime and SLAs for clients</li>
+                        <li>You don't have Linux/Docker expertise in-house</li>
+                        <li>You need 24/7 support when things break</li>
+                        <li>Time spent on infrastructure = time not spent on clients</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h4>Tactical RMM: The Leading Open Source Option</h4>
+                <p>If you ever do go DIY, <strong>Tactical RMM</strong> is the best option for MSPs:</p>
+                <ul>
+                    <li>Purpose-built for MSPs (not repurposed monitoring tool)</li>
+                    <li>Web-based dashboard with multi-tenant support</li>
+                    <li>Scripting, automation, and patch management included</li>
+                    <li>MeshCentral integration for remote access</li>
+                    <li>Active community with regular updates</li>
+                </ul>
+                <p><strong>Server requirements:</strong> VPS with 4GB+ RAM, Debian 12 recommended, 3 subdomains (rmm, api, mesh)</p>
+                <p><strong>Setup time:</strong> 4-8 hours for initial deployment, days to configure properly</p>
+                <p><a href="https://docs.tacticalrmm.com/" target="_blank" style="color: var(--primary);">Tactical RMM Documentation →</a></p>
+            </div>
+
+            <div class="warning-box">
+                <h4>Our Recommendation: Not Now</h4>
+                <p>You're at the beginning of your MSP journey. Building and maintaining your own RMM infrastructure would distract from what matters most: <strong>winning clients and delivering great service</strong>.</p>
+                <p>Revisit this option in 2-3 years if you've scaled to 300+ endpoints and want to reduce costs or need custom features.</p>
+            </div>
+        </section>
+
+        <!-- Final Recommendation -->
+        <section class="section">
+            <h2>Final Recommendation</h2>
+
+            <div class="decision-matrix">
+                <h3>Decision Summary</h3>
+                <div class="matrix-row">
+                    <div class="matrix-cell header">Criteria</div>
+                    <div class="matrix-cell header">NinjaOne</div>
+                    <div class="matrix-cell header">Alternatives</div>
+                </div>
+                <div class="matrix-row">
+                    <div class="matrix-cell">Already Deployed</div>
+                    <div class="matrix-cell winner">Yes - Zero migration</div>
+                    <div class="matrix-cell">No - Migration required</div>
+                </div>
+                <div class="matrix-row">
+                    <div class="matrix-cell">RepairShopr Integration</div>
+                    <div class="matrix-cell winner">Native two-way sync</div>
+                    <div class="matrix-cell">Limited or replace</div>
+                </div>
+                <div class="matrix-row">
+                    <div class="matrix-cell">Patch Management</div>
+                    <div class="matrix-cell winner">Industry-leading + AI</div>
+                    <div class="matrix-cell">Good but not as strong</div>
+                </div>
+                <div class="matrix-row">
+                    <div class="matrix-cell">Support Quality</div>
+                    <div class="matrix-cell winner">24/7 included</div>
+                    <div class="matrix-cell">Varies</div>
+                </div>
+                <div class="matrix-row">
+                    <div class="matrix-cell">Cost at 100 Endpoints</div>
+                    <div class="matrix-cell">~$4,800/year</div>
+                    <div class="matrix-cell winner">Syncro: ~$3,336/year</div>
+                </div>
+                <div class="matrix-row">
+                    <div class="matrix-cell">Switching Cost</div>
+                    <div class="matrix-cell winner">$0</div>
+                    <div class="matrix-cell">$1,000-$2,000+</div>
+                </div>
+            </div>
+
+            <div class="success-box">
+                <h4>The Verdict: Stay with NinjaOne</h4>
+                <p><strong>For Computer Store KS launching MSP services in 2026, staying with NinjaOne is the right decision.</strong></p>
+                <ul>
+                    <li>You've already invested in deployment and learning</li>
+                    <li>The RepairShopr integration is a major advantage</li>
+                    <li>NinjaOne's patch management is best-in-class (important for MSP)</li>
+                    <li>Cost difference doesn't justify switching at your scale</li>
+                    <li>Focus your energy on winning clients, not migrating tools</li>
+                </ul>
+            </div>
+
+            <div class="info-box">
+                <h4>When to Revisit This Decision</h4>
+                <p>Put this document aside and check back when:</p>
+                <ul>
+                    <li><strong>You hit 200+ endpoints</strong> - Negotiate volume discounts with NinjaOne or reconsider Syncro</li>
+                    <li><strong>You outgrow RepairShopr</strong> - If RepairShopr limits you, Syncro's all-in-one becomes attractive</li>
+                    <li><strong>NinjaOne raises prices significantly</strong> - Market changes may shift the math</li>
+                    <li><strong>A major enterprise client requires specific tools</strong> - Compliance may dictate platform</li>
+                </ul>
+                <p><strong>For now, execute your MSP plan with the tools you have. They're good tools.</strong></p>
+            </div>
+        </section>
+
+        <!-- Sources -->
+        <section class="sources">
+            <h3>Sources & References</h3>
+            <div class="sources-grid">
+                <div class="sources-column">
+                    <h4>NinjaOne</h4>
+                    <ul>
+                        <li><a href="https://www.ninjaone.com/pricing/">NinjaOne Official Pricing</a></li>
+                        <li><a href="https://www.ninjaone.com/patch-management/">NinjaOne Patch Management</a></li>
+                        <li><a href="https://www.ninjaone.com/docs/integrations/how-to-connect-repairshopr/">RepairShopr Integration Guide</a></li>
+                        <li><a href="https://www.g2.com/products/ninjaone/reviews">NinjaOne G2 Reviews</a></li>
+                        <li><a href="https://superops.com/ninjaone-pricing">NinjaOne Pricing Breakdown</a></li>
+                    </ul>
+                </div>
+                <div class="sources-column">
+                    <h4>Syncro</h4>
+                    <ul>
+                        <li><a href="https://syncromsp.com/pricing/">Syncro Official Pricing</a></li>
+                        <li><a href="https://syncromsp.com/why-syncro/syncro-vs-ninjaone/">Syncro vs NinjaOne</a></li>
+                        <li><a href="https://www.g2.com/products/syncro/reviews">Syncro G2 Reviews</a></li>
+                        <li><a href="https://www.capterra.com/p/207618/Syncro/">Syncro on Capterra</a></li>
+                    </ul>
+                </div>
+                <div class="sources-column">
+                    <h4>Other Platforms</h4>
+                    <ul>
+                        <li><a href="https://www.connectwise.com/pricing">ConnectWise Pricing</a></li>
+                        <li><a href="https://www.trustradius.com/products/datto-rmm/pricing">Datto RMM Pricing</a></li>
+                        <li><a href="https://docs.tacticalrmm.com/">Tactical RMM Documentation</a></li>
+                        <li><a href="https://www.comparitech.com/net-admin/open-source-rmm/">Open Source RMM Comparison</a></li>
+                    </ul>
+                </div>
+                <div class="sources-column">
+                    <h4>Comparison Resources</h4>
+                    <ul>
+                        <li><a href="https://www.atera.com/blog/syncro-vs-ninjaone/">Atera: Syncro vs NinjaOne</a></li>
+                        <li><a href="https://aimultiple.com/rmm-pricing">RMM Pricing Analysis</a></li>
+                        <li><a href="https://superops.com/rmm/open-source-software">Open Source RMM Guide</a></li>
+                        <li><a href="https://www.comparitech.com/net-admin/byo-rmm/">Build Your Own RMM Guide</a></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <a href="/documentation/implementation_plan_msp.html" class="back-link">← Back to MSP Implementation Plan</a>
+    </div>
+</body>
+</html>

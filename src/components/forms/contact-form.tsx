@@ -46,7 +46,7 @@ const subjectOptions = [
   { value: 'General', label: 'General Inquiry' },
   { value: 'Repair', label: 'Computer Repair' },
   { value: 'Custom Build', label: 'Custom Build' },
-  { value: 'Silver Plan', label: 'Silver Plan' },
+  { value: 'Protection Plans', label: 'Protection Plans' },
   { value: 'Other', label: 'Other' },
 ];
 

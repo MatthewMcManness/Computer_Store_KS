@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MSP Implementation Plan - The Computer Store</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-light: #3b82f6;
+            --primary-dark: #1e40af;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --dark: #111827;
+            --text-secondary: #374151;
+            --text-muted: #6b7280;
+            --light: #f8f9fb;
+            --background-dark: #f0f2f5;
+            --gradient-1: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            --gradient-2: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background: var(--light);
+        }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+
+        header {
+            background: var(--gradient-1);
+            color: white;
+            padding: 50px 0;
+            text-align: center;
+        }
+
+        header h1 { font-size: 2.4rem; font-weight: 700; margin-bottom: 10px; }
+        header .subtitle { font-size: 1.4rem; color: #ffffff; font-weight: 500; }
+        header .back-link { margin-top: 20px; }
+        header .back-link a { color: white; text-decoration: none; opacity: 0.9; }
+        header .back-link a:hover { opacity: 1; text-decoration: underline; }
+
+        nav {
+            background: white;
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+
+        nav ul { list-style: none; display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; }
+
+        nav a {
+            color: var(--primary);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        nav a:hover { background: var(--primary); color: white; }
+
+        section { padding: 50px 0; }
+        section:nth-child(even) { background: white; }
+
+        h2 {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid var(--primary-light);
+            display: inline-block;
+        }
+
+        h3 { font-size: 1.3rem; color: var(--dark); margin: 20px 0 12px; }
+        h4 { font-size: 1.1rem; color: var(--primary); margin: 15px 0 8px; }
+        p { margin-bottom: 12px; color: var(--text-secondary); }
+
+        .intro-box {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border-left: 5px solid var(--primary);
+            padding: 25px;
+            border-radius: 0 10px 10px 0;
+            margin-bottom: 25px;
+        }
+
+        .step-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: var(--shadow-lg);
+            border-left: 5px solid var(--primary);
+        }
+
+        .step-card.completed { border-left-color: var(--secondary); }
+        .step-card.warning { border-left-color: var(--accent); }
+
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-1);
+            color: white;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-right: 15px;
+        }
+
+        .step-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .step-header h3 { margin: 0; flex: 1; }
+
+        .duration {
+            background: var(--light);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .checklist {
+            list-style: none;
+            margin: 15px 0;
+        }
+
+        .checklist li {
+            padding: 10px 15px;
+            background: var(--light);
+            margin-bottom: 8px;
+            border-radius: 8px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .checklist li::before {
+            content: '\\2610';
+            font-size: 1.2rem;
+            color: var(--primary);
+            flex-shrink: 0;
+        }
+
+        .action-items {
+            background: #ecfdf5;
+            border: 1px solid #10b981;
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin: 15px 0;
+        }
+
+        .action-items h4 { color: #059669; margin-top: 0; }
+
+        .warning-box {
+            background: #fffbeb;
+            border: 1px solid var(--accent);
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin: 15px 0;
+        }
+
+        .warning-box h4 { color: #d97706; margin-top: 0; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #e5e7eb; }
+        th { background: var(--primary); color: white; font-weight: 600; }
+        tr:hover { background: #f9fafb; }
+
+        .pricing-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+            border-top: 4px solid var(--primary);
+        }
+
+        .pricing-card.featured {
+            border-top-color: var(--secondary);
+            transform: scale(1.02);
+        }
+
+        .pricing-card h4 { font-size: 1.3rem; margin-bottom: 10px; }
+
+        .price {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .price span { font-size: 1rem; color: var(--text-muted); }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .tool-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .tool-card h4 { color: var(--primary); margin-bottom: 10px; }
+
+        .source-list {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .source-list h4 { margin-bottom: 15px; }
+        .source-list ul { margin-left: 20px; }
+        .source-list li { margin-bottom: 8px; }
+        .source-list a { color: var(--primary); }
+
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 30px 0;
+            text-align: center;
+        }
+
+        footer a { color: var(--primary-light); }
+
+        @media (max-width: 768px) {
+            header h1 { font-size: 1.8rem; }
+            .step-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+            nav ul { flex-direction: column; align-items: center; }
+        }
+
+        @media print {
+            nav { display: none; }
+            .step-card { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>MSP Implementation Plan</h1>
+            <p class="subtitle">Managed IT Services for Small Businesses</p>
+            <p class="back-link"><a href="/documentation/business_growth_plan_2026.html">&larr; Back to Growth Plan</a></p>
+        </div>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#overview">Overview</a></li>
+            <li><a href="#phase1">Phase 1: Foundation</a></li>
+            <li><a href="#phase2">Phase 2: Tools</a></li>
+            <li><a href="#phase3">Phase 3: Pricing</a></li>
+            <li><a href="#phase4">Phase 4: Launch</a></li>
+            <li><a href="#phase5">Phase 5: Scale</a></li>
+            <li><a href="#sources">Sources</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section id="overview">
+            <div class="container">
+                <h2>What is MSP & Why It Matters</h2>
+
+                <div class="intro-box">
+                    <p><strong>MSP (Managed Service Provider)</strong> means providing ongoing, proactive IT management for businesses - not just fixing things when they break. You become their outsourced IT department.</p>
+                    <p style="margin-bottom: 0;"><strong>Market Opportunity:</strong> The global MSP market is projected to grow from $243B (2021) to $557B by 2028 - a 12.6% CAGR. Small businesses increasingly need IT support but can't afford full-time IT staff.</p>
+                </div>
+
+                <h3>MSP vs. Your Current Business Model</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Break-Fix (Current)</th>
+                            <th>MSP (New)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Revenue Model</td>
+                            <td>One-time per repair</td>
+                            <td>Monthly recurring (MRR)</td>
+                        </tr>
+                        <tr>
+                            <td>Customer Relationship</td>
+                            <td>Transactional</td>
+                            <td>Ongoing partnership</td>
+                        </tr>
+                        <tr>
+                            <td>Approach</td>
+                            <td>Reactive (fix when broken)</td>
+                            <td>Proactive (prevent problems)</td>
+                        </tr>
+                        <tr>
+                            <td>Predictability</td>
+                            <td>Variable income</td>
+                            <td>Predictable monthly income</td>
+                        </tr>
+                        <tr>
+                            <td>Client Lifetime Value</td>
+                            <td>$200-500 per visit</td>
+                            <td>$15,000-50,000+ over 3-5 years</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Target Market for Topeka & Holton</h3>
+                <div class="card-grid">
+                    <div class="tool-card">
+                        <h4>Ideal MSP Clients</h4>
+                        <ul>
+                            <li>Dental offices (5-15 employees)</li>
+                            <li>Law firms (3-20 employees)</li>
+                            <li>Accounting/CPA firms</li>
+                            <li>Medical clinics</li>
+                            <li>Small manufacturers</li>
+                            <li>Real estate offices</li>
+                            <li>Non-profits</li>
+                        </ul>
+                    </div>
+                    <div class="tool-card">
+                        <h4>Why These Industries?</h4>
+                        <ul>
+                            <li>Compliance requirements (HIPAA, etc.)</li>
+                            <li>Can't afford downtime</li>
+                            <li>Not tech-savvy themselves</li>
+                            <li>Have budget for IT</li>
+                            <li>Already paying for IT somehow</li>
+                            <li>Local/community focused</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="phase1">
+            <div class="container">
+                <h2>Phase 1: Define Your Services</h2>
+
+                <div class="step-card">
+                    <div class="step-header">
+                        <span class="step-number">1</span>
+                        <h3>Define Your MSP Service Offerings</h3>
+                        <span class="duration">Week 1-2</span>
+                    </div>
+
+                    <p>Before you can sell MSP services, you need to clearly define what you're offering. Start simple and expand over time.</p>
+
+                    <h4>Core Services to Include:</h4>
+                    <ul class="checklist">
+                        <li><strong>Remote Monitoring & Management (RMM)</strong> - 24/7 monitoring of all client computers for issues, performance, and security</li>
+                        <li><strong>Patch Management</strong> - Automatic Windows updates, driver updates, and software patches</li>
+                        <li><strong>Antivirus/Endpoint Protection</strong> - Managed antivirus across all devices (you already sell this!)</li>
+                        <li><strong>Remote Support</strong> - Help desk support via phone, email, or remote access</li>
+                        <li><strong>Backup Verification</strong> - Ensure client backups are running and recoverable</li>
+                        <li><strong>Onsite Support</strong> - Scheduled visits for hands-on maintenance</li>
+                        <li><strong>Vendor Management</strong> - Handle calls with ISPs, software vendors, printers, etc.</li>
+                    </ul>
+
+                    <div class="action-items">
+                        <h4>Action Items:</h4>
+                        <ul>
+                            <li>Write a 1-page service description for each core offering</li>
+                            <li>Define what's included vs. what's extra (scope of work)</li>
+                            <li>Create a simple Service Level Agreement (SLA) template</li>
+                            <li>Define response time guarantees (e.g., 4-hour response for critical issues)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-header">
+                        <span class="step-number">2</span>
+                        <h3>Create Service Tiers</h3>
+                        <span class="duration">Week 2</span>
+                    </div>
+
+                    <p>Offer 2-3 service levels so clients can choose based on their needs and budget.</p>
+
+                    <div class="card-grid">
+                        <div class="pricing-card">
+                            <h4>Essential</h4>
+                            <p class="price">$75-100<span>/user/month</span></p>
+                            <ul style="text-align: left; margin-top: 15px;">
+                                <li>RMM monitoring</li>
+                                <li>Patch management</li>
+                                <li>Managed antivirus</li>
+                                <li>Email support</li>
+                                <li>8x5 support hours</li>
+                            </ul>
+                        </div>
+                        <div class="pricing-card featured">
+                            <h4>Professional</h4>
+                            <p class="price">$125-150<span>/user/month</span></p>
+                            <ul style="text-align: left; margin-top: 15px;">
+                                <li>Everything in Essential</li>
+                                <li>Phone + remote support</li>
+                                <li>Quarterly onsite visits</li>
+                                <li>Backup monitoring</li>
+                                <li>Vendor management</li>
+                            </ul>
+                        </div>
+                        <div class="pricing-card">
+                            <h4>Premium</h4>
+                            <p class="price">$175-200<span>/user/month</span></p>
+                            <ul style="text-align: left; margin-top: 15px;">
+                                <li>Everything in Professional</li>
+                                <li>Monthly onsite visits</li>
+                                <li>Advanced security (MFA, etc.)</li>
+                                <li>Priority response (2-hour)</li>
+                                <li>Quarterly business reviews</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="warning-box">
+                        <h4>Pricing Note:</h4>
+                        <p style="margin-bottom: 0;">These are starting points. Research shows small businesses pay $100-250/user/month for comprehensive IT support. Start at the lower end for Topeka/Holton market, then raise prices for new clients as you gain experience.</p>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-header">
+                        <span class="step-number">3</span>
+                        <h3>Legal & Business Setup</h3>
+                        <span class="duration">Week 2-3</span>
+                    </div>
+
+                    <ul class="checklist">
+                        <li><strong>MSP Contract Template</strong> - Get a lawyer to review or use a template from ConnectWise/industry resources</li>
+                        <li><strong>Service Level Agreement (SLA)</strong> - Define response times, uptime guarantees, exclusions</li>
+                        <li><strong>Liability Insurance</strong> - Check if your current business insurance covers MSP services; may need E&O (Errors & Omissions) coverage</li>
+                        <li><strong>Business License</strong> - Verify your Topeka business license covers IT services</li>
+                        <li><strong>Terms of Service</strong> - What happens if client doesn't pay, scope creep, termination clauses</li>
+                    </ul>
+
+                    <div class="action-items">
+                        <h4>Key Contract Elements:</h4>
+                        <ul>
+                            <li>Minimum contract term (suggest 12 months with 30-day out clause)</li>
+                            <li>Payment terms (net 15 or auto-pay required)</li>
+                            <li>Scope of work - what's included, what's billable extra</li>
+                            <li>Liability limitations</li>
+                            <li>Termination and offboarding process</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="phase2">
+            <div class="container">
+                <h2>Phase 2: Set Up Your Tech Stack</h2>
+
+                <div class="step-card">
+                    <div class="step-header">
+                        <span class="step-number">4</span>
+                        <h3>Choose Your RMM Platform</h3>
+                        <span class="duration">Week 3-4</span>
+                    </div>
+
+                    <p>RMM (Remote Monitoring & Management) software is the backbone of MSP operations. It lets you monitor, manage, and support client computers remotely.</p>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Platform</th>
+                                <th>Best For</th>
+                                <th>Pricing</th>
+                                <th>Recommendation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Syncro</strong></td>
+                                <td>Small MSPs, solo operators</td>
+                                <td>$129-179/tech/month</td>
+                                <td><strong>Best starting choice</strong> - RMM + PSA + billing in one</td>
+                            </tr>
+                            <tr>
+                                <td><strong>NinjaOne</strong></td>
+                                <td>Growing MSPs wanting simplicity</td>
+                                <td>Contact for quote</td>
+                                <td>Great interface, but no built-in PSA</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ConnectWise</strong></td>
+                                <td>Larger MSPs, enterprise clients</td>
+                                <td>Contact for quote</td>
+                                <td>Powerful but complex; save for later</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Atera</strong></td>
+                                <td>Per-tech pricing model</td>
+                                <td>$99-169/tech/month</td>
+                                <td>Good alternative to Syncro</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="info-box" style="margin: 20px 0; background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%); border-left: 4px solid var(--primary); padding: 20px; border-radius: 0 10px 10px 0;">
+                        <h4 style="color: var(--primary); margin-bottom: 10px;">Already Using NinjaOne?</h4>
+                        <p style="margin-bottom: 15px;">Since you already have NinjaOne deployed for your consumer protection plans, we've created a detailed comparison document to help you decide whether to stay with NinjaOne or switch to Syncro for MSP.</p>
+                        <p style="margin: 0;"><a href="/documentation/rmm_platform_comparison.html" style="display: inline-flex; align-items: center; gap: 8px; background: var(--primary); color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 600;">View RMM Platform Comparison →</a></p>
+                    </div>
+
+                    <div class="action-items">
+                        <h4>Recommended: Start with Syncro</h4>
+                        <ul>
+                            <li>Sign up for free trial at syncromsp.com</li>
+                            <li>All-in-one: RMM + ticketing + billing + CRM</li>
+                            <li>Per-technician pricing (not per-endpoint) = predictable costs</li>
+                            <li>Integrates with RepairShopr (your current system!)</li>
+                            <li>14-day free trial to test before committing</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-header">
+                        <span class="step-number">5</span>
+                        <h3>Set Up Additional Tools</h3>
+                        <span class="duration">Week 4-5</span>
+                    </div>
+
+                    <div class="card-grid">
+                        <div class="tool-card">
+                            <h4>Remote Access</h4>
+                            <p>For remotely controlling client computers</p>
+                            <ul>
+                                <li><strong>Splashtop Business</strong> - $99/year per tech</li>
+                                <li><strong>ConnectWise ScreenConnect</strong> - Often bundled with RMM</li>
+                                <li><strong>TeamViewer</strong> - More expensive but well-known</li>
+                            </ul>
+                            <p><em>Note: Syncro includes built-in remote access</em></p>
+                        </div>
+                        <div class="tool-card">
+                            <h4>Documentation</h4>
+                            <p>Password management & IT documentation</p>
+                            <ul>
+                                <li><strong>IT Glue</strong> - Industry standard, $39/user/month</li>
+                                <li><strong>Hudu</strong> - Self-hosted option, $23/user/month</li>
+                                <li><strong>Passportal</strong> - Good for password management</li>
+                            </ul>
+                            <p><em>Start simple: a secure spreadsheet can work initially</em></p>
+                        </div>
+                        <div class="tool-card">
+                            <h4>Backup & DR</h4>
+                            <p>Managed backup solutions to resell</p>
+                            <ul>
+                                <li><strong>Datto</strong> - Premium, excellent for MSPs</li>
+                                <li><strong>Veeam</strong> - Enterprise-grade</li>
+                                <li><strong>Acronis</strong> - Good mid-range option</li>
+                            </ul>
+                            <p><em>Add backup as upsell service later</em></p>
+                        </div>
+                        <div class="tool-card">
+                            <h4>Security Stack</h4>
+                            <p>Endpoint protection to deploy</p>
+                            <ul>
+                                <li><strong>Huntress</strong> - Managed threat detection</li>
+                                <li><strong>SentinelOne</strong> - AI-powered EDR</li>
+                                <li><strong>Webroot</strong> - Lightweight, good for MSPs</li>
+                            </ul>
+                            <p><em>Use what you're comfortable with initially</em></p>
+                        </div>
+                    </div>
+
+                    <div class="warning-box">
+                        <h4>Don't Overbuy Tools!</h4>
+                        <p style="margin-bottom: 0;">Start with just an RMM platform (Syncro). Add other tools as you grow and identify specific needs. Many MSPs waste money on tools they don't fully use.</p>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-header">
+                        <span class="step-number">6</span>
+                        <h3>Configure Your RMM</h3>
+                        <span class="duration">Week 5-6</span>
+                    </div>
+
+                    <ul class="checklist">
+                        <li><strong>Set up monitoring policies</strong> - What alerts do you want? (disk space, CPU, memory, offline devices)</li>
+                        <li><strong>Create patch management policies</strong> - When should updates install? (after hours recommended)</li>
+                        <li><strong>Build automation scripts</strong> - Common tasks like clearing temp files, restarting services</li>
+                        <li><strong>Set up ticketing workflow</strong> - How do tickets get created, assigned, escalated?</li>
+                        <li><strong>Create client onboarding checklist</strong> - Standard steps for deploying RMM agent to new client</li>
+                        <li><strong>Test on your own computers first!</strong> - Deploy to Computer Store machines before any clients</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="phase3">
+            <div class="container">
+                <h2>Phase 3: Pricing & Packaging</h2>
+
+                <div class="step-card">
+                    <div class="step-header">
+                        <span class="step-number">7</span>
+                        <h3>Finalize Your Pricing Model</h3>
+                        <span class="duration">Week 6-7</span>
+                    </div>
+
+                    <h4>Choose Your Pricing Model:</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Model</th>
+                                <th>How It Works</th>
+                                <th>Pros</th>
+                                <th>Cons</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Per-User</strong></td>
+                                <td>$X/month per employee</td>
+                                <td>Simple to explain; covers all devices per person</td>
+                                <td>Users with many devices cost more to support</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Per-Device</strong></td>
+                                <td>$X/month per computer/device</td>
+                                <td>Direct correlation to work; easy to track</td>
+                                <td>Tracking devices can be tedious</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Tiered/Flat</strong></td>
+                                <td>$X/month for up to Y users</td>
+                                <td>Predictable for client; simple to sell</td>
+                                <td>Risk of under/over-pricing</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="action-items">
+                        <h4>Recommendation: Per-User Pricing</h4>
+                        <p>Per-user is becoming the industry standard (21% of MSPs use it). It's simple for clients to understand and scales naturally.</p>
+                        <ul>
+                            <li>Covers all devices the user has (desktop, laptop, phone)</li>
+                            <li>Easy to quote: "How many employees do you have?"</li>
+                            <li>Automatically adjusts as they hire/fire</li>
+                        </ul>
+                    </div>
+
+                    <h4>Sample Pricing for Topeka/Holton Market:</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Business Size</th>
+                                <th>Essential</th>
+                                <th>Professional</th>
+                                <th>Premium</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>5 users</td>
+                                <td>$375/month</td>
+                                <td>$625/month</td>
+                                <td>$875/month</td>
+                            </tr>
+                            <tr>
+                                <td>10 users</td>
+                                <td>$750/month</td>
+                                <td>$1,250/month</td>
+                                <td>$1,750/month</td>
+                            </tr>
+                            <tr>
+                                <td>20 users</td>
+                                <td>$1,500/month</td>
+                                <td>$2,500/month</td>
+                                <td>$3,500/month</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-header">
+                        <span class="step-number">8</span>
+                        <h3>Create Sales Materials</h3>
+                        <span class="duration">Week 7-8</span>
+                    </div>
+
+                    <ul class="checklist">
+                        <li><strong>One-page service overview</strong> - What you offer, who it's for, why choose you</li>
+                        <li><strong>Pricing sheet</strong> - Clear tier comparison with prices</li>
+                        <li><strong>ROI calculator</strong> - Show how MSP saves money vs. hourly break-fix</li>
+                        <li><strong>Case study template</strong> - Ready to fill in after first few clients</li>
+                        <li><strong>FAQ document</strong> - Common questions and answers</li>
+                        <li><strong>Proposal template</strong> - Professional quote document</li>
+                    </ul>
+
+                    <div class="action-items">
+                        <h4>Matthew's Task:</h4>
+                        <p>Create a dedicated MSP landing page on computerstoreks.com:</p>
+                        <ul>
+                            <li>Separate from consumer services</li>
+                            <li>Target keywords: "Topeka IT services", "Holton managed IT"</li>
+                            <li>Include contact form specifically for business inquiries</li>
+                            <li>Add testimonials once you have them</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="phase4">
+            <div class="container">
+                <h2>Phase 4: Launch & Acquire First Clients</h2>
+
+                <div class="step-card">
+                    <div class="step-header">
+                        <span class="step-number">9</span>
+                        <h3>Pilot Program with Existing Customers</h3>
+                        <span class="duration">Week 8-10</span>
+                    </div>
+
+                    <p>The easiest first MSP clients are businesses you already serve. They know and trust you.</p>
+
+                    <h4>Identify Pilot Candidates:</h4>
+                    <ul class="checklist">
+                        <li>Look in RepairShopr for business accounts that have visited 3+ times</li>
+                        <li>Businesses you've done multiple repairs for</li>
+                        <li>Any business owner who has said "I wish you could just handle all our IT"</li>
+                        <li>Businesses Max has personal relationships with</li>
+                    </ul>
+
+                    <h4>Pilot Offer:</h4>
+                    <div class="intro-box">
+                        <p><strong>"We're launching managed IT services and looking for 3 pilot clients. In exchange for being our first and giving us feedback, we're offering:</strong></p>
+                        <ul>
+                            <li>First month FREE</li>
+                            <li>Locked-in pricing for 2 years</li>
+                            <li>Direct access to owner (Max) for any issues</li>
+                        </ul>
+                        <p style="margin-bottom: 0;"><em>Limit to 3-5 pilot clients to ensure quality service as you learn.</em></p>
+                    </div>
+
+                    <h4>Pilot Client Onboarding Process:</h4>
+                    <ol style="margin-left: 20px;">
+                        <li><strong>Discovery meeting</strong> (1-2 hours) - Understand their environment, pain points, current IT spend</li>
+                        <li><strong>Network assessment</strong> - Document all computers, printers, network equipment</li>
+                        <li><strong>Deploy RMM agent</strong> - Install on all computers</li>
+                        <li><strong>Set up monitoring</strong> - Configure alerts specific to their environment</li>
+                        <li><strong>Documentation</strong> - Record passwords, vendors, key info</li>
+                        <li><strong>Training call</strong> - Show them how to submit tickets, what to expect</li>
+                    </ol>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-header">
+                        <span class="step-number">10</span>
+                        <h3>Outbound Sales to New Clients</h3>
+                        <span class="duration">Week 10-12+</span>
+                    </div>
+
+                    <h4>Lead Generation Tactics:</h4>
+                    <div class="card-grid">
+                        <div class="tool-card">
+                            <h4>Direct Outreach</h4>
+                            <ul>
+                                <li>Visit local businesses in person</li>
+                                <li>Bring a one-pager and business card</li>
+                                <li>Ask: "Who handles your IT?"</li>
+                                <li>Offer free network assessment</li>
+                            </ul>
+                        </div>
+                        <div class="tool-card">
+                            <h4>Referrals</h4>
+                            <ul>
+                                <li>Ask pilot clients for referrals</li>
+                                <li>Offer referral bonus ($100-250)</li>
+                                <li>Leverage Max's business network</li>
+                                <li>Join Topeka Chamber of Commerce</li>
+                            </ul>
+                        </div>
+                        <div class="tool-card">
+                            <h4>Digital Marketing</h4>
+                            <ul>
+                                <li>Google Business Profile optimization</li>
+                                <li>Local SEO for IT services</li>
+                                <li>LinkedIn for B2B connections</li>
+                                <li>Google Ads for "Topeka IT support"</li>
+                            </ul>
+                        </div>
+                        <div class="tool-card">
+                            <h4>Networking</h4>
+                            <ul>
+                                <li>BNI or similar networking groups</li>
+                                <li>Local business association events</li>
+                                <li>Holton community events</li>
+                                <li>Partner with accountants/lawyers</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="warning-box">
+                        <h4>Sales Tip:</h4>
+                        <p style="margin-bottom: 0;">The best sales pitch is: <strong>"How much did your last IT problem cost you in downtime?"</strong> Then show how monthly proactive support prevents those costly surprises.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="phase5">
+            <div class="container">
+                <h2>Phase 5: Scale & Optimize</h2>
+
+                <div class="step-card">
+                    <div class="step-header">
+                        <span class="step-number">11</span>
+                        <h3>Measure & Improve</h3>
+                        <span class="duration">Ongoing</span>
+                    </div>
+
+                    <h4>Key Metrics to Track:</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Metric</th>
+                                <th>Target</th>
+                                <th>Why It Matters</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Monthly Recurring Revenue (MRR)</td>
+                                <td>Track growth monthly</td>
+                                <td>Core measure of MSP business health</td>
+                            </tr>
+                            <tr>
+                                <td>Client Satisfaction (CSAT)</td>
+                                <td>90%+</td>
+                                <td>Happy clients refer others</td>
+                            </tr>
+                            <tr>
+                                <td>Ticket Response Time</td>
+                                <td>< 4 hours</td>
+                                <td>Meet your SLA promises</td>
+                            </tr>
+                            <tr>
+                                <td>Ticket Resolution Time</td>
+                                <td>< 24 hours (most)</td>
+                                <td>Speed of problem solving</td>
+                            </tr>
+                            <tr>
+                                <td>Client Churn Rate</td>
+                                <td>< 5% annually</td>
+                                <td>Are you keeping clients?</td>
+                            </tr>
+                            <tr>
+                                <td>Revenue per Endpoint</td>
+                                <td>$75-150/month</td>
+                                <td>Are you pricing correctly?</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-header">
+                        <span class="step-number">12</span>
+                        <h3>Expand Services Over Time</h3>
+                        <span class="duration">Month 6+</span>
+                    </div>
+
+                    <h4>Add-On Services to Introduce Later:</h4>
+                    <ul class="checklist">
+                        <li><strong>Managed Backup</strong> - Cloud backup with verification ($50-100/server/month)</li>
+                        <li><strong>Email Security</strong> - Spam filtering, email protection ($3-5/user/month)</li>
+                        <li><strong>Cybersecurity Training</strong> - Phishing simulations for staff ($2-3/user/month)</li>
+                        <li><strong>Compliance Support</strong> - HIPAA documentation for medical clients</li>
+                        <li><strong>VoIP Phone Systems</strong> - Partner with a VoIP provider for referrals</li>
+                        <li><strong>Hardware as a Service</strong> - Lease computers to clients monthly</li>
+                    </ul>
+
+                    <div class="action-items">
+                        <h4>Scaling Milestones:</h4>
+                        <ul>
+                            <li><strong>5 clients:</strong> Evaluate if you need to hire help desk support</li>
+                            <li><strong>10 clients:</strong> Consider dedicated MSP technician role</li>
+                            <li><strong>$10K MRR:</strong> Your MSP business is sustainable</li>
+                            <li><strong>$25K MRR:</strong> MSP may become primary business focus</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="sources">
+            <div class="container">
+                <h2>Sources & Resources</h2>
+
+                <div class="source-list">
+                    <h4>Research Sources</h4>
+                    <ul>
+                        <li><a href="https://deskday.com/guide-to-starting-a-managed-service-provider-business-2025/" target="_blank">DeskDay: Guide to Starting an MSP Business in 2025</a></li>
+                        <li><a href="https://www.msp360.com/resources/blog/starting-an-msp/" target="_blank">MSP360: MSP Startup Guide</a></li>
+                        <li><a href="https://www.huntress.com/msp-guide/how-to-start-a-managed-service-provider-business" target="_blank">Huntress: How to Start an MSP Business</a></li>
+                        <li><a href="https://syncromsp.com/blog/best-msp-pricing-models/" target="_blank">Syncro: Which MSP Pricing Model Is Best?</a></li>
+                        <li><a href="https://superops.com/blog/managed-service-provider/pricing-per-user" target="_blank">SuperOps: The Ultimate Guide to Pricing Per User</a></li>
+                        <li><a href="https://www.kaseya.com/resource/msp-pricing-managed-it-services-pricing/" target="_blank">Kaseya: MSP Pricing Guide</a></li>
+                        <li><a href="https://superops.com/best-rmm-software-and-tools" target="_blank">SuperOps: 11 Best RMM Software and Tools for 2025</a></li>
+                        <li><a href="https://medhacloud.com/blog/top-21-rmm-tools-features-pricing-comparison-2025" target="_blank">MedhaCloud: Top 21 RMM Tools Comparison 2025</a></li>
+                    </ul>
+                </div>
+
+                <div class="source-list">
+                    <h4>Tools to Evaluate</h4>
+                    <ul>
+                        <li><a href="https://syncromsp.com" target="_blank">Syncro</a> - All-in-one RMM + PSA (Recommended for starting)</li>
+                        <li><a href="https://www.ninjaone.com" target="_blank">NinjaOne</a> - Popular RMM platform</li>
+                        <li><a href="https://www.connectwise.com" target="_blank">ConnectWise</a> - Enterprise MSP platform</li>
+                        <li><a href="https://www.atera.com" target="_blank">Atera</a> - Per-technician pricing RMM</li>
+                        <li><a href="https://www.huntress.com" target="_blank">Huntress</a> - Managed threat detection</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p><strong>The Computer Store</strong> | Topeka & Holton, Kansas</p>
+            <p><a href="/documentation/business_growth_plan_2026.html">Back to Growth Plan</a></p>
+        </div>
+    </footer>
+</body>
+</html>

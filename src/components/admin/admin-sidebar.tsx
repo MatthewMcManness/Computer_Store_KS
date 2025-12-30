@@ -18,6 +18,7 @@ import {
   Ticket,
   Moon,
   Sun,
+  UserCog,
 } from 'lucide-react';
 import { useDarkMode } from '@/hooks/useDarkMode';
 
@@ -67,6 +68,11 @@ const navItems: NavItem[] = [
     label: 'New Post',
     href: '/admin/blog/new',
     icon: <PenSquare className="h-5 w-5" />,
+  },
+  {
+    label: 'Employees',
+    href: '/admin/employees',
+    icon: <UserCog className="h-5 w-5" />,
   },
 ];
 

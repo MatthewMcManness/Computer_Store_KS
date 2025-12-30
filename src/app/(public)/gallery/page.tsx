@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import galleryData from '@/data/gallery.json';
+import type { GalleryComputer } from '@/types/gallery';
 
 interface GalleryItem {
   id: string;
@@ -14,34 +14,64 @@ interface GalleryItem {
   price: number;
   salePrice?: number;
   imageUrl: string;
+  thumbnailUrl?: string;
   specs: Array<{ label: string; value: string }>;
   isBlackFridaySale?: boolean;
 }
 
-// Transform gallery.json data to the format we need
-const galleryItems: GalleryItem[] = galleryData.computers.map((computer) => {
+// Transform API response to the format we need
+function transformComputer(computer: GalleryComputer): GalleryItem {
   const price = parseFloat(computer.price.replace(/[$,]/g, ''));
   const salePrice = computer.blackFriday?.enabled
     ? parseFloat(computer.blackFriday.salePrice.replace(/[$,]/g, ''))
     : undefined;
 
   return {
-    id: String(computer.id),
+    id: computer.id,
     name: computer.name,
     category: computer.category,
     type: computer.type,
     price,
     salePrice,
-    imageUrl: computer.image,
-    specs: computer.specs,
+    imageUrl: computer.image || '/assets/logo.png',
+    thumbnailUrl: computer.thumbnail || undefined,
+    specs: computer.specs || [],
     isBlackFridaySale: computer.blackFriday?.enabled || false,
   };
-});
+}
 
 function GalleryContent() {
   const searchParams = useSearchParams();
   const [filter, setFilter] = useState('all');
-  const [items] = useState<GalleryItem[]>(galleryItems);
+  const [items, setItems] = useState<GalleryItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch gallery data from API (Supabase)
+  const fetchGallery = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const response = await fetch('/api/gallery');
+      const result = await response.json();
+
+      if (result.success && result.data) {
+        const transformed = result.data.map(transformComputer);
+        setItems(transformed);
+      } else {
+        setError(result.error || 'Failed to load gallery');
+      }
+    } catch (err) {
+      console.error('Error fetching gallery:', err);
+      setError('Failed to load gallery');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchGallery();
+  }, [fetchGallery]);
 
   useEffect(() => {
     const urlFilter = searchParams?.get('filter');
@@ -103,6 +133,26 @@ function GalleryContent() {
       {/* Gallery Grid Section */}
       <section className="gallery-section">
         <div className="container">
+          {isLoading ? (
+            <div style={{ padding: '3rem', textAlign: 'center' }}>
+              <p>Loading gallery...</p>
+            </div>
+          ) : error ? (
+            <div style={{ padding: '3rem', textAlign: 'center' }}>
+              <p style={{ color: '#dc2626' }}>{error}</p>
+              <button
+                onClick={fetchGallery}
+                className="btn"
+                style={{ marginTop: '1rem' }}
+              >
+                Try Again
+              </button>
+            </div>
+          ) : filteredItems.length === 0 ? (
+            <div style={{ padding: '3rem', textAlign: 'center' }}>
+              <p>No computers found{filter !== 'all' ? ` in "${filter}" category` : ''}.</p>
+            </div>
+          ) : (
           <div className="gallery-grid" id="gallery-grid">
             {filteredItems.map((item) => (
               <div
@@ -122,7 +172,7 @@ function GalleryContent() {
                     )}
                     <div className="gallery-card-image">
                       <Image
-                        src={item.imageUrl}
+                        src={item.thumbnailUrl || item.imageUrl}
                         alt={item.name}
                         width={300}
                         height={200}
@@ -159,6 +209,7 @@ function GalleryContent() {
               </div>
             ))}
           </div>
+          )}
         </div>
       </section>
     </>

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { requestPasswordReset, getAuthErrorMessage } from '@/lib/supabase-auth';
+import { createBrowserClient } from '@supabase/ssr';
 
 /**
  * Loading spinner component
@@ -34,6 +34,11 @@ export default function ResetPasswordPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -48,18 +53,29 @@ export default function ResetPasswordPage() {
         return;
       }
 
-      const { error: resetError } = await requestPasswordReset(
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(
         email,
-        `${window.location.origin}/reset-password/confirm`
+        {
+          redirectTo: `${window.location.origin}/reset-password/confirm`,
+        }
       );
 
       if (resetError) {
-        setError(getAuthErrorMessage(resetError));
+        // Provide user-friendly error messages
+        const message = resetError.message.toLowerCase();
+        if (message.includes('rate limit')) {
+          setError('Too many attempts. Please wait a few minutes before trying again.');
+        } else if (message.includes('email')) {
+          setError('Please enter a valid email address.');
+        } else {
+          setError(resetError.message || 'Failed to send reset email. Please try again.');
+        }
         return;
       }
 
       setIsSuccess(true);
-    } catch {
+    } catch (err) {
+      console.error('Password reset error:', err);
       setError('Failed to send reset email. Please try again.');
     } finally {
       setIsLoading(false);

@@ -191,23 +191,70 @@ async function fetchRepairShoprEmployees(): Promise<RepairShoprEmployee[]> {
 
   log('info', 'system', `Fetching employees from RepairShopr (${subdomain})`);
 
-  // RepairShopr uses /users endpoint for employees
-  const response = await fetch(`${baseUrl}/users?api_key=${encodeURIComponent(apiKey)}`, {
+  // RepairShopr /users endpoint returns simplified array: [[id, name], ...]
+  const listResponse = await fetch(`${baseUrl}/users?api_key=${encodeURIComponent(apiKey)}`, {
     method: 'GET',
     headers: {
       'Accept': 'application/json',
     },
   });
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`RepairShopr API error (${response.status}): ${errorText}`);
+  if (!listResponse.ok) {
+    const errorText = await listResponse.text();
+    throw new Error(`RepairShopr API error (${listResponse.status}): ${errorText}`);
   }
 
-  const data = await response.json() as { users?: RepairShoprEmployee[] };
-  const employees = data.users || [];
+  const listData = await listResponse.json() as { users?: Array<[number, string]> };
+  const userList = listData.users || [];
 
-  log('info', 'system', `Found ${employees.length} employees in RepairShopr`);
+  log('info', 'system', `Found ${userList.length} employees in RepairShopr, fetching details...`);
+
+  // Fetch detailed info for each user
+  const employees: RepairShoprEmployee[] = [];
+  for (const [userId, userName] of userList) {
+    try {
+      const detailResponse = await fetch(
+        `${baseUrl}/users/${userId}?api_key=${encodeURIComponent(apiKey)}`,
+        {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' },
+        }
+      );
+
+      if (!detailResponse.ok) {
+        log('warning', 'employee', `Failed to fetch details for user ${userId} (${userName})`);
+        continue;
+      }
+
+      const detailData = await detailResponse.json() as {
+        user?: {
+          id: number;
+          email?: string;
+          full_name: string;
+          'admin?'?: boolean;
+          group?: string;
+        };
+      };
+
+      if (detailData.user && detailData.user.email) {
+        employees.push({
+          id: detailData.user.id,
+          email: detailData.user.email,
+          full_name: detailData.user.full_name,
+          admin: detailData.user['admin?'] || false,
+          role: detailData.user.group,
+        });
+        log('info', 'system', `  - ${detailData.user.full_name} (${detailData.user.email})`);
+      } else {
+        log('warning', 'employee', `User ${userId} (${userName}) has no email, skipping`);
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      log('warning', 'employee', `Error fetching user ${userId}: ${errorMessage}`);
+    }
+  }
+
+  log('info', 'system', `Loaded ${employees.length} employees with valid emails`);
 
   return employees;
 }
@@ -273,10 +320,21 @@ async function checkExistingAuthUser(email: string): Promise<User | null> {
 // Role Mapping
 // =============================================================================
 
+// Emails that should always be admins on the website
+const ADMIN_EMAILS = [
+  'matthewmcmanness@gmail.com',
+  'owner@computerstoreks.com',
+];
+
 function mapRepairShoprRoleToSupabase(
   employee: RepairShoprEmployee
 ): 'admin' | 'technician' | 'receptionist' {
-  // Admin users are admins
+  // Check hardcoded admin list first
+  if (ADMIN_EMAILS.includes(employee.email.toLowerCase())) {
+    return 'admin';
+  }
+
+  // Admin users in RepairShopr are admins
   if (employee.admin) {
     return 'admin';
   }

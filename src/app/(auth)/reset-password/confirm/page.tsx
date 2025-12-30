@@ -43,24 +43,58 @@ export default function ResetPasswordConfirmPage() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 
-  // Check for valid session from the recovery link
+  // Listen for auth state changes to detect recovery token
   useEffect(() => {
-    const checkSession = async () => {
-      // The hash fragment contains the access token from the email link
-      // Supabase client automatically handles this when the page loads
-      const { data: { session }, error } = await supabase.auth.getSession();
+    // Check if there's a hash fragment with tokens
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const accessToken = hashParams.get('access_token');
+    const type = hashParams.get('type');
 
-      if (error || !session) {
-        setIsValidToken(false);
-      } else {
-        setIsValidToken(true);
+    if (!accessToken) {
+      // No token in URL, invalid link
+      setIsValidToken(false);
+      return;
+    }
+
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === 'PASSWORD_RECOVERY' || (event === 'SIGNED_IN' && type === 'recovery')) {
+          // Valid recovery session
+          setIsValidToken(true);
+        } else if (event === 'TOKEN_REFRESHED' && session) {
+          // Token was refreshed, still valid
+          setIsValidToken(true);
+        } else if (event === 'SIGNED_OUT') {
+          setIsValidToken(false);
+        }
       }
-    };
+    );
 
-    // Small delay to allow Supabase to process the hash fragment
-    const timer = setTimeout(checkSession, 500);
-    return () => clearTimeout(timer);
-  }, [supabase.auth]);
+    // Also check current session after a brief delay
+    const timer = setTimeout(async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session && isValidToken === null) {
+        setIsValidToken(true);
+      } else if (!session && isValidToken === null) {
+        // Try to exchange the token manually
+        const { error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: hashParams.get('refresh_token') || '',
+        });
+        if (!error) {
+          setIsValidToken(true);
+        } else {
+          setIsValidToken(false);
+        }
+      }
+    }, 1000);
+
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timer);
+    };
+  }, [supabase.auth, isValidToken]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

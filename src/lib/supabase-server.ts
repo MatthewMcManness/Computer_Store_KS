@@ -287,3 +287,8 @@ export async function serverUserHasRole(
   if (!profile) return false;
   return allowedRoles.includes(profile.role);
 }
+
+/**
+ * Alias for createSupabaseRouteClient for simpler imports
+ */
+export const createClient = createSupabaseRouteClient;

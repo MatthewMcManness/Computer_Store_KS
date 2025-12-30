@@ -42,3 +42,4 @@ out/
 # CCPM local workspace
 .claude/settings.local.json
 # Trigger rebuild Thu Nov 27 09:25:25 AM CST 2025
+.env.local

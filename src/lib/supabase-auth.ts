@@ -168,6 +168,36 @@ export async function signIn(
 }
 
 /**
+ * Sign in with Google OAuth
+ * Redirects to Google for authentication, then back to /auth/callback
+ */
+export async function signInWithGoogle(
+  redirectTo?: string
+): Promise<{ error: Error | null }> {
+  const client = createAuthClient();
+  if (!client) {
+    return { error: new Error('Supabase auth not configured') };
+  }
+
+  const { error } = await client.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL || window.location.origin}/auth/callback${redirectTo ? `?returnTo=${encodeURIComponent(redirectTo)}` : ''}`,
+      queryParams: {
+        access_type: 'offline',
+        prompt: 'consent',
+      },
+    },
+  });
+
+  if (error) {
+    return { error: new Error(error.message) };
+  }
+
+  return { error: null };
+}
+
+/**
  * Sign in with magic link (passwordless)
  */
 export async function signInWithMagicLink(

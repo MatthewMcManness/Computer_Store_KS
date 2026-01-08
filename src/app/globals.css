@@ -99,4 +99,35 @@
       transform: scale(1);
     }
   }
+
+  /* Silver Plan animations */
+  @keyframes silverShine {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  @keyframes goldBorder {
+    0% { border-color: #ffd700; box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3); }
+    50% { border-color: #daa520; box-shadow: 0 4px 30px rgba(218, 165, 32, 0.5); }
+    100% { border-color: #ffd700; box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3); }
+  }
+
+  .gold-text {
+    background: linear-gradient(135deg, #ffd700 0%, #b8860b 25%, #ffd700 50%, #daa520 75%, #ffd700 100%);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: silverShine 3s ease-in-out infinite;
+  }
+
+  .silver-plus-card {
+    border: 3px solid #ffd700 !important;
+    animation: goldBorder 3s ease-in-out infinite;
+  }
+
+  .animate-silver-shine {
+    animation: silverShine 3s ease-in-out infinite;
+  }
 }

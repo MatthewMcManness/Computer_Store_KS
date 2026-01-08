@@ -22,62 +22,15 @@ const silverBadgeStyle = {
   letterSpacing: '0.05em',
   background: 'linear-gradient(135deg, #e8e8e8 0%, #b8b8b8 25%, #d4d4d4 50%, #a0a0a0 75%, #c8c8c8 100%)',
   backgroundSize: '200% 200%',
-  animation: 'silverShine 3s ease-in-out infinite',
   color: '#4a4a4a',
   textShadow: '1px 1px 2px rgba(255,255,255,0.8), -1px -1px 1px rgba(0,0,0,0.1)',
   boxShadow: '0 4px 15px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.1)',
   border: '2px solid #a0a0a0',
 };
 
-// Gold outline style for Silver Plus card
-const goldCardStyle = {
-  background: '#fff',
-  borderRadius: '12px',
-  padding: '2rem',
-  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-  position: 'relative' as const,
-  display: 'flex',
-  flexDirection: 'column' as const,
-  border: '3px solid transparent',
-  backgroundImage: 'linear-gradient(white, white), linear-gradient(135deg, #ffd700 0%, #b8860b 25%, #ffd700 50%, #daa520 75%, #ffd700 100%)',
-  backgroundOrigin: 'border-box',
-  backgroundClip: 'padding-box, border-box',
-  animation: 'goldBorder 3s ease-in-out infinite',
-};
-
 export default function ProtectionPlansPage() {
   return (
     <>
-      <style>{`
-        @keyframes silverShine {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-        @keyframes goldBorder {
-          0% { border-color: #ffd700; box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3); }
-          50% { border-color: #daa520; box-shadow: 0 4px 30px rgba(218, 165, 32, 0.5); }
-          100% { border-color: #ffd700; box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3); }
-        }
-        @keyframes goldText {
-          0% { color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
-          50% { color: #daa520; text-shadow: 0 0 15px rgba(218, 165, 32, 0.7); }
-          100% { color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
-        }
-        .gold-text {
-          background: linear-gradient(135deg, #ffd700 0%, #b8860b 25%, #ffd700 50%, #daa520 75%, #ffd700 100%);
-          background-size: 200% 200%;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          animation: silverShine 3s ease-in-out infinite;
-        }
-        .silver-plus-card {
-          border: 3px solid #ffd700 !important;
-          animation: goldBorder 3s ease-in-out infinite;
-        }
-      `}</style>
-
       {/* Hero Section */}
       <section className="hero">
         <div className="container">
@@ -124,7 +77,7 @@ export default function ProtectionPlansPage() {
 
               {/* Animated Silver Badge Header */}
               <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-                <div style={silverBadgeStyle}>Silver</div>
+                <div className="animate-silver-shine" style={silverBadgeStyle}>Silver</div>
               </div>
 
               <div style={{
@@ -216,7 +169,7 @@ export default function ProtectionPlansPage() {
 
               {/* Animated Silver Badge Header with Gold "Plus" */}
               <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-                <div style={silverBadgeStyle}>
+                <div className="animate-silver-shine" style={silverBadgeStyle}>
                   Silver <span className="gold-text">Plus</span>
                 </div>
               </div>

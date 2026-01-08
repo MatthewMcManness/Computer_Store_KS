@@ -59,7 +59,7 @@ export default function SyncPage() {
 
   const fetchStatus = useCallback(async () => {
     try {
-      const response = await fetch('/api/admin/sync');
+      const response = await fetch('/api/admin/sync?logs=20');
       if (!response.ok) {
         throw new Error('Failed to fetch sync status');
       }
@@ -77,6 +77,16 @@ export default function SyncPage() {
   useEffect(() => {
     fetchStatus();
   }, [fetchStatus]);
+
+  // Poll for updates while syncing
+  useEffect(() => {
+    if (syncing) {
+      const interval = setInterval(() => {
+        fetchStatus();
+      }, 2000); // Poll every 2 seconds
+      return () => clearInterval(interval);
+    }
+  }, [syncing, fetchStatus]);
 
   const runSync = async (type: SyncType) => {
     setSyncing(type);
@@ -183,6 +193,53 @@ export default function SyncPage() {
           </div>
         </button>
       </div>
+
+      {/* Live Sync Progress */}
+      {syncing === 'full' && (
+        <div className="mb-8 rounded-xl bg-blue-50 border-2 border-blue-200 p-6 dark:bg-blue-900/20 dark:border-blue-800">
+          <div className="flex items-center gap-3 mb-4">
+            <Loader2 className="h-6 w-6 animate-spin text-blue-600 dark:text-blue-400" />
+            <h3 className="font-semibold text-blue-900 dark:text-blue-100">Full Sync In Progress...</h3>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+            {syncEntities.map(({ type, label }) => {
+              const entityLog = logs.find(l => l.entity_type === type && l.sync_type === 'entity');
+              const isRunning = entityLog?.status === 'running';
+              const isComplete = entityLog?.status === 'completed';
+              const isFailed = entityLog?.status === 'failed';
+
+              return (
+                <div
+                  key={type}
+                  className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm ${
+                    isRunning ? 'bg-blue-200 text-blue-800 dark:bg-blue-800 dark:text-blue-200' :
+                    isComplete ? 'bg-green-200 text-green-800 dark:bg-green-800 dark:text-green-200' :
+                    isFailed ? 'bg-red-200 text-red-800 dark:bg-red-800 dark:text-red-200' :
+                    'bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
+                  }`}
+                >
+                  {isRunning ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : isComplete ? (
+                    <Check className="h-4 w-4" />
+                  ) : isFailed ? (
+                    <X className="h-4 w-4" />
+                  ) : (
+                    <span className="h-4 w-4 rounded-full border-2 border-current" />
+                  )}
+                  <span className="font-medium">{label}</span>
+                  {isComplete && entityLog && (
+                    <span className="text-xs opacity-75">({entityLog.records_synced})</span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          <p className="mt-4 text-sm text-blue-700 dark:text-blue-300">
+            Syncing all data from RepairShopr. This may take several minutes for large datasets.
+          </p>
+        </div>
+      )}
 
       {/* Current Counts */}
       <div className="mb-8">

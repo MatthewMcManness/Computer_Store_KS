@@ -184,10 +184,16 @@ export async function getPublishedPostBySlug(slug: string): Promise<BlogPost | n
     `)
     .eq('slug', slug)
     .eq('status', 'published')
-    .single();
+    .maybeSingle();
 
   if (error) {
+    // Only log actual errors, not "not found" cases
     console.error('Error fetching post by slug:', error);
+    return null;
+  }
+
+  // No post found with this slug (expected for invalid slugs)
+  if (!data) {
     return null;
   }
 

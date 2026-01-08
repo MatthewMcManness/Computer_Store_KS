@@ -303,15 +303,23 @@ export async function authenticateWithSupabase(
     }
 
     // Step 2: Get or create user profile from user_profiles table
-    let { data: profile } = await supabaseAdmin
+    console.log(`[AUTH] Looking up profile for user ID: ${authData.user.id}`);
+    let { data: profile, error: profileError } = await supabaseAdmin
       .from('user_profiles')
       .select('*')
       .eq('id', authData.user.id)
       .single();
 
-    // Create profile with 'customer' role if it doesn't exist
-    if (!profile) {
-      console.log(`[AUTH] Creating user profile for customer: ${email}`);
+    if (profileError) {
+      console.log(`[AUTH] Profile lookup error: ${profileError.code} - ${profileError.message}`);
+    }
+    if (profile) {
+      console.log(`[AUTH] Found profile with role: ${profile.role}`);
+    }
+
+    // Only create profile if it truly doesn't exist (PGRST116 = no rows returned)
+    if (!profile && profileError?.code === 'PGRST116') {
+      console.log(`[AUTH] Creating user profile for new user: ${email}`);
       const { data: newProfile, error: insertError } = await supabaseAdmin
         .from('user_profiles')
         .insert({
@@ -325,8 +333,8 @@ export async function authenticateWithSupabase(
 
       if (insertError) {
         console.error(`[AUTH] Failed to create user profile:`, insertError.message);
-        // Continue without profile - user can still authenticate
       } else {
+        console.log(`[AUTH] Created new profile with role: customer`);
         profile = newProfile;
       }
     }
@@ -391,6 +399,13 @@ export async function authenticateWithSupabase(
         name: userData.name,
         role: userData.role,
         userType: userData.userType,
+      },
+      // Debug info - remove after fixing
+      _debug: {
+        authUserId: authData.user.id,
+        profileFound: !!profile,
+        profileRole: profile?.role || null,
+        profileError: profileError?.code || null,
       },
     };
   } catch (error) {

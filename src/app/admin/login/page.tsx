@@ -212,6 +212,14 @@ export default function AdminLoginPage() {
                 {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>
             </div>
+            <div className="mt-1 text-right">
+              <Link
+                href="/reset-password"
+                className="text-sm text-blue-600 hover:text-blue-700 hover:underline dark:text-blue-400"
+              >
+                Forgot password?
+              </Link>
+            </div>
           </div>
 
           <button

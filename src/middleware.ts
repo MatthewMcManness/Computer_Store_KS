@@ -36,7 +36,6 @@ const PUBLIC_ROUTES = [
   '/gallery',
   '/reviews',
   '/silver-plan',
-  '/black-friday',
   '/why-linux',
 ];
 

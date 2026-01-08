@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { createBrowserClient } from '@supabase/ssr';
 
@@ -31,6 +31,7 @@ function LoadingSpinner({ className = 'h-5 w-5' }: { className?: string }) {
 
 export default function ResetPasswordConfirmPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
@@ -52,57 +53,84 @@ export default function ResetPasswordConfirmPage() {
     hasCheckedToken.current = true;
 
     const checkToken = async () => {
-      // Check if there's a hash fragment with tokens
-      const hash = window.location.hash;
-      if (!hash || hash.length < 2) {
-        console.log('No hash fragment found');
-        setIsValidToken(false);
-        return;
-      }
+      // Method 1: Check for PKCE code in query params (modern Supabase flow)
+      const code = searchParams.get('code');
+      if (code) {
+        console.log('Found PKCE code in URL, exchanging for session...');
+        try {
+          const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
 
-      const hashParams = new URLSearchParams(hash.substring(1));
-      const accessToken = hashParams.get('access_token');
-      const refreshToken = hashParams.get('refresh_token');
-      const type = hashParams.get('type');
+          if (exchangeError) {
+            console.error('Error exchanging code:', exchangeError.message);
+            setIsValidToken(false);
+            return;
+          }
 
-      console.log('Hash params:', { hasAccessToken: !!accessToken, type });
-
-      if (!accessToken) {
-        console.log('No access token in URL');
-        setIsValidToken(false);
-        return;
-      }
-
-      // Try to set the session with the tokens from the URL
-      try {
-        const { data, error: sessionError } = await supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: refreshToken || '',
-        });
-
-        if (sessionError) {
-          console.error('Error setting session:', sessionError.message);
+          if (data.session) {
+            console.log('Session established via PKCE code exchange');
+            setIsValidToken(true);
+            return;
+          }
+        } catch (err) {
+          console.error('Exception during code exchange:', err);
           setIsValidToken(false);
           return;
         }
-
-        if (data.session) {
-          console.log('Session established successfully');
-          setIsValidToken(true);
-        } else {
-          console.log('No session returned');
-          setIsValidToken(false);
-        }
-      } catch (err) {
-        console.error('Exception setting session:', err);
-        setIsValidToken(false);
       }
+
+      // Method 2: Check for hash fragment with tokens (legacy/implicit flow)
+      const hash = window.location.hash;
+      if (hash && hash.length > 1) {
+        const hashParams = new URLSearchParams(hash.substring(1));
+        const accessToken = hashParams.get('access_token');
+        const refreshToken = hashParams.get('refresh_token');
+        const type = hashParams.get('type');
+
+        console.log('Hash params found:', { hasAccessToken: !!accessToken, type });
+
+        if (accessToken) {
+          try {
+            const { data, error: sessionError } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken || '',
+            });
+
+            if (sessionError) {
+              console.error('Error setting session:', sessionError.message);
+              setIsValidToken(false);
+              return;
+            }
+
+            if (data.session) {
+              console.log('Session established via hash tokens');
+              setIsValidToken(true);
+              return;
+            }
+          } catch (err) {
+            console.error('Exception setting session:', err);
+            setIsValidToken(false);
+            return;
+          }
+        }
+      }
+
+      // Method 3: Check if there's already an active session (user might have refreshed)
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        console.log('Found existing session');
+        setIsValidToken(true);
+        return;
+      }
+
+      // No valid token found
+      console.log('No valid token or code found in URL');
+      setIsValidToken(false);
     };
 
     // Small delay to ensure the page is fully loaded
     const timer = setTimeout(checkToken, 100);
     return () => clearTimeout(timer);
-  }, [supabase]);
+  }, [supabase, searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

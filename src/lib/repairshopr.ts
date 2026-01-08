@@ -1536,11 +1536,34 @@ export class RepairShoprClient {
       );
     }
 
-    const response = await this.request<{ payments: RepairShoprPayment[] }>(
-      `/payments?api_key=${encodeURIComponent(apiToken.trim())}&customer_id=${customerId}`
+    // Note: RepairShopr's /payments endpoint does not support customer_id filtering
+    // via query params. We must fetch all payments and filter client-side.
+    // To optimize, we first get the customer's invoices, then filter payments
+    // by those invoice IDs.
+    const invoicesResponse = await this.request<{ invoices: RepairShoprInvoice[] }>(
+      `/invoices?api_key=${encodeURIComponent(apiToken.trim())}&customer_id=${customerId}`
     );
 
-    return response.payments || [];
+    const customerInvoiceIds = new Set(
+      (invoicesResponse.invoices || []).map(inv => inv.id)
+    );
+
+    // If customer has no invoices, they have no payments
+    if (customerInvoiceIds.size === 0) {
+      return [];
+    }
+
+    // Fetch all payments and filter by customer's invoice IDs
+    const paymentsResponse = await this.request<{ payments: RepairShoprPayment[] }>(
+      `/payments?api_key=${encodeURIComponent(apiToken.trim())}`
+    );
+
+    // Filter payments to only those belonging to customer's invoices
+    const customerPayments = (paymentsResponse.payments || []).filter(
+      payment => customerInvoiceIds.has(payment.invoice_id)
+    );
+
+    return customerPayments;
   }
 
   /**

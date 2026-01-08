@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { isAuthenticated } from '@/lib/auth';
 import Link from 'next/link';
 import NextImage from 'next/image';
-import { Image, Plus, Settings, TrendingUp, Users } from 'lucide-react';
+import { Image, Plus, Settings, TrendingUp, Users, RefreshCw } from 'lucide-react';
 import { isGitHubConfigured } from '@/lib/github';
 import { getAllComputers, isSupabaseConfigured, getActiveSaleAdmin } from '@/lib/supabase';
 import { SaleDropdown } from '@/components/admin';
@@ -162,6 +162,19 @@ export default async function AdminDashboardPage() {
             <div>
               <p className="font-medium text-gray-900 dark:text-white">Customers</p>
               <p className="text-sm text-gray-500 dark:text-gray-400">Manage customer portal access</p>
+            </div>
+          </Link>
+
+          <Link
+            href="/admin/sync"
+            className="flex items-center gap-4 rounded-xl bg-white p-6 shadow-sm transition-shadow hover:shadow-md dark:bg-gray-900"
+          >
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900/50">
+              <RefreshCw className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+            </div>
+            <div>
+              <p className="font-medium text-gray-900 dark:text-white">Data Sync</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Sync RepairShopr data</p>
             </div>
           </Link>
 

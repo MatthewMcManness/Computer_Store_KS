@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { GalleryTable } from '@/components/admin';
+import { GalleryTable, SaleDropdown } from '@/components/admin';
 import type { GalleryComputer } from '@/types/gallery';
 import { Plus, Filter } from 'lucide-react';
 
@@ -111,7 +111,12 @@ export default function AdminGalleryPage() {
             Manage your computer inventory
           </p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-gray-500">Sale:</span>
+          <SaleDropdown onSaleChange={() => {
+            // Reload computers when sale changes
+            window.location.reload();
+          }} />
           <Link
             href="/admin/gallery/new"
             className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"

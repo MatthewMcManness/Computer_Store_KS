@@ -123,12 +123,8 @@
   }
 
   .gold-text {
-    background: linear-gradient(135deg, #996515 0%, #704d0e 25%, #8b6914 50%, #704d0e 75%, #996515 100%);
-    background-size: 200% 200%;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    animation: silverShine 3s ease-in-out infinite;
+    color: #8b6914 !important;
+    -webkit-text-fill-color: #8b6914 !important;
   }
 
   .silver-plus-card {

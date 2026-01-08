@@ -123,8 +123,8 @@
   }
 
   .gold-text {
-    color: #8b6914 !important;
-    -webkit-text-fill-color: #8b6914 !important;
+    color: #b8860b !important;
+    -webkit-text-fill-color: #b8860b !important;
   }
 
   .silver-plus-card {
@@ -132,22 +132,22 @@
   }
 
   .gold-glow-badge {
-    border: 2px solid #ffd700 !important;
+    border: 2px solid #b8860b !important;
     animation: goldBadgeGlow 3s ease-in-out infinite;
   }
 
   @keyframes goldBadgeGlow {
     0% {
-      border-color: #ffd700;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2), 0 0 15px rgba(255, 215, 0, 0.6), 0 0 30px rgba(255, 215, 0, 0.4), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.1);
+      border-color: #b8860b;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2), 0 0 15px rgba(184, 134, 11, 0.6), 0 0 30px rgba(184, 134, 11, 0.4), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.1);
     }
     50% {
-      border-color: #daa520;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2), 0 0 25px rgba(255, 215, 0, 0.8), 0 0 50px rgba(218, 165, 32, 0.6), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.1);
+      border-color: #996515;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2), 0 0 25px rgba(184, 134, 11, 0.8), 0 0 50px rgba(153, 101, 21, 0.6), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.1);
     }
     100% {
-      border-color: #ffd700;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2), 0 0 15px rgba(255, 215, 0, 0.6), 0 0 30px rgba(255, 215, 0, 0.4), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.1);
+      border-color: #b8860b;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2), 0 0 15px rgba(184, 134, 11, 0.6), 0 0 30px rgba(184, 134, 11, 0.4), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.1);
     }
   }
 

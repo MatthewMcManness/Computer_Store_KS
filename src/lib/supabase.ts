@@ -48,6 +48,24 @@ export function isSupabaseAdminConfigured(): boolean {
   return !!(supabaseUrl && supabaseServiceKey);
 }
 
+/**
+ * Create a fresh admin client instance
+ * Use this when you need to ensure service_role context isn't affected by previous auth operations
+ * ONLY use on server-side (API routes, server components)
+ */
+export function createFreshAdminClient() {
+  if (!supabaseUrl || !supabaseServiceKey) {
+    return null;
+  }
+
+  return createClient(supabaseUrl, supabaseServiceKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  });
+}
+
 // =============================================================================
 // Type Definitions
 // =============================================================================

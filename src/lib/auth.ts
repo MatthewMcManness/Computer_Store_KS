@@ -269,7 +269,7 @@ export async function authenticateWithSupabase(
   email: string,
   password: string
 ): Promise<AuthResult> {
-  const { supabaseAdmin } = await import('./supabase');
+  const { supabaseAdmin, createFreshAdminClient } = await import('./supabase');
 
   if (!supabaseAdmin) {
     console.log('[AUTH] Supabase not configured');
@@ -303,8 +303,19 @@ export async function authenticateWithSupabase(
     }
 
     // Step 2: Get or create user profile from user_profiles table
+    // IMPORTANT: Use a fresh admin client to ensure service_role context
+    // (signInWithPassword may have attached user session to the original client)
     console.log(`[AUTH] Looking up profile for user ID: ${authData.user.id}`);
-    let { data: profile, error: profileError } = await supabaseAdmin
+    const freshAdmin = createFreshAdminClient();
+    if (!freshAdmin) {
+      console.log('[AUTH] Could not create fresh admin client for profile lookup');
+      return {
+        success: false,
+        error: 'Authentication configuration error',
+      };
+    }
+
+    let { data: profile, error: profileError } = await freshAdmin
       .from('user_profiles')
       .select('*')
       .eq('id', authData.user.id)
@@ -320,7 +331,7 @@ export async function authenticateWithSupabase(
     // Only create profile if it truly doesn't exist (PGRST116 = no rows returned)
     if (!profile && profileError?.code === 'PGRST116') {
       console.log(`[AUTH] Creating user profile for new user: ${email}`);
-      const { data: newProfile, error: insertError } = await supabaseAdmin
+      const { data: newProfile, error: insertError } = await freshAdmin
         .from('user_profiles')
         .insert({
           id: authData.user.id,

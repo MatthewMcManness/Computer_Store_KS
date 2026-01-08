@@ -123,7 +123,7 @@
   }
 
   .gold-text {
-    background: linear-gradient(135deg, #ffd700 0%, #b8860b 25%, #ffd700 50%, #daa520 75%, #ffd700 100%);
+    background: linear-gradient(135deg, #b8860b 0%, #8b6914 25%, #a67c00 50%, #8b6914 75%, #b8860b 100%);
     background-size: 200% 200%;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;

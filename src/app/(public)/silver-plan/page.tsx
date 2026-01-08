@@ -22,8 +22,8 @@ const silverBadgeStyle = {
   letterSpacing: '0.05em',
   background: 'linear-gradient(135deg, #e8e8e8 0%, #b8b8b8 25%, #d4d4d4 50%, #a0a0a0 75%, #c8c8c8 100%)',
   backgroundSize: '200% 200%',
-  color: '#4a4a4a',
-  textShadow: '1px 1px 2px rgba(255,255,255,0.8), -1px -1px 1px rgba(0,0,0,0.1)',
+  color: '#2a2a2a',
+  textShadow: '1px 1px 2px rgba(255,255,255,0.9), -1px -1px 1px rgba(0,0,0,0.15)',
   boxShadow: '0 4px 15px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.1)',
   border: '2px solid #a0a0a0',
 };

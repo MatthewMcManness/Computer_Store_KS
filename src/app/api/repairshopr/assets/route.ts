@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCurrentUser, getSessionToken } from '@/lib/auth';
-import { createRepairShoprClient, RepairShoprAPIError } from '@/lib/repairshopr';
+import { getEmployeeAuditInfo, getSessionToken } from '@/lib/auth';
+import { createRepairShoprClient, RepairShoprAPIError, getApiToken } from '@/lib/repairshopr';
+import { logAssetAction } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,13 +11,14 @@ export const dynamic = 'force-dynamic';
  * Body: CreateAssetInput
  */
 export async function POST(request: NextRequest) {
-  // Check employee authentication
-  const user = await getCurrentUser();
-  if (!user || user.userType !== 'employee') {
+  // Check employee authentication and get audit info
+  const employee = await getEmployeeAuditInfo();
+  if (!employee) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const apiToken = await getSessionToken();
+  // Get API token (shared key preferred, falls back to session token)
+  const apiToken = getApiToken(await getSessionToken());
   if (!apiToken) {
     return NextResponse.json({ error: 'Session expired' }, { status: 401 });
   }
@@ -53,6 +55,16 @@ export async function POST(request: NextRequest) {
       console.error('[API] No asset returned from RepairShopr client');
       return NextResponse.json({ error: 'No asset created' }, { status: 500 });
     }
+
+    // Log the asset creation for audit trail
+    await logAssetAction(
+      employee,
+      'asset_create',
+      asset.id,
+      asset.name || body.name,
+      { customer_id: body.customer_id, asset_type: body.asset_type },
+      request
+    );
 
     return NextResponse.json({ asset }, { status: 201 });
   } catch (error) {

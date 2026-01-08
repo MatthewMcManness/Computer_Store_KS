@@ -47,9 +47,11 @@ const SESSIONS_DIR = join(process.cwd(), '.sessions');
 
 const mockUser: UserSession = {
   userId: 12345,
+  supabaseUserId: 'test-uuid-123',
   email: 'test@example.com',
   name: 'Test User',
   role: 'admin',
+  userType: 'employee',
 };
 
 // Mock RepairShopr API responses
@@ -685,9 +687,11 @@ describe('createSession', () => {
 
       const sessionId = await createSession({
         userId: 456,
+        supabaseUserId: 'new-uuid-456',
         email: 'new@test.com',
         name: 'New User',
         role: 'employee',
+        userType: 'employee',
       });
 
       expect(sessionId).toBeDefined();

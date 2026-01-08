@@ -18,17 +18,19 @@ import { randomBytes, createCipheriv, createDecipheriv } from 'crypto';
 
 export interface SessionData {
   userId: number;
+  supabaseUserId: string; // Supabase auth.users UUID (for audit logging)
   email: string;
   name: string;
   role: 'admin' | 'employee' | 'limited';
   userType: 'employee' | 'customer'; // Track whether user authenticated via RepairShopr or Supabase
-  apiToken: string;
+  apiToken: string; // Deprecated: kept for backwards compatibility, use shared API key instead
   createdAt: number;
   expiresAt: number;
 }
 
 export interface SafeSessionData {
   userId: number;
+  supabaseUserId: string; // Supabase auth.users UUID (for audit logging)
   email: string;
   name: string;
   role: 'admin' | 'employee' | 'limited';
@@ -39,6 +41,7 @@ export interface SafeSessionData {
 
 export interface CreateSessionInput {
   userId: number;
+  supabaseUserId: string; // Supabase auth.users UUID (for audit logging)
   email: string;
   name: string;
   role: 'admin' | 'employee' | 'limited';
@@ -159,11 +162,12 @@ export function decryptSession(encryptedBase64: string): SessionData | null {
  */
 export function createSessionData(
   input: CreateSessionInput,
-  apiToken: string
+  apiToken: string = ''
 ): SessionData {
   const now = Date.now();
   return {
     userId: input.userId,
+    supabaseUserId: input.supabaseUserId,
     email: input.email,
     name: input.name,
     role: input.role,
@@ -180,6 +184,7 @@ export function createSessionData(
 export function getSafeSession(session: SessionData): SafeSessionData {
   return {
     userId: session.userId,
+    supabaseUserId: session.supabaseUserId || '',
     email: session.email,
     name: session.name,
     role: session.role,

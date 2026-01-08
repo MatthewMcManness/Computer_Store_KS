@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCurrentUser, getSessionToken } from '@/lib/auth';
-import { createRepairShoprClient, RepairShoprAPIError } from '@/lib/repairshopr';
+import { getEmployeeAuditInfo, getSessionToken } from '@/lib/auth';
+import { createRepairShoprClient, RepairShoprAPIError, getApiToken } from '@/lib/repairshopr';
+import { logTicketAction } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,13 +15,14 @@ interface RouteParams {
  * Body: AddTicketCommentInput
  */
 export async function POST(request: NextRequest, { params }: RouteParams) {
-  // Check employee authentication
-  const user = await getCurrentUser();
-  if (!user || user.userType !== 'employee') {
+  // Check employee authentication and get audit info
+  const employee = await getEmployeeAuditInfo();
+  if (!employee) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const apiToken = await getSessionToken();
+  // Get API token (shared key preferred, falls back to session token)
+  const apiToken = getApiToken(await getSessionToken());
   if (!apiToken) {
     return NextResponse.json({ error: 'Session expired' }, { status: 401 });
   }
@@ -56,7 +58,26 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
   try {
     const client = createRepairShoprClient();
-    const comment = await client.addTicketComment(apiToken, ticketId, body);
+
+    // Prefix internal/tech comments with employee name for visibility in RepairShopr
+    const commentBody = body.hidden
+      ? `[${employee.name}] ${body.body}`
+      : body.body;
+
+    const comment = await client.addTicketComment(apiToken, ticketId, {
+      ...body,
+      body: commentBody,
+    });
+
+    // Log the comment for audit trail
+    await logTicketAction(
+      employee,
+      'ticket_comment',
+      ticketId,
+      undefined,
+      { hidden: body.hidden, body_length: body.body.length },
+      request
+    );
 
     return NextResponse.json({ comment }, { status: 201 });
   } catch (error) {

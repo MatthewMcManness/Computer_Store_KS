@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCurrentUser, getSessionToken } from '@/lib/auth';
-import { createRepairShoprClient, RepairShoprAPIError } from '@/lib/repairshopr';
+import { getEmployeeAuditInfo, getSessionToken } from '@/lib/auth';
+import { createRepairShoprClient, RepairShoprAPIError, getApiToken } from '@/lib/repairshopr';
+import { logTicketAction } from '@/lib/audit';
 import {
   getTicketStatusOverride,
   setTicketStatusOverride,
@@ -22,8 +23,8 @@ interface RouteParams {
  */
 export async function GET(request: NextRequest, { params }: RouteParams) {
   // Check employee authentication
-  const user = await getCurrentUser();
-  if (!user || user.userType !== 'employee') {
+  const employee = await getEmployeeAuditInfo();
+  if (!employee) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -59,13 +60,14 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
  * Body: { custom_status: string, customer_question?: string }
  */
 export async function PUT(request: NextRequest, { params }: RouteParams) {
-  // Check employee authentication
-  const user = await getCurrentUser();
-  if (!user || user.userType !== 'employee') {
+  // Check employee authentication and get audit info
+  const employee = await getEmployeeAuditInfo();
+  if (!employee) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const apiToken = await getSessionToken();
+  // Get API token (shared key preferred, falls back to session token)
+  const apiToken = getApiToken(await getSessionToken());
   if (!apiToken) {
     return NextResponse.json({ error: 'Session expired' }, { status: 401 });
   }
@@ -123,7 +125,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       ticketId,
       custom_status as TicketCustomStatus,
       customer_question || null,
-      user.name || user.email
+      employee.name
     );
 
     if (!statusOverride) {
@@ -140,6 +142,16 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     await client.updateTicket(apiToken, ticketId, {
       status: repairShoprStatus,
     });
+
+    // Log the status change for audit trail
+    await logTicketAction(
+      employee,
+      'ticket_status_change',
+      ticketId,
+      undefined,
+      { custom_status, repairshopr_status: repairShoprStatus, customer_question: customer_question || null },
+      request
+    );
 
     return NextResponse.json({
       status_override: statusOverride,

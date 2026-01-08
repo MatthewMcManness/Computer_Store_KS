@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCurrentUser } from '@/lib/auth';
+import { getEmployeeAuditInfo } from '@/lib/auth';
 import { getTicketStatusOverrides } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
@@ -11,8 +11,8 @@ export const dynamic = 'force-dynamic';
  */
 export async function POST(request: NextRequest) {
   // Check employee authentication
-  const user = await getCurrentUser();
-  if (!user || user.userType !== 'employee') {
+  const employee = await getEmployeeAuditInfo();
+  if (!employee) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

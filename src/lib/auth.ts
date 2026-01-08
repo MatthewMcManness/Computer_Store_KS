@@ -47,6 +47,7 @@ function getLegacyAdminPassword(): string {
  */
 export interface UserSession {
   userId: number;
+  supabaseUserId: string; // Supabase auth.users UUID (for audit logging)
   email: string;
   name: string;
   role: 'admin' | 'employee' | 'limited';
@@ -145,10 +146,14 @@ function mapRepairShoprRole(
 }
 
 // =============================================================================
-// RepairShopr Authentication
+// RepairShopr Authentication (DEPRECATED)
 // =============================================================================
 
 /**
+ * @deprecated Use authenticateWithSupabase instead. This function is kept for
+ * backwards compatibility during migration. New employee accounts should be
+ * created in Supabase Auth with a user_profiles entry.
+ *
  * Authenticate a user with RepairShopr credentials
  * @param email User's email address
  * @param password User's password
@@ -211,6 +216,7 @@ export async function authenticateWithRepairShopr(
     const role = mapRepairShoprRole(meResponse.admin, meResponse.permissions, meResponse.user.email);
     const userData: CreateSessionInput = {
       userId: meResponse.user.id,
+      supabaseUserId: '', // Legacy RepairShopr auth doesn't have Supabase UUID
       email: meResponse.user.email,
       name: meResponse.user.full_name,
       role,
@@ -241,6 +247,7 @@ export async function authenticateWithRepairShopr(
       success: true,
       user: {
         userId: userData.userId,
+        supabaseUserId: userData.supabaseUserId,
         email: userData.email,
         name: userData.name,
         role: userData.role,
@@ -374,13 +381,14 @@ export async function authenticateWithSupabase(
     // Step 3: Create session based on profile role
     const userData: CreateSessionInput = {
       userId: isEmployee ? repairshoprUserId : repairshoprCustomerId,
+      supabaseUserId: authData.user.id, // Store UUID for audit logging
       email: authData.user.email || email,
       name: customerName,
       role: sessionRole,
       userType: isEmployee ? 'employee' : 'customer',
     };
 
-    const sessionData = createSessionData(userData, ''); // No API token for customers
+    const sessionData = createSessionData(userData); // No API token - use shared key instead
     const encryptedSession = encryptSession(sessionData);
 
     const cookieStore = await cookies();
@@ -406,6 +414,7 @@ export async function authenticateWithSupabase(
       success: true,
       user: {
         userId: userData.userId,
+        supabaseUserId: userData.supabaseUserId,
         email: userData.email,
         name: userData.name,
         role: userData.role,
@@ -461,6 +470,7 @@ export async function createSession(user?: UserSession): Promise<string> {
   const sessionData = createSessionData(
     {
       userId: user.userId,
+      supabaseUserId: user.supabaseUserId || '',
       email: user.email,
       name: user.name,
       role: user.role,
@@ -546,6 +556,7 @@ export async function getCurrentUser(): Promise<UserSession | null> {
     const safeSession = getSafeSession(session);
     return {
       userId: safeSession.userId,
+      supabaseUserId: safeSession.supabaseUserId || '',
       email: safeSession.email,
       name: safeSession.name,
       role: safeSession.role,
@@ -556,6 +567,7 @@ export async function getCurrentUser(): Promise<UserSession | null> {
   // Legacy mode: return a default admin user
   return {
     userId: 0,
+    supabaseUserId: '',
     email: 'admin@local',
     name: 'Administrator',
     role: 'admin',
@@ -620,4 +632,56 @@ export function verifyBearerToken(authHeader: string | null): boolean {
 
   const token = authHeader.substring(7);
   return token === getLegacyAdminPassword();
+}
+
+// =============================================================================
+// Audit Logging Helpers
+// =============================================================================
+
+/**
+ * Employee info structure for audit logging
+ */
+export interface EmployeeAuditInfo {
+  userId: string;
+  email: string;
+  name: string;
+}
+
+/**
+ * Get employee info for audit logging from current session
+ * Returns null if user is not authenticated or is a customer
+ *
+ * @returns EmployeeAuditInfo or null
+ */
+export async function getEmployeeAuditInfo(): Promise<EmployeeAuditInfo | null> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return null;
+  }
+
+  // Only employees can perform auditable actions
+  if (user.userType !== 'employee') {
+    return null;
+  }
+
+  // supabaseUserId is required for audit logging
+  if (!user.supabaseUserId) {
+    console.warn('[AUTH] Employee has no Supabase UUID - cannot create audit log');
+    return null;
+  }
+
+  return {
+    userId: user.supabaseUserId,
+    email: user.email,
+    name: user.name,
+  };
+}
+
+/**
+ * Check if current user is a staff member (employee or admin)
+ */
+export async function isStaffUser(): Promise<boolean> {
+  const user = await getCurrentUser();
+  return user !== null && user.userType === 'employee';
 }

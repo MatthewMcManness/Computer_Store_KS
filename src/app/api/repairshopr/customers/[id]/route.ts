@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCurrentUser, getSessionToken } from '@/lib/auth';
-import { createRepairShoprClient, RepairShoprAPIError, UpdateCustomerInput } from '@/lib/repairshopr';
+import { getEmployeeAuditInfo, getSessionToken } from '@/lib/auth';
+import { createRepairShoprClient, RepairShoprAPIError, UpdateCustomerInput, getApiToken } from '@/lib/repairshopr';
+import { logCustomerAction } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,13 +13,14 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  // Check employee authentication
-  const user = await getCurrentUser();
-  if (!user || user.userType !== 'employee') {
+  // Check employee authentication and get audit info
+  const employee = await getEmployeeAuditInfo();
+  if (!employee) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const apiToken = await getSessionToken();
+  // Get API token (shared key preferred, falls back to session token)
+  const apiToken = getApiToken(await getSessionToken());
   if (!apiToken) {
     return NextResponse.json({ error: 'Session expired' }, { status: 401 });
   }
@@ -67,13 +69,14 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  // Check employee authentication
-  const user = await getCurrentUser();
-  if (!user || user.userType !== 'employee') {
+  // Check employee authentication and get audit info
+  const employee = await getEmployeeAuditInfo();
+  if (!employee) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const apiToken = await getSessionToken();
+  // Get API token (shared key preferred, falls back to session token)
+  const apiToken = getApiToken(await getSessionToken());
   if (!apiToken) {
     return NextResponse.json({ error: 'Session expired' }, { status: 401 });
   }
@@ -119,6 +122,16 @@ export async function PUT(
 
     const client = createRepairShoprClient();
     const customer = await client.updateCustomer(apiToken, customerId, updateData);
+
+    // Log the customer update for audit trail
+    await logCustomerAction(
+      employee,
+      'customer_update',
+      customerId,
+      customer.fullname,
+      updateData as Record<string, unknown>,
+      request
+    );
 
     return NextResponse.json({ customer });
   } catch (error) {

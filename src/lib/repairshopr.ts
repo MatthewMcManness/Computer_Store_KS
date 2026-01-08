@@ -1615,6 +1615,59 @@ export function createRepairShoprClient(baseUrl?: string): RepairShoprClient {
 }
 
 // =============================================================================
+// Shared API Key Functions
+// =============================================================================
+
+/**
+ * Get the shared RepairShopr API key for all employee operations.
+ *
+ * This key is associated with the contact@computerstoreks.com account
+ * and is used for all API operations. Individual employee actions are
+ * tracked via the audit log system.
+ *
+ * @returns The shared API key
+ * @throws Error if REPAIRSHOPR_API_KEY is not configured
+ */
+export function getSharedApiKey(): string {
+  const key = process.env.REPAIRSHOPR_API_KEY;
+  if (!key) {
+    throw new Error(
+      'REPAIRSHOPR_API_KEY environment variable is required. ' +
+        'Please set it in your .env file or Render environment.'
+    );
+  }
+  return key;
+}
+
+/**
+ * Check if the shared API key is configured
+ *
+ * @returns True if the shared API key is set
+ */
+export function isSharedApiKeyConfigured(): boolean {
+  return !!process.env.REPAIRSHOPR_API_KEY;
+}
+
+/**
+ * Get the API token for RepairShopr operations.
+ *
+ * Uses the shared REPAIRSHOPR_API_KEY for all operations. Falls back to
+ * session token for backwards compatibility during migration.
+ *
+ * @param sessionToken Optional session token (from getSessionToken())
+ * @returns The API token to use, or null if neither is available
+ */
+export function getApiToken(sessionToken?: string | null): string | null {
+  // Prefer shared API key if configured
+  if (isSharedApiKeyConfigured()) {
+    return getSharedApiKey();
+  }
+
+  // Fall back to session token (legacy behavior)
+  return sessionToken || null;
+}
+
+// =============================================================================
 // Default Export
 // =============================================================================
 

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCurrentUser, getSessionToken } from '@/lib/auth';
-import { createRepairShoprClient, RepairShoprAPIError, getProtectionPlanTier } from '@/lib/repairshopr';
+import { getEmployeeAuditInfo, getSessionToken } from '@/lib/auth';
+import { createRepairShoprClient, RepairShoprAPIError, getProtectionPlanTier, getApiToken } from '@/lib/repairshopr';
 import { supabaseAdmin, getCustomerProtectionPlans, setCustomerProtectionPlan, type ProtectionPlanTier } from '@/lib/supabase';
+import { logCustomerAction } from '@/lib/audit';
 import bcrypt from 'bcryptjs';
 
 export const dynamic = 'force-dynamic';
@@ -14,13 +15,14 @@ export const dynamic = 'force-dynamic';
  * Auto-syncs silver plan status from RepairShopr custom fields to Supabase
  */
 export async function GET(request: NextRequest) {
-  // Check employee authentication
-  const user = await getCurrentUser();
-  if (!user || user.userType !== 'employee') {
+  // Check employee authentication and get audit info
+  const employee = await getEmployeeAuditInfo();
+  if (!employee) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const apiToken = await getSessionToken();
+  // Get API token (shared key preferred, falls back to session token)
+  const apiToken = getApiToken(await getSessionToken());
   if (!apiToken) {
     return NextResponse.json({ error: 'Session expired' }, { status: 401 });
   }
@@ -114,13 +116,14 @@ export async function GET(request: NextRequest) {
  * Body: CreateCustomerInput + optional password field
  */
 export async function POST(request: NextRequest) {
-  // Check employee authentication
-  const user = await getCurrentUser();
-  if (!user || user.userType !== 'employee') {
+  // Check employee authentication and get audit info
+  const employee = await getEmployeeAuditInfo();
+  if (!employee) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const apiToken = await getSessionToken();
+  // Get API token (shared key preferred, falls back to session token)
+  const apiToken = getApiToken(await getSessionToken());
   if (!apiToken) {
     return NextResponse.json({ error: 'Session expired' }, { status: 401 });
   }
@@ -179,6 +182,16 @@ export async function POST(request: NextRequest) {
         console.error('[API] Error creating customer portal account:', error);
       }
     }
+
+    // Log the customer creation for audit trail
+    await logCustomerAction(
+      employee,
+      'customer_create',
+      customer.id,
+      customer.fullname || `${customerData.firstname} ${customerData.lastname}`,
+      { email: customerData.email, portal_created: portalAccountCreated },
+      request
+    );
 
     return NextResponse.json(
       {

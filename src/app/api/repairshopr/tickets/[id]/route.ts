@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCurrentUser, getSessionToken } from '@/lib/auth';
-import { createRepairShoprClient, RepairShoprAPIError } from '@/lib/repairshopr';
+import { getEmployeeAuditInfo, getSessionToken } from '@/lib/auth';
+import { createRepairShoprClient, RepairShoprAPIError, getApiToken } from '@/lib/repairshopr';
+import { logTicketAction } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,13 +14,14 @@ interface RouteParams {
  * Get a single ticket with full details (comments, timers, etc.)
  */
 export async function GET(request: NextRequest, { params }: RouteParams) {
-  // Check employee authentication
-  const user = await getCurrentUser();
-  if (!user || user.userType !== 'employee') {
+  // Check employee authentication and get audit info
+  const employee = await getEmployeeAuditInfo();
+  if (!employee) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const apiToken = await getSessionToken();
+  // Get API token (shared key preferred, falls back to session token)
+  const apiToken = getApiToken(await getSessionToken());
   if (!apiToken) {
     return NextResponse.json({ error: 'Session expired' }, { status: 401 });
   }
@@ -61,13 +63,14 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
  * Body: UpdateTicketInput
  */
 export async function PUT(request: NextRequest, { params }: RouteParams) {
-  // Check employee authentication
-  const user = await getCurrentUser();
-  if (!user || user.userType !== 'employee') {
+  // Check employee authentication and get audit info
+  const employee = await getEmployeeAuditInfo();
+  if (!employee) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const apiToken = await getSessionToken();
+  // Get API token (shared key preferred, falls back to session token)
+  const apiToken = getApiToken(await getSessionToken());
   if (!apiToken) {
     return NextResponse.json({ error: 'Session expired' }, { status: 401 });
   }
@@ -96,6 +99,16 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const client = createRepairShoprClient();
     const ticket = await client.updateTicket(apiToken, ticketId, body);
+
+    // Log the ticket update for audit trail
+    await logTicketAction(
+      employee,
+      'ticket_update',
+      ticketId,
+      ticket.subject,
+      body as Record<string, unknown>,
+      request
+    );
 
     return NextResponse.json({ ticket });
   } catch (error) {

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getCurrentUser } from '@/lib/auth';
+import { getEmployeeAuditInfo } from '@/lib/auth';
 import { TICKET_STATUS_DEFINITIONS } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
@@ -10,8 +10,8 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET() {
   // Check employee authentication
-  const user = await getCurrentUser();
-  if (!user || user.userType !== 'employee') {
+  const employee = await getEmployeeAuditInfo();
+  if (!employee) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

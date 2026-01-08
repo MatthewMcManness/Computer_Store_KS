@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCurrentUser, getSessionToken } from '@/lib/auth';
-import { createRepairShoprClient, RepairShoprAPIError } from '@/lib/repairshopr';
+import { getEmployeeAuditInfo, getSessionToken } from '@/lib/auth';
+import { createRepairShoprClient, RepairShoprAPIError, getApiToken } from '@/lib/repairshopr';
+import { logTicketAction } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,13 +11,14 @@ export const dynamic = 'force-dynamic';
  * Query params: ?q=search&customer_id=123&status=New&page=1
  */
 export async function GET(request: NextRequest) {
-  // Check employee authentication
-  const user = await getCurrentUser();
-  if (!user || user.userType !== 'employee') {
+  // Check employee authentication and get audit info
+  const employee = await getEmployeeAuditInfo();
+  if (!employee) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const apiToken = await getSessionToken();
+  // Get API token (shared key preferred, falls back to session token)
+  const apiToken = getApiToken(await getSessionToken());
   if (!apiToken) {
     return NextResponse.json({ error: 'Session expired' }, { status: 401 });
   }
@@ -60,13 +62,14 @@ export async function GET(request: NextRequest) {
  * Body: CreateTicketInput
  */
 export async function POST(request: NextRequest) {
-  // Check employee authentication
-  const user = await getCurrentUser();
-  if (!user || user.userType !== 'employee') {
+  // Check employee authentication and get audit info
+  const employee = await getEmployeeAuditInfo();
+  if (!employee) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const apiToken = await getSessionToken();
+  // Get API token (shared key preferred, falls back to session token)
+  const apiToken = getApiToken(await getSessionToken());
   if (!apiToken) {
     return NextResponse.json({ error: 'Session expired' }, { status: 401 });
   }
@@ -93,6 +96,16 @@ export async function POST(request: NextRequest) {
   try {
     const client = createRepairShoprClient();
     const ticket = await client.createTicket(apiToken, body);
+
+    // Log the ticket creation for audit trail
+    await logTicketAction(
+      employee,
+      'ticket_create',
+      ticket.id,
+      ticket.subject || body.subject,
+      { customer_id: body.customer_id, problem_type: body.problem_type },
+      request
+    );
 
     return NextResponse.json({ ticket }, { status: 201 });
   } catch (error) {

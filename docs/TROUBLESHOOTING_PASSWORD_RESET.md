@@ -1,14 +1,28 @@
 # Password Reset Flow - Troubleshooting Guide
 
 **Created:** 2025-12-30
-**Status:** Needs Investigation
-**Priority:** High - Blocking user password resets
+**Updated:** 2026-01-08
+**Status:** Fixed - PKCE Code Exchange Implementation
+**Priority:** Resolved
 
 ---
 
-## Current Issue
+## Root Cause (Identified 2026-01-08)
 
-Users clicking the password reset link in their email are being sent to the "Invalid or Expired Link" page instead of the password reset form.
+**Problem:** Supabase uses PKCE (Proof Key for Code Exchange) flow for password resets, which sends a `code` query parameter (`?code=XXX`) instead of `access_token` in the URL hash fragment (`#access_token=XXX`).
+
+The original code only looked for tokens in the hash fragment, missing the PKCE code entirely.
+
+**Solution:** Updated `/reset-password/confirm/page.tsx` to:
+1. First check for `code` query parameter and use `exchangeCodeForSession(code)`
+2. Fall back to hash fragment tokens for legacy/implicit flow
+3. Check for existing session (if user refreshes the page)
+
+---
+
+## Previous Issue (Resolved)
+
+Users clicking the password reset link in their email were being sent to the "Invalid or Expired Link" page instead of the password reset form.
 
 ### What Works
 - `/reset-password` page - Can request a password reset email

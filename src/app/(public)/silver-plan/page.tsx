@@ -11,9 +11,73 @@ export const metadata: Metadata = {
   },
 };
 
+// Animated silver gradient for badges
+const silverBadgeStyle = {
+  display: 'inline-block',
+  padding: '0.5rem 1.5rem',
+  borderRadius: '8px',
+  fontSize: '1.75rem',
+  fontWeight: 800,
+  textTransform: 'uppercase' as const,
+  letterSpacing: '0.05em',
+  background: 'linear-gradient(135deg, #e8e8e8 0%, #b8b8b8 25%, #d4d4d4 50%, #a0a0a0 75%, #c8c8c8 100%)',
+  backgroundSize: '200% 200%',
+  animation: 'silverShine 3s ease-in-out infinite',
+  color: '#4a4a4a',
+  textShadow: '1px 1px 2px rgba(255,255,255,0.8), -1px -1px 1px rgba(0,0,0,0.1)',
+  boxShadow: '0 4px 15px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.1)',
+  border: '2px solid #a0a0a0',
+};
+
+// Gold outline style for Silver Plus card
+const goldCardStyle = {
+  background: '#fff',
+  borderRadius: '12px',
+  padding: '2rem',
+  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+  position: 'relative' as const,
+  display: 'flex',
+  flexDirection: 'column' as const,
+  border: '3px solid transparent',
+  backgroundImage: 'linear-gradient(white, white), linear-gradient(135deg, #ffd700 0%, #b8860b 25%, #ffd700 50%, #daa520 75%, #ffd700 100%)',
+  backgroundOrigin: 'border-box',
+  backgroundClip: 'padding-box, border-box',
+  animation: 'goldBorder 3s ease-in-out infinite',
+};
+
 export default function ProtectionPlansPage() {
   return (
     <>
+      <style>{`
+        @keyframes silverShine {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        @keyframes goldBorder {
+          0% { border-color: #ffd700; box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3); }
+          50% { border-color: #daa520; box-shadow: 0 4px 30px rgba(218, 165, 32, 0.5); }
+          100% { border-color: #ffd700; box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3); }
+        }
+        @keyframes goldText {
+          0% { color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+          50% { color: #daa520; text-shadow: 0 0 15px rgba(218, 165, 32, 0.7); }
+          100% { color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+        }
+        .gold-text {
+          background: linear-gradient(135deg, #ffd700 0%, #b8860b 25%, #ffd700 50%, #daa520 75%, #ffd700 100%);
+          background-size: 200% 200%;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          animation: silverShine 3s ease-in-out infinite;
+        }
+        .silver-plus-card {
+          border: 3px solid #ffd700 !important;
+          animation: goldBorder 3s ease-in-out infinite;
+        }
+      `}</style>
+
       {/* Hero Section */}
       <section className="hero">
         <div className="container">
@@ -43,7 +107,7 @@ export default function ProtectionPlansPage() {
               position: 'relative',
               display: 'flex',
               flexDirection: 'column',
-              border: '2px solid #6b7280'
+              border: '2px solid #a0a0a0'
             }}>
               <div style={{
                 position: 'absolute',
@@ -57,13 +121,18 @@ export default function ProtectionPlansPage() {
                 background: '#10b981',
                 color: 'white'
               }}>Most Popular</div>
+
+              {/* Animated Silver Badge Header */}
+              <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+                <div style={silverBadgeStyle}>Silver</div>
+              </div>
+
               <div style={{
                 textAlign: 'center',
                 marginBottom: '1.5rem',
                 paddingBottom: '1.5rem',
                 borderBottom: '1px solid #e5e7eb'
               }}>
-                <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#6b7280', margin: '0 0 0.5rem 0' }}>Silver</h2>
                 <div style={{ margin: '0.5rem 0' }}>
                   <span style={{ fontSize: '2.5rem', fontWeight: 700, color: '#1f2937' }}>$24.99</span>
                   <span style={{ fontSize: '1rem', color: '#6b7280' }}>/month</span>
@@ -77,12 +146,12 @@ export default function ProtectionPlansPage() {
                   <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>✓</span>
                   Antivirus software included
                 </li>
-                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#d97706', fontWeight: 500 }}>
-                  <span style={{ color: '#f59e0b', fontWeight: 'bold', flexShrink: 0 }}>★</span>
+                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#374151' }}>
+                  <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>✓</span>
                   50% discount on virus removal
                 </li>
-                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#d97706', fontWeight: 500 }}>
-                  <span style={{ color: '#f59e0b', fontWeight: 'bold', flexShrink: 0 }}>★</span>
+                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#374151' }}>
+                  <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>✓</span>
                   50% off house calls
                 </li>
                 <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#374151' }}>
@@ -123,15 +192,14 @@ export default function ProtectionPlansPage() {
             </div>
 
             {/* Silver Plus Plan Card */}
-            <div style={{
+            <div className="silver-plus-card" style={{
               background: '#fff',
               borderRadius: '12px',
               padding: '2rem',
-              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+              boxShadow: '0 4px 20px rgba(255, 215, 0, 0.3)',
               position: 'relative',
               display: 'flex',
               flexDirection: 'column',
-              border: '2px solid #f59e0b'
             }}>
               <div style={{
                 position: 'absolute',
@@ -142,18 +210,25 @@ export default function ProtectionPlansPage() {
                 fontSize: '0.75rem',
                 fontWeight: 600,
                 textTransform: 'uppercase',
-                background: '#f59e0b',
+                background: 'linear-gradient(135deg, #ffd700 0%, #b8860b 100%)',
                 color: 'white'
               }}>Best for Business</div>
+
+              {/* Animated Silver Badge Header with Gold "Plus" */}
+              <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+                <div style={silverBadgeStyle}>
+                  Silver <span className="gold-text">Plus</span>
+                </div>
+              </div>
+
               <div style={{
                 textAlign: 'center',
                 marginBottom: '1.5rem',
                 paddingBottom: '1.5rem',
                 borderBottom: '1px solid #e5e7eb'
               }}>
-                <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#f59e0b', margin: '0 0 0.5rem 0' }}>Silver Plus</h2>
                 <div style={{ margin: '0.5rem 0' }}>
-                  <span style={{ fontSize: '2.5rem', fontWeight: 700, color: '#1f2937' }}>$34.99</span>
+                  <span className="gold-text" style={{ fontSize: '2.5rem', fontWeight: 700 }}>$34.99</span>
                   <span style={{ fontSize: '1rem', color: '#6b7280' }}>/device/month</span>
                 </div>
                 <p style={{ fontSize: '0.875rem', color: '#6b7280', margin: '0.25rem 0' }}>3-month minimum commitment</p>
@@ -163,16 +238,16 @@ export default function ProtectionPlansPage() {
               <p style={{ fontWeight: 600, color: '#1f2937', marginBottom: '0.5rem' }}>Everything in Silver, plus:</p>
 
               <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1.5rem 0', flexGrow: 1 }}>
-                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#d97706', fontWeight: 500 }}>
-                  <span style={{ color: '#f59e0b', fontWeight: 'bold', flexShrink: 0 }}>★</span>
+                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#b8860b', fontWeight: 500 }}>
+                  <span style={{ color: '#ffd700', fontWeight: 'bold', flexShrink: 0 }}>★</span>
                   $35 service calls (65% off - normally $100)
                 </li>
-                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#d97706', fontWeight: 500 }}>
-                  <span style={{ color: '#f59e0b', fontWeight: 'bold', flexShrink: 0 }}>★</span>
+                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#b8860b', fontWeight: 500 }}>
+                  <span style={{ color: '#ffd700', fontWeight: 'bold', flexShrink: 0 }}>★</span>
                   6 hours/month remote support included
                 </li>
-                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#d97706', fontWeight: 500 }}>
-                  <span style={{ color: '#f59e0b', fontWeight: 'bold', flexShrink: 0 }}>★</span>
+                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#b8860b', fontWeight: 500 }}>
+                  <span style={{ color: '#ffd700', fontWeight: 'bold', flexShrink: 0 }}>★</span>
                   25% off all labor charges
                 </li>
                 <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#374151' }}>

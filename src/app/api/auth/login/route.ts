@@ -167,9 +167,9 @@ export async function POST(request: NextRequest) {
 
     const authMode = getAuthMode();
 
-    // RepairShopr mode with cascading Supabase fallback
+    // Supabase-first mode with RepairShopr fallback for legacy employees
     if (authMode === 'repairshopr') {
-      // Email is required in repairshopr mode
+      // Email is required
       if (!email) {
         return NextResponse.json(
           { success: false, error: 'Email is required' },
@@ -180,12 +180,33 @@ export async function POST(request: NextRequest) {
       // Record attempt before auth
       recordLoginAttempt(clientIP);
 
-      // Step 1: Try RepairShopr authentication (for employees)
+      // Step 1: Try Supabase authentication first (primary auth system)
+      const supabaseResult = await authenticateWithSupabase(email, password);
+
+      if (supabaseResult.success && supabaseResult.user) {
+        // Audit log - never log passwords
+        console.log(`[AUTH] Login successful via Supabase: ${email}`);
+
+        return NextResponse.json({
+          success: true,
+          user: {
+            email: supabaseResult.user.email,
+            name: supabaseResult.user.name,
+            role: supabaseResult.user.role,
+            userType: supabaseResult.user.userType,
+          },
+          // Pass through debug info if present
+          _debug: (supabaseResult as { _debug?: unknown })._debug,
+        });
+      }
+
+      // Step 2: If Supabase failed, try RepairShopr (fallback for legacy employees)
+      console.log(`[AUTH] Supabase auth failed for ${email}, trying RepairShopr fallback...`);
       const repairShoprResult = await authenticateWithRepairShopr(email, password);
 
       if (repairShoprResult.success && repairShoprResult.user) {
         // Audit log - never log passwords
-        console.log(`[AUTH] Employee login successful: ${email}`);
+        console.log(`[AUTH] Legacy employee login successful: ${email}`);
 
         return NextResponse.json({
           success: true,
@@ -198,27 +219,8 @@ export async function POST(request: NextRequest) {
         });
       }
 
-      // Step 2: If RepairShopr failed, try Supabase authentication (for customers)
-      console.log(`[AUTH] RepairShopr auth failed for ${email}, trying customer auth...`);
-      const supabaseResult = await authenticateWithSupabase(email, password);
-
-      if (supabaseResult.success && supabaseResult.user) {
-        // Audit log - never log passwords
-        console.log(`[AUTH] Customer login successful: ${email}`);
-
-        return NextResponse.json({
-          success: true,
-          user: {
-            email: supabaseResult.user.email,
-            name: supabaseResult.user.name,
-            role: supabaseResult.user.role,
-            userType: supabaseResult.user.userType,
-          },
-        });
-      }
-
       // Both authentication methods failed
-      console.log(`[AUTH] Login attempt: ${email} - FAILED (both employee and customer auth)`);
+      console.log(`[AUTH] Login attempt: ${email} - FAILED (both Supabase and RepairShopr auth)`);
 
       // Determine appropriate error code
       let code: string = 'INVALID_CREDENTIALS';

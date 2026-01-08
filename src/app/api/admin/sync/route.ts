@@ -6,7 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@/lib/auth';
+import { getCurrentUser } from '@/lib/auth';
 import {
   runFullSync,
   syncAllCustomers,
@@ -46,8 +46,8 @@ type SyncType =
 export async function POST(request: NextRequest) {
   try {
     // Check authentication
-    const session = await getSession();
-    if (!session) {
+    const user = await getCurrentUser();
+    if (!user) {
       return NextResponse.json(
         { error: 'Unauthorized - Please log in' },
         { status: 401 }
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check admin role
-    if (!session.user?.admin) {
+    if (user.role !== 'admin') {
       return NextResponse.json(
         { error: 'Forbidden - Admin access required' },
         { status: 403 }
@@ -132,8 +132,8 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     // Check authentication
-    const session = await getSession();
-    if (!session) {
+    const user = await getCurrentUser();
+    if (!user) {
       return NextResponse.json(
         { error: 'Unauthorized - Please log in' },
         { status: 401 }
@@ -141,7 +141,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Check admin role
-    if (!session.user?.admin) {
+    if (user.role !== 'admin') {
       return NextResponse.json(
         { error: 'Forbidden - Admin access required' },
         { status: 403 }

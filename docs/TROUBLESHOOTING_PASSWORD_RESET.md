@@ -7,16 +7,18 @@
 
 ---
 
-## Root Cause (Identified 2026-01-08)
+## Root Cause (Identified & Fixed 2026-01-08)
 
-**Problem:** Supabase uses PKCE (Proof Key for Code Exchange) flow for password resets, which sends a `code` query parameter (`?code=XXX`) instead of `access_token` in the URL hash fragment (`#access_token=XXX`).
+**Problem #1:** Supabase uses PKCE (Proof Key for Code Exchange) flow for password resets, which sends a `code` query parameter (`?code=XXX`) instead of `access_token` in the URL hash fragment (`#access_token=XXX`).
 
-The original code only looked for tokens in the hash fragment, missing the PKCE code entirely.
+**Problem #2:** After successful code exchange, the URL still contained the `?code=XXX` parameter. If the page re-rendered or user refreshed, it would try to exchange the already-used code (which fails) instead of checking for the existing session first.
 
 **Solution:** Updated `/reset-password/confirm/page.tsx` to:
-1. First check for `code` query parameter and use `exchangeCodeForSession(code)`
-2. Fall back to hash fragment tokens for legacy/implicit flow
-3. Check for existing session (if user refreshes the page)
+1. **Check for existing session FIRST** (before attempting code exchange)
+2. Try `exchangeCodeForSession(code)` if no session exists
+3. **Clean up URL** after successful exchange (remove code parameter)
+4. If code exchange fails, check for existing session anyway (handles race conditions)
+5. Fall back to hash fragment tokens for legacy/implicit flow
 
 ---
 

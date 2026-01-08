@@ -53,6 +53,21 @@ export default function ResetPasswordConfirmPage() {
     hasCheckedToken.current = true;
 
     const checkToken = async () => {
+      // IMPORTANT: Check for existing session FIRST
+      // This handles the case where code was already exchanged (refresh, re-render)
+      // and prevents trying to exchange an already-used code
+      console.log('Checking for existing session...');
+      const { data: { session: existingSession } } = await supabase.auth.getSession();
+      if (existingSession) {
+        console.log('Found existing session - user already authenticated');
+        setIsValidToken(true);
+        // Clean up URL if it still has code parameter
+        if (searchParams.get('code')) {
+          window.history.replaceState({}, '', '/reset-password/confirm');
+        }
+        return;
+      }
+
       // Method 1: Check for PKCE code in query params (modern Supabase flow)
       const code = searchParams.get('code');
       if (code) {
@@ -62,12 +77,22 @@ export default function ResetPasswordConfirmPage() {
 
           if (exchangeError) {
             console.error('Error exchanging code:', exchangeError.message);
+            // If code was already used, check if we have a session anyway
+            const { data: { session: retrySession } } = await supabase.auth.getSession();
+            if (retrySession) {
+              console.log('Code exchange failed but found existing session');
+              setIsValidToken(true);
+              window.history.replaceState({}, '', '/reset-password/confirm');
+              return;
+            }
             setIsValidToken(false);
             return;
           }
 
           if (data.session) {
             console.log('Session established via PKCE code exchange');
+            // Clean up URL to prevent re-exchange attempts
+            window.history.replaceState({}, '', '/reset-password/confirm');
             setIsValidToken(true);
             return;
           }
@@ -103,6 +128,8 @@ export default function ResetPasswordConfirmPage() {
 
             if (data.session) {
               console.log('Session established via hash tokens');
+              // Clean up URL
+              window.history.replaceState({}, '', '/reset-password/confirm');
               setIsValidToken(true);
               return;
             }
@@ -114,16 +141,8 @@ export default function ResetPasswordConfirmPage() {
         }
       }
 
-      // Method 3: Check if there's already an active session (user might have refreshed)
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        console.log('Found existing session');
-        setIsValidToken(true);
-        return;
-      }
-
-      // No valid token found
-      console.log('No valid token or code found in URL');
+      // No valid token or session found
+      console.log('No valid token, code, or session found');
       setIsValidToken(false);
     };
 

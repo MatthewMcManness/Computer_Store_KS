@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isAuthenticated } from '@/lib/auth';
-import { uploadImageToGitHub, isGitHubConfigured } from '@/lib/github';
+import { supabaseAdmin } from '@/lib/supabase';
 import sharp from 'sharp';
-import fs from 'fs/promises';
-import path from 'path';
 
 // Next.js App Router route segment config
 export const maxDuration = 60; // 60 seconds timeout for large uploads
@@ -23,12 +21,9 @@ const ALLOWED_TYPES = [
   'image/heif',
 ];
 
-// Local blog images directory for development
-const LOCAL_BLOG_DIR = path.join(process.cwd(), 'public/assets/blog');
-
 /**
  * POST /api/blog/upload
- * Upload an image for blog posts
+ * Upload an image for blog posts to Supabase Storage
  * Generates two sizes: full (1200x800) and thumbnail (400x267) as WebP
  */
 export async function POST(request: NextRequest) {
@@ -39,6 +34,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
+      );
+    }
+
+    if (!supabaseAdmin) {
+      return NextResponse.json(
+        { success: false, error: 'Storage not configured' },
+        { status: 500 }
       );
     }
 
@@ -100,48 +102,54 @@ export async function POST(request: NextRequest) {
       })
       .toBuffer();
 
-    // Save locally for development or if GitHub not configured
-    if (process.env.NODE_ENV === 'development' || !isGitHubConfigured()) {
-      await fs.mkdir(LOCAL_BLOG_DIR, { recursive: true });
+    // Upload both images to Supabase Storage in parallel
+    const [fullUpload, thumbUpload] = await Promise.all([
+      supabaseAdmin.storage
+        .from('blog-images')
+        .upload(fullFilename, fullBuffer, {
+          contentType: 'image/webp',
+          cacheControl: '31536000', // 1 year cache
+          upsert: false,
+        }),
+      supabaseAdmin.storage
+        .from('blog-images')
+        .upload(thumbFilename, thumbBuffer, {
+          contentType: 'image/webp',
+          cacheControl: '31536000',
+          upsert: false,
+        }),
+    ]);
 
-      const fullPath = path.join(LOCAL_BLOG_DIR, fullFilename);
-      const thumbPath = path.join(LOCAL_BLOG_DIR, thumbFilename);
-
-      await Promise.all([
-        fs.writeFile(fullPath, fullBuffer),
-        fs.writeFile(thumbPath, thumbBuffer),
-      ]);
-
-      return NextResponse.json({
-        success: true,
-        filename: fullFilename,
-        url: `/assets/blog/${fullFilename}`,
-        thumbnailUrl: `/assets/blog/${thumbFilename}`,
-        thumbnailFilename: thumbFilename,
-      });
+    if (fullUpload.error) {
+      console.error('Error uploading full image:', fullUpload.error);
+      return NextResponse.json(
+        { success: false, error: 'Failed to upload image' },
+        { status: 500 }
+      );
     }
 
-    // Upload both images to GitHub in parallel
-    await Promise.all([
-      uploadImageToGitHub(
-        fullFilename,
-        fullBuffer,
-        `Add blog image: ${fullFilename}`,
-        'public/assets/blog'
-      ),
-      uploadImageToGitHub(
-        thumbFilename,
-        thumbBuffer,
-        `Add blog thumbnail: ${thumbFilename}`,
-        'public/assets/blog'
-      ),
-    ]);
+    if (thumbUpload.error) {
+      console.error('Error uploading thumbnail:', thumbUpload.error);
+      return NextResponse.json(
+        { success: false, error: 'Failed to upload thumbnail' },
+        { status: 500 }
+      );
+    }
+
+    // Get public URLs for both images
+    const { data: fullUrlData } = supabaseAdmin.storage
+      .from('blog-images')
+      .getPublicUrl(fullFilename);
+
+    const { data: thumbUrlData } = supabaseAdmin.storage
+      .from('blog-images')
+      .getPublicUrl(thumbFilename);
 
     return NextResponse.json({
       success: true,
       filename: fullFilename,
-      url: `/assets/blog/${fullFilename}`,
-      thumbnailUrl: `/assets/blog/${thumbFilename}`,
+      url: fullUrlData.publicUrl,
+      thumbnailUrl: thumbUrlData.publicUrl,
       thumbnailFilename: thumbFilename,
     });
   } catch (error) {

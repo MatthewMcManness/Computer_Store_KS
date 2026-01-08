@@ -151,11 +151,6 @@ export function Header() {
                 Contact
               </Link>
             </li>
-            <li className="nav-action black-friday">
-              <Link className={`nav-link ${isActive('/black-friday') ? 'active' : ''}`} href="/black-friday">
-                Black Friday Sale
-              </Link>
-            </li>
             <li className="nav-action primary">
               <Link className="nav-link" href="/admin/login">
                 Login

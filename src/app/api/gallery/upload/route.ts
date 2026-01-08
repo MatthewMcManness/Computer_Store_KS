@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isAuthenticated } from '@/lib/auth';
-import { uploadImageToGitHub, isGitHubConfigured } from '@/lib/github';
+import { supabaseAdmin } from '@/lib/supabase';
 import sharp from 'sharp';
-import fs from 'fs/promises';
-import path from 'path';
 
-// Local gallery directory for development
-const LOCAL_GALLERY_DIR = path.join(process.cwd(), 'public/assets/gallery');
+// Next.js App Router route segment config
+export const maxDuration = 60; // 60 seconds timeout for large uploads
+export const dynamic = 'force-dynamic';
 
 // Maximum file size: 50MB
 const MAX_FILE_SIZE = 50 * 1024 * 1024;
@@ -22,7 +21,7 @@ const ALLOWED_TYPES = [
   'image/heif',
 ];
 
-// POST /api/gallery/upload - Upload image with thumbnail generation
+// POST /api/gallery/upload - Upload image with thumbnail generation to Supabase Storage
 export async function POST(request: NextRequest) {
   try {
     // Check authentication
@@ -31,6 +30,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
+      );
+    }
+
+    if (!supabaseAdmin) {
+      return NextResponse.json(
+        { success: false, error: 'Storage not configured' },
+        { status: 500 }
       );
     }
 
@@ -102,49 +108,56 @@ export async function POST(request: NextRequest) {
       })
       .toBuffer();
 
-    // Save locally for development
-    if (process.env.NODE_ENV === 'development' || !isGitHubConfigured()) {
-      await fs.mkdir(LOCAL_GALLERY_DIR, { recursive: true });
+    // Upload both images to Supabase Storage in parallel
+    const [fullUpload, thumbUpload] = await Promise.all([
+      supabaseAdmin.storage
+        .from('gallery-images')
+        .upload(fullFilename, fullBuffer, {
+          contentType: 'image/webp',
+          cacheControl: '31536000', // 1 year cache
+          upsert: false,
+        }),
+      supabaseAdmin.storage
+        .from('gallery-images')
+        .upload(thumbFilename, thumbBuffer, {
+          contentType: 'image/webp',
+          cacheControl: '31536000',
+          upsert: false,
+        }),
+    ]);
 
-      // Save full-size image
-      const fullPath = path.join(LOCAL_GALLERY_DIR, fullFilename);
-      await fs.writeFile(fullPath, fullBuffer);
-
-      // Save thumbnail
-      const thumbPath = path.join(LOCAL_GALLERY_DIR, thumbFilename);
-      await fs.writeFile(thumbPath, thumbBuffer);
-
-      return NextResponse.json({
-        success: true,
-        filename: fullFilename,
-        path: `/assets/gallery/${fullFilename}`,
-        url: `/assets/gallery/${fullFilename}`,
-        thumbnailUrl: `/assets/gallery/${thumbFilename}`,
-        thumbnailPath: `/assets/gallery/${thumbFilename}`,
-      });
+    if (fullUpload.error) {
+      console.error('Error uploading full image:', fullUpload.error);
+      return NextResponse.json(
+        { success: false, error: 'Failed to upload image' },
+        { status: 500 }
+      );
     }
 
-    // Upload both images to GitHub
-    const [fullResult, thumbResult] = await Promise.all([
-      uploadImageToGitHub(
-        fullFilename,
-        fullBuffer,
-        `Add gallery image: ${fullFilename}`
-      ),
-      uploadImageToGitHub(
-        thumbFilename,
-        thumbBuffer,
-        `Add gallery thumbnail: ${thumbFilename}`
-      ),
-    ]);
+    if (thumbUpload.error) {
+      console.error('Error uploading thumbnail:', thumbUpload.error);
+      return NextResponse.json(
+        { success: false, error: 'Failed to upload thumbnail' },
+        { status: 500 }
+      );
+    }
+
+    // Get public URLs for both images
+    const { data: fullUrlData } = supabaseAdmin.storage
+      .from('gallery-images')
+      .getPublicUrl(fullFilename);
+
+    const { data: thumbUrlData } = supabaseAdmin.storage
+      .from('gallery-images')
+      .getPublicUrl(thumbFilename);
 
     return NextResponse.json({
       success: true,
       filename: fullFilename,
-      path: fullResult.path,
-      url: `/assets/gallery/${fullFilename}`,
-      thumbnailUrl: `/assets/gallery/${thumbFilename}`,
-      thumbnailPath: thumbResult.path,
+      path: fullUrlData.publicUrl,
+      url: fullUrlData.publicUrl,
+      thumbnailUrl: thumbUrlData.publicUrl,
+      thumbnailPath: thumbUrlData.publicUrl,
     });
   } catch (error) {
     console.error('Error uploading image:', error);

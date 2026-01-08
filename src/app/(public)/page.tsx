@@ -7,19 +7,6 @@ import { ReviewsWidget } from '@/components/reviews/ReviewsWidget';
 export default function HomePage() {
   return (
     <>
-      {/* BLACK FRIDAY PROMOTIONAL BANNER */}
-      <div className="black-friday-banner">
-        <div className="bf-banner-content">
-          <div className="bf-banner-ribbon"></div>
-          <div className="bf-banner-text">
-            <span className="bf-banner-title">Black Friday Sale!</span>
-            <span className="bf-banner-offer">10% Off All Refurbished Computers</span>
-            <span className="bf-banner-dates">Nov 17 - Jan 1</span>
-          </div>
-          <Link href="/black-friday" className="bf-banner-btn">Shop Now</Link>
-        </div>
-      </div>
-
       {/* HOME PAGE HERO SECTION */}
       <section className="hero">
         <div className="container">

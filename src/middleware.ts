@@ -300,10 +300,16 @@ export async function middleware(request: NextRequest) {
   }
 
   // Fall back to legacy auth if Supabase not configured or failed
-  if (!isAuthenticated) {
+  // Also check legacy auth for role if Supabase auth succeeded but no profile role found
+  // (This handles employees who reset their password via Supabase but use RepairShopr auth)
+  if (!isAuthenticated || !userRole) {
     const legacyAuth = checkLegacyAuth(request);
-    isAuthenticated = legacyAuth.isAuth;
-    userRole = legacyAuth.role;
+    if (!isAuthenticated) {
+      isAuthenticated = legacyAuth.isAuth;
+    }
+    if (!userRole && legacyAuth.role) {
+      userRole = legacyAuth.role;
+    }
   }
 
   // Handle auth routes - redirect authenticated users away

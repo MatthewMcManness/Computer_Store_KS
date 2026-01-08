@@ -170,7 +170,7 @@ export default function ProtectionPlansPage() {
 
               {/* Animated Silver Badge Header with Gold "Plus" */}
               <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-                <div className="animate-silver-shine" style={silverBadgeStyle}>
+                <div className="animate-silver-shine gold-glow-badge" style={silverBadgeStyle}>
                   Silver <span className="gold-text">Plus</span>
                 </div>
               </div>

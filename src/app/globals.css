@@ -123,7 +123,7 @@
   }
 
   .gold-text {
-    background: linear-gradient(135deg, #b8860b 0%, #8b6914 25%, #a67c00 50%, #8b6914 75%, #b8860b 100%);
+    background: linear-gradient(135deg, #996515 0%, #704d0e 25%, #8b6914 50%, #704d0e 75%, #996515 100%);
     background-size: 200% 200%;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -132,8 +132,27 @@
   }
 
   .silver-plus-card {
-    border: 3px solid #ffd700 !important;
-    animation: goldBorder 3s ease-in-out infinite;
+    border: 2px solid #a0a0a0;
+  }
+
+  .gold-glow-badge {
+    border: 2px solid #ffd700 !important;
+    animation: goldBadgeGlow 3s ease-in-out infinite;
+  }
+
+  @keyframes goldBadgeGlow {
+    0% {
+      border-color: #ffd700;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2), 0 0 15px rgba(255, 215, 0, 0.6), 0 0 30px rgba(255, 215, 0, 0.4), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.1);
+    }
+    50% {
+      border-color: #daa520;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2), 0 0 25px rgba(255, 215, 0, 0.8), 0 0 50px rgba(218, 165, 32, 0.6), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.1);
+    }
+    100% {
+      border-color: #ffd700;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2), 0 0 15px rgba(255, 215, 0, 0.6), 0 0 30px rgba(255, 215, 0, 0.4), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.1);
+    }
   }
 
   .animate-silver-shine {

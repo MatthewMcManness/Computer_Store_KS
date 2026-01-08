@@ -41,7 +41,6 @@ src/
 │   │   ├── reviews/
 │   │   ├── services/      # Services hub + 10 service detail pages
 │   │   ├── silver-plan/
-│   │   ├── black-friday/
 │   │   └── why-linux/
 │   ├── admin/             # Admin dashboard (protected)
 │   │   ├── page.tsx       # Dashboard
@@ -86,10 +85,10 @@ src/
 
 ### Gallery System
 - **Data:** `src/data/gallery.json`
-- **Images:** Stored in GitHub repository via API
+- **Images:** Stored in Supabase Storage
 - **Admin:** `/admin/gallery`, `/admin/gallery/new`, `/admin/gallery/[id]`
 - **API:** `/api/gallery`, `/api/gallery/[id]`, `/api/gallery/upload`, `/api/gallery/publish`
-- **Features:** Desktops, laptops, Black Friday pricing, specs
+- **Features:** Desktops, laptops, specs, sale pricing
 
 ### Authentication
 - **Mode:** RepairShopr API authentication
@@ -202,6 +201,34 @@ GET    /api/auth/session      # Get current session
 - `blog_post_tags` - Post-tag junction table
 
 See `docs/database/blog-schema.sql` for full schema.
+
+## Git Branching Strategy
+
+This project uses a **Development/Production** branching model:
+
+| Branch | Purpose | Render Deployment |
+|--------|---------|-------------------|
+| `Production` | Live customer site | computerstoreks.com |
+| `Development` | Internal testing/staging | dev site on Render |
+
+**Workflow:**
+1. Always work in `Development` or `Production` branch
+2. Make changes and test in `Development` first
+3. When ready for live site, merge to `Production` and push
+4. Render auto-deploys from both branches
+
+**Commands:**
+```bash
+# Switch to Development for new work
+git checkout Development
+
+# After testing, deploy to Production
+git checkout Production
+git merge Development
+git push origin Production
+```
+
+**Important:** Never push directly to `Production` without testing in `Development` first (unless hotfix).
 
 ## Deployment
 

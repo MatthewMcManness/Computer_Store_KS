@@ -163,98 +163,94 @@ export default function AuthConfirmPage() {
   // Missing required parameters
   if (!tokenHash || !type) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 to-green-500 p-4">
-        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
-            <svg
-              className="h-8 w-8 text-red-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-              />
-            </svg>
-          </div>
-          <h1 className="mb-2 text-2xl font-bold text-gray-900">
-            Invalid Link
-          </h1>
-          <p className="mb-6 text-gray-600">
-            This confirmation link is invalid or incomplete. Please check your email and try again.
-          </p>
-          <Link
-            href="/login"
-            className="inline-block rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition-all hover:bg-blue-700"
+      <div className="text-center">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+          <svg
+            className="h-8 w-8 text-red-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
           >
-            Go to Login
-          </Link>
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+            />
+          </svg>
         </div>
+        <h1 className="mb-2 text-2xl font-bold text-gray-900 dark:text-white">
+          Invalid Link
+        </h1>
+        <p className="mb-6 text-gray-600 dark:text-gray-400">
+          This confirmation link is invalid or incomplete. Please check your email and try again.
+        </p>
+        <Link
+          href="/login"
+          className="inline-block rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition-all hover:bg-blue-700"
+        >
+          Go to Login
+        </Link>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 to-green-500 p-4">
-      <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-100">
-          <svg
-            className="h-8 w-8 text-blue-600"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            {actionText.icon}
-          </svg>
-        </div>
-
-        <h1 className="mb-2 text-2xl font-bold text-gray-900">
-          {actionText.title}
-        </h1>
-        <p className="mb-6 text-gray-600">
-          {actionText.description}
-        </p>
-
-        {error && (
-          <div
-            className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4"
-            role="alert"
-          >
-            <p className="text-sm text-red-600">{error}</p>
-          </div>
-        )}
-
-        <button
-          onClick={handleConfirm}
-          disabled={isVerifying}
-          className="w-full rounded-lg bg-blue-600 px-8 py-3 font-semibold text-white transition-all hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+    <>
+      <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-100">
+        <svg
+          className="h-8 w-8 text-blue-600"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
         >
-          {isVerifying ? (
-            <span className="flex items-center justify-center">
-              <LoadingSpinner className="mr-2 h-5 w-5" />
-              Verifying...
-            </span>
-          ) : (
-            actionText.button
-          )}
-        </button>
-
-        <p className="mt-6 text-sm text-gray-500">
-          This extra step helps protect your account from automated systems.
-        </p>
-
-        <div className="mt-6 pt-6 border-t border-gray-200">
-          <Link
-            href="/login"
-            className="text-sm text-blue-600 hover:text-blue-700 hover:underline"
-          >
-            Back to Login
-          </Link>
-        </div>
+          {actionText.icon}
+        </svg>
       </div>
-    </div>
+
+      <h1 className="mb-2 text-center text-2xl font-bold text-gray-900 dark:text-white">
+        {actionText.title}
+      </h1>
+      <p className="mb-6 text-center text-gray-600 dark:text-gray-400">
+        {actionText.description}
+      </p>
+
+      {error && (
+        <div
+          className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4"
+          role="alert"
+        >
+          <p className="text-sm text-red-600">{error}</p>
+        </div>
+      )}
+
+      <button
+        onClick={handleConfirm}
+        disabled={isVerifying}
+        className="w-full rounded-lg bg-blue-600 px-8 py-3 font-semibold text-white transition-all hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {isVerifying ? (
+          <span className="flex items-center justify-center">
+            <LoadingSpinner className="mr-2 h-5 w-5" />
+            Verifying...
+          </span>
+        ) : (
+          actionText.button
+        )}
+      </button>
+
+      <p className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
+        This extra step helps protect your account from automated systems.
+      </p>
+
+      <div className="mt-6 text-center">
+        <Link
+          href="/login"
+          className="text-sm text-blue-600 hover:text-blue-700 hover:underline dark:text-blue-400"
+        >
+          Back to Sign In
+        </Link>
+      </div>
+    </>
   );
 }

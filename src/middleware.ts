@@ -31,6 +31,7 @@ const PUBLIC_ROUTES = [
   '/register',
   '/reset-password',
   '/reset-password/confirm',
+  '/auth/confirm',
   '/about',
   '/contact',
   '/gallery',

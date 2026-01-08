@@ -302,12 +302,34 @@ export async function authenticateWithSupabase(
       };
     }
 
-    // Step 2: Get user profile from user_profiles table
-    const { data: profile } = await supabaseAdmin
+    // Step 2: Get or create user profile from user_profiles table
+    let { data: profile } = await supabaseAdmin
       .from('user_profiles')
       .select('*')
       .eq('id', authData.user.id)
       .single();
+
+    // Create profile with 'customer' role if it doesn't exist
+    if (!profile) {
+      console.log(`[AUTH] Creating user profile for customer: ${email}`);
+      const { data: newProfile, error: insertError } = await supabaseAdmin
+        .from('user_profiles')
+        .insert({
+          id: authData.user.id,
+          email: authData.user.email || email.toLowerCase(),
+          full_name: authData.user.user_metadata?.full_name || email.split('@')[0],
+          role: 'customer',
+        })
+        .select()
+        .single();
+
+      if (insertError) {
+        console.error(`[AUTH] Failed to create user profile:`, insertError.message);
+        // Continue without profile - user can still authenticate
+      } else {
+        profile = newProfile;
+      }
+    }
 
     // Use profile data if available, otherwise fall back to auth user data
     const customerName = profile?.full_name || authData.user.user_metadata?.full_name || email.split('@')[0];

@@ -51,8 +51,8 @@ export default function HomePage() {
         <div className="container">
           <div className="founder-text-full">
             <h2>Locally Owned Since 2003</h2>
-            <p>I had seen computer stores come and go and some not run very professionally; I wanted to make sure to build on the best practices learned from my consulting business to offer better and faster service while remaining local. With this business model in place, The Computer Store opened its doors to customers in 2003 and we are the oldest locally owned professional computer retail store in Topeka.</p>
-            <p className="founder-name">— Jim Driggers, Computer Store Founder</p>
+            <p>Every computer that comes through our doors has a story — family photos, a small business, a student&apos;s future. We treat each one like it matters, because it does. That&apos;s what it means to be your trusted computer repair shop.</p>
+            <p className="founder-name">— Max Beyer, Owner</p>
           </div>
         </div>
       </section>

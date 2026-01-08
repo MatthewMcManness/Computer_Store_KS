@@ -12,6 +12,7 @@ export const BUSINESS_INFO = {
   website: 'https://computerstoreks.com',
   founded: 2003,
   founder: 'Jim Driggers',
+  owner: 'Max Beyer',
   hours: [
     'Mon-Fri: 10am-6pm',
     'Sat: 10am-2pm',

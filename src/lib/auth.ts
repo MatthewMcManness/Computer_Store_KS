@@ -259,7 +259,8 @@ export async function authenticateWithRepairShopr(
 // =============================================================================
 
 /**
- * Authenticate a customer with Supabase credentials
+ * Authenticate a customer with Supabase Auth
+ * Uses Supabase's built-in auth system (same as password reset)
  * @param email Customer's email address
  * @param password Customer's password
  * @returns AuthResult with success status and user data
@@ -279,48 +280,43 @@ export async function authenticateWithSupabase(
   }
 
   try {
-    // Step 1: Query customer account by email
-    const { data: account, error: queryError } = await supabaseAdmin
-      .from('customer_accounts')
+    // Step 1: Sign in with Supabase Auth (same system as password reset)
+    const { data: authData, error: authError } = await supabaseAdmin.auth.signInWithPassword({
+      email: email.toLowerCase(),
+      password: password,
+    });
+
+    if (authError) {
+      console.log(`[AUTH] Supabase auth error:`, authError.message);
+      return {
+        success: false,
+        error: 'Invalid email or password',
+      };
+    }
+
+    if (!authData.user) {
+      console.log(`[AUTH] Supabase auth: no user returned`);
+      return {
+        success: false,
+        error: 'Invalid email or password',
+      };
+    }
+
+    // Step 2: Get user profile from user_profiles table
+    const { data: profile } = await supabaseAdmin
+      .from('user_profiles')
       .select('*')
-      .eq('email', email.toLowerCase())
+      .eq('id', authData.user.id)
       .single();
 
-    if (queryError) {
-      console.log(`[AUTH] Customer account query error:`, queryError.message);
-      return {
-        success: false,
-        error: 'Invalid email or password',
-      };
-    }
-
-    if (!account) {
-      console.log(`[AUTH] Customer account not found: ${email}`);
-      return {
-        success: false,
-        error: 'Invalid email or password',
-      };
-    }
-
-    // Step 2: Verify password hash
-    const bcrypt = await import('bcryptjs');
-    const isPasswordValid = await bcrypt.compare(password, account.password_hash);
-
-    if (!isPasswordValid) {
-      console.log(`[AUTH] Customer password verification failed: ${email}`);
-      return {
-        success: false,
-        error: 'Invalid email or password',
-      };
-    }
+    // Use profile data if available, otherwise fall back to auth user data
+    const customerName = profile?.full_name || authData.user.user_metadata?.full_name || email.split('@')[0];
+    const repairshoprCustomerId = profile?.repairshopr_customer_id || 0;
 
     // Step 3: Create customer session
-    // Use first_name if available, otherwise fallback to email prefix
-    const customerName = (account as { first_name?: string }).first_name || account.email.split('@')[0];
-
     const userData: CreateSessionInput = {
-      userId: account.repairshopr_customer_id,
-      email: account.email,
+      userId: repairshoprCustomerId,
+      email: authData.user.email || email,
       name: customerName,
       role: 'limited', // Customers have limited access
       userType: 'customer',
@@ -346,7 +342,7 @@ export async function authenticateWithSupabase(
       path: '/',
     });
 
-    console.log(`[AUTH] Customer login successful: ${email}`);
+    console.log(`[AUTH] Customer login successful via Supabase Auth: ${email}`);
 
     return {
       success: true,

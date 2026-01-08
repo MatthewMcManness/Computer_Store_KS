@@ -29,6 +29,17 @@ function LoadingSpinner({ className = 'h-5 w-5' }: { className?: string }) {
   );
 }
 
+/**
+ * Click-through confirmation page for password reset.
+ *
+ * This page uses a two-step flow to protect against email link scanners:
+ * 1. User clicks the email link -> lands on this page with a "Continue" button
+ * 2. User clicks "Continue" -> PKCE code is exchanged for a session
+ *
+ * Email security scanners (like those in corporate email) automatically click
+ * links to check for malware, but they don't click buttons. This prevents
+ * scanners from consuming the one-time PKCE code before the real user can.
+ */
 export default function ResetPasswordConfirmPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -37,8 +48,15 @@ export default function ResetPasswordConfirmPage() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [isValidToken, setIsValidToken] = useState<boolean | null>(null);
-  const hasCheckedToken = useRef(false);
+
+  // Token validation states:
+  // null = initial/checking for existing session
+  // 'pending_confirmation' = code found, waiting for user to click button
+  // true = valid session established
+  // false = invalid/expired token
+  const [tokenState, setTokenState] = useState<boolean | 'pending_confirmation' | null>(null);
+  const [isExchangingCode, setIsExchangingCode] = useState(false);
+  const hasCheckedSession = useRef(false);
 
   // Create Supabase client once using useMemo
   const supabase = useMemo(() => createBrowserClient(
@@ -46,21 +64,21 @@ export default function ResetPasswordConfirmPage() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   ), []);
 
-  // Handle token detection on mount
+  // Check for existing session on mount (but don't exchange code automatically)
   useEffect(() => {
     // Prevent double execution in React Strict Mode
-    if (hasCheckedToken.current) return;
-    hasCheckedToken.current = true;
+    if (hasCheckedSession.current) return;
+    hasCheckedSession.current = true;
 
-    const checkToken = async () => {
-      // IMPORTANT: Check for existing session FIRST
+    const checkExistingSession = async () => {
+      // Check for existing session FIRST
       // This handles the case where code was already exchanged (refresh, re-render)
-      // and prevents trying to exchange an already-used code
       console.log('Checking for existing session...');
       const { data: { session: existingSession } } = await supabase.auth.getSession();
+
       if (existingSession) {
         console.log('Found existing session - user already authenticated');
-        setIsValidToken(true);
+        setTokenState(true);
         // Clean up URL if it still has code parameter
         if (searchParams.get('code')) {
           window.history.replaceState({}, '', '/reset-password/confirm');
@@ -68,52 +86,27 @@ export default function ResetPasswordConfirmPage() {
         return;
       }
 
-      // Method 1: Check for PKCE code in query params (modern Supabase flow)
+      // Check for PKCE code in query params
       const code = searchParams.get('code');
       if (code) {
-        console.log('Found PKCE code in URL, exchanging for session...');
-        try {
-          const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
-
-          if (exchangeError) {
-            console.error('Error exchanging code:', exchangeError.message);
-            // If code was already used, check if we have a session anyway
-            const { data: { session: retrySession } } = await supabase.auth.getSession();
-            if (retrySession) {
-              console.log('Code exchange failed but found existing session');
-              setIsValidToken(true);
-              window.history.replaceState({}, '', '/reset-password/confirm');
-              return;
-            }
-            setIsValidToken(false);
-            return;
-          }
-
-          if (data.session) {
-            console.log('Session established via PKCE code exchange');
-            // Clean up URL to prevent re-exchange attempts
-            window.history.replaceState({}, '', '/reset-password/confirm');
-            setIsValidToken(true);
-            return;
-          }
-        } catch (err) {
-          console.error('Exception during code exchange:', err);
-          setIsValidToken(false);
-          return;
-        }
+        console.log('Found PKCE code in URL - waiting for user confirmation');
+        // Don't exchange automatically - wait for user to click button
+        setTokenState('pending_confirmation');
+        return;
       }
 
-      // Method 2: Check for hash fragment with tokens (legacy/implicit flow)
+      // Check for hash fragment with tokens (legacy/implicit flow)
       const hash = window.location.hash;
       if (hash && hash.length > 1) {
         const hashParams = new URLSearchParams(hash.substring(1));
         const accessToken = hashParams.get('access_token');
-        const refreshToken = hashParams.get('refresh_token');
-        const type = hashParams.get('type');
-
-        console.log('Hash params found:', { hasAccessToken: !!accessToken, type });
 
         if (accessToken) {
+          // For legacy flow, we need to set session immediately
+          // (this flow is less common and usually not affected by scanners)
+          console.log('Found hash tokens - setting session');
+          const refreshToken = hashParams.get('refresh_token');
+
           try {
             const { data, error: sessionError } = await supabase.auth.setSession({
               access_token: accessToken,
@@ -122,34 +115,95 @@ export default function ResetPasswordConfirmPage() {
 
             if (sessionError) {
               console.error('Error setting session:', sessionError.message);
-              setIsValidToken(false);
+              setTokenState(false);
               return;
             }
 
             if (data.session) {
               console.log('Session established via hash tokens');
-              // Clean up URL
               window.history.replaceState({}, '', '/reset-password/confirm');
-              setIsValidToken(true);
+              setTokenState(true);
               return;
             }
           } catch (err) {
             console.error('Exception setting session:', err);
-            setIsValidToken(false);
+            setTokenState(false);
             return;
           }
         }
       }
 
-      // No valid token or session found
+      // No valid token, code, or session found
       console.log('No valid token, code, or session found');
-      setIsValidToken(false);
+      setTokenState(false);
     };
 
     // Small delay to ensure the page is fully loaded
-    const timer = setTimeout(checkToken, 100);
+    const timer = setTimeout(checkExistingSession, 100);
     return () => clearTimeout(timer);
   }, [supabase, searchParams]);
+
+  /**
+   * Handle the "Continue to Reset Password" button click.
+   * This is where we actually exchange the PKCE code for a session.
+   */
+  const handleConfirmClick = async () => {
+    setIsExchangingCode(true);
+    setError('');
+
+    const code = searchParams.get('code');
+    if (!code) {
+      setError('Reset code not found. Please request a new password reset link.');
+      setTokenState(false);
+      setIsExchangingCode(false);
+      return;
+    }
+
+    try {
+      console.log('Exchanging PKCE code for session...');
+      const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+
+      if (exchangeError) {
+        console.error('Error exchanging code:', exchangeError.message);
+
+        // Check if we somehow have a session anyway
+        const { data: { session: retrySession } } = await supabase.auth.getSession();
+        if (retrySession) {
+          console.log('Code exchange failed but found existing session');
+          window.history.replaceState({}, '', '/reset-password/confirm');
+          setTokenState(true);
+          setIsExchangingCode(false);
+          return;
+        }
+
+        // Provide helpful error message
+        if (exchangeError.message.includes('expired') || exchangeError.message.includes('invalid')) {
+          setError('This password reset link has expired or already been used. Please request a new one.');
+        } else {
+          setError(exchangeError.message);
+        }
+        setTokenState(false);
+        setIsExchangingCode(false);
+        return;
+      }
+
+      if (data.session) {
+        console.log('Session established via PKCE code exchange');
+        // Clean up URL to prevent re-exchange attempts
+        window.history.replaceState({}, '', '/reset-password/confirm');
+        setTokenState(true);
+      } else {
+        setError('Failed to establish session. Please request a new password reset link.');
+        setTokenState(false);
+      }
+    } catch (err) {
+      console.error('Exception during code exchange:', err);
+      setError('An unexpected error occurred. Please try again or request a new link.');
+      setTokenState(false);
+    } finally {
+      setIsExchangingCode(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -193,8 +247,8 @@ export default function ResetPasswordConfirmPage() {
     }
   };
 
-  // Still checking token validity
-  if (isValidToken === null) {
+  // Still checking for existing session
+  if (tokenState === null) {
     return (
       <div className="text-center">
         <LoadingSpinner className="mx-auto h-8 w-8 text-blue-600" />
@@ -203,8 +257,66 @@ export default function ResetPasswordConfirmPage() {
     );
   }
 
+  // Code found - show confirmation button (protection against email scanners)
+  if (tokenState === 'pending_confirmation') {
+    return (
+      <div className="text-center">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-100">
+          <svg
+            className="h-8 w-8 text-blue-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
+            />
+          </svg>
+        </div>
+        <h1 className="mb-2 text-2xl font-bold text-gray-900 dark:text-white">
+          Reset Your Password
+        </h1>
+        <p className="mb-6 text-gray-600 dark:text-gray-400">
+          Click the button below to continue with your password reset.
+        </p>
+
+        {error && (
+          <div
+            className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4"
+            role="alert"
+            aria-live="assertive"
+          >
+            <p className="text-sm text-red-600">{error}</p>
+          </div>
+        )}
+
+        <button
+          onClick={handleConfirmClick}
+          disabled={isExchangingCode}
+          className="inline-block rounded-lg bg-blue-600 px-8 py-3 font-semibold text-white transition-all hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isExchangingCode ? (
+            <span className="flex items-center justify-center">
+              <LoadingSpinner className="mr-2 h-5 w-5" />
+              Verifying...
+            </span>
+          ) : (
+            'Continue to Reset Password'
+          )}
+        </button>
+
+        <p className="mt-6 text-sm text-gray-500 dark:text-gray-400">
+          This extra step helps protect your account from automated systems.
+        </p>
+      </div>
+    );
+  }
+
   // Invalid or expired token
-  if (isValidToken === false) {
+  if (tokenState === false) {
     return (
       <div className="text-center">
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
@@ -226,7 +338,7 @@ export default function ResetPasswordConfirmPage() {
           Invalid or Expired Link
         </h1>
         <p className="mb-6 text-gray-600 dark:text-gray-400">
-          This password reset link is invalid or has expired. Please request a new one.
+          {error || 'This password reset link is invalid or has expired. Please request a new one.'}
         </p>
         <Link
           href="/reset-password"

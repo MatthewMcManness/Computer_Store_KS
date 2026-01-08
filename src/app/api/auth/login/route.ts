@@ -195,8 +195,6 @@ export async function POST(request: NextRequest) {
             role: supabaseResult.user.role,
             userType: supabaseResult.user.userType,
           },
-          // Pass through debug info if present
-          _debug: (supabaseResult as { _debug?: unknown })._debug,
         });
       }
 

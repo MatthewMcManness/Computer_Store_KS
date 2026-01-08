@@ -1,6 +1,7 @@
 # Admin Login Issue - Troubleshooting Log
 
 **Date:** 2026-01-08
+**Status:** ✅ RESOLVED
 **Issue:** Admin user (matthewmcmanness@gmail.com) is being redirected to Customer Dashboard instead of Admin Dashboard after login.
 
 ---
@@ -86,9 +87,29 @@ When logging in with an admin account, the system:
 - **Action:** Updated to correct service_role key
 - **Result:** ❌ Still not working
 
+### 5. Use Fresh Admin Client for Profile Queries ✅ ROOT CAUSE FIX
+- **Status:** ✅ Completed (commit 115a7d0)
+- **Issue Found:** `signInWithPassword()` attaches a user session to the client, which may cause subsequent queries to use user context instead of service_role
+- **Files Changed:**
+  - `src/lib/supabase.ts` - Added `createFreshAdminClient()` function
+  - `src/lib/auth.ts` - Updated `authenticateWithSupabase()` to use fresh client for profile queries
+- **Result:** ✅ SUCCESS - Admin login now correctly redirects to /admin
+
 ---
 
-## Current State
+## Resolution Summary
+
+**Root Cause:** When `signInWithPassword()` is called on the Supabase admin client, it attaches a user session to that client instance. Subsequent queries on the same client then use the authenticated user's context instead of the service_role context, which means RLS policies are evaluated against the user instead of being bypassed.
+
+**Solution:** Create a fresh admin client (via `createFreshAdminClient()`) specifically for profile queries. This ensures the service_role context is preserved and RLS is properly bypassed.
+
+**Additional Issues Found:**
+1. RLS policies on `user_profiles` had recursive queries (fixed)
+2. `SUPABASE_SERVICE_ROLE_KEY` in Render was set to the anon key instead of service_role key (fixed)
+
+---
+
+## Final State
 
 - RLS is enabled on `user_profiles`
 - Service role policy exists

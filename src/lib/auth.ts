@@ -411,13 +411,6 @@ export async function authenticateWithSupabase(
         role: userData.role,
         userType: userData.userType,
       },
-      // Debug info - remove after fixing
-      _debug: {
-        authUserId: authData.user.id,
-        profileFound: !!profile,
-        profileRole: profile?.role || null,
-        profileError: profileError?.code || null,
-      },
     };
   } catch (error) {
     const msg = error instanceof Error ? error.message : 'Unknown error';

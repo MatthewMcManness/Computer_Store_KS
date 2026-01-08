@@ -12,7 +12,7 @@ const PROTECTION_PLAN_FIELD = 'Protection Plan';
  * Validate that a value is a valid protection plan tier
  */
 function isValidPlanTier(value: unknown): value is ProtectionPlanTier {
-  return value === null || value === 'bronze' || value === 'silver' || value === 'gold';
+  return value === null || value === 'bronze' || value === 'silver' || value === 'silver-plus' || value === 'gold';
 }
 
 /**
@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
   if (plan_tier !== undefined) {
     if (!isValidPlanTier(plan_tier)) {
       return NextResponse.json(
-        { error: 'plan_tier must be null, "bronze", "silver", or "gold"' },
+        { error: 'plan_tier must be null, "bronze", "silver", "silver-plus", or "gold"' },
         { status: 400 }
       );
     }

@@ -30,7 +30,7 @@ import {
 import type { RepairShoprCustomer, RepairShoprAsset, RepairShoprTicket, RepairShoprInvoice, RepairShoprPayment } from '@/lib/repairshopr';
 
 // Protection plan tier type
-type ProtectionPlanTier = 'bronze' | 'silver' | 'gold' | null;
+type ProtectionPlanTier = 'bronze' | 'silver' | 'silver-plus' | 'gold' | null;
 
 // Extended customer type with protection plan status from API
 interface CustomerWithPlanStatus extends RepairShoprCustomer {
@@ -472,6 +472,8 @@ export default function CustomersPage() {
         return { label: 'Bronze', className: 'bronze-plan-badge' };
       case 'silver':
         return { label: 'Silver', className: 'silver-plan-badge' };
+      case 'silver-plus':
+        return { label: 'Silver Plus', className: 'silver-plus-plan-badge' };
       case 'gold':
         return { label: 'Gold', className: 'gold-plan-badge' };
       default:
@@ -486,6 +488,8 @@ export default function CustomersPage() {
         return 'bronze-plan-card';
       case 'silver':
         return 'silver-plan-card';
+      case 'silver-plus':
+        return 'silver-plus-plan-card';
       case 'gold':
         return 'gold-plan-card';
       default:
@@ -1139,6 +1143,7 @@ export default function CustomersPage() {
                       <option value="">None</option>
                       <option value="bronze">Bronze</option>
                       <option value="silver">Silver</option>
+                      <option value="silver-plus">Silver Plus</option>
                       <option value="gold">Gold</option>
                     </select>
                   </div>

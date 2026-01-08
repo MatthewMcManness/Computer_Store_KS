@@ -334,14 +334,31 @@ export async function authenticateWithSupabase(
     // Use profile data if available, otherwise fall back to auth user data
     const customerName = profile?.full_name || authData.user.user_metadata?.full_name || email.split('@')[0];
     const repairshoprCustomerId = profile?.repairshopr_customer_id || 0;
+    const repairshoprUserId = profile?.repairshopr_user_id || 0;
 
-    // Step 3: Create customer session
+    // Determine role and userType based on profile
+    // Profile roles: 'admin', 'technician', 'receptionist', 'customer'
+    // Session roles: 'admin', 'employee', 'limited'
+    // UserTypes: 'employee', 'customer'
+    const profileRole = profile?.role || 'customer';
+    const isEmployee = ['admin', 'technician', 'receptionist'].includes(profileRole);
+
+    let sessionRole: 'admin' | 'employee' | 'limited';
+    if (profileRole === 'admin') {
+      sessionRole = 'admin';
+    } else if (isEmployee) {
+      sessionRole = 'employee';
+    } else {
+      sessionRole = 'limited';
+    }
+
+    // Step 3: Create session based on profile role
     const userData: CreateSessionInput = {
-      userId: repairshoprCustomerId,
+      userId: isEmployee ? repairshoprUserId : repairshoprCustomerId,
       email: authData.user.email || email,
       name: customerName,
-      role: 'limited', // Customers have limited access
-      userType: 'customer',
+      role: sessionRole,
+      userType: isEmployee ? 'employee' : 'customer',
     };
 
     const sessionData = createSessionData(userData, ''); // No API token for customers
@@ -364,7 +381,7 @@ export async function authenticateWithSupabase(
       path: '/',
     });
 
-    console.log(`[AUTH] Customer login successful via Supabase Auth: ${email}`);
+    console.log(`[AUTH] Login successful via Supabase Auth: ${email} (role: ${profileRole}, userType: ${userData.userType})`);
 
     return {
       success: true,

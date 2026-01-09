@@ -38,17 +38,17 @@ export async function GET(request: NextRequest) {
   const searchPattern = `%${query}%`;
 
   try {
-    // Search customers
+    // Search customers (rs_customers table from sync)
     const { data: customers } = await supabase
-      .from('repairshopr_customers')
-      .select('id, firstname, lastname, email, phone')
+      .from('rs_customers')
+      .select('repairshopr_id, firstname, lastname, email, phone')
       .or(`firstname.ilike.${searchPattern},lastname.ilike.${searchPattern},email.ilike.${searchPattern},phone.ilike.${searchPattern}`)
       .limit(5);
 
     if (customers) {
       for (const customer of customers) {
         results.push({
-          id: customer.id,
+          id: customer.repairshopr_id,
           type: 'customer',
           title: `${customer.firstname || ''} ${customer.lastname || ''}`.trim() || 'Unknown',
           subtitle: customer.email || customer.phone || undefined,
@@ -57,10 +57,10 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Search businesses
+    // Search businesses (rs_customers table from sync)
     const { data: businesses } = await supabase
-      .from('repairshopr_customers')
-      .select('id, business_name, email, phone')
+      .from('rs_customers')
+      .select('repairshopr_id, business_name, email, phone')
       .not('business_name', 'is', null)
       .ilike('business_name', searchPattern)
       .limit(5);
@@ -69,7 +69,7 @@ export async function GET(request: NextRequest) {
       for (const business of businesses) {
         if (business.business_name) {
           results.push({
-            id: business.id,
+            id: business.repairshopr_id,
             type: 'business',
             title: business.business_name,
             subtitle: business.email || business.phone || undefined,
@@ -79,36 +79,58 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Search tickets
-    const { data: tickets } = await supabase
-      .from('repairshopr_tickets')
-      .select('id, number, subject, status, customer_id')
-      .or(`number.ilike.${searchPattern},subject.ilike.${searchPattern}`)
-      .limit(5);
+    // Search tickets (rs_tickets table from sync)
+    // First try exact number match (if query is numeric), then search subject
+    const isNumericQuery = /^\d+$/.test(query);
+    let tickets: Array<{ repairshopr_id: number; number: number; subject: string | null; status: string | null; customer_id: number }> | null = null;
 
-    if (tickets) {
-      for (const ticket of tickets) {
-        results.push({
-          id: ticket.id,
-          type: 'ticket',
-          title: `#${ticket.number}: ${ticket.subject || 'No subject'}`,
-          subtitle: `Status: ${ticket.status || 'Unknown'}`,
-          href: `/admin/tickets?search=${encodeURIComponent(ticket.number?.toString() || '')}`,
-        });
-      }
+    if (isNumericQuery) {
+      const { data } = await supabase
+        .from('rs_tickets')
+        .select('repairshopr_id, number, subject, status, customer_id')
+        .eq('number', parseInt(query))
+        .limit(5);
+      tickets = data;
     }
 
-    // Search invoices
-    const { data: invoices } = await supabase
-      .from('repairshopr_invoices')
-      .select('id, number, total, status, customer_id')
-      .or(`number.ilike.${searchPattern}`)
+    // Also search by subject
+    const { data: ticketsBySubject } = await supabase
+      .from('rs_tickets')
+      .select('repairshopr_id, number, subject, status, customer_id')
+      .ilike('subject', searchPattern)
       .limit(5);
+
+    // Combine results, avoiding duplicates
+    const ticketIds = new Set(tickets?.map(t => t.repairshopr_id) || []);
+    const allTickets = [...(tickets || []), ...(ticketsBySubject?.filter(t => !ticketIds.has(t.repairshopr_id)) || [])];
+
+    for (const ticket of allTickets) {
+      results.push({
+        id: ticket.repairshopr_id,
+        type: 'ticket',
+        title: `#${ticket.number}: ${ticket.subject || 'No subject'}`,
+        subtitle: `Status: ${ticket.status || 'Unknown'}`,
+        href: `/admin/tickets?search=${encodeURIComponent(ticket.number?.toString() || '')}`,
+      });
+    }
+
+    // Search invoices (rs_invoices table from sync)
+    // Invoice number is numeric, so use exact match for numeric queries
+    let invoices: Array<{ repairshopr_id: number; number: number; total: number | null; status: string | null; customer_id: number }> | null = null;
+
+    if (isNumericQuery) {
+      const { data } = await supabase
+        .from('rs_invoices')
+        .select('repairshopr_id, number, total, status, customer_id')
+        .eq('number', parseInt(query))
+        .limit(5);
+      invoices = data;
+    }
 
     if (invoices) {
       for (const invoice of invoices) {
         results.push({
-          id: invoice.id,
+          id: invoice.repairshopr_id,
           type: 'invoice',
           title: `Invoice #${invoice.number}`,
           subtitle: `$${invoice.total?.toFixed(2) || '0.00'} - ${invoice.status || 'Unknown'}`,

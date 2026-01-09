@@ -376,7 +376,10 @@ export default function CustomersPage() {
         method: 'DELETE',
       });
 
-      if (!response.ok) throw new Error('Failed to delete asset');
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.error || 'Failed to delete asset');
+      }
 
       // Also delete the protection plan record
       await fetch(`/api/admin/asset-plans?asset_id=${assetId}&customer_id=${selectedCustomer.id}`, {
@@ -390,6 +393,7 @@ export default function CustomersPage() {
       await updatePlanTierFromAssets(selectedCustomer.id);
     } catch (err) {
       console.error('Failed to delete asset:', err);
+      setError(err instanceof Error ? err.message : 'Failed to delete asset');
     }
   };
 
@@ -791,27 +795,37 @@ export default function CustomersPage() {
               </div>
             ) : (
               <div className="flex flex-wrap gap-2">
-                {customers.map((customer) => (
-                  <button
-                    key={customer.id}
-                    onClick={() => selectCustomer(customer)}
-                    className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-left transition-colors ${
-                      selectedCustomer?.id === customer.id
-                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30'
-                        : 'border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800'
-                    }`}
-                  >
-                    <User className="h-4 w-4 text-gray-400" />
-                    <span className="font-medium text-gray-900 dark:text-white">
-                      {customer.fullname || `${customer.firstname} ${customer.lastname}`}
-                    </span>
-                    {customer.email && (
-                      <span className="max-w-[150px] truncate text-sm text-gray-600 dark:text-gray-400">
-                        {customer.email}
+                {customers.map((customer) => {
+                  const customerPlanClass = customer.plan_tier ? getPlanCardClass(customer.plan_tier) : (customer.is_silver_plan ? 'silver-plan-card' : '');
+                  const customerPlanDisplay = customer.plan_tier ? getPlanDisplay(customer.plan_tier) : (customer.is_silver_plan ? { label: 'Silver', className: 'silver-plan-badge' } : null);
+                  return (
+                    <button
+                      key={customer.id}
+                      onClick={() => selectCustomer(customer)}
+                      className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-left transition-colors ${
+                        selectedCustomer?.id === customer.id
+                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30'
+                          : 'border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800'
+                      } ${customerPlanClass}`}
+                    >
+                      <User className="h-4 w-4 text-gray-400" />
+                      <span className="font-medium text-gray-900 dark:text-white">
+                        {customer.fullname || `${customer.firstname} ${customer.lastname}`}
                       </span>
-                    )}
-                  </button>
-                ))}
+                      {customerPlanDisplay && (
+                        <span className={`${customerPlanDisplay.className} inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold`}>
+                          <Sparkles className="h-3 w-3" />
+                          {customerPlanDisplay.label}
+                        </span>
+                      )}
+                      {customer.email && (
+                        <span className="max-w-[150px] truncate text-sm text-gray-600 dark:text-gray-400">
+                          {customer.email}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>

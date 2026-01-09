@@ -1121,31 +1121,53 @@ export default function CustomersPage() {
                   </div>
                 </div>
 
-                {/* Protection Plan Dropdown */}
+                {/* Protection Plan Toggle Buttons */}
                 <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Sparkles className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                          Protection Plan
-                        </label>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          Select customer&apos;s protection plan tier
-                        </p>
-                      </div>
+                  <div className="flex items-center gap-3 mb-3">
+                    <Sparkles className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Protection Plan
+                      </label>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Select customer&apos;s protection plan tier
+                      </p>
                     </div>
-                    <select
-                      value={editFormData.plan_tier || ''}
-                      onChange={(e) => handleEditInputChange('plan_tier', e.target.value === '' ? null : e.target.value as ProtectionPlanTier)}
-                      className="rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleEditInputChange('plan_tier', null)}
+                      className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
+                        editFormData.plan_tier === null
+                          ? 'bg-gray-600 text-white ring-2 ring-gray-400 ring-offset-2 dark:ring-offset-gray-900'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+                      }`}
                     >
-                      <option value="">None</option>
-                      <option value="bronze">Bronze</option>
-                      <option value="silver">Silver</option>
-                      <option value="silver-plus">Silver Plus</option>
-                      <option value="gold">Gold</option>
-                    </select>
+                      None
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleEditInputChange('plan_tier', 'silver')}
+                      className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
+                        editFormData.plan_tier === 'silver'
+                          ? 'bg-slate-500 text-white ring-2 ring-slate-400 ring-offset-2 dark:ring-offset-gray-900'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+                      }`}
+                    >
+                      Silver
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleEditInputChange('plan_tier', 'silver-plus')}
+                      className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
+                        editFormData.plan_tier === 'silver-plus'
+                          ? 'bg-gradient-to-r from-slate-500 to-amber-500 text-white ring-2 ring-amber-400 ring-offset-2 dark:ring-offset-gray-900'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+                      }`}
+                    >
+                      Silver Plus
+                    </button>
                   </div>
                 </div>
               </div>

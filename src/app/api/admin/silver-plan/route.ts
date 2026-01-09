@@ -99,19 +99,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to update protection plan in database' }, { status: 500 });
     }
 
-    // Also update RepairShopr custom field (for silver/gold only)
-    // Bronze and Silver Plus are Supabase-only - they don't sync to RepairShopr
+    // Also update RepairShopr custom field
+    // Note: silver-plus syncs as gold in RepairShopr (silver-plus doesn't exist there)
+    // Bronze is Supabase-only for now
     let repairshoprUpdated = false;
 
-    if (tier === 'bronze' || tier === 'silver-plus') {
-      // These tiers are Supabase-only, no RepairShopr sync needed
+    if (tier === 'bronze') {
+      // Bronze is Supabase-only, no RepairShopr sync needed
       console.log(`[API] ${tier} plan - skipping RepairShopr update (Supabase-only)`);
       repairshoprUpdated = true;
     } else {
-      // Silver and Gold tiers need RepairShopr sync - require API token
+      // All other tiers sync to RepairShopr
+      // silver-plus maps to gold in RepairShopr
       const apiToken = await getSessionToken();
       if (!apiToken) {
-        // Still return success since Supabase was updated, but log the issue
         console.warn('[API] No API token for RepairShopr sync, but Supabase update succeeded');
         return NextResponse.json({
           success: true,
@@ -130,16 +131,22 @@ export async function POST(request: NextRequest) {
         const currentCustomer = await client.getCustomer(apiToken, customer_id);
         console.log(`[API] Current customer ${customer_id} properties:`, JSON.stringify(currentCustomer.properties, null, 2));
 
+        // Map silver-plus to gold for RepairShopr (silver-plus doesn't exist there)
+        const repairshoprTier = tier === 'silver-plus' ? 'gold' : tier;
+
         // Merge with existing properties
         // Use answer ID for dropdowns - RepairShopr expects the ID, not the text
         const existingProperties = currentCustomer.properties || {};
-        const answerId = getProtectionPlanAnswerId(tier);
+        const answerId = getProtectionPlanAnswerId(repairshoprTier);
         const updatedProperties = {
           ...existingProperties,
           [PROTECTION_PLAN_FIELD]: answerId,
         };
 
         console.log(`[API] Updating customer ${customer_id} properties to:`, JSON.stringify(updatedProperties, null, 2));
+        if (tier === 'silver-plus') {
+          console.log(`[API] Note: silver-plus mapped to gold for RepairShopr sync`);
+        }
 
         // Update the customer in RepairShopr
         const updatedCustomer = await client.updateCustomer(apiToken, customer_id, {

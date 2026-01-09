@@ -1092,6 +1092,79 @@ export class RepairShoprClient {
     return response.asset;
   }
 
+  /**
+   * Get a single asset/device by ID
+   *
+   * @param apiToken - API token for authentication
+   * @param assetId - Asset ID to fetch
+   * @returns Asset details or null if not found
+   *
+   * @example
+   * ```typescript
+   * const asset = await client.getAsset(apiToken, 12345);
+   * ```
+   */
+  async getAsset(
+    apiToken: string,
+    assetId: number
+  ): Promise<RepairShoprAsset | null> {
+    if (!apiToken || !apiToken.trim()) {
+      throw new RepairShoprAPIError(
+        'API token is required',
+        400,
+        'VALIDATION_ERROR'
+      );
+    }
+
+    try {
+      const response = await this.request<{ asset: RepairShoprAsset }>(
+        `/customer_assets/${assetId}?api_key=${encodeURIComponent(apiToken.trim())}`
+      );
+
+      return response.asset || null;
+    } catch (error) {
+      if (error instanceof RepairShoprAPIError && error.status === 404) {
+        return null;
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Delete an asset/device
+   *
+   * @param apiToken - API token for authentication
+   * @param assetId - Asset ID to delete
+   * @returns True if deleted successfully
+   *
+   * @example
+   * ```typescript
+   * await client.deleteAsset(apiToken, 12345);
+   * ```
+   */
+  async deleteAsset(
+    apiToken: string,
+    assetId: number
+  ): Promise<boolean> {
+    if (!apiToken || !apiToken.trim()) {
+      throw new RepairShoprAPIError(
+        'API token is required',
+        400,
+        'VALIDATION_ERROR'
+      );
+    }
+
+    await this.request(
+      `/customer_assets/${assetId}?api_key=${encodeURIComponent(apiToken.trim())}`,
+      {
+        method: 'DELETE',
+      }
+    );
+
+    console.log(`[RepairShopr] Asset ${assetId} deleted successfully`);
+    return true;
+  }
+
   // =============================================================================
   // Ticket Operations
   // =============================================================================

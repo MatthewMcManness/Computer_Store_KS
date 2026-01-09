@@ -1,5 +1,5 @@
 import { isAuthenticated } from '@/lib/auth';
-import { AdminSidebar } from '@/components/admin';
+import { AdminShell } from '@/components/admin';
 import './admin.css';
 
 // Force dynamic rendering for admin routes (no prerendering)
@@ -21,21 +21,15 @@ export default async function AdminLayout({
   // Check if user is authenticated
   const authenticated = await isAuthenticated();
 
-  // If not authenticated and not on login page, render without sidebar
-  // Note: This check happens at the layout level, individual pages can override
-
   return (
-    <div className="admin-layout min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="admin-layout">
       {authenticated ? (
-        <div className="flex">
-          <AdminSidebar />
-          <main className="ml-64 flex-1 p-8">
-            {children}
-          </main>
-        </div>
+        <AdminShell>
+          {children}
+        </AdminShell>
       ) : (
-        // For unauthenticated users (login page), render without sidebar
-        <main className="min-h-screen">
+        // For unauthenticated users (login page), render without shell
+        <main className="min-h-screen bg-gray-50 dark:bg-gray-950">
           {children}
         </main>
       )}

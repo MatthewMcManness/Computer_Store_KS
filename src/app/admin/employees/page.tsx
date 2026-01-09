@@ -220,17 +220,17 @@ export default function EmployeesPage() {
       )}
 
       {/* Header */}
-      <div className="mb-8 flex items-start justify-between">
+      <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Employees</h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Employees</h1>
+          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
             Manage employee accounts and roles
           </p>
         </div>
         {isAdmin && (
           <Link
             href="/admin/employees/new"
-            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 w-full sm:w-auto"
           >
             <Plus className="h-4 w-4" />
             Add Employee
@@ -249,7 +249,7 @@ export default function EmployeesPage() {
       )}
 
       {/* Employee Table */}
-      <div className="overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
+      <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
         {employees.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16">
             <Users className="h-12 w-12 text-gray-300 dark:text-gray-600" />

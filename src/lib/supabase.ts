@@ -1404,3 +1404,222 @@ export async function isCustomerSilverPlan(customerId: number): Promise<boolean>
   const plan = await getCustomerProtectionPlan(customerId);
   return plan?.is_silver_plan ?? false;
 }
+
+// =============================================================================
+// Asset Protection Plan Type Definitions
+// =============================================================================
+
+export type EsetStatus = 'protected' | 'expired' | 'unprotected' | null;
+
+export interface AssetProtectionPlan {
+  id: string;
+  repairshopr_asset_id: number;
+  repairshopr_customer_id: number;
+  plan_tier: ProtectionPlanTier;
+  eset_status: EsetStatus;
+  eset_expiry: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CustomerProtectionSummary {
+  repairshopr_customer_id: number;
+  protected_asset_count: number;
+  total_assets_with_records: number;
+  has_paid_plan: boolean;
+  plan_tiers: ProtectionPlanTier[];
+}
+
+// =============================================================================
+// Asset Protection Plan Functions
+// =============================================================================
+
+/**
+ * Get protection plan for a specific asset
+ */
+export async function getAssetProtectionPlan(
+  assetId: number
+): Promise<AssetProtectionPlan | null> {
+  if (!supabaseAdmin) return null;
+
+  const { data, error } = await supabaseAdmin
+    .from('asset_protection_plans')
+    .select('*')
+    .eq('repairshopr_asset_id', assetId)
+    .single();
+
+  if (error && error.code !== 'PGRST116') {
+    console.error('Error fetching asset protection plan:', error);
+    return null;
+  }
+
+  return data;
+}
+
+/**
+ * Get protection plans for multiple assets
+ */
+export async function getAssetProtectionPlans(
+  assetIds: number[]
+): Promise<AssetProtectionPlan[]> {
+  if (!supabaseAdmin || assetIds.length === 0) return [];
+
+  const { data, error } = await supabaseAdmin
+    .from('asset_protection_plans')
+    .select('*')
+    .in('repairshopr_asset_id', assetIds);
+
+  if (error) {
+    console.error('Error fetching asset protection plans:', error);
+    return [];
+  }
+
+  return data || [];
+}
+
+/**
+ * Get all protection plans for a customer's assets
+ */
+export async function getCustomerAssetProtectionPlans(
+  customerId: number
+): Promise<AssetProtectionPlan[]> {
+  if (!supabaseAdmin) return [];
+
+  const { data, error } = await supabaseAdmin
+    .from('asset_protection_plans')
+    .select('*')
+    .eq('repairshopr_customer_id', customerId);
+
+  if (error) {
+    console.error('Error fetching customer asset protection plans:', error);
+    return [];
+  }
+
+  return data || [];
+}
+
+/**
+ * Set or update asset protection plan
+ */
+export async function setAssetProtectionPlan(
+  assetId: number,
+  customerId: number,
+  planTier: ProtectionPlanTier,
+  esetStatus?: EsetStatus,
+  esetExpiry?: string | null
+): Promise<AssetProtectionPlan | null> {
+  if (!supabaseAdmin) return null;
+
+  const { data, error } = await supabaseAdmin
+    .from('asset_protection_plans')
+    .upsert(
+      {
+        repairshopr_asset_id: assetId,
+        repairshopr_customer_id: customerId,
+        plan_tier: planTier,
+        eset_status: esetStatus ?? null,
+        eset_expiry: esetExpiry ?? null,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'repairshopr_asset_id' }
+    )
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error setting asset protection plan:', error);
+    return null;
+  }
+
+  return data;
+}
+
+/**
+ * Update ESET status for an asset
+ */
+export async function updateAssetEsetStatus(
+  assetId: number,
+  esetStatus: EsetStatus,
+  esetExpiry?: string | null
+): Promise<AssetProtectionPlan | null> {
+  if (!supabaseAdmin) return null;
+
+  const { data, error } = await supabaseAdmin
+    .from('asset_protection_plans')
+    .update({
+      eset_status: esetStatus,
+      eset_expiry: esetExpiry ?? null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('repairshopr_asset_id', assetId)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error updating asset ESET status:', error);
+    return null;
+  }
+
+  return data;
+}
+
+/**
+ * Delete asset protection plan
+ */
+export async function deleteAssetProtectionPlan(assetId: number): Promise<boolean> {
+  if (!supabaseAdmin) return false;
+
+  const { error } = await supabaseAdmin
+    .from('asset_protection_plans')
+    .delete()
+    .eq('repairshopr_asset_id', assetId);
+
+  if (error) {
+    console.error('Error deleting asset protection plan:', error);
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Get protection summary for a customer (based on their assets)
+ */
+export async function getCustomerProtectionSummary(
+  customerId: number
+): Promise<CustomerProtectionSummary | null> {
+  if (!supabaseAdmin) return null;
+
+  const plans = await getCustomerAssetProtectionPlans(customerId);
+
+  if (plans.length === 0) {
+    return {
+      repairshopr_customer_id: customerId,
+      protected_asset_count: 0,
+      total_assets_with_records: 0,
+      has_paid_plan: false,
+      plan_tiers: [],
+    };
+  }
+
+  const paidTiers: ProtectionPlanTier[] = ['silver', 'silver-plus', 'gold'];
+  const protectedAssets = plans.filter(p => p.plan_tier !== null);
+  const uniqueTiers = [...new Set(plans.map(p => p.plan_tier).filter(Boolean))] as ProtectionPlanTier[];
+  const hasPaidPlan = plans.some(p => p.plan_tier && paidTiers.includes(p.plan_tier));
+
+  return {
+    repairshopr_customer_id: customerId,
+    protected_asset_count: protectedAssets.length,
+    total_assets_with_records: plans.length,
+    has_paid_plan: hasPaidPlan,
+    plan_tiers: uniqueTiers,
+  };
+}
+
+/**
+ * Check if customer has any assets with paid protection plans
+ */
+export async function customerHasPaidAssetPlan(customerId: number): Promise<boolean> {
+  const summary = await getCustomerProtectionSummary(customerId);
+  return summary?.has_paid_plan ?? false;
+}

@@ -14,7 +14,7 @@ export default async function AddComputerPage() {
   return (
     <div>
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-6 sm:mb-8">
         <Link
           href="/admin/gallery"
           className="mb-4 inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
@@ -22,8 +22,8 @@ export default async function AddComputerPage() {
           <ArrowLeft className="h-4 w-4" />
           Back to Gallery
         </Link>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Add New Computer</h1>
-        <p className="mt-1 text-gray-500 dark:text-gray-400">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Add New Computer</h1>
+        <p className="mt-1 text-sm sm:text-base text-gray-500 dark:text-gray-400">
           Fill out the form below to add a new computer to the gallery
         </p>
       </div>

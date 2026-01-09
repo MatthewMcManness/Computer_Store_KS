@@ -175,7 +175,7 @@ export default function EditBlogPostPage({ params }: PageProps) {
   return (
     <div className="max-w-4xl">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-6 sm:mb-8">
         <Link
           href="/admin/blog"
           className="mb-4 inline-flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
@@ -183,14 +183,14 @@ export default function EditBlogPostPage({ params }: PageProps) {
           <ArrowLeft className="h-4 w-4" />
           Back to Posts
         </Link>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Edit Post</h1>
-            <p className="mt-1 text-gray-500 dark:text-gray-400">Update your blog post.</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Edit Post</h1>
+            <p className="mt-1 text-sm sm:text-base text-gray-500 dark:text-gray-400">Update your blog post.</p>
           </div>
           <button
             onClick={handleDelete}
-            className="inline-flex items-center gap-2 rounded-lg border border-red-200 dark:border-red-800 bg-white dark:bg-gray-800 px-3 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+            className="inline-flex items-center justify-center gap-2 rounded-lg border border-red-200 dark:border-red-800 bg-white dark:bg-gray-800 px-3 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 w-full sm:w-auto"
           >
             <Trash2 className="h-4 w-4" />
             Delete
@@ -409,7 +409,7 @@ export default function EditBlogPostPage({ params }: PageProps) {
           </div>
 
           {/* Status & Actions */}
-          <div className="flex items-center justify-between rounded-xl bg-white dark:bg-gray-900 p-6 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-xl bg-white dark:bg-gray-900 p-4 sm:p-6 shadow-sm">
             <div className="flex items-center gap-4">
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Status:</label>
               <select
@@ -422,7 +422,7 @@ export default function EditBlogPostPage({ params }: PageProps) {
                 <option value="archived">Archived</option>
               </select>
             </div>
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <button
                 type="button"
                 onClick={(e) => handleSubmit(e as React.FormEvent, 'draft')}

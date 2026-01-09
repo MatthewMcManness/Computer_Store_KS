@@ -58,10 +58,10 @@ export default async function AdminDashboardPage() {
   return (
     <div>
       {/* Header */}
-      <div className="mb-8 flex items-start justify-between">
+      <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
-          <p className="mt-1 text-gray-500 dark:text-gray-400">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
+          <p className="mt-1 text-sm sm:text-base text-gray-500 dark:text-gray-400">
             Welcome to the Computer Store Kansas admin panel
           </p>
         </div>

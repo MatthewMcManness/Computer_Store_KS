@@ -292,9 +292,9 @@ export default function BusinessesPage() {
   return (
     <div>
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Business Management</h1>
-        <p className="mt-1 text-gray-500 dark:text-gray-400">Search businesses and manage their customers</p>
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Business Management</h1>
+        <p className="mt-1 text-sm sm:text-base text-gray-500 dark:text-gray-400">Search businesses and manage their customers</p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">

@@ -1,0 +1,243 @@
+'use client';
+
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import {
+  Search,
+  X,
+  Menu,
+  User,
+  Building2,
+  Ticket,
+  FileText,
+  Loader2,
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+interface SearchResult {
+  id: string | number;
+  type: 'customer' | 'business' | 'ticket' | 'invoice';
+  title: string;
+  subtitle?: string;
+  href: string;
+}
+
+interface AdminHeaderProps {
+  onMenuToggle: () => void;
+  isSidebarOpen: boolean;
+}
+
+export function AdminHeader({ onMenuToggle, isSidebarOpen }: AdminHeaderProps) {
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showResults, setShowResults] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
+  const searchRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Debounced search
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      setShowResults(false);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setIsSearching(true);
+      try {
+        const res = await fetch(`/api/admin/search?q=${encodeURIComponent(searchQuery)}`);
+        if (res.ok) {
+          const data = await res.json();
+          setSearchResults(data.results || []);
+          setShowResults(true);
+        }
+      } catch (error) {
+        console.error('Search error:', error);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Click outside to close
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setShowResults(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Keyboard navigation
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (!showResults || searchResults.length === 0) return;
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setSelectedIndex(prev => Math.min(prev + 1, searchResults.length - 1));
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setSelectedIndex(prev => Math.max(prev - 1, -1));
+        break;
+      case 'Enter':
+        e.preventDefault();
+        if (selectedIndex >= 0 && selectedIndex < searchResults.length) {
+          navigateToResult(searchResults[selectedIndex]);
+        }
+        break;
+      case 'Escape':
+        setShowResults(false);
+        setSelectedIndex(-1);
+        inputRef.current?.blur();
+        break;
+    }
+  }, [showResults, searchResults, selectedIndex]);
+
+  const navigateToResult = (result: SearchResult) => {
+    setShowResults(false);
+    setSearchQuery('');
+    setSelectedIndex(-1);
+    router.push(result.href);
+  };
+
+  const getTypeIcon = (type: SearchResult['type']) => {
+    switch (type) {
+      case 'customer':
+        return <User className="h-4 w-4 text-blue-500" />;
+      case 'business':
+        return <Building2 className="h-4 w-4 text-purple-500" />;
+      case 'ticket':
+        return <Ticket className="h-4 w-4 text-green-500" />;
+      case 'invoice':
+        return <FileText className="h-4 w-4 text-amber-500" />;
+      default:
+        return null;
+    }
+  };
+
+  const getTypeLabel = (type: SearchResult['type']) => {
+    switch (type) {
+      case 'customer':
+        return 'Customer';
+      case 'business':
+        return 'Business';
+      case 'ticket':
+        return 'Ticket';
+      case 'invoice':
+        return 'Invoice';
+      default:
+        return '';
+    }
+  };
+
+  return (
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-gray-200 bg-white px-4 dark:border-gray-700 dark:bg-gray-900 lg:px-6">
+      {/* Mobile menu button */}
+      <button
+        onClick={onMenuToggle}
+        className="lg:hidden rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+        aria-label="Toggle menu"
+      >
+        <Menu className="h-6 w-6" />
+      </button>
+
+      {/* Search bar */}
+      <div ref={searchRef} className="relative flex-1 max-w-2xl">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <input
+            ref={inputRef}
+            type="text"
+            placeholder="Search customers, businesses, tickets, invoices..."
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setSelectedIndex(-1);
+            }}
+            onFocus={() => searchResults.length > 0 && setShowResults(true)}
+            onKeyDown={handleKeyDown}
+            className="w-full rounded-lg border border-gray-300 bg-gray-50 py-2 pl-10 pr-10 text-sm text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:bg-gray-900"
+          />
+          {isSearching && (
+            <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-gray-400" />
+          )}
+          {searchQuery && !isSearching && (
+            <button
+              onClick={() => {
+                setSearchQuery('');
+                setSearchResults([]);
+                setShowResults(false);
+                inputRef.current?.focus();
+              }}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+
+        {/* Search Results Dropdown */}
+        {showResults && (
+          <div className="absolute left-0 right-0 top-full mt-1 max-h-96 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-900">
+            {searchResults.length === 0 ? (
+              <div className="p-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                No results found for &quot;{searchQuery}&quot;
+              </div>
+            ) : (
+              <ul className="divide-y divide-gray-100 dark:divide-gray-800">
+                {searchResults.map((result, index) => (
+                  <li key={`${result.type}-${result.id}`}>
+                    <button
+                      onClick={() => navigateToResult(result)}
+                      onMouseEnter={() => setSelectedIndex(index)}
+                      className={cn(
+                        'flex w-full items-center gap-3 px-4 py-3 text-left transition-colors',
+                        selectedIndex === index
+                          ? 'bg-blue-50 dark:bg-blue-900/20'
+                          : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+                      )}
+                    >
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
+                        {getTypeIcon(result.type)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate dark:text-white">
+                          {result.title}
+                        </p>
+                        {result.subtitle && (
+                          <p className="text-xs text-gray-500 truncate dark:text-gray-400">
+                            {result.subtitle}
+                          </p>
+                        )}
+                      </div>
+                      <span className="text-xs font-medium text-gray-400 dark:text-gray-500">
+                        {getTypeLabel(result.type)}
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Keyboard shortcut hint - desktop only */}
+      <div className="hidden md:flex items-center">
+        <kbd className="hidden sm:inline-flex items-center gap-1 rounded border border-gray-200 bg-gray-50 px-2 py-1 text-xs text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">
+          <span className="text-xs">⌘</span>K
+        </kbd>
+      </div>
+    </header>
+  );
+}

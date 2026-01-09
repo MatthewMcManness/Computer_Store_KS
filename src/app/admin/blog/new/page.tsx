@@ -105,7 +105,7 @@ export default function NewBlogPostPage() {
   return (
     <div className="max-w-4xl">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-6 sm:mb-8">
         <Link
           href="/admin/blog"
           className="mb-4 inline-flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
@@ -113,8 +113,8 @@ export default function NewBlogPostPage() {
           <ArrowLeft className="h-4 w-4" />
           Back to Posts
         </Link>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">New Blog Post</h1>
-        <p className="mt-1 text-gray-500 dark:text-gray-400">Create a new blog post for your website.</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">New Blog Post</h1>
+        <p className="mt-1 text-sm sm:text-base text-gray-500 dark:text-gray-400">Create a new blog post for your website.</p>
       </div>
 
       {/* Error */}
@@ -328,11 +328,11 @@ export default function NewBlogPostPage() {
           </div>
 
           {/* Actions */}
-          <div className="flex items-center justify-between rounded-xl bg-white dark:bg-gray-900 p-6 shadow-sm">
-            <div className="text-sm text-gray-500 dark:text-gray-400">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-xl bg-white dark:bg-gray-900 p-4 sm:p-6 shadow-sm">
+            <div className="text-sm text-gray-500 dark:text-gray-400 text-center sm:text-left">
               {status === 'draft' ? 'Will be saved as draft' : 'Will be published immediately'}
             </div>
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <button
                 type="button"
                 onClick={(e) => {

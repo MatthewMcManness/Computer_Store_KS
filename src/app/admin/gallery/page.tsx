@@ -104,14 +104,14 @@ export default function AdminGalleryPage() {
   return (
     <div>
       {/* Header */}
-      <div className="mb-8 flex items-center justify-between">
+      <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Gallery Management</h1>
-          <p className="mt-1 text-gray-500 dark:text-gray-400">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Gallery Management</h1>
+          <p className="mt-1 text-sm sm:text-base text-gray-500 dark:text-gray-400">
             Manage your computer inventory
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <span className="text-sm text-gray-500">Sale:</span>
           <SaleDropdown onSaleChange={() => {
             // Reload computers when sale changes
@@ -119,7 +119,7 @@ export default function AdminGalleryPage() {
           }} />
           <Link
             href="/admin/gallery/new"
-            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 w-full sm:w-auto"
           >
             <Plus className="h-4 w-4" />
             Add Computer
@@ -135,17 +135,17 @@ export default function AdminGalleryPage() {
       )}
 
       {/* Filters */}
-      <div className="mb-6 flex items-center gap-4">
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
         <div className="flex items-center gap-2">
           <Filter className="h-4 w-4 text-gray-500 dark:text-gray-400" />
           <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Filter:</span>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0">
           {filters.map(filter => (
             <button
               key={filter.value}
               onClick={() => setCurrentFilter(filter.value)}
-              className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+              className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors whitespace-nowrap ${
                 currentFilter === filter.value
                   ? 'bg-blue-600 text-white'
                   : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'

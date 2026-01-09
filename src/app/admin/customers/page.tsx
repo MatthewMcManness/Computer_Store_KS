@@ -26,11 +26,34 @@ import {
   Plus,
   Eye,
   EyeOff,
+  Shield,
+  ShieldCheck,
+  ShieldAlert,
+  Trash2,
+  Save,
 } from 'lucide-react';
 import type { RepairShoprCustomer, RepairShoprAsset, RepairShoprTicket, RepairShoprInvoice, RepairShoprPayment } from '@/lib/repairshopr';
 
 // Protection plan tier type
 type ProtectionPlanTier = 'bronze' | 'silver' | 'silver-plus' | 'gold' | null;
+type EsetStatus = 'protected' | 'expired' | 'unprotected' | null;
+
+// Asset protection plan from API
+interface AssetProtectionPlan {
+  id: string;
+  repairshopr_asset_id: number;
+  repairshopr_customer_id: number;
+  plan_tier: ProtectionPlanTier;
+  eset_status: EsetStatus;
+  eset_expiry: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// Extended asset with protection plan
+interface AssetWithPlan extends RepairShoprAsset {
+  protection_plan?: AssetProtectionPlan | null;
+}
 
 // Extended customer type with protection plan status from API
 interface CustomerWithPlanStatus extends RepairShoprCustomer {
@@ -91,11 +114,21 @@ export default function CustomersPage() {
 
   // Tab state
   const [activeTab, setActiveTab] = useState<TabType>('assets');
-  const [assets, setAssets] = useState<RepairShoprAsset[]>([]);
+  const [assets, setAssets] = useState<AssetWithPlan[]>([]);
   const [tickets, setTickets] = useState<RepairShoprTicket[]>([]);
   const [invoices, setInvoices] = useState<RepairShoprInvoice[]>([]);
   const [payments, setPayments] = useState<RepairShoprPayment[]>([]);
   const [loadingTabData, setLoadingTabData] = useState(false);
+
+  // Asset management state
+  const [editingAssetId, setEditingAssetId] = useState<number | null>(null);
+  const [editingAssetPlan, setEditingAssetPlan] = useState<ProtectionPlanTier>(null);
+  const [editingAssetEset, setEditingAssetEset] = useState<EsetStatus>(null);
+  const [savingAsset, setSavingAsset] = useState(false);
+  const [showAddAsset, setShowAddAsset] = useState(false);
+  const [newAssetName, setNewAssetName] = useState('');
+  const [newAssetType, setNewAssetType] = useState('');
+  const [addingAsset, setAddingAsset] = useState(false);
 
   // Edit modal state
   const [showEditModal, setShowEditModal] = useState(false);
@@ -186,40 +219,60 @@ export default function CustomersPage() {
   const loadTabData = useCallback(async (customerId: number, tab: TabType) => {
     setLoadingTabData(true);
     try {
-      let endpoint = '';
-      switch (tab) {
-        case 'assets':
-          endpoint = `/api/repairshopr/customers/${customerId}/assets`;
-          break;
-        case 'tickets':
-          endpoint = `/api/repairshopr/customers/${customerId}/tickets`;
-          break;
-        case 'invoices':
-          endpoint = `/api/repairshopr/customers/${customerId}/invoices`;
-          break;
-        case 'payments':
-          endpoint = `/api/repairshopr/customers/${customerId}/payments`;
-          break;
-      }
+      if (tab === 'assets') {
+        // Fetch assets and their protection plans in parallel
+        const [assetsRes, plansRes] = await Promise.all([
+          fetch(`/api/repairshopr/customers/${customerId}/assets`),
+          fetch(`/api/admin/asset-plans?customer_id=${customerId}`)
+        ]);
 
-      const response = await fetch(endpoint);
-      if (!response.ok) throw new Error(`Failed to load ${tab}`);
+        if (!assetsRes.ok) throw new Error('Failed to load assets');
 
-      const data = await response.json();
+        const assetsData = await assetsRes.json();
+        const plansData = plansRes.ok ? await plansRes.json() : { plans: [] };
 
-      switch (tab) {
-        case 'assets':
-          setAssets(data.assets || []);
-          break;
-        case 'tickets':
-          setTickets(data.tickets || []);
-          break;
-        case 'invoices':
-          setInvoices(data.invoices || []);
-          break;
-        case 'payments':
-          setPayments(data.payments || []);
-          break;
+        // Merge protection plans into assets
+        const plansMap = new Map<number, AssetProtectionPlan>();
+        for (const plan of (plansData.plans || [])) {
+          plansMap.set(plan.repairshopr_asset_id, plan);
+        }
+
+        const assetsWithPlans: AssetWithPlan[] = (assetsData.assets || []).map((asset: RepairShoprAsset) => ({
+          ...asset,
+          protection_plan: plansMap.get(asset.id) || null
+        }));
+
+        setAssets(assetsWithPlans);
+      } else {
+        let endpoint = '';
+        switch (tab) {
+          case 'tickets':
+            endpoint = `/api/repairshopr/customers/${customerId}/tickets`;
+            break;
+          case 'invoices':
+            endpoint = `/api/repairshopr/customers/${customerId}/invoices`;
+            break;
+          case 'payments':
+            endpoint = `/api/repairshopr/customers/${customerId}/payments`;
+            break;
+        }
+
+        const response = await fetch(endpoint);
+        if (!response.ok) throw new Error(`Failed to load ${tab}`);
+
+        const data = await response.json();
+
+        switch (tab) {
+          case 'tickets':
+            setTickets(data.tickets || []);
+            break;
+          case 'invoices':
+            setInvoices(data.invoices || []);
+            break;
+          case 'payments':
+            setPayments(data.payments || []);
+            break;
+        }
       }
     } catch (err) {
       console.error(`Failed to load ${tab}:`, err);
@@ -235,12 +288,178 @@ export default function CustomersPage() {
     }
   }, [selectedCustomer, activeTab, loadTabData]);
 
-  // Select a customer and load their portal account + protection plan status
+  // Start editing an asset's protection plan
+  const startEditingAsset = (asset: AssetWithPlan) => {
+    setEditingAssetId(asset.id);
+    setEditingAssetPlan(asset.protection_plan?.plan_tier ?? null);
+    setEditingAssetEset(asset.protection_plan?.eset_status ?? null);
+  };
+
+  // Cancel editing an asset
+  const cancelEditingAsset = () => {
+    setEditingAssetId(null);
+    setEditingAssetPlan(null);
+    setEditingAssetEset(null);
+  };
+
+  // Helper function to update plan tier from asset summary
+  const updatePlanTierFromAssets = async (customerId: number) => {
+    try {
+      const summaryRes = await fetch(`/api/admin/asset-plans?customer_id=${customerId}&summary=true`);
+      if (summaryRes.ok) {
+        const summaryData = await summaryRes.json();
+        const summary = summaryData.summary;
+
+        if (summary?.plan_tiers && summary.plan_tiers.length > 0) {
+          const tierHierarchy: Record<string, number> = {
+            'gold': 4,
+            'silver-plus': 3,
+            'silver': 2,
+            'bronze': 1,
+          };
+
+          let highestTier: ProtectionPlanTier = null;
+          for (const tier of summary.plan_tiers) {
+            if (tier && (!highestTier || tierHierarchy[tier] > tierHierarchy[highestTier])) {
+              highestTier = tier as ProtectionPlanTier;
+            }
+          }
+          setPlanTier(highestTier);
+        } else {
+          setPlanTier(null);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to update plan tier:', err);
+    }
+  };
+
+  // Save asset protection plan
+  const saveAssetPlan = async (assetId: number) => {
+    if (!selectedCustomer) return;
+
+    setSavingAsset(true);
+    try {
+      const response = await fetch('/api/admin/asset-plans', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          asset_id: assetId,
+          customer_id: selectedCustomer.id,
+          plan_tier: editingAssetPlan,
+          eset_status: editingAssetEset,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to save asset plan');
+
+      // Reload assets to get updated data
+      await loadTabData(selectedCustomer.id, 'assets');
+
+      // Update the card styling based on new highest tier
+      await updatePlanTierFromAssets(selectedCustomer.id);
+
+      cancelEditingAsset();
+    } catch (err) {
+      console.error('Failed to save asset plan:', err);
+    } finally {
+      setSavingAsset(false);
+    }
+  };
+
+  // Delete an asset (from RepairShopr)
+  const deleteAsset = async (assetId: number) => {
+    if (!selectedCustomer) return;
+    if (!confirm('Are you sure you want to delete this asset?')) return;
+
+    try {
+      const response = await fetch(`/api/repairshopr/assets/${assetId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) throw new Error('Failed to delete asset');
+
+      // Also delete the protection plan record
+      await fetch(`/api/admin/asset-plans?asset_id=${assetId}&customer_id=${selectedCustomer.id}`, {
+        method: 'DELETE',
+      });
+
+      // Reload assets
+      await loadTabData(selectedCustomer.id, 'assets');
+
+      // Update the card styling based on remaining plans
+      await updatePlanTierFromAssets(selectedCustomer.id);
+    } catch (err) {
+      console.error('Failed to delete asset:', err);
+    }
+  };
+
+  // Add a new asset
+  const addAsset = async () => {
+    if (!selectedCustomer || !newAssetName.trim()) return;
+
+    setAddingAsset(true);
+    try {
+      const response = await fetch('/api/repairshopr/assets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: newAssetName.trim(),
+          customer_id: selectedCustomer.id,
+          asset_type_name: newAssetType.trim() || undefined,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to add asset');
+
+      // Reload assets
+      await loadTabData(selectedCustomer.id, 'assets');
+      setShowAddAsset(false);
+      setNewAssetName('');
+      setNewAssetType('');
+    } catch (err) {
+      console.error('Failed to add asset:', err);
+    } finally {
+      setAddingAsset(false);
+    }
+  };
+
+  // Get plan tier display info
+  const getPlanTierDisplay = (tier: ProtectionPlanTier) => {
+    switch (tier) {
+      case 'gold':
+        return { label: 'Gold', className: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' };
+      case 'silver-plus':
+        return { label: 'Silver+', className: 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200' };
+      case 'silver':
+        return { label: 'Silver', className: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300' };
+      case 'bronze':
+        return { label: 'Bronze', className: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400' };
+      default:
+        return null;
+    }
+  };
+
+  // Get ESET status display info
+  const getEsetDisplay = (status: EsetStatus) => {
+    switch (status) {
+      case 'protected':
+        return { label: 'ESET Protected', icon: ShieldCheck, className: 'text-green-600 dark:text-green-400' };
+      case 'expired':
+        return { label: 'ESET Expired', icon: ShieldAlert, className: 'text-red-600 dark:text-red-400' };
+      case 'unprotected':
+        return { label: 'No ESET', icon: Shield, className: 'text-gray-400 dark:text-gray-500' };
+      default:
+        return null;
+    }
+  };
+
+  // Select a customer and load their portal account + protection plan status (from assets)
   const selectCustomer = async (customer: CustomerWithPlanStatus) => {
     setSelectedCustomer(customer);
     setPortalAccount(null);
     setLoadingAccount(true);
-    setPlanTier(customer.plan_tier ?? null);
+    setPlanTier(null);
     setLoadingPlanTier(true);
     setActiveTab('assets');
     // Clear previous tab data
@@ -250,10 +469,10 @@ export default function CustomersPage() {
     setPayments([]);
 
     try {
-      // Fetch portal account and verify protection plan from DB in parallel
-      const [accountRes, planRes] = await Promise.all([
+      // Fetch portal account and asset protection summary in parallel
+      const [accountRes, summaryRes] = await Promise.all([
         fetch(`/api/admin/customer-accounts?customer_id=${customer.id}`),
-        fetch(`/api/admin/silver-plan?customer_id=${customer.id}`)
+        fetch(`/api/admin/asset-plans?customer_id=${customer.id}&summary=true`)
       ]);
 
       if (accountRes.ok) {
@@ -261,9 +480,28 @@ export default function CustomersPage() {
         setPortalAccount(accountData.account);
       }
 
-      if (planRes.ok) {
-        const planData = await planRes.json();
-        setPlanTier(planData.plan_tier ?? null);
+      // Derive highest plan tier from assets
+      if (summaryRes.ok) {
+        const summaryData = await summaryRes.json();
+        const summary = summaryData.summary;
+
+        if (summary?.plan_tiers && summary.plan_tiers.length > 0) {
+          // Get highest tier from assets
+          const tierHierarchy: Record<string, number> = {
+            'gold': 4,
+            'silver-plus': 3,
+            'silver': 2,
+            'bronze': 1,
+          };
+
+          let highestTier: ProtectionPlanTier = null;
+          for (const tier of summary.plan_tiers) {
+            if (tier && (!highestTier || tierHierarchy[tier] > tierHierarchy[highestTier])) {
+              highestTier = tier as ProtectionPlanTier;
+            }
+          }
+          setPlanTier(highestTier);
+        }
       }
     } catch (err) {
       console.error('Failed to load customer data:', err);
@@ -499,14 +737,14 @@ export default function CustomersPage() {
 
   return (
     <div>
-      <div className="mb-8 flex items-start justify-between">
+      <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Customers</h1>
-          <p className="text-gray-600 dark:text-gray-400">Search and manage customer information</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Customers</h1>
+          <p className="mt-1 text-sm sm:text-base text-gray-600 dark:text-gray-400">Search and manage customer information</p>
         </div>
         <button
           onClick={openAddModal}
-          className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 w-full sm:w-auto"
         >
           <Plus className="h-4 w-4" />
           Add Customer
@@ -559,35 +797,27 @@ export default function CustomersPage() {
               </div>
             ) : (
               <div className="flex flex-wrap gap-2">
-                {customers.map((customer) => {
-                  const customerPlanDisplay = getPlanDisplay(customer.plan_tier ?? null);
-                  return (
-                    <button
-                      key={customer.id}
-                      onClick={() => selectCustomer(customer)}
-                      className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-left transition-colors ${
-                        selectedCustomer?.id === customer.id
-                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30'
-                          : 'border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800'
-                      } ${getPlanCardClass(customer.plan_tier ?? null)}`}
-                    >
-                      <User className="h-4 w-4 text-gray-400" />
-                      <span className="font-medium text-gray-900 dark:text-white">
-                        {customer.fullname || `${customer.firstname} ${customer.lastname}`}
+                {customers.map((customer) => (
+                  <button
+                    key={customer.id}
+                    onClick={() => selectCustomer(customer)}
+                    className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-left transition-colors ${
+                      selectedCustomer?.id === customer.id
+                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30'
+                        : 'border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800'
+                    }`}
+                  >
+                    <User className="h-4 w-4 text-gray-400" />
+                    <span className="font-medium text-gray-900 dark:text-white">
+                      {customer.fullname || `${customer.firstname} ${customer.lastname}`}
+                    </span>
+                    {customer.email && (
+                      <span className="max-w-[150px] truncate text-sm text-gray-600 dark:text-gray-400">
+                        {customer.email}
                       </span>
-                      {customerPlanDisplay && (
-                        <span className={`${customerPlanDisplay.className} inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold`}>
-                          <Sparkles className="h-3 w-3" />
-                        </span>
-                      )}
-                      {customer.email && (
-                        <span className="max-w-[150px] truncate text-sm text-gray-600 dark:text-gray-400">
-                          {customer.email}
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
+                    )}
+                  </button>
+                ))}
               </div>
             )}
           </div>
@@ -730,21 +960,21 @@ export default function CustomersPage() {
                 {/* Tabs */}
                 <div className="rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
                   <div className="border-b border-gray-200 dark:border-gray-700">
-                    <nav className="flex -mb-px">
+                    <nav className="flex -mb-px overflow-x-auto">
                       {tabs.map((tab) => {
                         const Icon = tab.icon;
                         return (
                           <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
-                            className={`flex items-center gap-2 px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
+                            className={`flex items-center gap-2 px-4 sm:px-6 py-3 sm:py-4 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                               activeTab === tab.id
                                 ? 'border-blue-500 text-blue-600 dark:text-blue-400'
                                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
                             }`}
                           >
                             <Icon className="h-4 w-4" />
-                            {tab.label}
+                            <span className="hidden sm:inline">{tab.label}</span>
                           </button>
                         );
                       })}
@@ -761,36 +991,209 @@ export default function CustomersPage() {
                       <>
                         {/* Assets Tab */}
                         {activeTab === 'assets' && (
-                          <div>
-                            {assets.length === 0 ? (
+                          <div className="space-y-3">
+                            {assets.length === 0 && !showAddAsset ? (
                               <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                                 <Monitor className="mx-auto h-12 w-12 text-gray-300 dark:text-gray-600 mb-2" />
                                 No assets found for this customer
                               </div>
                             ) : (
-                              <div className="space-y-3">
-                                {assets.map((asset) => (
-                                  <div
-                                    key={asset.id}
-                                    className="flex items-center justify-between rounded-lg border border-gray-200 p-4 dark:border-gray-700"
-                                  >
-                                    <div className="flex items-center gap-3">
-                                      <Monitor className="h-5 w-5 text-gray-400" />
-                                      <div>
-                                        <p className="font-medium text-gray-900 dark:text-white">
-                                          {asset.name}
-                                        </p>
-                                        {asset.asset_type_name && (
-                                          <p className="text-sm text-gray-500 dark:text-gray-400">
-                                            {asset.asset_type_name}
-                                          </p>
-                                        )}
+                              <div className="space-y-2">
+                                {assets.map((asset) => {
+                                  const isEditing = editingAssetId === asset.id;
+                                  const planDisplay = getPlanTierDisplay(asset.protection_plan?.plan_tier ?? null);
+                                  const esetDisplay = getEsetDisplay(asset.protection_plan?.eset_status ?? null);
+
+                                  return (
+                                    <div
+                                      key={asset.id}
+                                      className={`rounded-lg border p-4 ${
+                                        isEditing
+                                          ? 'border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-900/20'
+                                          : 'border-gray-200 dark:border-gray-700'
+                                      }`}
+                                    >
+                                      <div className="flex items-start justify-between gap-4">
+                                        <div className="flex items-start gap-3 flex-1 min-w-0">
+                                          <Monitor className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
+                                          <div className="min-w-0 flex-1">
+                                            <div className="flex items-center gap-2 flex-wrap">
+                                              <p className="font-medium text-gray-900 dark:text-white truncate">
+                                                {asset.name}
+                                              </p>
+                                              {planDisplay && (
+                                                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${planDisplay.className}`}>
+                                                  {planDisplay.label}
+                                                </span>
+                                              )}
+                                            </div>
+                                            <div className="flex items-center gap-3 mt-1 flex-wrap">
+                                              {asset.asset_type_name && (
+                                                <span className="text-sm text-gray-500 dark:text-gray-400">
+                                                  {asset.asset_type_name}
+                                                </span>
+                                              )}
+                                              {esetDisplay && (
+                                                <span className={`inline-flex items-center gap-1 text-xs ${esetDisplay.className}`}>
+                                                  <esetDisplay.icon className="h-3.5 w-3.5" />
+                                                  {esetDisplay.label}
+                                                </span>
+                                              )}
+                                            </div>
+                                          </div>
+                                        </div>
+
+                                        {/* Action buttons */}
+                                        <div className="flex items-center gap-2 flex-shrink-0">
+                                          {isEditing ? (
+                                            <>
+                                              <button
+                                                onClick={() => saveAssetPlan(asset.id)}
+                                                disabled={savingAsset}
+                                                className="p-1.5 text-green-600 hover:bg-green-100 rounded dark:text-green-400 dark:hover:bg-green-900/30"
+                                                title="Save"
+                                              >
+                                                {savingAsset ? (
+                                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                                ) : (
+                                                  <Save className="h-4 w-4" />
+                                                )}
+                                              </button>
+                                              <button
+                                                onClick={cancelEditingAsset}
+                                                disabled={savingAsset}
+                                                className="p-1.5 text-gray-500 hover:bg-gray-100 rounded dark:text-gray-400 dark:hover:bg-gray-700"
+                                                title="Cancel"
+                                              >
+                                                <X className="h-4 w-4" />
+                                              </button>
+                                            </>
+                                          ) : (
+                                            <>
+                                              <button
+                                                onClick={() => startEditingAsset(asset)}
+                                                className="p-1.5 text-gray-500 hover:bg-gray-100 rounded dark:text-gray-400 dark:hover:bg-gray-700"
+                                                title="Edit protection plan"
+                                              >
+                                                <Edit2 className="h-4 w-4" />
+                                              </button>
+                                              <button
+                                                onClick={() => deleteAsset(asset.id)}
+                                                className="p-1.5 text-red-500 hover:bg-red-100 rounded dark:text-red-400 dark:hover:bg-red-900/30"
+                                                title="Delete asset"
+                                              >
+                                                <Trash2 className="h-4 w-4" />
+                                              </button>
+                                            </>
+                                          )}
+                                        </div>
                                       </div>
+
+                                      {/* Edit form */}
+                                      {isEditing && (
+                                        <div className="mt-4 pt-4 border-t border-blue-200 dark:border-blue-800 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                          <div>
+                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                              Protection Plan
+                                            </label>
+                                            <select
+                                              value={editingAssetPlan ?? ''}
+                                              onChange={(e) => setEditingAssetPlan(e.target.value === '' ? null : e.target.value as ProtectionPlanTier)}
+                                              className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                                            >
+                                              <option value="">None</option>
+                                              <option value="bronze">Bronze</option>
+                                              <option value="silver">Silver</option>
+                                              <option value="silver-plus">Silver+</option>
+                                              <option value="gold">Gold</option>
+                                            </select>
+                                          </div>
+                                          <div>
+                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                              ESET Status
+                                            </label>
+                                            <select
+                                              value={editingAssetEset ?? ''}
+                                              onChange={(e) => setEditingAssetEset(e.target.value === '' ? null : e.target.value as EsetStatus)}
+                                              className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                                            >
+                                              <option value="">Not Set</option>
+                                              <option value="protected">Protected</option>
+                                              <option value="expired">Expired</option>
+                                              <option value="unprotected">Unprotected</option>
+                                            </select>
+                                          </div>
+                                        </div>
+                                      )}
                                     </div>
-                                    <ChevronRight className="h-5 w-5 text-gray-400" />
-                                  </div>
-                                ))}
+                                  );
+                                })}
                               </div>
+                            )}
+
+                            {/* Add new asset section */}
+                            {showAddAsset ? (
+                              <div className="rounded-lg border border-dashed border-gray-300 dark:border-gray-600 p-4 bg-gray-50 dark:bg-gray-800/50">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                                  <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                      Asset Name *
+                                    </label>
+                                    <input
+                                      type="text"
+                                      value={newAssetName}
+                                      onChange={(e) => setNewAssetName(e.target.value)}
+                                      placeholder="e.g., Dell Laptop"
+                                      className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                      Asset Type
+                                    </label>
+                                    <input
+                                      type="text"
+                                      value={newAssetType}
+                                      onChange={(e) => setNewAssetType(e.target.value)}
+                                      placeholder="e.g., Laptop, Desktop"
+                                      className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                                    />
+                                  </div>
+                                </div>
+                                <div className="flex gap-2 justify-end">
+                                  <button
+                                    onClick={() => {
+                                      setShowAddAsset(false);
+                                      setNewAssetName('');
+                                      setNewAssetType('');
+                                    }}
+                                    disabled={addingAsset}
+                                    className="px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
+                                  >
+                                    Cancel
+                                  </button>
+                                  <button
+                                    onClick={addAsset}
+                                    disabled={addingAsset || !newAssetName.trim()}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                                  >
+                                    {addingAsset ? (
+                                      <Loader2 className="h-4 w-4 animate-spin" />
+                                    ) : (
+                                      <Plus className="h-4 w-4" />
+                                    )}
+                                    Add Asset
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <button
+                                onClick={() => setShowAddAsset(true)}
+                                className="w-full flex items-center justify-center gap-2 py-3 rounded-lg border border-dashed border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-gray-400 dark:hover:border-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                              >
+                                <Plus className="h-5 w-5" />
+                                Add New Asset
+                              </button>
                             )}
                           </div>
                         )}

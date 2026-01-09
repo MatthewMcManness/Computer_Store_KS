@@ -175,7 +175,7 @@ export default function NewEmployeePage() {
       )}
 
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-6 sm:mb-8">
         <Link
           href="/admin/employees"
           className="mb-4 inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200"
@@ -183,8 +183,8 @@ export default function NewEmployeePage() {
           <ArrowLeft className="h-4 w-4" />
           Back to Employees
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Add New Employee</h1>
-        <p className="text-gray-600 dark:text-gray-400">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Add New Employee</h1>
+        <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
           Send an invitation email to onboard a new employee
         </p>
       </div>
@@ -303,17 +303,17 @@ export default function NewEmployeePage() {
           </div>
 
           {/* Submit Buttons */}
-          <div className="flex items-center justify-end gap-3">
+          <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-3">
             <Link
               href="/admin/employees"
-              className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
+              className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800 text-center"
             >
               Cancel
             </Link>
             <button
               type="submit"
               disabled={submitting}
-              className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
             >
               {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
               {submitting ? 'Sending Invitation...' : 'Send Invitation'}

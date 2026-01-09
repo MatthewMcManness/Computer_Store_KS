@@ -138,9 +138,9 @@ export default function SyncPage() {
   return (
     <div>
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Data Sync</h1>
-        <p className="mt-1 text-gray-500 dark:text-gray-400">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Data Sync</h1>
+        <p className="mt-1 text-sm sm:text-base text-gray-500 dark:text-gray-400">
           Sync RepairShopr data to Supabase for faster queries
         </p>
       </div>
@@ -295,13 +295,13 @@ export default function SyncPage() {
       {/* Recent Sync Logs */}
       <div>
         <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Recent Sync History</h2>
-        <div className="rounded-xl bg-white shadow-sm dark:bg-gray-900 overflow-hidden">
+        <div className="rounded-xl bg-white shadow-sm dark:bg-gray-900 overflow-x-auto">
           {logs.length === 0 ? (
             <div className="p-6 text-center text-gray-500 dark:text-gray-400">
               No sync operations yet
             </div>
           ) : (
-            <table className="w-full">
+            <table className="w-full min-w-[500px]">
               <thead className="bg-gray-50 dark:bg-gray-800">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Type</th>

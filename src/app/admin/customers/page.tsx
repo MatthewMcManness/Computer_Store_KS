@@ -35,7 +35,7 @@ import {
 import type { RepairShoprCustomer, RepairShoprAsset, RepairShoprTicket, RepairShoprInvoice, RepairShoprPayment } from '@/lib/repairshopr';
 
 // Protection plan tier type
-type ProtectionPlanTier = 'bronze' | 'silver' | 'silver-plus' | 'gold' | null;
+type ProtectionPlanTier = 'eset' | 'silver' | 'silver-plus' | null;
 type EsetStatus = 'protected' | 'expired' | 'unprotected' | null;
 
 // Asset protection plan from API
@@ -312,10 +312,9 @@ export default function CustomersPage() {
 
         if (summary?.plan_tiers && summary.plan_tiers.length > 0) {
           const tierHierarchy: Record<string, number> = {
-            'gold': 4,
             'silver-plus': 3,
             'silver': 2,
-            'bronze': 1,
+            'eset': 1,
           };
 
           let highestTier: ProtectionPlanTier = null;
@@ -427,14 +426,12 @@ export default function CustomersPage() {
   // Get plan tier display info
   const getPlanTierDisplay = (tier: ProtectionPlanTier) => {
     switch (tier) {
-      case 'gold':
-        return { label: 'Gold', className: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' };
-      case 'silver-plus':
-        return { label: 'Silver+', className: 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200' };
+      case 'eset':
+        return { label: 'ESET', className: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' };
       case 'silver':
         return { label: 'Silver', className: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300' };
-      case 'bronze':
-        return { label: 'Bronze', className: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400' };
+      case 'silver-plus':
+        return { label: 'Silver+', className: 'bg-gradient-to-r from-gray-200 to-amber-100 text-gray-800 dark:from-gray-700 dark:to-amber-900/30 dark:text-gray-200' };
       default:
         return null;
     }
@@ -488,10 +485,9 @@ export default function CustomersPage() {
         if (summary?.plan_tiers && summary.plan_tiers.length > 0) {
           // Get highest tier from assets
           const tierHierarchy: Record<string, number> = {
-            'gold': 4,
             'silver-plus': 3,
             'silver': 2,
-            'bronze': 1,
+            'eset': 1,
           };
 
           let highestTier: ProtectionPlanTier = null;
@@ -722,14 +718,12 @@ export default function CustomersPage() {
   // Helper function to get card class based on plan tier
   const getPlanCardClass = (tier: ProtectionPlanTier) => {
     switch (tier) {
-      case 'bronze':
-        return 'bronze-plan-card';
+      case 'eset':
+        return 'eset-plan-card';
       case 'silver':
         return 'silver-plan-card';
       case 'silver-plus':
         return 'silver-plus-plan-card';
-      case 'gold':
-        return 'gold-plan-card';
       default:
         return '';
     }
@@ -1091,37 +1085,57 @@ export default function CustomersPage() {
 
                                       {/* Edit form */}
                                       {isEditing && (
-                                        <div className="mt-4 pt-4 border-t border-blue-200 dark:border-blue-800 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div className="mt-4 pt-4 border-t border-blue-200 dark:border-blue-800 space-y-4">
                                           <div>
-                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                               Protection Plan
                                             </label>
-                                            <select
-                                              value={editingAssetPlan ?? ''}
-                                              onChange={(e) => setEditingAssetPlan(e.target.value === '' ? null : e.target.value as ProtectionPlanTier)}
-                                              className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                                            >
-                                              <option value="">None</option>
-                                              <option value="bronze">Bronze</option>
-                                              <option value="silver">Silver</option>
-                                              <option value="silver-plus">Silver+</option>
-                                              <option value="gold">Gold</option>
-                                            </select>
-                                          </div>
-                                          <div>
-                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                              ESET Status
-                                            </label>
-                                            <select
-                                              value={editingAssetEset ?? ''}
-                                              onChange={(e) => setEditingAssetEset(e.target.value === '' ? null : e.target.value as EsetStatus)}
-                                              className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                                            >
-                                              <option value="">Not Set</option>
-                                              <option value="protected">Protected</option>
-                                              <option value="expired">Expired</option>
-                                              <option value="unprotected">Unprotected</option>
-                                            </select>
+                                            <div className="flex flex-wrap gap-2">
+                                              <button
+                                                type="button"
+                                                onClick={() => setEditingAssetPlan(null)}
+                                                className={`rounded-lg px-3 py-2 text-sm font-medium transition-all ${
+                                                  editingAssetPlan === null
+                                                    ? 'bg-gray-600 text-white ring-2 ring-gray-400 ring-offset-2 dark:ring-offset-gray-900'
+                                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+                                                }`}
+                                              >
+                                                None
+                                              </button>
+                                              <button
+                                                type="button"
+                                                onClick={() => setEditingAssetPlan('eset' as ProtectionPlanTier)}
+                                                className={`rounded-lg px-3 py-2 text-sm font-medium transition-all ${
+                                                  editingAssetPlan === 'eset'
+                                                    ? 'bg-green-600 text-white ring-2 ring-green-400 ring-offset-2 dark:ring-offset-gray-900'
+                                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+                                                }`}
+                                              >
+                                                ESET
+                                              </button>
+                                              <button
+                                                type="button"
+                                                onClick={() => setEditingAssetPlan('silver')}
+                                                className={`rounded-lg px-3 py-2 text-sm font-medium transition-all ${
+                                                  editingAssetPlan === 'silver'
+                                                    ? 'bg-slate-500 text-white ring-2 ring-slate-400 ring-offset-2 dark:ring-offset-gray-900'
+                                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+                                                }`}
+                                              >
+                                                Silver
+                                              </button>
+                                              <button
+                                                type="button"
+                                                onClick={() => setEditingAssetPlan('silver-plus')}
+                                                className={`rounded-lg px-3 py-2 text-sm font-medium transition-all ${
+                                                  editingAssetPlan === 'silver-plus'
+                                                    ? 'bg-gradient-to-r from-slate-500 to-amber-500 text-white ring-2 ring-amber-400 ring-offset-2 dark:ring-offset-gray-900'
+                                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+                                                }`}
+                                              >
+                                                Silver Plus
+                                              </button>
+                                            </div>
                                           </div>
                                         </div>
                                       )}
@@ -1521,56 +1535,6 @@ export default function CustomersPage() {
                       onChange={(e) => handleEditInputChange('zip', e.target.value)}
                       className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                     />
-                  </div>
-                </div>
-
-                {/* Protection Plan Toggle Buttons */}
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-                  <div className="flex items-center gap-3 mb-3">
-                    <Sparkles className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Protection Plan
-                      </label>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Select customer&apos;s protection plan tier
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => handleEditInputChange('plan_tier', null)}
-                      className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
-                        editFormData.plan_tier === null
-                          ? 'bg-gray-600 text-white ring-2 ring-gray-400 ring-offset-2 dark:ring-offset-gray-900'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
-                      }`}
-                    >
-                      None
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleEditInputChange('plan_tier', 'silver')}
-                      className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
-                        editFormData.plan_tier === 'silver'
-                          ? 'bg-slate-500 text-white ring-2 ring-slate-400 ring-offset-2 dark:ring-offset-gray-900'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
-                      }`}
-                    >
-                      Silver
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleEditInputChange('plan_tier', 'silver-plus')}
-                      className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
-                        editFormData.plan_tier === 'silver-plus'
-                          ? 'bg-gradient-to-r from-slate-500 to-amber-500 text-white ring-2 ring-amber-400 ring-offset-2 dark:ring-offset-gray-900'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
-                      }`}
-                    >
-                      Silver Plus
-                    </button>
                   </div>
                 </div>
               </div>

@@ -58,11 +58,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const apiToken = await getSessionToken();
-  if (!apiToken) {
-    return NextResponse.json({ error: 'Session expired' }, { status: 401 });
-  }
-
   let body;
   try {
     body = await request.json();
@@ -113,6 +108,21 @@ export async function POST(request: NextRequest) {
       console.log(`[API] ${tier} plan - skipping RepairShopr update (Supabase-only)`);
       repairshoprUpdated = true;
     } else {
+      // Silver and Gold tiers need RepairShopr sync - require API token
+      const apiToken = await getSessionToken();
+      if (!apiToken) {
+        // Still return success since Supabase was updated, but log the issue
+        console.warn('[API] No API token for RepairShopr sync, but Supabase update succeeded');
+        return NextResponse.json({
+          success: true,
+          is_silver_plan: plan.is_silver_plan,
+          plan_tier: plan.plan_tier,
+          plan,
+          repairshopr_updated: false,
+          warning: 'Database updated but RepairShopr sync skipped (session expired)',
+        });
+      }
+
       try {
         const client = createRepairShoprClient();
 

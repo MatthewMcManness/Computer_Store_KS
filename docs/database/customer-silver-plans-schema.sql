@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS customer_silver_plans (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   repairshopr_customer_id INTEGER NOT NULL UNIQUE,
   is_silver_plan BOOLEAN NOT NULL DEFAULT false,
+  plan_tier TEXT CHECK (plan_tier IS NULL OR plan_tier IN ('bronze', 'silver', 'silver-plus', 'gold')),
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -45,5 +46,6 @@ CREATE POLICY customer_silver_plans_public_select
 -- Comments for documentation
 COMMENT ON TABLE customer_silver_plans IS 'Stores customer silver plan status for display purposes';
 COMMENT ON COLUMN customer_silver_plans.repairshopr_customer_id IS 'Foreign key to RepairShopr customer record';
-COMMENT ON COLUMN customer_silver_plans.is_silver_plan IS 'Whether customer has silver plan';
+COMMENT ON COLUMN customer_silver_plans.is_silver_plan IS 'Whether customer has silver plan (legacy, use plan_tier instead)';
+COMMENT ON COLUMN customer_silver_plans.plan_tier IS 'Protection plan tier: bronze, silver, silver-plus, gold, or null for no plan';
 COMMENT ON INDEX idx_customer_silver_plans_customer_id IS 'Fast lookup by RepairShopr customer ID';

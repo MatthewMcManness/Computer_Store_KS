@@ -72,15 +72,28 @@ export async function GET(request: NextRequest) {
         // Debug: Log plan tier detection for each customer
         console.log(`[API] Customer ${customer.id} (${customer.fullname}): API tier=${apiPlanTier}, DB tier=${dbPlanTier}`);
 
-        // Determine effective plan tier (DB takes priority for bronze, API for silver/gold)
+        // Tiers that only exist in Supabase (RepairShopr can't detect these)
+        const supabaseOnlyTiers: ProtectionPlanTier[] = ['silver-plus', 'bronze', 'eset'];
+
+        // Determine effective plan tier
+        // Priority: DB tier for silver-plus/bronze/eset (Supabase-only), then API tier
         let effectiveTier: ProtectionPlanTier = dbPlanTier;
 
-        // If API says silver/gold and DB doesn't match, sync to DB
-        if (apiPlanTier && apiPlanTier !== dbPlanTier && supabaseAdmin) {
+        // Only sync API tier to DB if:
+        // 1. API detected a tier AND
+        // 2. DB has no tier OR DB tier is not a Supabase-only tier
+        if (apiPlanTier && !dbPlanTier) {
+          // No DB tier, use API tier
           console.log(`[API] Syncing plan tier "${apiPlanTier}" to DB for customer ${customer.id}`);
           await setCustomerProtectionPlan(customer.id, apiPlanTier);
           effectiveTier = apiPlanTier;
-        } else if (apiPlanTier && !dbPlanTier) {
+        } else if (dbPlanTier && supabaseOnlyTiers.includes(dbPlanTier)) {
+          // DB has a Supabase-only tier (silver-plus, bronze, eset) - preserve it
+          effectiveTier = dbPlanTier;
+        } else if (apiPlanTier && apiPlanTier !== dbPlanTier && supabaseAdmin) {
+          // Both have tiers but they differ and DB tier is not Supabase-only
+          console.log(`[API] Syncing plan tier "${apiPlanTier}" to DB for customer ${customer.id}`);
+          await setCustomerProtectionPlan(customer.id, apiPlanTier);
           effectiveTier = apiPlanTier;
         }
 

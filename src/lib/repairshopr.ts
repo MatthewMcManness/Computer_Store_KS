@@ -124,7 +124,7 @@ export interface RepairShoprCustomer {
 /**
  * Protection plan tier type (matches Supabase type)
  */
-export type ProtectionPlanTier = 'eset' | 'silver' | 'silver-plus' | null;
+export type ProtectionPlanTier = 'eset' | 'bronze' | 'silver' | 'silver-plus' | 'gold' | null;
 
 /**
  * Known answer IDs for protection plans in RepairShopr dropdown custom fields

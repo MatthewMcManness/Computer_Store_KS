@@ -35,7 +35,7 @@ import {
 import type { RepairShoprCustomer, RepairShoprAsset, RepairShoprTicket, RepairShoprInvoice, RepairShoprPayment } from '@/lib/repairshopr';
 
 // Protection plan tier type
-type ProtectionPlanTier = 'eset' | 'silver' | 'silver-plus' | null;
+type ProtectionPlanTier = 'eset' | 'bronze' | 'silver' | 'silver-plus' | 'gold' | null;
 type EsetStatus = 'protected' | 'expired' | 'unprotected' | null;
 
 // Asset protection plan from API
@@ -706,6 +706,8 @@ export default function CustomersPage() {
   // Helper function to get plan tier display info
   const getPlanDisplay = (tier: ProtectionPlanTier) => {
     switch (tier) {
+      case 'eset':
+        return { label: 'ESET', className: 'eset-plan-badge' };
       case 'bronze':
         return { label: 'Bronze', className: 'bronze-plan-badge' };
       case 'silver':
@@ -724,10 +726,14 @@ export default function CustomersPage() {
     switch (tier) {
       case 'eset':
         return 'eset-plan-card';
+      case 'bronze':
+        return 'bronze-plan-card';
       case 'silver':
         return 'silver-plan-card';
       case 'silver-plus':
         return 'silver-plus-plan-card';
+      case 'gold':
+        return 'gold-plan-card';
       default:
         return '';
     }

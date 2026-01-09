@@ -1268,7 +1268,7 @@ export function statusRequiresCustomerQuestion(
 // Customer Protection Plan Type Definitions
 // =============================================================================
 
-export type ProtectionPlanTier = 'bronze' | 'silver' | 'silver-plus' | 'gold' | null;
+export type ProtectionPlanTier = 'eset' | 'silver' | 'silver-plus' | null;
 
 export interface CustomerProtectionPlan {
   id: string;

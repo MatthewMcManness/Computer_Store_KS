@@ -22,7 +22,7 @@ const PROTECTION_PLAN_FIELD = 'Protection Plan';
  * Validate that a value is a valid protection plan tier
  */
 function isValidPlanTier(value: unknown): value is ProtectionPlanTier {
-  return value === null || value === 'bronze' || value === 'silver' || value === 'silver-plus' || value === 'gold';
+  return value === null || value === 'eset' || value === 'silver' || value === 'silver-plus';
 }
 
 /**
@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
   // Validate plan_tier if provided
   if (plan_tier !== undefined && !isValidPlanTier(plan_tier)) {
     return NextResponse.json(
-      { error: 'plan_tier must be null, "bronze", "silver", "silver-plus", or "gold"' },
+      { error: 'plan_tier must be null, "eset", "silver", or "silver-plus"' },
       { status: 400 }
     );
   }
@@ -155,15 +155,14 @@ export async function POST(request: NextRequest) {
 
     if (plan_tier !== undefined) {
       const customerSummary = await getCustomerProtectionSummary(customer_id);
-      const paidTiers: ProtectionPlanTier[] = ['silver', 'silver-plus', 'gold'];
+      const paidTiers: ProtectionPlanTier[] = ['silver', 'silver-plus'];
 
       // Update RepairShopr with the highest tier among all assets
-      // Sort by tier hierarchy: gold > silver-plus > silver > bronze > null
+      // Sort by tier hierarchy: silver-plus > silver > eset > null
       const tierHierarchy: Record<string, number> = {
-        'gold': 4,
         'silver-plus': 3,
         'silver': 2,
-        'bronze': 1,
+        'eset': 1,
       };
 
       let highestTier: ProtectionPlanTier = null;
@@ -202,8 +201,8 @@ export async function POST(request: NextRequest) {
             console.error('[API] Failed to update RepairShopr:', rsError);
           }
         }
-      } else if (!highestTier || highestTier === 'bronze') {
-        // Clear RepairShopr protection plan field if no paid plans
+      } else if (!highestTier || highestTier === 'eset') {
+        // Clear RepairShopr protection plan field if no paid plans (ESET is not a paid plan)
         const apiToken = await getSessionToken();
         if (apiToken) {
           try {

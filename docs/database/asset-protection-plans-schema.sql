@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS asset_protection_plans (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   repairshopr_asset_id INTEGER NOT NULL,
   repairshopr_customer_id INTEGER NOT NULL,
-  plan_tier TEXT CHECK (plan_tier IS NULL OR plan_tier IN ('bronze', 'silver', 'silver-plus', 'gold')),
+  plan_tier TEXT CHECK (plan_tier IS NULL OR plan_tier IN ('eset', 'silver', 'silver-plus')),
   eset_status TEXT CHECK (eset_status IS NULL OR eset_status IN ('protected', 'expired', 'unprotected')),
   eset_expiry TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -58,7 +58,7 @@ SELECT
   repairshopr_customer_id,
   COUNT(*) FILTER (WHERE plan_tier IS NOT NULL) AS protected_asset_count,
   COUNT(*) AS total_assets_with_records,
-  BOOL_OR(plan_tier IN ('silver', 'silver-plus', 'gold')) AS has_paid_plan,
+  BOOL_OR(plan_tier IN ('silver', 'silver-plus')) AS has_paid_plan,
   ARRAY_AGG(DISTINCT plan_tier) FILTER (WHERE plan_tier IS NOT NULL) AS plan_tiers
 FROM asset_protection_plans
 GROUP BY repairshopr_customer_id;

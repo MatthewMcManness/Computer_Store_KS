@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Proposal: Stripe + TD Synnex Integration | The Computer Store</title>
+    <style>
+        :root {
+            --primary: #635bff;
+            --primary-dark: #5046e5;
+            --secondary: #10b981;
+            --accent: #00d4ff;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --success: #22c55e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background: var(--light);
+        }
+
+        header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #10b981 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.06'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        header h1 {
+            font-size: 2.6rem;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        header .subtitle {
+            font-size: 1.3rem;
+            opacity: 0.95;
+            position: relative;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 20px;
+            border-radius: 50px;
+            margin-top: 20px;
+            font-weight: 600;
+            position: relative;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 50px 20px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 30px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Executive Summary */
+        .executive-summary {
+            background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.08);
+            border: 2px solid var(--primary);
+        }
+
+        .executive-summary h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        .summary-highlight {
+            background: linear-gradient(135deg, var(--secondary) 0%, #059669 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 25px 0;
+            text-align: center;
+        }
+
+        .summary-highlight .big-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .proposal-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .proposal-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            border: 2px solid #e2e8f0;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .proposal-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .proposal-card .icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .proposal-card h3 {
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+
+        .proposal-card p {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Sections */
+        section {
+            background: white;
+            border-radius: 16px;
+            padding: 35px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        section h2 {
+            color: var(--dark);
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        section h3 {
+            color: var(--primary);
+            font-size: 1.2rem;
+            margin: 25px 0 15px 0;
+        }
+
+        section p {
+            color: var(--gray);
+            margin-bottom: 15px;
+        }
+
+        section ul, section ol {
+            color: var(--gray);
+            margin: 0 0 20px 25px;
+        }
+
+        section li {
+            margin-bottom: 10px;
+        }
+
+        /* Fee Comparison Tables */
+        .comparison-header {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .processor-box {
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .processor-box.usbank {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border: 2px solid var(--danger);
+        }
+
+        .processor-box.stripe {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border: 2px solid var(--primary);
+        }
+
+        .processor-box h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.4rem;
+        }
+
+        .processor-box.usbank h3 {
+            color: var(--danger);
+        }
+
+        .processor-box.stripe h3 {
+            color: var(--primary);
+        }
+
+        .processor-box .verdict {
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .fee-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.95rem;
+        }
+
+        .fee-table th,
+        .fee-table td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .fee-table th {
+            background: var(--dark);
+            color: white;
+            font-weight: 600;
+        }
+
+        .fee-table th.usbank {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        }
+
+        .fee-table th.stripe {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        }
+
+        .fee-table th.winner {
+            background: linear-gradient(135deg, var(--secondary) 0%, #059669 100%);
+        }
+
+        .fee-table tr:hover {
+            background: #f8fafc;
+        }
+
+        .fee-table .winner-cell {
+            background: #dcfce7;
+            color: #166534;
+            font-weight: 600;
+        }
+
+        .fee-table .loser-cell {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Savings Calculator */
+        .savings-calculator {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border: 2px solid var(--secondary);
+            border-radius: 16px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .savings-calculator h3 {
+            color: var(--secondary);
+            margin: 0 0 20px 0;
+            font-size: 1.4rem;
+        }
+
+        .calculation-box {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.8;
+        }
+
+        .calculation-box .highlight {
+            background: #fef08a;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .savings-total {
+            background: var(--secondary);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .savings-total .amount {
+            font-size: 2.5rem;
+            font-weight: 700;
+            display: block;
+        }
+
+        /* TD Synnex Section */
+        .tdsynnex-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid var(--warning);
+            border-radius: 16px;
+            padding: 30px;
+            margin: 20px 0;
+        }
+
+        .tdsynnex-box h3 {
+            color: #b45309;
+            margin: 0 0 15px 0;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .feature-card h4 {
+            color: var(--dark);
+            margin: 0 0 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .feature-card p {
+            color: var(--gray);
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        /* Investment vs ROI */
+        .investment-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .investment-box {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border-radius: 12px;
+            padding: 25px;
+        }
+
+        .investment-box h4 {
+            color: var(--danger);
+            margin: 0 0 15px 0;
+            font-size: 1.2rem;
+        }
+
+        .return-box {
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            border-radius: 12px;
+            padding: 25px;
+        }
+
+        .return-box h4 {
+            color: var(--success);
+            margin: 0 0 15px 0;
+            font-size: 1.2rem;
+        }
+
+        .cost-line {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px dashed #ccc;
+        }
+
+        .cost-line:last-child {
+            border-bottom: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+            padding-top: 15px;
+            margin-top: 10px;
+            border-top: 2px solid currentColor;
+        }
+
+        /* POS Device Section */
+        .pos-comparison {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .pos-option {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .pos-option:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+        }
+
+        .pos-option.recommended {
+            border-color: var(--secondary);
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        }
+
+        .pos-option .price {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 15px 0;
+        }
+
+        .pos-option.recommended .price {
+            color: var(--secondary);
+        }
+
+        .pos-option h4 {
+            color: var(--dark);
+            margin: 0 0 10px 0;
+        }
+
+        .pos-option ul {
+            text-align: left;
+            margin: 15px 0 0 20px;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .recommended-badge {
+            background: var(--secondary);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 40px;
+            margin: 30px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+            border-radius: 2px;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 35px;
+            padding-left: 30px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -29px;
+            top: 5px;
+            width: 20px;
+            height: 20px;
+            background: var(--primary);
+            border-radius: 50%;
+            border: 4px solid white;
+            box-shadow: 0 2px 10px rgba(99, 91, 255, 0.3);
+        }
+
+        .timeline-item .phase {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .timeline-item h4 {
+            color: var(--dark);
+            margin: 5px 0 10px 0;
+        }
+
+        .timeline-item p {
+            font-size: 0.9rem;
+        }
+
+        /* Bottom Line */
+        .bottom-line {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 40px;
+            margin: 40px 0;
+            text-align: center;
+        }
+
+        .bottom-line h2 {
+            color: white;
+            border: none;
+            margin-bottom: 25px;
+            padding: 0;
+        }
+
+        .bottom-line-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .bottom-line-item {
+            background: rgba(255,255,255,0.15);
+            padding: 25px;
+            border-radius: 12px;
+        }
+
+        .bottom-line-item .number {
+            font-size: 2.2rem;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        /* CTA */
+        .cta-section {
+            background: var(--dark);
+            color: white;
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .cta-section h2 {
+            color: var(--accent);
+            border: none;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+
+        .cta-section p {
+            color: #94a3b8;
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: var(--secondary);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+        }
+
+        /* Warning Box */
+        .warning-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid var(--warning);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .warning-box h4 {
+            color: #b45309;
+            margin: 0 0 10px 0;
+        }
+
+        .warning-box p {
+            color: #92400e;
+            margin: 0;
+        }
+
+        /* Info Box */
+        .info-box {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .info-box h4 {
+            color: var(--primary-dark);
+            margin: 0 0 10px 0;
+        }
+
+        .info-box p {
+            color: #1e40af;
+            margin: 0;
+        }
+
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        footer p {
+            color: #94a3b8;
+            margin: 5px 0;
+        }
+
+        footer a {
+            color: var(--accent);
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            .proposal-grid,
+            .bottom-line-grid,
+            .investment-section {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-header {
+                grid-template-columns: 1fr;
+            }
+
+            .fee-table {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Business Transformation Proposal</h1>
+        <p class="subtitle">Stripe Payments + TD Synnex Dropshipping for The Computer Store</p>
+        <div class="badge">Projected Annual Savings: $2,400 - $4,800+</div>
+    </header>
+
+    <div class="container">
+        <a href="/documentation/" class="back-link">← Back to Documentation Hub</a>
+
+        <!-- Executive Summary -->
+        <div class="executive-summary">
+            <h2>Executive Summary</h2>
+            <p>This proposal outlines a strategic business transformation that replaces US Bank payment processing with Stripe, adds branded merchandise capabilities through TD Synnex, and enables e-commerce dropshipping - all while reducing operating costs and expanding revenue opportunities.</p>
+
+            <div class="summary-highlight">
+                <span class="big-number">$0 Monthly Fees</span>
+                Replace US Bank's hidden fees with Stripe's transparent, pay-per-transaction model
+            </div>
+
+            <div class="proposal-grid">
+                <div class="proposal-card">
+                    <div class="icon">💳</div>
+                    <h3>Stripe Payments</h3>
+                    <p>Lower transaction fees, tablet-based POS, zero monthly costs, BNPL options for customers</p>
+                </div>
+                <div class="proposal-card">
+                    <div class="icon">📦</div>
+                    <h3>TD Synnex Supply</h3>
+                    <p>1.9M+ SKUs, YOUR branding on every package, competitive wholesale pricing</p>
+                </div>
+                <div class="proposal-card">
+                    <div class="icon">🌐</div>
+                    <h3>Dropship E-Commerce</h3>
+                    <p>Sell branded products online without holding inventory, expand reach nationwide</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fee Comparison: US Bank vs Stripe -->
+        <section>
+            <h2>Payment Processing Fee Comparison: US Bank vs Stripe</h2>
+
+            <div class="comparison-header">
+                <div class="processor-box usbank">
+                    <h3>US Bank / Elavon</h3>
+                    <p>Current Provider</p>
+                    <p class="verdict">Higher fees + Hidden costs</p>
+                </div>
+                <div class="processor-box stripe">
+                    <h3>Stripe</h3>
+                    <p>Proposed Provider</p>
+                    <p class="verdict">Lower fees + Full transparency</p>
+                </div>
+            </div>
+
+            <h3>Transaction Fee Comparison</h3>
+            <table class="fee-table">
+                <tr>
+                    <th>Transaction Type</th>
+                    <th class="usbank">US Bank Fee</th>
+                    <th class="stripe">Stripe Fee</th>
+                    <th class="winner">Winner</th>
+                </tr>
+                <tr>
+                    <td><strong>In-Person (Swipe/Tap/Chip)</strong></td>
+                    <td class="loser-cell">2.60% + $0.10</td>
+                    <td class="winner-cell">2.70% + $0.05</td>
+                    <td class="winner-cell">Stripe ($0.05 less per txn)</td>
+                </tr>
+                <tr>
+                    <td><strong>Online Payments</strong></td>
+                    <td class="loser-cell">2.90% + $0.30</td>
+                    <td class="winner-cell">2.90% + $0.30</td>
+                    <td>Tie</td>
+                </tr>
+                <tr>
+                    <td><strong>Manual/Keyed Transactions</strong></td>
+                    <td class="loser-cell">3.50% + $0.15</td>
+                    <td class="winner-cell">2.90% + $0.30</td>
+                    <td class="winner-cell">Stripe (0.6% less)</td>
+                </tr>
+                <tr>
+                    <td><strong>International Card Handling</strong></td>
+                    <td class="loser-cell">+0.60% (ITNL fee)</td>
+                    <td class="winner-cell">+1.00%</td>
+                    <td>US Bank (rare use)</td>
+                </tr>
+                <tr>
+                    <td><strong>ACH/Bank Transfer</strong></td>
+                    <td class="loser-cell">Not available</td>
+                    <td class="winner-cell">0.80% (max $5)</td>
+                    <td class="winner-cell">Stripe only</td>
+                </tr>
+            </table>
+
+            <h3>Monthly & Hidden Fees Comparison</h3>
+            <table class="fee-table">
+                <tr>
+                    <th>Fee Type</th>
+                    <th class="usbank">US Bank</th>
+                    <th class="stripe">Stripe</th>
+                    <th class="winner">Annual Savings</th>
+                </tr>
+                <tr>
+                    <td><strong>Monthly Fee</strong></td>
+                    <td class="loser-cell">$10-25/month</td>
+                    <td class="winner-cell">$0</td>
+                    <td class="winner-cell">$120-300/year</td>
+                </tr>
+                <tr>
+                    <td><strong>PCI Compliance Fee</strong></td>
+                    <td class="loser-cell">$99/year</td>
+                    <td class="winner-cell">$0 (included)</td>
+                    <td class="winner-cell">$99/year</td>
+                </tr>
+                <tr>
+                    <td><strong>Setup Fee</strong></td>
+                    <td class="loser-cell">$99 (Standard/Premium)</td>
+                    <td class="winner-cell">$0</td>
+                    <td class="winner-cell">$99 one-time</td>
+                </tr>
+                <tr>
+                    <td><strong>Statement Fee</strong></td>
+                    <td class="loser-cell">$5-10/month</td>
+                    <td class="winner-cell">$0</td>
+                    <td class="winner-cell">$60-120/year</td>
+                </tr>
+                <tr>
+                    <td><strong>Virtual Terminal</strong></td>
+                    <td class="loser-cell">Extra cost</td>
+                    <td class="winner-cell">$0 (included)</td>
+                    <td class="winner-cell">$100+/year</td>
+                </tr>
+                <tr>
+                    <td><strong>Cancellation Fee</strong></td>
+                    <td class="loser-cell">$200-500</td>
+                    <td class="winner-cell">$0</td>
+                    <td class="winner-cell">$0 (no contract)</td>
+                </tr>
+            </table>
+
+            <div class="savings-calculator">
+                <h3>Real-World Savings Calculation</h3>
+                <p>Based on estimated $50,000/month in card processing (both locations combined):</p>
+
+                <div class="calculation-box">
+<strong>CURRENT: US Bank</strong>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+In-Person (70%): $35,000 × 2.60% = $910 + (350 × $0.10) = <span class="highlight">$945</span>
+Online (20%):    $10,000 × 2.90% = $290 + (100 × $0.30) = <span class="highlight">$320</span>
+Keyed (10%):     $5,000 × 3.50%  = $175 + (50 × $0.15)  = <span class="highlight">$182.50</span>
+ITNL Fee:        +0.60% on 5%    = $50,000 × 5% × 0.6%  = <span class="highlight">$15</span>
+Monthly Fee:                                              <span class="highlight">$25</span>
+Statement Fee:                                            <span class="highlight">$10</span>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+<strong>TOTAL MONTHLY:</strong>                                       <span class="highlight">$1,497.50</span>
+                </div>
+
+                <div class="calculation-box">
+<strong>PROPOSED: Stripe</strong>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+In-Person (70%): $35,000 × 2.70% = $945 + (350 × $0.05) = <span class="highlight">$962.50</span>
+Online (20%):    $10,000 × 2.90% = $290 + (100 × $0.30) = <span class="highlight">$320</span>
+Keyed (10%):     $5,000 × 2.90%  = $145 + (50 × $0.30)  = <span class="highlight">$160</span>
+Monthly Fee:                                              <span class="highlight">$0</span>
+Statement Fee:                                            <span class="highlight">$0</span>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+<strong>TOTAL MONTHLY:</strong>                                       <span class="highlight">$1,442.50</span>
+                </div>
+
+                <div class="savings-total">
+                    <span class="amount">$55/month = $660/year</span>
+                    Direct transaction fee savings (plus $300+ from eliminated monthly/hidden fees)
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h4>Important: The Real Value is Beyond Fees</h4>
+                <p>While the transaction fee difference is modest, Stripe's real value comes from: (1) Zero monthly fees saving $300+/year, (2) Built-in features like BNPL, invoicing, and subscriptions at no extra cost, (3) Modern API enabling website integration and automation, (4) Tablet-based POS eliminating expensive proprietary hardware, (5) Single dashboard for all payments across both locations.</p>
+            </div>
+        </section>
+
+        <!-- Tablet POS Section -->
+        <section>
+            <h2>POS Hardware: Tablet-Based Solution</h2>
+            <p>Instead of expensive proprietary POS terminals, you can use tablets as point-of-sale devices with Stripe Terminal integration. This approach is modern, flexible, and cost-effective.</p>
+
+            <div class="pos-comparison">
+                <div class="pos-option recommended">
+                    <div class="recommended-badge">Recommended</div>
+                    <h4>Tablet + Stripe Reader M2</h4>
+                    <div class="price">$209 - $359</div>
+                    <p>Android tablet ($150-300) + Reader M2 ($59)</p>
+                    <ul>
+                        <li>Runs custom web POS or POS for Stripe app</li>
+                        <li>Wireless, portable for both locations</li>
+                        <li>Can run your website directly</li>
+                        <li>Employee-friendly touchscreen interface</li>
+                        <li>Dual-use: POS + general business tasks</li>
+                    </ul>
+                </div>
+
+                <div class="pos-option">
+                    <h4>Tap to Pay (Phone)</h4>
+                    <div class="price">$0</div>
+                    <p>Use existing iPhone/Android phones</p>
+                    <ul>
+                        <li>2.7% + $0.15 per transaction</li>
+                        <li>Perfect for on-site service calls</li>
+                        <li>No additional hardware needed</li>
+                        <li>Uses NFC for contactless</li>
+                        <li>Backup option for counter</li>
+                    </ul>
+                </div>
+
+                <div class="pos-option">
+                    <h4>BBPOS WisePOS E</h4>
+                    <div class="price">$249</div>
+                    <p>Standalone smart terminal</p>
+                    <ul>
+                        <li>Built-in touchscreen display</li>
+                        <li>Customer-facing screen</li>
+                        <li>All-in-one device</li>
+                        <li>Good for high-volume counter</li>
+                        <li>Professional appearance</li>
+                    </ul>
+                </div>
+
+                <div class="pos-option">
+                    <h4>Stripe Reader S700</h4>
+                    <div class="price">$349</div>
+                    <p>Premium smart reader</p>
+                    <ul>
+                        <li>HD touchscreen</li>
+                        <li>Longer battery life</li>
+                        <li>Most premium look</li>
+                        <li>Best customer experience</li>
+                        <li>Optional dock ($49)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <h4>Can We Build POS Into Our Website?</h4>
+                <p><strong>Yes, absolutely.</strong> Stripe Terminal has a JavaScript SDK that integrates directly with your Next.js website. Employees could access a secure admin page on tablets that handles checkout, displays customer totals, and processes payments through the connected Stripe reader. Matthew can build this as part of the website - no additional software costs.</p>
+            </div>
+
+            <h3>Recommended Setup for Both Locations</h3>
+            <table class="fee-table">
+                <tr>
+                    <th>Item</th>
+                    <th>Quantity</th>
+                    <th>Unit Price</th>
+                    <th>Total</th>
+                </tr>
+                <tr>
+                    <td>Android Tablet (Samsung Galaxy Tab A8)</td>
+                    <td>2</td>
+                    <td>$180</td>
+                    <td>$360</td>
+                </tr>
+                <tr>
+                    <td>Stripe Reader M2</td>
+                    <td>2</td>
+                    <td>$59</td>
+                    <td>$118</td>
+                </tr>
+                <tr>
+                    <td>Tablet Stand</td>
+                    <td>2</td>
+                    <td>$25</td>
+                    <td>$50</td>
+                </tr>
+                <tr>
+                    <td>Cash Drawer (USB)</td>
+                    <td>2</td>
+                    <td>$50</td>
+                    <td>$100</td>
+                </tr>
+                <tr>
+                    <td>Receipt Printer (Bluetooth)</td>
+                    <td>2</td>
+                    <td>$80</td>
+                    <td>$160</td>
+                </tr>
+                <tr style="background: #f0fdf4; font-weight: bold;">
+                    <td colspan="3">Total Hardware Investment</td>
+                    <td>$788</td>
+                </tr>
+            </table>
+
+            <p><strong>Note:</strong> Existing hardware like receipt printers may be compatible, potentially reducing this cost. The tablet + reader core setup is only $418 for both locations.</p>
+        </section>
+
+        <!-- TD Synnex Section -->
+        <section>
+            <h2>TD Synnex: Branded Merchandise & Dropshipping</h2>
+
+            <div class="tdsynnex-box">
+                <h3>What is TD Synnex?</h3>
+                <p>TD Synnex is the world's largest IT distributor with <strong>1.9+ million SKUs</strong> from major brands like HP, Dell, Lenovo, Microsoft, and more. Their <strong>MyShop platform</strong> enables resellers to sell branded products with YOUR company name on every package - customers never know it came from a distributor.</p>
+            </div>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>📦 Blind Shipping</h4>
+                    <p>Every package arrives with YOUR branding - "The Computer Store" on labels, packing slips, and documentation. Zero TD Synnex branding visible to customers.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🏪 In-Store Ordering</h4>
+                    <p>Order products for in-store sale at wholesale prices. No minimum orders. Ship to your store or directly to customers.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🌐 Dropship E-Commerce</h4>
+                    <p>Sell products on your website without holding inventory. Customer orders → you order from TD Synnex → they ship branded to customer.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>💰 Wholesale Pricing</h4>
+                    <p>Access to distributor pricing typically 15-40% below retail. Markup for profit while still being competitive.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🔌 API Integration</h4>
+                    <p>Digital Bridge Platform provides REST APIs for real-time pricing, inventory, and order automation. Can integrate with your website.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>📊 No Inventory Risk</h4>
+                    <p>Dropship model means you don't tie up capital in inventory. Order only what you've already sold.</p>
+                </div>
+            </div>
+
+            <h3>TD Synnex Costs</h3>
+            <table class="fee-table">
+                <tr>
+                    <th>Item</th>
+                    <th>Cost</th>
+                    <th>Notes</th>
+                </tr>
+                <tr>
+                    <td>MyShop Setup</td>
+                    <td>~$20 one-time</td>
+                    <td>Standard tier is free</td>
+                </tr>
+                <tr>
+                    <td>Monthly Fee</td>
+                    <td>$0 (Standard tier)</td>
+                    <td>VIP tiers available for high volume</td>
+                </tr>
+                <tr>
+                    <td>Dropship Fee</td>
+                    <td>$5-10 per order</td>
+                    <td>Includes branded packaging</td>
+                </tr>
+                <tr>
+                    <td>Shipping</td>
+                    <td>Varies</td>
+                    <td>Free freight on orders $1,000+</td>
+                </tr>
+                <tr>
+                    <td>API Access</td>
+                    <td>$0</td>
+                    <td>Email helpdeskus@tdsynnex.com</td>
+                </tr>
+            </table>
+
+            <h3>Dropship Profit Example</h3>
+            <div class="calculation-box">
+<strong>Example: Customer orders a Dell Monitor from your website</strong>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Your website price:                                $299.99
+TD Synnex wholesale cost:                         -$220.00
+Dropship handling fee:                             -$7.00
+Stripe payment fee (2.9% + $0.30):                 -$9.00
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+<strong>YOUR PROFIT:</strong>                                      <span class="highlight">$63.99</span>
+
+Customer receives package with "The Computer Store" branding.
+You never touched the inventory.
+            </div>
+        </section>
+
+        <!-- Total Investment & ROI -->
+        <section>
+            <h2>Total Investment & Return on Investment</h2>
+
+            <div class="investment-section">
+                <div class="investment-box">
+                    <h4>Upfront Investment Required</h4>
+                    <div class="cost-line">
+                        <span>Stripe Hardware (2 tablets + 2 readers)</span>
+                        <span>$478</span>
+                    </div>
+                    <div class="cost-line">
+                        <span>POS Accessories (stands, printers)</span>
+                        <span>$310</span>
+                    </div>
+                    <div class="cost-line">
+                        <span>TD Synnex Setup</span>
+                        <span>$20</span>
+                    </div>
+                    <div class="cost-line">
+                        <span>Matthew's Development Time</span>
+                        <span>Paycheck</span>
+                    </div>
+                    <div class="cost-line">
+                        <span><strong>Total One-Time Cost</strong></span>
+                        <span><strong>~$808 + Dev</strong></span>
+                    </div>
+                </div>
+
+                <div class="return-box">
+                    <h4>Annual Savings & Revenue</h4>
+                    <div class="cost-line">
+                        <span>Eliminated monthly fees</span>
+                        <span>+$300-400</span>
+                    </div>
+                    <div class="cost-line">
+                        <span>Transaction fee savings</span>
+                        <span>+$660</span>
+                    </div>
+                    <div class="cost-line">
+                        <span>PCI compliance fee eliminated</span>
+                        <span>+$99</span>
+                    </div>
+                    <div class="cost-line">
+                        <span>New dropship revenue (conservative)</span>
+                        <span>+$2,000+</span>
+                    </div>
+                    <div class="cost-line">
+                        <span>Increased conversions (BNPL)</span>
+                        <span>+$1,000+</span>
+                    </div>
+                    <div class="cost-line">
+                        <span><strong>Year 1 Net Benefit</strong></span>
+                        <span><strong>+$3,251+</strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="savings-calculator">
+                <h3>Break-Even Analysis</h3>
+                <div class="calculation-box">
+Total Investment:              $808
+Annual Savings (minimum):      $1,059 (fees only)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+<strong>Break-Even Point:</strong>             <span class="highlight">~9 months</span>
+
+With dropship revenue included:
+Total First Year Benefit:      $3,251+
+<strong>Net First Year Gain:</strong>          <span class="highlight">$2,443+</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Implementation Timeline -->
+        <section>
+            <h2>Implementation Timeline</h2>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="phase">Week 1-2</div>
+                    <h4>Foundation Setup</h4>
+                    <p>Create Stripe account, complete business verification, order hardware. Apply for TD Synnex reseller account. Matthew begins website integration planning.</p>
+                </div>
+                <div class="timeline-item">
+                    <div class="phase">Week 3-4</div>
+                    <h4>Testing & Training</h4>
+                    <p>Set up tablets and readers at both locations. Train staff on new POS flow. Test transactions with small amounts. Configure RepairShopr integration.</p>
+                </div>
+                <div class="timeline-item">
+                    <div class="phase">Week 5-6</div>
+                    <h4>Website E-Commerce</h4>
+                    <p>Matthew builds POS interface into website admin. Adds "Buy Now" buttons to gallery. Implements Stripe Checkout for online purchases.</p>
+                </div>
+                <div class="timeline-item">
+                    <div class="phase">Week 7-8</div>
+                    <h4>TD Synnex Integration</h4>
+                    <p>Configure MyShop account and branding. Set up dropship workflow. Add first products to website store. Test end-to-end order flow.</p>
+                </div>
+                <div class="timeline-item">
+                    <div class="phase">Week 9+</div>
+                    <h4>Go Live & Optimize</h4>
+                    <p>Switch all payment processing to Stripe. Launch online store with dropship products. Enable BNPL options. Monitor and optimize.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bottom Line -->
+        <div class="bottom-line">
+            <h2>The Bottom Line</h2>
+            <div class="bottom-line-grid">
+                <div class="bottom-line-item">
+                    <span class="number">$0</span>
+                    Monthly software fees with Stripe
+                </div>
+                <div class="bottom-line-item">
+                    <span class="number">$808</span>
+                    Total hardware investment
+                </div>
+                <div class="bottom-line-item">
+                    <span class="number">$3,251+</span>
+                    First year benefit (conservative)
+                </div>
+            </div>
+            <p style="color: rgba(255,255,255,0.9); font-size: 1.1rem; margin-top: 25px;">This transformation modernizes The Computer Store's payment infrastructure, enables new revenue streams through e-commerce and dropshipping, and positions the business for growth - all while reducing ongoing costs.</p>
+        </div>
+
+        <!-- CTA -->
+        <div class="cta-section">
+            <h2>Ready to Move Forward?</h2>
+            <p>The only ongoing costs are Stripe's transparent transaction fees (comparable to current) and Matthew's development time. No contracts, no monthly fees, no hidden costs.</p>
+            <p><strong>Next Steps:</strong></p>
+            <ol style="text-align: left; max-width: 500px; margin: 20px auto; color: #94a3b8;">
+                <li>Approve this proposal</li>
+                <li>Create Stripe account (10 minutes)</li>
+                <li>Apply for TD Synnex reseller account</li>
+                <li>Order hardware (~$800)</li>
+                <li>Matthew begins website integration</li>
+            </ol>
+        </div>
+
+        <!-- Sources -->
+        <section>
+            <h2>Sources & References</h2>
+            <ul>
+                <li><a href="https://stripe.com/pricing" target="_blank">Stripe Official Pricing</a></li>
+                <li><a href="https://www.swipesum.com/insights/guide-to-stripe-fees-rates-for-2025" target="_blank">Stripe Fees Explained (Swipesum 2025)</a></li>
+                <li><a href="https://merchantcostconsulting.com/lower-credit-card-processing-fees/the-complete-guide-to-stripe-credit-card-processing-rates-and-fees/" target="_blank">Stripe Processing Rates 2026 Guide</a></li>
+                <li><a href="https://stripe.com/terminal" target="_blank">Stripe Terminal Hardware</a></li>
+                <li><a href="https://www.helcim.com/guides/ipad-point-of-sale/" target="_blank">iPad POS Systems Guide</a></li>
+                <li><a href="https://posforstripe.krossroads.com/" target="_blank">POS for Stripe App</a></li>
+                <li><a href="https://www.tdsynnex.com/" target="_blank">TD Synnex Official Site</a></li>
+                <li>TD Synnex MyShop Documentation (Reseller Portal)</li>
+            </ul>
+        </section>
+    </div>
+
+    <footer>
+        <p><strong>The Computer Store</strong> | Topeka & Holton, Kansas</p>
+        <p>Proposal prepared by Matthew (Resilient Web Solutions)</p>
+        <p style="margin-top: 15px; font-size: 0.85rem; opacity: 0.7;">Document created: January 2026</p>
+    </footer>
+</body>
+</html>

@@ -104,41 +104,43 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to update protection plan in database' }, { status: 500 });
     }
 
-    // Also update RepairShopr custom field (for silver/gold only - bronze is Supabase-only)
+    // Also update RepairShopr custom field (for silver/gold only)
+    // Bronze and Silver Plus are Supabase-only - they don't sync to RepairShopr
     let repairshoprUpdated = false;
-    try {
-      const client = createRepairShoprClient();
 
-      // First get the current customer to see their properties
-      const currentCustomer = await client.getCustomer(apiToken, customer_id);
-      console.log(`[API] Current customer ${customer_id} properties:`, JSON.stringify(currentCustomer.properties, null, 2));
-
-      // Merge with existing properties
-      // Use answer ID for dropdowns - RepairShopr expects the ID, not the text
-      const existingProperties = currentCustomer.properties || {};
-      const answerId = getProtectionPlanAnswerId(tier);
-      const updatedProperties = {
-        ...existingProperties,
-        [PROTECTION_PLAN_FIELD]: answerId,
-      };
-
-      console.log(`[API] Updating customer ${customer_id} properties to:`, JSON.stringify(updatedProperties, null, 2));
-
-      // Update the customer in RepairShopr
-      const updatedCustomer = await client.updateCustomer(apiToken, customer_id, {
-        properties: updatedProperties,
-      });
-
-      console.log(`[API] RepairShopr update response properties:`, JSON.stringify(updatedCustomer.properties, null, 2));
+    if (tier === 'bronze' || tier === 'silver-plus') {
+      // These tiers are Supabase-only, no RepairShopr sync needed
+      console.log(`[API] ${tier} plan - skipping RepairShopr update (Supabase-only)`);
       repairshoprUpdated = true;
-    } catch (rsError) {
-      // Log but don't fail - Supabase update succeeded
-      // Note: Bronze plan not being in RepairShopr is expected behavior
-      if (tier !== 'bronze') {
+    } else {
+      try {
+        const client = createRepairShoprClient();
+
+        // First get the current customer to see their properties
+        const currentCustomer = await client.getCustomer(apiToken, customer_id);
+        console.log(`[API] Current customer ${customer_id} properties:`, JSON.stringify(currentCustomer.properties, null, 2));
+
+        // Merge with existing properties
+        // Use answer ID for dropdowns - RepairShopr expects the ID, not the text
+        const existingProperties = currentCustomer.properties || {};
+        const answerId = getProtectionPlanAnswerId(tier);
+        const updatedProperties = {
+          ...existingProperties,
+          [PROTECTION_PLAN_FIELD]: answerId,
+        };
+
+        console.log(`[API] Updating customer ${customer_id} properties to:`, JSON.stringify(updatedProperties, null, 2));
+
+        // Update the customer in RepairShopr
+        const updatedCustomer = await client.updateCustomer(apiToken, customer_id, {
+          properties: updatedProperties,
+        });
+
+        console.log(`[API] RepairShopr update response properties:`, JSON.stringify(updatedCustomer.properties, null, 2));
+        repairshoprUpdated = true;
+      } catch (rsError) {
+        // Log but don't fail - Supabase update succeeded
         console.error('[API] Failed to update RepairShopr:', rsError);
-      } else {
-        console.log('[API] Bronze plan - skipping RepairShopr update (bronze is Supabase-only)');
-        repairshoprUpdated = true; // Consider it "successful" for bronze
       }
     }
 

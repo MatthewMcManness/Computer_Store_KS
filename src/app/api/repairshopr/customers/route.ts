@@ -38,13 +38,11 @@ export async function GET(request: NextRequest) {
 
     try {
       // Get ALL customers first (we need to filter by plan tier which requires joining data)
-      // Note: Supabase has a default limit of 1000 rows, so we use range() to get all customers
       const { data: allCustomers, error: listError } = await supabaseAdmin
         .from('rs_customers')
         .select('repairshopr_id, firstname, lastname, email, phone, mobile, address, address_2, city, state, zip, business_name, created_at, updated_at')
         .order('lastname', { ascending: true })
-        .order('firstname', { ascending: true })
-        .range(0, 49999);
+        .order('firstname', { ascending: true });
 
       if (listError) {
         console.error('[API] Supabase customer list error:', listError);

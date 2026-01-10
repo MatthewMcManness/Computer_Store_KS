@@ -41,7 +41,6 @@ export async function GET(request: NextRequest) {
 
   try {
     // Get all businesses (we need to calculate tiers before we can filter/paginate)
-    // Note: Supabase has a default limit of 1000 rows, so we add range()
     let businessQuery = supabaseAdmin
       .from('businesses')
       .select('id, name')
@@ -52,7 +51,7 @@ export async function GET(request: NextRequest) {
       businessQuery = businessQuery.ilike('name', `%${query}%`);
     }
 
-    const { data: allBusinesses, error: listError } = await businessQuery.range(0, 49999);
+    const { data: allBusinesses, error: listError } = await businessQuery;
 
     if (listError) {
       console.error('[API] Supabase business list error:', listError);
@@ -72,13 +71,11 @@ export async function GET(request: NextRequest) {
     }
 
     // Get all customers with their business associations
-    // Note: Supabase has a default limit of 1000 rows, so we use range() to get all customers
     const businessIds = allBusinesses.map(b => b.id);
     const { data: allCustomers } = await supabaseAdmin
       .from('rs_customers')
       .select('business_id, repairshopr_id')
-      .in('business_id', businessIds)
-      .range(0, 49999);
+      .in('business_id', businessIds);
 
     // Group customers by business
     const customerIdsByBusiness = new Map<number, number[]>();

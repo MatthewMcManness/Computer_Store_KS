@@ -533,10 +533,10 @@ async function fetchAllInvoices(apiToken: string): Promise<RepairShoprInvoice[]>
 async function fetchAllProducts(apiToken: string): Promise<RepairShoprProduct[]> {
   const allProducts: RepairShoprProduct[] = [];
   let page = 1;
-  const pageSize = 100;
-  let hasMore = true;
+  const pageSize = 25; // RepairShopr products API defaults to smaller pages
+  let totalPages = 1;
 
-  while (hasMore) {
+  while (page <= totalPages) {
     const response = await fetch(
       `https://${process.env.REPAIRSHOPR_SUBDOMAIN}.repairshopr.com/api/v1/products?api_key=${encodeURIComponent(apiToken)}&page=${page}&per_page=${pageSize}`
     );
@@ -547,14 +547,22 @@ async function fetchAllProducts(apiToken: string): Promise<RepairShoprProduct[]>
 
     const data = await response.json();
     const products = data.products || [];
+    const meta = data.meta || {};
 
-    console.log(`[Sync] Products page ${page}: found ${products.length} products (response keys: ${Object.keys(data).join(', ')})`);
+    // Update total pages from meta if available
+    if (meta.total_pages) {
+      totalPages = meta.total_pages;
+    } else if (meta.total_entries && products.length > 0) {
+      // Calculate from total_entries if total_pages not available
+      totalPages = Math.ceil(meta.total_entries / pageSize);
+    }
+
+    console.log(`[Sync] Products page ${page}/${totalPages}: found ${products.length} products (total: ${meta.total_entries || 'unknown'})`);
 
     allProducts.push(...products);
-    hasMore = products.length === pageSize;
     page++;
 
-    if (hasMore) {
+    if (page <= totalPages) {
       await new Promise((resolve) => setTimeout(resolve, 100));
     }
   }

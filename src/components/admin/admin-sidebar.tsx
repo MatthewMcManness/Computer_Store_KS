@@ -8,7 +8,6 @@ import {
   LayoutDashboard,
   Image,
   LogOut,
-  Home,
   RefreshCw,
   FileText,
   PenSquare,
@@ -144,7 +143,16 @@ export function AdminSidebar({ isOpen, onClose, onLogout }: AdminSidebarProps) {
                 priority
               />
               <div>
-                <h1 className="text-sm font-bold text-gray-900 dark:text-white">Employee Portal</h1>
+                <div className="flex items-center gap-2">
+                  <h1 className="text-sm font-bold text-gray-900 dark:text-white">Employee Portal</h1>
+                  <button
+                    onClick={toggle}
+                    className="rounded-md p-1 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+                    aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+                  >
+                    {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                  </button>
+                </div>
                 <p className="text-xs text-gray-500 dark:text-gray-400">Computer Store KS</p>
               </div>
             </div>
@@ -185,32 +193,11 @@ export function AdminSidebar({ isOpen, onClose, onLogout }: AdminSidebarProps) {
             </div>
           </nav>
 
-          {/* Footer Actions */}
-          <div className="border-t border-gray-200 p-3 space-y-1 dark:border-gray-700">
-            <button
-              onClick={toggle}
-              className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
-            >
-              {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-              {isDark ? 'Light Mode' : 'Dark Mode'}
-            </button>
-            <Link
-              href="/"
-              className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
-            >
-              <Home className="h-5 w-5" />
-              View Site
-            </Link>
-            <button
-              onClick={() => window.location.reload()}
-              className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
-            >
-              <RefreshCw className="h-5 w-5" />
-              Reload
-            </button>
+          {/* Footer - Logout */}
+          <div className="border-t border-gray-200 p-3 dark:border-gray-700">
             <button
               onClick={handleLogout}
-              className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
+              className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
             >
               <LogOut className="h-5 w-5" />
               Logout

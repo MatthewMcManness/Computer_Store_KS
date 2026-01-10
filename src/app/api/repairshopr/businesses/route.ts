@@ -12,12 +12,15 @@ export interface Business {
   plan_tier?: ProtectionPlanTier;
 }
 
+const tierHierarchy: Record<string, number> = { 'silver-plus': 3, 'silver': 2, 'eset': 1 };
+
 /**
  * GET /api/repairshopr/businesses
- * List businesses with pagination
+ * List businesses with pagination and filtering
  * Query params:
  *   - ?page=1&per_page=50 - Pagination
  *   - ?q=search_term - Search by name
+ *   - ?plan_tier=eset|silver|silver-plus - Filter by protection plan tier
  */
 export async function GET(request: NextRequest) {
   // Check employee authentication
@@ -34,14 +37,13 @@ export async function GET(request: NextRequest) {
   const query = searchParams.get('q')?.trim();
   const page = parseInt(searchParams.get('page') || '1', 10);
   const perPage = parseInt(searchParams.get('per_page') || '50', 10);
+  const planTierFilter = searchParams.get('plan_tier') as ProtectionPlanTier | null;
 
   try {
-    const offset = (page - 1) * perPage;
-
-    // Build query for businesses
+    // Get all businesses (we need to calculate tiers before we can filter/paginate)
     let businessQuery = supabaseAdmin
       .from('businesses')
-      .select('id, name', { count: 'exact' })
+      .select('id, name')
       .order('name', { ascending: true });
 
     // Add search filter if provided
@@ -49,17 +51,14 @@ export async function GET(request: NextRequest) {
       businessQuery = businessQuery.ilike('name', `%${query}%`);
     }
 
-    // Apply pagination
-    businessQuery = businessQuery.range(offset, offset + perPage - 1);
-
-    const { data: businesses, error: listError, count: totalCount } = await businessQuery;
+    const { data: allBusinesses, error: listError } = await businessQuery;
 
     if (listError) {
       console.error('[API] Supabase business list error:', listError);
       return NextResponse.json({ error: 'Failed to load businesses' }, { status: 500 });
     }
 
-    if (!businesses || businesses.length === 0) {
+    if (!allBusinesses || allBusinesses.length === 0) {
       return NextResponse.json({
         businesses: [],
         meta: {
@@ -71,20 +70,17 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Get customer counts for each business
-    const businessIds = businesses.map(b => b.id);
-    const { data: customerCounts } = await supabaseAdmin
+    // Get all customers with their business associations
+    const businessIds = allBusinesses.map(b => b.id);
+    const { data: allCustomers } = await supabaseAdmin
       .from('rs_customers')
       .select('business_id, repairshopr_id')
       .in('business_id', businessIds);
 
-    // Group customer counts by business
-    const countMap = new Map<number, number>();
+    // Group customers by business
     const customerIdsByBusiness = new Map<number, number[]>();
-
-    for (const row of customerCounts || []) {
+    for (const row of allCustomers || []) {
       if (row.business_id) {
-        countMap.set(row.business_id, (countMap.get(row.business_id) || 0) + 1);
         if (!customerIdsByBusiness.has(row.business_id)) {
           customerIdsByBusiness.set(row.business_id, []);
         }
@@ -92,20 +88,18 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Get all customer IDs for protection plan lookup
-    const allCustomerIds = (customerCounts || []).map(c => c.repairshopr_id);
+    // Get plan tiers for all customers
+    const allCustomerIds = (allCustomers || []).map(c => c.repairshopr_id);
     const planTierMap = allCustomerIds.length > 0
       ? await getEffectiveCustomerPlanTiers(allCustomerIds)
       : new Map<number, ProtectionPlanTier>();
 
-    // Build business list with highest tier per business
-    const tierHierarchy: Record<string, number> = { 'silver-plus': 3, 'silver': 2, 'eset': 1 };
-
-    const businessList: Business[] = businesses.map(b => {
-      // Find highest tier among all customers in this business
-      let highestTier: ProtectionPlanTier = null;
+    // Build full business list with tiers
+    const allBusinessesWithTiers: Business[] = allBusinesses.map(b => {
       const customerIds = customerIdsByBusiness.get(b.id) || [];
 
+      // Find highest tier among all customers in this business
+      let highestTier: ProtectionPlanTier = null;
       for (const customerId of customerIds) {
         const tier = planTierMap.get(customerId) ?? null;
         if (tier && (!highestTier || tierHierarchy[tier] > (tierHierarchy[highestTier] || 0))) {
@@ -116,18 +110,30 @@ export async function GET(request: NextRequest) {
       return {
         id: b.id,
         name: b.name,
-        customerCount: countMap.get(b.id) || 0,
+        customerCount: customerIds.length,
         plan_tier: highestTier,
       };
     });
 
+    // Apply plan tier filter if specified
+    let filteredBusinesses = allBusinessesWithTiers;
+    if (planTierFilter) {
+      filteredBusinesses = allBusinessesWithTiers.filter(b => b.plan_tier === planTierFilter);
+    }
+
+    // Calculate pagination on filtered results
+    const totalCount = filteredBusinesses.length;
+    const totalPages = Math.ceil(totalCount / perPage);
+    const offset = (page - 1) * perPage;
+    const paginatedBusinesses = filteredBusinesses.slice(offset, offset + perPage);
+
     return NextResponse.json({
-      businesses: businessList,
+      businesses: paginatedBusinesses,
       meta: {
-        total_entries: totalCount || 0,
+        total_entries: totalCount,
         page,
         per_page: perPage,
-        total_pages: Math.ceil((totalCount || 0) / perPage),
+        total_pages: totalPages,
       },
     });
   } catch (error) {

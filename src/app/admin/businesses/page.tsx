@@ -41,10 +41,10 @@ export default function BusinessesPage() {
 
   // Check authentication and user role
   useEffect(() => {
-    fetch('/api/auth/session')
+    fetch('/api/auth/check')
       .then(res => res.json())
       .then(data => {
-        if (!data?.user) {
+        if (!data?.authenticated || !data?.user) {
           router.push('/admin/login');
         } else if (data.user.role === 'admin') {
           setIsAdmin(true);
@@ -76,7 +76,11 @@ export default function BusinessesPage() {
     setError(null);
 
     try {
-      const response = await fetch(`/api/repairshopr/businesses?page=${page}&per_page=${perPage}`);
+      let url = `/api/repairshopr/businesses?page=${page}&per_page=${perPage}`;
+      if (planFilter !== 'all') {
+        url += `&plan_tier=${planFilter}`;
+      }
+      const response = await fetch(url);
       if (!response.ok) throw new Error('Failed to load businesses');
 
       const data = await response.json();
@@ -88,11 +92,16 @@ export default function BusinessesPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, perPage]);
+  }, [page, perPage, planFilter]);
 
   useEffect(() => {
     loadBusinesses();
   }, [loadBusinesses]);
+
+  // Reset to page 1 when filter changes
+  useEffect(() => {
+    setPage(1);
+  }, [planFilter]);
 
   // Get plan tier badge color
   const getPlanBadge = (tier: ProtectionPlanTier) => {
@@ -112,11 +121,7 @@ export default function BusinessesPage() {
     );
   };
 
-  // Filter businesses by plan
-  const filteredBusinesses = businesses.filter((business) => {
-    if (planFilter === 'all') return true;
-    return business.plan_tier === planFilter;
-  });
+  // Server-side filtering - businesses are already filtered by API
 
   if (loading && businesses.length === 0) {
     return (
@@ -227,9 +232,9 @@ export default function BusinessesPage() {
         </div>
 
         {/* Business Rows */}
-        {filteredBusinesses.length > 0 ? (
+        {businesses.length > 0 ? (
           <div className="divide-y divide-gray-200 dark:divide-gray-700">
-            {filteredBusinesses.map((business) => (
+            {businesses.map((business) => (
               <Link
                 key={business.id}
                 href={`/admin/businesses/${business.id}`}
@@ -345,7 +350,7 @@ export default function BusinessesPage() {
       {meta && meta.total_pages > 1 && (
         <div className="mt-6 flex items-center justify-between">
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Showing {((page - 1) * perPage) + 1} to {Math.min(page * perPage, meta.total_entries)} of {meta.total_entries} businesses
+            Showing {((page - 1) * perPage) + 1} to {Math.min(page * perPage, meta.total_entries)} of {meta.total_entries} {planFilter !== 'all' ? `${planFilter === 'eset' ? 'ESET' : planFilter === 'silver' ? 'Silver' : 'Silver+'} plan` : ''} businesses
           </p>
           <div className="flex items-center gap-2">
             <button

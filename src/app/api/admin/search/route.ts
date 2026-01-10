@@ -90,7 +90,7 @@ export async function GET(request: NextRequest) {
           type: 'customer',
           title: `${customer.firstname || ''} ${customer.lastname || ''}`.trim() || 'Unknown',
           subtitle: customer.email || customer.phone || undefined,
-          href: `/admin/customers?id=${customer.repairshopr_id}`,
+          href: `/admin/customers/${customer.repairshopr_id}`,
           protectionPlan: customerPlans[i],
         });
       }
@@ -118,7 +118,7 @@ export async function GET(request: NextRequest) {
             type: 'business',
             title: business.business_name,
             subtitle: business.email || business.phone || undefined,
-            href: `/admin/businesses?id=${business.repairshopr_id}`,
+            href: `/admin/businesses/${business.repairshopr_id}`,
             protectionPlan: businessPlans[i],
           });
         }

@@ -17,6 +17,8 @@ import {
   Eye,
   EyeOff,
   X,
+  Filter,
+  Shield,
 } from 'lucide-react';
 import type { RepairShoprCustomer } from '@/lib/repairshopr';
 
@@ -68,6 +70,7 @@ export default function CustomersListPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCustomers, setTotalCustomers] = useState(0);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [planFilter, setPlanFilter] = useState<ProtectionPlanTier | 'all'>('all');
 
   // Add customer modal state
   const [showAddModal, setShowAddModal] = useState(false);
@@ -437,6 +440,63 @@ export default function CustomersListPage() {
         </button>
       </div>
 
+      {/* Plan Filters */}
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400 mr-2">
+          <Filter className="h-4 w-4" />
+          <span>Filter:</span>
+        </div>
+        <button
+          onClick={() => setPlanFilter('all')}
+          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+            planFilter === 'all'
+              ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+          }`}
+        >
+          All
+        </button>
+        <button
+          onClick={() => setPlanFilter('eset')}
+          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+            planFilter === 'eset'
+              ? 'bg-emerald-600 text-white'
+              : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400 dark:hover:bg-emerald-900/50'
+          }`}
+        >
+          <span className="flex items-center gap-1.5">
+            <Shield className="h-3.5 w-3.5" />
+            ESET
+          </span>
+        </button>
+        <button
+          onClick={() => setPlanFilter('silver')}
+          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+            planFilter === 'silver'
+              ? 'bg-slate-600 text-white'
+              : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
+          }`}
+        >
+          <span className="flex items-center gap-1.5">
+            <Sparkles className="h-3.5 w-3.5" />
+            Silver
+          </span>
+        </button>
+        <button
+          onClick={() => setPlanFilter('silver-plus')}
+          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+            planFilter === 'silver-plus'
+              ? 'bg-violet-600 text-white'
+              : 'bg-violet-50 text-violet-700 hover:bg-violet-100 dark:bg-violet-900/30 dark:text-violet-400 dark:hover:bg-violet-900/50'
+          }`}
+        >
+          <span className="flex items-center gap-1.5">
+            <Sparkles className="h-3.5 w-3.5" />
+            Silver+
+          </span>
+        </button>
+      </div>
+
       {error && (
         <div className="mb-4 rounded-lg bg-red-50 p-4 text-red-700 dark:bg-red-900/30 dark:text-red-400">
           {error}
@@ -460,37 +520,123 @@ export default function CustomersListPage() {
         </div>
       ) : (
         <>
-          {/* Customer Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {customers.map((customer) => {
+          {/* Customer List */}
+          <div className="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+            {/* Table Header */}
+            <div className="hidden sm:grid sm:grid-cols-12 gap-4 px-4 py-3 bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <div className="col-span-4">Customer</div>
+              <div className="col-span-3">Contact</div>
+              <div className="col-span-2">Phone</div>
+              <div className="col-span-2">Plan</div>
+              <div className="col-span-1 text-right">Actions</div>
+            </div>
+
+            {/* Customer Rows */}
+            {customers
+              .filter((customer) => {
+                if (planFilter === 'all') return true;
+                const tier = customerPlans.get(customer.id) || null;
+                return tier === planFilter;
+              })
+              .map((customer) => {
               const planTier = customerPlans.get(customer.id) || null;
               return (
                 <div
                   key={customer.id}
                   onClick={() => navigateToCustomer(customer.id)}
-                  className={`rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900 hover:shadow-md transition-shadow cursor-pointer ${getCardClass(planTier)}`}
+                  className={`border-b border-gray-200 dark:border-gray-700 last:border-b-0 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer ${getCardClass(planTier)}`}
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-start gap-3 flex-1 min-w-0">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/50 flex-shrink-0">
-                        <User className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="font-semibold text-gray-900 dark:text-white truncate">
-                            {customer.fullname || `${customer.firstname || ''} ${customer.lastname || ''}`.trim() || 'Unknown'}
-                          </h3>
-                          {getPlanBadge(planTier)}
+                  {/* Mobile Layout */}
+                  <div className="sm:hidden p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-3 flex-1 min-w-0">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/50 flex-shrink-0">
+                          <User className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                         </div>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">ID: {customer.id}</p>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h3 className="font-semibold text-gray-900 dark:text-white">
+                              {customer.fullname || `${customer.firstname || ''} ${customer.lastname || ''}`.trim() || 'Unknown'}
+                            </h3>
+                            {getPlanBadge(planTier)}
+                          </div>
+                          {customer.email && (
+                            <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{customer.email}</p>
+                          )}
+                          {customer.phone && (
+                            <p className="text-sm text-gray-500 dark:text-gray-400">{customer.phone}</p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <button
+                          onClick={(e) => openEditModal(customer, e)}
+                          className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg dark:text-gray-400 dark:hover:bg-gray-800"
+                          title="Edit customer"
+                        >
+                          <Edit2 className="h-4 w-4" />
+                        </button>
+                        {isAdmin && (
+                          <button
+                            onClick={(e) => handleDeleteCustomer(customer, e)}
+                            className="p-2 text-red-500 hover:bg-red-100 rounded-lg dark:text-red-400 dark:hover:bg-red-900/30"
+                            title="Delete customer"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Desktop Layout */}
+                  <div className="hidden sm:grid sm:grid-cols-12 gap-4 px-4 py-3 items-center">
+                    {/* Customer Name */}
+                    <div className="col-span-4 flex items-center gap-3 min-w-0">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/50 flex-shrink-0">
+                        <User className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-medium text-gray-900 dark:text-white truncate">
+                          {customer.fullname || `${customer.firstname || ''} ${customer.lastname || ''}`.trim() || 'Unknown'}
+                        </p>
+                        {customer.business_name && (
+                          <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                            <Building className="h-3 w-3 inline mr-1" />
+                            {customer.business_name}
+                          </p>
+                        )}
                       </div>
                     </div>
 
-                    {/* Action buttons */}
-                    <div className="flex items-center gap-1 flex-shrink-0">
+                    {/* Email */}
+                    <div className="col-span-3 min-w-0">
+                      {customer.email ? (
+                        <p className="text-sm text-gray-600 dark:text-gray-300 truncate">{customer.email}</p>
+                      ) : (
+                        <span className="text-sm text-gray-400">—</span>
+                      )}
+                    </div>
+
+                    {/* Phone */}
+                    <div className="col-span-2">
+                      {customer.phone ? (
+                        <p className="text-sm text-gray-600 dark:text-gray-300">{customer.phone}</p>
+                      ) : (
+                        <span className="text-sm text-gray-400">—</span>
+                      )}
+                    </div>
+
+                    {/* Plan Badge */}
+                    <div className="col-span-2">
+                      {getPlanBadge(planTier) || <span className="text-sm text-gray-400">—</span>}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="col-span-1 flex items-center justify-end gap-1">
                       <button
                         onClick={(e) => openEditModal(customer, e)}
-                        className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg dark:text-gray-400 dark:hover:bg-gray-800"
+                        className="p-1.5 text-gray-500 hover:bg-gray-100 rounded-lg dark:text-gray-400 dark:hover:bg-gray-700"
                         title="Edit customer"
                       >
                         <Edit2 className="h-4 w-4" />
@@ -498,7 +644,7 @@ export default function CustomersListPage() {
                       {isAdmin && (
                         <button
                           onClick={(e) => handleDeleteCustomer(customer, e)}
-                          className="p-2 text-red-500 hover:bg-red-100 rounded-lg dark:text-red-400 dark:hover:bg-red-900/30"
+                          className="p-1.5 text-red-500 hover:bg-red-100 rounded-lg dark:text-red-400 dark:hover:bg-red-900/30"
                           title="Delete customer"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -506,31 +652,16 @@ export default function CustomersListPage() {
                       )}
                     </div>
                   </div>
-
-                  {/* Contact info */}
-                  <div className="mt-3 space-y-1">
-                    {customer.email && (
-                      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-                        <Mail className="h-3.5 w-3.5 text-gray-400 flex-shrink-0" />
-                        <span className="truncate">{customer.email}</span>
-                      </div>
-                    )}
-                    {customer.phone && (
-                      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-                        <Phone className="h-3.5 w-3.5 text-gray-400 flex-shrink-0" />
-                        <span>{customer.phone}</span>
-                      </div>
-                    )}
-                    {customer.business_name && (
-                      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-                        <Building className="h-3.5 w-3.5 text-gray-400 flex-shrink-0" />
-                        <span className="truncate">{customer.business_name}</span>
-                      </div>
-                    )}
-                  </div>
                 </div>
               );
             })}
+
+            {/* No results after filtering */}
+            {planFilter !== 'all' && customers.filter((c) => customerPlans.get(c.id) === planFilter).length === 0 && (
+              <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+                No customers found with {planFilter === 'silver-plus' ? 'Silver+' : planFilter.charAt(0).toUpperCase() + planFilter.slice(1)} plan
+              </div>
+            )}
           </div>
 
           {/* Pagination */}

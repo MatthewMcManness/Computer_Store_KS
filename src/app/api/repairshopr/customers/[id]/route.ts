@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getEmployeeAuditInfo, getSessionToken } from '@/lib/auth';
 import { createRepairShoprClient, RepairShoprAPIError, UpdateCustomerInput, getApiToken } from '@/lib/repairshopr';
+import { supabaseAdmin } from '@/lib/supabase';
 import { logCustomerAction } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
@@ -122,6 +123,35 @@ export async function PUT(
 
     const client = createRepairShoprClient();
     const customer = await client.updateCustomer(apiToken, customerId, updateData);
+
+    // Sync updated customer to rs_customers table in Supabase
+    if (supabaseAdmin) {
+      try {
+        const { error: syncError } = await supabaseAdmin
+          .from('rs_customers')
+          .upsert({
+            repairshopr_id: customer.id,
+            firstname: customer.firstname,
+            lastname: customer.lastname,
+            email: customer.email,
+            phone: customer.phone || null,
+            mobile: customer.mobile || null,
+            address: customer.address || null,
+            address_2: customer.address_2 || null,
+            city: customer.city || null,
+            state: customer.state || null,
+            zip: customer.zip || null,
+            business_name: customer.business_name || null,
+            updated_at: new Date().toISOString(),
+          }, { onConflict: 'repairshopr_id' });
+
+        if (syncError) {
+          console.error('[API] Failed to sync customer update to Supabase:', syncError);
+        }
+      } catch (error) {
+        console.error('[API] Error syncing customer update to Supabase:', error);
+      }
+    }
 
     // Log the customer update for audit trail
     await logCustomerAction(

@@ -236,7 +236,37 @@ export async function POST(request: NextRequest) {
     const client = createRepairShoprClient();
     const customer = await client.createCustomer(apiToken, customerData);
 
-    // Step 2: If password provided, create customer portal account in Supabase
+    // Step 2: Sync customer to rs_customers table in Supabase
+    if (supabaseAdmin) {
+      try {
+        const { error: syncError } = await supabaseAdmin
+          .from('rs_customers')
+          .upsert({
+            repairshopr_id: customer.id,
+            firstname: customer.firstname,
+            lastname: customer.lastname,
+            email: customer.email,
+            phone: customer.phone || null,
+            mobile: customer.mobile || null,
+            address: customer.address || null,
+            address_2: customer.address_2 || null,
+            city: customer.city || null,
+            state: customer.state || null,
+            zip: customer.zip || null,
+            business_name: customer.business_name || null,
+            created_at: customer.created_at || new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          }, { onConflict: 'repairshopr_id' });
+
+        if (syncError) {
+          console.error('[API] Failed to sync customer to Supabase:', syncError);
+        }
+      } catch (error) {
+        console.error('[API] Error syncing customer to Supabase:', error);
+      }
+    }
+
+    // Step 3: If password provided, create customer portal account in Supabase
     let portalAccountCreated = false;
 
     if (password && password.trim() && supabaseAdmin) {

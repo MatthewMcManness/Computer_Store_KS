@@ -1028,11 +1028,12 @@ export class RepairShoprClient {
       );
     }
 
-    const response = await this.request<{ assets: RepairShoprAsset[] }>(
+    const response = await this.request<{ assets?: RepairShoprAsset[]; customer_assets?: RepairShoprAsset[] }>(
       `/customer_assets?api_key=${encodeURIComponent(apiToken.trim())}&customer_id=${customerId}`
     );
 
-    return response.assets || [];
+    // RepairShopr may return either 'assets' or 'customer_assets'
+    return response.customer_assets || response.assets || [];
   }
 
   /**
@@ -1074,7 +1075,7 @@ export class RepairShoprClient {
     // Debug: log the data being sent
     console.log('[RepairShopr] Creating asset with data:', JSON.stringify(data, null, 2));
 
-    const response = await this.request<{ asset: RepairShoprAsset }>(
+    const response = await this.request<{ asset?: RepairShoprAsset; customer_asset?: RepairShoprAsset }>(
       `/customer_assets?api_key=${encodeURIComponent(apiToken.trim())}`,
       {
         method: 'POST',
@@ -1083,13 +1084,16 @@ export class RepairShoprClient {
     );
 
     console.log('[RepairShopr] Raw API response:', JSON.stringify(response, null, 2));
-    console.log('[RepairShopr] Asset created successfully:', response.asset?.id);
 
-    if (!response.asset) {
+    // RepairShopr may return either 'asset' or 'customer_asset'
+    const asset = response.customer_asset || response.asset;
+    console.log('[RepairShopr] Asset created successfully:', asset?.id);
+
+    if (!asset) {
       console.error('[RepairShopr] No asset in response. Full response:', response);
     }
 
-    return response.asset;
+    return asset as RepairShoprAsset;
   }
 
   /**
@@ -1117,11 +1121,12 @@ export class RepairShoprClient {
     }
 
     try {
-      const response = await this.request<{ asset: RepairShoprAsset }>(
+      const response = await this.request<{ asset?: RepairShoprAsset; customer_asset?: RepairShoprAsset }>(
         `/customer_assets/${assetId}?api_key=${encodeURIComponent(apiToken.trim())}`
       );
 
-      return response.asset || null;
+      // RepairShopr may return either 'asset' or 'customer_asset'
+      return response.customer_asset || response.asset || null;
     } catch (error) {
       if (error instanceof RepairShoprAPIError && error.status === 404) {
         return null;

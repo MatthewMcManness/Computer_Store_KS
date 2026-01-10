@@ -863,7 +863,10 @@ async function fetchAllAssets(apiToken: string): Promise<RepairShoprAsset[]> {
     }
 
     const data = await response.json();
-    const assets = data.assets || [];
+    // RepairShopr returns customer_assets for this endpoint, not assets
+    const assets = data.customer_assets || data.assets || [];
+
+    console.log(`[Sync] Assets page ${page}: found ${assets.length} assets (total response keys: ${Object.keys(data).join(', ')})`);
 
     allAssets.push(...assets);
     hasMore = assets.length === pageSize;
@@ -1054,7 +1057,10 @@ export async function getSyncLogs(limit = 10): Promise<SyncLogEntry[]> {
  * Get counts of synced records
  */
 export async function getSyncedCounts(): Promise<Record<string, number>> {
-  if (!supabaseAdmin) return {};
+  if (!supabaseAdmin) {
+    console.error('[Sync] getSyncedCounts: supabaseAdmin is not configured');
+    return {};
+  }
 
   const counts: Record<string, number> = {};
 
@@ -1073,10 +1079,17 @@ export async function getSyncedCounts(): Promise<Record<string, number>> {
       .from(table)
       .select('*', { count: 'exact', head: true });
 
+    if (error) {
+      console.error(`[Sync] Error counting ${table}:`, error.message);
+    }
+
     if (!error && count !== null) {
       counts[table.replace('rs_', '')] = count;
+    } else {
+      counts[table.replace('rs_', '')] = 0;
     }
   }
 
+  console.log('[Sync] getSyncedCounts result:', counts);
   return counts;
 }

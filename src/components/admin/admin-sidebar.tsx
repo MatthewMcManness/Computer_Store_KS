@@ -75,6 +75,11 @@ const navItems: NavItem[] = [
     href: '/admin/employees',
     icon: <UserCog className="h-5 w-5" />,
   },
+  {
+    label: 'Data Sync',
+    href: '/admin/sync',
+    icon: <RefreshCw className="h-5 w-5" />,
+  },
 ];
 
 interface AdminSidebarProps {

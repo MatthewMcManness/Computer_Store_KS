@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { getProtectionPlanTier as extractPlanTierFromRepairShoprData } from './repairshopr';
 
 // Environment variables for Supabase connection
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -1802,6 +1803,12 @@ export async function getEffectiveCustomerPlanTiers(
 
   const result = new Map<number, ProtectionPlanTier>();
 
+  const tierHierarchy: Record<string, number> = {
+    'silver-plus': 3,
+    'silver': 2,
+    'eset': 1,
+  };
+
   // Get assets_updated flags for all customers
   const assetsUpdatedMap = await getCustomersAssetsUpdated(customerIds);
 
@@ -1817,13 +1824,36 @@ export async function getEffectiveCustomerPlanTiers(
     }
   }
 
-  // Get customer-level plans for legacy customers
+  // For legacy customers: Get plan tier from synced RepairShopr data
+  // This uses the 'properties' and 'tags' fields that were synced from RepairShopr
   if (legacyCustomers.length > 0) {
-    const legacyPlans = await getCustomerProtectionPlans(legacyCustomers);
-    const planMap = new Map(legacyPlans.map(p => [p.repairshopr_customer_id, p.plan_tier]));
+    // Fetch synced RepairShopr data from rs_customers
+    const { data: syncedCustomers, error: syncError } = await supabaseAdmin
+      .from('rs_customers')
+      .select('repairshopr_id, properties, tags')
+      .in('repairshopr_id', legacyCustomers);
 
+    if (syncError) {
+      console.error('Error fetching synced customer data:', syncError);
+    } else {
+      // Extract plan tier from the synced RepairShopr data using the same logic as live API
+      for (const customer of syncedCustomers || []) {
+        // Build a partial customer object that extractPlanTierFromRepairShoprData can use
+        const partialCustomer = {
+          properties: customer.properties || {},
+          tags: customer.tags || [],
+        };
+
+        const tier = extractPlanTierFromRepairShoprData(partialCustomer);
+        result.set(customer.repairshopr_id, tier);
+      }
+    }
+
+    // Set null for any legacy customers not found in synced data
     for (const id of legacyCustomers) {
-      result.set(id, planMap.get(id) ?? null);
+      if (!result.has(id)) {
+        result.set(id, null);
+      }
     }
   }
 
@@ -1839,12 +1869,6 @@ export async function getEffectiveCustomerPlanTiers(
       console.error('Error fetching asset plans:', error);
     } else {
       // Group by customer and find highest tier
-      const tierHierarchy: Record<string, number> = {
-        'silver-plus': 3,
-        'silver': 2,
-        'eset': 1,
-      };
-
       const customerTiers = new Map<number, ProtectionPlanTier>();
 
       for (const plan of assetPlans || []) {

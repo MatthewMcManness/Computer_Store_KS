@@ -37,16 +37,51 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-      // Get ALL customers first (we need to filter by plan tier which requires joining data)
-      const { data: allCustomers, error: listError } = await supabaseAdmin
+      // Get total count first
+      const { count: totalInDb } = await supabaseAdmin
         .from('rs_customers')
-        .select('repairshopr_id, firstname, lastname, email, phone, mobile, address, address_2, city, state, zip, business_name, created_at, updated_at')
-        .order('lastname', { ascending: true })
-        .order('firstname', { ascending: true });
+        .select('*', { count: 'exact', head: true });
 
-      if (listError) {
-        console.error('[API] Supabase customer list error:', listError);
-        return NextResponse.json({ error: 'Failed to load customers' }, { status: 500 });
+      // Fetch ALL customers in batches (Supabase limits to 1000 per request)
+      const BATCH_SIZE = 1000;
+      const allCustomers: Array<{
+        repairshopr_id: number;
+        firstname: string;
+        lastname: string;
+        email: string;
+        phone: string;
+        mobile: string;
+        address: string;
+        address_2: string;
+        city: string;
+        state: string;
+        zip: string;
+        business_name: string;
+        created_at: string;
+        updated_at: string;
+      }> = [];
+
+      const totalBatches = Math.ceil((totalInDb || 0) / BATCH_SIZE);
+
+      for (let batch = 0; batch < totalBatches; batch++) {
+        const from = batch * BATCH_SIZE;
+        const to = from + BATCH_SIZE - 1;
+
+        const { data: batchCustomers, error: batchError } = await supabaseAdmin
+          .from('rs_customers')
+          .select('repairshopr_id, firstname, lastname, email, phone, mobile, address, address_2, city, state, zip, business_name, created_at, updated_at')
+          .order('lastname', { ascending: true })
+          .order('firstname', { ascending: true })
+          .range(from, to);
+
+        if (batchError) {
+          console.error(`[API] Supabase customer batch ${batch} error:`, batchError);
+          return NextResponse.json({ error: 'Failed to load customers' }, { status: 500 });
+        }
+
+        if (batchCustomers) {
+          allCustomers.push(...batchCustomers);
+        }
       }
 
       // Map to expected format and get effective protection plans (respects assets_updated flag)

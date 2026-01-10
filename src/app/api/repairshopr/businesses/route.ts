@@ -71,11 +71,33 @@ export async function GET(request: NextRequest) {
     }
 
     // Get all customers with their business associations
+    // Fetch in batches to handle Supabase's 1000 row limit
     const businessIds = allBusinesses.map(b => b.id);
-    const { data: allCustomers } = await supabaseAdmin
+
+    // Get total count of customers for these businesses
+    const { count: customerCount } = await supabaseAdmin
       .from('rs_customers')
-      .select('business_id, repairshopr_id')
+      .select('*', { count: 'exact', head: true })
       .in('business_id', businessIds);
+
+    const BATCH_SIZE = 1000;
+    const allCustomers: Array<{ business_id: number; repairshopr_id: number }> = [];
+    const totalBatches = Math.ceil((customerCount || 0) / BATCH_SIZE);
+
+    for (let batch = 0; batch < totalBatches; batch++) {
+      const from = batch * BATCH_SIZE;
+      const to = from + BATCH_SIZE - 1;
+
+      const { data: batchCustomers } = await supabaseAdmin
+        .from('rs_customers')
+        .select('business_id, repairshopr_id')
+        .in('business_id', businessIds)
+        .range(from, to);
+
+      if (batchCustomers) {
+        allCustomers.push(...batchCustomers);
+      }
+    }
 
     // Group customers by business
     const customerIdsByBusiness = new Map<number, number[]>();

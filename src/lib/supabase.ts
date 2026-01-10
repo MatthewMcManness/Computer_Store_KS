@@ -1665,6 +1665,7 @@ export async function getCustomerAssetsUpdated(
 
 /**
  * Get assets_updated flags for multiple customers
+ * Fetches in batches to handle Supabase's 1000 row limit
  */
 export async function getCustomersAssetsUpdated(
   customerIds: number[]
@@ -1673,20 +1674,28 @@ export async function getCustomersAssetsUpdated(
     return new Map();
   }
 
-  const { data, error } = await supabaseAdmin
-    .from('rs_customers')
-    .select('repairshopr_id, assets_updated')
-    .in('repairshopr_id', customerIds);
-
-  if (error) {
-    console.error('Error fetching assets_updated flags:', error);
-    return new Map();
-  }
-
   const result = new Map<number, boolean>();
-  for (const row of data || []) {
-    result.set(row.repairshopr_id, row.assets_updated ?? false);
+  const BATCH_SIZE = 500; // Use smaller batch for .in() queries
+
+  // Process customer IDs in batches
+  for (let i = 0; i < customerIds.length; i += BATCH_SIZE) {
+    const batchIds = customerIds.slice(i, i + BATCH_SIZE);
+
+    const { data, error } = await supabaseAdmin
+      .from('rs_customers')
+      .select('repairshopr_id, assets_updated')
+      .in('repairshopr_id', batchIds);
+
+    if (error) {
+      console.error('Error fetching assets_updated flags:', error);
+      continue; // Continue with next batch
+    }
+
+    for (const row of data || []) {
+      result.set(row.repairshopr_id, row.assets_updated ?? false);
+    }
   }
+
   return result;
 }
 
@@ -1826,22 +1835,29 @@ export async function getEffectiveCustomerPlanTiers(
 
   // For legacy customers: Get plan tier from synced RepairShopr data
   // This uses the 'properties' and 'tags' fields that were synced from RepairShopr
+  // Fetch in batches to handle Supabase's 1000 row limit
   if (legacyCustomers.length > 0) {
     try {
-      // Fetch synced RepairShopr data from rs_customers
-      // Include custom_fields which contains protection plan data in RepairShopr
-      const { data: syncedCustomers, error: syncError } = await supabaseAdmin
-        .from('rs_customers')
-        .select('repairshopr_id, properties, tags, custom_fields')
-        .in('repairshopr_id', legacyCustomers);
+      const BATCH_SIZE = 500; // Use smaller batch for .in() queries
 
-      if (syncError) {
-        console.error('Error fetching synced customer data:', syncError);
-        // Fallback: set null for all legacy customers if query fails
-        for (const id of legacyCustomers) {
-          result.set(id, null);
+      // Fetch synced RepairShopr data in batches
+      for (let i = 0; i < legacyCustomers.length; i += BATCH_SIZE) {
+        const batchIds = legacyCustomers.slice(i, i + BATCH_SIZE);
+
+        const { data: syncedCustomers, error: syncError } = await supabaseAdmin
+          .from('rs_customers')
+          .select('repairshopr_id, properties, tags, custom_fields')
+          .in('repairshopr_id', batchIds);
+
+        if (syncError) {
+          console.error('Error fetching synced customer data:', syncError);
+          // Set null for customers in this batch if query fails
+          for (const id of batchIds) {
+            result.set(id, null);
+          }
+          continue;
         }
-      } else {
+
         // Extract plan tier from the synced RepairShopr data using the same logic as live API
         for (const customer of syncedCustomers || []) {
           // Build a partial customer object that extractPlanTierFromRepairShoprData can use
@@ -1856,8 +1872,8 @@ export async function getEffectiveCustomerPlanTiers(
           result.set(customer.repairshopr_id, tier);
         }
 
-        // Set null for any legacy customers not found in synced data
-        for (const id of legacyCustomers) {
+        // Set null for any customers in this batch not found in synced data
+        for (const id of batchIds) {
           if (!result.has(id)) {
             result.set(id, null);
           }
@@ -1865,27 +1881,36 @@ export async function getEffectiveCustomerPlanTiers(
       }
     } catch (error) {
       console.error('Exception fetching synced customer data:', error);
-      // Fallback: set null for all legacy customers
+      // Fallback: set null for all legacy customers not yet set
       for (const id of legacyCustomers) {
-        result.set(id, null);
+        if (!result.has(id)) {
+          result.set(id, null);
+        }
       }
     }
   }
 
   // Get asset-level plans for migrated customers
+  // Fetch in batches to handle Supabase's 1000 row limit
   if (migratedCustomers.length > 0) {
-    // Fetch asset plans for all migrated customers
-    const { data: assetPlans, error } = await supabaseAdmin
-      .from('asset_protection_plans')
-      .select('repairshopr_customer_id, plan_tier')
-      .in('repairshopr_customer_id', migratedCustomers);
+    const BATCH_SIZE = 500; // Use smaller batch for .in() queries
+    const customerTiers = new Map<number, ProtectionPlanTier>();
 
-    if (error) {
-      console.error('Error fetching asset plans:', error);
-    } else {
+    // Fetch asset plans in batches
+    for (let i = 0; i < migratedCustomers.length; i += BATCH_SIZE) {
+      const batchIds = migratedCustomers.slice(i, i + BATCH_SIZE);
+
+      const { data: assetPlans, error } = await supabaseAdmin
+        .from('asset_protection_plans')
+        .select('repairshopr_customer_id, plan_tier')
+        .in('repairshopr_customer_id', batchIds);
+
+      if (error) {
+        console.error('Error fetching asset plans:', error);
+        continue;
+      }
+
       // Group by customer and find highest tier
-      const customerTiers = new Map<number, ProtectionPlanTier>();
-
       for (const plan of assetPlans || []) {
         const currentTier = customerTiers.get(plan.repairshopr_customer_id);
         const currentRank = currentTier ? (tierHierarchy[currentTier] || 0) : 0;
@@ -1895,10 +1920,11 @@ export async function getEffectiveCustomerPlanTiers(
           customerTiers.set(plan.repairshopr_customer_id, plan.plan_tier);
         }
       }
+    }
 
-      for (const id of migratedCustomers) {
-        result.set(id, customerTiers.get(id) ?? null);
-      }
+    // Set results for all migrated customers
+    for (const id of migratedCustomers) {
+      result.set(id, customerTiers.get(id) ?? null);
     }
   }
 

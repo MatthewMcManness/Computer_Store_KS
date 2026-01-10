@@ -9,12 +9,44 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+type ProtectionPlanTier = 'eset' | 'silver' | 'silver-plus' | null;
+
 interface SearchResult {
   id: string | number;
   type: 'customer' | 'business' | 'ticket' | 'invoice';
   title: string;
   subtitle?: string;
   href: string;
+  protectionPlan?: ProtectionPlanTier;
+}
+
+// Tier hierarchy for determining the highest tier
+const tierHierarchy: Record<string, number> = {
+  'silver-plus': 3,
+  'silver': 2,
+  'eset': 1,
+};
+
+/**
+ * Get the highest protection plan tier for a customer from their assets
+ */
+async function getCustomerHighestTier(customerId: number): Promise<ProtectionPlanTier> {
+  const { data: plans } = await supabase
+    .from('asset_protection_plans')
+    .select('plan_tier')
+    .eq('repairshopr_customer_id', customerId)
+    .not('plan_tier', 'is', null);
+
+  if (!plans || plans.length === 0) return null;
+
+  let highestTier: ProtectionPlanTier = null;
+  for (const plan of plans) {
+    const tier = plan.plan_tier as ProtectionPlanTier;
+    if (tier && (!highestTier || tierHierarchy[tier] > tierHierarchy[highestTier])) {
+      highestTier = tier;
+    }
+  }
+  return highestTier;
 }
 
 /**
@@ -46,13 +78,20 @@ export async function GET(request: NextRequest) {
       .limit(5);
 
     if (customers) {
-      for (const customer of customers) {
+      // Fetch protection plans for all customers in parallel
+      const customerPlans = await Promise.all(
+        customers.map(c => getCustomerHighestTier(c.repairshopr_id))
+      );
+
+      for (let i = 0; i < customers.length; i++) {
+        const customer = customers[i];
         results.push({
           id: customer.repairshopr_id,
           type: 'customer',
           title: `${customer.firstname || ''} ${customer.lastname || ''}`.trim() || 'Unknown',
           subtitle: customer.email || customer.phone || undefined,
           href: `/admin/customers?id=${customer.repairshopr_id}`,
+          protectionPlan: customerPlans[i],
         });
       }
     }
@@ -66,7 +105,13 @@ export async function GET(request: NextRequest) {
       .limit(5);
 
     if (businesses) {
-      for (const business of businesses) {
+      // Fetch protection plans for all businesses in parallel
+      const businessPlans = await Promise.all(
+        businesses.map(b => getCustomerHighestTier(b.repairshopr_id))
+      );
+
+      for (let i = 0; i < businesses.length; i++) {
+        const business = businesses[i];
         if (business.business_name) {
           results.push({
             id: business.repairshopr_id,
@@ -74,6 +119,7 @@ export async function GET(request: NextRequest) {
             title: business.business_name,
             subtitle: business.email || business.phone || undefined,
             href: `/admin/businesses?id=${business.repairshopr_id}`,
+            protectionPlan: businessPlans[i],
           });
         }
       }

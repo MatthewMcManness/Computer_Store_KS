@@ -21,12 +21,15 @@ import { cn } from '@/lib/utils';
 import { useDarkMode } from '@/hooks/useDarkMode';
 import type { SidebarMode } from './admin-shell';
 
+type ProtectionPlanTier = 'eset' | 'silver' | 'silver-plus' | null;
+
 interface SearchResult {
   id: string | number;
   type: 'customer' | 'business' | 'ticket' | 'invoice';
   title: string;
   subtitle?: string;
   href: string;
+  protectionPlan?: ProtectionPlanTier;
 }
 
 interface AdminHeaderProps {
@@ -153,6 +156,32 @@ export function AdminHeader({ onMenuToggle, onSidebarToggle, sidebarMode, isMobi
     }
   };
 
+  const getProtectionPlanBadge = (plan: ProtectionPlanTier) => {
+    if (!plan) return null;
+    switch (plan) {
+      case 'silver-plus':
+        return (
+          <span className="silver-plus-plan-badge px-1.5 py-0.5 rounded text-[10px] uppercase tracking-wide">
+            Silver+
+          </span>
+        );
+      case 'silver':
+        return (
+          <span className="silver-plan-badge px-1.5 py-0.5 rounded text-[10px] uppercase tracking-wide">
+            Silver
+          </span>
+        );
+      case 'eset':
+        return (
+          <span className="eset-plan-badge px-1.5 py-0.5 rounded text-[10px] uppercase tracking-wide">
+            ESET
+          </span>
+        );
+      default:
+        return null;
+    }
+  };
+
   // Get sidebar toggle icon and label based on current mode
   const getSidebarToggleInfo = () => {
     switch (sidebarMode) {
@@ -253,7 +282,10 @@ export function AdminHeader({ onMenuToggle, onSidebarToggle, sidebarMode, isMobi
                             {getTypeIcon(result.type)}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900 truncate dark:text-white">{result.title}</p>
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm font-medium text-gray-900 truncate dark:text-white">{result.title}</p>
+                              {result.protectionPlan && getProtectionPlanBadge(result.protectionPlan)}
+                            </div>
                             {result.subtitle && (
                               <p className="text-xs text-gray-500 truncate dark:text-gray-400">{result.subtitle}</p>
                             )}

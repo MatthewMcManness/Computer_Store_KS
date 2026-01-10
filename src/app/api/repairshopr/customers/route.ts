@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getEmployeeAuditInfo, getSessionToken } from '@/lib/auth';
 import { createRepairShoprClient, RepairShoprAPIError, getProtectionPlanTier, getApiToken } from '@/lib/repairshopr';
-import { supabaseAdmin, getCustomerProtectionPlans, setCustomerProtectionPlan, type ProtectionPlanTier } from '@/lib/supabase';
+import { supabaseAdmin, getCustomerProtectionPlans, setCustomerProtectionPlan, getEffectiveCustomerPlanTiers, type ProtectionPlanTier } from '@/lib/supabase';
 import { logCustomerAction } from '@/lib/audit';
 import bcrypt from 'bcryptjs';
 
@@ -56,14 +56,11 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'Failed to load customers' }, { status: 500 });
       }
 
-      // Map to expected format and get protection plans
+      // Map to expected format and get effective protection plans (respects assets_updated flag)
       const customerIds = (customers || []).map(c => c.repairshopr_id);
-      const existingPlans = customerIds.length > 0
-        ? await getCustomerProtectionPlans(customerIds)
-        : [];
-      const planTierMap = new Map<number, ProtectionPlanTier>(
-        existingPlans.map(sp => [sp.repairshopr_customer_id, sp.plan_tier])
-      );
+      const planTierMap = customerIds.length > 0
+        ? await getEffectiveCustomerPlanTiers(customerIds)
+        : new Map<number, ProtectionPlanTier>();
 
       const customersWithPlanStatus = (customers || []).map(c => ({
         id: c.repairshopr_id,
@@ -123,17 +120,14 @@ export async function GET(request: NextRequest) {
       }, null, 2));
     }
 
-    // Get existing protection plan statuses from Supabase
+    // Get effective protection plan statuses (respects assets_updated flag)
     const customerIds = customers.map(c => c.id);
-    const existingPlans = await getCustomerProtectionPlans(customerIds);
-    const planTierMap = new Map<number, ProtectionPlanTier>(
-      existingPlans.map(sp => [sp.repairshopr_customer_id, sp.plan_tier])
-    );
+    const planTierMap = await getEffectiveCustomerPlanTiers(customerIds);
 
     // Check each customer for protection plan status and auto-sync
     const customersWithPlanStatus = await Promise.all(
       customers.map(async (customer) => {
-        // Check if RepairShopr indicates a plan tier (silver or gold - bronze is Supabase-only)
+        // Check if RepairShopr indicates a plan tier (silver only - RepairShopr's "gold" maps to our "silver")
         const apiPlanTier = getProtectionPlanTier(customer);
         const dbPlanTier = planTierMap.get(customer.id) ?? null;
 
@@ -141,10 +135,10 @@ export async function GET(request: NextRequest) {
         console.log(`[API] Customer ${customer.id} (${customer.fullname}): API tier=${apiPlanTier}, DB tier=${dbPlanTier}`);
 
         // Tiers that only exist in Supabase (RepairShopr can't detect these)
-        const supabaseOnlyTiers: ProtectionPlanTier[] = ['silver-plus', 'bronze', 'eset'];
+        const supabaseOnlyTiers: ProtectionPlanTier[] = ['silver-plus', 'eset'];
 
         // Determine effective plan tier
-        // Priority: DB tier for silver-plus/bronze/eset (Supabase-only), then API tier
+        // Priority: DB tier for silver-plus/eset (Supabase-only), then API tier
         let effectiveTier: ProtectionPlanTier = dbPlanTier;
 
         // Only sync API tier to DB if:
@@ -169,7 +163,7 @@ export async function GET(request: NextRequest) {
         return {
           ...customer,
           plan_tier: effectiveTier,
-          is_silver_plan: effectiveTier === 'silver' || effectiveTier === 'gold', // Legacy field
+          is_silver_plan: effectiveTier === 'silver', // Legacy field
         };
       })
     );
@@ -256,6 +250,8 @@ export async function POST(request: NextRequest) {
             business_name: customer.business_name || null,
             created_at: customer.created_at || new Date().toISOString(),
             updated_at: new Date().toISOString(),
+            // New customers created through website default to asset-level tracking
+            assets_updated: true,
           }, { onConflict: 'repairshopr_id' });
 
         if (syncError) {

@@ -32,7 +32,7 @@ import {
 import type { RepairShoprCustomer, RepairShoprAsset, RepairShoprTicket, RepairShoprInvoice, RepairShoprPayment } from '@/lib/repairshopr';
 
 // Protection plan tier type
-type ProtectionPlanTier = 'eset' | 'bronze' | 'silver' | 'silver-plus' | 'gold' | null;
+type ProtectionPlanTier = 'eset' | 'silver' | 'silver-plus' | null;
 type EsetStatus = 'protected' | 'expired' | 'unprotected' | null;
 
 // Asset protection plan from API
@@ -563,14 +563,10 @@ export default function CustomerDetailsPage() {
     switch (tier) {
       case 'eset':
         return { label: 'ESET', className: 'eset-plan-badge' };
-      case 'bronze':
-        return { label: 'Bronze', className: 'bronze-plan-badge' };
       case 'silver':
         return { label: 'Silver', className: 'silver-plan-badge' };
       case 'silver-plus':
         return { label: 'Silver Plus', className: 'silver-plus-plan-badge' };
-      case 'gold':
-        return { label: 'Gold', className: 'gold-plan-badge' };
       default:
         return null;
     }
@@ -581,14 +577,10 @@ export default function CustomerDetailsPage() {
     switch (tier) {
       case 'eset':
         return 'eset-plan-card';
-      case 'bronze':
-        return 'bronze-plan-card';
       case 'silver':
         return 'silver-plan-card';
       case 'silver-plus':
         return 'silver-plus-plan-card';
-      case 'gold':
-        return 'gold-plan-card';
       default:
         return '';
     }

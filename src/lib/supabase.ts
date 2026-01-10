@@ -1268,7 +1268,7 @@ export function statusRequiresCustomerQuestion(
 // Customer Protection Plan Type Definitions
 // =============================================================================
 
-export type ProtectionPlanTier = 'eset' | 'bronze' | 'silver' | 'silver-plus' | 'gold' | null;
+export type ProtectionPlanTier = 'eset' | 'silver' | 'silver-plus' | null;
 
 export interface CustomerProtectionPlan {
   id: string;
@@ -1345,7 +1345,7 @@ export async function setCustomerProtectionPlan(
   if (!supabaseAdmin) return null;
 
   // Determine legacy is_silver_plan value based on tier
-  const isSilverPlan = planTier === 'silver' || planTier === 'gold';
+  const isSilverPlan = planTier === 'silver';
 
   const { data, error } = await supabaseAdmin
     .from('customer_silver_plans')
@@ -1602,7 +1602,7 @@ export async function getCustomerProtectionSummary(
     };
   }
 
-  const paidTiers: ProtectionPlanTier[] = ['silver', 'silver-plus', 'gold'];
+  const paidTiers: ProtectionPlanTier[] = ['silver', 'silver-plus'];
   const protectedAssets = plans.filter(p => p.plan_tier !== null);
   const uniqueTiers = [...new Set(plans.map(p => p.plan_tier).filter(Boolean))] as ProtectionPlanTier[];
   const hasPaidPlan = plans.some(p => p.plan_tier && paidTiers.includes(p.plan_tier));
@@ -1622,4 +1622,265 @@ export async function getCustomerProtectionSummary(
 export async function customerHasPaidAssetPlan(customerId: number): Promise<boolean> {
   const summary = await getCustomerProtectionSummary(customerId);
   return summary?.has_paid_plan ?? false;
+}
+
+// =============================================================================
+// Assets Updated Migration Tracking
+// =============================================================================
+
+export interface AssetsUpdatedStatus {
+  repairshopr_id: number;
+  assets_updated: boolean;
+}
+
+export interface MigrationProgress {
+  migrated: number;
+  not_migrated: number;
+  total: number;
+  percent_complete: number;
+}
+
+/**
+ * Get the assets_updated flag for a customer
+ */
+export async function getCustomerAssetsUpdated(
+  customerId: number
+): Promise<boolean> {
+  if (!supabaseAdmin) return false;
+
+  const { data, error } = await supabaseAdmin
+    .from('rs_customers')
+    .select('assets_updated')
+    .eq('repairshopr_id', customerId)
+    .single();
+
+  if (error) {
+    // Default to false if not found
+    return false;
+  }
+
+  return data?.assets_updated ?? false;
+}
+
+/**
+ * Get assets_updated flags for multiple customers
+ */
+export async function getCustomersAssetsUpdated(
+  customerIds: number[]
+): Promise<Map<number, boolean>> {
+  if (!supabaseAdmin || customerIds.length === 0) {
+    return new Map();
+  }
+
+  const { data, error } = await supabaseAdmin
+    .from('rs_customers')
+    .select('repairshopr_id, assets_updated')
+    .in('repairshopr_id', customerIds);
+
+  if (error) {
+    console.error('Error fetching assets_updated flags:', error);
+    return new Map();
+  }
+
+  const result = new Map<number, boolean>();
+  for (const row of data || []) {
+    result.set(row.repairshopr_id, row.assets_updated ?? false);
+  }
+  return result;
+}
+
+/**
+ * Set the assets_updated flag for a customer
+ */
+export async function setCustomerAssetsUpdated(
+  customerId: number,
+  assetsUpdated: boolean
+): Promise<boolean> {
+  if (!supabaseAdmin) return false;
+
+  const { error } = await supabaseAdmin
+    .from('rs_customers')
+    .update({ assets_updated: assetsUpdated })
+    .eq('repairshopr_id', customerId);
+
+  if (error) {
+    console.error('Error setting assets_updated flag:', error);
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Get migration progress statistics
+ */
+export async function getMigrationProgress(): Promise<MigrationProgress> {
+  if (!supabaseAdmin) {
+    return { migrated: 0, not_migrated: 0, total: 0, percent_complete: 0 };
+  }
+
+  // Count migrated customers
+  const { count: migratedCount } = await supabaseAdmin
+    .from('rs_customers')
+    .select('*', { count: 'exact', head: true })
+    .eq('assets_updated', true);
+
+  // Count not migrated customers
+  const { count: notMigratedCount } = await supabaseAdmin
+    .from('rs_customers')
+    .select('*', { count: 'exact', head: true })
+    .or('assets_updated.is.null,assets_updated.eq.false');
+
+  const migrated = migratedCount || 0;
+  const notMigrated = notMigratedCount || 0;
+  const total = migrated + notMigrated;
+  const percentComplete = total > 0 ? Math.round((migrated / total) * 1000) / 10 : 0;
+
+  return {
+    migrated,
+    not_migrated: notMigrated,
+    total,
+    percent_complete: percentComplete,
+  };
+}
+
+/**
+ * Get effective protection plan tier for a customer
+ * - If assets_updated is false: use customer-level plan from customer_silver_plans
+ * - If assets_updated is true: derive from asset-level plans
+ */
+export async function getEffectiveCustomerPlanTier(
+  customerId: number
+): Promise<ProtectionPlanTier> {
+  if (!supabaseAdmin) return null;
+
+  // Check if assets have been updated
+  const assetsUpdated = await getCustomerAssetsUpdated(customerId);
+
+  if (!assetsUpdated) {
+    // Use customer-level tracking (RepairShopr/legacy)
+    const plan = await getCustomerProtectionPlan(customerId);
+    return plan?.plan_tier ?? null;
+  }
+
+  // Use asset-level tracking - get highest tier among assets
+  const summary = await getCustomerProtectionSummary(customerId);
+  if (!summary || summary.plan_tiers.length === 0) {
+    return null;
+  }
+
+  // Return highest tier
+  const tierHierarchy: Record<string, number> = {
+    'silver-plus': 3,
+    'silver': 2,
+    'eset': 1,
+  };
+
+  let highestTier: ProtectionPlanTier = null;
+  let highestRank = 0;
+
+  for (const tier of summary.plan_tiers) {
+    if (tier && tierHierarchy[tier] > highestRank) {
+      highestRank = tierHierarchy[tier];
+      highestTier = tier;
+    }
+  }
+
+  return highestTier;
+}
+
+/**
+ * Get effective protection plan tiers for multiple customers
+ * Returns a map of customer ID to their effective plan tier
+ */
+export async function getEffectiveCustomerPlanTiers(
+  customerIds: number[]
+): Promise<Map<number, ProtectionPlanTier>> {
+  if (!supabaseAdmin || customerIds.length === 0) {
+    return new Map();
+  }
+
+  const result = new Map<number, ProtectionPlanTier>();
+
+  // Get assets_updated flags for all customers
+  const assetsUpdatedMap = await getCustomersAssetsUpdated(customerIds);
+
+  // Split customers by migration status
+  const legacyCustomers: number[] = [];
+  const migratedCustomers: number[] = [];
+
+  for (const id of customerIds) {
+    if (assetsUpdatedMap.get(id)) {
+      migratedCustomers.push(id);
+    } else {
+      legacyCustomers.push(id);
+    }
+  }
+
+  // Get customer-level plans for legacy customers
+  if (legacyCustomers.length > 0) {
+    const legacyPlans = await getCustomerProtectionPlans(legacyCustomers);
+    const planMap = new Map(legacyPlans.map(p => [p.repairshopr_customer_id, p.plan_tier]));
+
+    for (const id of legacyCustomers) {
+      result.set(id, planMap.get(id) ?? null);
+    }
+  }
+
+  // Get asset-level plans for migrated customers
+  if (migratedCustomers.length > 0) {
+    // Fetch asset plans for all migrated customers
+    const { data: assetPlans, error } = await supabaseAdmin
+      .from('asset_protection_plans')
+      .select('repairshopr_customer_id, plan_tier')
+      .in('repairshopr_customer_id', migratedCustomers);
+
+    if (error) {
+      console.error('Error fetching asset plans:', error);
+    } else {
+      // Group by customer and find highest tier
+      const tierHierarchy: Record<string, number> = {
+        'silver-plus': 3,
+        'silver': 2,
+        'eset': 1,
+      };
+
+      const customerTiers = new Map<number, ProtectionPlanTier>();
+
+      for (const plan of assetPlans || []) {
+        const currentTier = customerTiers.get(plan.repairshopr_customer_id);
+        const currentRank = currentTier ? (tierHierarchy[currentTier] || 0) : 0;
+        const newRank = plan.plan_tier ? (tierHierarchy[plan.plan_tier] || 0) : 0;
+
+        if (newRank > currentRank) {
+          customerTiers.set(plan.repairshopr_customer_id, plan.plan_tier);
+        }
+      }
+
+      for (const id of migratedCustomers) {
+        result.set(id, customerTiers.get(id) ?? null);
+      }
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Check if a customer has any assets (needed for validation before setting assets_updated)
+ */
+export async function getCustomerAssetCount(customerId: number): Promise<number> {
+  if (!supabaseAdmin) return 0;
+
+  const { count, error } = await supabaseAdmin
+    .from('rs_assets')
+    .select('*', { count: 'exact', head: true })
+    .eq('customer_id', customerId);
+
+  if (error) {
+    console.error('Error counting customer assets:', error);
+    return 0;
+  }
+
+  return count || 0;
 }

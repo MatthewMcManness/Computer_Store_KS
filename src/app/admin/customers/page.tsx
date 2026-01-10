@@ -19,6 +19,8 @@ import {
   X,
   Filter,
   Shield,
+  CheckCircle2,
+  AlertCircle,
 } from 'lucide-react';
 import type { RepairShoprCustomer } from '@/lib/repairshopr';
 
@@ -72,6 +74,14 @@ export default function CustomersListPage() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [planFilter, setPlanFilter] = useState<ProtectionPlanTier | 'all'>('all');
 
+  // Migration progress state
+  const [migrationProgress, setMigrationProgress] = useState<{
+    migrated: number;
+    not_migrated: number;
+    total: number;
+    percent_complete: number;
+  } | null>(null);
+
   // Add customer modal state
   const [showAddModal, setShowAddModal] = useState(false);
   const [addFormData, setAddFormData] = useState<AddCustomerFormData>({
@@ -110,6 +120,9 @@ export default function CustomersListPage() {
   });
   const [savingEdit, setSavingEdit] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
+  const [editAssetsUpdated, setEditAssetsUpdated] = useState(false);
+  const [editAssetCount, setEditAssetCount] = useState(0);
+  const [loadingAssetsStatus, setLoadingAssetsStatus] = useState(false);
 
   // Check authentication and admin status
   useEffect(() => {
@@ -128,6 +141,23 @@ export default function CustomersListPage() {
       })
       .catch(() => router.push('/admin/login'));
   }, [router]);
+
+  // Load migration progress
+  const loadMigrationProgress = useCallback(async () => {
+    try {
+      const response = await fetch('/api/repairshopr/migration-progress');
+      if (response.ok) {
+        const data = await response.json();
+        setMigrationProgress(data);
+      }
+    } catch (err) {
+      console.error('Failed to load migration progress:', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadMigrationProgress();
+  }, [loadMigrationProgress]);
 
   // Load customers
   const loadCustomers = useCallback(async (page: number) => {
@@ -277,7 +307,7 @@ export default function CustomersListPage() {
   };
 
   // Open edit modal
-  const openEditModal = (customer: CustomerWithPlanStatus, e: React.MouseEvent) => {
+  const openEditModal = async (customer: CustomerWithPlanStatus, e: React.MouseEvent) => {
     e.stopPropagation();
     setEditingCustomer(customer);
     setEditFormData({
@@ -294,7 +324,24 @@ export default function CustomersListPage() {
       business_name: customer.business_name || '',
     });
     setEditError(null);
+    setEditAssetsUpdated(false);
+    setEditAssetCount(0);
     setShowEditModal(true);
+
+    // Load assets_updated status
+    setLoadingAssetsStatus(true);
+    try {
+      const response = await fetch(`/api/repairshopr/customers/${customer.id}/assets-updated`);
+      if (response.ok) {
+        const data = await response.json();
+        setEditAssetsUpdated(data.assets_updated);
+        setEditAssetCount(data.asset_count);
+      }
+    } catch (err) {
+      console.error('Failed to load assets status:', err);
+    } finally {
+      setLoadingAssetsStatus(false);
+    }
   };
 
   // Handle edit form input change
@@ -318,6 +365,7 @@ export default function CustomersListPage() {
         }
       }
 
+      // Update customer data in RepairShopr if there are changes
       if (Object.keys(updateData).length > 0) {
         const response = await fetch(`/api/repairshopr/customers/${editingCustomer.id}`, {
           method: 'PUT',
@@ -336,6 +384,21 @@ export default function CustomersListPage() {
           prev.map(c => (c.id === data.customer.id ? data.customer : c))
         );
       }
+
+      // Update assets_updated status in Supabase
+      const assetsResponse = await fetch(`/api/repairshopr/customers/${editingCustomer.id}/assets-updated`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ assets_updated: editAssetsUpdated }),
+      });
+
+      if (!assetsResponse.ok) {
+        const data = await assetsResponse.json();
+        throw new Error(data.error || 'Failed to update assets_updated status');
+      }
+
+      // Refresh migration progress
+      loadMigrationProgress();
 
       setShowEditModal(false);
       setEditingCustomer(null);
@@ -431,13 +494,33 @@ export default function CustomersListPage() {
             {totalCustomers > 0 ? `${totalCustomers} customers total` : 'Manage customer information'}
           </p>
         </div>
-        <button
-          onClick={openAddModal}
-          className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 w-full sm:w-auto"
-        >
-          <Plus className="h-4 w-4" />
-          Add Customer
-        </button>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          {/* Migration Progress Indicator */}
+          {migrationProgress && (
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-sm">
+              {migrationProgress.percent_complete === 100 ? (
+                <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400 flex-shrink-0" />
+              ) : (
+                <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+              )}
+              <span className="text-gray-700 dark:text-gray-300">
+                <span className="font-medium">{migrationProgress.migrated}</span>
+                <span className="text-gray-500 dark:text-gray-400">/{migrationProgress.total}</span>
+                <span className="text-gray-500 dark:text-gray-400 ml-1">
+                  ({migrationProgress.percent_complete}%)
+                </span>
+              </span>
+              <span className="text-xs text-gray-500 dark:text-gray-400 hidden sm:inline">migrated</span>
+            </div>
+          )}
+          <button
+            onClick={openAddModal}
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 w-full sm:w-auto"
+          >
+            <Plus className="h-4 w-4" />
+            Add Customer
+          </button>
+        </div>
       </div>
 
       {/* Plan Filters */}
@@ -1077,6 +1160,49 @@ export default function CustomersListPage() {
                     onChange={(e) => handleEditInputChange('zip', e.target.value)}
                     className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   />
+                </div>
+              </div>
+
+              {/* Assets Updated Checkbox */}
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-5 items-center">
+                    {loadingAssetsStatus ? (
+                      <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+                    ) : (
+                      <input
+                        type="checkbox"
+                        id="assets-updated-checkbox"
+                        checked={editAssetsUpdated}
+                        onChange={(e) => setEditAssetsUpdated(e.target.checked)}
+                        disabled={editAssetCount === 0}
+                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                      />
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <label
+                      htmlFor="assets-updated-checkbox"
+                      className={`text-sm font-medium ${editAssetCount === 0 ? 'text-gray-400 dark:text-gray-500' : 'text-gray-700 dark:text-gray-300'}`}
+                    >
+                      Assets Updated with Computer Type and Protection Plan Level?
+                    </label>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      {editAssetCount === 0 ? (
+                        <span className="text-amber-600 dark:text-amber-400">
+                          <AlertCircle className="h-3 w-3 inline mr-1" />
+                          No assets found. Add assets before marking as migrated.
+                        </span>
+                      ) : (
+                        <>
+                          {editAssetCount} asset{editAssetCount !== 1 ? 's' : ''} registered.
+                          {editAssetsUpdated
+                            ? ' Protection plans are tracked at the asset level.'
+                            : ' Protection plans are tracked at the customer level.'}
+                        </>
+                      )}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>

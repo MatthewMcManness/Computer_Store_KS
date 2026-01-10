@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Building2, Mail, Phone, Loader2, ChevronLeft, ChevronRight, Filter, Shield, Users } from 'lucide-react';
+import { Building2, Mail, Phone, Loader2, ChevronLeft, ChevronRight, Filter, Shield, Users, CheckCircle2, AlertCircle } from 'lucide-react';
 import type { RepairShoprCustomer } from '@/lib/repairshopr';
 
 type ProtectionPlanTier = 'eset' | 'silver' | 'silver-plus' | null;
@@ -30,6 +30,12 @@ export default function BusinessesPage() {
   const [page, setPage] = useState(1);
   const [meta, setMeta] = useState<PaginationMeta | null>(null);
   const [planFilter, setPlanFilter] = useState<ProtectionPlanTier | 'all'>('all');
+  const [migrationProgress, setMigrationProgress] = useState<{
+    migrated: number;
+    not_migrated: number;
+    total: number;
+    percent_complete: number;
+  } | null>(null);
 
   const perPage = 50;
 
@@ -41,6 +47,23 @@ export default function BusinessesPage() {
       })
       .catch(() => router.push('/admin/login'));
   }, [router]);
+
+  // Load migration progress
+  const loadMigrationProgress = useCallback(async () => {
+    try {
+      const response = await fetch('/api/repairshopr/migration-progress');
+      if (response.ok) {
+        const data = await response.json();
+        setMigrationProgress(data);
+      }
+    } catch (err) {
+      console.error('Failed to load migration progress:', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadMigrationProgress();
+  }, [loadMigrationProgress]);
 
   // Load businesses
   const loadBusinesses = useCallback(async () => {
@@ -101,11 +124,31 @@ export default function BusinessesPage() {
   return (
     <div>
       {/* Header */}
-      <div className="mb-6 sm:mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Business Management</h1>
-        <p className="mt-1 text-sm sm:text-base text-gray-500 dark:text-gray-400">
-          View and manage business customers
-        </p>
+      <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Business Management</h1>
+          <p className="mt-1 text-sm sm:text-base text-gray-500 dark:text-gray-400">
+            View and manage business customers
+          </p>
+        </div>
+        {/* Migration Progress Indicator */}
+        {migrationProgress && (
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-sm">
+            {migrationProgress.percent_complete === 100 ? (
+              <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400 flex-shrink-0" />
+            ) : (
+              <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+            )}
+            <span className="text-gray-700 dark:text-gray-300">
+              <span className="font-medium">{migrationProgress.migrated}</span>
+              <span className="text-gray-500 dark:text-gray-400">/{migrationProgress.total}</span>
+              <span className="text-gray-500 dark:text-gray-400 ml-1">
+                ({migrationProgress.percent_complete}%)
+              </span>
+            </span>
+            <span className="text-xs text-gray-500 dark:text-gray-400 hidden sm:inline">migrated</span>
+          </div>
+        )}
       </div>
 
       {/* Error */}

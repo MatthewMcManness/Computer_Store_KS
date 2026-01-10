@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getEmployeeAuditInfo, getSessionToken } from '@/lib/auth';
 import { createRepairShoprClient, RepairShoprAPIError, RepairShoprCustomer, getApiToken } from '@/lib/repairshopr';
-import { supabaseAdmin, getCustomerProtectionPlans, type ProtectionPlanTier } from '@/lib/supabase';
+import { supabaseAdmin, getEffectiveCustomerPlanTiers, type ProtectionPlanTier } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
@@ -69,14 +69,11 @@ export async function GET(request: NextRequest) {
         }
       }
 
-      // Get customer IDs for protection plan lookup
+      // Get customer IDs for protection plan lookup (respects assets_updated flag)
       const customerIds = (businesses || []).map(c => c.repairshopr_id);
-      const existingPlans = customerIds.length > 0
-        ? await getCustomerProtectionPlans(customerIds)
-        : [];
-      const planTierMap = new Map<number, ProtectionPlanTier>(
-        existingPlans.map(sp => [sp.repairshopr_customer_id, sp.plan_tier])
-      );
+      const planTierMap = customerIds.length > 0
+        ? await getEffectiveCustomerPlanTiers(customerIds)
+        : new Map<number, ProtectionPlanTier>();
 
       // Build business list
       const businessList: Business[] = [];

@@ -123,21 +123,22 @@ export interface RepairShoprCustomer {
 
 /**
  * Protection plan tier type (matches Supabase type)
+ * Valid tiers: eset, silver, silver-plus
  */
-export type ProtectionPlanTier = 'eset' | 'bronze' | 'silver' | 'silver-plus' | 'gold' | null;
+export type ProtectionPlanTier = 'eset' | 'silver' | 'silver-plus' | null;
 
 /**
  * Known answer IDs for protection plans in RepairShopr dropdown custom fields
  * RepairShopr returns answer IDs instead of text values for dropdowns
- * Note: Bronze and Silver Plus are NOT in RepairShopr - they're Supabase-only
+ * RepairShopr's "gold" option (4028) is mapped to our "silver-plus" tier
  */
 const SILVER_PLAN_ANSWER_IDS = ['4027'];
-const GOLD_PLAN_ANSWER_IDS = ['4028']; // Gold plan answer ID in RepairShopr
+const SILVER_PLUS_PLAN_ANSWER_IDS = ['4028']; // RepairShopr's "gold" maps to our "silver-plus" tier
 
 /**
  * Get the protection plan tier for a customer from RepairShopr data.
- * Returns 'silver', 'gold', or null (no plan from RepairShopr).
- * Note: Bronze and Silver Plus plans are NOT stored in RepairShopr, only in Supabase.
+ * Returns 'silver', 'silver-plus', or null (no plan from RepairShopr).
+ * RepairShopr's "gold" is mapped to our "silver-plus" tier.
  */
 export function getProtectionPlanTier(customer: Partial<RepairShoprCustomer> | null | undefined): ProtectionPlanTier {
   if (!customer) return null;
@@ -148,7 +149,7 @@ export function getProtectionPlanTier(customer: Partial<RepairShoprCustomer> | n
   // Check plan_name field
   if (customer.plan_name) {
     const planName = customer.plan_name.toLowerCase();
-    if (planName.includes('gold')) return 'gold';
+    if (planName.includes('gold')) return 'silver-plus'; // RepairShopr gold → our silver-plus
     if (planName.includes('silver')) return 'silver';
   }
 
@@ -163,10 +164,10 @@ export function getProtectionPlanTier(customer: Partial<RepairShoprCustomer> | n
     if (!value) continue;
 
     if (Array.isArray(value)) {
-      if (value.some((v) => v && v.toLowerCase().includes('gold'))) return 'gold';
+      if (value.some((v) => v && v.toLowerCase().includes('gold'))) return 'silver-plus'; // RepairShopr gold → our silver-plus
       if (value.some((v) => v && v.toLowerCase().includes('silver'))) return 'silver';
     } else if (typeof value === 'string') {
-      if (value.toLowerCase().includes('gold')) return 'gold';
+      if (value.toLowerCase().includes('gold')) return 'silver-plus'; // RepairShopr gold → our silver-plus
       if (value.toLowerCase().includes('silver')) return 'silver';
     }
   }
@@ -187,9 +188,9 @@ export function getProtectionPlanTier(customer: Partial<RepairShoprCustomer> | n
 
         if (typeof value === 'string') {
           // Check for known answer IDs first (RepairShopr returns IDs for dropdowns)
-          if (GOLD_PLAN_ANSWER_IDS.includes(value)) {
-            console.log(`[RepairShopr] Matched Gold plan answer ID: ${value}`);
-            return 'gold';
+          if (SILVER_PLUS_PLAN_ANSWER_IDS.includes(value)) {
+            console.log(`[RepairShopr] Matched Silver-Plus plan (was gold) answer ID: ${value}`);
+            return 'silver-plus';
           }
           if (SILVER_PLAN_ANSWER_IDS.includes(value)) {
             console.log(`[RepairShopr] Matched Silver plan answer ID: ${value}`);
@@ -197,8 +198,8 @@ export function getProtectionPlanTier(customer: Partial<RepairShoprCustomer> | n
           }
           // Check for text values
           if (value.toLowerCase().includes('gold')) {
-            console.log(`[RepairShopr] Matched Gold plan by text: ${value}`);
-            return 'gold';
+            console.log(`[RepairShopr] Matched Silver-Plus plan (was gold) by text: ${value}`);
+            return 'silver-plus'; // RepairShopr gold → our silver-plus
           }
           if (value.toLowerCase().includes('silver')) {
             console.log(`[RepairShopr] Matched Silver plan by text: ${value}`);
@@ -210,7 +211,7 @@ export function getProtectionPlanTier(customer: Partial<RepairShoprCustomer> | n
           }
         }
         if (Array.isArray(value)) {
-          if (value.some((v) => typeof v === 'string' && v.toLowerCase().includes('gold'))) return 'gold';
+          if (value.some((v) => typeof v === 'string' && v.toLowerCase().includes('gold'))) return 'silver-plus'; // RepairShopr gold → our silver-plus
           if (value.some((v) => typeof v === 'string' && v.toLowerCase().includes('silver'))) return 'silver';
         }
       }
@@ -226,21 +227,21 @@ export function getProtectionPlanTier(customer: Partial<RepairShoprCustomer> | n
  */
 export function isSilverPlanCustomer(customer: Partial<RepairShoprCustomer> | null | undefined): boolean {
   const tier = getProtectionPlanTier(customer);
-  return tier === 'silver' || tier === 'gold';
+  return tier === 'silver';
 }
 
 /**
  * Get the RepairShopr answer ID for a protection plan tier
- * Returns empty string for bronze/silver-plus (not in RepairShopr) or null
+ * Returns empty string for eset (not in RepairShopr) or null
  */
 export function getProtectionPlanAnswerId(tier: ProtectionPlanTier): string {
   switch (tier) {
-    case 'gold':
-      return GOLD_PLAN_ANSWER_IDS[0];
+    case 'silver-plus':
+      return SILVER_PLUS_PLAN_ANSWER_IDS[0]; // Maps to RepairShopr's "gold" option
     case 'silver':
       return SILVER_PLAN_ANSWER_IDS[0];
     default:
-      // bronze, silver-plus, and null are not in RepairShopr
+      // eset and null are not in RepairShopr
       return '';
   }
 }

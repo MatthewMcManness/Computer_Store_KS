@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
           type: 'customer',
           title: `${customer.firstname || ''} ${customer.lastname || ''}`.trim() || 'Unknown',
           subtitle: customer.email || customer.phone || undefined,
-          href: `/admin/customers?search=${encodeURIComponent(`${customer.firstname || ''} ${customer.lastname || ''}`.trim())}`,
+          href: `/admin/customers?id=${customer.repairshopr_id}`,
         });
       }
     }
@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
             type: 'business',
             title: business.business_name,
             subtitle: business.email || business.phone || undefined,
-            href: `/admin/businesses?search=${encodeURIComponent(business.business_name)}`,
+            href: `/admin/businesses?id=${business.repairshopr_id}`,
           });
         }
       }
@@ -110,7 +110,7 @@ export async function GET(request: NextRequest) {
         type: 'ticket',
         title: `#${ticket.number}: ${ticket.subject || 'No subject'}`,
         subtitle: `Status: ${ticket.status || 'Unknown'}`,
-        href: `/admin/tickets?search=${encodeURIComponent(ticket.number?.toString() || '')}`,
+        href: `/admin/tickets?id=${ticket.repairshopr_id}`,
       });
     }
 

@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Search, Building2, User, Mail, Phone, Loader2, Edit2, X, UserPlus, Users, Sparkles } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Building2, User, Mail, Phone, Loader2, Edit2, X, UserPlus, Users, Sparkles } from 'lucide-react';
 import type { RepairShoprCustomer } from '@/lib/repairshopr';
 import { isSilverPlanCustomer } from '@/lib/repairshopr';
 
@@ -28,6 +28,7 @@ interface EditFormData {
 
 export default function BusinessesPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [searching, setSearching] = useState(false);
@@ -96,6 +97,54 @@ export default function BusinessesPage() {
 
     return () => clearTimeout(timer);
   }, [searchQuery]);
+
+  // Load business by customer ID from URL param
+  const loadBusinessById = useCallback(async (customerId: string) => {
+    try {
+      // First fetch the customer to get their business_name
+      const customerRes = await fetch(`/api/repairshopr/customers/${customerId}`);
+      if (!customerRes.ok) throw new Error('Failed to load customer');
+      const customerData = await customerRes.json();
+
+      if (customerData.customer?.business_name) {
+        const businessName = customerData.customer.business_name;
+
+        // Create a business object and select it
+        const business: Business = {
+          name: businessName,
+          primaryCustomer: customerData.customer,
+          customerCount: 1
+        };
+
+        setSelectedBusiness(business);
+        setBusinessCustomers([]);
+        setLoadingCustomers(true);
+
+        // Load all customers for this business
+        const customersRes = await fetch(
+          '/api/repairshopr/businesses/customers?business_name=' + encodeURIComponent(businessName)
+        );
+        if (customersRes.ok) {
+          const customersData = await customersRes.json();
+          setBusinessCustomers(customersData.customers || []);
+        }
+        setLoadingCustomers(false);
+      }
+    } catch (err) {
+      console.error('Failed to load business:', err);
+      setError('Failed to load business');
+    }
+  }, []);
+
+  // Handle URL params on mount - load business if ID is in URL
+  useEffect(() => {
+    const id = searchParams.get('id');
+    if (id) {
+      loadBusinessById(id);
+      // Clear the URL param after loading
+      router.replace('/admin/businesses', { scroll: false });
+    }
+  }, [searchParams, loadBusinessById, router]);
 
   // Search businesses
   const searchBusinesses = async (query: string) => {
@@ -294,42 +343,12 @@ export default function BusinessesPage() {
       {/* Header */}
       <div className="mb-6 sm:mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Business Management</h1>
-        <p className="mt-1 text-sm sm:text-base text-gray-500 dark:text-gray-400">Search businesses and manage their customers</p>
+        <p className="mt-1 text-sm sm:text-base text-gray-500 dark:text-gray-400">View and manage business customers</p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Left Panel - Search & List */}
+        {/* Left Panel - Business Info */}
         <div className="rounded-xl bg-white dark:bg-gray-900 p-6 shadow-sm">
-          {/* Search Bar */}
-          <div className="mb-6">
-            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Search Businesses
-            </label>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search by business name..."
-                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white py-3 pl-10 pr-4 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-              />
-            </div>
-            {searchQuery.length > 0 && searchQuery.length < 2 && (
-              <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                Type at least 2 characters to search
-              </p>
-            )}
-          </div>
-
-          {/* Loading State */}
-          {searching && (
-            <div className="mb-6 flex items-center justify-center py-8">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600"></div>
-              <span className="ml-3 text-gray-600 dark:text-gray-300">Searching...</span>
-            </div>
-          )}
-
           {/* Error */}
           {error && (
             <div className="mb-4 rounded-lg bg-red-50 dark:bg-red-900/50 p-3 text-sm text-red-800 dark:text-red-200">
@@ -337,72 +356,43 @@ export default function BusinessesPage() {
             </div>
           )}
 
-          {/* Results */}
-          {!searching && hasSearched && searchQuery.length >= 2 && (
-            <div className="space-y-2">
-              {businesses.length > 0 ? (
-                <>
-                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Found {businesses.length} business{businesses.length !== 1 ? 'es' : ''}
-                  </p>
-                  <div className="max-h-96 space-y-2 overflow-y-auto">
-                    {businesses.map((business) => {
-                      const isSilver = isSilverPlanCustomer(business.primaryCustomer);
-                      return (
-                      <button
-                        key={business.name}
-                        onClick={() => selectBusiness(business)}
-                        className={
-                          'w-full rounded-lg border p-4 text-left transition-colors ' +
-                          (selectedBusiness?.name === business.name
-                            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/50'
-                            : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-blue-300 hover:bg-blue-50/50 dark:hover:bg-blue-900/30') +
-                          (isSilver ? ' silver-plan-card' : '')
-                        }
-                      >
-                        <div className="flex items-start gap-3">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/50">
-                            <Building2 className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <p className="font-medium text-gray-900 dark:text-white truncate">
-                                {business.name}
-                              </p>
-                              {isSilver && (
-                                <span className="silver-plan-badge inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold">
-                                  <Sparkles className="h-3 w-3" />
-                                  Silver Plan
-                                </span>
-                              )}
-                            </div>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">
-                              {business.customerCount} customer{business.customerCount !== 1 ? 's' : ''}
-                            </p>
-                            {business.primaryCustomer.email && (
-                              <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
-                                {business.primaryCustomer.email}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      </button>
-                    );})}
-                  </div>
-                </>
-              ) : (
-                <div className="rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-8 text-center">
-                  <p className="text-gray-600 dark:text-gray-400">No businesses found for &quot;{searchQuery}&quot;</p>
-                </div>
-              )}
+          {/* Selected Business or Prompt */}
+          {!selectedBusiness ? (
+            <div className="flex flex-col items-center justify-center py-12">
+              <Building2 className="h-12 w-12 text-gray-300 dark:text-gray-600" />
+              <p className="mt-4 text-center text-gray-500 dark:text-gray-400">
+                Use the search bar above to find a business
+              </p>
             </div>
-          )}
-
-          {/* Initial State */}
-          {!searching && !hasSearched && (
-            <p className="py-8 text-center text-gray-500 dark:text-gray-400">
-              Search for businesses to get started
-            </p>
+          ) : (
+            <div className={`rounded-lg border p-4 ${isSilverPlanCustomer(selectedBusiness.primaryCustomer) ? 'silver-plan-card border-blue-500' : 'border-gray-200 dark:border-gray-700'}`}>
+              <div className="flex items-start gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/50">
+                  <Building2 className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="font-medium text-gray-900 dark:text-white truncate">
+                      {selectedBusiness.name}
+                    </p>
+                    {isSilverPlanCustomer(selectedBusiness.primaryCustomer) && (
+                      <span className="silver-plan-badge inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold">
+                        <Sparkles className="h-3 w-3" />
+                        Silver Plan
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {businessCustomers.length} customer{businessCustomers.length !== 1 ? 's' : ''}
+                  </p>
+                  {selectedBusiness.primaryCustomer.email && (
+                    <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                      {selectedBusiness.primaryCustomer.email}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
           )}
         </div>
 

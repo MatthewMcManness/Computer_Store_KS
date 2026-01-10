@@ -1,9 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
-  Search,
   User,
   Mail,
   Phone,
@@ -103,6 +102,7 @@ type TabType = 'assets' | 'tickets' | 'invoices' | 'payments';
 
 export default function CustomersPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [customers, setCustomers] = useState<CustomerWithPlanStatus[]>([]);
   const [searching, setSearching] = useState(false);
@@ -193,6 +193,74 @@ export default function CustomersPage() {
 
     return () => clearTimeout(timer);
   }, [searchQuery]);
+
+  // Load customer by ID from URL param
+  const loadCustomerById = useCallback(async (customerId: string) => {
+    try {
+      const response = await fetch(`/api/repairshopr/customers/${customerId}`);
+      if (!response.ok) throw new Error('Failed to load customer');
+      const data = await response.json();
+      if (data.customer) {
+        // Set as selected customer and load their data
+        setSelectedCustomer(data.customer);
+        setPortalAccount(null);
+        setLoadingAccount(true);
+        setPlanTier(null);
+        setLoadingPlanTier(true);
+        setActiveTab('assets');
+        setAssets([]);
+        setTickets([]);
+        setInvoices([]);
+        setPayments([]);
+
+        // Fetch portal account and asset protection summary
+        const [accountRes, summaryRes] = await Promise.all([
+          fetch(`/api/admin/customer-accounts?customer_id=${data.customer.id}`),
+          fetch(`/api/admin/asset-plans?customer_id=${data.customer.id}&summary=true`)
+        ]);
+
+        if (accountRes.ok) {
+          const accountData = await accountRes.json();
+          setPortalAccount(accountData.account);
+        }
+
+        if (summaryRes.ok) {
+          const summaryData = await summaryRes.json();
+          const summary = summaryData.summary;
+          if (summary?.plan_tiers && summary.plan_tiers.length > 0) {
+            const tierHierarchy: Record<string, number> = {
+              'silver-plus': 3,
+              'silver': 2,
+              'eset': 1,
+            };
+            let highestTier: ProtectionPlanTier = null;
+            for (const tier of summary.plan_tiers) {
+              if (tier && (!highestTier || tierHierarchy[tier] > tierHierarchy[highestTier])) {
+                highestTier = tier as ProtectionPlanTier;
+              }
+            }
+            setPlanTier(highestTier);
+          }
+        }
+
+        setLoadingAccount(false);
+        setLoadingPlanTier(false);
+      }
+    } catch (err) {
+      console.error('Failed to load customer:', err);
+      setError('Failed to load customer');
+    }
+  }, []);
+
+  // Handle URL params on mount - load customer if ID is in URL
+  useEffect(() => {
+    const id = searchParams.get('id');
+    if (id) {
+      loadCustomerById(id);
+      // Clear the URL param after loading
+      router.replace('/admin/customers', { scroll: false });
+    }
+  }, [searchParams, loadCustomerById, router]);
 
   // Search customers
   const searchCustomers = async (query: string) => {
@@ -766,76 +834,6 @@ export default function CustomersPage() {
             </button>
           </div>
         )}
-
-        {/* Search Panel - Full Width at Top */}
-        <div className="mb-6 rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-900">
-          <div className="flex flex-wrap gap-4">
-            <div className="flex-1 min-w-[200px]">
-              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Search Customers
-              </label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Name, email, phone, business..."
-                  className="w-full rounded-lg border border-gray-300 bg-white py-2 pl-10 pr-4 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Search Results */}
-          <div className="mt-4">
-            {searching ? (
-              <div className="py-4 text-center text-gray-500 dark:text-gray-400">Searching...</div>
-            ) : !hasSearched ? (
-              <div className="py-4 text-center text-gray-500 dark:text-gray-400">
-                Enter at least 2 characters to search
-              </div>
-            ) : customers.length === 0 ? (
-              <div className="py-4 text-center text-gray-500 dark:text-gray-400">
-                No customers found
-              </div>
-            ) : (
-              <div className="flex flex-wrap gap-2">
-                {customers.map((customer) => {
-                  const customerPlanClass = customer.plan_tier ? getPlanCardClass(customer.plan_tier) : (customer.is_silver_plan ? 'silver-plan-card' : '');
-                  const customerPlanDisplay = customer.plan_tier ? getPlanDisplay(customer.plan_tier) : (customer.is_silver_plan ? { label: 'Silver', className: 'silver-plan-badge' } : null);
-                  return (
-                    <button
-                      key={customer.id}
-                      onClick={() => selectCustomer(customer)}
-                      className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-left transition-colors ${
-                        selectedCustomer?.id === customer.id
-                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30'
-                          : 'border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800'
-                      } ${customerPlanClass}`}
-                    >
-                      <User className="h-4 w-4 text-gray-400" />
-                      <span className="font-medium text-gray-900 dark:text-white">
-                        {customer.fullname || `${customer.firstname} ${customer.lastname}`}
-                      </span>
-                      {customerPlanDisplay && (
-                        <span className={`${customerPlanDisplay.className} inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold`}>
-                          <Sparkles className="h-3 w-3" />
-                          {customerPlanDisplay.label}
-                        </span>
-                      )}
-                      {customer.email && (
-                        <span className="max-w-[150px] truncate text-sm text-gray-600 dark:text-gray-400">
-                          {customer.email}
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </div>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Customer Info Panel */}

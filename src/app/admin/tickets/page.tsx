@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
-  Search,
   Ticket,
   ChevronRight,
   X,
@@ -91,6 +91,8 @@ interface TicketData {
 }
 
 export default function TicketsPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [tickets, setTickets] = useState<TicketData[]>([]);
   const [selectedTicket, setSelectedTicket] = useState<TicketData | null>(null);
@@ -210,6 +212,20 @@ export default function TicketsPage() {
 
     return () => clearTimeout(timer);
   }, [searchQuery, statusFilter, searchTickets]);
+
+  // Handle URL params on mount - load ticket if ID is in URL
+  useEffect(() => {
+    const id = searchParams.get('id');
+    if (id) {
+      const ticketId = parseInt(id, 10);
+      if (!isNaN(ticketId)) {
+        loadTicketDetails(ticketId);
+      }
+      // Clear the URL param after loading
+      router.replace('/admin/tickets', { scroll: false });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, router]);
 
   const loadTicketDetails = async (ticketId: number) => {
     setIsLoadingDetails(true);
@@ -623,95 +639,6 @@ export default function TicketsPage() {
             </button>
           </div>
         )}
-
-        {/* Search Panel - Full Width at Top */}
-        <div className="mb-6 rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-900">
-          <div className="flex flex-wrap gap-4">
-            <div className="flex-1 min-w-[200px]">
-              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Search Tickets
-              </label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Ticket #, subject, customer..."
-                  className="w-full rounded-lg border border-gray-300 bg-white py-2 pl-10 pr-4 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400"
-                />
-              </div>
-            </div>
-
-            <div className="w-48">
-              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Filter by Status
-              </label>
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-              >
-                <option value="">All Statuses</option>
-                {statusDefinitions.map((def) => (
-                  <option key={def.status} value={def.repairshopr_status}>
-                    {def.display_name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* Search Results */}
-          <div className="mt-4">
-            {isLoading ? (
-              <div className="py-4 text-center text-gray-500 dark:text-gray-400">Searching...</div>
-            ) : tickets.length === 0 ? (
-              <div className="py-4 text-center text-gray-500 dark:text-gray-400">
-                {searchQuery.length >= 2 || statusFilter
-                  ? 'No tickets found'
-                  : 'Enter at least 2 characters or select a status'}
-              </div>
-            ) : (
-              <div className="flex flex-wrap gap-2">
-                {tickets.map((ticket) => {
-                  const override = ticketStatusOverrides[ticket.id];
-                  const displayStatus = override
-                    ? getStatusDefinition(override.custom_status)?.display_name || override.custom_status
-                    : ticket.status || 'Unknown';
-                  const statusColor = override
-                    ? getCustomStatusColor(override.custom_status)
-                    : getStatusColor(ticket.status);
-
-                  return (
-                    <button
-                      key={ticket.id}
-                      onClick={() => handleSelectTicket(ticket)}
-                      className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-left transition-colors ${
-                        selectedTicket?.id === ticket.id
-                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30'
-                          : 'border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800'
-                      }`}
-                    >
-                      <Ticket className="h-4 w-4 text-gray-400" />
-                      <span className="font-medium text-gray-900 dark:text-white">
-                        #{ticket.number}
-                      </span>
-                      <span
-                        className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusColor}`}
-                      >
-                        {displayStatus}
-                      </span>
-                      <span className="max-w-[150px] truncate text-sm text-gray-600 dark:text-gray-400">
-                        {ticket.subject}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </div>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Customer Info Panel */}

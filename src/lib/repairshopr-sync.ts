@@ -667,6 +667,7 @@ export async function syncAllProducts(): Promise<SyncResult> {
 
 /**
  * Sync all invoices from RepairShopr to Supabase
+ * Uses streaming batch processing to avoid timeouts and memory issues
  */
 export async function syncAllInvoices(): Promise<SyncResult> {
   const startTime = Date.now();
@@ -689,45 +690,92 @@ export async function syncAllInvoices(): Promise<SyncResult> {
 
   try {
     const apiToken = getSharedApiKey();
-    console.log('[Sync] Fetching all invoices from RepairShopr...');
+    console.log('[Sync] Starting invoice sync with batch processing...');
 
-    const invoices = await fetchAllInvoices(apiToken);
-    console.log(`[Sync] Found ${invoices.length} invoices to sync`);
+    let page = 1;
+    const pageSize = 25;
+    let totalPages = 1;
+    const BATCH_SIZE = 100; // Upsert 100 records at a time
+    let pendingInvoices: RepairShoprInvoice[] = [];
 
-    for (const invoice of invoices) {
-      try {
-        const { error } = await supabaseAdmin.from('rs_invoices').upsert(
-          {
-            repairshopr_id: invoice.id,
-            number: invoice.number,
-            customer_id: invoice.customer_id,
-            customer_business_then_name: invoice.customer_business_then_name || null,
-            ticket_id: invoice.ticket_id || null,
-            total: parseFloat(invoice.total) || 0,
-            balance_due: parseFloat(invoice.balance_due) || 0,
-            status: invoice.status || null,
-            date: invoice.date || null,
-            due_date: invoice.due_date || null,
-            po_number: invoice.po_number || null,
-            note: invoice.note || null,
-            is_paid: invoice.is_paid || false,
-            created_at: invoice.created_at,
-            updated_at: invoice.updated_at,
-            synced_at: new Date().toISOString(),
-          },
-          { onConflict: 'repairshopr_id' }
-        );
+    // Helper to upsert a batch
+    const upsertBatch = async (invoices: RepairShoprInvoice[]) => {
+      if (invoices.length === 0) return;
 
-        if (error) {
-          result.failed++;
-          result.errors.push(`Invoice ${invoice.id}: ${error.message}`);
-        } else {
-          result.synced++;
-        }
-      } catch (err) {
-        result.failed++;
-        result.errors.push(`Invoice ${invoice.id}: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      const records = invoices.map(invoice => ({
+        repairshopr_id: invoice.id,
+        number: invoice.number,
+        customer_id: invoice.customer_id,
+        customer_business_then_name: invoice.customer_business_then_name || null,
+        ticket_id: invoice.ticket_id || null,
+        total: parseFloat(invoice.total) || 0,
+        balance_due: parseFloat(invoice.balance_due) || 0,
+        status: invoice.status || null,
+        date: invoice.date || null,
+        due_date: invoice.due_date || null,
+        po_number: invoice.po_number || null,
+        note: invoice.note || null,
+        is_paid: invoice.is_paid || false,
+        created_at: invoice.created_at,
+        updated_at: invoice.updated_at,
+        synced_at: new Date().toISOString(),
+      }));
+
+      const { error } = await supabaseAdmin.from('rs_invoices').upsert(records, { onConflict: 'repairshopr_id' });
+
+      if (error) {
+        result.failed += invoices.length;
+        result.errors.push(`Batch upsert failed: ${error.message}`);
+      } else {
+        result.synced += invoices.length;
       }
+    };
+
+    // Stream through pages, processing in batches
+    while (page <= totalPages) {
+      const response = await fetch(
+        `https://${process.env.REPAIRSHOPR_SUBDOMAIN}.repairshopr.com/api/v1/invoices?api_key=${encodeURIComponent(apiToken)}&page=${page}&per_page=${pageSize}`
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch invoices page ${page}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      const invoices = data.invoices || [];
+      const meta = data.meta || {};
+
+      if (meta.total_pages) {
+        totalPages = meta.total_pages;
+      } else if (meta.total_entries && invoices.length > 0) {
+        totalPages = Math.ceil(meta.total_entries / pageSize);
+      }
+
+      // Add to pending batch
+      pendingInvoices.push(...invoices);
+
+      // Log progress every 50 pages
+      if (page % 50 === 0 || page === 1) {
+        console.log(`[Sync] Invoices page ${page}/${totalPages}: ${result.synced + pendingInvoices.length} processed`);
+      }
+
+      // Upsert when batch is full
+      if (pendingInvoices.length >= BATCH_SIZE) {
+        await upsertBatch(pendingInvoices);
+        pendingInvoices = [];
+      }
+
+      page++;
+
+      // Small delay between pages for rate limiting
+      if (page <= totalPages) {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      }
+    }
+
+    // Upsert any remaining invoices
+    if (pendingInvoices.length > 0) {
+      await upsertBatch(pendingInvoices);
     }
 
     result.success = result.failed === 0;
@@ -746,7 +794,7 @@ export async function syncAllInvoices(): Promise<SyncResult> {
     });
   }
 
-  console.log(`[Sync] Invoices sync complete: ${result.synced} synced, ${result.failed} failed`);
+  console.log(`[Sync] Invoices sync complete: ${result.synced} synced, ${result.failed} failed in ${(result.duration / 1000).toFixed(1)}s`);
   return result;
 }
 
@@ -797,6 +845,7 @@ async function fetchAllPayments(apiToken: string): Promise<RepairShoprPayment[]>
 
 /**
  * Sync all payments from RepairShopr to Supabase
+ * Uses streaming batch processing to avoid timeouts and memory issues
  */
 export async function syncAllPayments(): Promise<SyncResult> {
   const startTime = Date.now();
@@ -819,40 +868,87 @@ export async function syncAllPayments(): Promise<SyncResult> {
 
   try {
     const apiToken = getSharedApiKey();
-    console.log('[Sync] Fetching all payments from RepairShopr...');
+    console.log('[Sync] Starting payment sync with batch processing...');
 
-    const payments = await fetchAllPayments(apiToken);
-    console.log(`[Sync] Found ${payments.length} payments to sync`);
+    let page = 1;
+    const pageSize = 25;
+    let totalPages = 1;
+    const BATCH_SIZE = 100; // Upsert 100 records at a time
+    let pendingPayments: RepairShoprPayment[] = [];
 
-    for (const payment of payments) {
-      try {
-        const { error } = await supabaseAdmin.from('rs_payments').upsert(
-          {
-            repairshopr_id: payment.id,
-            invoice_id: payment.invoice_id,
-            customer_id: payment.customer_id,
-            customer_business_then_name: payment.customer_business_then_name || null,
-            amount: parseFloat(payment.amount) || 0,
-            payment_method: payment.payment_method || null,
-            reference: payment.reference || null,
-            applied_at: payment.applied_at || null,
-            created_at: payment.created_at,
-            updated_at: payment.updated_at,
-            synced_at: new Date().toISOString(),
-          },
-          { onConflict: 'repairshopr_id' }
-        );
+    // Helper to upsert a batch
+    const upsertBatch = async (payments: RepairShoprPayment[]) => {
+      if (payments.length === 0) return;
 
-        if (error) {
-          result.failed++;
-          result.errors.push(`Payment ${payment.id}: ${error.message}`);
-        } else {
-          result.synced++;
-        }
-      } catch (err) {
-        result.failed++;
-        result.errors.push(`Payment ${payment.id}: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      const records = payments.map(payment => ({
+        repairshopr_id: payment.id,
+        invoice_id: payment.invoice_id,
+        customer_id: payment.customer_id,
+        customer_business_then_name: payment.customer_business_then_name || null,
+        amount: parseFloat(payment.amount) || 0,
+        payment_method: payment.payment_method || null,
+        reference: payment.reference || null,
+        applied_at: payment.applied_at || null,
+        created_at: payment.created_at,
+        updated_at: payment.updated_at,
+        synced_at: new Date().toISOString(),
+      }));
+
+      const { error } = await supabaseAdmin.from('rs_payments').upsert(records, { onConflict: 'repairshopr_id' });
+
+      if (error) {
+        result.failed += payments.length;
+        result.errors.push(`Batch upsert failed: ${error.message}`);
+      } else {
+        result.synced += payments.length;
       }
+    };
+
+    // Stream through pages, processing in batches
+    while (page <= totalPages) {
+      const response = await fetch(
+        `https://${process.env.REPAIRSHOPR_SUBDOMAIN}.repairshopr.com/api/v1/payments?api_key=${encodeURIComponent(apiToken)}&page=${page}&per_page=${pageSize}`
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch payments page ${page}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      const payments = data.payments || [];
+      const meta = data.meta || {};
+
+      if (meta.total_pages) {
+        totalPages = meta.total_pages;
+      } else if (meta.total_entries && payments.length > 0) {
+        totalPages = Math.ceil(meta.total_entries / pageSize);
+      }
+
+      // Add to pending batch
+      pendingPayments.push(...payments);
+
+      // Log progress every 50 pages
+      if (page % 50 === 0 || page === 1) {
+        console.log(`[Sync] Payments page ${page}/${totalPages}: ${result.synced + pendingPayments.length} processed`);
+      }
+
+      // Upsert when batch is full
+      if (pendingPayments.length >= BATCH_SIZE) {
+        await upsertBatch(pendingPayments);
+        pendingPayments = [];
+      }
+
+      page++;
+
+      // Small delay between pages for rate limiting
+      if (page <= totalPages) {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      }
+    }
+
+    // Upsert any remaining payments
+    if (pendingPayments.length > 0) {
+      await upsertBatch(pendingPayments);
     }
 
     result.success = result.failed === 0;
@@ -871,7 +967,7 @@ export async function syncAllPayments(): Promise<SyncResult> {
     });
   }
 
-  console.log(`[Sync] Payments sync complete: ${result.synced} synced, ${result.failed} failed`);
+  console.log(`[Sync] Payments sync complete: ${result.synced} synced, ${result.failed} failed in ${(result.duration / 1000).toFixed(1)}s`);
   return result;
 }
 

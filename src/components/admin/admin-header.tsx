@@ -271,15 +271,8 @@ export function AdminHeader({ onMenuToggle, onSidebarToggle, sidebarMode, isMobi
           </div>
         </div>
 
-        {/* Right section - keyboard hint + dark mode toggle */}
+        {/* Right section - dark mode toggle */}
         <div className="flex items-center flex-shrink-0">
-          {/* Keyboard shortcut hint - desktop only */}
-          <div className="hidden lg:flex items-center pr-4">
-            <kbd className="inline-flex items-center gap-1 rounded border border-gray-200 bg-gray-50 px-2 py-1 text-xs text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">
-              <span className="text-xs">⌘</span>K
-            </kbd>
-          </div>
-
           {/* Dark mode toggle - square filling header height, locked to right edge */}
           <button
             onClick={toggle}

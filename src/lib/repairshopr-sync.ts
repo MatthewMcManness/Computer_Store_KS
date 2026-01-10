@@ -135,6 +135,8 @@ async function fetchAllCustomers(apiToken: string): Promise<RepairShoprCustomer[
     const data = await response.json();
     const customers = data.customers || [];
 
+    console.log(`[Sync] Customers page ${page}: found ${customers.length} customers (response keys: ${Object.keys(data).join(', ')})`);
+
     allCustomers.push(...customers);
 
     // Check if there are more pages
@@ -262,6 +264,8 @@ async function fetchAllTickets(apiToken: string): Promise<RepairShoprTicket[]> {
 
     const data = await response.json();
     const tickets = data.tickets || [];
+
+    console.log(`[Sync] Tickets page ${page}: found ${tickets.length} tickets (response keys: ${Object.keys(data).join(', ')})`);
 
     allTickets.push(...tickets);
     hasMore = tickets.length === pageSize;
@@ -505,6 +509,8 @@ async function fetchAllInvoices(apiToken: string): Promise<RepairShoprInvoice[]>
     const data = await response.json();
     const invoices = data.invoices || [];
 
+    console.log(`[Sync] Invoices page ${page}: found ${invoices.length} invoices (response keys: ${Object.keys(data).join(', ')})`);
+
     allInvoices.push(...invoices);
     hasMore = invoices.length === pageSize;
     page++;
@@ -747,6 +753,8 @@ async function fetchAllPayments(apiToken: string): Promise<RepairShoprPayment[]>
 
     const data = await response.json();
     const payments = data.payments || [];
+
+    console.log(`[Sync] Payments page ${page}: found ${payments.length} payments (response keys: ${Object.keys(data).join(', ')})`);
 
     allPayments.push(...payments);
     hasMore = payments.length === pageSize;

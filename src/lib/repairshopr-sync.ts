@@ -205,6 +205,7 @@ export async function syncAllCustomers(): Promise<SyncResult> {
         zip: customer.zip || null,
         tags: customer.tags || [],
         properties: customer.properties || {},
+        custom_fields: customer.custom_fields || {},
         created_at: customer.created_at,
         updated_at: customer.updated_at,
         synced_at: new Date().toISOString(),

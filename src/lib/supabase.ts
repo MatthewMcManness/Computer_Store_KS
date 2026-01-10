@@ -1829,9 +1829,10 @@ export async function getEffectiveCustomerPlanTiers(
   if (legacyCustomers.length > 0) {
     try {
       // Fetch synced RepairShopr data from rs_customers
+      // Include custom_fields which contains protection plan data in RepairShopr
       const { data: syncedCustomers, error: syncError } = await supabaseAdmin
         .from('rs_customers')
-        .select('repairshopr_id, properties, tags')
+        .select('repairshopr_id, properties, tags, custom_fields')
         .in('repairshopr_id', legacyCustomers);
 
       if (syncError) {
@@ -1844,7 +1845,9 @@ export async function getEffectiveCustomerPlanTiers(
         // Extract plan tier from the synced RepairShopr data using the same logic as live API
         for (const customer of syncedCustomers || []) {
           // Build a partial customer object that extractPlanTierFromRepairShoprData can use
+          // This includes custom_fields, properties, and tags - the same fields the live API uses
           const partialCustomer = {
+            custom_fields: customer.custom_fields || {},
             properties: customer.properties || {},
             tags: customer.tags || [],
           };

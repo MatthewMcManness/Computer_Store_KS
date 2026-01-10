@@ -14,7 +14,7 @@ import {
   syncAllTicketComments,
   syncAllAssets,
   syncAllInvoices,
-  syncAllLineItems,
+  syncAllProducts,
   syncAllPayments,
   getSyncLogs,
   getSyncedCounts,
@@ -30,7 +30,7 @@ type SyncType =
   | 'ticket_comments'
   | 'assets'
   | 'invoices'
-  | 'line_items'
+  | 'products'
   | 'payments';
 
 /**
@@ -95,8 +95,8 @@ export async function POST(request: NextRequest) {
       case 'invoices':
         result = await syncAllInvoices();
         break;
-      case 'line_items':
-        result = await syncAllLineItems();
+      case 'products':
+        result = await syncAllProducts();
         break;
       case 'payments':
         result = await syncAllPayments();

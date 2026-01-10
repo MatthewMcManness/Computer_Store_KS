@@ -371,6 +371,32 @@ export interface RepairShoprLineItem {
 }
 
 /**
+ * Product/inventory item from the RepairShopr API
+ */
+export interface RepairShoprProduct {
+  id: number;
+  name: string;
+  description?: string;
+  sku?: string;
+  upc_code?: string;
+  price_retail?: string;
+  price_cost?: string;
+  quantity?: number;
+  quantity_minimum?: number;
+  category?: string;
+  product_category?: string;
+  taxable?: boolean;
+  disabled?: boolean;
+  notes?: string;
+  location?: string;
+  location_id?: number;
+  vendor?: string;
+  vendor_id?: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
+/**
  * Payment information from the RepairShopr API
  */
 export interface RepairShoprPayment {

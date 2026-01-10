@@ -22,7 +22,7 @@ import {
   RepairShoprPayment,
   RepairShoprAsset,
   RepairShoprTicketComment,
-  RepairShoprLineItem,
+  RepairShoprProduct,
 } from './repairshopr';
 import { supabaseAdmin } from './supabase';
 
@@ -523,27 +523,132 @@ async function fetchAllInvoices(apiToken: string): Promise<RepairShoprInvoice[]>
   return allInvoices;
 }
 
+// =============================================================================
+// Product/Inventory Sync
+// =============================================================================
+
 /**
- * Fetch invoice with line items
+ * Fetch all products from RepairShopr with pagination
  */
-async function fetchInvoiceWithLineItems(
-  apiToken: string,
-  invoiceId: number
-): Promise<RepairShoprInvoice | null> {
-  try {
+async function fetchAllProducts(apiToken: string): Promise<RepairShoprProduct[]> {
+  const allProducts: RepairShoprProduct[] = [];
+  let page = 1;
+  const pageSize = 100;
+  let hasMore = true;
+
+  while (hasMore) {
     const response = await fetch(
-      `https://${process.env.REPAIRSHOPR_SUBDOMAIN}.repairshopr.com/api/v1/invoices/${invoiceId}?api_key=${encodeURIComponent(apiToken)}`
+      `https://${process.env.REPAIRSHOPR_SUBDOMAIN}.repairshopr.com/api/v1/products?api_key=${encodeURIComponent(apiToken)}&page=${page}&per_page=${pageSize}`
     );
 
     if (!response.ok) {
-      return null;
+      throw new Error(`Failed to fetch products page ${page}: ${response.statusText}`);
     }
 
     const data = await response.json();
-    return data.invoice;
-  } catch {
-    return null;
+    const products = data.products || [];
+
+    console.log(`[Sync] Products page ${page}: found ${products.length} products (response keys: ${Object.keys(data).join(', ')})`);
+
+    allProducts.push(...products);
+    hasMore = products.length === pageSize;
+    page++;
+
+    if (hasMore) {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
   }
+
+  return allProducts;
+}
+
+/**
+ * Sync all products/inventory from RepairShopr to Supabase
+ */
+export async function syncAllProducts(): Promise<SyncResult> {
+  const startTime = Date.now();
+  const result: SyncResult = {
+    success: false,
+    entity: 'products',
+    synced: 0,
+    failed: 0,
+    errors: [],
+    duration: 0,
+  };
+
+  if (!supabaseAdmin) {
+    result.errors.push('Supabase admin client not configured');
+    result.duration = Date.now() - startTime;
+    return result;
+  }
+
+  const logId = await createSyncLog('entity', 'products');
+
+  try {
+    const apiToken = getSharedApiKey();
+    console.log('[Sync] Fetching all products from RepairShopr...');
+
+    const products = await fetchAllProducts(apiToken);
+    console.log(`[Sync] Found ${products.length} products to sync`);
+
+    for (const product of products) {
+      try {
+        const { error } = await supabaseAdmin.from('rs_products').upsert(
+          {
+            repairshopr_id: product.id,
+            name: product.name,
+            description: product.description || null,
+            sku: product.sku || null,
+            upc_code: product.upc_code || null,
+            price_retail: product.price_retail ? parseFloat(product.price_retail) : null,
+            price_cost: product.price_cost ? parseFloat(product.price_cost) : null,
+            quantity: product.quantity || 0,
+            quantity_minimum: product.quantity_minimum || null,
+            category: product.category || product.product_category || null,
+            taxable: product.taxable || false,
+            disabled: product.disabled || false,
+            notes: product.notes || null,
+            location: product.location || null,
+            location_id: product.location_id || null,
+            vendor: product.vendor || null,
+            vendor_id: product.vendor_id || null,
+            created_at: product.created_at,
+            updated_at: product.updated_at,
+            synced_at: new Date().toISOString(),
+          },
+          { onConflict: 'repairshopr_id' }
+        );
+
+        if (error) {
+          result.failed++;
+          result.errors.push(`Product ${product.id}: ${error.message}`);
+        } else {
+          result.synced++;
+        }
+      } catch (err) {
+        result.failed++;
+        result.errors.push(`Product ${product.id}: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      }
+    }
+
+    result.success = result.failed === 0;
+  } catch (err) {
+    result.errors.push(`Sync failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
+  }
+
+  result.duration = Date.now() - startTime;
+
+  if (logId) {
+    await updateSyncLog(logId, {
+      status: result.success ? 'completed' : 'failed',
+      records_synced: result.synced,
+      records_failed: result.failed,
+      errors: result.errors.length > 0 ? result.errors : null,
+    });
+  }
+
+  console.log(`[Sync] Products sync complete: ${result.synced} synced, ${result.failed} failed`);
+  return result;
 }
 
 /**
@@ -628,104 +733,6 @@ export async function syncAllInvoices(): Promise<SyncResult> {
   }
 
   console.log(`[Sync] Invoices sync complete: ${result.synced} synced, ${result.failed} failed`);
-  return result;
-}
-
-/**
- * Sync all line items from invoices
- */
-export async function syncAllLineItems(): Promise<SyncResult> {
-  const startTime = Date.now();
-  const result: SyncResult = {
-    success: false,
-    entity: 'line_items',
-    synced: 0,
-    failed: 0,
-    errors: [],
-    duration: 0,
-  };
-
-  if (!supabaseAdmin) {
-    result.errors.push('Supabase admin client not configured');
-    result.duration = Date.now() - startTime;
-    return result;
-  }
-
-  const logId = await createSyncLog('entity', 'line_items');
-
-  try {
-    const apiToken = getSharedApiKey();
-
-    // Get all synced invoice IDs
-    const { data: invoices, error: invoiceError } = await supabaseAdmin
-      .from('rs_invoices')
-      .select('repairshopr_id');
-
-    if (invoiceError || !invoices) {
-      result.errors.push('Failed to fetch synced invoices');
-      result.duration = Date.now() - startTime;
-      return result;
-    }
-
-    console.log(`[Sync] Fetching line items for ${invoices.length} invoices...`);
-
-    for (const invoice of invoices) {
-      try {
-        const invoiceDetail = await fetchInvoiceWithLineItems(apiToken, invoice.repairshopr_id);
-
-        if (invoiceDetail?.line_items) {
-          for (const lineItem of invoiceDetail.line_items) {
-            const { error } = await supabaseAdmin.from('rs_line_items').upsert(
-              {
-                repairshopr_id: lineItem.id,
-                invoice_id: invoice.repairshopr_id,
-                item: lineItem.item,
-                name: lineItem.name || null,
-                description: lineItem.description || null,
-                quantity: lineItem.quantity,
-                price: parseFloat(lineItem.price) || 0,
-                cost: lineItem.cost ? parseFloat(lineItem.cost) : null,
-                total: lineItem.total ? parseFloat(lineItem.total) : null,
-                taxable: lineItem.taxable || false,
-                product_id: lineItem.product_id || null,
-                synced_at: new Date().toISOString(),
-              },
-              { onConflict: 'repairshopr_id' }
-            );
-
-            if (error) {
-              result.failed++;
-              result.errors.push(`Line item ${lineItem.id}: ${error.message}`);
-            } else {
-              result.synced++;
-            }
-          }
-        }
-
-        // Rate limit protection
-        await new Promise((resolve) => setTimeout(resolve, 50));
-      } catch (err) {
-        result.errors.push(`Invoice ${invoice.repairshopr_id} line items: ${err instanceof Error ? err.message : 'Unknown error'}`);
-      }
-    }
-
-    result.success = result.failed === 0;
-  } catch (err) {
-    result.errors.push(`Sync failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
-  }
-
-  result.duration = Date.now() - startTime;
-
-  if (logId) {
-    await updateSyncLog(logId, {
-      status: result.success ? 'completed' : 'failed',
-      records_synced: result.synced,
-      records_failed: result.failed,
-      errors: result.errors.length > 0 ? result.errors : null,
-    });
-  }
-
-  console.log(`[Sync] Line items sync complete: ${result.synced} synced, ${result.failed} failed`);
   return result;
 }
 
@@ -1002,9 +1009,9 @@ export async function runFullSync(): Promise<FullSyncResult> {
   console.log('[Sync] 5/7 Syncing invoices...');
   results.push(await syncAllInvoices());
 
-  // 6. Line items (depends on invoices)
-  console.log('[Sync] 6/7 Syncing line items...');
-  results.push(await syncAllLineItems());
+  // 6. Products/Inventory (no dependencies)
+  console.log('[Sync] 6/7 Syncing products...');
+  results.push(await syncAllProducts());
 
   // 7. Payments (depends on invoices, customers)
   console.log('[Sync] 7/7 Syncing payments...');
@@ -1078,7 +1085,7 @@ export async function getSyncedCounts(): Promise<Record<string, number>> {
     'rs_ticket_comments',
     'rs_assets',
     'rs_invoices',
-    'rs_line_items',
+    'rs_products',
     'rs_payments',
   ];
 

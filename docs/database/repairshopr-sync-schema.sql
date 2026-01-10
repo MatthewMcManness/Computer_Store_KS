@@ -154,29 +154,40 @@ CREATE INDEX IF NOT EXISTS idx_rs_invoices_date ON rs_invoices(date DESC);
 COMMENT ON TABLE rs_invoices IS 'Synced invoices from RepairShopr';
 
 -- ============================================================================
--- LINE ITEMS
--- Mirrors RepairShoprLineItem (invoice line items)
+-- PRODUCTS/INVENTORY
+-- Mirrors RepairShoprProduct (inventory items)
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS rs_line_items (
+CREATE TABLE IF NOT EXISTS rs_products (
   id SERIAL PRIMARY KEY,
   repairshopr_id INTEGER UNIQUE NOT NULL,
-  invoice_id INTEGER,  -- References rs_invoices.repairshopr_id
-  item TEXT,
-  name TEXT,
+  name TEXT NOT NULL,
   description TEXT,
-  quantity DECIMAL(10,2),
-  price DECIMAL(10,2),
-  cost DECIMAL(10,2),
-  total DECIMAL(10,2),
+  sku TEXT,
+  upc_code TEXT,
+  price_retail DECIMAL(10,2),
+  price_cost DECIMAL(10,2),
+  quantity INTEGER DEFAULT 0,
+  quantity_minimum INTEGER,
+  category TEXT,
   taxable BOOLEAN DEFAULT FALSE,
-  product_id INTEGER,
+  disabled BOOLEAN DEFAULT FALSE,
+  notes TEXT,
+  location TEXT,
+  location_id INTEGER,
+  vendor TEXT,
+  vendor_id INTEGER,
+  created_at TIMESTAMPTZ,
+  updated_at TIMESTAMPTZ,
   synced_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX IF NOT EXISTS idx_rs_line_items_invoice_id ON rs_line_items(invoice_id);
-CREATE INDEX IF NOT EXISTS idx_rs_line_items_product_id ON rs_line_items(product_id);
+CREATE INDEX IF NOT EXISTS idx_rs_products_repairshopr_id ON rs_products(repairshopr_id);
+CREATE INDEX IF NOT EXISTS idx_rs_products_sku ON rs_products(sku);
+CREATE INDEX IF NOT EXISTS idx_rs_products_upc ON rs_products(upc_code);
+CREATE INDEX IF NOT EXISTS idx_rs_products_category ON rs_products(category);
+CREATE INDEX IF NOT EXISTS idx_rs_products_name ON rs_products(name);
 
-COMMENT ON TABLE rs_line_items IS 'Synced invoice line items from RepairShopr';
+COMMENT ON TABLE rs_products IS 'Synced product/inventory data from RepairShopr';
 
 -- ============================================================================
 -- PAYMENTS
@@ -235,7 +246,7 @@ ALTER TABLE rs_tickets ENABLE ROW LEVEL SECURITY;
 ALTER TABLE rs_ticket_comments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE rs_assets ENABLE ROW LEVEL SECURITY;
 ALTER TABLE rs_invoices ENABLE ROW LEVEL SECURITY;
-ALTER TABLE rs_line_items ENABLE ROW LEVEL SECURITY;
+ALTER TABLE rs_products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE rs_payments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE rs_sync_log ENABLE ROW LEVEL SECURITY;
 
@@ -256,7 +267,7 @@ CREATE POLICY "Service role full access on rs_assets" ON rs_assets
 CREATE POLICY "Service role full access on rs_invoices" ON rs_invoices
   FOR ALL USING (auth.role() = 'service_role');
 
-CREATE POLICY "Service role full access on rs_line_items" ON rs_line_items
+CREATE POLICY "Service role full access on rs_products" ON rs_products
   FOR ALL USING (auth.role() = 'service_role');
 
 CREATE POLICY "Service role full access on rs_payments" ON rs_payments
@@ -301,7 +312,7 @@ CREATE POLICY "Staff read rs_invoices" ON rs_invoices FOR SELECT
     AND user_profiles.role IN ('admin', 'technician', 'receptionist')
   ));
 
-CREATE POLICY "Staff read rs_line_items" ON rs_line_items FOR SELECT
+CREATE POLICY "Staff read rs_products" ON rs_products FOR SELECT
   USING (EXISTS (
     SELECT 1 FROM user_profiles
     WHERE user_profiles.id = auth.uid()
@@ -334,7 +345,7 @@ CREATE POLICY "Admin read rs_sync_log" ON rs_sync_log FOR SELECT
 -- UNION ALL SELECT 'comments', COUNT(*) FROM rs_ticket_comments
 -- UNION ALL SELECT 'assets', COUNT(*) FROM rs_assets
 -- UNION ALL SELECT 'invoices', COUNT(*) FROM rs_invoices
--- UNION ALL SELECT 'line_items', COUNT(*) FROM rs_line_items
+-- UNION ALL SELECT 'products', COUNT(*) FROM rs_products
 -- UNION ALL SELECT 'payments', COUNT(*) FROM rs_payments;
 --
 -- -- Check recent sync operations

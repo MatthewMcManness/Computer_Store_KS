@@ -1827,31 +1827,43 @@ export async function getEffectiveCustomerPlanTiers(
   // For legacy customers: Get plan tier from synced RepairShopr data
   // This uses the 'properties' and 'tags' fields that were synced from RepairShopr
   if (legacyCustomers.length > 0) {
-    // Fetch synced RepairShopr data from rs_customers
-    const { data: syncedCustomers, error: syncError } = await supabaseAdmin
-      .from('rs_customers')
-      .select('repairshopr_id, properties, tags')
-      .in('repairshopr_id', legacyCustomers);
+    try {
+      // Fetch synced RepairShopr data from rs_customers
+      const { data: syncedCustomers, error: syncError } = await supabaseAdmin
+        .from('rs_customers')
+        .select('repairshopr_id, properties, tags')
+        .in('repairshopr_id', legacyCustomers);
 
-    if (syncError) {
-      console.error('Error fetching synced customer data:', syncError);
-    } else {
-      // Extract plan tier from the synced RepairShopr data using the same logic as live API
-      for (const customer of syncedCustomers || []) {
-        // Build a partial customer object that extractPlanTierFromRepairShoprData can use
-        const partialCustomer = {
-          properties: customer.properties || {},
-          tags: customer.tags || [],
-        };
+      if (syncError) {
+        console.error('Error fetching synced customer data:', syncError);
+        // Fallback: set null for all legacy customers if query fails
+        for (const id of legacyCustomers) {
+          result.set(id, null);
+        }
+      } else {
+        // Extract plan tier from the synced RepairShopr data using the same logic as live API
+        for (const customer of syncedCustomers || []) {
+          // Build a partial customer object that extractPlanTierFromRepairShoprData can use
+          const partialCustomer = {
+            properties: customer.properties || {},
+            tags: customer.tags || [],
+          };
 
-        const tier = extractPlanTierFromRepairShoprData(partialCustomer);
-        result.set(customer.repairshopr_id, tier);
+          const tier = extractPlanTierFromRepairShoprData(partialCustomer);
+          result.set(customer.repairshopr_id, tier);
+        }
+
+        // Set null for any legacy customers not found in synced data
+        for (const id of legacyCustomers) {
+          if (!result.has(id)) {
+            result.set(id, null);
+          }
+        }
       }
-    }
-
-    // Set null for any legacy customers not found in synced data
-    for (const id of legacyCustomers) {
-      if (!result.has(id)) {
+    } catch (error) {
+      console.error('Exception fetching synced customer data:', error);
+      // Fallback: set null for all legacy customers
+      for (const id of legacyCustomers) {
         result.set(id, null);
       }
     }

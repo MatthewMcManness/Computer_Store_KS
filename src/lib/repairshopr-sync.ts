@@ -154,6 +154,7 @@ async function fetchAllCustomers(apiToken: string): Promise<RepairShoprCustomer[
 
 /**
  * Sync all customers from RepairShopr to Supabase
+ * Uses streaming batch processing to avoid timeouts and memory issues
  */
 export async function syncAllCustomers(): Promise<SyncResult> {
   const startTime = Date.now();
@@ -176,48 +177,87 @@ export async function syncAllCustomers(): Promise<SyncResult> {
 
   try {
     const apiToken = getSharedApiKey();
-    console.log('[Sync] Fetching all customers from RepairShopr...');
+    console.log('[Sync] Starting customer sync with batch processing...');
 
-    const customers = await fetchAllCustomers(apiToken);
-    console.log(`[Sync] Found ${customers.length} customers to sync`);
+    let page = 1;
+    const pageSize = 100;
+    let hasMore = true;
+    const BATCH_SIZE = 100;
+    let pendingCustomers: RepairShoprCustomer[] = [];
 
-    // Batch upsert customers
-    for (const customer of customers) {
-      try {
-        const { error } = await supabaseAdmin.from('rs_customers').upsert(
-          {
-            repairshopr_id: customer.id,
-            firstname: customer.firstname,
-            lastname: customer.lastname,
-            fullname: customer.fullname,
-            business_name: customer.business_name || null,
-            email: customer.email,
-            phone: customer.phone || null,
-            mobile: customer.mobile || null,
-            address: customer.address || null,
-            address_2: customer.address_2 || null,
-            city: customer.city || null,
-            state: customer.state || null,
-            zip: customer.zip || null,
-            tags: customer.tags || [],
-            properties: customer.properties || {},
-            created_at: customer.created_at,
-            updated_at: customer.updated_at,
-            synced_at: new Date().toISOString(),
-          },
-          { onConflict: 'repairshopr_id' }
-        );
+    // Helper to upsert a batch
+    const upsertBatch = async (customers: RepairShoprCustomer[]) => {
+      if (customers.length === 0) return;
 
-        if (error) {
-          result.failed++;
-          result.errors.push(`Customer ${customer.id}: ${error.message}`);
-        } else {
-          result.synced++;
-        }
-      } catch (err) {
-        result.failed++;
-        result.errors.push(`Customer ${customer.id}: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      const records = customers.map(customer => ({
+        repairshopr_id: customer.id,
+        firstname: customer.firstname,
+        lastname: customer.lastname,
+        fullname: customer.fullname,
+        business_name: customer.business_name || null,
+        email: customer.email,
+        phone: customer.phone || null,
+        mobile: customer.mobile || null,
+        address: customer.address || null,
+        address_2: customer.address_2 || null,
+        city: customer.city || null,
+        state: customer.state || null,
+        zip: customer.zip || null,
+        tags: customer.tags || [],
+        properties: customer.properties || {},
+        created_at: customer.created_at,
+        updated_at: customer.updated_at,
+        synced_at: new Date().toISOString(),
+      }));
+
+      const { error } = await supabaseAdmin.from('rs_customers').upsert(records, { onConflict: 'repairshopr_id' });
+
+      if (error) {
+        result.failed += customers.length;
+        result.errors.push(`Batch upsert failed: ${error.message}`);
+      } else {
+        result.synced += customers.length;
       }
+    };
+
+    // Stream through pages, processing in batches
+    while (hasMore) {
+      const response = await fetch(
+        `https://${process.env.REPAIRSHOPR_SUBDOMAIN}.repairshopr.com/api/v1/customers?api_key=${encodeURIComponent(apiToken)}&page=${page}&per_page=${pageSize}`
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch customers page ${page}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      const customers = data.customers || [];
+
+      // Add to pending batch
+      pendingCustomers.push(...customers);
+
+      // Log progress every 10 pages
+      if (page % 10 === 0 || page === 1) {
+        console.log(`[Sync] Customers page ${page}: ${result.synced + pendingCustomers.length} processed`);
+      }
+
+      // Upsert when batch is full
+      if (pendingCustomers.length >= BATCH_SIZE) {
+        await upsertBatch(pendingCustomers);
+        pendingCustomers = [];
+      }
+
+      hasMore = customers.length === pageSize;
+      page++;
+
+      if (hasMore) {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      }
+    }
+
+    // Upsert any remaining customers
+    if (pendingCustomers.length > 0) {
+      await upsertBatch(pendingCustomers);
     }
 
     result.success = result.failed === 0;
@@ -236,7 +276,7 @@ export async function syncAllCustomers(): Promise<SyncResult> {
     });
   }
 
-  console.log(`[Sync] Customers sync complete: ${result.synced} synced, ${result.failed} failed`);
+  console.log(`[Sync] Customers sync complete: ${result.synced} synced, ${result.failed} failed in ${(result.duration / 1000).toFixed(1)}s`);
   return result;
 }
 
@@ -304,6 +344,7 @@ async function fetchTicketWithComments(
 
 /**
  * Sync all tickets from RepairShopr to Supabase
+ * Uses streaming batch processing to avoid timeouts and memory issues
  */
 export async function syncAllTickets(): Promise<SyncResult> {
   const startTime = Date.now();
@@ -326,45 +367,85 @@ export async function syncAllTickets(): Promise<SyncResult> {
 
   try {
     const apiToken = getSharedApiKey();
-    console.log('[Sync] Fetching all tickets from RepairShopr...');
+    console.log('[Sync] Starting ticket sync with batch processing...');
 
-    const tickets = await fetchAllTickets(apiToken);
-    console.log(`[Sync] Found ${tickets.length} tickets to sync`);
+    let page = 1;
+    const pageSize = 100;
+    let hasMore = true;
+    const BATCH_SIZE = 100;
+    let pendingTickets: RepairShoprTicket[] = [];
 
-    for (const ticket of tickets) {
-      try {
-        const { error } = await supabaseAdmin.from('rs_tickets').upsert(
-          {
-            repairshopr_id: ticket.id,
-            number: ticket.number,
-            subject: ticket.subject,
-            customer_id: ticket.customer_id,
-            customer_business_then_name: ticket.customer_business_then_name || null,
-            status: ticket.status || null,
-            problem_type: ticket.problem_type || null,
-            priority: ticket.priority || null,
-            due_date: ticket.due_date || null,
-            resolved_at: ticket.resolved_at || null,
-            user_id: ticket.user_id || null,
-            properties: ticket.properties || {},
-            tags: ticket.tag_list || [],
-            created_at: ticket.created_at,
-            updated_at: ticket.updated_at,
-            synced_at: new Date().toISOString(),
-          },
-          { onConflict: 'repairshopr_id' }
-        );
+    // Helper to upsert a batch
+    const upsertBatch = async (tickets: RepairShoprTicket[]) => {
+      if (tickets.length === 0) return;
 
-        if (error) {
-          result.failed++;
-          result.errors.push(`Ticket ${ticket.id}: ${error.message}`);
-        } else {
-          result.synced++;
-        }
-      } catch (err) {
-        result.failed++;
-        result.errors.push(`Ticket ${ticket.id}: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      const records = tickets.map((ticket) => ({
+        repairshopr_id: ticket.id,
+        number: ticket.number,
+        subject: ticket.subject,
+        customer_id: ticket.customer_id,
+        customer_business_then_name: ticket.customer_business_then_name || null,
+        status: ticket.status || null,
+        problem_type: ticket.problem_type || null,
+        priority: ticket.priority || null,
+        due_date: ticket.due_date || null,
+        resolved_at: ticket.resolved_at || null,
+        user_id: ticket.user_id || null,
+        properties: ticket.properties || {},
+        tags: ticket.tag_list || [],
+        created_at: ticket.created_at,
+        updated_at: ticket.updated_at,
+        synced_at: new Date().toISOString(),
+      }));
+
+      const { error } = await supabaseAdmin.from('rs_tickets').upsert(records, { onConflict: 'repairshopr_id' });
+
+      if (error) {
+        result.failed += tickets.length;
+        result.errors.push(`Batch upsert failed: ${error.message}`);
+      } else {
+        result.synced += tickets.length;
       }
+    };
+
+    // Stream through pages, processing in batches
+    while (hasMore) {
+      const response = await fetch(
+        `https://${process.env.REPAIRSHOPR_SUBDOMAIN}.repairshopr.com/api/v1/tickets?api_key=${encodeURIComponent(apiToken)}&page=${page}&per_page=${pageSize}`
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch tickets page ${page}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      const tickets = data.tickets || [];
+
+      pendingTickets.push(...tickets);
+
+      // Log progress every 10 pages
+      if (page % 10 === 0 || page === 1) {
+        console.log(`[Sync] Tickets page ${page}: ${result.synced + pendingTickets.length} processed`);
+      }
+
+      // Upsert when batch is full
+      if (pendingTickets.length >= BATCH_SIZE) {
+        await upsertBatch(pendingTickets);
+        pendingTickets = [];
+      }
+
+      hasMore = tickets.length === pageSize;
+      page++;
+
+      // Rate limiting
+      if (hasMore) {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      }
+    }
+
+    // Upsert any remaining tickets
+    if (pendingTickets.length > 0) {
+      await upsertBatch(pendingTickets);
     }
 
     result.success = result.failed === 0;
@@ -383,7 +464,7 @@ export async function syncAllTickets(): Promise<SyncResult> {
     });
   }
 
-  console.log(`[Sync] Tickets sync complete: ${result.synced} synced, ${result.failed} failed`);
+  console.log(`[Sync] Tickets sync complete: ${result.synced} synced, ${result.failed} failed in ${(result.duration / 1000).toFixed(1)}s`);
   return result;
 }
 
@@ -544,7 +625,7 @@ async function fetchAllProducts(apiToken: string): Promise<RepairShoprProduct[]>
 
   while (page <= totalPages) {
     const response = await fetch(
-      `https://${process.env.REPAIRSHOPR_SUBDOMAIN}.repairshopr.com/api/v1/products?api_key=${encodeURIComponent(apiToken)}&page=${page}&per_page=${pageSize}`
+      `https://${process.env.REPAIRSHOPR_SUBDOMAIN}.repairshopr.com/api/v1/products?api_key=${encodeURIComponent(apiToken)}&page=${page}&per_page=${pageSize}&include_disabled=true`
     );
 
     if (!response.ok) {
@@ -578,6 +659,7 @@ async function fetchAllProducts(apiToken: string): Promise<RepairShoprProduct[]>
 
 /**
  * Sync all products/inventory from RepairShopr to Supabase
+ * Uses streaming batch processing to avoid timeouts and memory issues
  */
 export async function syncAllProducts(): Promise<SyncResult> {
   const startTime = Date.now();
@@ -600,49 +682,96 @@ export async function syncAllProducts(): Promise<SyncResult> {
 
   try {
     const apiToken = getSharedApiKey();
-    console.log('[Sync] Fetching all products from RepairShopr...');
+    console.log('[Sync] Starting product sync with batch processing...');
 
-    const products = await fetchAllProducts(apiToken);
-    console.log(`[Sync] Found ${products.length} products to sync`);
+    let page = 1;
+    const pageSize = 25; // RepairShopr products API defaults to smaller pages
+    let totalPages = 1;
+    const BATCH_SIZE = 100;
+    let pendingProducts: RepairShoprProduct[] = [];
 
-    for (const product of products) {
-      try {
-        const { error } = await supabaseAdmin.from('rs_products').upsert(
-          {
-            repairshopr_id: product.id,
-            name: product.name,
-            description: product.description || null,
-            sku: product.sku || null,
-            upc_code: product.upc_code || null,
-            price_retail: product.price_retail ? parseFloat(product.price_retail) : null,
-            price_cost: product.price_cost ? parseFloat(product.price_cost) : null,
-            quantity: product.quantity || 0,
-            quantity_minimum: product.quantity_minimum || null,
-            category: product.category || product.product_category || null,
-            taxable: product.taxable || false,
-            disabled: product.disabled || false,
-            notes: product.notes || null,
-            location: product.location || null,
-            location_id: product.location_id || null,
-            vendor: product.vendor || null,
-            vendor_id: product.vendor_id || null,
-            created_at: product.created_at,
-            updated_at: product.updated_at,
-            synced_at: new Date().toISOString(),
-          },
-          { onConflict: 'repairshopr_id' }
-        );
+    // Helper to upsert a batch
+    const upsertBatch = async (products: RepairShoprProduct[]) => {
+      if (products.length === 0) return;
 
-        if (error) {
-          result.failed++;
-          result.errors.push(`Product ${product.id}: ${error.message}`);
-        } else {
-          result.synced++;
-        }
-      } catch (err) {
-        result.failed++;
-        result.errors.push(`Product ${product.id}: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      const records = products.map((product) => ({
+        repairshopr_id: product.id,
+        name: product.name,
+        description: product.description || null,
+        sku: product.sku || null,
+        upc_code: product.upc_code || null,
+        price_retail: product.price_retail ? parseFloat(product.price_retail) : null,
+        price_cost: product.price_cost ? parseFloat(product.price_cost) : null,
+        quantity: product.quantity || 0,
+        quantity_minimum: product.quantity_minimum || null,
+        category: product.category || product.product_category || null,
+        taxable: product.taxable || false,
+        disabled: product.disabled || false,
+        notes: product.notes || null,
+        location: product.location || null,
+        location_id: product.location_id || null,
+        vendor: product.vendor || null,
+        vendor_id: product.vendor_id || null,
+        created_at: product.created_at,
+        updated_at: product.updated_at,
+        synced_at: new Date().toISOString(),
+      }));
+
+      const { error } = await supabaseAdmin.from('rs_products').upsert(records, { onConflict: 'repairshopr_id' });
+
+      if (error) {
+        result.failed += products.length;
+        result.errors.push(`Batch upsert failed: ${error.message}`);
+      } else {
+        result.synced += products.length;
       }
+    };
+
+    // Stream through pages, processing in batches
+    while (page <= totalPages) {
+      const response = await fetch(
+        `https://${process.env.REPAIRSHOPR_SUBDOMAIN}.repairshopr.com/api/v1/products?api_key=${encodeURIComponent(apiToken)}&page=${page}&per_page=${pageSize}&include_disabled=true`
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch products page ${page}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      const products = data.products || [];
+      const meta = data.meta || {};
+
+      // Update total pages from meta if available
+      if (meta.total_pages) {
+        totalPages = meta.total_pages;
+      } else if (meta.total_entries && products.length > 0) {
+        totalPages = Math.ceil(meta.total_entries / pageSize);
+      }
+
+      pendingProducts.push(...products);
+
+      // Log progress every 10 pages
+      if (page % 10 === 0 || page === 1) {
+        console.log(`[Sync] Products page ${page}/${totalPages}: ${result.synced + pendingProducts.length} processed`);
+      }
+
+      // Upsert when batch is full
+      if (pendingProducts.length >= BATCH_SIZE) {
+        await upsertBatch(pendingProducts);
+        pendingProducts = [];
+      }
+
+      page++;
+
+      // Rate limiting
+      if (page <= totalPages) {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      }
+    }
+
+    // Upsert any remaining products
+    if (pendingProducts.length > 0) {
+      await upsertBatch(pendingProducts);
     }
 
     result.success = result.failed === 0;
@@ -661,7 +790,7 @@ export async function syncAllProducts(): Promise<SyncResult> {
     });
   }
 
-  console.log(`[Sync] Products sync complete: ${result.synced} synced, ${result.failed} failed`);
+  console.log(`[Sync] Products sync complete: ${result.synced} synced, ${result.failed} failed in ${(result.duration / 1000).toFixed(1)}s`);
   return result;
 }
 
@@ -1019,6 +1148,7 @@ async function fetchAllAssets(apiToken: string): Promise<RepairShoprAsset[]> {
 
 /**
  * Sync all assets from RepairShopr to Supabase
+ * Uses streaming batch processing to avoid timeouts and memory issues
  */
 export async function syncAllAssets(): Promise<SyncResult> {
   const startTime = Date.now();
@@ -1041,37 +1171,85 @@ export async function syncAllAssets(): Promise<SyncResult> {
 
   try {
     const apiToken = getSharedApiKey();
-    console.log('[Sync] Fetching all assets from RepairShopr...');
+    console.log('[Sync] Starting asset sync with batch processing...');
 
-    const assets = await fetchAllAssets(apiToken);
-    console.log(`[Sync] Found ${assets.length} assets to sync`);
+    let page = 1;
+    const pageSize = 25;
+    let totalPages = 1;
+    const BATCH_SIZE = 100;
+    let pendingAssets: RepairShoprAsset[] = [];
 
-    for (const asset of assets) {
-      try {
-        const { error } = await supabaseAdmin.from('rs_assets').upsert(
-          {
-            repairshopr_id: asset.id,
-            name: asset.name,
-            asset_type_name: asset.asset_type_name || null,
-            customer_id: asset.customer_id,
-            properties: asset.properties || {},
-            created_at: asset.created_at,
-            updated_at: asset.updated_at,
-            synced_at: new Date().toISOString(),
-          },
-          { onConflict: 'repairshopr_id' }
-        );
+    // Helper to upsert a batch
+    const upsertBatch = async (assets: RepairShoprAsset[]) => {
+      if (assets.length === 0) return;
 
-        if (error) {
-          result.failed++;
-          result.errors.push(`Asset ${asset.id}: ${error.message}`);
-        } else {
-          result.synced++;
-        }
-      } catch (err) {
-        result.failed++;
-        result.errors.push(`Asset ${asset.id}: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      const records = assets.map((asset) => ({
+        repairshopr_id: asset.id,
+        name: asset.name,
+        asset_type_name: asset.asset_type_name || null,
+        customer_id: asset.customer_id,
+        properties: asset.properties || {},
+        created_at: asset.created_at,
+        updated_at: asset.updated_at,
+        synced_at: new Date().toISOString(),
+      }));
+
+      const { error } = await supabaseAdmin.from('rs_assets').upsert(records, { onConflict: 'repairshopr_id' });
+
+      if (error) {
+        result.failed += assets.length;
+        result.errors.push(`Batch upsert failed: ${error.message}`);
+      } else {
+        result.synced += assets.length;
       }
+    };
+
+    // Stream through pages, processing in batches
+    while (page <= totalPages) {
+      const response = await fetch(
+        `https://${process.env.REPAIRSHOPR_SUBDOMAIN}.repairshopr.com/api/v1/customer_assets?api_key=${encodeURIComponent(apiToken)}&page=${page}&per_page=${pageSize}`
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch assets page ${page}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      // RepairShopr returns customer_assets for this endpoint, not assets
+      const assets = data.customer_assets || data.assets || [];
+      const meta = data.meta || {};
+
+      // Update total pages from meta if available
+      if (meta.total_pages) {
+        totalPages = meta.total_pages;
+      } else if (meta.total_entries && assets.length > 0) {
+        totalPages = Math.ceil(meta.total_entries / pageSize);
+      }
+
+      pendingAssets.push(...assets);
+
+      // Log progress every 20 pages
+      if (page % 20 === 0 || page === 1) {
+        console.log(`[Sync] Assets page ${page}/${totalPages}: ${result.synced + pendingAssets.length} processed`);
+      }
+
+      // Upsert when batch is full
+      if (pendingAssets.length >= BATCH_SIZE) {
+        await upsertBatch(pendingAssets);
+        pendingAssets = [];
+      }
+
+      page++;
+
+      // Rate limiting
+      if (page <= totalPages) {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      }
+    }
+
+    // Upsert any remaining assets
+    if (pendingAssets.length > 0) {
+      await upsertBatch(pendingAssets);
     }
 
     result.success = result.failed === 0;
@@ -1090,7 +1268,7 @@ export async function syncAllAssets(): Promise<SyncResult> {
     });
   }
 
-  console.log(`[Sync] Assets sync complete: ${result.synced} synced, ${result.failed} failed`);
+  console.log(`[Sync] Assets sync complete: ${result.synced} synced, ${result.failed} failed in ${(result.duration / 1000).toFixed(1)}s`);
   return result;
 }
 

@@ -9,8 +9,10 @@ export const dynamic = 'force-dynamic';
 
 /**
  * GET /api/repairshopr/customers
- * Search for customers by query string
- * Query params: ?q=search_term
+ * Search for customers by query string or list all customers with pagination
+ * Query params:
+ *   - ?q=search_term - Search for customers (uses RepairShopr API)
+ *   - ?page=1&per_page=50 - List all customers with pagination (uses Supabase)
  *
  * Auto-syncs silver plan status from RepairShopr custom fields to Supabase
  */
@@ -21,21 +23,87 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  // Get search query and pagination params
+  const searchParams = request.nextUrl.searchParams;
+  const query = searchParams.get('q');
+  const page = parseInt(searchParams.get('page') || '1', 10);
+  const perPage = parseInt(searchParams.get('per_page') || '50', 10);
+
+  // If no search query, list all customers from Supabase with pagination
+  if (!query || !query.trim()) {
+    if (!supabaseAdmin) {
+      return NextResponse.json({ error: 'Database not configured' }, { status: 500 });
+    }
+
+    try {
+      const offset = (page - 1) * perPage;
+
+      // Get total count
+      const { count: totalCount } = await supabaseAdmin
+        .from('rs_customers')
+        .select('*', { count: 'exact', head: true });
+
+      // Get paginated customers ordered by name
+      const { data: customers, error: listError } = await supabaseAdmin
+        .from('rs_customers')
+        .select('repairshopr_id, firstname, lastname, email, phone, mobile, address, address_2, city, state, zip, business_name, created_at, updated_at')
+        .order('lastname', { ascending: true })
+        .order('firstname', { ascending: true })
+        .range(offset, offset + perPage - 1);
+
+      if (listError) {
+        console.error('[API] Supabase customer list error:', listError);
+        return NextResponse.json({ error: 'Failed to load customers' }, { status: 500 });
+      }
+
+      // Map to expected format and get protection plans
+      const customerIds = (customers || []).map(c => c.repairshopr_id);
+      const existingPlans = customerIds.length > 0
+        ? await getCustomerProtectionPlans(customerIds)
+        : [];
+      const planTierMap = new Map<number, ProtectionPlanTier>(
+        existingPlans.map(sp => [sp.repairshopr_customer_id, sp.plan_tier])
+      );
+
+      const customersWithPlanStatus = (customers || []).map(c => ({
+        id: c.repairshopr_id,
+        firstname: c.firstname,
+        lastname: c.lastname,
+        fullname: `${c.firstname || ''} ${c.lastname || ''}`.trim(),
+        email: c.email,
+        phone: c.phone,
+        mobile: c.mobile,
+        address: c.address,
+        address_2: c.address_2,
+        city: c.city,
+        state: c.state,
+        zip: c.zip,
+        business_name: c.business_name,
+        created_at: c.created_at,
+        updated_at: c.updated_at,
+        plan_tier: planTierMap.get(c.repairshopr_id) ?? null,
+      }));
+
+      return NextResponse.json({
+        customers: customersWithPlanStatus,
+        meta: {
+          total_entries: totalCount || 0,
+          page,
+          per_page: perPage,
+          total_pages: Math.ceil((totalCount || 0) / perPage),
+        },
+      });
+    } catch (error) {
+      console.error('[API] Customer list error:', error);
+      return NextResponse.json({ error: 'Failed to list customers' }, { status: 500 });
+    }
+  }
+
+  // Search mode: use RepairShopr API
   // Get API token (shared key preferred, falls back to session token)
   const apiToken = getApiToken(await getSessionToken());
   if (!apiToken) {
     return NextResponse.json({ error: 'Session expired' }, { status: 401 });
-  }
-
-  // Get search query
-  const searchParams = request.nextUrl.searchParams;
-  const query = searchParams.get('q');
-
-  if (!query || !query.trim()) {
-    return NextResponse.json(
-      { error: 'Search query parameter "q" is required' },
-      { status: 400 }
-    );
   }
 
   try {

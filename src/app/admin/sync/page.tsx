@@ -9,7 +9,7 @@ interface SyncCounts {
   ticket_comments?: number;
   assets?: number;
   invoices?: number;
-  line_items?: number;
+  products?: number;
   payments?: number;
 }
 
@@ -37,7 +37,7 @@ interface SyncResult {
   results?: SyncResult[];
 }
 
-type SyncType = 'full' | 'customers' | 'tickets' | 'ticket_comments' | 'assets' | 'invoices' | 'line_items' | 'payments';
+type SyncType = 'full' | 'customers' | 'tickets' | 'ticket_comments' | 'assets' | 'invoices' | 'products' | 'payments';
 
 const syncEntities: { type: SyncType; label: string; icon: React.ReactNode; description: string }[] = [
   { type: 'customers', label: 'Customers', icon: <Users className="h-5 w-5" />, description: 'Customer profiles and contact info' },
@@ -45,7 +45,7 @@ const syncEntities: { type: SyncType; label: string; icon: React.ReactNode; desc
   { type: 'ticket_comments', label: 'Comments', icon: <MessageSquare className="h-5 w-5" />, description: 'Ticket notes and comments' },
   { type: 'assets', label: 'Assets', icon: <Package className="h-5 w-5" />, description: 'Customer devices and equipment' },
   { type: 'invoices', label: 'Invoices', icon: <Receipt className="h-5 w-5" />, description: 'Billing invoices' },
-  { type: 'line_items', label: 'Line Items', icon: <FileText className="h-5 w-5" />, description: 'Invoice line items' },
+  { type: 'products', label: 'Products', icon: <Package className="h-5 w-5" />, description: 'Inventory and products' },
   { type: 'payments', label: 'Payments', icon: <CreditCard className="h-5 w-5" />, description: 'Payment records' },
 ];
 

@@ -25,7 +25,7 @@ import {
 import type { RepairShoprCustomer } from '@/lib/repairshopr';
 
 // Protection plan tier type
-type ProtectionPlanTier = 'eset' | 'bronze' | 'silver' | 'silver-plus' | 'gold' | null;
+type ProtectionPlanTier = 'eset' | 'silver' | 'silver-plus' | null;
 
 // Extended customer type with protection plan status
 interface CustomerWithPlanStatus extends RepairShoprCustomer {
@@ -172,11 +172,14 @@ export default function CustomersListPage() {
       setCustomers(data.customers || []);
       setTotalCustomers(data.meta?.total_entries || data.customers?.length || 0);
 
-      // Load protection plans for all customers
-      const customerIds = (data.customers || []).map((c: CustomerWithPlanStatus) => c.id);
-      if (customerIds.length > 0) {
-        loadCustomerPlans(customerIds);
+      // Use plan_tier from API response (handles both legacy customer_silver_plans and migrated asset_protection_plans)
+      const plansMap = new Map<number, ProtectionPlanTier>();
+      for (const customer of data.customers || []) {
+        if (customer.plan_tier) {
+          plansMap.set(customer.id, customer.plan_tier);
+        }
       }
+      setCustomerPlans(plansMap);
     } catch (err) {
       console.error('Failed to load customers:', err);
       setError('Failed to load customers');
@@ -554,29 +557,25 @@ export default function CustomersListPage() {
         </button>
         <button
           onClick={() => setPlanFilter('silver')}
-          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+          className={`inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
             planFilter === 'silver'
               ? 'bg-slate-600 text-white'
-              : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
+              : 'bg-slate-200 text-slate-700 hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600'
           }`}
         >
-          <span className="flex items-center gap-1.5">
-            <Sparkles className="h-3.5 w-3.5" />
-            Silver
-          </span>
+          <Shield className="h-3.5 w-3.5" />
+          Silver
         </button>
         <button
           onClick={() => setPlanFilter('silver-plus')}
-          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+          className={`inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-sm font-medium transition-colors border-2 ${
             planFilter === 'silver-plus'
-              ? 'bg-violet-600 text-white'
-              : 'bg-violet-50 text-violet-700 hover:bg-violet-100 dark:bg-violet-900/30 dark:text-violet-400 dark:hover:bg-violet-900/50'
+              ? 'border-amber-500 bg-transparent text-amber-500 dark:border-amber-400 dark:text-amber-400'
+              : 'border-transparent bg-slate-200 text-slate-700 hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600'
           }`}
         >
-          <span className="flex items-center gap-1.5">
-            <Sparkles className="h-3.5 w-3.5" />
-            Silver+
-          </span>
+          <Shield className="h-3.5 w-3.5" />
+          Silver+
         </button>
       </div>
 

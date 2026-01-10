@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Building2, Mail, Phone, Loader2, ChevronLeft, ChevronRight, Filter, Shield, Users, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Building2, Mail, Phone, Loader2, ChevronLeft, ChevronRight, Filter, Shield, Users, CheckCircle2, AlertCircle, Edit2, Trash2 } from 'lucide-react';
 import type { RepairShoprCustomer } from '@/lib/repairshopr';
 
 type ProtectionPlanTier = 'eset' | 'silver' | 'silver-plus' | null;
@@ -36,14 +36,20 @@ export default function BusinessesPage() {
     total: number;
     percent_complete: number;
   } | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const perPage = 50;
 
-  // Check authentication
+  // Check authentication and user role
   useEffect(() => {
-    fetch('/api/auth/check')
-      .then(res => {
-        if (!res.ok) router.push('/admin/login');
+    fetch('/api/auth/session')
+      .then(res => res.json())
+      .then(data => {
+        if (!data?.user) {
+          router.push('/admin/login');
+        } else if (data.user.role === 'admin') {
+          setIsAdmin(true);
+        }
       })
       .catch(() => router.push('/admin/login'));
   }, [router]);
@@ -190,8 +196,8 @@ export default function BusinessesPage() {
             onClick={() => setPlanFilter('silver')}
             className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-medium transition-colors ${
               planFilter === 'silver'
-                ? 'bg-blue-600 text-white'
-                : 'bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-200 dark:hover:bg-blue-900'
+                ? 'bg-slate-600 text-white'
+                : 'bg-slate-200 text-slate-700 hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600'
             }`}
           >
             <Shield className="h-3 w-3" />
@@ -199,10 +205,10 @@ export default function BusinessesPage() {
           </button>
           <button
             onClick={() => setPlanFilter('silver-plus')}
-            className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-medium transition-colors ${
+            className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-medium transition-colors border-2 ${
               planFilter === 'silver-plus'
-                ? 'bg-purple-600 text-white'
-                : 'bg-purple-100 text-purple-800 hover:bg-purple-200 dark:bg-purple-900/50 dark:text-purple-200 dark:hover:bg-purple-900'
+                ? 'border-amber-500 bg-transparent text-amber-500 dark:border-amber-400 dark:text-amber-400'
+                : 'border-transparent bg-slate-200 text-slate-700 hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600'
             }`}
           >
             <Shield className="h-3 w-3" />
@@ -215,11 +221,10 @@ export default function BusinessesPage() {
       <div className="rounded-xl bg-white dark:bg-gray-900 shadow-sm overflow-hidden">
         {/* Desktop Table Header */}
         <div className="hidden md:grid md:grid-cols-12 gap-4 px-6 py-3 bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400">
-          <div className="col-span-4">Business Name</div>
-          <div className="col-span-3">Contact</div>
+          <div className="col-span-5">Business Name</div>
           <div className="col-span-2">Customers</div>
-          <div className="col-span-2">Protection Plan</div>
-          <div className="col-span-1"></div>
+          <div className="col-span-3">Protection Plan</div>
+          <div className="col-span-2 text-right">Actions</div>
         </div>
 
         {/* Business Rows */}
@@ -233,7 +238,7 @@ export default function BusinessesPage() {
               >
                 {/* Desktop Row */}
                 <div className="hidden md:grid md:grid-cols-12 gap-4 px-6 py-4 items-center">
-                  <div className="col-span-4 flex items-center gap-3">
+                  <div className="col-span-5 flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex-shrink-0">
                       <Building2 className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                     </div>
@@ -241,29 +246,38 @@ export default function BusinessesPage() {
                       {business.name}
                     </span>
                   </div>
-                  <div className="col-span-3 text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                    {business.primaryCustomer.email && (
-                      <div className="flex items-center gap-1.5 truncate">
-                        <Mail className="h-3.5 w-3.5 flex-shrink-0" />
-                        <span className="truncate">{business.primaryCustomer.email}</span>
-                      </div>
-                    )}
-                    {business.primaryCustomer.phone && (
-                      <div className="flex items-center gap-1.5">
-                        <Phone className="h-3.5 w-3.5 flex-shrink-0" />
-                        <span>{business.primaryCustomer.phone}</span>
-                      </div>
-                    )}
-                  </div>
                   <div className="col-span-2 flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400">
                     <Users className="h-4 w-4" />
                     {business.customerCount}
                   </div>
-                  <div className="col-span-2">
+                  <div className="col-span-3">
                     {getPlanBadge(business.plan_tier ?? null)}
                   </div>
-                  <div className="col-span-1 flex justify-end">
-                    <ChevronRight className="h-5 w-5 text-gray-400" />
+                  <div className="col-span-2 flex items-center justify-end gap-1">
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        router.push(`/admin/businesses/${business.primaryCustomer.id}/edit`);
+                      }}
+                      className="p-1.5 text-gray-500 hover:bg-gray-100 rounded-lg dark:text-gray-400 dark:hover:bg-gray-700"
+                      title="Edit business"
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </button>
+                    {isAdmin && (
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          // TODO: Implement delete functionality
+                        }}
+                        className="p-1.5 text-red-500 hover:bg-red-100 rounded-lg dark:text-red-400 dark:hover:bg-red-900/30"
+                        title="Delete business"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -278,7 +292,33 @@ export default function BusinessesPage() {
                         <span className="font-medium text-gray-900 dark:text-white truncate">
                           {business.name}
                         </span>
-                        <ChevronRight className="h-5 w-5 text-gray-400 flex-shrink-0" />
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              router.push(`/admin/businesses/${business.primaryCustomer.id}/edit`);
+                            }}
+                            className="p-1.5 text-gray-500 hover:bg-gray-100 rounded-lg dark:text-gray-400 dark:hover:bg-gray-700"
+                            title="Edit business"
+                          >
+                            <Edit2 className="h-4 w-4" />
+                          </button>
+                          {isAdmin && (
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                // TODO: Implement delete functionality
+                              }}
+                              className="p-1.5 text-red-500 hover:bg-red-100 rounded-lg dark:text-red-400 dark:hover:bg-red-900/30"
+                              title="Delete business"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          )}
+                          <ChevronRight className="h-5 w-5 text-gray-400" />
+                        </div>
                       </div>
                       <div className="mt-1 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                         <Users className="h-3.5 w-3.5" />

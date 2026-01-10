@@ -494,10 +494,10 @@ export async function syncAllTicketComments(): Promise<SyncResult> {
 async function fetchAllInvoices(apiToken: string): Promise<RepairShoprInvoice[]> {
   const allInvoices: RepairShoprInvoice[] = [];
   let page = 1;
-  const pageSize = 100;
-  let hasMore = true;
+  const pageSize = 25;
+  let totalPages = 1;
 
-  while (hasMore) {
+  while (page <= totalPages) {
     const response = await fetch(
       `https://${process.env.REPAIRSHOPR_SUBDOMAIN}.repairshopr.com/api/v1/invoices?api_key=${encodeURIComponent(apiToken)}&page=${page}&per_page=${pageSize}`
     );
@@ -508,14 +508,20 @@ async function fetchAllInvoices(apiToken: string): Promise<RepairShoprInvoice[]>
 
     const data = await response.json();
     const invoices = data.invoices || [];
+    const meta = data.meta || {};
 
-    console.log(`[Sync] Invoices page ${page}: found ${invoices.length} invoices (response keys: ${Object.keys(data).join(', ')})`);
+    if (meta.total_pages) {
+      totalPages = meta.total_pages;
+    } else if (meta.total_entries && invoices.length > 0) {
+      totalPages = Math.ceil(meta.total_entries / pageSize);
+    }
+
+    console.log(`[Sync] Invoices page ${page}/${totalPages}: found ${invoices.length} invoices (total: ${meta.total_entries || 'unknown'})`);
 
     allInvoices.push(...invoices);
-    hasMore = invoices.length === pageSize;
     page++;
 
-    if (hasMore) {
+    if (page <= totalPages) {
       await new Promise((resolve) => setTimeout(resolve, 100));
     }
   }
@@ -754,10 +760,10 @@ export async function syncAllInvoices(): Promise<SyncResult> {
 async function fetchAllPayments(apiToken: string): Promise<RepairShoprPayment[]> {
   const allPayments: RepairShoprPayment[] = [];
   let page = 1;
-  const pageSize = 100;
-  let hasMore = true;
+  const pageSize = 25;
+  let totalPages = 1;
 
-  while (hasMore) {
+  while (page <= totalPages) {
     const response = await fetch(
       `https://${process.env.REPAIRSHOPR_SUBDOMAIN}.repairshopr.com/api/v1/payments?api_key=${encodeURIComponent(apiToken)}&page=${page}&per_page=${pageSize}`
     );
@@ -768,14 +774,20 @@ async function fetchAllPayments(apiToken: string): Promise<RepairShoprPayment[]>
 
     const data = await response.json();
     const payments = data.payments || [];
+    const meta = data.meta || {};
 
-    console.log(`[Sync] Payments page ${page}: found ${payments.length} payments (response keys: ${Object.keys(data).join(', ')})`);
+    if (meta.total_pages) {
+      totalPages = meta.total_pages;
+    } else if (meta.total_entries && payments.length > 0) {
+      totalPages = Math.ceil(meta.total_entries / pageSize);
+    }
+
+    console.log(`[Sync] Payments page ${page}/${totalPages}: found ${payments.length} payments (total: ${meta.total_entries || 'unknown'})`);
 
     allPayments.push(...payments);
-    hasMore = payments.length === pageSize;
     page++;
 
-    if (hasMore) {
+    if (page <= totalPages) {
       await new Promise((resolve) => setTimeout(resolve, 100));
     }
   }
@@ -873,10 +885,10 @@ export async function syncAllPayments(): Promise<SyncResult> {
 async function fetchAllAssets(apiToken: string): Promise<RepairShoprAsset[]> {
   const allAssets: RepairShoprAsset[] = [];
   let page = 1;
-  const pageSize = 100;
-  let hasMore = true;
+  const pageSize = 25;
+  let totalPages = 1;
 
-  while (hasMore) {
+  while (page <= totalPages) {
     const response = await fetch(
       `https://${process.env.REPAIRSHOPR_SUBDOMAIN}.repairshopr.com/api/v1/customer_assets?api_key=${encodeURIComponent(apiToken)}&page=${page}&per_page=${pageSize}`
     );
@@ -888,14 +900,20 @@ async function fetchAllAssets(apiToken: string): Promise<RepairShoprAsset[]> {
     const data = await response.json();
     // RepairShopr returns customer_assets for this endpoint, not assets
     const assets = data.customer_assets || data.assets || [];
+    const meta = data.meta || {};
 
-    console.log(`[Sync] Assets page ${page}: found ${assets.length} assets (total response keys: ${Object.keys(data).join(', ')})`);
+    if (meta.total_pages) {
+      totalPages = meta.total_pages;
+    } else if (meta.total_entries && assets.length > 0) {
+      totalPages = Math.ceil(meta.total_entries / pageSize);
+    }
+
+    console.log(`[Sync] Assets page ${page}/${totalPages}: found ${assets.length} assets (total: ${meta.total_entries || 'unknown'})`);
 
     allAssets.push(...assets);
-    hasMore = assets.length === pageSize;
     page++;
 
-    if (hasMore) {
+    if (page <= totalPages) {
       await new Promise((resolve) => setTimeout(resolve, 100));
     }
   }

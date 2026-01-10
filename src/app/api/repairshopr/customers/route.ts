@@ -28,6 +28,7 @@ export async function GET(request: NextRequest) {
   const query = searchParams.get('q');
   const page = parseInt(searchParams.get('page') || '1', 10);
   const perPage = parseInt(searchParams.get('per_page') || '50', 10);
+  const planTierFilter = searchParams.get('plan_tier') as ProtectionPlanTier | null;
 
   // If no search query, list all customers from Supabase with pagination
   if (!query || !query.trim()) {
@@ -36,20 +37,12 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-      const offset = (page - 1) * perPage;
-
-      // Get total count
-      const { count: totalCount } = await supabaseAdmin
-        .from('rs_customers')
-        .select('*', { count: 'exact', head: true });
-
-      // Get paginated customers ordered by name
-      const { data: customers, error: listError } = await supabaseAdmin
+      // Get ALL customers first (we need to filter by plan tier which requires joining data)
+      const { data: allCustomers, error: listError } = await supabaseAdmin
         .from('rs_customers')
         .select('repairshopr_id, firstname, lastname, email, phone, mobile, address, address_2, city, state, zip, business_name, created_at, updated_at')
         .order('lastname', { ascending: true })
-        .order('firstname', { ascending: true })
-        .range(offset, offset + perPage - 1);
+        .order('firstname', { ascending: true });
 
       if (listError) {
         console.error('[API] Supabase customer list error:', listError);
@@ -57,12 +50,12 @@ export async function GET(request: NextRequest) {
       }
 
       // Map to expected format and get effective protection plans (respects assets_updated flag)
-      const customerIds = (customers || []).map(c => c.repairshopr_id);
+      const customerIds = (allCustomers || []).map(c => c.repairshopr_id);
       const planTierMap = customerIds.length > 0
         ? await getEffectiveCustomerPlanTiers(customerIds)
         : new Map<number, ProtectionPlanTier>();
 
-      const customersWithPlanStatus = (customers || []).map(c => ({
+      const allCustomersWithPlanStatus = (allCustomers || []).map(c => ({
         id: c.repairshopr_id,
         firstname: c.firstname,
         lastname: c.lastname,
@@ -81,13 +74,25 @@ export async function GET(request: NextRequest) {
         plan_tier: planTierMap.get(c.repairshopr_id) ?? null,
       }));
 
+      // Apply plan tier filter if specified
+      let filteredCustomers = allCustomersWithPlanStatus;
+      if (planTierFilter) {
+        filteredCustomers = allCustomersWithPlanStatus.filter(c => c.plan_tier === planTierFilter);
+      }
+
+      // Calculate pagination on filtered results
+      const totalCount = filteredCustomers.length;
+      const totalPages = Math.ceil(totalCount / perPage);
+      const offset = (page - 1) * perPage;
+      const paginatedCustomers = filteredCustomers.slice(offset, offset + perPage);
+
       return NextResponse.json({
-        customers: customersWithPlanStatus,
+        customers: paginatedCustomers,
         meta: {
-          total_entries: totalCount || 0,
+          total_entries: totalCount,
           page,
           per_page: perPage,
-          total_pages: Math.ceil((totalCount || 0) / perPage),
+          total_pages: totalPages,
         },
       });
     } catch (error) {

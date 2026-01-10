@@ -160,12 +160,16 @@ export default function CustomersListPage() {
   }, [loadMigrationProgress]);
 
   // Load customers
-  const loadCustomers = useCallback(async (page: number) => {
+  const loadCustomers = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const response = await fetch(`/api/repairshopr/customers?page=${page}&per_page=${CUSTOMERS_PER_PAGE}`);
+      let url = `/api/repairshopr/customers?page=${currentPage}&per_page=${CUSTOMERS_PER_PAGE}`;
+      if (planFilter !== 'all') {
+        url += `&plan_tier=${planFilter}`;
+      }
+      const response = await fetch(url);
       if (!response.ok) throw new Error('Failed to load customers');
 
       const data = await response.json();
@@ -186,7 +190,7 @@ export default function CustomersListPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [currentPage, planFilter]);
 
   // Load protection plans for customers
   const loadCustomerPlans = async (customerIds: number[]) => {
@@ -239,10 +243,15 @@ export default function CustomersListPage() {
     }
   };
 
-  // Load customers on mount and page change
+  // Load customers on mount, page change, or filter change
   useEffect(() => {
-    loadCustomers(currentPage);
-  }, [currentPage, loadCustomers]);
+    loadCustomers();
+  }, [loadCustomers]);
+
+  // Reset to page 1 when filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [planFilter]);
 
   // Open add customer modal
   const openAddModal = () => {
@@ -527,56 +536,56 @@ export default function CustomersListPage() {
       </div>
 
       {/* Plan Filters */}
-      <div className="mb-4 flex flex-wrap items-center gap-2">
-        <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400 mr-2">
+      <div className="mb-6 flex flex-wrap items-center gap-2">
+        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
           <Filter className="h-4 w-4" />
           <span>Filter:</span>
         </div>
-        <button
-          onClick={() => setPlanFilter('all')}
-          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-            planFilter === 'all'
-              ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
-          }`}
-        >
-          All
-        </button>
-        <button
-          onClick={() => setPlanFilter('eset')}
-          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-            planFilter === 'eset'
-              ? 'bg-emerald-600 text-white'
-              : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400 dark:hover:bg-emerald-900/50'
-          }`}
-        >
-          <span className="flex items-center gap-1.5">
-            <Shield className="h-3.5 w-3.5" />
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setPlanFilter('all')}
+            className={`rounded-full px-3 py-1 text-sm font-medium transition-colors ${
+              planFilter === 'all'
+                ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+            }`}
+          >
+            All
+          </button>
+          <button
+            onClick={() => setPlanFilter('eset')}
+            className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-medium transition-colors ${
+              planFilter === 'eset'
+                ? 'bg-green-600 text-white'
+                : 'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/50 dark:text-green-200 dark:hover:bg-green-900'
+            }`}
+          >
+            <Shield className="h-3 w-3" />
             ESET
-          </span>
-        </button>
-        <button
-          onClick={() => setPlanFilter('silver')}
-          className={`inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
-            planFilter === 'silver'
-              ? 'bg-slate-600 text-white'
-              : 'bg-slate-200 text-slate-700 hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600'
-          }`}
-        >
-          <Shield className="h-3.5 w-3.5" />
-          Silver
-        </button>
-        <button
-          onClick={() => setPlanFilter('silver-plus')}
-          className={`inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-sm font-medium transition-colors border-2 ${
-            planFilter === 'silver-plus'
-              ? 'border-amber-500 bg-transparent text-amber-500 dark:border-amber-400 dark:text-amber-400'
-              : 'border-transparent bg-slate-200 text-slate-700 hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600'
-          }`}
-        >
-          <Shield className="h-3.5 w-3.5" />
-          Silver+
-        </button>
+          </button>
+          <button
+            onClick={() => setPlanFilter('silver')}
+            className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-medium transition-colors ${
+              planFilter === 'silver'
+                ? 'bg-slate-600 text-white'
+                : 'bg-slate-200 text-slate-700 hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600'
+            }`}
+          >
+            <Shield className="h-3 w-3" />
+            Silver
+          </button>
+          <button
+            onClick={() => setPlanFilter('silver-plus')}
+            className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-medium transition-colors border-2 ${
+              planFilter === 'silver-plus'
+                ? 'border-amber-500 bg-transparent text-amber-500 dark:border-amber-400 dark:text-amber-400'
+                : 'border-transparent bg-slate-200 text-slate-700 hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600'
+            }`}
+          >
+            <Shield className="h-3 w-3" />
+            Silver+
+          </button>
+        </div>
       </div>
 
       {error && (
@@ -614,13 +623,7 @@ export default function CustomersListPage() {
             </div>
 
             {/* Customer Rows */}
-            {customers
-              .filter((customer) => {
-                if (planFilter === 'all') return true;
-                const tier = customerPlans.get(customer.id) || null;
-                return tier === planFilter;
-              })
-              .map((customer) => {
+            {customers.map((customer) => {
               const planTier = customerPlans.get(customer.id) || null;
               return (
                 <div
@@ -739,9 +742,9 @@ export default function CustomersListPage() {
             })}
 
             {/* No results after filtering */}
-            {planFilter !== 'all' && customers.filter((c) => customerPlans.get(c.id) === planFilter).length === 0 && (
+            {planFilter !== 'all' && customers.length === 0 && (
               <div className="p-8 text-center text-gray-500 dark:text-gray-400">
-                No customers found with {planFilter === 'silver-plus' ? 'Silver+' : planFilter.charAt(0).toUpperCase() + planFilter.slice(1)} plan
+                No customers found with {planFilter === 'eset' ? 'ESET' : planFilter === 'silver' ? 'Silver' : 'Silver+'} plan
               </div>
             )}
           </div>
@@ -750,7 +753,7 @@ export default function CustomersListPage() {
           {totalPages > 1 && (
             <div className="mt-6 flex items-center justify-between">
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Showing {((currentPage - 1) * CUSTOMERS_PER_PAGE) + 1} - {Math.min(currentPage * CUSTOMERS_PER_PAGE, totalCustomers)} of {totalCustomers}
+                Showing {((currentPage - 1) * CUSTOMERS_PER_PAGE) + 1} to {Math.min(currentPage * CUSTOMERS_PER_PAGE, totalCustomers)} of {totalCustomers} {planFilter !== 'all' ? `${planFilter === 'eset' ? 'ESET' : planFilter === 'silver' ? 'Silver' : 'Silver+'} plan` : ''} customers
               </p>
               <div className="flex items-center gap-2">
                 <button

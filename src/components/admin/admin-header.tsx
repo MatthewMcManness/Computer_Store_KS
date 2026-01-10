@@ -11,8 +11,15 @@ import {
   Ticket,
   FileText,
   Loader2,
+  Moon,
+  Sun,
+  PanelLeftClose,
+  PanelLeft,
+  PanelLeftOpen,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useDarkMode } from '@/hooks/useDarkMode';
+import type { SidebarMode } from './admin-shell';
 
 interface SearchResult {
   id: string | number;
@@ -24,11 +31,14 @@ interface SearchResult {
 
 interface AdminHeaderProps {
   onMenuToggle: () => void;
-  isSidebarOpen: boolean;
+  onSidebarToggle: () => void;
+  sidebarMode: SidebarMode;
+  isMobileMenuOpen: boolean;
 }
 
-export function AdminHeader({ onMenuToggle, isSidebarOpen }: AdminHeaderProps) {
+export function AdminHeader({ onMenuToggle, onSidebarToggle, sidebarMode, isMobileMenuOpen }: AdminHeaderProps) {
   const router = useRouter();
+  const { isDark, toggle } = useDarkMode();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -77,31 +87,34 @@ export function AdminHeader({ onMenuToggle, isSidebarOpen }: AdminHeaderProps) {
   }, []);
 
   // Keyboard navigation
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (!showResults || searchResults.length === 0) return;
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (!showResults || searchResults.length === 0) return;
 
-    switch (e.key) {
-      case 'ArrowDown':
-        e.preventDefault();
-        setSelectedIndex(prev => Math.min(prev + 1, searchResults.length - 1));
-        break;
-      case 'ArrowUp':
-        e.preventDefault();
-        setSelectedIndex(prev => Math.max(prev - 1, -1));
-        break;
-      case 'Enter':
-        e.preventDefault();
-        if (selectedIndex >= 0 && selectedIndex < searchResults.length) {
-          navigateToResult(searchResults[selectedIndex]);
-        }
-        break;
-      case 'Escape':
-        setShowResults(false);
-        setSelectedIndex(-1);
-        inputRef.current?.blur();
-        break;
-    }
-  }, [showResults, searchResults, selectedIndex]);
+      switch (e.key) {
+        case 'ArrowDown':
+          e.preventDefault();
+          setSelectedIndex((prev) => Math.min(prev + 1, searchResults.length - 1));
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          setSelectedIndex((prev) => Math.max(prev - 1, -1));
+          break;
+        case 'Enter':
+          e.preventDefault();
+          if (selectedIndex >= 0 && selectedIndex < searchResults.length) {
+            navigateToResult(searchResults[selectedIndex]);
+          }
+          break;
+        case 'Escape':
+          setShowResults(false);
+          setSelectedIndex(-1);
+          inputRef.current?.blur();
+          break;
+      }
+    },
+    [showResults, searchResults, selectedIndex]
+  );
 
   const navigateToResult = (result: SearchResult) => {
     setShowResults(false);
@@ -140,8 +153,22 @@ export function AdminHeader({ onMenuToggle, isSidebarOpen }: AdminHeaderProps) {
     }
   };
 
+  // Get sidebar toggle icon and label based on current mode
+  const getSidebarToggleInfo = () => {
+    switch (sidebarMode) {
+      case 'expanded':
+        return { icon: <PanelLeftClose className="h-5 w-5" />, label: 'Collapse sidebar' };
+      case 'collapsed':
+        return { icon: <PanelLeft className="h-5 w-5" />, label: 'Hide sidebar' };
+      case 'hidden':
+        return { icon: <PanelLeftOpen className="h-5 w-5" />, label: 'Show sidebar' };
+    }
+  };
+
+  const sidebarToggleInfo = getSidebarToggleInfo();
+
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-gray-200 bg-white px-4 dark:border-gray-700 dark:bg-gray-900 lg:px-6">
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-2 sm:gap-4 border-b border-gray-200 bg-white px-2 sm:px-4 dark:border-gray-700 dark:bg-gray-900 lg:px-6">
       {/* Mobile menu button */}
       <button
         onClick={onMenuToggle}
@@ -151,6 +178,16 @@ export function AdminHeader({ onMenuToggle, isSidebarOpen }: AdminHeaderProps) {
         <Menu className="h-6 w-6" />
       </button>
 
+      {/* Desktop sidebar toggle */}
+      <button
+        onClick={onSidebarToggle}
+        className="hidden lg:flex rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors"
+        aria-label={sidebarToggleInfo.label}
+        title={sidebarToggleInfo.label}
+      >
+        {sidebarToggleInfo.icon}
+      </button>
+
       {/* Search bar */}
       <div ref={searchRef} className="relative flex-1 max-w-2xl">
         <div className="relative">
@@ -158,7 +195,7 @@ export function AdminHeader({ onMenuToggle, isSidebarOpen }: AdminHeaderProps) {
           <input
             ref={inputRef}
             type="text"
-            placeholder="Search customers, businesses, tickets, invoices..."
+            placeholder="Search..."
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
@@ -211,16 +248,12 @@ export function AdminHeader({ onMenuToggle, isSidebarOpen }: AdminHeaderProps) {
                         {getTypeIcon(result.type)}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate dark:text-white">
-                          {result.title}
-                        </p>
+                        <p className="text-sm font-medium text-gray-900 truncate dark:text-white">{result.title}</p>
                         {result.subtitle && (
-                          <p className="text-xs text-gray-500 truncate dark:text-gray-400">
-                            {result.subtitle}
-                          </p>
+                          <p className="text-xs text-gray-500 truncate dark:text-gray-400">{result.subtitle}</p>
                         )}
                       </div>
-                      <span className="text-xs font-medium text-gray-400 dark:text-gray-500">
+                      <span className="text-xs font-medium text-gray-400 dark:text-gray-500 hidden sm:inline">
                         {getTypeLabel(result.type)}
                       </span>
                     </button>
@@ -233,11 +266,20 @@ export function AdminHeader({ onMenuToggle, isSidebarOpen }: AdminHeaderProps) {
       </div>
 
       {/* Keyboard shortcut hint - desktop only */}
-      <div className="hidden md:flex items-center">
-        <kbd className="hidden sm:inline-flex items-center gap-1 rounded border border-gray-200 bg-gray-50 px-2 py-1 text-xs text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">
+      <div className="hidden lg:flex items-center">
+        <kbd className="inline-flex items-center gap-1 rounded border border-gray-200 bg-gray-50 px-2 py-1 text-xs text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">
           <span className="text-xs">⌘</span>K
         </kbd>
       </div>
+
+      {/* Dark mode toggle - square filling header height */}
+      <button
+        onClick={toggle}
+        className="flex h-12 w-12 sm:h-16 sm:w-16 -mr-2 sm:-mr-4 lg:-mr-6 items-center justify-center border-l border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100 transition-all hover:from-gray-100 hover:to-gray-200 dark:border-gray-700 dark:from-gray-800 dark:to-gray-900 dark:hover:from-gray-700 dark:hover:to-gray-800"
+        aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+      >
+        {isDark ? <Sun className="h-5 w-5 sm:h-6 sm:w-6 text-amber-500" /> : <Moon className="h-5 w-5 sm:h-6 sm:w-6 text-indigo-600" />}
+      </button>
     </header>
   );
 }

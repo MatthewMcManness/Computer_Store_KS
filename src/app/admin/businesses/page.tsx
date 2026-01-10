@@ -3,14 +3,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Building2, Mail, Phone, Loader2, ChevronLeft, ChevronRight, Filter, Shield, Users, CheckCircle2, AlertCircle, Edit2, Trash2 } from 'lucide-react';
-import type { RepairShoprCustomer } from '@/lib/repairshopr';
+import { Building2, Loader2, ChevronLeft, ChevronRight, Filter, Shield, Users, CheckCircle2, AlertCircle, Edit2, Trash2 } from 'lucide-react';
 
 type ProtectionPlanTier = 'eset' | 'silver' | 'silver-plus' | null;
 
 interface Business {
+  id: number;
   name: string;
-  primaryCustomer: RepairShoprCustomer;
   customerCount: number;
   plan_tier?: ProtectionPlanTier;
 }
@@ -232,8 +231,8 @@ export default function BusinessesPage() {
           <div className="divide-y divide-gray-200 dark:divide-gray-700">
             {filteredBusinesses.map((business) => (
               <Link
-                key={business.name}
-                href={`/admin/businesses/${business.primaryCustomer.id}`}
+                key={business.id}
+                href={`/admin/businesses/${business.id}`}
                 className="block hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
               >
                 {/* Desktop Row */}
@@ -258,7 +257,7 @@ export default function BusinessesPage() {
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        router.push(`/admin/businesses/${business.primaryCustomer.id}/edit`);
+                        router.push(`/admin/businesses/${business.id}/edit`);
                       }}
                       className="p-1.5 text-gray-500 hover:bg-gray-100 rounded-lg dark:text-gray-400 dark:hover:bg-gray-700"
                       title="Edit business"
@@ -297,7 +296,7 @@ export default function BusinessesPage() {
                             onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
-                              router.push(`/admin/businesses/${business.primaryCustomer.id}/edit`);
+                              router.push(`/admin/businesses/${business.id}/edit`);
                             }}
                             className="p-1.5 text-gray-500 hover:bg-gray-100 rounded-lg dark:text-gray-400 dark:hover:bg-gray-700"
                             title="Edit business"
@@ -329,12 +328,6 @@ export default function BusinessesPage() {
                           </span>
                         )}
                       </div>
-                      {business.primaryCustomer.email && (
-                        <div className="mt-1 flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 truncate">
-                          <Mail className="h-3.5 w-3.5 flex-shrink-0" />
-                          <span className="truncate">{business.primaryCustomer.email}</span>
-                        </div>
-                      )}
                     </div>
                   </div>
                 </div>

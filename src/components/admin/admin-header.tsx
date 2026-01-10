@@ -168,118 +168,128 @@ export function AdminHeader({ onMenuToggle, onSidebarToggle, sidebarMode, isMobi
   const sidebarToggleInfo = getSidebarToggleInfo();
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-2 sm:gap-4 border-b border-gray-200 bg-white px-2 sm:px-4 dark:border-gray-700 dark:bg-gray-900 lg:px-6">
-      {/* Mobile menu button */}
-      <button
-        onClick={onMenuToggle}
-        className="lg:hidden rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
-        aria-label="Toggle menu"
-      >
-        <Menu className="h-6 w-6" />
-      </button>
+    <header className="sticky top-0 z-30 h-16 border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
+      <div className="flex h-full items-center">
+        {/* Left section - menu toggles */}
+        <div className="flex items-center gap-2 px-2 sm:px-4 lg:px-4 flex-shrink-0">
+          {/* Mobile menu button */}
+          <button
+            onClick={onMenuToggle}
+            className="lg:hidden rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+            aria-label="Toggle menu"
+          >
+            <Menu className="h-6 w-6" />
+          </button>
 
-      {/* Desktop sidebar toggle */}
-      <button
-        onClick={onSidebarToggle}
-        className="hidden lg:flex rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors"
-        aria-label={sidebarToggleInfo.label}
-        title={sidebarToggleInfo.label}
-      >
-        {sidebarToggleInfo.icon}
-      </button>
-
-      {/* Search bar */}
-      <div ref={searchRef} className="relative flex-1 max-w-2xl">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-          <input
-            ref={inputRef}
-            type="text"
-            placeholder="Search..."
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              setSelectedIndex(-1);
-            }}
-            onFocus={() => searchResults.length > 0 && setShowResults(true)}
-            onKeyDown={handleKeyDown}
-            className="w-full rounded-lg border border-gray-300 bg-gray-50 py-2 pl-10 pr-10 text-sm text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:bg-gray-900"
-          />
-          {isSearching && (
-            <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-gray-400" />
-          )}
-          {searchQuery && !isSearching && (
-            <button
-              onClick={() => {
-                setSearchQuery('');
-                setSearchResults([]);
-                setShowResults(false);
-                inputRef.current?.focus();
-              }}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
+          {/* Desktop sidebar toggle */}
+          <button
+            onClick={onSidebarToggle}
+            className="hidden lg:flex rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors"
+            aria-label={sidebarToggleInfo.label}
+            title={sidebarToggleInfo.label}
+          >
+            {sidebarToggleInfo.icon}
+          </button>
         </div>
 
-        {/* Search Results Dropdown */}
-        {showResults && (
-          <div className="absolute left-0 right-0 top-full mt-1 max-h-96 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-900">
-            {searchResults.length === 0 ? (
-              <div className="p-4 text-center text-sm text-gray-500 dark:text-gray-400">
-                No results found for &quot;{searchQuery}&quot;
+        {/* Center section - Search bar (always centered) */}
+        <div className="flex-1 flex justify-center px-2 sm:px-4">
+          <div ref={searchRef} className="relative w-full max-w-xl">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <input
+                ref={inputRef}
+                type="text"
+                placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setSelectedIndex(-1);
+                }}
+                onFocus={() => searchResults.length > 0 && setShowResults(true)}
+                onKeyDown={handleKeyDown}
+                className="w-full rounded-lg border border-gray-300 bg-gray-50 py-2 pl-10 pr-10 text-sm text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:bg-gray-900"
+              />
+              {isSearching && (
+                <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-gray-400" />
+              )}
+              {searchQuery && !isSearching && (
+                <button
+                  onClick={() => {
+                    setSearchQuery('');
+                    setSearchResults([]);
+                    setShowResults(false);
+                    inputRef.current?.focus();
+                  }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+
+            {/* Search Results Dropdown */}
+            {showResults && (
+              <div className="absolute left-0 right-0 top-full mt-1 max-h-96 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-900">
+                {searchResults.length === 0 ? (
+                  <div className="p-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                    No results found for &quot;{searchQuery}&quot;
+                  </div>
+                ) : (
+                  <ul className="divide-y divide-gray-100 dark:divide-gray-800">
+                    {searchResults.map((result, index) => (
+                      <li key={`${result.type}-${result.id}`}>
+                        <button
+                          onClick={() => navigateToResult(result)}
+                          onMouseEnter={() => setSelectedIndex(index)}
+                          className={cn(
+                            'flex w-full items-center gap-3 px-4 py-3 text-left transition-colors',
+                            selectedIndex === index
+                              ? 'bg-blue-50 dark:bg-blue-900/20'
+                              : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+                          )}
+                        >
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
+                            {getTypeIcon(result.type)}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-900 truncate dark:text-white">{result.title}</p>
+                            {result.subtitle && (
+                              <p className="text-xs text-gray-500 truncate dark:text-gray-400">{result.subtitle}</p>
+                            )}
+                          </div>
+                          <span className="text-xs font-medium text-gray-400 dark:text-gray-500 hidden sm:inline">
+                            {getTypeLabel(result.type)}
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
-            ) : (
-              <ul className="divide-y divide-gray-100 dark:divide-gray-800">
-                {searchResults.map((result, index) => (
-                  <li key={`${result.type}-${result.id}`}>
-                    <button
-                      onClick={() => navigateToResult(result)}
-                      onMouseEnter={() => setSelectedIndex(index)}
-                      className={cn(
-                        'flex w-full items-center gap-3 px-4 py-3 text-left transition-colors',
-                        selectedIndex === index
-                          ? 'bg-blue-50 dark:bg-blue-900/20'
-                          : 'hover:bg-gray-50 dark:hover:bg-gray-800'
-                      )}
-                    >
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
-                        {getTypeIcon(result.type)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate dark:text-white">{result.title}</p>
-                        {result.subtitle && (
-                          <p className="text-xs text-gray-500 truncate dark:text-gray-400">{result.subtitle}</p>
-                        )}
-                      </div>
-                      <span className="text-xs font-medium text-gray-400 dark:text-gray-500 hidden sm:inline">
-                        {getTypeLabel(result.type)}
-                      </span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
             )}
           </div>
-        )}
-      </div>
+        </div>
 
-      {/* Keyboard shortcut hint - desktop only */}
-      <div className="hidden lg:flex items-center">
-        <kbd className="inline-flex items-center gap-1 rounded border border-gray-200 bg-gray-50 px-2 py-1 text-xs text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">
-          <span className="text-xs">⌘</span>K
-        </kbd>
-      </div>
+        {/* Right section - keyboard hint + dark mode toggle */}
+        <div className="flex items-center flex-shrink-0">
+          {/* Keyboard shortcut hint - desktop only */}
+          <div className="hidden lg:flex items-center pr-4">
+            <kbd className="inline-flex items-center gap-1 rounded border border-gray-200 bg-gray-50 px-2 py-1 text-xs text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">
+              <span className="text-xs">⌘</span>K
+            </kbd>
+          </div>
 
-      {/* Dark mode toggle - square filling header height */}
-      <button
-        onClick={toggle}
-        className="flex h-12 w-12 sm:h-16 sm:w-16 -mr-2 sm:-mr-4 lg:-mr-6 items-center justify-center border-l border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100 transition-all hover:from-gray-100 hover:to-gray-200 dark:border-gray-700 dark:from-gray-800 dark:to-gray-900 dark:hover:from-gray-700 dark:hover:to-gray-800"
-        aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-      >
-        {isDark ? <Sun className="h-5 w-5 sm:h-6 sm:w-6 text-amber-500" /> : <Moon className="h-5 w-5 sm:h-6 sm:w-6 text-indigo-600" />}
-      </button>
+          {/* Dark mode toggle - square filling header height, locked to right edge */}
+          <button
+            onClick={toggle}
+            className="flex h-16 w-16 items-center justify-center border-l border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100 transition-all hover:from-gray-100 hover:to-gray-200 dark:border-gray-700 dark:from-gray-800 dark:to-gray-900 dark:hover:from-gray-700 dark:hover:to-gray-800"
+            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {isDark ? <Sun className="h-6 w-6 text-amber-500" /> : <Moon className="h-6 w-6 text-indigo-600" />}
+          </button>
+        </div>
+      </div>
     </header>
   );
 }

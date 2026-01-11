@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { RefreshCw, Database, Users, FileText, CreditCard, Package, MessageSquare, Receipt, Check, X, Loader2 } from 'lucide-react';
+import { RefreshCw, Database, Users, FileText, CreditCard, Package, MessageSquare, Receipt, Check, X, Loader2, ShieldAlert } from 'lucide-react';
 
 interface SyncCounts {
   customers?: number;
@@ -56,6 +56,23 @@ export default function SyncPage() {
   const [syncing, setSyncing] = useState<SyncType | null>(null);
   const [lastResult, setLastResult] = useState<SyncResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // Check if user is admin
+  useEffect(() => {
+    async function checkAdmin() {
+      try {
+        const response = await fetch('/api/auth/session');
+        if (response.ok) {
+          const data = await response.json();
+          setIsAdmin(data.user?.role === 'admin');
+        }
+      } catch {
+        // Ignore errors, default to non-admin
+      }
+    }
+    checkAdmin();
+  }, []);
 
   const fetchStatus = useCallback(async () => {
     try {
@@ -175,24 +192,35 @@ export default function SyncPage() {
         </div>
       )}
 
-      {/* Full Sync Button */}
-      <div className="mb-8">
-        <button
-          onClick={() => runSync('full')}
-          disabled={syncing !== null}
-          className="flex items-center gap-3 rounded-xl bg-blue-600 px-6 py-4 text-white shadow-sm transition-all hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {syncing === 'full' ? (
-            <Loader2 className="h-6 w-6 animate-spin" />
-          ) : (
-            <RefreshCw className="h-6 w-6" />
-          )}
-          <div className="text-left">
-            <p className="font-semibold">Run Full Sync</p>
-            <p className="text-sm text-blue-200">Sync all entities in order</p>
+      {/* Full Sync Button - Admin Only */}
+      {isAdmin ? (
+        <div className="mb-8">
+          <button
+            onClick={() => runSync('full')}
+            disabled={syncing !== null}
+            className="flex items-center gap-3 rounded-xl bg-blue-600 px-6 py-4 text-white shadow-sm transition-all hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {syncing === 'full' ? (
+              <Loader2 className="h-6 w-6 animate-spin" />
+            ) : (
+              <RefreshCw className="h-6 w-6" />
+            )}
+            <div className="text-left">
+              <p className="font-semibold">Run Full Sync</p>
+              <p className="text-sm text-blue-200">Sync all entities in order</p>
+            </div>
+          </button>
+        </div>
+      ) : (
+        <div className="mb-8 rounded-xl bg-yellow-50 border-2 border-yellow-200 p-4 dark:bg-yellow-900/20 dark:border-yellow-800">
+          <div className="flex items-center gap-3">
+            <ShieldAlert className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+            <p className="text-yellow-800 dark:text-yellow-200">
+              Admin access required to run syncs. Contact an administrator if you need to sync data.
+            </p>
           </div>
-        </button>
-      </div>
+        </div>
+      )}
 
       {/* Live Sync Progress */}
       {syncing === 'full' && (
@@ -265,32 +293,34 @@ export default function SyncPage() {
         </div>
       </div>
 
-      {/* Individual Sync Buttons */}
-      <div className="mb-8">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Sync Individual Entities</h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {syncEntities.map(({ type, label, icon, description }) => (
-            <button
-              key={type}
-              onClick={() => runSync(type)}
-              disabled={syncing !== null}
-              className="flex items-center gap-4 rounded-xl bg-white p-4 shadow-sm transition-all hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-900 text-left"
-            >
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400">
-                {syncing === type ? (
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                ) : (
-                  icon
-                )}
-              </div>
-              <div>
-                <p className="font-medium text-gray-900 dark:text-white">{label}</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">{description}</p>
-              </div>
-            </button>
-          ))}
+      {/* Individual Sync Buttons - Admin Only */}
+      {isAdmin && (
+        <div className="mb-8">
+          <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Sync Individual Entities</h2>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {syncEntities.map(({ type, label, icon, description }) => (
+              <button
+                key={type}
+                onClick={() => runSync(type)}
+                disabled={syncing !== null}
+                className="flex items-center gap-4 rounded-xl bg-white p-4 shadow-sm transition-all hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-900 text-left"
+              >
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400">
+                  {syncing === type ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    icon
+                  )}
+                </div>
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-white">{label}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{description}</p>
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Recent Sync Logs */}
       <div>

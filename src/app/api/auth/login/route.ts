@@ -187,6 +187,16 @@ export async function POST(request: NextRequest) {
         // Audit log - never log passwords
         console.log(`[AUTH] Login successful: ${email}`);
 
+        // Trigger background sync for employees (non-blocking)
+        // This ensures fresh data is available immediately after login
+        if (supabaseResult.user.userType === 'employee') {
+          triggerSyncIfNeeded(24).then(({ triggered, reason }) => {
+            console.log(`[AUTH] Post-login sync check: triggered=${triggered}, reason=${reason}`);
+          }).catch(err => {
+            console.error('[AUTH] Post-login sync check failed:', err);
+          });
+        }
+
         return NextResponse.json({
           success: true,
           user: {

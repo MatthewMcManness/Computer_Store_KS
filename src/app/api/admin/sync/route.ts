@@ -128,6 +128,8 @@ export async function POST(request: NextRequest) {
  *
  * Query params:
  * - logs: number of recent logs to return (default: 10)
+ *
+ * Note: All employees can view sync status, but only admins can run syncs (POST)
  */
 export async function GET(request: NextRequest) {
   try {
@@ -140,10 +142,11 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Check admin role
-    if (user.role !== 'admin') {
+    // Allow any employee to view sync status (admin, employee, or limited roles)
+    // Only customers (userType !== 'employee') are blocked
+    if (user.userType !== 'employee') {
       return NextResponse.json(
-        { error: 'Forbidden - Admin access required' },
+        { error: 'Forbidden - Employee access required' },
         { status: 403 }
       );
     }
@@ -156,6 +159,8 @@ export async function GET(request: NextRequest) {
       getSyncLogs(logsLimit),
       getSyncedCounts(),
     ]);
+
+    console.log('[Sync API] GET - returning counts:', counts);
 
     return NextResponse.json({
       counts,

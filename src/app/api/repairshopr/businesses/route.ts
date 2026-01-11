@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getEmployeeAuditInfo } from '@/lib/auth';
+import { getEmployeeAuditInfo, getCurrentUser } from '@/lib/auth';
 import { supabaseAdmin, getEffectiveCustomerPlanTiers, type ProtectionPlanTier } from '@/lib/supabase';
+import { getEffectiveLocationId } from '@/lib/location-helpers';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,11 +41,24 @@ export async function GET(request: NextRequest) {
   const planTierFilter = searchParams.get('plan_tier') as ProtectionPlanTier | null;
 
   try {
+    // Get current user for location filtering
+    const currentUser = await getCurrentUser();
+    const userRoles = currentUser?.roles || [];
+    const userLocationId = currentUser?.location_id || null;
+
+    // Get the effective location ID to filter by
+    const effectiveLocationId = await getEffectiveLocationId(userRoles, userLocationId);
+
     // Get all businesses (we need to calculate tiers before we can filter/paginate)
     let businessQuery = supabaseAdmin
       .from('businesses')
       .select('id, name')
       .order('name', { ascending: true });
+
+    // Apply location filter if user doesn't have access to all locations
+    if (effectiveLocationId) {
+      businessQuery = businessQuery.eq('location_id', effectiveLocationId);
+    }
 
     // Add search filter if provided
     if (query) {
@@ -74,11 +88,17 @@ export async function GET(request: NextRequest) {
     // Fetch in batches to handle Supabase's 1000 row limit
     const businessIds = allBusinesses.map(b => b.id);
 
-    // Get total count of customers for these businesses
-    const { count: customerCount } = await supabaseAdmin
+    // Build count query with location filter
+    let customerCountQuery = supabaseAdmin
       .from('rs_customers')
       .select('*', { count: 'exact', head: true })
       .in('business_id', businessIds);
+
+    if (effectiveLocationId) {
+      customerCountQuery = customerCountQuery.eq('location_id', effectiveLocationId);
+    }
+
+    const { count: customerCount } = await customerCountQuery;
 
     const BATCH_SIZE = 1000;
     const allCustomers: Array<{ business_id: number; repairshopr_id: number }> = [];
@@ -88,11 +108,16 @@ export async function GET(request: NextRequest) {
       const from = batch * BATCH_SIZE;
       const to = from + BATCH_SIZE - 1;
 
-      const { data: batchCustomers } = await supabaseAdmin
+      let batchQuery = supabaseAdmin
         .from('rs_customers')
         .select('business_id, repairshopr_id')
-        .in('business_id', businessIds)
-        .range(from, to);
+        .in('business_id', businessIds);
+
+      if (effectiveLocationId) {
+        batchQuery = batchQuery.eq('location_id', effectiveLocationId);
+      }
+
+      const { data: batchCustomers } = await batchQuery.range(from, to);
 
       if (batchCustomers) {
         allCustomers.push(...batchCustomers);

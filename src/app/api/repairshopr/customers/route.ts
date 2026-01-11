@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getEmployeeAuditInfo, getSessionToken } from '@/lib/auth';
+import { getEmployeeAuditInfo, getSessionToken, getCurrentUser } from '@/lib/auth';
 import { createRepairShoprClient, RepairShoprAPIError, getProtectionPlanTier, getApiToken } from '@/lib/repairshopr';
 import { supabaseAdmin, getCustomerProtectionPlans, setCustomerProtectionPlan, getEffectiveCustomerPlanTiers, type ProtectionPlanTier } from '@/lib/supabase';
 import { logCustomerAction } from '@/lib/audit';
+import { getEffectiveLocationId } from '@/lib/location-helpers';
 import bcrypt from 'bcryptjs';
 
 export const dynamic = 'force-dynamic';
@@ -37,10 +38,26 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-      // Get total count first
-      const { count: totalInDb } = await supabaseAdmin
+      // Get current user for location filtering
+      const currentUser = await getCurrentUser();
+      const userRoles = currentUser?.roles || [];
+      const userLocationId = currentUser?.location_id || null;
+
+      // Get the effective location ID to filter by
+      const effectiveLocationId = await getEffectiveLocationId(userRoles, userLocationId);
+
+      // Build base query with location filter
+      let countQuery = supabaseAdmin
         .from('rs_customers')
         .select('*', { count: 'exact', head: true });
+
+      // Apply location filter if user doesn't have access to all locations
+      if (effectiveLocationId) {
+        countQuery = countQuery.eq('location_id', effectiveLocationId);
+      }
+
+      // Get total count
+      const { count: totalInDb } = await countQuery;
 
       // Fetch ALL customers in batches (Supabase limits to 1000 per request)
       const BATCH_SIZE = 1000;
@@ -67,9 +84,16 @@ export async function GET(request: NextRequest) {
         const from = batch * BATCH_SIZE;
         const to = from + BATCH_SIZE - 1;
 
-        const { data: batchCustomers, error: batchError } = await supabaseAdmin
+        let batchQuery = supabaseAdmin
           .from('rs_customers')
-          .select('repairshopr_id, firstname, lastname, email, phone, mobile, address, address_2, city, state, zip, business_name, created_at, updated_at')
+          .select('repairshopr_id, firstname, lastname, email, phone, mobile, address, address_2, city, state, zip, business_name, created_at, updated_at');
+
+        // Apply location filter if user doesn't have access to all locations
+        if (effectiveLocationId) {
+          batchQuery = batchQuery.eq('location_id', effectiveLocationId);
+        }
+
+        const { data: batchCustomers, error: batchError } = await batchQuery
           .order('lastname', { ascending: true })
           .order('firstname', { ascending: true })
           .range(from, to);

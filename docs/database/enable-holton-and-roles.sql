@@ -23,29 +23,20 @@ WHERE slug = 'holton';
 -- ============================================================================
 -- STEP 2: Set Joseph's roles to lead_technician
 -- ============================================================================
--- Note: Adjust the email if it's different
 
 UPDATE user_profiles
 SET roles = ARRAY['lead_technician'],
     role = 'technician'  -- Legacy role for backwards compatibility
-WHERE email ILIKE '%joseph%'
-  AND email ILIKE '%computerstoreks%';
-
--- Alternative: If you know Joseph's exact email
--- UPDATE user_profiles
--- SET roles = ARRAY['lead_technician'],
---     role = 'technician'
--- WHERE email = 'joseph@thecomputerstoreks.com';
+WHERE email = 'joseph.pencewb@gmail.com';
 
 -- ============================================================================
 -- STEP 3: Set Cruz's roles to technician + social_media
 -- ============================================================================
--- Note: Adjust the email pattern if needed
 
 UPDATE user_profiles
 SET roles = ARRAY['technician', 'social_media'],
     role = 'technician'  -- Legacy role for backwards compatibility
-WHERE email ILIKE '%cruz%';
+WHERE email = 'kruziphotography@gmail.com';
 
 -- ============================================================================
 -- VERIFICATION QUERIES

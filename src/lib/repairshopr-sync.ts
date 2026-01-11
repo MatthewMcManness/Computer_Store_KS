@@ -1409,3 +1409,75 @@ export async function getSyncedCounts(): Promise<Record<string, number>> {
   console.log('[Sync] getSyncedCounts result:', counts);
   return counts;
 }
+
+// =============================================================================
+// Auto-Sync on Login
+// =============================================================================
+
+/**
+ * Get the timestamp of the last successful full sync
+ */
+export async function getLastSyncTime(): Promise<Date | null> {
+  if (!supabaseAdmin) return null;
+
+  const { data, error } = await supabaseAdmin
+    .from('rs_sync_log')
+    .select('completed_at')
+    .eq('sync_type', 'full')
+    .eq('status', 'completed')
+    .order('completed_at', { ascending: false })
+    .limit(1);
+
+  if (error || !data || data.length === 0) {
+    return null;
+  }
+
+  return new Date(data[0].completed_at);
+}
+
+/**
+ * Check if a sync is needed based on time since last sync
+ * @param maxAgeHours - Maximum hours since last sync before triggering new sync
+ */
+export async function isSyncNeeded(maxAgeHours = 24): Promise<boolean> {
+  const lastSync = await getLastSyncTime();
+
+  if (!lastSync) {
+    console.log('[Sync] No previous sync found - sync needed');
+    return true;
+  }
+
+  const hoursSinceSync = (Date.now() - lastSync.getTime()) / (1000 * 60 * 60);
+  const needed = hoursSinceSync > maxAgeHours;
+
+  console.log(`[Sync] Last sync: ${lastSync.toISOString()}, ${hoursSinceSync.toFixed(1)}h ago, needed: ${needed}`);
+  return needed;
+}
+
+/**
+ * Trigger a background sync if needed (non-blocking)
+ * Call this on login to ensure fresh data
+ */
+export async function triggerSyncIfNeeded(maxAgeHours = 24): Promise<{ triggered: boolean; reason: string }> {
+  try {
+    // Check if sync is needed
+    const needed = await isSyncNeeded(maxAgeHours);
+
+    if (!needed) {
+      return { triggered: false, reason: 'Sync is recent enough' };
+    }
+
+    // Trigger sync in background (don't await)
+    console.log('[Sync] Triggering background sync...');
+    runFullSync().then(result => {
+      console.log(`[Sync] Background sync complete: ${result.totalSynced} synced, ${result.totalFailed} failed`);
+    }).catch(error => {
+      console.error('[Sync] Background sync failed:', error);
+    });
+
+    return { triggered: true, reason: 'Sync was stale' };
+  } catch (error) {
+    console.error('[Sync] Error checking sync status:', error);
+    return { triggered: false, reason: 'Error checking sync status' };
+  }
+}

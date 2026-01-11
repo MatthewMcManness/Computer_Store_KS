@@ -5,6 +5,7 @@ import {
   verifyPassword,
   createSession,
 } from '@/lib/auth';
+import { triggerSyncIfNeeded } from '@/lib/repairshopr-sync';
 
 export const dynamic = 'force-dynamic';
 

@@ -1,18 +1,25 @@
 /**
- * Migration script: Migrate gallery data from JSON to Supabase
+ * Migration script: Migrate gallery data from JSON to Supabase.
+ *
+ * Reads the existing gallery.json file and migrates all computer entries
+ * to the Supabase database. Handles price conversion from string to number,
+ * preserves sort order, and sets active sales based on globalSale setting.
  *
  * Prerequisites:
  * 1. Run the gallery-schema.sql in Supabase SQL Editor
  * 2. Ensure SUPABASE_SERVICE_ROLE_KEY is set in .env
  *
- * Usage:
- *   bun run scripts/migrate-gallery-to-supabase.ts
+ * @sideEffects
+ * - Reads gallery.json from src/data/
+ * - Inserts records into gallery_computers table
+ * - Updates gallery_sales table active status
+ * - Logs migration progress to console
  *
- * This script:
- * - Reads existing gallery.json
- * - Transforms data for Supabase (price string -> number)
- * - Inserts computers into gallery_computers table
- * - Sets the active sale based on globalSale setting
+ * @example
+ * // Run via: bun run scripts/migrate-gallery-to-supabase.ts
+ *
+ * @functions_called parsePrice, migrate
+ * @called_by CLI execution only
  */
 
 import { createClient } from '@supabase/supabase-js';
@@ -42,11 +49,50 @@ interface OldGalleryData {
   globalSale?: 'none' | 'black-friday';
 }
 
-// Parse price string to number
+/**
+ * Parses price string to number.
+ *
+ * Removes dollar signs and commas from price strings and converts
+ * to a floating point number for database storage.
+ *
+ * @param {string} price - Price string like "$1,299.99"
+ * @returns {number} Parsed price as number, or 0 if invalid
+ *
+ * @example
+ * parsePrice("$1,299.99") // Returns 1299.99
+ * parsePrice("$99") // Returns 99
+ * parsePrice("invalid") // Returns 0
+ *
+ * @functions_called None
+ * @called_by migrate
+ */
 function parsePrice(price: string): number {
   return parseFloat(price.replace(/[$,]/g, '')) || 0;
 }
 
+/**
+ * Migrates gallery data from JSON to Supabase database.
+ *
+ * Main migration function that reads gallery.json, creates Supabase client,
+ * iterates through all computers and inserts them into the database, then
+ * sets the active sale based on globalSale setting from the JSON file.
+ *
+ * @returns {Promise<void>} Resolves when migration is complete
+ *
+ * @throws {Error} If Supabase environment variables are missing
+ *
+ * @sideEffects
+ * - Exits process if environment variables missing
+ * - Inserts records into gallery_computers table
+ * - Updates gallery_sales active status
+ * - Logs detailed progress to console
+ *
+ * @example
+ * await migrate() // Runs complete migration
+ *
+ * @functions_called parsePrice, createClient
+ * @called_by Main script execution
+ */
 async function migrate() {
   // Get Supabase credentials from environment
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;

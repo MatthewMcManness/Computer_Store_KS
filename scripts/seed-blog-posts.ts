@@ -1,13 +1,47 @@
 /**
- * Seed script to create initial blog posts
- * Run with: bun scripts/seed-blog-posts.ts
+ * Seed script to create initial blog posts for Computer Store Kansas.
+ *
+ * Creates 4 foundational blog posts covering Linux benefits, Windows 10 end-of-support,
+ * new ownership announcement, and phone repair partnership. Posts are inserted with
+ * proper slugs, categories, and published timestamps. Skips posts that already exist
+ * based on slug to ensure idempotent execution.
+ *
+ * @sideEffects
+ * - Reads .env file to load environment variables
+ * - Inserts records into blog_posts table
+ * - Logs seeding progress and errors to console
+ *
+ * @example
+ * // Run via: bun scripts/seed-blog-posts.ts
+ *
+ * @functions_called loadEnv, seedBlogPosts, createClient
+ * @called_by CLI execution only
  */
 
 import { createClient } from '@supabase/supabase-js';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
-// Manually parse .env file
+/**
+ * Manually parses .env file and loads variables into process.env.
+ *
+ * Reads .env file line by line, parses key=value pairs, and sets them
+ * as environment variables. Strips quotes from values and ignores comments.
+ * Used because bun may not automatically load .env in all contexts.
+ *
+ * @returns {void}
+ *
+ * @sideEffects
+ * - Reads .env file from project root
+ * - Modifies process.env with parsed variables
+ * - Logs error if .env file cannot be loaded
+ *
+ * @example
+ * loadEnv() // Loads all variables from .env
+ *
+ * @functions_called readFileSync
+ * @called_by Main script execution
+ */
 function loadEnv() {
   const envPath = join(process.cwd(), '.env');
   try {
@@ -346,6 +380,27 @@ We're excited about this partnership and what it means for our customers. Now yo
   },
 ];
 
+/**
+ * Seeds initial blog posts into the Supabase database.
+ *
+ * Iterates through predefined blog posts array, checks if each slug already
+ * exists in the database, and inserts new posts. Skips existing posts to
+ * ensure script can be run multiple times safely (idempotent operation).
+ *
+ * @returns {Promise<void>} Resolves when all posts are processed
+ *
+ * @throws {Error} If database operations fail (logged but doesn't halt execution)
+ *
+ * @sideEffects
+ * - Inserts blog post records into blog_posts table
+ * - Logs creation status for each post to console
+ *
+ * @example
+ * await seedBlogPosts() // Seeds all blog posts
+ *
+ * @functions_called supabase.from
+ * @called_by Main script execution
+ */
 async function seedBlogPosts() {
   console.log('Starting blog post seeding...\n');
 

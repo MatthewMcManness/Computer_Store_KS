@@ -5,6 +5,9 @@ import { useRouter } from 'next/navigation';
 import { ImageUpload } from './image-upload';
 import type { GalleryComputer, GallerySpec, ComputerFormData } from '@/types/gallery';
 
+/**
+ * Props for the ComputerForm component.
+ */
 interface ComputerFormProps {
   computer?: GalleryComputer;
   onSubmit?: (data: ComputerFormData) => Promise<void>;
@@ -42,6 +45,49 @@ const warrantyConfigs = {
   ],
 };
 
+/**
+ * Form component for creating and editing gallery computers.
+ *
+ * Provides a comprehensive form with:
+ * - Basic info fields (name, type, category, price)
+ * - Image upload with preview
+ * - Dynamic spec fields based on computer type and category
+ * - Optional graphics card for laptops
+ * - Real-time validation
+ * - Form state management
+ *
+ * The form adapts spec fields automatically:
+ * - Desktops: Graphics Card, Processor, Memory, Storage
+ * - Laptops: Display Size, Processor, Memory, Storage (+ optional Graphics Card)
+ * - Warranty fields vary by category (custom/refurbished/new)
+ *
+ * @param props - Component properties
+ * @param props.computer - Existing computer data for edit mode (undefined for create mode)
+ * @param props.onSubmit - Optional custom submit handler (defaults to API call)
+ * @param props.isLoading - External loading state
+ *
+ * @returns {JSX.Element} Computer form with all fields and controls
+ *
+ * @sideEffects
+ * - Makes POST/PUT requests to `/api/gallery` or `/api/gallery/[id]`
+ * - Navigates to /admin/gallery on successful submission
+ * - Updates form state and specs based on type/category changes
+ *
+ * @example
+ * // Create mode
+ * <ComputerForm />
+ *
+ * // Edit mode
+ * <ComputerForm computer={existingComputer} />
+ *
+ * // With custom submit
+ * <ComputerForm onSubmit={async (data) => { ... }} />
+ *
+ * @functions_called ImageUpload, generateSpecs, findSpecValue, useRouter
+ * @called_by AdminGalleryNewPage, AdminGalleryEditPage
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+ */
 export function ComputerForm({ computer, onSubmit, isLoading }: ComputerFormProps) {
   const router = useRouter();
   const isEditing = !!computer;

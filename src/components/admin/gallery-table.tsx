@@ -8,12 +8,51 @@ import type { GalleryComputer } from '@/types/gallery';
 import { Pencil, Trash2, Eye, Printer } from 'lucide-react';
 import { generateFlyer } from '@/lib/flyer-generator';
 
+/**
+ * Props for the GalleryTable component.
+ */
 interface GalleryTableProps {
   computers: GalleryComputer[];
   onDelete?: (id: string) => void;
   isLoading?: boolean;
 }
 
+/**
+ * Admin table displaying gallery computers with management actions.
+ *
+ * Renders a responsive table with:
+ * - Computer thumbnail and name
+ * - Type and category badges
+ * - Price (with sale pricing if applicable)
+ * - Status indicators (Active, Black Friday, etc.)
+ * - Action buttons: Generate flyer, Edit, Delete
+ * - Row selection highlighting
+ * - Empty and loading states
+ *
+ * @param props - Component properties
+ * @param props.computers - Array of computers to display
+ * @param props.onDelete - Optional callback when delete is confirmed
+ * @param props.isLoading - Loading state for initial data fetch
+ *
+ * @returns {JSX.Element} Table of computers or empty/loading state
+ *
+ * @sideEffects
+ * - Calls generateFlyer() which downloads PDF file
+ * - Shows browser confirm dialog before delete
+ * - Calls onDelete callback on confirmed deletion
+ *
+ * @example
+ * <GalleryTable
+ *   computers={computers}
+ *   onDelete={(id) => handleDelete(id)}
+ *   isLoading={false}
+ * />
+ *
+ * @functions_called generateFlyer, cn
+ * @called_by AdminGalleryPage
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+ */
 export function GalleryTable({ computers, onDelete, isLoading }: GalleryTableProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
 

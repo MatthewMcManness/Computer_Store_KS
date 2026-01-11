@@ -21,8 +21,14 @@ import { cn } from '@/lib/utils';
 import { useDarkMode } from '@/hooks/useDarkMode';
 import type { SidebarMode } from './admin-shell';
 
+/**
+ * Protection plan tier identifier for customers/businesses.
+ */
 type ProtectionPlanTier = 'eset' | 'silver' | 'silver-plus' | null;
 
+/**
+ * Search result item structure returned from admin search API.
+ */
 interface SearchResult {
   id: string | number;
   type: 'customer' | 'business' | 'ticket' | 'invoice';
@@ -32,6 +38,9 @@ interface SearchResult {
   protectionPlan?: ProtectionPlanTier;
 }
 
+/**
+ * Props for the AdminHeader component.
+ */
 interface AdminHeaderProps {
   onMenuToggle: () => void;
   onSidebarToggle: () => void;
@@ -39,6 +48,41 @@ interface AdminHeaderProps {
   isMobileMenuOpen: boolean;
 }
 
+/**
+ * Admin dashboard header with search, navigation toggles, and dark mode.
+ *
+ * Renders a sticky header containing:
+ * - Mobile menu toggle button
+ * - Desktop sidebar collapse/expand toggle
+ * - Centered search bar with autocomplete for customers, businesses, tickets, and invoices
+ * - Dark mode toggle button
+ *
+ * @param props - Component properties
+ * @param props.onMenuToggle - Callback to toggle mobile menu visibility
+ * @param props.onSidebarToggle - Callback to cycle through sidebar modes (expanded/collapsed/hidden)
+ * @param props.sidebarMode - Current sidebar display mode
+ * @param props.isMobileMenuOpen - Whether mobile menu is currently open
+ *
+ * @returns {JSX.Element} Sticky header component
+ *
+ * @sideEffects
+ * - Makes API calls to `/api/admin/search` for debounced search
+ * - Adds/removes click and keyboard event listeners for dropdown behavior
+ * - Updates browser history on navigation via router.push
+ *
+ * @example
+ * <AdminHeader
+ *   onMenuToggle={() => setMobileOpen(!mobileOpen)}
+ *   onSidebarToggle={cycleSidebarMode}
+ *   sidebarMode="expanded"
+ *   isMobileMenuOpen={false}
+ * />
+ *
+ * @functions_called useDarkMode, useRouter
+ * @called_by AdminShell
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+ */
 export function AdminHeader({ onMenuToggle, onSidebarToggle, sidebarMode, isMobileMenuOpen }: AdminHeaderProps) {
   const router = useRouter();
   const { isDark, toggle } = useDarkMode();

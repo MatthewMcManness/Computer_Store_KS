@@ -5,10 +5,14 @@ import Image from 'next/image';
 import { Upload, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-// Maximum file size: 50MB
+/**
+ * Maximum allowed file size for image uploads (50MB).
+ */
 const MAX_FILE_SIZE = 50 * 1024 * 1024;
 
-// Allowed file types
+/**
+ * Allowed MIME types for image uploads.
+ */
 const ALLOWED_TYPES = [
   'image/jpeg',
   'image/jpg',
@@ -19,11 +23,17 @@ const ALLOWED_TYPES = [
   'image/heif',
 ];
 
+/**
+ * Result object returned after successful image upload.
+ */
 interface ImageUploadResult {
   url: string;
   thumbnailUrl?: string;
 }
 
+/**
+ * Props for the ImageUpload component.
+ */
 interface ImageUploadProps {
   currentImage?: string;
   currentThumbnail?: string;
@@ -31,6 +41,49 @@ interface ImageUploadProps {
   onImageChange: (result: ImageUploadResult) => void;
 }
 
+/**
+ * Drag-and-drop image upload component with preview and progress tracking.
+ *
+ * Features:
+ * - Click-to-upload or drag-and-drop file selection
+ * - Real-time image preview
+ * - Upload progress bar with percentage
+ * - File type and size validation
+ * - Automatic thumbnail generation (server-side)
+ * - Error handling and user feedback
+ * - Visual states: empty, uploading, preview, error
+ *
+ * Validates files client-side before upload:
+ * - Accepts: JPG, PNG, WebP, GIF, HEIC, HEIF
+ * - Maximum size: 50MB
+ *
+ * @param props - Component properties
+ * @param props.currentImage - URL of existing image (for edit mode)
+ * @param props.currentThumbnail - URL of existing thumbnail
+ * @param props.computerType - Type of computer (affects upload endpoint)
+ * @param props.onImageChange - Callback with upload result (URLs)
+ *
+ * @returns {JSX.Element} Upload area with preview or dropzone
+ *
+ * @sideEffects
+ * - Makes POST request to `/api/gallery/upload`
+ * - Creates FormData with image file and type
+ * - Shows browser file picker dialog
+ * - Reads file as Data URL for preview
+ * - Tracks upload progress via XMLHttpRequest
+ *
+ * @example
+ * <ImageUpload
+ *   currentImage={computer.image}
+ *   computerType="desktop"
+ *   onImageChange={(result) => setImageUrl(result.url)}
+ * />
+ *
+ * @functions_called cn
+ * @called_by ComputerForm
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+ */
 export function ImageUpload({
   currentImage,
   currentThumbnail,

@@ -4,10 +4,53 @@ import { useState, useEffect } from 'react';
 import { Tag, ChevronDown, Check, Loader2 } from 'lucide-react';
 import type { SaleType, SaleConfig } from '@/types/gallery';
 
+/**
+ * Props for the SaleDropdown component.
+ */
 interface SaleDropdownProps {
   onSaleChange?: (saleType: SaleType, affectedCount: number) => void;
 }
 
+/**
+ * Dropdown control for managing site-wide sales on all gallery computers.
+ *
+ * Allows admins to:
+ * - View current active sale (if any)
+ * - Select from available sale types (Black Friday, etc.)
+ * - Apply sale to all computers at once
+ * - Remove active sales
+ * - See confirmation before applying changes
+ *
+ * Visual indicators:
+ * - Red gradient button when sale is active
+ * - Check mark on currently selected sale
+ * - Loading spinner during operations
+ * - Toast notifications for success/error
+ *
+ * @param props - Component properties
+ * @param props.onSaleChange - Callback when sale is updated, receives new sale type and count of affected computers
+ *
+ * @returns {JSX.Element} Dropdown button with sale selection menu
+ *
+ * @sideEffects
+ * - Makes GET request to `/api/gallery/sale` on mount to load current sale
+ * - Makes POST request to `/api/gallery/sale` to update sale
+ * - Shows browser confirm dialog before applying sale
+ * - Displays toast notification for 4 seconds after changes
+ *
+ * @example
+ * <SaleDropdown
+ *   onSaleChange={(saleType, count) => {
+ *     console.log(`Applied ${saleType} to ${count} computers`);
+ *     refreshGallery();
+ *   }}
+ * />
+ *
+ * @functions_called fetch
+ * @called_by AdminGalleryPage
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+ */
 export function SaleDropdown({ onSaleChange }: SaleDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);

@@ -1,4 +1,17 @@
-// Computer types
+/**
+ * Core application type definitions.
+ *
+ * This file contains common types used throughout the application including
+ * computers, services, forms, API responses, and business hours.
+ */
+
+/**
+ * Computer product with full details and metadata.
+ *
+ * NOTE: This may be legacy or unused. Check if gallery uses GalleryComputer instead.
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+ */
 export interface Computer {
   id: string;
   name: string;
@@ -30,7 +43,13 @@ export interface ComputerSpecs {
   battery?: string;
 }
 
-// Service types
+/**
+ * Service offering with pricing and details.
+ *
+ * Represents a computer repair or sales service offered by the shop.
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+ */
 export interface Service {
   id: string;
   name: string;
@@ -44,7 +63,13 @@ export interface Service {
   category: string;
 }
 
-// Contact form types
+/**
+ * Contact form submission data.
+ *
+ * Used by the /contact page form.
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+ */
 export interface ContactFormData {
   name: string;
   email: string;
@@ -53,7 +78,11 @@ export interface ContactFormData {
   message: string;
 }
 
-// Repair request types
+/**
+ * Repair service request with device details and status tracking.
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+ */
 export interface RepairRequest {
   id: string;
   customerName: string;
@@ -68,7 +97,15 @@ export interface RepairRequest {
   updatedAt: Date;
 }
 
-// API response types
+/**
+ * Generic API response wrapper.
+ *
+ * Standard structure for all API endpoint responses.
+ *
+ * @template T - Type of data payload
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+ */
 export interface ApiResponse<T> {
   success: boolean;
   data?: T;
@@ -76,6 +113,13 @@ export interface ApiResponse<T> {
   message?: string;
 }
 
+/**
+ * Paginated API response with metadata.
+ *
+ * @template T - Type of items in the array
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+ */
 export interface PaginatedResponse<T> {
   items: T[];
   total: number;
@@ -84,7 +128,13 @@ export interface PaginatedResponse<T> {
   totalPages: number;
 }
 
-// Navigation types
+/**
+ * Navigation menu item with optional nested children.
+ *
+ * Used for building hierarchical navigation structures.
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+ */
 export interface NavItem {
   label: string;
   href: string;
@@ -92,13 +142,24 @@ export interface NavItem {
   children?: NavItem[];
 }
 
-// Business hours types
+/**
+ * Business operating hours for a single day.
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+ */
 export interface BusinessHours {
   open: string;
   close: string;
   closed: boolean;
 }
 
+/**
+ * Complete weekly business hours schedule.
+ *
+ * Maps each day of the week to its operating hours.
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+ */
 export interface WeeklyHours {
   monday: BusinessHours;
   tuesday: BusinessHours;
@@ -109,5 +170,7 @@ export interface WeeklyHours {
   sunday: BusinessHours;
 }
 
-// Re-export Google Business types
+/**
+ * Re-export all Google Business Profile types for convenience.
+ */
 export * from './google-business';

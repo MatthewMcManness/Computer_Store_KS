@@ -242,6 +242,293 @@ git push origin Production
 2. Verify environment variables in Render
 3. Test admin login and blog functionality
 
+## Code Documentation Standards
+
+**MANDATORY:** All functions in this codebase MUST have comprehensive documentation comments. This is a non-negotiable requirement for all new code and any code that is modified.
+
+### Documentation Requirements
+
+Every function MUST include the following elements in its docstring/JSDoc comment:
+
+#### 1. Summary (Required)
+A brief, one-line description of the function's purpose. This appears in generated documentation summaries.
+
+#### 2. Detailed Description (When Necessary)
+Further elaboration on what the function does, its role in the system, or the rationale behind the chosen approach. Should explain the "why" and intent, not just the "what" or "how".
+
+#### 3. Parameters (@param) (Required for all params)
+A list of all parameters including:
+- **Name** - Parameter name
+- **Type** - TypeScript type
+- **Description** - What information it provides, any preconditions, units, or constraints
+
+#### 4. Return Value (@returns) (Required)
+Description of the value and type the function returns, including what it represents.
+
+#### 5. Exceptions/Errors (@throws) (When Applicable)
+List of any exceptions or errors the function might raise and the conditions under which they occur.
+
+#### 6. Side Effects (@sideEffects) (When Applicable)
+Any effects the function has beyond returning a value:
+- Modifying database state
+- Writing to files or storage
+- Making network requests
+- Updating global state
+- Setting cookies
+- Logging for audit purposes
+
+#### 7. Assumptions/Preconditions (When Applicable)
+Conditions that must be true before the function is called, or assumptions about inputs/environment.
+
+#### 8. Usage Examples (@example) (For Complex Functions)
+Brief code snippet showing how to use the function.
+
+#### 9. References/Links (@see) (When Applicable)
+Links to external documentation, standards, algorithms, or related functions.
+
+#### 10. Function Call Graph (Required)
+- **@functions_called** - List of functions this function calls internally
+- **@called_by** - List of functions/components that call this function
+
+#### 11. Version History (@version) (Required)
+A chronological log of changes made to the function. Each entry includes:
+- **Version number** - Semantic versioning (1.0.0 for initial, increment as needed)
+- **Date** - ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ)
+- **Description** - Brief description of what changed
+
+**Important:** Only log functional changes to the code itself. Do NOT create new version entries for:
+- Adding/updating documentation comments
+- Updating @called_by or @functions_called lists
+- Formatting or whitespace changes
+
+**Format:**
+```
+@version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+@version 1.1.0 - 2026-01-15T10:30:00Z - Added input validation
+@version 1.2.0 - 2026-01-20T14:45:00Z - Improved error handling
+```
+
+### TSDoc/JSDoc Format Template
+
+```typescript
+/**
+ * Brief one-line summary of what the function does.
+ *
+ * Detailed description explaining the purpose, approach, and any
+ * important context about why this function exists or how it works.
+ *
+ * @param paramName - Description of the parameter (include type info, constraints, units)
+ * @param options - Configuration options object
+ * @param options.timeout - Request timeout in milliseconds (default: 5000)
+ *
+ * @returns Description of return value and its type
+ *
+ * @throws {ErrorType} Description of when this error is thrown
+ * @throws {AnotherError} Another error condition
+ *
+ * @sideEffects
+ * - Creates a record in the database
+ * - Sends an email notification
+ * - Logs the action for audit purposes
+ *
+ * @example
+ * // Basic usage
+ * const result = await myFunction(input);
+ *
+ * // With options
+ * const result = await myFunction(input, { timeout: 10000 });
+ *
+ * @see https://external-docs.com/reference for algorithm details
+ * @see relatedFunction for similar functionality
+ *
+ * @functions_called helperFunction, validateInput, sendNotification
+ * @called_by ParentComponent, ApiRouteHandler
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+ */
+```
+
+### Examples by File Type
+
+#### API Route Handler
+```typescript
+/**
+ * Authenticates a user with their email and password credentials.
+ *
+ * Validates the provided credentials against RepairShopr API,
+ * creates an encrypted session token, and sets HTTP-only cookies.
+ * Implements rate limiting to prevent brute force attacks.
+ *
+ * @param request - The incoming Next.js request containing JSON body with email and password
+ * @returns NextResponse with session token and user data on success, error message on failure
+ *
+ * @throws {AuthenticationError} When credentials are invalid (401)
+ * @throws {RateLimitError} When too many login attempts detected (429)
+ * @throws {ValidationError} When email or password format is invalid (400)
+ *
+ * @sideEffects
+ * - Creates session record in session store
+ * - Sets HTTP-only session cookie with 24-hour expiry
+ * - Logs authentication attempt for security audit
+ *
+ * @example
+ * // POST /api/auth/login
+ * // Body: { "email": "user@example.com", "password": "secret" }
+ * const response = await fetch('/api/auth/login', {
+ *   method: 'POST',
+ *   body: JSON.stringify({ email, password })
+ * });
+ *
+ * @functions_called validateCredentials, createSession, setSessionCookie, logAuditEvent
+ * @called_by LoginPage, AdminLoginPage
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+ */
+export async function POST(request: NextRequest): Promise<NextResponse> {
+```
+
+#### React Component
+```typescript
+/**
+ * Displays a filterable grid of computers available for sale.
+ *
+ * Renders computer cards with specs, images, and pricing. Supports
+ * filtering by category (desktop/laptop) and sorting by price.
+ * Uses virtualization for performance with large inventories.
+ *
+ * @param computers - Array of computer objects to display
+ * @param initialCategory - Optional category to filter by on mount (default: 'all')
+ * @param onSelect - Callback fired when a computer card is clicked
+ *
+ * @returns {JSX.Element} Grid of computer cards with filter controls
+ *
+ * @sideEffects
+ * - Updates URL query params when filters change
+ * - Tracks page views via analytics
+ *
+ * @example
+ * <GalleryGrid
+ *   computers={computers}
+ *   initialCategory="desktop"
+ *   onSelect={(computer) => router.push(`/gallery/${computer.id}`)}
+ * />
+ *
+ * @functions_called useFilteredComputers, CategoryFilter, FlipCard
+ * @called_by GalleryPage, AdminGalleryPage
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+ */
+export function GalleryGrid({ computers, initialCategory, onSelect }: GalleryGridProps): JSX.Element {
+```
+
+#### Utility Function
+```typescript
+/**
+ * Validates an email against a list of known disposable email providers.
+ *
+ * Checks the domain portion of the email against a curated list of
+ * temporary/disposable email services to prevent spam signups.
+ * The list is updated periodically from external sources.
+ *
+ * @param email - The email address to validate (must be properly formatted)
+ * @returns true if email uses a disposable domain, false otherwise
+ *
+ * @throws {TypeError} When email parameter is not a string
+ *
+ * @example
+ * isDisposableEmail('test@tempmail.com') // Returns true
+ * isDisposableEmail('user@gmail.com')    // Returns false
+ * isDisposableEmail('invalid')           // Throws TypeError
+ *
+ * @see DISPOSABLE_DOMAINS constant in spam-patterns.ts
+ * @see https://github.com/disposable/disposable-email-domains
+ *
+ * @functions_called extractDomain, normalizeEmail
+ * @called_by validateContactForm, RegisterPage, ContactForm
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+ */
+export function isDisposableEmail(email: string): boolean {
+```
+
+#### Custom Hook
+```typescript
+/**
+ * Custom hook for detecting and preventing bot/spam form submissions.
+ *
+ * Implements multiple detection strategies including honeypot fields,
+ * timing analysis, and interaction tracking. Should be used with all
+ * public-facing forms to reduce spam without affecting user experience.
+ *
+ * @param options - Configuration options for bot detection
+ * @param options.minTimeMs - Minimum time before submission allowed (default: 3000)
+ * @param options.honeypotName - Name of hidden honeypot field (default: 'website')
+ * @param options.trackInteractions - Whether to track mouse/keyboard events (default: true)
+ *
+ * @returns Object containing:
+ *   - honeypotProps: Props to spread on hidden input element
+ *   - isBot: Boolean indicating if current submission appears automated
+ *   - validate: Function to call before form submission, returns boolean
+ *   - reset: Function to reset tracking state
+ *
+ * @sideEffects
+ * - Adds event listeners for user interactions on mount
+ * - Stores timestamps and interaction counts in component state
+ * - Removes event listeners on unmount
+ *
+ * @example
+ * function ContactForm() {
+ *   const { honeypotProps, validate } = useBotProtection({ minTimeMs: 5000 });
+ *
+ *   const handleSubmit = (e) => {
+ *     e.preventDefault();
+ *     if (!validate()) {
+ *       console.log('Bot detected');
+ *       return;
+ *     }
+ *     // Submit form...
+ *   };
+ *
+ *   return (
+ *     <form onSubmit={handleSubmit}>
+ *       <input type="hidden" {...honeypotProps} />
+ *       {/* form fields *\/}
+ *     </form>
+ *   );
+ * }
+ *
+ * @functions_called useInteractionTracking, useFingerprint, useRef, useEffect
+ * @called_by ContactForm, RegistrationForm, CommentForm
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+ */
+export function useBotProtection(options?: BotProtectionOptions): BotProtectionResult {
+```
+
+### Best Practices
+
+1. **Keep comments up-to-date:** Outdated comments are worse than no comments. Update documentation as part of every code change.
+
+2. **Be clear and professional:** Use proper grammar, spelling, and complete sentences. Avoid jargon or overly casual language.
+
+3. **Prioritize self-documenting code:** Use clear function, class, and variable names. The better your code is written, the fewer comments you need.
+
+4. **Document the "why", not the "what":** Explain rationale and intent, not obvious code mechanics.
+
+5. **Include realistic examples:** Examples should be copy-paste ready and demonstrate common use cases.
+
+6. **Keep @functions_called and @called_by accurate:** Update these when refactoring or adding new call sites.
+
+7. **Document edge cases:** Note any special handling for null/undefined, empty arrays, or boundary conditions.
+
+### Enforcement
+
+- **Code reviews:** All PRs must include proper documentation for new/modified functions
+- **Pre-commit:** Consider adding JSDoc validation to pre-commit hooks
+- **IDE support:** Configure IDE to show documentation warnings for undocumented functions
+
+---
+
 ## Project Management
 
 This project uses **Bast + CCPM** for spec-driven development.

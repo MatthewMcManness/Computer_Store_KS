@@ -17,23 +17,68 @@ export interface FingerprintData {
 }
 
 /**
- * Hook to generate browser fingerprint for bot detection
+ * Custom hook for generating advanced browser fingerprints using FingerprintJS.
  *
- * Uses FingerprintJS to generate a unique visitor ID based on:
- * - Canvas fingerprint
- * - WebGL fingerprint
- * - Audio context
- * - Installed fonts
- * - Hardware concurrency
+ * Uses FingerprintJS library to create a unique visitor ID based on dozens of
+ * browser and device characteristics. This fingerprint persists across sessions
+ * and can identify users even after clearing cookies or using private browsing.
+ *
+ * The fingerprint includes:
+ * - Canvas rendering fingerprint
+ * - WebGL rendering capabilities
+ * - Audio context properties
+ * - Installed system fonts
+ * - Hardware concurrency (CPU cores)
  * - Device memory
- * - Screen resolution
- * - Timezone
- * - And more...
+ * - Screen resolution and color depth
+ * - Timezone and language settings
+ * - Browser plugins and features
+ * - And 40+ other signals
  *
- * Headless browsers and bots typically have distinctive fingerprints
- * that can be used for detection.
+ * Headless browsers and bots typically have distinctive fingerprints that differ
+ * from real browsers, making this useful for bot detection.
  *
- * @returns Fingerprint data including visitor ID
+ * @returns Object containing:
+ *   - fingerprint: FingerprintData with visitorId, confidence score, and success status
+ *   - isLoading: Boolean indicating if fingerprinting is in progress
+ *   - getFingerprintSpamScore: Function returning spam score based on fingerprint quality
+ *
+ * @sideEffects
+ * - Dynamically imports FingerprintJS library on mount (code splitting)
+ * - Initializes FingerprintJS agent and generates fingerprint
+ * - Updates state when fingerprinting completes or fails
+ *
+ * @example
+ * ```tsx
+ * const ContactForm = () => {
+ *   const { fingerprint, isLoading, getFingerprintSpamScore } = useFingerprint();
+ *
+ *   const handleSubmit = () => {
+ *     if (isLoading) {
+ *       alert('Please wait...');
+ *       return;
+ *     }
+ *
+ *     const spamScore = getFingerprintSpamScore();
+ *     const formData = {
+ *       ...fields,
+ *       visitorId: fingerprint.visitorId,
+ *       spamScore
+ *     };
+ *
+ *     // Server rejects if spamScore > threshold
+ *     submitForm(formData);
+ *   };
+ *
+ *   return <form onSubmit={handleSubmit}>...</form>;
+ * };
+ * ```
+ *
+ * @functions_called useState, useEffect, useCallback (React),
+ *                    FingerprintJS.load(), fp.get() (dynamic import)
+ * @called_by ContactForm, RegistrationForm, any form with advanced bot protection
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
  */
 export function useFingerprint() {
   const [fingerprint, setFingerprint] = useState<FingerprintData>({
@@ -87,11 +132,19 @@ export function useFingerprint() {
   }, []);
 
   /**
-   * Get spam score based on fingerprint
+   * Calculate spam score based on fingerprint quality and success.
    *
-   * - No fingerprint (blocked/failed) = 10 points (suspicious)
-   * - Low confidence = 5 points
-   * - Normal fingerprint = 0 points
+   * Scoring logic:
+   * - Failed fingerprinting (blocked/error) = 10 points (highly suspicious)
+   * - Low confidence score (< 0.5) = 5 points (moderately suspicious)
+   * - Normal fingerprint with good confidence = 0 points (legitimate)
+   *
+   * @returns Spam score contribution (0-10 points)
+   *
+   * @functions_called None (reads fingerprint state)
+   * @called_by Form submission handlers
+   *
+   * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
    */
   const getFingerprintSpamScore = useCallback((): number => {
     if (!fingerprint.success) {
@@ -111,8 +164,40 @@ export function useFingerprint() {
 }
 
 /**
- * Simple fingerprint for server-side validation
- * This can be sent with form data for additional verification
+ * Generate a simple browser fingerprint for server-side validation.
+ *
+ * Creates a basic fingerprint by hashing browser and device characteristics.
+ * This is less sophisticated than FingerprintJS but can be sent with form data
+ * for additional server-side verification without requiring an external library.
+ *
+ * The fingerprint is created from:
+ * - User agent string
+ * - Browser language
+ * - Screen dimensions and color depth
+ * - Timezone offset
+ * - Hardware concurrency (CPU cores)
+ * - Device memory (if available)
+ *
+ * @returns Base36-encoded hash string of browser characteristics (or empty string if SSR)
+ *
+ * @sideEffects None - pure computation based on browser APIs
+ *
+ * @example
+ * ```tsx
+ * const handleSubmit = () => {
+ *   const formData = {
+ *     ...fields,
+ *     fingerprint: getSimpleFingerprint()
+ *   };
+ *   // Server can validate fingerprint consistency
+ *   submitForm(formData);
+ * };
+ * ```
+ *
+ * @functions_called navigator APIs, screen APIs, Date APIs
+ * @called_by Forms requiring lightweight fingerprinting without FingerprintJS
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
  */
 export function getSimpleFingerprint(): string {
   if (typeof window === 'undefined') {

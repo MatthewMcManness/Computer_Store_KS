@@ -4,14 +4,53 @@ import { useState, useEffect } from 'react';
 import { AdminSidebar } from './admin-sidebar';
 import { AdminHeader } from './admin-header';
 
+/**
+ * Sidebar display mode options for responsive admin layout.
+ */
 export type SidebarMode = 'expanded' | 'collapsed' | 'hidden';
 
+/**
+ * LocalStorage key for persisting user's sidebar preference.
+ */
 const SIDEBAR_STORAGE_KEY = 'admin-sidebar-mode';
 
+/**
+ * Props for the AdminShell component.
+ */
 interface AdminShellProps {
   children: React.ReactNode;
 }
 
+/**
+ * Main admin dashboard layout wrapper with persistent sidebar and header.
+ *
+ * Provides the admin interface structure with:
+ * - Collapsible/hideable sidebar with navigation
+ * - Sticky header with search and controls
+ * - Persistent sidebar state in localStorage
+ * - Responsive behavior for mobile and desktop
+ * - Keyboard shortcuts (Escape to close mobile menu)
+ *
+ * @param props - Component properties
+ * @param props.children - Admin page content to render in main area
+ *
+ * @returns {JSX.Element} Full admin layout with sidebar, header, and content
+ *
+ * @sideEffects
+ * - Reads/writes sidebar mode to localStorage
+ * - Adds/removes keyboard event listeners for Escape key
+ * - Adds/removes window resize listeners for responsive behavior
+ *
+ * @example
+ * <AdminShell>
+ *   <DashboardContent />
+ * </AdminShell>
+ *
+ * @functions_called AdminSidebar, AdminHeader
+ * @called_by Admin page layouts (app/admin/*)
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+ */
 export function AdminShell({ children }: AdminShellProps) {
   const [sidebarMode, setSidebarMode] = useState<SidebarMode>('expanded');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -57,7 +96,16 @@ export function AdminShell({ children }: AdminShellProps) {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Cycle through sidebar modes
+  /**
+   * Cycles through sidebar display modes: expanded → collapsed → hidden → expanded.
+   *
+   * @sideEffects Updates sidebar mode state
+   *
+   * @functions_called None
+   * @called_by AdminHeader (via onSidebarToggle prop)
+   *
+   * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+   */
   const cycleSidebarMode = () => {
     setSidebarMode((current) => {
       switch (current) {
@@ -71,7 +119,16 @@ export function AdminShell({ children }: AdminShellProps) {
     });
   };
 
-  // Get the margin class based on sidebar mode
+  /**
+   * Returns Tailwind margin class for main content area based on sidebar mode.
+   *
+   * @returns Tailwind class string for left margin on large screens
+   *
+   * @functions_called None
+   * @called_by AdminShell render
+   *
+   * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+   */
   const getMainMargin = () => {
     switch (sidebarMode) {
       case 'expanded':

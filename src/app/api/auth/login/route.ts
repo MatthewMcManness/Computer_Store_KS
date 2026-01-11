@@ -25,7 +25,18 @@ const RATE_LIMIT_MAX_ATTEMPTS = 5;
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
 
 /**
- * Clean up expired rate limit entries periodically
+ * Clean up expired rate limit entries periodically.
+ *
+ * Removes entries from the rate limit store whose reset time has passed,
+ * preventing memory leaks from accumulating expired entries.
+ *
+ * @sideEffects
+ * - Modifies rateLimitStore by removing expired entries
+ *
+ * @functions_called None
+ * @called_by checkRateLimit (probabilistically)
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
  */
 function cleanupRateLimitStore(): void {
   const now = Date.now();
@@ -37,8 +48,24 @@ function cleanupRateLimitStore(): void {
 }
 
 /**
- * Check if an IP is rate limited
- * @returns Object with isLimited flag and retryAfter seconds
+ * Check if an IP address is currently rate limited for login attempts.
+ *
+ * Determines whether the given IP has exceeded the maximum allowed login attempts
+ * within the rate limit window. Probabilistically triggers cleanup of expired entries.
+ *
+ * @param ip - Client IP address to check
+ * @returns Object containing isLimited flag and retryAfter seconds
+ * - isLimited: true if the IP has exceeded the limit
+ * - retryAfter: seconds remaining until the rate limit window expires (0 if not limited)
+ *
+ * @sideEffects
+ * - May delete expired entries from rateLimitStore (10% probability)
+ * - May delete the IP's entry if the rate limit window has expired
+ *
+ * @functions_called cleanupRateLimitStore
+ * @called_by POST (login handler)
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
  */
 function checkRateLimit(ip: string): { isLimited: boolean; retryAfter: number } {
   // Clean up expired entries occasionally
@@ -69,7 +96,22 @@ function checkRateLimit(ip: string): { isLimited: boolean; retryAfter: number } 
 }
 
 /**
- * Record a login attempt for rate limiting
+ * Record a login attempt from an IP address for rate limiting.
+ *
+ * Increments the attempt counter for the given IP address. If no entry exists
+ * or the previous window has expired, creates a new rate limit window.
+ *
+ * @param ip - Client IP address to record attempt for
+ *
+ * @sideEffects
+ * - Creates or updates entry in rateLimitStore for the IP address
+ * - Sets or increments attempt counter
+ * - Sets reset time for new windows
+ *
+ * @functions_called None
+ * @called_by POST (login handler, before authentication)
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
  */
 function recordLoginAttempt(ip: string): void {
   const now = Date.now();
@@ -88,7 +130,18 @@ function recordLoginAttempt(ip: string): void {
 }
 
 /**
- * Get client IP from request
+ * Extract the client's IP address from the incoming request.
+ *
+ * Checks common reverse proxy headers (x-forwarded-for, x-real-ip) to determine
+ * the true client IP address, with fallback to 'unknown' if no IP can be determined.
+ *
+ * @param request - The incoming Next.js request object
+ * @returns Client IP address string, or 'unknown' if unable to determine
+ *
+ * @functions_called None
+ * @called_by POST (login handler)
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
  */
 function getClientIP(request: NextRequest): string {
   // Check common headers first
@@ -120,6 +173,52 @@ interface LoginRequest {
 // POST Handler
 // =============================================================================
 
+/**
+ * Handle user login authentication.
+ *
+ * Authenticates users via Supabase (repairshopr mode) or legacy password verification,
+ * with rate limiting protection against brute force attacks. For successful employee logins,
+ * triggers a background sync to ensure fresh data availability.
+ *
+ * @param request - The incoming HTTP POST request containing login credentials
+ * @returns NextResponse with authentication result:
+ * - Success (200): { success: true, user: { email, name, role, userType } }
+ * - Rate limited (429): { success: false, error: string, code: 'RATE_LIMITED' }
+ * - Invalid credentials (401): { success: false, error: string, code: 'INVALID_CREDENTIALS' }
+ * - Bad request (400): { success: false, error: string }
+ * - Server error (500): { success: false, error: string }
+ *
+ * @throws {Error} When authentication or session creation fails
+ *
+ * @sideEffects
+ * - Records login attempt for rate limiting (increments counter)
+ * - May create or update user session (Supabase or legacy)
+ * - Logs authentication attempts and results
+ * - Triggers background RepairShopr sync for employee logins (non-blocking)
+ *
+ * @example
+ * // POST /api/auth/login
+ * // Body: { email: "user@example.com", password: "secret123" }
+ * const response = await fetch('/api/auth/login', {
+ *   method: 'POST',
+ *   headers: { 'Content-Type': 'application/json' },
+ *   body: JSON.stringify({ email, password })
+ * });
+ *
+ * @functions_called
+ * - getClientIP
+ * - checkRateLimit
+ * - recordLoginAttempt
+ * - getAuthMode (from @/lib/auth)
+ * - authenticateWithSupabase (from @/lib/auth)
+ * - verifyPassword (from @/lib/auth)
+ * - createSession (from @/lib/auth)
+ * - triggerSyncIfNeeded (from @/lib/repairshopr-sync)
+ *
+ * @called_by Login form components via fetch
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+ */
 export async function POST(request: NextRequest) {
   console.log('[AUTH] Login request received');
   const clientIP = getClientIP(request);

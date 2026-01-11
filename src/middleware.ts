@@ -1,15 +1,22 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
+import {
+  canAccessRoute,
+  isEmployee,
+  isCustomer,
+  getUnauthorizedRedirect,
+} from '@/lib/role-helpers';
 
 // =============================================================================
 // Configuration
 // =============================================================================
 
 /**
- * User role types matching the database schema
+ * Legacy user role types for backward compatibility
+ * @deprecated Use roles array from role-helpers instead
  */
-type UserRole = 'admin' | 'technician' | 'receptionist' | 'customer';
+type LegacyUserRole = 'admin' | 'technician' | 'receptionist' | 'customer';
 
 /**
  * Legacy session cookie name for backward compatibility with RepairShopr auth
@@ -63,24 +70,29 @@ const AUTH_ROUTES = ['/login', '/register', '/reset-password', '/reset-password/
 
 /**
  * Route permission matrix
- * Maps route patterns to required roles
+ * @deprecated Use ROUTE_PERMISSIONS from @/types/roles instead
+ * This simplified version is kept for backward compatibility with legacy auth
  */
-interface RoutePermission {
+interface LegacyRoutePermission {
   pattern: string;
-  roles: UserRole[];
+  roles: LegacyUserRole[];
   exact?: boolean;
 }
 
-const ROUTE_PERMISSIONS: RoutePermission[] = [
-  // Admin-only routes
+/**
+ * Legacy route permissions for backward compatibility
+ * @deprecated Permission checking now uses canAccessRoute() from role-helpers
+ */
+const LEGACY_ROUTE_PERMISSIONS: LegacyRoutePermission[] = [
+  // Admin-only routes (mapped from lead_developer permission)
   { pattern: '/admin/settings', roles: ['admin'], exact: true },
   { pattern: '/admin/users', roles: ['admin'] },
 
-  // Staff routes (admin, technician, receptionist)
+  // Staff routes (any employee role)
   { pattern: '/admin', roles: ['admin', 'technician', 'receptionist'] },
   { pattern: '/employee', roles: ['admin', 'technician', 'receptionist'] },
 
-  // Customer portal - authenticated customers only
+  // Customer portal - any authenticated user
   { pattern: '/portal', roles: ['customer', 'admin', 'technician', 'receptionist'] },
 ];
 
@@ -89,7 +101,25 @@ const ROUTE_PERMISSIONS: RoutePermission[] = [
 // =============================================================================
 
 /**
- * Add security headers to response
+ * Add security headers to Next.js response.
+ *
+ * Sets standard security headers to protect against common web vulnerabilities:
+ * - X-Frame-Options: Prevent clickjacking
+ * - X-Content-Type-Options: Prevent MIME sniffing
+ * - Referrer-Policy: Control referrer information
+ * - Permissions-Policy: Disable unnecessary browser features
+ * - X-XSS-Protection: Legacy XSS protection for older browsers
+ *
+ * @param response - NextResponse object to modify with security headers
+ * @returns void - Modifies response headers in place
+ *
+ * @sideEffects
+ * - Modifies response.headers by adding security headers
+ *
+ * @functions_called response.headers.set
+ * @called_by middleware function
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
  */
 function addSecurityHeaders(response: NextResponse): void {
   // Prevent clickjacking
@@ -116,7 +146,25 @@ function addSecurityHeaders(response: NextResponse): void {
 // =============================================================================
 
 /**
- * Check if a route is public
+ * Determine if a route is publicly accessible without authentication.
+ *
+ * Checks pathname against PUBLIC_ROUTES array and PUBLIC_PREFIXES.
+ * Public routes include homepage, contact, gallery, services, and static assets.
+ *
+ * @param pathname - URL pathname to check (e.g., '/about', '/services/virus-removal')
+ * @returns true if route is public, false if authentication required
+ *
+ * @sideEffects None - pure function
+ *
+ * @example
+ * isPublicRoute('/about') // true
+ * isPublicRoute('/admin') // false
+ * isPublicRoute('/services/diagnostics') // true (matches /services prefix)
+ *
+ * @functions_called Array.includes, Array.some, String.startsWith
+ * @called_by middleware function
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
  */
 function isPublicRoute(pathname: string): boolean {
   // Check exact matches
@@ -129,18 +177,51 @@ function isPublicRoute(pathname: string): boolean {
 }
 
 /**
- * Check if a route is an auth route
+ * Check if pathname is an authentication route (login, register, password reset).
+ *
+ * Auth routes have special behavior: authenticated users are redirected away.
+ *
+ * @param pathname - URL pathname to check
+ * @returns true if pathname is an auth route, false otherwise
+ *
+ * @sideEffects None - pure function
+ *
+ * @functions_called Array.includes
+ * @called_by middleware function
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
  */
 function isAuthRoute(pathname: string): boolean {
   return AUTH_ROUTES.includes(pathname);
 }
 
 /**
- * Get required roles for a route
+ * Get required user roles for accessing a specific route (legacy system).
+ *
+ * @deprecated Use canAccessRoute() from role-helpers instead for multi-role permission checking
+ *
+ * Searches LEGACY_ROUTE_PERMISSIONS configuration for matching patterns.
+ * Supports exact matches and prefix matches (e.g., /admin matches /admin/gallery).
+ *
+ * @param pathname - URL pathname to check
+ * @returns Array of LegacyUserRole strings required to access route, or null if no restrictions
+ *
+ * @sideEffects None - pure function
+ *
+ * @example
+ * getLegacyRequiredRoles('/admin/settings') // ['admin']
+ * getLegacyRequiredRoles('/admin/gallery') // ['admin', 'technician', 'receptionist']
+ * getLegacyRequiredRoles('/about') // null (no restrictions)
+ *
+ * @functions_called Array iteration, String.startsWith
+ * @called_by middleware function (legacy fallback only)
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+ * @version 1.1.0 - 2026-01-11T00:00:00Z - Renamed to getLegacyRequiredRoles, deprecated
  */
-function getRequiredRoles(pathname: string): UserRole[] | null {
+function getLegacyRequiredRoles(pathname: string): LegacyUserRole[] | null {
   // Check each permission rule
-  for (const perm of ROUTE_PERMISSIONS) {
+  for (const perm of LEGACY_ROUTE_PERMISSIONS) {
     if (perm.exact) {
       if (pathname === perm.pattern) {
         return perm.roles;
@@ -156,17 +237,75 @@ function getRequiredRoles(pathname: string): UserRole[] | null {
 }
 
 /**
- * Check if user has required role
+ * Check if user's legacy role is in the list of required roles for a route.
+ *
+ * @deprecated Use canAccessRoute() from role-helpers instead for multi-role permission checking
+ *
+ * @param userRole - Current user's legacy role (or null if not authenticated)
+ * @param requiredRoles - Array of legacy roles allowed to access the route
+ * @returns true if user has one of the required roles, false otherwise
+ *
+ * @sideEffects None - pure function
+ *
+ * @functions_called Array.includes
+ * @called_by middleware function (legacy fallback only)
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+ * @version 1.1.0 - 2026-01-11T00:00:00Z - Renamed to hasLegacyRequiredRole, deprecated
  */
-function hasRequiredRole(userRole: UserRole | null, requiredRoles: UserRole[]): boolean {
+function hasLegacyRequiredRole(userRole: LegacyUserRole | null, requiredRoles: LegacyUserRole[]): boolean {
   if (!userRole) return false;
   return requiredRoles.includes(userRole);
 }
 
 /**
- * Get redirect URL based on user role
+ * Get default redirect URL for a user based on their roles array.
+ *
+ * Employees (any business role or add-on) go to /admin dashboard.
+ * Customers go to /portal. Unauthenticated users go to /login.
+ *
+ * @param roles - User's roles array (or null/empty if not authenticated)
+ * @returns Absolute path to redirect to
+ *
+ * @sideEffects None - pure function
+ *
+ * @example
+ * getRoleRedirectUrl(['technician', 'social_media']) // '/admin'
+ * getRoleRedirectUrl(['customer']) // '/portal'
+ * getRoleRedirectUrl(null) // '/login'
+ *
+ * @functions_called isEmployee (from role-helpers), isCustomer (from role-helpers)
+ * @called_by middleware function
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+ * @version 2.0.0 - 2026-01-11T00:00:00Z - Updated for multi-role system
  */
-function getRoleRedirectUrl(role: UserRole | null): string {
+function getRoleRedirectUrl(roles: string[] | null): string {
+  if (!roles || roles.length === 0) return '/login';
+
+  if (isEmployee(roles)) {
+    return '/admin';
+  }
+  if (isCustomer(roles)) {
+    return '/portal';
+  }
+  return '/';
+}
+
+/**
+ * Get default redirect URL for a user based on their legacy single role.
+ *
+ * @deprecated Use getRoleRedirectUrl with roles array instead
+ *
+ * @param role - User's legacy role (or null if not authenticated)
+ * @returns Absolute path to redirect to
+ *
+ * @functions_called None
+ * @called_by middleware function (legacy fallback only)
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+ */
+function getLegacyRoleRedirectUrl(role: LegacyUserRole | null): string {
   if (!role) return '/login';
 
   switch (role) {
@@ -186,7 +325,23 @@ function getRoleRedirectUrl(role: UserRole | null): string {
 // =============================================================================
 
 /**
- * Create Supabase client for middleware
+ * Create Supabase client configured for Next.js middleware.
+ *
+ * Uses @supabase/ssr to create a server-side Supabase client that works
+ * with Next.js middleware cookies. Returns null if Supabase credentials
+ * are not configured.
+ *
+ * @param request - Incoming Next.js request (for reading cookies)
+ * @param response - Next.js response object (for setting cookies)
+ * @returns Supabase client instance or null if credentials missing
+ *
+ * @sideEffects None - creates client but doesn't make requests yet
+ *
+ * @functions_called createServerClient (Supabase SSR), request.cookies.getAll/set,
+ *                    response.cookies.set
+ * @called_by middleware function
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
  */
 function createMiddlewareSupabaseClient(request: NextRequest, response: NextResponse) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -216,36 +371,105 @@ function createMiddlewareSupabaseClient(request: NextRequest, response: NextResp
 // =============================================================================
 
 /**
- * Check legacy RepairShopr session
- * @deprecated Will be removed after migration to Supabase auth
+ * Check legacy RepairShopr session cookies for authentication.
+ *
+ * DEPRECATED: This function supports backward compatibility during migration
+ * from RepairShopr authentication to Supabase. Will be removed once all users
+ * are migrated to Supabase auth.
+ *
+ * Reads admin_session and user_role cookies set by RepairShopr auth system
+ * and maps legacy roles to both the old single role and new roles array.
+ *
+ * @deprecated Will be removed after full migration to Supabase auth
+ *
+ * @param request - Next.js request with cookies
+ * @returns Object with isAuth flag, legacy role, and roles array
+ *
+ * @sideEffects None - only reads cookies
+ *
+ * @functions_called request.cookies.get
+ * @called_by middleware function
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+ * @version 2.0.0 - 2026-01-11T00:00:00Z - Added roles array for multi-role support
  */
-function checkLegacyAuth(request: NextRequest): { isAuth: boolean; role: UserRole | null } {
+function checkLegacyAuth(request: NextRequest): {
+  isAuth: boolean;
+  legacyRole: LegacyUserRole | null;
+  roles: string[];
+} {
   const sessionCookie = request.cookies.get(LEGACY_SESSION_COOKIE);
   const roleCookie = request.cookies.get(LEGACY_ROLE_COOKIE);
 
   if (!sessionCookie?.value) {
-    return { isAuth: false, role: null };
+    return { isAuth: false, legacyRole: null, roles: [] };
   }
 
   // Map legacy roles to new role system
   const legacyRole = roleCookie?.value;
-  let role: UserRole | null = null;
+  let role: LegacyUserRole | null = null;
+  let roles: string[] = [];
 
   if (legacyRole === 'admin') {
     role = 'admin';
+    // Map legacy admin to owner + lead_developer (full access)
+    roles = ['owner', 'lead_developer'];
   } else if (legacyRole === 'employee') {
-    role = 'technician'; // Map employee to technician
+    role = 'technician';
+    roles = ['technician'];
   } else if (legacyRole === 'limited') {
-    role = 'receptionist'; // Map limited to receptionist
+    role = 'receptionist';
+    roles = ['receptionist'];
   }
 
-  return { isAuth: true, role };
+  return { isAuth: true, legacyRole: role, roles };
 }
 
 // =============================================================================
 // Main Middleware
 // =============================================================================
 
+/**
+ * Next.js middleware for authentication, authorization, and security headers.
+ *
+ * Runs on every request (see config matcher) to:
+ * 1. Add security headers to all responses
+ * 2. Allow public routes without authentication
+ * 3. Check authentication via Supabase (primary) or legacy RepairShopr (fallback)
+ * 4. Enforce multi-role permission-based access control for protected routes
+ * 5. Redirect authenticated users away from auth pages
+ * 6. Redirect unauthenticated users to login with return URL
+ *
+ * Authentication Flow:
+ * - Try Supabase auth first (reads session from cookies)
+ * - Fall back to legacy RepairShopr session if Supabase not configured/fails
+ * - Get user roles array from user_profiles table (Supabase) or mapped from cookie (legacy)
+ * - Use canAccessRoute() from role-helpers for permission-based route protection
+ *
+ * @param request - Incoming Next.js request
+ * @returns NextResponse - Either continues request, or redirects based on auth/authz
+ *
+ * @sideEffects
+ * - Queries Supabase auth API and database
+ * - Reads session cookies (Supabase and legacy)
+ * - May redirect user (returns NextResponse.redirect)
+ * - Adds security headers to response
+ * - Logs unauthorized access attempts to console
+ *
+ * @example
+ * // Automatically runs on requests matching config.matcher
+ * // User visits /admin without auth -> redirected to /login?returnTo=/admin
+ * // User with ['customer'] roles visits /admin -> redirected to /portal?error=unauthorized
+ * // User with ['technician'] roles visits /admin/tech -> request continues
+ *
+ * @functions_called isPublicRoute, isAuthRoute, addSecurityHeaders, createMiddlewareSupabaseClient,
+ *                    checkLegacyAuth, canAccessRoute (role-helpers), getRoleRedirectUrl,
+ *                    getUnauthorizedRedirect (role-helpers)
+ * @called_by Next.js runtime (automatic on matching routes)
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+ * @version 2.0.0 - 2026-01-11T00:00:00Z - Updated for multi-role permission system
+ */
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -271,7 +495,8 @@ export async function middleware(request: NextRequest) {
 
   // Initialize auth state
   let isAuthenticated = false;
-  let userRole: UserRole | null = null;
+  let userRoles: string[] = [];
+  let legacyRole: LegacyUserRole | null = null;
 
   // Try Supabase auth first
   const supabase = createMiddlewareSupabaseClient(request, response);
@@ -283,15 +508,37 @@ export async function middleware(request: NextRequest) {
       if (!error && user) {
         isAuthenticated = true;
 
-        // Get user profile for role
+        // Get user profile for roles (prefer roles array, fall back to role)
         const { data: profile } = await supabase
           .from('user_profiles')
-          .select('role')
+          .select('role, roles')
           .eq('id', user.id)
           .single();
 
-        if (profile?.role) {
-          userRole = profile.role as UserRole;
+        if (profile) {
+          // Use roles array if available, otherwise map from legacy role
+          if (profile.roles && Array.isArray(profile.roles) && profile.roles.length > 0) {
+            userRoles = profile.roles;
+          } else if (profile.role) {
+            // Map legacy single role to roles array
+            legacyRole = profile.role as LegacyUserRole;
+            switch (profile.role) {
+              case 'admin':
+                userRoles = ['owner', 'lead_developer'];
+                break;
+              case 'technician':
+                userRoles = ['technician'];
+                break;
+              case 'receptionist':
+                userRoles = ['receptionist'];
+                break;
+              case 'customer':
+                userRoles = ['customer'];
+                break;
+              default:
+                userRoles = ['customer'];
+            }
+          }
         }
       }
     } catch (error) {
@@ -300,26 +547,53 @@ export async function middleware(request: NextRequest) {
   }
 
   // Fall back to legacy auth if Supabase not configured or failed
-  // Also check legacy auth for role if Supabase auth succeeded but no profile role found
-  // (This handles employees who reset their password via Supabase but use RepairShopr auth)
-  if (!isAuthenticated || !userRole) {
+  // Also check legacy auth for roles if Supabase auth succeeded but no roles found
+  if (!isAuthenticated || userRoles.length === 0) {
     const legacyAuth = checkLegacyAuth(request);
     if (!isAuthenticated) {
       isAuthenticated = legacyAuth.isAuth;
     }
-    if (!userRole && legacyAuth.role) {
-      userRole = legacyAuth.role;
+    if (userRoles.length === 0 && legacyAuth.roles.length > 0) {
+      userRoles = legacyAuth.roles;
+      legacyRole = legacyAuth.legacyRole;
     }
   }
 
   // Handle auth routes - redirect authenticated users away
   if (isAuthRoute(pathname) && isAuthenticated) {
-    const redirectUrl = getRoleRedirectUrl(userRole);
+    const redirectUrl = getRoleRedirectUrl(userRoles);
     return NextResponse.redirect(new URL(redirectUrl, request.url));
   }
 
-  // Check if route requires authentication
-  const requiredRoles = getRequiredRoles(pathname);
+  // Check if route requires authentication using new multi-role permission system
+  // For admin routes, use the new canAccessRoute() function
+  if (pathname.startsWith('/admin')) {
+    // Route requires authentication
+    if (!isAuthenticated) {
+      // Redirect to login with return URL
+      const loginUrl = new URL('/login', request.url);
+      loginUrl.searchParams.set('returnTo', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+
+    // Check permission-based authorization
+    if (!canAccessRoute(userRoles, pathname)) {
+      console.log(
+        `[AUTH] Unauthorized access attempt: ${pathname} by roles ${JSON.stringify(userRoles)}`
+      );
+
+      // Redirect to appropriate dashboard with error
+      const redirectUrl = getUnauthorizedRedirect(userRoles);
+      const errorUrl = new URL(redirectUrl, request.url);
+      errorUrl.searchParams.set('error', 'unauthorized');
+      return NextResponse.redirect(errorUrl);
+    }
+
+    return response;
+  }
+
+  // For non-admin routes (portal, employee), use legacy permission check
+  const requiredRoles = getLegacyRequiredRoles(pathname);
 
   if (requiredRoles) {
     // Route requires authentication
@@ -330,14 +604,22 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(loginUrl);
     }
 
-    // Check role authorization
-    if (!hasRequiredRole(userRole, requiredRoles)) {
+    // Check role authorization using legacy system
+    // Map new roles to legacy role for backward compatibility
+    const effectiveLegacyRole = legacyRole || (
+      userRoles.some(r => ['owner', 'manager', 'lead_developer'].includes(r)) ? 'admin' :
+      userRoles.some(r => ['lead_technician', 'technician'].includes(r)) ? 'technician' :
+      userRoles.includes('receptionist') ? 'receptionist' :
+      userRoles.includes('customer') ? 'customer' : null
+    );
+
+    if (!hasLegacyRequiredRole(effectiveLegacyRole, requiredRoles)) {
       console.log(
-        `[AUTH] Unauthorized access attempt: ${pathname} by role ${userRole}`
+        `[AUTH] Unauthorized access attempt: ${pathname} by roles ${JSON.stringify(userRoles)}`
       );
 
       // Redirect to appropriate dashboard with error
-      const redirectUrl = getRoleRedirectUrl(userRole);
+      const redirectUrl = getRoleRedirectUrl(userRoles);
       const errorUrl = new URL(redirectUrl, request.url);
       errorUrl.searchParams.set('error', 'unauthorized');
       return NextResponse.redirect(errorUrl);

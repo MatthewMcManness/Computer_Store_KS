@@ -39,7 +39,27 @@ export interface InteractionScore {
 }
 
 /**
- * Calculate variance of an array of numbers
+ * Calculate statistical variance of a numeric array.
+ *
+ * Used to measure timing irregularity in user interactions. Human behavior
+ * has natural variance (irregular timing), while bots often have uniform timing.
+ *
+ * @param numbers - Array of numbers to calculate variance for
+ * @returns Variance value (0 if fewer than 2 numbers)
+ *
+ * @sideEffects None - pure calculation
+ *
+ * @example
+ * ```ts
+ * const timings = [100, 150, 200, 180, 130]; // ms between interactions
+ * const variance = calculateVariance(timings);
+ * // Higher variance = more human-like (irregular timing)
+ * ```
+ *
+ * @functions_called Math.pow, Array methods
+ * @called_by useInteractionTracking hook
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
  */
 function calculateVariance(numbers: number[]): number {
   if (numbers.length < 2) return 0;
@@ -50,17 +70,64 @@ function calculateVariance(numbers: number[]): number {
 }
 
 /**
- * Hook to track user interactions for bot detection
+ * Custom hook for tracking user interactions to distinguish humans from bots.
  *
- * Tracks:
- * - Mouse movements
+ * Monitors various types of user interactions and their timing patterns to build
+ * a behavioral profile. Humans exhibit irregular timing and multiple interaction
+ * types, while bots typically have uniform timing and limited interaction diversity.
+ *
+ * Tracked interactions:
+ * - Mouse movements (throttled to max 10/second)
  * - Clicks
  * - Keystrokes
- * - Scrolls
+ * - Scroll events
  * - Focus events
- * - Timing variance (humans have irregular patterns)
+ * - Timing variance between interactions
  *
- * @returns Object with getInteractionScore function and raw interaction data
+ * The hook calculates a "human score" based on these behaviors and provides
+ * a corresponding spam score (inverse relationship).
+ *
+ * @returns Object containing:
+ *   - getInteractionScore: Function returning detailed scoring analysis with human-likeness assessment
+ *   - getInteractionData: Function returning raw interaction counts and timings
+ *
+ * @sideEffects
+ * - Attaches global event listeners on mount (mousemove, click, keydown, scroll, focus)
+ * - Stores interaction data in ref (persists across renders)
+ * - Removes all event listeners on unmount
+ * - Mouse movement tracking is throttled to prevent excessive data collection
+ *
+ * @example
+ * ```tsx
+ * const ContactForm = () => {
+ *   const { getInteractionScore } = useInteractionTracking();
+ *
+ *   const handleSubmit = () => {
+ *     const { isHumanLike, spamScore, details } = getInteractionScore();
+ *
+ *     if (!isHumanLike) {
+ *       console.log('Bot detected', details);
+ *       return;
+ *     }
+ *
+ *     const formData = {
+ *       ...fields,
+ *       interactionScore: spamScore
+ *     };
+ *
+ *     // Server validates spamScore threshold
+ *     submitForm(formData);
+ *   };
+ *
+ *   return <form onSubmit={handleSubmit}>...</form>;
+ * };
+ * ```
+ *
+ * @functions_called useRef, useEffect, useCallback (React), calculateVariance,
+ *                    document.addEventListener/removeEventListener
+ * @called_by ContactForm, forms with comprehensive bot protection
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
  */
 export function useInteractionTracking() {
   const interactions = useRef<InteractionData>({
@@ -122,6 +189,24 @@ export function useInteractionTracking() {
     };
   }, []);
 
+  /**
+   * Calculate interaction-based bot detection score.
+   *
+   * Analyzes tracked interactions to determine if behavior appears human-like.
+   * Checks for 6 indicators of human behavior and converts to a spam score.
+   *
+   * Scoring thresholds:
+   * - 0-2 indicators = 20 spam points (likely bot)
+   * - 3-4 indicators = 10 spam points (suspicious)
+   * - 5-6 indicators = 0 spam points (human-like)
+   *
+   * @returns InteractionScore object with score, human-like flag, spam score, and detailed breakdown
+   *
+   * @functions_called calculateVariance
+   * @called_by Form submission handlers
+   *
+   * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+   */
   const getInteractionScore = useCallback((): InteractionScore => {
     const { mouseMovements, clicks, keystrokes, scrolls, focusEvents, timings } = interactions.current;
 
@@ -184,6 +269,19 @@ export function useInteractionTracking() {
     };
   }, []);
 
+  /**
+   * Get raw interaction data for debugging or analysis.
+   *
+   * Returns a copy of all tracked interaction counts and timestamps.
+   * Useful for logging or detailed bot detection analysis.
+   *
+   * @returns InteractionData object with counts and timing array
+   *
+   * @functions_called None (reads ref state)
+   * @called_by Debug tools, analytics, detailed bot analysis
+   *
+   * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+   */
   const getInteractionData = useCallback((): InteractionData => {
     return { ...interactions.current };
   }, []);

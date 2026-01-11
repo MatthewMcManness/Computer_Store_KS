@@ -11,6 +11,10 @@ import {
   Shield,
   Wrench,
   UserCheck,
+  Crown,
+  Share2,
+  Code2,
+  Briefcase,
   Loader2,
   Edit2,
   Trash2,
@@ -18,44 +22,109 @@ import {
   Check,
   X,
 } from 'lucide-react';
-import type { UserProfile, UserRole } from '@/lib/supabase-auth';
+import type { UserProfile } from '@/lib/supabase-auth';
+import {
+  type BusinessRole,
+  type AddOnRole,
+  type EmployeeRole,
+  BUSINESS_ROLES,
+  ADD_ON_ROLES,
+  ROLE_LABELS,
+  ROLE_DESCRIPTIONS,
+  isBusinessRole,
+  isAddOnRole,
+} from '@/types/roles';
 
-type EmployeeRole = 'admin' | 'technician' | 'receptionist';
-
-const roleConfig: Record<EmployeeRole, { label: string; icon: React.ReactNode; className: string }> = {
-  admin: {
-    label: 'Admin',
-    icon: <Shield className="h-4 w-4" />,
-    className: 'bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300',
+/**
+ * Role badge styling configuration.
+ */
+const roleStyles: Record<EmployeeRole, { icon: React.ReactNode; className: string }> = {
+  // Business hierarchy roles
+  receptionist: {
+    icon: <UserCheck className="h-3 w-3" />,
+    className: 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300',
   },
   technician: {
-    label: 'Technician',
-    icon: <Wrench className="h-4 w-4" />,
+    icon: <Wrench className="h-3 w-3" />,
     className: 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300',
   },
-  receptionist: {
-    label: 'Receptionist',
-    icon: <UserCheck className="h-4 w-4" />,
-    className: 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300',
+  lead_technician: {
+    icon: <Crown className="h-3 w-3" />,
+    className: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-300',
+  },
+  manager: {
+    icon: <Briefcase className="h-3 w-3" />,
+    className: 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300',
+  },
+  owner: {
+    icon: <Shield className="h-3 w-3" />,
+    className: 'bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300',
+  },
+  // Add-on roles
+  social_media: {
+    icon: <Share2 className="h-3 w-3" />,
+    className: 'bg-pink-100 text-pink-800 dark:bg-pink-900/50 dark:text-pink-300',
+  },
+  lead_developer: {
+    icon: <Code2 className="h-3 w-3" />,
+    className: 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300',
   },
 };
 
+/**
+ * Extended UserProfile with roles array.
+ */
+interface ExtendedUserProfile extends UserProfile {
+  roles?: string[];
+}
+
+/**
+ * Extract roles array from a profile, with backward compatibility.
+ */
+function getRoles(profile: ExtendedUserProfile): string[] {
+  if (profile.roles && Array.isArray(profile.roles) && profile.roles.length > 0) {
+    return profile.roles;
+  }
+  // Backward compatibility: map old single role to new roles array
+  if (profile.role) {
+    if (profile.role === 'admin') {
+      return ['owner', 'lead_developer'];
+    }
+    return [profile.role];
+  }
+  return ['receptionist'];
+}
+
+/**
+ * Employees management page with multi-role support.
+ *
+ * Allows managers/owners to view and manage employee accounts,
+ * including assigning multiple roles (business + add-on).
+ *
+ * @returns Employee management page component
+ *
+ * @functions_called getRoles, isBusinessRole, isAddOnRole
+ * @called_by AdminLayout
+ *
+ * @version 2.0.0 - 2026-01-11T00:00:00Z - Updated for multi-role support
+ */
 export default function EmployeesPage() {
   const router = useRouter();
-  const [employees, setEmployees] = useState<UserProfile[]>([]);
+  const [employees, setEmployees] = useState<ExtendedUserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [canManageEmployees, setCanManageEmployees] = useState(false);
 
-  // Edit role modal state
-  const [editingEmployee, setEditingEmployee] = useState<UserProfile | null>(null);
-  const [newRole, setNewRole] = useState<EmployeeRole | null>(null);
-  const [savingRole, setSavingRole] = useState(false);
+  // Edit roles modal state
+  const [editingEmployee, setEditingEmployee] = useState<ExtendedUserProfile | null>(null);
+  const [selectedBusinessRole, setSelectedBusinessRole] = useState<BusinessRole>('receptionist');
+  const [selectedAddOns, setSelectedAddOns] = useState<Set<AddOnRole>>(new Set());
+  const [savingRoles, setSavingRoles] = useState(false);
   const [roleError, setRoleError] = useState<string | null>(null);
 
   // Delete confirmation modal state
-  const [deletingEmployee, setDeletingEmployee] = useState<UserProfile | null>(null);
+  const [deletingEmployee, setDeletingEmployee] = useState<ExtendedUserProfile | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -100,7 +169,12 @@ export default function EmployeesPage() {
       .then(data => {
         if (data) {
           setCurrentUserEmail(data.user?.email || null);
-          setIsAdmin(data.user?.role === 'admin');
+          // Check if user can manage employees (manager, owner, or lead_developer)
+          const userRoles = data.roles || (data.user?.role ? [data.user.role] : []);
+          const canManage = userRoles.some((r: string) =>
+            ['admin', 'manager', 'owner', 'lead_developer'].includes(r)
+          );
+          setCanManageEmployees(canManage);
         }
       })
       .catch(() => router.push('/admin/login'));
@@ -108,45 +182,69 @@ export default function EmployeesPage() {
     fetchEmployees();
   }, [router, fetchEmployees]);
 
-  const handleEditRole = (employee: UserProfile) => {
+  const handleEditRoles = (employee: ExtendedUserProfile) => {
+    const currentRoles = getRoles(employee);
+
+    // Find business role
+    const businessRole = currentRoles.find(r => isBusinessRole(r)) as BusinessRole || 'receptionist';
+    setSelectedBusinessRole(businessRole);
+
+    // Find add-on roles
+    const addOns = currentRoles.filter(r => isAddOnRole(r)) as AddOnRole[];
+    setSelectedAddOns(new Set(addOns));
+
     setEditingEmployee(employee);
-    setNewRole(employee.role as EmployeeRole);
     setRoleError(null);
   };
 
-  const handleSaveRole = async () => {
-    if (!editingEmployee || !newRole) return;
+  const handleToggleAddOn = (addOn: AddOnRole) => {
+    setSelectedAddOns(prev => {
+      const next = new Set(prev);
+      if (next.has(addOn)) {
+        next.delete(addOn);
+      } else {
+        next.add(addOn);
+      }
+      return next;
+    });
+  };
 
-    setSavingRole(true);
+  const handleSaveRoles = async () => {
+    if (!editingEmployee) return;
+
+    setSavingRoles(true);
     setRoleError(null);
+
+    // Combine business role with add-ons
+    const newRoles: string[] = [selectedBusinessRole, ...Array.from(selectedAddOns)];
 
     try {
       const response = await fetch(`/api/admin/employees/${editingEmployee.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ role: newRole }),
+        body: JSON.stringify({ roles: newRoles }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to update role');
+        throw new Error(data.error || 'Failed to update roles');
       }
 
       // Update local state
       setEmployees(prev =>
-        prev.map(e => (e.id === editingEmployee.id ? { ...e, role: newRole } : e))
+        prev.map(e => (e.id === editingEmployee.id ? { ...e, roles: newRoles } : e))
       );
       setEditingEmployee(null);
-      showToast('success', `${editingEmployee.full_name || editingEmployee.email}'s role updated to ${roleConfig[newRole].label}`);
+      showToast('success', `${editingEmployee.full_name || editingEmployee.email}'s roles updated`);
     } catch (err) {
-      setRoleError(err instanceof Error ? err.message : 'Failed to update role');
+      setRoleError(err instanceof Error ? err.message : 'Failed to update roles');
     } finally {
-      setSavingRole(false);
+      setSavingRoles(false);
     }
   };
 
-  const handleDeleteClick = (employee: UserProfile) => {
+  const handleDeleteClick = (employee: ExtendedUserProfile) => {
     setDeletingEmployee(employee);
     setConfirmDelete(false);
     setDeleteError(null);
@@ -227,7 +325,7 @@ export default function EmployeesPage() {
             Manage employee accounts and roles
           </p>
         </div>
-        {isAdmin && (
+        {canManageEmployees && (
           <Link
             href="/admin/employees/new"
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 w-full sm:w-auto"
@@ -254,7 +352,7 @@ export default function EmployeesPage() {
           <div className="flex flex-col items-center justify-center py-16">
             <Users className="h-12 w-12 text-gray-300 dark:text-gray-600" />
             <p className="mt-4 text-gray-500 dark:text-gray-400">No employees found</p>
-            {isAdmin && (
+            {canManageEmployees && (
               <Link
                 href="/admin/employees/new"
                 className="mt-4 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
@@ -272,12 +370,12 @@ export default function EmployeesPage() {
                   Employee
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                  Role
+                  Roles
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                   Created
                 </th>
-                {isAdmin && (
+                {canManageEmployees && (
                   <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                     Actions
                   </th>
@@ -286,8 +384,7 @@ export default function EmployeesPage() {
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
               {employees.map((employee) => {
-                const role = employee.role as EmployeeRole;
-                const config = roleConfig[role] || roleConfig.technician;
+                const employeeRoles = getRoles(employee);
                 const isSelf = employee.email === currentUserEmail;
 
                 return (
@@ -316,12 +413,20 @@ export default function EmployeesPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${config.className}`}
-                      >
-                        {config.icon}
-                        {config.label}
-                      </span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {employeeRoles.map((role) => {
+                          const style = roleStyles[role as EmployeeRole] || roleStyles.receptionist;
+                          return (
+                            <span
+                              key={role}
+                              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${style.className}`}
+                            >
+                              {style.icon}
+                              {ROLE_LABELS[role as EmployeeRole] || role}
+                            </span>
+                          );
+                        })}
+                      </div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
@@ -329,13 +434,13 @@ export default function EmployeesPage() {
                         {formatDate(employee.created_at)}
                       </div>
                     </td>
-                    {isAdmin && (
+                    {canManageEmployees && (
                       <td className="px-6 py-4">
                         <div className="flex items-center justify-end gap-2">
                           <button
-                            onClick={() => handleEditRole(employee)}
+                            onClick={() => handleEditRoles(employee)}
                             className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
-                            title="Edit role"
+                            title="Edit roles"
                           >
                             <Edit2 className="h-4 w-4" />
                           </button>
@@ -362,16 +467,16 @@ export default function EmployeesPage() {
         )}
       </div>
 
-      {/* Edit Role Modal */}
+      {/* Edit Roles Modal */}
       {editingEmployee && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-900">
+          <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-900">
             <div className="mb-6">
               <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                Edit Role
+                Edit Roles
               </h2>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Change role for {editingEmployee.full_name || editingEmployee.email}
+                Assign roles for {editingEmployee.full_name || editingEmployee.email}
               </p>
             </div>
 
@@ -382,52 +487,105 @@ export default function EmployeesPage() {
               </div>
             )}
 
-            <div className="space-y-3">
-              {(Object.keys(roleConfig) as EmployeeRole[]).map((role) => {
-                const config = roleConfig[role];
-                const isSelected = newRole === role;
+            {/* Business Role Selection */}
+            <div className="mb-6">
+              <h3 className="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+                Business Role <span className="text-red-500">*</span>
+              </h3>
+              <div className="space-y-2">
+                {BUSINESS_ROLES.map((role) => {
+                  const style = roleStyles[role];
+                  const isSelected = selectedBusinessRole === role;
 
-                return (
-                  <button
-                    key={role}
-                    onClick={() => setNewRole(role)}
-                    className={`flex w-full items-center gap-3 rounded-lg border p-3 transition-colors ${
-                      isSelected
-                        ? 'border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-900/30'
-                        : 'border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800'
-                    }`}
-                  >
-                    <span
-                      className={`flex h-8 w-8 items-center justify-center rounded-full ${config.className}`}
+                  return (
+                    <button
+                      key={role}
+                      onClick={() => setSelectedBusinessRole(role)}
+                      className={`flex w-full items-center gap-3 rounded-lg border p-3 transition-colors ${
+                        isSelected
+                          ? 'border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-900/30'
+                          : 'border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800'
+                      }`}
                     >
-                      {config.icon}
-                    </span>
-                    <span className="font-medium text-gray-900 dark:text-white">
-                      {config.label}
-                    </span>
-                    {isSelected && (
-                      <Check className="ml-auto h-5 w-5 text-blue-600 dark:text-blue-400" />
-                    )}
-                  </button>
-                );
-              })}
+                      <span className={`flex h-8 w-8 items-center justify-center rounded-full ${style.className}`}>
+                        {style.icon}
+                      </span>
+                      <div className="flex-1 text-left">
+                        <p className="font-medium text-gray-900 dark:text-white">
+                          {ROLE_LABELS[role]}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          {ROLE_DESCRIPTIONS[role]}
+                        </p>
+                      </div>
+                      {isSelected && (
+                        <Check className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
-            <div className="mt-6 flex items-center justify-end gap-3">
+            {/* Add-on Roles */}
+            <div className="mb-6">
+              <h3 className="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+                Add-on Roles <span className="text-gray-400">(Optional)</span>
+              </h3>
+              <div className="space-y-2">
+                {ADD_ON_ROLES.map((role) => {
+                  const style = roleStyles[role];
+                  const isSelected = selectedAddOns.has(role);
+
+                  return (
+                    <button
+                      key={role}
+                      onClick={() => handleToggleAddOn(role)}
+                      className={`flex w-full items-center gap-3 rounded-lg border p-3 transition-colors ${
+                        isSelected
+                          ? 'border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-900/30'
+                          : 'border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800'
+                      }`}
+                    >
+                      <span className={`flex h-8 w-8 items-center justify-center rounded-full ${style.className}`}>
+                        {style.icon}
+                      </span>
+                      <div className="flex-1 text-left">
+                        <p className="font-medium text-gray-900 dark:text-white">
+                          {ROLE_LABELS[role]}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          {ROLE_DESCRIPTIONS[role]}
+                        </p>
+                      </div>
+                      <div className={`h-5 w-5 rounded border-2 flex items-center justify-center ${
+                        isSelected
+                          ? 'border-blue-600 bg-blue-600 dark:border-blue-400 dark:bg-blue-400'
+                          : 'border-gray-300 dark:border-gray-600'
+                      }`}>
+                        {isSelected && <Check className="h-3 w-3 text-white" />}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3">
               <button
                 onClick={() => setEditingEmployee(null)}
-                disabled={savingRole}
+                disabled={savingRoles}
                 className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
               >
                 Cancel
               </button>
               <button
-                onClick={handleSaveRole}
-                disabled={savingRole || newRole === editingEmployee.role}
+                onClick={handleSaveRoles}
+                disabled={savingRoles}
                 className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
               >
-                {savingRole && <Loader2 className="h-4 w-4 animate-spin" />}
-                {savingRole ? 'Saving...' : 'Save Changes'}
+                {savingRoles && <Loader2 className="h-4 w-4 animate-spin" />}
+                {savingRoles ? 'Saving...' : 'Save Changes'}
               </button>
             </div>
           </div>

@@ -48,6 +48,8 @@ export { ROLE_COOKIE_NAME };
  *
  * @functions_called None (reads process.env directly)
  * @called_by verifyPassword, verifyBearerToken
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
  */
 function getLegacyAdminPassword(): string {
   return process.env.LEGACY_ADMIN_PASSWORD || process.env.ADMIN_PASSWORD || 'admin123';
@@ -66,7 +68,11 @@ export interface UserSession {
   email: string;
   name: string;
   role: 'admin' | 'employee' | 'limited';
+  /** Array of user roles (new multi-role system) */
+  roles?: string[];
   userType: 'employee' | 'customer';
+  /** User's assigned location ID */
+  location_id?: string | null;
 }
 
 /**
@@ -103,6 +109,8 @@ export interface AuthResult {
  *
  * @functions_called None (reads process.env directly)
  * @called_by isAuthenticated, getCurrentUser, getSessionToken, createSession, checkAuthFromRequest
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
  */
 export function getAuthMode(): 'repairshopr' | 'legacy' {
   const mode = process.env.AUTH_MODE || 'repairshopr';
@@ -401,15 +409,23 @@ export async function authenticateWithSupabase(
     const repairshoprCustomerId = profile?.repairshopr_customer_id || 0;
     const repairshoprUserId = profile?.repairshopr_user_id || 0;
 
+    // Get roles array (new multi-role system) or fallback to single role
+    // Profile may have 'roles' (TEXT[]) or 'role' (TEXT)
+    const profileRoles: string[] = profile?.roles || (profile?.role ? [profile.role] : ['customer']);
+
+    // Get location_id from profile
+    const locationId: string | null = profile?.location_id || null;
+
     // Determine role and userType based on profile
-    // Profile roles: 'admin', 'technician', 'receptionist', 'customer'
+    // Profile roles: 'admin', 'technician', 'receptionist', 'customer', 'owner', etc.
     // Session roles: 'admin', 'employee', 'limited'
     // UserTypes: 'employee', 'customer'
     const profileRole = profile?.role || 'customer';
-    const isEmployee = ['admin', 'technician', 'receptionist'].includes(profileRole);
+    const isEmployee = ['admin', 'owner', 'manager', 'lead_technician', 'technician', 'receptionist', 'lead_developer', 'social_media'].some(r => profileRoles.includes(r));
 
     let sessionRole: 'admin' | 'employee' | 'limited';
-    if (profileRole === 'admin') {
+    // Admin role for admin, owner, or lead_developer
+    if (profileRoles.includes('admin') || profileRoles.includes('owner') || profileRoles.includes('lead_developer')) {
       sessionRole = 'admin';
     } else if (isEmployee) {
       sessionRole = 'employee';
@@ -447,7 +463,7 @@ export async function authenticateWithSupabase(
       path: '/',
     });
 
-    console.log(`[AUTH] Login successful via Supabase Auth: ${email} (role: ${profileRole}, userType: ${userData.userType})`);
+    console.log(`[AUTH] Login successful via Supabase Auth: ${email} (roles: ${profileRoles.join(',')}, userType: ${userData.userType})`);
 
     return {
       success: true,
@@ -457,7 +473,9 @@ export async function authenticateWithSupabase(
         email: userData.email,
         name: userData.name,
         role: userData.role,
+        roles: profileRoles,
         userType: userData.userType,
+        location_id: locationId,
       },
     };
   } catch (error) {
@@ -599,7 +617,9 @@ export async function getCurrentUser(): Promise<UserSession | null> {
       email: safeSession.email,
       name: safeSession.name,
       role: safeSession.role,
+      roles: safeSession.roles || (safeSession.role ? [safeSession.role] : []),
       userType: safeSession.userType,
+      location_id: safeSession.location_id || null,
     };
   }
 
@@ -610,7 +630,9 @@ export async function getCurrentUser(): Promise<UserSession | null> {
     email: 'admin@local',
     name: 'Administrator',
     role: 'admin',
+    roles: ['admin', 'owner', 'lead_developer'],
     userType: 'employee',
+    location_id: null,
   };
 }
 

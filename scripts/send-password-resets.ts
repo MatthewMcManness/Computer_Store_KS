@@ -1,15 +1,23 @@
 #!/usr/bin/env npx ts-node
 /**
- * Send Password Reset Emails
- *
  * Sends password reset emails to migrated users.
  *
- * Usage:
- *   npx ts-node scripts/send-password-resets.ts
+ * After user migration from RepairShopr to Supabase Auth, this script sends
+ * password reset emails to a predefined list of users so they can set new
+ * passwords. Includes delay between emails to avoid rate limiting.
  *
- * Environment Variables Required:
- *   - NEXT_PUBLIC_SUPABASE_URL: Supabase project URL
- *   - SUPABASE_SERVICE_ROLE_KEY: Supabase service role key
+ * @sideEffects
+ * - Sends password reset emails via Supabase Auth
+ * - Logs sending status for each user
+ * - Exits with code 1 if any emails fail
+ *
+ * @example
+ * // Run via: npx ts-node scripts/send-password-resets.ts
+ *
+ * @functions_called main, createClient
+ * @called_by CLI execution only
+ *
+ * @see scripts/migrate-users.ts for the migration that creates these users
  */
 
 import { createClient } from '@supabase/supabase-js';
@@ -25,6 +33,30 @@ const MIGRATED_USERS = [
 
 const REDIRECT_URL = 'https://computerstoreks.com/reset-password/confirm';
 
+/**
+ * Main function that sends password reset emails to all migrated users.
+ *
+ * Validates environment variables, creates Supabase client, and iterates
+ * through MIGRATED_USERS array sending reset emails with appropriate delays
+ * to avoid rate limiting. Tracks success/failure counts and exits with
+ * error code if any emails fail to send.
+ *
+ * @returns {Promise<void>} Resolves when all emails are sent
+ *
+ * @throws {Error} If environment variables are missing (exits process)
+ *
+ * @sideEffects
+ * - Validates and uses environment variables
+ * - Sends password reset emails via Supabase Auth API
+ * - Logs detailed progress and results to console
+ * - Exits process with code 1 if failures occur
+ *
+ * @example
+ * await main() // Sends all password reset emails
+ *
+ * @functions_called createClient, supabase.auth.resetPasswordForEmail
+ * @called_by Script execution via ts-node
+ */
 async function main() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;

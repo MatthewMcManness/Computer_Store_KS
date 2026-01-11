@@ -1,5 +1,21 @@
-// Google Business Profile API types
+/**
+ * Type definitions for Google Business Profile API integration.
+ *
+ * Defines types for reviews, posts, business information, and cache structures
+ * used when fetching data from Google Business Profile API (formerly Google My Business).
+ *
+ * Types are split into two categories:
+ * 1. Raw API response types (GoogleBusiness*) - matching API structure
+ * 2. Simplified display types (Display*) - frontend-friendly format
+ */
 
+/**
+ * Review from Google Business Profile API.
+ *
+ * Represents a customer review with optional owner reply.
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+ */
 export interface GoogleBusinessReview {
   reviewId: string;
   reviewer: {
@@ -106,7 +122,14 @@ export interface GoogleBusinessLocation {
   };
 }
 
-// Simplified types for frontend display
+/**
+ * Simplified review data for frontend display.
+ *
+ * Transforms complex Google API review format into simpler structure
+ * suitable for rendering in React components.
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+ */
 export interface DisplayReview {
   id: string;
   authorName: string;
@@ -174,7 +197,14 @@ export interface GoogleBusinessApiResponse<T = unknown> {
   cachedAt?: string;
 }
 
-// Cache types for storing fetched data
+/**
+ * Cache structure for storing fetched Google Business data.
+ *
+ * Reduces API calls by caching reviews, posts, and business info
+ * with timestamps for cache invalidation.
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+ */
 export interface GoogleBusinessCache {
   reviews?: {
     data: DisplayReview[];

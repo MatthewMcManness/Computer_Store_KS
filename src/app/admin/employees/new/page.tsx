@@ -10,45 +10,106 @@ import {
   Shield,
   Wrench,
   UserCheck,
+  Crown,
+  Briefcase,
+  Share2,
+  Code2,
   Link2,
   Loader2,
   AlertCircle,
   Check,
   X,
 } from 'lucide-react';
+import {
+  type BusinessRole,
+  type AddOnRole,
+  BUSINESS_ROLES,
+  ADD_ON_ROLES,
+  ROLE_LABELS,
+  ROLE_DESCRIPTIONS,
+} from '@/types/roles';
 
-type EmployeeRole = 'admin' | 'technician' | 'receptionist';
-
-const roleOptions: { value: EmployeeRole; label: string; description: string; icon: React.ReactNode }[] = [
+/**
+ * Configuration for business role selection options.
+ * Each role includes label, description, and icon for UI display.
+ */
+const businessRoleOptions: { value: BusinessRole; label: string; description: string; icon: React.ReactNode }[] = [
   {
-    value: 'admin',
-    label: 'Admin',
-    description: 'Full access to all features including employee management',
+    value: 'owner',
+    label: ROLE_LABELS.owner,
+    description: ROLE_DESCRIPTIONS.owner,
     icon: <Shield className="h-5 w-5" />,
   },
   {
+    value: 'manager',
+    label: ROLE_LABELS.manager,
+    description: ROLE_DESCRIPTIONS.manager,
+    icon: <Briefcase className="h-5 w-5" />,
+  },
+  {
+    value: 'lead_technician',
+    label: ROLE_LABELS.lead_technician,
+    description: ROLE_DESCRIPTIONS.lead_technician,
+    icon: <Crown className="h-5 w-5" />,
+  },
+  {
     value: 'technician',
-    label: 'Technician',
-    description: 'Access to tickets, assets, and customer information',
+    label: ROLE_LABELS.technician,
+    description: ROLE_DESCRIPTIONS.technician,
     icon: <Wrench className="h-5 w-5" />,
   },
   {
     value: 'receptionist',
-    label: 'Receptionist',
-    description: 'Access to customer intake and basic ticket management',
+    label: ROLE_LABELS.receptionist,
+    description: ROLE_DESCRIPTIONS.receptionist,
     icon: <UserCheck className="h-5 w-5" />,
   },
 ];
 
+/**
+ * Configuration for add-on role options.
+ * These are optional roles that can be combined with a business role.
+ */
+const addOnRoleOptions: { value: AddOnRole; label: string; description: string; icon: React.ReactNode }[] = [
+  {
+    value: 'social_media',
+    label: ROLE_LABELS.social_media,
+    description: ROLE_DESCRIPTIONS.social_media,
+    icon: <Share2 className="h-5 w-5" />,
+  },
+  {
+    value: 'lead_developer',
+    label: ROLE_LABELS.lead_developer,
+    description: ROLE_DESCRIPTIONS.lead_developer,
+    icon: <Code2 className="h-5 w-5" />,
+  },
+];
+
+/**
+ * New Employee page with multi-role selection.
+ *
+ * Allows creating new employees with:
+ * - One required business role (receptionist → owner hierarchy)
+ * - Optional add-on roles (social_media, lead_developer)
+ *
+ * @returns New employee form page
+ *
+ * @functions_called fetch, useRouter, useState, useEffect
+ * @called_by AdminLayout, EmployeesPage
+ *
+ * @version 1.0.0 - 2026-01-11T00:00:00Z - Initial implementation
+ * @version 2.0.0 - 2026-01-11T00:00:00Z - Updated for multi-role support
+ */
 export default function NewEmployeePage() {
   const router = useRouter();
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [canManageEmployees, setCanManageEmployees] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
 
   const [formData, setFormData] = useState({
     email: '',
     full_name: '',
-    role: 'technician' as EmployeeRole,
+    businessRole: 'technician' as BusinessRole,
+    addOnRoles: [] as AddOnRole[],
     repairshopr_user_id: '',
   });
 
@@ -57,7 +118,7 @@ export default function NewEmployeePage() {
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   useEffect(() => {
-    // Check authentication and admin status
+    // Check authentication and permission status
     fetch('/api/auth/check')
       .then(res => {
         if (!res.ok) {
@@ -68,11 +129,17 @@ export default function NewEmployeePage() {
       })
       .then(data => {
         if (data) {
-          if (data.user?.role !== 'admin') {
+          const roles = data.user?.roles || [];
+          // Check if user can manage employees (manager, owner, or lead_developer)
+          const hasPermission = roles.some((r: string) =>
+            ['manager', 'owner', 'lead_developer'].includes(r)
+          ) || data.user?.role === 'admin'; // Legacy fallback
+
+          if (!hasPermission) {
             router.push('/admin/employees');
             return;
           }
-          setIsAdmin(true);
+          setCanManageEmployees(true);
         }
         setAuthChecked(true);
       })
@@ -81,6 +148,21 @@ export default function NewEmployeePage() {
 
   const handleInputChange = (field: keyof typeof formData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    setError(null);
+  };
+
+  const handleBusinessRoleChange = (role: BusinessRole) => {
+    setFormData(prev => ({ ...prev, businessRole: role }));
+    setError(null);
+  };
+
+  const handleAddOnRoleToggle = (role: AddOnRole) => {
+    setFormData(prev => {
+      const newAddOnRoles = prev.addOnRoles.includes(role)
+        ? prev.addOnRoles.filter(r => r !== role)
+        : [...prev.addOnRoles, role];
+      return { ...prev, addOnRoles: newAddOnRoles };
+    });
     setError(null);
   };
 
@@ -109,6 +191,9 @@ export default function NewEmployeePage() {
       return;
     }
 
+    // Build roles array: business role + add-on roles
+    const roles = [formData.businessRole, ...formData.addOnRoles];
+
     try {
       const response = await fetch('/api/admin/employees', {
         method: 'POST',
@@ -116,7 +201,7 @@ export default function NewEmployeePage() {
         body: JSON.stringify({
           email: formData.email.trim().toLowerCase(),
           full_name: formData.full_name.trim(),
-          role: formData.role,
+          roles,
           repairshopr_user_id: formData.repairshopr_user_id.trim() || undefined,
         }),
       });
@@ -143,7 +228,7 @@ export default function NewEmployeePage() {
     }
   };
 
-  if (!authChecked || !isAdmin) {
+  if (!authChecked || !canManageEmployees) {
     return (
       <div className="flex items-center justify-center py-16">
         <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
@@ -233,27 +318,30 @@ export default function NewEmployeePage() {
             />
           </div>
 
-          {/* Role Selection */}
+          {/* Business Role Selection */}
           <div className="mb-6">
             <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Role <span className="text-red-500">*</span>
+              Business Role <span className="text-red-500">*</span>
             </label>
+            <p className="mb-3 text-sm text-gray-500 dark:text-gray-400">
+              Select one primary role that defines their access level
+            </p>
             <div className="space-y-3">
-              {roleOptions.map((option) => (
+              {businessRoleOptions.map((option) => (
                 <button
                   key={option.value}
                   type="button"
-                  onClick={() => handleInputChange('role', option.value)}
+                  onClick={() => handleBusinessRoleChange(option.value)}
                   disabled={submitting}
                   className={`flex w-full items-start gap-4 rounded-lg border p-4 text-left transition-colors ${
-                    formData.role === option.value
+                    formData.businessRole === option.value
                       ? 'border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-900/30'
                       : 'border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800'
                   }`}
                 >
                   <span
                     className={`flex h-10 w-10 items-center justify-center rounded-full ${
-                      formData.role === option.value
+                      formData.businessRole === option.value
                         ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/50 dark:text-blue-400'
                         : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
                     }`}
@@ -264,11 +352,62 @@ export default function NewEmployeePage() {
                     <p className="font-medium text-gray-900 dark:text-white">{option.label}</p>
                     <p className="text-sm text-gray-500 dark:text-gray-400">{option.description}</p>
                   </div>
-                  {formData.role === option.value && (
+                  {formData.businessRole === option.value && (
                     <Check className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                   )}
                 </button>
               ))}
+            </div>
+          </div>
+
+          {/* Add-on Roles (Optional) */}
+          <div className="mb-6">
+            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Add-on Roles <span className="text-xs font-normal text-gray-500 dark:text-gray-400">(Optional)</span>
+            </label>
+            <p className="mb-3 text-sm text-gray-500 dark:text-gray-400">
+              Additional roles that grant extra permissions
+            </p>
+            <div className="space-y-3">
+              {addOnRoleOptions.map((option) => {
+                const isSelected = formData.addOnRoles.includes(option.value);
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => handleAddOnRoleToggle(option.value)}
+                    disabled={submitting}
+                    className={`flex w-full items-start gap-4 rounded-lg border p-4 text-left transition-colors ${
+                      isSelected
+                        ? 'border-purple-500 bg-purple-50 dark:border-purple-400 dark:bg-purple-900/30'
+                        : 'border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800'
+                    }`}
+                  >
+                    <span
+                      className={`flex h-10 w-10 items-center justify-center rounded-full ${
+                        isSelected
+                          ? 'bg-purple-100 text-purple-600 dark:bg-purple-900/50 dark:text-purple-400'
+                          : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
+                      }`}
+                    >
+                      {option.icon}
+                    </span>
+                    <div className="flex-1">
+                      <p className="font-medium text-gray-900 dark:text-white">{option.label}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{option.description}</p>
+                    </div>
+                    <div
+                      className={`flex h-5 w-5 items-center justify-center rounded border ${
+                        isSelected
+                          ? 'border-purple-500 bg-purple-500 text-white'
+                          : 'border-gray-300 dark:border-gray-600'
+                      }`}
+                    >
+                      {isSelected && <Check className="h-3 w-3" />}
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -290,6 +429,24 @@ export default function NewEmployeePage() {
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Link this account to a RepairShopr user for API access
             </p>
+          </div>
+
+          {/* Selected Roles Summary */}
+          <div className="mb-6 rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
+            <h3 className="font-medium text-gray-900 dark:text-white mb-2">Assigned Roles</h3>
+            <div className="flex flex-wrap gap-2">
+              <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700 dark:bg-blue-900/50 dark:text-blue-300">
+                {ROLE_LABELS[formData.businessRole]}
+              </span>
+              {formData.addOnRoles.map(role => (
+                <span
+                  key={role}
+                  className="inline-flex items-center gap-1 rounded-full bg-purple-100 px-3 py-1 text-sm font-medium text-purple-700 dark:bg-purple-900/50 dark:text-purple-300"
+                >
+                  + {ROLE_LABELS[role]}
+                </span>
+              ))}
+            </div>
           </div>
 
           {/* Info Box */}

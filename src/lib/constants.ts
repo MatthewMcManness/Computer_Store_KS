@@ -1,3 +1,58 @@
+/**
+ * Core business information for Computer Store Kansas.
+ *
+ * Central source of truth for all business details including contact information,
+ * location, operating hours, and ownership. Used throughout the site for
+ * header/footer, contact pages, schema.org markup, and Google Business integration.
+ * Marked as `const` to ensure immutability at compile time.
+ *
+ * @constant
+ * @type {Readonly<BusinessInfo>}
+ *
+ * @property name - Full legal business name
+ * @property shortName - Abbreviated brand name for headers
+ * @property address - Complete street address (single line)
+ * @property addressLine1 - Street address only (for structured data)
+ * @property city - City name
+ * @property state - Two-letter state code
+ * @property zip - Five-digit ZIP code
+ * @property phone - Phone number (digits and hyphens)
+ * @property phoneFormatted - Human-readable phone format with parentheses
+ * @property email - Primary contact email
+ * @property website - Canonical website URL
+ * @property founded - Year business was established
+ * @property founder - Original founder name
+ * @property owner - Current owner name
+ * @property hours - Human-readable hours array for display
+ * @property hoursDetailed - Structured hours for business logic (24-hour format)
+ * @property socialMedia - Social media profile URLs
+ * @property geo - Geographic coordinates for maps
+ *
+ * @example
+ * // Display phone in footer
+ * <a href={`tel:${BUSINESS_INFO.phone}`}>{BUSINESS_INFO.phoneFormatted}</a>
+ *
+ * // Schema.org LocalBusiness markup
+ * <script type="application/ld+json">
+ *   {JSON.stringify({
+ *     "@type": "LocalBusiness",
+ *     "name": BUSINESS_INFO.name,
+ *     "address": {
+ *       "streetAddress": BUSINESS_INFO.addressLine1,
+ *       "addressLocality": BUSINESS_INFO.city
+ *     }
+ *   })}
+ * </script>
+ *
+ * @see SITE_CONFIG for derived site metadata
+ * @see formatPhoneNumber in utils.ts
+ * @see google-business.ts for Google Business Profile integration
+ *
+ * @functions_called None (constant declaration)
+ * @called_by Header, Footer, ContactPage, AboutPage, SchemaMarkup, GoogleBusinessSync
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+ */
 export const BUSINESS_INFO = {
   name: 'Computer Store Kansas',
   shortName: 'The Computer Store',
@@ -37,6 +92,42 @@ export const BUSINESS_INFO = {
   },
 } as const;
 
+/**
+ * Site-wide configuration for metadata, SEO, and social sharing.
+ *
+ * Derived from BUSINESS_INFO, this configuration object provides standardized
+ * site metadata used for HTML meta tags, OpenGraph, Twitter Cards, and
+ * search engine optimization. The description is the default used when pages
+ * don't provide their own.
+ *
+ * @constant
+ * @type {Readonly<SiteConfig>}
+ *
+ * @property name - Site name for meta tags (from BUSINESS_INFO.name)
+ * @property description - Default meta description for SEO (160 chars)
+ * @property url - Canonical base URL (from BUSINESS_INFO.website)
+ * @property ogImage - Path to default OpenGraph image for social sharing
+ * @property links - Social media profile URLs for sharing buttons
+ *
+ * @example
+ * // In metadata generation
+ * export const metadata = {
+ *   title: SITE_CONFIG.name,
+ *   description: SITE_CONFIG.description,
+ *   openGraph: {
+ *     images: [SITE_CONFIG.ogImage]
+ *   }
+ * }
+ *
+ * @see BUSINESS_INFO for source data
+ * @see generateMetadata in layout.tsx
+ * @see OpenGraph component
+ *
+ * @functions_called None (constant declaration)
+ * @called_by RootLayout, generateMetadata, SEO components, ShareButtons
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+ */
 export const SITE_CONFIG = {
   name: BUSINESS_INFO.name,
   description: `${BUSINESS_INFO.name} offers quality refurbished computers, expert repair services, and exceptional customer support in Topeka, Kansas.`,
@@ -48,6 +139,37 @@ export const SITE_CONFIG = {
   },
 } as const;
 
+/**
+ * Main navigation menu structure for site header.
+ *
+ * Defines the primary navigation links displayed in the site header.
+ * Maintained as a constant array to ensure consistent navigation across
+ * the site and easy updates. Order determines display order in the nav bar.
+ *
+ * @constant
+ * @type {ReadonlyArray<{label: string, href: string}>}
+ *
+ * @property label - Display text for the navigation link
+ * @property href - Relative URL path for the link destination
+ *
+ * @example
+ * // In Header component
+ * <nav>
+ *   {NAV_ITEMS.map(item => (
+ *     <Link key={item.href} href={item.href}>
+ *       {item.label}
+ *     </Link>
+ *   ))}
+ * </nav>
+ *
+ * @see Header component
+ * @see MobileMenu component
+ *
+ * @functions_called None (constant declaration)
+ * @called_by Header, MobileMenu, Breadcrumbs
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+ */
 export const NAV_ITEMS = [
   { label: 'Home', href: '/' },
   { label: 'Computers', href: '/computers' },
@@ -56,6 +178,43 @@ export const NAV_ITEMS = [
   { label: 'Contact', href: '/contact' },
 ] as const;
 
+/**
+ * Service offerings catalog for Computer Store Kansas.
+ *
+ * Defines the core service categories offered by the business. Each service
+ * has a unique ID for routing, a display name, and a brief description.
+ * Used for generating service pages, service cards on the homepage, and
+ * navigation to detailed service pages.
+ *
+ * @constant
+ * @type {ReadonlyArray<{id: string, name: string, description: string}>}
+ *
+ * @property id - Unique identifier and URL slug for the service
+ * @property name - Display name of the service offering
+ * @property description - Brief one-line description of what the service provides
+ *
+ * @example
+ * // Generate service cards
+ * {SERVICES.map(service => (
+ *   <ServiceCard key={service.id}>
+ *     <h3>{service.name}</h3>
+ *     <p>{service.description}</p>
+ *     <Link href={`/services/${service.id}`}>Learn More</Link>
+ *   </ServiceCard>
+ * ))}
+ *
+ * // Find service by ID
+ * const service = SERVICES.find(s => s.id === 'repair')
+ *
+ * @see ServicesPage for full service listings
+ * @see Individual service detail pages in /services/[id]
+ * @see ServiceCard component
+ *
+ * @functions_called None (constant declaration)
+ * @called_by ServicesPage, HomePage, ServiceCard, generateStaticParams
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+ */
 export const SERVICES = [
   {
     id: 'repair',

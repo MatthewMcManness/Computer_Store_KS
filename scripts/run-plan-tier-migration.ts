@@ -1,6 +1,20 @@
 /**
- * Migration script to add plan_tier column to customer_silver_plans table
- * Run with: npx tsx scripts/run-plan-tier-migration.ts
+ * Migration script to add plan_tier column to customer_silver_plans table.
+ *
+ * Adds a plan_tier TEXT column to support multiple tier levels (bronze, silver,
+ * silver-plus, gold) beyond the simple is_silver_plan boolean. Migrates existing
+ * silver plan data to use 'silver' tier. This enables tiered pricing for customer plans.
+ *
+ * @sideEffects
+ * - Alters customer_silver_plans table schema (adds plan_tier column)
+ * - Updates existing records where is_silver_plan = true
+ * - Logs migration progress to console
+ *
+ * @example
+ * // Run via: npx tsx scripts/run-plan-tier-migration.ts
+ *
+ * @functions_called runMigration, createClient
+ * @called_by CLI execution only
  */
 
 import { createClient } from '@supabase/supabase-js';
@@ -15,6 +29,28 @@ if (!supabaseUrl || !supabaseServiceKey) {
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+/**
+ * Runs the plan tier column migration on customer_silver_plans table.
+ *
+ * Attempts to add plan_tier column using RPC call, falls back to manual
+ * instruction if RPC unavailable. After adding column, migrates existing
+ * is_silver_plan = true records to use plan_tier = 'silver'.
+ *
+ * @returns {Promise<void>} Resolves when migration is complete
+ *
+ * @throws {Error} If migration fails due to database errors
+ *
+ * @sideEffects
+ * - Alters customer_silver_plans table (adds column and constraint)
+ * - Updates existing records
+ * - Logs detailed progress and SQL instructions to console
+ *
+ * @example
+ * await runMigration() // Executes migration
+ *
+ * @functions_called supabase.rpc, supabase.from
+ * @called_by Main script execution
+ */
 async function runMigration() {
   console.log('Running plan_tier column migration...\n');
 

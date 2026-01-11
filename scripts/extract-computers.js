@@ -1,6 +1,22 @@
 #!/usr/bin/env node
 /**
- * Extract computer data from HTML and convert to gallery.json format
+ * Extracts computer data from HTML and converts to gallery.json format.
+ *
+ * Reads the live gallery.html backup file, parses computer listings using
+ * regex patterns, and outputs structured JSON for the gallery system.
+ * This is a one-time migration script used to convert static HTML data
+ * to the JSON format used by the Next.js gallery.
+ *
+ * @sideEffects
+ * - Reads gallery.html from project root
+ * - Writes to src/data/gallery.json
+ * - Logs extraction progress to console
+ *
+ * @example
+ * // Run via: node scripts/extract-computers.js
+ *
+ * @functions_called None (standalone script)
+ * @called_by CLI execution only
  */
 
 const fs = require('fs');

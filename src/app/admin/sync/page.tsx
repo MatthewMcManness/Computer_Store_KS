@@ -62,10 +62,10 @@ export default function SyncPage() {
   useEffect(() => {
     async function checkAdmin() {
       try {
-        const response = await fetch('/api/auth/session');
+        const response = await fetch('/api/auth/check');
         if (response.ok) {
           const data = await response.json();
-          setIsAdmin(data.user?.role === 'admin');
+          setIsAdmin(data.authenticated && data.user?.role === 'admin');
         }
       } catch {
         // Ignore errors, default to non-admin

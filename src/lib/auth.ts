@@ -440,7 +440,9 @@ export async function authenticateWithSupabase(
       email: authData.user.email || email,
       name: customerName,
       role: sessionRole,
+      roles: profileRoles, // Multi-role system: store all roles in session
       userType: isEmployee ? 'employee' : 'customer',
+      location_id: locationId, // User's assigned location
     };
 
     const sessionData = createSessionData(userData); // No API token - use shared key instead

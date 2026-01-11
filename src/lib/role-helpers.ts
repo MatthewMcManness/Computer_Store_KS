@@ -278,6 +278,16 @@ export function hasBlogAccess(roles: string[]): boolean {
   return hasAnyRole(roles, ['social_media', 'manager', 'owner', 'lead_developer']);
 }
 
+/**
+ * Checks if user can manage employees (manager, owner, or lead_developer).
+ *
+ * @param roles - Array of user's role identifiers
+ * @returns True if user can manage employees
+ */
+export function canManageEmployees(roles: string[]): boolean {
+  return hasAnyRole(roles, ['manager', 'owner', 'lead_developer']);
+}
+
 // ============================================================================
 // Route Access Control
 // ============================================================================

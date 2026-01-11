@@ -491,6 +491,14 @@ export const BUSINESS_ROLES: BusinessRole[] = [
 ];
 
 /**
+ * All valid employee roles (business + add-on).
+ */
+export const ALL_EMPLOYEE_ROLES: EmployeeRole[] = [
+  ...BUSINESS_ROLES,
+  ...ADD_ON_ROLES,
+];
+
+/**
  * Check if a role is an add-on role.
  *
  * @param role - The role to check

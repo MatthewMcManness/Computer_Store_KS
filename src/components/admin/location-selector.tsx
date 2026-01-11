@@ -26,6 +26,8 @@ interface LocationSelectorProps {
   selectedLocation: string | null;
   /** Whether the user has access to all locations */
   hasGlobalAccess: boolean;
+  /** Callback when location is changed - updates parent state immediately */
+  onLocationChange?: (slug: string | null) => void;
 }
 
 /**
@@ -43,6 +45,7 @@ export function LocationSelector({
   locations,
   selectedLocation,
   hasGlobalAccess,
+  onLocationChange,
 }: LocationSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -59,6 +62,11 @@ export function LocationSelector({
 
   const handleSelect = async (slug: string | null) => {
     setIsOpen(false);
+
+    // Immediately update parent state for instant visual feedback
+    if (onLocationChange) {
+      onLocationChange(slug);
+    }
 
     startTransition(async () => {
       // Call server action to set the location cookie

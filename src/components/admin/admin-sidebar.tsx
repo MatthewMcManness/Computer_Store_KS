@@ -479,6 +479,7 @@ export function AdminSidebar({
                   locations={availableLocations}
                   selectedLocation={selectedLocation}
                   hasGlobalAccess={hasGlobalAccess}
+                  onLocationChange={setSelectedLocation}
                 />
               ) : userLocationName ? (
                 <LocationBadge locationName={userLocationName} />

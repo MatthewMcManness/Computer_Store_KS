@@ -31,8 +31,23 @@ const SESSION_MAX_AGE = 8 * 60 * 60; // 8 hours in seconds
 export { ROLE_COOKIE_NAME };
 
 /**
- * Get the legacy admin password from environment
- * Read dynamically to support test environment changes
+ * Retrieves the legacy admin password from environment variables.
+ *
+ * Supports testing environments by reading the password dynamically at runtime
+ * rather than at module initialization. Falls back through multiple env vars
+ * for compatibility with different deployment configurations.
+ *
+ * @returns The legacy admin password string
+ *
+ * @example
+ * const password = getLegacyAdminPassword()
+ * if (password === inputPassword) { // ... }
+ *
+ * @see verifyPassword for password verification
+ * @see verifyBearerToken for API token verification
+ *
+ * @functions_called None (reads process.env directly)
+ * @called_by verifyPassword, verifyBearerToken
  */
 function getLegacyAdminPassword(): string {
   return process.env.LEGACY_ADMIN_PASSWORD || process.env.ADMIN_PASSWORD || 'admin123';
@@ -68,8 +83,26 @@ export interface AuthResult {
 // =============================================================================
 
 /**
- * Get the current authentication mode
- * @returns 'repairshopr' | 'legacy'
+ * Determines the current authentication mode from environment configuration.
+ *
+ * Returns the active authentication strategy based on the AUTH_MODE environment
+ * variable. Defaults to 'repairshopr' for backward compatibility. This function
+ * is used throughout the auth system to route authentication requests appropriately.
+ *
+ * @returns 'repairshopr' for RepairShopr API auth (deprecated), 'legacy' for simple password auth
+ *
+ * @example
+ * if (getAuthMode() === 'repairshopr') {
+ *   return await authenticateWithRepairShopr(email, password)
+ * } else {
+ *   return verifyPassword(password) // legacy mode
+ * }
+ *
+ * @see authenticateWithRepairShopr for RepairShopr authentication
+ * @see authenticateWithSupabase for modern Supabase authentication
+ *
+ * @functions_called None (reads process.env directly)
+ * @called_by isAuthenticated, getCurrentUser, getSessionToken, createSession, checkAuthFromRequest
  */
 export function getAuthMode(): 'repairshopr' | 'legacy' {
   const mode = process.env.AUTH_MODE || 'repairshopr';
@@ -276,9 +309,14 @@ export async function authenticateWithSupabase(
   email: string,
   password: string
 ): Promise<AuthResult> {
-  const { supabaseAdmin, createFreshAdminClient } = await import('./supabase');
+  const { createFreshAdminClient } = await import('./supabase');
 
-  if (!supabaseAdmin) {
+  // IMPORTANT: Always use a fresh client for authentication to avoid tainting
+  // the global supabaseAdmin singleton with user session context.
+  // Calling signInWithPassword on a shared client can cause RLS issues on
+  // subsequent queries through that client.
+  const authClient = createFreshAdminClient();
+  if (!authClient) {
     console.log('[AUTH] Supabase not configured');
     return {
       success: false,
@@ -287,8 +325,9 @@ export async function authenticateWithSupabase(
   }
 
   try {
-    // Step 1: Sign in with Supabase Auth (same system as password reset)
-    const { data: authData, error: authError } = await supabaseAdmin.auth.signInWithPassword({
+    // Step 1: Sign in with Supabase Auth using a dedicated fresh client
+    // This prevents tainting the global supabaseAdmin with user session context
+    const { data: authData, error: authError } = await authClient.auth.signInWithPassword({
       email: email.toLowerCase(),
       password: password,
     });

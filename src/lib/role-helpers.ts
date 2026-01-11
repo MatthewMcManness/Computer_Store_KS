@@ -324,11 +324,6 @@ export function canAccessRoute(roles: string[], pathname: string): boolean {
     }
   }
 
-  // Default: Allow access to /admin base route for all employees
-  if (pathname === '/admin' || pathname === '/admin/') {
-    return isEmployee(roles);
-  }
-
   // Unknown route - deny by default for security
   return false;
 }
@@ -344,9 +339,50 @@ export function getUnauthorizedRedirect(roles: string[]): string {
     return '/portal'; // Customer portal
   }
   if (isEmployee(roles)) {
-    return '/admin'; // Employee dashboard
+    return getDefaultDashboard(roles); // Role-appropriate dashboard
   }
   return '/login'; // Not logged in
+}
+
+/**
+ * Gets the default dashboard path based on user's highest role.
+ *
+ * Routes users to the most relevant dashboard for their primary role:
+ * - Owner/Lead Developer/Manager → Admin Dashboard (/admin)
+ * - Lead Technician → Lead Tech Dashboard (/admin/lead-tech)
+ * - Technician → Tech Dashboard (/admin/tech)
+ * - Receptionist → Reception Dashboard (/admin/reception)
+ *
+ * @param roles - Array of user's role identifiers
+ * @returns The default dashboard path for the user
+ *
+ * @example
+ * getDefaultDashboard(['technician']) // Returns '/admin/tech'
+ * getDefaultDashboard(['owner', 'lead_developer']) // Returns '/admin'
+ */
+export function getDefaultDashboard(roles: string[]): string {
+  // Lead developer and management go to admin dashboard
+  if (hasAnyRole(roles, ['lead_developer', 'owner', 'manager'])) {
+    return '/admin';
+  }
+
+  // Lead technician goes to lead tech dashboard
+  if (roles.includes('lead_technician')) {
+    return '/admin/lead-tech';
+  }
+
+  // Technician goes to tech dashboard
+  if (roles.includes('technician')) {
+    return '/admin/tech';
+  }
+
+  // Receptionist goes to reception dashboard
+  if (roles.includes('receptionist')) {
+    return '/admin/reception';
+  }
+
+  // Fallback to admin dashboard
+  return '/admin';
 }
 
 // ============================================================================

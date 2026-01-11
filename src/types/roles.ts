@@ -53,6 +53,8 @@ export type UserRole = EmployeeRole | CustomerRole;
  * Permission identifiers for route and feature access.
  */
 export type Permission =
+  // General
+  | 'view_admin_dashboard'
   // Reception Section
   | 'view_reception_dashboard'
   | 'manage_intake'
@@ -133,6 +135,7 @@ export const BUSINESS_ROLE_LEVEL: Record<BusinessRole, number> = {
 export const ROLE_PERMISSIONS: Record<EmployeeRole, Permission[]> = {
   // Business hierarchy (each level adds new permissions)
   receptionist: [
+    'view_admin_dashboard',
     'view_reception_dashboard',
     'manage_intake',
     'view_customers',
@@ -175,6 +178,7 @@ export const ROLE_PERMISSIONS: Record<EmployeeRole, Permission[]> = {
   ],
   lead_developer: [
     // Lead developer gets ALL permissions (superuser)
+    'view_admin_dashboard',
     'view_reception_dashboard',
     'manage_intake',
     'view_customers',
@@ -396,6 +400,12 @@ export const SIDEBAR_CONFIG: SidebarSection[] = [
     icon: 'Shield',
     items: [
       {
+        label: 'Dashboard',
+        href: '/admin',
+        permissions: ['view_admin_dashboard'],
+        icon: 'LayoutDashboard',
+      },
+      {
         label: 'Data Sync',
         href: '/admin/sync',
         permissions: ['view_data_sync'],
@@ -414,6 +424,8 @@ export const SIDEBAR_CONFIG: SidebarSection[] = [
  * Used by middleware for route protection.
  */
 export const ROUTE_PERMISSIONS: Record<string, Permission[]> = {
+  // Admin Dashboard
+  '/admin': ['view_admin_dashboard'],
   // Reception Section
   '/admin/reception': ['view_reception_dashboard'],
   '/admin/intake': ['manage_intake'],

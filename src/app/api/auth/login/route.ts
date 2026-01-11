@@ -6,6 +6,7 @@ import {
   createSession,
 } from '@/lib/auth';
 import { triggerSyncIfNeeded } from '@/lib/repairshopr-sync';
+import { getDefaultDashboard } from '@/lib/role-helpers';
 
 export const dynamic = 'force-dynamic';
 
@@ -296,6 +297,13 @@ export async function POST(request: NextRequest) {
           });
         }
 
+        // Get roles and compute redirect URL
+        const roles = supabaseResult.user.roles ||
+          (supabaseResult.user.role ? [supabaseResult.user.role] : ['customer']);
+        const redirectUrl = supabaseResult.user.userType === 'customer'
+          ? '/portal'
+          : getDefaultDashboard(roles);
+
         return NextResponse.json({
           success: true,
           user: {
@@ -304,6 +312,7 @@ export async function POST(request: NextRequest) {
             role: supabaseResult.user.role,
             userType: supabaseResult.user.userType,
           },
+          redirectUrl,
         });
       }
 

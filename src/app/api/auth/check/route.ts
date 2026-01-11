@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth';
 import { getLocationContext } from '@/lib/location-helpers';
+import { getDefaultDashboard } from '@/lib/role-helpers';
 
 export const dynamic = 'force-dynamic';
 
@@ -60,6 +61,11 @@ export async function GET() {
         }
       }
 
+      // Compute redirect URL based on roles
+      const redirectUrl = user.userType === 'customer'
+        ? '/portal'
+        : getDefaultDashboard(roles);
+
       return NextResponse.json({
         authenticated: true,
         user: {
@@ -69,6 +75,7 @@ export async function GET() {
           userType: user.userType,
         },
         roles,
+        redirectUrl,
         locationContext,
       });
     }

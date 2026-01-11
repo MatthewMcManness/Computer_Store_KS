@@ -490,23 +490,6 @@ export function AdminSidebar({
           {/* Navigation */}
           <nav className="flex-1 overflow-y-auto overflow-x-hidden py-4">
             <div className={cn('space-y-1', isCollapsed ? 'px-2' : 'px-3')}>
-              {/* Dashboard link - always visible for employees */}
-              <Link
-                href="/admin"
-                onClick={handleNavClick}
-                title={isCollapsed ? 'Dashboard' : undefined}
-                className={cn(
-                  'flex items-center rounded-lg text-sm font-medium transition-colors mb-2',
-                  isCollapsed ? 'justify-center p-3' : 'gap-3 px-3 py-2.5',
-                  pathname === '/admin'
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
-                )}
-              >
-                <LayoutDashboard className="h-5 w-5 flex-shrink-0" />
-                {!isCollapsed && <span>Dashboard</span>}
-              </Link>
-
               {/* Loading state */}
               {isLoading && !isCollapsed && (
                 <div className="px-3 py-4 text-sm text-gray-500 dark:text-gray-400">

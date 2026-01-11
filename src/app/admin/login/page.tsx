@@ -34,12 +34,8 @@ export default function AdminLoginPage() {
         const response = await fetch('/api/auth/check');
         const data = await response.json();
         if (mounted && data.authenticated) {
-          // Redirect based on user type
-          if (data.user?.userType === 'customer') {
-            router.replace('/portal');
-          } else {
-            router.replace('/admin');
-          }
+          // Redirect to role-appropriate dashboard
+          router.replace(data.redirectUrl || '/admin');
         }
       } catch {
         // Not authenticated, stay on login page
@@ -79,13 +75,9 @@ export default function AdminLoginPage() {
         const userName = result.user?.name || 'User';
         setSuccessMessage(`Welcome back, ${userName}!`);
 
-        // Redirect based on user type after brief delay
+        // Redirect to role-appropriate dashboard after brief delay
         setTimeout(() => {
-          if (result.user?.userType === 'customer') {
-            router.push('/portal');
-          } else {
-            router.push('/admin');
-          }
+          router.push(result.redirectUrl || '/admin');
           router.refresh();
         }, 800);
       } else {

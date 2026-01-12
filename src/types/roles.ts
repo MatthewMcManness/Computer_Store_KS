@@ -269,16 +269,10 @@ export const SIDEBAR_CONFIG: SidebarSection[] = [
     icon: 'ClipboardList',
     items: [
       {
-        label: 'Dashboard',
-        href: '/admin/reception',
+        label: 'Reception',
+        href: '/admin',
         permissions: ['view_reception_dashboard'],
         icon: 'LayoutDashboard',
-      },
-      {
-        label: 'Customer Intake',
-        href: '/admin/intake',
-        permissions: ['manage_intake'],
-        icon: 'UserPlus',
       },
       {
         label: 'Customers',
@@ -424,10 +418,9 @@ export const SIDEBAR_CONFIG: SidebarSection[] = [
  * Used by middleware for route protection.
  */
 export const ROUTE_PERMISSIONS: Record<string, Permission[]> = {
-  // Admin Dashboard
-  '/admin': ['view_admin_dashboard'],
+  // Reception Dashboard (main admin page)
+  '/admin': ['view_admin_dashboard', 'view_reception_dashboard'],
   // Reception Section
-  '/admin/reception': ['view_reception_dashboard'],
   '/admin/intake': ['manage_intake'],
   '/admin/customers': ['view_customers'],
   '/admin/families': ['view_families'],

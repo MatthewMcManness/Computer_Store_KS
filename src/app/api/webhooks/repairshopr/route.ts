@@ -23,7 +23,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase';
+import { supabaseAdmin, getDefaultCustomStatusForRepairShoprStatus } from '@/lib/supabase';
 import { createHmac } from 'crypto';
 
 export const dynamic = 'force-dynamic';
@@ -182,6 +182,7 @@ async function syncCustomer(customer: RepairShoprWebhookCustomer): Promise<void>
 
 /**
  * Sync a single ticket to Supabase
+ * Also creates/updates the status override to map RepairShopr status to our custom status
  */
 async function syncTicket(ticket: RepairShoprWebhookTicket): Promise<void> {
   if (!supabaseAdmin) {
@@ -213,6 +214,37 @@ async function syncTicket(ticket: RepairShoprWebhookTicket): Promise<void> {
   if (error) {
     console.error('[Webhook] Ticket sync error:', error);
     throw new Error(`Failed to sync ticket ${ticket.id}: ${error.message}`);
+  }
+
+  // Auto-create/update status override based on RepairShopr status
+  // Only create if no override exists yet (don't overwrite manual changes)
+  if (ticket.status) {
+    const customStatus = getDefaultCustomStatusForRepairShoprStatus(ticket.status);
+
+    // Check if override already exists
+    const { data: existingOverride } = await supabaseAdmin
+      .from('ticket_status_overrides')
+      .select('id')
+      .eq('repairshopr_ticket_id', ticket.id)
+      .single();
+
+    if (!existingOverride) {
+      // No override exists, create one based on RepairShopr status
+      const { error: overrideError } = await supabaseAdmin
+        .from('ticket_status_overrides')
+        .insert({
+          repairshopr_ticket_id: ticket.id,
+          custom_status: customStatus,
+          updated_by: 'webhook_auto_sync',
+        });
+
+      if (overrideError) {
+        console.error('[Webhook] Status override creation error:', overrideError);
+        // Don't throw - this is non-critical
+      } else {
+        console.log(`[Webhook] Created status override for ticket ${ticket.id}: ${customStatus}`);
+      }
+    }
   }
 
   console.log(`[Webhook] Synced ticket ${ticket.id}`);

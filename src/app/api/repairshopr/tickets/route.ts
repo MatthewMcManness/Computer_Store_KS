@@ -2,13 +2,24 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getEmployeeAuditInfo, getSessionToken } from '@/lib/auth';
 import { createRepairShoprClient, RepairShoprAPIError, getApiToken } from '@/lib/repairshopr';
 import { logTicketAction } from '@/lib/audit';
+import { supabaseAdmin, TICKET_STATUS_DEFINITIONS } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
 /**
  * GET /api/repairshopr/tickets
  * Search/list tickets with optional filters
- * Query params: ?q=search&customer_id=123&status=New&page=1
+ * Query params: ?q=search&customer_id=123&status=new&page=1
+ *
+ * Status filtering:
+ * - If status is a custom status (new, diagnosing, repairing, etc.),
+ *   filters by ticket_status_overrides in Supabase
+ * - If status is a RepairShopr status (New, In Progress, etc.),
+ *   passes directly to RepairShopr API
+ * - If no status, returns all tickets
+ *
+ * @version 1.0.0 - 2026-01-12T00:00:00Z - Initial implementation
+ * @version 1.1.0 - 2026-01-12T00:00:00Z - Added custom status filtering via Supabase
  */
 export async function GET(request: NextRequest) {
   // Check employee authentication and get audit info
@@ -32,10 +43,75 @@ export async function GET(request: NextRequest) {
 
   try {
     const client = createRepairShoprClient();
+
+    // Check if status is a custom status (from our definitions)
+    const isCustomStatus = status && TICKET_STATUS_DEFINITIONS.some(
+      (def) => def.status === status
+    );
+
+    if (isCustomStatus && supabaseAdmin) {
+      // Filter by custom status via Supabase ticket_status_overrides
+      // First, get all ticket IDs with this custom status
+      const { data: overrides, error: overrideError } = await supabaseAdmin
+        .from('ticket_status_overrides')
+        .select('repairshopr_ticket_id')
+        .eq('custom_status', status);
+
+      if (overrideError) {
+        console.error('[API] Failed to fetch status overrides:', overrideError);
+        return NextResponse.json(
+          { error: 'Failed to filter by status' },
+          { status: 500 }
+        );
+      }
+
+      if (!overrides || overrides.length === 0) {
+        // No tickets with this custom status
+        return NextResponse.json({ tickets: [] });
+      }
+
+      // Get the ticket IDs
+      const ticketIds = new Set(overrides.map((o) => o.repairshopr_ticket_id));
+
+      // Fetch tickets from RepairShopr (without status filter, we'll filter ourselves)
+      // Fetch multiple pages to ensure we get all matching tickets
+      const allTickets: unknown[] = [];
+      let currentPage = 1;
+      const maxPages = 5; // Limit to prevent infinite loops
+
+      while (currentPage <= maxPages) {
+        const pageTickets = await client.searchTickets(apiToken, {
+          query,
+          customer_id: customerId ? parseInt(customerId, 10) : undefined,
+          page: currentPage,
+        });
+
+        if (!pageTickets || pageTickets.length === 0) {
+          break;
+        }
+
+        // Filter to only tickets with matching custom status
+        const matchingTickets = pageTickets.filter(
+          (ticket: { id: number }) => ticketIds.has(ticket.id)
+        );
+        allTickets.push(...matchingTickets);
+
+        // If we have enough tickets or no more pages, stop
+        if (pageTickets.length < 25 || allTickets.length >= 50) {
+          break;
+        }
+
+        currentPage++;
+      }
+
+      return NextResponse.json({ tickets: allTickets });
+    }
+
+    // For RepairShopr statuses or no status filter, pass directly to API
     const tickets = await client.searchTickets(apiToken, {
       query,
       customer_id: customerId ? parseInt(customerId, 10) : undefined,
-      status,
+      status: isCustomStatus ? undefined : status, // Don't pass custom status to RS
       page: page ? parseInt(page, 10) : undefined,
     });
 

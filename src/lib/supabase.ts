@@ -1257,6 +1257,32 @@ export function getRepairShoprStatusForCustomStatus(
 }
 
 /**
+ * Get the default custom status for a RepairShopr status
+ * Maps RepairShopr statuses to our custom status system
+ * When multiple custom statuses map to the same RS status, returns the first/default one
+ */
+export function getDefaultCustomStatusForRepairShoprStatus(
+  repairshoprStatus: string
+): TicketCustomStatus {
+  const statusLower = repairshoprStatus?.toLowerCase() || '';
+
+  // Map RepairShopr statuses to our custom statuses
+  // Using case-insensitive matching for robustness
+  if (statusLower === 'new') return 'new';
+  if (statusLower === 'in progress') return 'diagnosing'; // Default to diagnosing for "In Progress"
+  if (statusLower === 'waiting for parts') return 'waiting_for_parts';
+  if (statusLower === 'customer reply') return 'call_customer'; // Default to call_customer for "Customer Reply"
+  if (statusLower === 'done shelf') return 'ready_for_pickup';
+  if (statusLower === 'resolved') return 'completed';
+
+  // Also handle CnC status which means "Call and Close" or similar
+  if (statusLower === 'cnc' || statusLower.includes('call')) return 'call_customer';
+
+  // Default to 'new' for unknown statuses
+  return 'new';
+}
+
+/**
  * Check if a custom status requires a customer question
  */
 export function statusRequiresCustomerQuestion(

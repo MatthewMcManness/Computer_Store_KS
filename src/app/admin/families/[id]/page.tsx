@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
-import { Home, User, Mail, Phone, Loader2, Edit2, X, UserPlus, Users, Shield, ArrowLeft, MapPin, Trash2 } from 'lucide-react';
+import { Home, User, Mail, Phone, Loader2, Edit2, X, UserPlus, Users, Shield, ArrowLeft, MapPin, Trash2, Search } from 'lucide-react';
 import type { RepairShoprCustomer } from '@/lib/repairshopr';
 
 type ProtectionPlanTier = 'eset' | 'silver' | 'silver-plus' | null;
@@ -74,6 +74,13 @@ export default function FamilyDetailsPage() {
   // Delete family state
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deletingFamily, setDeletingFamily] = useState(false);
+
+  // Add member modal state
+  const [showAddMemberModal, setShowAddMemberModal] = useState(false);
+  const [customerSearchQuery, setCustomerSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<RepairShoprCustomer[]>([]);
+  const [searchingCustomers, setSearchingCustomers] = useState(false);
+  const [addingCustomerId, setAddingCustomerId] = useState<number | null>(null);
 
   // Check authentication and user role
   useEffect(() => {
@@ -268,6 +275,63 @@ export default function FamilyDetailsPage() {
     }
   };
 
+  // Search for customers to add
+  const handleSearchCustomers = async () => {
+    if (!customerSearchQuery.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    setSearchingCustomers(true);
+    try {
+      const response = await fetch(`/api/repairshopr/customers?q=${encodeURIComponent(customerSearchQuery.trim())}`);
+      if (!response.ok) throw new Error('Failed to search customers');
+
+      const data = await response.json();
+      // Filter out customers already in this family
+      const existingIds = new Set(familyCustomers.map(c => c.id));
+      const filteredResults = (data.customers || []).filter(
+        (c: RepairShoprCustomer) => !existingIds.has(c.id)
+      );
+      setSearchResults(filteredResults);
+    } catch (err) {
+      console.error('Failed to search customers:', err);
+    } finally {
+      setSearchingCustomers(false);
+    }
+  };
+
+  // Add customer to family
+  const handleAddCustomerToFamily = async (customerId: number) => {
+    setAddingCustomerId(customerId);
+    try {
+      const response = await fetch(`/api/repairshopr/customers/${customerId}/family`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ family_id: parseInt(familyId, 10) }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to add customer to family');
+      }
+
+      // Get the customer details and add to list
+      const customerToAdd = searchResults.find(c => c.id === customerId);
+      if (customerToAdd) {
+        setFamilyCustomers(prev => [...prev, customerToAdd]);
+        setSearchResults(prev => prev.filter(c => c.id !== customerId));
+        if (family) {
+          setFamily({ ...family, customerCount: family.customerCount + 1 });
+        }
+      }
+    } catch (err) {
+      console.error('Failed to add customer:', err);
+    } finally {
+      setAddingCustomerId(null);
+    }
+  };
+
   // Get plan tier badge
   const getPlanBadge = (tier: ProtectionPlanTier) => {
     if (!tier) return null;
@@ -379,6 +443,17 @@ export default function FamilyDetailsPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                setCustomerSearchQuery('');
+                setSearchResults([]);
+                setShowAddMemberModal(true);
+              }}
+              className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+            >
+              <UserPlus className="h-4 w-4" />
+              Add Member
+            </button>
             {isAdmin && familyCustomers.length === 0 && (
               <button
                 onClick={() => setShowDeleteConfirm(true)}
@@ -638,6 +713,114 @@ export default function FamilyDetailsPage() {
               >
                 {deletingFamily && <Loader2 className="h-4 w-4 animate-spin" />}
                 {deletingFamily ? 'Deleting...' : 'Delete Family'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Member Modal */}
+      {showAddMemberModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-lg rounded-xl bg-white dark:bg-gray-900 p-6 shadow-2xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Add Family Member</h2>
+              <button
+                onClick={() => setShowAddMemberModal(false)}
+                className="rounded-lg p-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Search Input */}
+            <div className="mb-4">
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    value={customerSearchQuery}
+                    onChange={(e) => setCustomerSearchQuery(e.target.value)}
+                    placeholder="Search customers by name, email, or phone..."
+                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white pl-10 pr-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleSearchCustomers();
+                      }
+                    }}
+                  />
+                </div>
+                <button
+                  onClick={handleSearchCustomers}
+                  disabled={searchingCustomers}
+                  className="inline-flex items-center gap-2 rounded-lg bg-gray-100 dark:bg-gray-800 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50"
+                >
+                  {searchingCustomers ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Search className="h-4 w-4" />
+                  )}
+                  Search
+                </button>
+              </div>
+            </div>
+
+            {/* Search Results */}
+            <div className="flex-1 overflow-y-auto">
+              {searchResults.length > 0 ? (
+                <div className="space-y-2">
+                  {searchResults.map((customer) => (
+                    <div
+                      key={customer.id}
+                      className="flex items-center justify-between rounded-lg border border-gray-200 dark:border-gray-700 p-3"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
+                          <User className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {customer.fullname || `${customer.firstname} ${customer.lastname}`}
+                          </p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            {customer.email || customer.phone || 'No contact info'}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => handleAddCustomerToFamily(customer.id)}
+                        disabled={addingCustomerId === customer.id}
+                        className="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                      >
+                        {addingCustomerId === customer.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <UserPlus className="h-4 w-4" />
+                        )}
+                        Add
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : customerSearchQuery && !searchingCustomers ? (
+                <div className="py-8 text-center text-gray-500 dark:text-gray-400">
+                  No customers found matching &quot;{customerSearchQuery}&quot;
+                </div>
+              ) : (
+                <div className="py-8 text-center text-gray-500 dark:text-gray-400">
+                  Search for customers to add to this family
+                </div>
+              )}
+            </div>
+
+            {/* Close Button */}
+            <div className="mt-4 flex justify-end">
+              <button
+                onClick={() => setShowAddMemberModal(false)}
+                className="rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+              >
+                Done
               </button>
             </div>
           </div>

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Users, Loader2, ChevronLeft, ChevronRight, Filter, Shield, Home, Edit2, Trash2 } from 'lucide-react';
+import { Users, Loader2, ChevronLeft, ChevronRight, Filter, Shield, Home, Edit2, Trash2, Plus, X } from 'lucide-react';
 
 type ProtectionPlanTier = 'eset' | 'silver' | 'silver-plus' | null;
 
@@ -35,6 +35,17 @@ export default function FamiliesPage() {
   const [planFilter, setPlanFilter] = useState<ProtectionPlanTier | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isAdmin, setIsAdmin] = useState(false);
+
+  // Create family modal state
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [newFamilyName, setNewFamilyName] = useState('');
+  const [creatingFamily, setCreatingFamily] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+
+  // Delete family state
+  const [deletingFamilyId, setDeletingFamilyId] = useState<number | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [familyToDelete, setFamilyToDelete] = useState<Family | null>(null);
 
   const perPage = 50;
 
@@ -88,6 +99,65 @@ export default function FamiliesPage() {
     setPage(1);
   }, [planFilter, searchQuery]);
 
+  // Create new family
+  const handleCreateFamily = async () => {
+    if (!newFamilyName.trim()) return;
+
+    setCreatingFamily(true);
+    setCreateError(null);
+
+    try {
+      const response = await fetch('/api/repairshopr/families', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newFamilyName.trim() }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to create family');
+      }
+
+      const data = await response.json();
+
+      // Add new family to list and navigate to it
+      router.push(`/admin/families/${data.family.id}`);
+    } catch (err) {
+      setCreateError(err instanceof Error ? err.message : 'Failed to create family');
+    } finally {
+      setCreatingFamily(false);
+    }
+  };
+
+  // Delete family
+  const handleDeleteFamily = async (family: Family) => {
+    if (family.customerCount > 0) {
+      setError('Cannot delete family with assigned customers');
+      return;
+    }
+
+    setDeletingFamilyId(family.id);
+    try {
+      const response = await fetch(`/api/repairshopr/families/${family.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to delete family');
+      }
+
+      // Remove from list
+      setFamilies(prev => prev.filter(f => f.id !== family.id));
+      setShowDeleteConfirm(false);
+      setFamilyToDelete(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete family');
+    } finally {
+      setDeletingFamilyId(null);
+    }
+  };
+
   // Get plan tier badge
   const getPlanBadge = (tier: ProtectionPlanTier) => {
     if (!tier) return null;
@@ -117,11 +187,24 @@ export default function FamiliesPage() {
   return (
     <div>
       {/* Header */}
-      <div className="mb-6 sm:mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Family Management</h1>
-        <p className="mt-1 text-sm sm:text-base text-gray-500 dark:text-gray-400">
-          View and manage family groups
-        </p>
+      <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Family Management</h1>
+          <p className="mt-1 text-sm sm:text-base text-gray-500 dark:text-gray-400">
+            View and manage family groups
+          </p>
+        </div>
+        <button
+          onClick={() => {
+            setNewFamilyName('');
+            setCreateError(null);
+            setShowCreateModal(true);
+          }}
+          className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
+        >
+          <Plus className="h-4 w-4" />
+          New Family
+        </button>
       </div>
 
       {/* Error */}
@@ -243,17 +326,23 @@ export default function FamiliesPage() {
                     >
                       <Edit2 className="h-4 w-4" />
                     </button>
-                    {isAdmin && (
+                    {isAdmin && family.customerCount === 0 && (
                       <button
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          // TODO: Implement delete functionality
+                          setFamilyToDelete(family);
+                          setShowDeleteConfirm(true);
                         }}
-                        className="p-1.5 text-red-500 hover:bg-red-100 rounded-lg dark:text-red-400 dark:hover:bg-red-900/30"
+                        disabled={deletingFamilyId === family.id}
+                        className="p-1.5 text-red-500 hover:bg-red-100 rounded-lg dark:text-red-400 dark:hover:bg-red-900/30 disabled:opacity-50"
                         title="Delete family"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        {deletingFamilyId === family.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-4 w-4" />
+                        )}
                       </button>
                     )}
                   </div>
@@ -282,17 +371,23 @@ export default function FamiliesPage() {
                           >
                             <Edit2 className="h-4 w-4" />
                           </button>
-                          {isAdmin && (
+                          {isAdmin && family.customerCount === 0 && (
                             <button
                               onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                // TODO: Implement delete functionality
+                                setFamilyToDelete(family);
+                                setShowDeleteConfirm(true);
                               }}
-                              className="p-1.5 text-red-500 hover:bg-red-100 rounded-lg dark:text-red-400 dark:hover:bg-red-900/30"
+                              disabled={deletingFamilyId === family.id}
+                              className="p-1.5 text-red-500 hover:bg-red-100 rounded-lg dark:text-red-400 dark:hover:bg-red-900/30 disabled:opacity-50"
                               title="Delete family"
                             >
-                              <Trash2 className="h-4 w-4" />
+                              {deletingFamilyId === family.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="h-4 w-4" />
+                              )}
                             </button>
                           )}
                           <ChevronRight className="h-5 w-5 text-gray-400" />
@@ -346,6 +441,98 @@ export default function FamiliesPage() {
               Next
               <ChevronRight className="h-4 w-4" />
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Create Family Modal */}
+      {showCreateModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-xl bg-white dark:bg-gray-900 p-6 shadow-2xl">
+            <div className="mb-6 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Create New Family</h2>
+              <button
+                onClick={() => setShowCreateModal(false)}
+                className="rounded-lg p-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {createError && (
+              <div className="mb-4 rounded-lg bg-red-50 dark:bg-red-900/50 p-3 text-sm text-red-800 dark:text-red-200">
+                {createError}
+              </div>
+            )}
+
+            <div className="mb-6">
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Family Name
+              </label>
+              <input
+                type="text"
+                value={newFamilyName}
+                onChange={(e) => setNewFamilyName(e.target.value)}
+                placeholder="e.g., Smith Family"
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && newFamilyName.trim()) {
+                    handleCreateFamily();
+                  }
+                }}
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-3">
+              <button
+                onClick={() => setShowCreateModal(false)}
+                disabled={creatingFamily}
+                className="rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreateFamily}
+                disabled={creatingFamily || !newFamilyName.trim()}
+                className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+              >
+                {creatingFamily && <Loader2 className="h-4 w-4 animate-spin" />}
+                {creatingFamily ? 'Creating...' : 'Create Family'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && familyToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-xl bg-white dark:bg-gray-900 p-6 shadow-2xl">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Delete Family</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              Are you sure you want to delete &quot;{familyToDelete.name}&quot;? This action cannot be undone.
+            </p>
+            <div className="flex items-center justify-end gap-3">
+              <button
+                onClick={() => {
+                  setShowDeleteConfirm(false);
+                  setFamilyToDelete(null);
+                }}
+                disabled={deletingFamilyId !== null}
+                className="rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDeleteFamily(familyToDelete)}
+                disabled={deletingFamilyId !== null}
+                className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+              >
+                {deletingFamilyId !== null && <Loader2 className="h-4 w-4 animate-spin" />}
+                {deletingFamilyId !== null ? 'Deleting...' : 'Delete Family'}
+              </button>
+            </div>
           </div>
         </div>
       )}

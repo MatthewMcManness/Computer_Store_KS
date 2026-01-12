@@ -6,7 +6,7 @@
 CREATE TABLE IF NOT EXISTS families (
   id SERIAL PRIMARY KEY,
   name TEXT NOT NULL,
-  location_id INTEGER REFERENCES locations(id),
+  location_id UUID REFERENCES locations(id),
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );

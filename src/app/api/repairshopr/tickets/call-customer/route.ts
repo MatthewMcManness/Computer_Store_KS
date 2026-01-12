@@ -7,8 +7,10 @@ export const dynamic = 'force-dynamic';
 
 /**
  * GET /api/repairshopr/tickets/call-customer
- * Fetch all tickets with 'call_customer' status
- * Returns ticket details with customer name and when status was set
+ * Fetch all tickets that need customer calls from both:
+ * 1. RepairShopr tickets with "CnC" status
+ * 2. Supabase overrides with 'call_customer' custom status
+ * Returns combined, deduplicated list with customer details
  */
 export async function GET(request: NextRequest) {
   // Check employee authentication
@@ -24,59 +26,90 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Get all ticket overrides with 'call_customer' status
-    if (!supabaseAdmin) {
-      return NextResponse.json(
-        { error: 'Database not configured' },
-        { status: 500 }
-      );
-    }
-
-    const { data: overrides, error: dbError } = await supabaseAdmin
-      .from('ticket_status_overrides')
-      .select('*')
-      .eq('custom_status', 'call_customer')
-      .order('updated_at', { ascending: false });
-
-    if (dbError) {
-      console.error('[API] Error fetching call_customer overrides:', dbError);
-      return NextResponse.json(
-        { error: 'Failed to fetch tickets' },
-        { status: 500 }
-      );
-    }
-
-    if (!overrides || overrides.length === 0) {
-      return NextResponse.json({ tickets: [] });
-    }
-
-    // Fetch ticket details from RepairShopr for each override
     const client = createRepairShoprClient();
-    const ticketsWithDetails = await Promise.all(
-      overrides.map(async (override) => {
-        try {
-          const ticket = await client.getTicket(apiToken, override.repairshopr_ticket_id);
-          return {
-            id: ticket.id,
-            number: ticket.number,
-            subject: ticket.subject,
-            customer_name: ticket.customer_business_then_name || 'Unknown Customer',
-            customer_id: ticket.customer_id,
-            status_changed_at: override.updated_at,
-            customer_question: override.customer_question,
-            created_at: ticket.created_at,
-          };
-        } catch (err) {
-          console.error(`[API] Error fetching ticket ${override.repairshopr_ticket_id}:`, err);
-          return null;
-        }
-      })
+    const ticketMap = new Map<number, {
+      id: number;
+      number: string;
+      subject: string;
+      customer_name: string;
+      customer_id: number;
+      status_changed_at: string;
+      customer_question: string | null;
+      created_at: string;
+      source: 'repairshopr' | 'supabase' | 'both';
+    }>();
+
+    // 1. Fetch tickets from RepairShopr with "CnC" status
+    try {
+      const cncTickets = await client.searchTickets(apiToken, { status: 'CnC' });
+      for (const ticket of cncTickets) {
+        ticketMap.set(ticket.id, {
+          id: ticket.id,
+          number: ticket.number,
+          subject: ticket.subject,
+          customer_name: ticket.customer_business_then_name || 'Unknown Customer',
+          customer_id: ticket.customer_id,
+          status_changed_at: ticket.updated_at || ticket.created_at,
+          customer_question: null,
+          created_at: ticket.created_at,
+          source: 'repairshopr',
+        });
+      }
+    } catch (err) {
+      console.error('[API] Error fetching CnC tickets from RepairShopr:', err);
+      // Continue - we'll still try Supabase
+    }
+
+    // 2. Get tickets with 'call_customer' override from Supabase
+    if (supabaseAdmin) {
+      const { data: overrides, error: dbError } = await supabaseAdmin
+        .from('ticket_status_overrides')
+        .select('*')
+        .eq('custom_status', 'call_customer')
+        .order('updated_at', { ascending: false });
+
+      if (dbError) {
+        console.error('[API] Error fetching call_customer overrides:', dbError);
+      } else if (overrides && overrides.length > 0) {
+        // Fetch ticket details for overrides not already in map
+        await Promise.all(
+          overrides.map(async (override) => {
+            const existing = ticketMap.get(override.repairshopr_ticket_id);
+            if (existing) {
+              // Merge - prefer Supabase data for customer_question
+              existing.customer_question = override.customer_question;
+              existing.status_changed_at = override.updated_at;
+              existing.source = 'both';
+            } else {
+              // Fetch from RepairShopr
+              try {
+                const ticket = await client.getTicket(apiToken, override.repairshopr_ticket_id);
+                ticketMap.set(ticket.id, {
+                  id: ticket.id,
+                  number: ticket.number,
+                  subject: ticket.subject,
+                  customer_name: ticket.customer_business_then_name || 'Unknown Customer',
+                  customer_id: ticket.customer_id,
+                  status_changed_at: override.updated_at,
+                  customer_question: override.customer_question,
+                  created_at: ticket.created_at,
+                  source: 'supabase',
+                });
+              } catch (err) {
+                console.error(`[API] Error fetching ticket ${override.repairshopr_ticket_id}:`, err);
+              }
+            }
+          })
+        );
+      }
+    }
+
+    // Convert map to array and sort by status_changed_at descending
+    const tickets = Array.from(ticketMap.values()).sort(
+      (a, b) => new Date(b.status_changed_at).getTime() - new Date(a.status_changed_at).getTime()
     );
 
-    // Filter out any failed fetches
-    const validTickets = ticketsWithDetails.filter(Boolean);
-
-    return NextResponse.json({ tickets: validTickets });
+    return NextResponse.json({ tickets });
   } catch (error) {
     console.error('[API] Call customer tickets error:', error);
     return NextResponse.json(

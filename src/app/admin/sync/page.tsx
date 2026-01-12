@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { RefreshCw, Database, Users, FileText, CreditCard, Package, MessageSquare, Receipt, Check, X, Loader2, ShieldAlert } from 'lucide-react';
+import { RefreshCw, Database, Users, FileText, CreditCard, Package, MessageSquare, Receipt, Check, X, Loader2, ShieldAlert, Tags } from 'lucide-react';
 
 interface SyncCounts {
   customers?: number;
@@ -58,6 +58,11 @@ export default function SyncPage() {
   const [error, setError] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
 
+  // Status sync state
+  const [statusSyncInfo, setStatusSyncInfo] = useState<{ totalTickets: number; totalOverrides: number; needsSync: number } | null>(null);
+  const [syncingStatuses, setSyncingStatuses] = useState(false);
+  const [statusSyncResult, setStatusSyncResult] = useState<{ success: boolean; created: number; errors?: number; message?: string } | null>(null);
+
   // Check if user is admin
   useEffect(() => {
     async function checkAdmin() {
@@ -94,6 +99,48 @@ export default function SyncPage() {
   useEffect(() => {
     fetchStatus();
   }, [fetchStatus]);
+
+  // Fetch status sync info
+  const fetchStatusSyncInfo = useCallback(async () => {
+    try {
+      const response = await fetch('/api/repairshopr/tickets/sync-statuses');
+      if (response.ok) {
+        const data = await response.json();
+        setStatusSyncInfo(data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch status sync info:', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchStatusSyncInfo();
+  }, [fetchStatusSyncInfo]);
+
+  // Run status sync
+  const runStatusSync = async () => {
+    setSyncingStatuses(true);
+    setStatusSyncResult(null);
+
+    try {
+      const response = await fetch('/api/repairshopr/tickets/sync-statuses', {
+        method: 'POST',
+      });
+      const data = await response.json();
+
+      if (response.ok) {
+        setStatusSyncResult(data);
+        // Refresh the info
+        await fetchStatusSyncInfo();
+      } else {
+        setStatusSyncResult({ success: false, created: 0, message: data.error || 'Sync failed' });
+      }
+    } catch (err) {
+      setStatusSyncResult({ success: false, created: 0, message: err instanceof Error ? err.message : 'Sync failed' });
+    } finally {
+      setSyncingStatuses(false);
+    }
+  };
 
   // Poll for updates while syncing
   useEffect(() => {
@@ -318,6 +365,74 @@ export default function SyncPage() {
                 </div>
               </button>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Ticket Status Sync - Admin Only */}
+      {isAdmin && (
+        <div className="mb-8">
+          <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Ticket Status Mapping</h2>
+          <div className="rounded-xl bg-white p-6 shadow-sm dark:bg-gray-900">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100 text-purple-600 dark:bg-purple-900/50 dark:text-purple-400">
+                  <Tags className="h-6 w-6" />
+                </div>
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-white">Sync Ticket Statuses</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Map RepairShopr statuses to custom statuses for filtering
+                  </p>
+                  {statusSyncInfo && (
+                    <p className="mt-1 text-sm">
+                      <span className="text-gray-600 dark:text-gray-400">
+                        {statusSyncInfo.totalOverrides} of {statusSyncInfo.totalTickets} tickets have status mappings
+                      </span>
+                      {statusSyncInfo.needsSync > 0 && (
+                        <span className="ml-2 text-orange-600 dark:text-orange-400">
+                          ({statusSyncInfo.needsSync} need sync)
+                        </span>
+                      )}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <button
+                onClick={runStatusSync}
+                disabled={syncingStatuses || syncing !== null}
+                className="flex items-center gap-2 rounded-lg bg-purple-600 px-4 py-2 text-white transition-colors hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {syncingStatuses ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-4 w-4" />
+                )}
+                {syncingStatuses ? 'Syncing...' : 'Sync Statuses'}
+              </button>
+            </div>
+
+            {/* Status Sync Result */}
+            {statusSyncResult && (
+              <div className={`mt-4 rounded-lg p-3 ${statusSyncResult.success ? 'bg-green-50 dark:bg-green-900/20' : 'bg-red-50 dark:bg-red-900/20'}`}>
+                <div className="flex items-center gap-2">
+                  {statusSyncResult.success ? (
+                    <Check className="h-4 w-4 text-green-600 dark:text-green-400" />
+                  ) : (
+                    <X className="h-4 w-4 text-red-600 dark:text-red-400" />
+                  )}
+                  <span className={statusSyncResult.success ? 'text-green-800 dark:text-green-400' : 'text-red-800 dark:text-red-400'}>
+                    {statusSyncResult.message || `Created ${statusSyncResult.created} status mappings`}
+                    {statusSyncResult.errors && statusSyncResult.errors > 0 && ` (${statusSyncResult.errors} errors)`}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
+              This creates custom status mappings for tickets based on their RepairShopr status.
+              Run this once after the initial data sync, then the webhook will handle new tickets automatically.
+            </p>
           </div>
         </div>
       )}

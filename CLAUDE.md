@@ -43,21 +43,33 @@ src/
 │   │   ├── silver-plan/
 │   │   └── why-linux/
 │   ├── admin/             # Admin dashboard (protected)
-│   │   ├── page.tsx       # Dashboard
+│   │   ├── page.tsx       # Reception Dashboard
+│   │   ├── intake/        # Customer intake form
+│   │   ├── customers/     # Customer management
+│   │   ├── businesses/    # Business management
+│   │   ├── tickets/       # Ticket management
+│   │   │   ├── page.tsx   # Tickets list with status filters
+│   │   │   └── [id]/      # Ticket detail page
+│   │   ├── employees/     # Employee management
 │   │   ├── gallery/       # Gallery management
 │   │   └── blog/          # Blog management
 │   └── api/               # API routes
 │       ├── auth/          # Authentication endpoints
 │       ├── contact/       # Contact form
 │       ├── gallery/       # Gallery CRUD + publish
-│       └── blog/          # Blog CRUD + upload
+│       ├── blog/          # Blog CRUD + upload
+│       └── repairshopr/   # RepairShopr integration
+│           └── tickets/   # Ticket APIs + status overrides
 ├── components/
 │   ├── static/            # Header, Footer, TestimonialsCarousel
 │   ├── gallery/           # Gallery display components
 │   └── admin/             # Admin UI components
+│       ├── admin-sidebar.tsx         # Sidebar navigation
+│       ├── call-customer-tickets.tsx # Call customer widget
+│       └── ...            # Other admin components
 ├── lib/
 │   ├── auth.ts            # RepairShopr session authentication
-│   ├── supabase.ts        # Supabase client + blog operations
+│   ├── supabase.ts        # Supabase client + ticket status definitions
 │   ├── github.ts          # GitHub API for image storage
 │   ├── email.ts           # Resend email integration
 │   └── flyer-generator.ts # PDF flyer generation
@@ -95,6 +107,41 @@ src/
 - **Library:** `src/lib/auth.ts`
 - **Sessions:** Encrypted cookies with AES-256-GCM
 - **Protected routes:** All `/admin/*` pages
+
+### Employee Portal (Admin)
+The admin section serves as an employee portal for computer repair shop operations.
+
+**Reception Dashboard** (`/admin`)
+- Customer Intake button (prominent call-to-action)
+- Call Customer tickets widget (auto-refreshes every 30s)
+- System status indicators
+
+**Tickets System** (`/admin/tickets`)
+- **List View**: Search and filter tickets by custom status
+  - Desktop: horizontal status filter buttons
+  - Mobile: collapsible grid of filter buttons
+- **Detail View** (`/admin/tickets/[id]`): Full ticket management
+  - Customer info panel with Silver Plan support badge
+  - Custom status control (separate from RepairShopr status)
+  - Notes timeline (private, public, customer notes merged)
+  - Note input for private and public notes
+  - Edit modal for ticket fields
+
+**Custom Status System**
+Tickets have a custom status layer on top of RepairShopr statuses:
+- Stored in `ticket_status_overrides` table (Supabase)
+- Status definitions in `ticket_status_definitions` table
+- Statuses: new, diagnosing, repairing, data_transferring, installing, waiting_for_parts, building, call_customer, waiting_for_customer_reply, ready_for_pickup, completed
+
+**Sidebar Navigation**
+- Reception (dashboard)
+- Customers
+- Businesses
+- Tickets
+- Gallery
+- Blog Posts
+- New Post
+- Employees
 
 ### Services Pages
 Individual detail pages for each service:
@@ -192,6 +239,27 @@ POST   /api/auth/logout       # Logout
 GET    /api/auth/session      # Get current session
 ```
 
+### RepairShopr/Tickets API
+```
+GET    /api/repairshopr/tickets                    # Search/list tickets (query params: q, status)
+GET    /api/repairshopr/tickets/[id]               # Get ticket details
+PUT    /api/repairshopr/tickets/[id]               # Update ticket in RepairShopr
+GET    /api/repairshopr/tickets/call-customer      # Get tickets with call_customer status
+GET    /api/repairshopr/tickets/status-definitions # Get custom status definitions
+GET    /api/repairshopr/tickets/status/[id]        # Get status override for ticket
+POST   /api/repairshopr/tickets/status/[id]        # Set/update status override
+POST   /api/repairshopr/tickets/status-batch       # Get status overrides for multiple tickets
+GET    /api/repairshopr/tickets/[id]/notes         # Get ticket notes
+POST   /api/repairshopr/tickets/[id]/notes         # Add note to ticket
+```
+
+### RepairShopr/Customers API
+```
+GET    /api/repairshopr/customers                  # Search customers (query: q)
+GET    /api/repairshopr/customers/[id]             # Get customer details
+GET    /api/repairshopr/customers/[id]/tickets     # Get customer's tickets
+```
+
 ## Database Schema
 
 ### Blog Tables (Supabase)
@@ -201,6 +269,23 @@ GET    /api/auth/session      # Get current session
 - `blog_post_tags` - Post-tag junction table
 
 See `docs/database/blog-schema.sql` for full schema.
+
+### Ticket Status Tables (Supabase)
+- `ticket_status_definitions` - Custom status definitions with display names, sort order, and customer visibility settings
+- `ticket_status_overrides` - Per-ticket custom status overrides linked to RepairShopr ticket IDs
+
+Key fields in `ticket_status_definitions`:
+- `status` (PK) - Status key (e.g., 'call_customer')
+- `display_name` - Human-readable name (e.g., 'Call Customer')
+- `repairshopr_status` - Corresponding RepairShopr status
+- `show_customer_question` - Whether to show question input
+- `customer_visible_status` - Status shown to customers
+- `sort_order` - Display order in UI
+
+Key fields in `ticket_status_overrides`:
+- `repairshopr_ticket_id` - RepairShopr ticket ID
+- `custom_status` - Current custom status
+- `customer_question` - Optional customer question text
 
 ## Git Branching Strategy
 

@@ -6,6 +6,7 @@
  *
  * @version 1.0.0 - 2026-01-12T00:00:00Z - Initial implementation
  * @version 1.1.0 - 2026-01-13T00:00:00Z - Changed to upsert all tickets, not just new ones
+ * @version 1.2.0 - 2026-01-13T00:00:00Z - Added pagination to fetch all tickets (not just first 1000)
  */
 
 import { NextResponse } from 'next/server';
@@ -33,20 +34,38 @@ export async function POST() {
   }
 
   try {
-    // Get all tickets from rs_tickets
-    const { data: allTickets, error: allTicketsError } = await supabaseAdmin
-      .from('rs_tickets')
-      .select('repairshopr_id, status');
+    // Get all tickets from rs_tickets with pagination (Supabase default limit is 1000)
+    const allTickets: { repairshopr_id: number; status: string | null }[] = [];
+    const pageSize = 1000;
+    let offset = 0;
+    let hasMore = true;
 
-    if (allTicketsError) {
-      console.error('[Sync] Failed to fetch tickets:', allTicketsError);
-      return NextResponse.json(
-        { error: 'Failed to fetch tickets' },
-        { status: 500 }
-      );
+    while (hasMore) {
+      const { data: batch, error: batchError } = await supabaseAdmin
+        .from('rs_tickets')
+        .select('repairshopr_id, status')
+        .range(offset, offset + pageSize - 1);
+
+      if (batchError) {
+        console.error('[Sync] Failed to fetch tickets batch:', batchError);
+        return NextResponse.json(
+          { error: 'Failed to fetch tickets' },
+          { status: 500 }
+        );
+      }
+
+      if (batch && batch.length > 0) {
+        allTickets.push(...batch);
+        offset += pageSize;
+        hasMore = batch.length === pageSize;
+      } else {
+        hasMore = false;
+      }
     }
 
-    if (!allTickets || allTickets.length === 0) {
+    console.log(`[Sync] Fetched ${allTickets.length} total tickets`);
+
+    if (allTickets.length === 0) {
       return NextResponse.json({
         success: true,
         message: 'No tickets found in database',

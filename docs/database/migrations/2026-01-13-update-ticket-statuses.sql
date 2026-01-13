@@ -14,11 +14,11 @@
 -- =============================================================================
 -- SECTION 1: Add new enum values (run this first, separately)
 -- =============================================================================
--- NOTE: The enum is named ticket_custom_status_slug in the database
+-- NOTE: The enum is named ticket_custom_status in the database
 -- These statements must be run OUTSIDE of a transaction block in some cases
 
-ALTER TYPE ticket_custom_status_slug ADD VALUE IF NOT EXISTS 'ready_for_pickup_no_payment_due';
-ALTER TYPE ticket_custom_status_slug ADD VALUE IF NOT EXISTS 'ready_for_pickup_payment_due';
+ALTER TYPE ticket_custom_status ADD VALUE IF NOT EXISTS 'ready_for_pickup_no_payment_due';
+ALTER TYPE ticket_custom_status ADD VALUE IF NOT EXISTS 'ready_for_pickup_payment_due';
 
 -- =============================================================================
 -- SECTION 2: Update existing definitions and add new ones (run after Section 1)

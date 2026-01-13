@@ -88,9 +88,19 @@ const AVAILABLE_SERVICES: Service[] = [
     description: 'Install antivirus software',
   },
   {
-    id: 'data_recovery',
-    name: 'Data Recovery',
-    description: 'Recover data from failing drives',
+    id: 'eset',
+    name: 'ESET',
+    description: 'ESET antivirus installation',
+  },
+  {
+    id: 'silver_plan',
+    name: 'Silver Plan',
+    description: 'Silver protection plan signup',
+  },
+  {
+    id: 'silver_plus',
+    name: 'Silver+',
+    description: 'Silver+ protection plan signup',
   },
   {
     id: 'screen_repair',

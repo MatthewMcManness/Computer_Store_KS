@@ -217,33 +217,25 @@ async function syncTicket(ticket: RepairShoprWebhookTicket): Promise<void> {
   }
 
   // Auto-create/update status override based on RepairShopr status
-  // Only create if no override exists yet (don't overwrite manual changes)
   if (ticket.status) {
     const customStatus = getDefaultCustomStatusForRepairShoprStatus(ticket.status);
 
-    // Check if override already exists
-    const { data: existingOverride } = await supabaseAdmin
+    // Upsert the status override - this ensures the custom status stays in sync
+    // with RepairShopr's status when changed via RepairShopr directly
+    const { error: overrideError } = await supabaseAdmin
       .from('ticket_status_overrides')
-      .select('id')
-      .eq('repairshopr_ticket_id', ticket.id)
-      .single();
+      .upsert({
+        repairshopr_ticket_id: ticket.id,
+        custom_status: customStatus,
+        updated_by: 'webhook_auto_sync',
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'repairshopr_ticket_id' });
 
-    if (!existingOverride) {
-      // No override exists, create one based on RepairShopr status
-      const { error: overrideError } = await supabaseAdmin
-        .from('ticket_status_overrides')
-        .insert({
-          repairshopr_ticket_id: ticket.id,
-          custom_status: customStatus,
-          updated_by: 'webhook_auto_sync',
-        });
-
-      if (overrideError) {
-        console.error('[Webhook] Status override creation error:', overrideError);
-        // Don't throw - this is non-critical
-      } else {
-        console.log(`[Webhook] Created status override for ticket ${ticket.id}: ${customStatus}`);
-      }
+    if (overrideError) {
+      console.error('[Webhook] Status override upsert error:', overrideError);
+      // Don't throw - this is non-critical
+    } else {
+      console.log(`[Webhook] Updated status override for ticket ${ticket.id}: ${customStatus}`);
     }
   }
 

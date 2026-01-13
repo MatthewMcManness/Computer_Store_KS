@@ -1273,6 +1273,7 @@ export function getDefaultCustomStatusForRepairShoprStatus(
   if (statusLower === 'new') return 'new';
   if (statusLower === 'in progress') return 'diagnosing'; // Default to diagnosing for "In Progress"
   if (statusLower === 'waiting for parts') return 'waiting_for_parts';
+  if (statusLower === 'waiting on customer') return 'waiting_for_customer_reply';
   if (statusLower === 'customer reply') return 'call_customer'; // Default to call_customer for "Customer Reply"
   if (statusLower === 'done shelf') return 'ready_for_pickup_no_payment_due';
   if (statusLower === 'resolved') return 'completed';

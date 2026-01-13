@@ -1,16 +1,14 @@
 /**
  * Sync Status Overrides Endpoint
  *
- * Creates status overrides for all tickets in Supabase that don't have one yet.
- * Uses the ticket's RepairShopr status to determine the appropriate custom status.
- *
- * This endpoint should be called once to backfill existing tickets, then the
- * webhook will handle new/updated tickets going forward.
+ * Creates or updates status overrides for all tickets in Supabase based on
+ * their current RepairShopr status.
  *
  * @version 1.0.0 - 2026-01-12T00:00:00Z - Initial implementation
+ * @version 1.1.0 - 2026-01-13T00:00:00Z - Changed to upsert all tickets, not just new ones
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getEmployeeAuditInfo } from '@/lib/auth';
 import { supabaseAdmin, getDefaultCustomStatusForRepairShoprStatus } from '@/lib/supabase';
 
@@ -18,12 +16,12 @@ export const dynamic = 'force-dynamic';
 
 /**
  * POST /api/repairshopr/tickets/sync-statuses
- * Create status overrides for all tickets that don't have one
+ * Create or update status overrides for all tickets based on their RS status
  *
  * @sideEffects
- * - Creates records in ticket_status_overrides table
+ * - Upserts records in ticket_status_overrides table
  */
-export async function POST(request: NextRequest) {
+export async function POST() {
   // Check employee authentication
   const employee = await getEmployeeAuditInfo();
   if (!employee) {
@@ -35,15 +33,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    // Get all tickets from rs_tickets that don't have a status override
-    const { data: ticketsWithoutOverride, error: ticketError } = await supabaseAdmin
-      .from('rs_tickets')
-      .select('repairshopr_id, status')
-      .not('repairshopr_id', 'in',
-        supabaseAdmin.from('ticket_status_overrides').select('repairshopr_ticket_id')
-      );
-
-    // Alternative approach: Get all tickets and all overrides, then filter in code
+    // Get all tickets from rs_tickets
     const { data: allTickets, error: allTicketsError } = await supabaseAdmin
       .from('rs_tickets')
       .select('repairshopr_id, status');
@@ -60,74 +50,55 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         message: 'No tickets found in database',
-        created: 0,
+        synced: 0,
       });
     }
 
-    // Get existing overrides
-    const { data: existingOverrides, error: overrideError } = await supabaseAdmin
-      .from('ticket_status_overrides')
-      .select('repairshopr_ticket_id');
+    // Filter to only tickets with a status
+    const ticketsWithStatus = allTickets.filter((t) => t.status);
 
-    if (overrideError) {
-      console.error('[Sync] Failed to fetch existing overrides:', overrideError);
-      return NextResponse.json(
-        { error: 'Failed to fetch existing overrides' },
-        { status: 500 }
-      );
-    }
-
-    // Create a set of ticket IDs that already have overrides
-    const existingTicketIds = new Set(
-      (existingOverrides || []).map((o) => o.repairshopr_ticket_id)
-    );
-
-    // Find tickets without overrides
-    const ticketsNeedingOverride = allTickets.filter(
-      (t) => !existingTicketIds.has(t.repairshopr_id) && t.status
-    );
-
-    if (ticketsNeedingOverride.length === 0) {
+    if (ticketsWithStatus.length === 0) {
       return NextResponse.json({
         success: true,
-        message: 'All tickets already have status overrides',
-        created: 0,
+        message: 'No tickets with status found',
+        synced: 0,
         total: allTickets.length,
       });
     }
 
-    // Create overrides for tickets that need them
-    const overridesToCreate = ticketsNeedingOverride.map((ticket) => ({
+    // Create override records for all tickets
+    const overridesToUpsert = ticketsWithStatus.map((ticket) => ({
       repairshopr_ticket_id: ticket.repairshopr_id,
       custom_status: getDefaultCustomStatusForRepairShoprStatus(ticket.status),
-      updated_by: 'sync_backfill',
+      updated_by: 'sync_all',
+      updated_at: new Date().toISOString(),
     }));
 
-    // Insert in batches to avoid hitting limits
+    // Upsert in batches to avoid hitting limits
     const batchSize = 100;
-    let created = 0;
+    let synced = 0;
     let errors = 0;
 
-    for (let i = 0; i < overridesToCreate.length; i += batchSize) {
-      const batch = overridesToCreate.slice(i, i + batchSize);
-      const { error: insertError } = await supabaseAdmin
+    for (let i = 0; i < overridesToUpsert.length; i += batchSize) {
+      const batch = overridesToUpsert.slice(i, i + batchSize);
+      const { error: upsertError } = await supabaseAdmin
         .from('ticket_status_overrides')
-        .insert(batch);
+        .upsert(batch, { onConflict: 'repairshopr_ticket_id' });
 
-      if (insertError) {
-        console.error('[Sync] Batch insert error:', insertError);
+      if (upsertError) {
+        console.error('[Sync] Batch upsert error:', upsertError);
         errors += batch.length;
       } else {
-        created += batch.length;
+        synced += batch.length;
       }
     }
 
-    console.log(`[Sync] Created ${created} status overrides, ${errors} errors`);
+    console.log(`[Sync] Synced ${synced} status overrides, ${errors} errors`);
 
     return NextResponse.json({
       success: true,
-      message: `Created status overrides for ${created} tickets`,
-      created,
+      message: `Synced status overrides for ${synced} tickets`,
+      synced,
       errors,
       total: allTickets.length,
     });
@@ -142,7 +113,7 @@ export async function POST(request: NextRequest) {
 
 /**
  * GET /api/repairshopr/tickets/sync-statuses
- * Check how many tickets need status overrides
+ * Check how many tickets have status overrides
  */
 export async function GET() {
   if (!supabaseAdmin) {

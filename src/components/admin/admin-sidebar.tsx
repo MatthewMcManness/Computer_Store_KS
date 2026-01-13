@@ -31,6 +31,7 @@ import {
   Target,
   FileText,
   Images,
+  AlertTriangle,
 } from 'lucide-react';
 import type { SidebarMode } from './admin-shell';
 import type { SidebarSection, SidebarItem, IconName } from '@/types/roles';
@@ -76,6 +77,7 @@ function getIcon(iconName: IconName, className: string = 'h-5 w-5 flex-shrink-0'
     Images: <Images className={className} />,
     PenTool: <PenTool className={className} />,
     RefreshCw: <RefreshCw className={className} />,
+    AlertTriangle: <AlertTriangle className={className} />,
   };
 
   return iconMap[iconName] || <LayoutDashboard className={className} />;

@@ -34,14 +34,14 @@ import { useRef } from 'react';
  *
  *   return (
  *     <form onSubmit={handleSubmit}>
- *       {/* Hidden honeypot fields - do not display to users */}
+ *       // Hidden honeypot fields - do not display to users
  *       <input type="text" name="_hp_email2" value={honeypotFields._hp_email2}
  *              style={{ display: 'none' }} onChange={() => {}} />
  *       <input type="text" name="_hp_phone_confirm" value={honeypotFields._hp_phone_confirm}
  *              style={{ display: 'none' }} onChange={() => {}} />
  *       <input type="text" name="_hp_url" value={honeypotFields._hp_url}
  *              style={{ display: 'none' }} onChange={() => {}} />
- *       {/* Regular form fields */}
+ *       // Regular form fields
  *     </form>
  *   );
  * };

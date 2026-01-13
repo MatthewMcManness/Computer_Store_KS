@@ -1113,7 +1113,8 @@ export type TicketCustomStatus =
   | 'waiting_for_customer_reply'
   | 'ready_for_pickup_no_payment_due'
   | 'ready_for_pickup_payment_due'
-  | 'completed';
+  | 'completed'
+  | 'deprecated_rs_status';
 
 export interface TicketStatusOverride {
   id: string;
@@ -1151,6 +1152,7 @@ export const TICKET_STATUS_DEFINITIONS: TicketStatusDefinition[] = [
   { status: 'ready_for_pickup_no_payment_due', display_name: 'Ready for Pickup (No Payment Due)', description: 'On done shelf, no payment required', repairshopr_status: 'Done Shelf', show_customer_question: false, customer_visible_status: 'Ready for Pickup', sort_order: 10, is_active: true },
   { status: 'ready_for_pickup_payment_due', display_name: 'Ready for Pickup (Payment Due)', description: 'On done shelf, payment required', repairshopr_status: 'Done Shelf', show_customer_question: false, customer_visible_status: 'Ready for Pickup - Payment Due', sort_order: 11, is_active: true },
   { status: 'completed', display_name: 'Completed', description: 'Fully resolved', repairshopr_status: 'Resolved', show_customer_question: false, customer_visible_status: 'Completed', sort_order: 12, is_active: true },
+  { status: 'deprecated_rs_status', display_name: 'Stop Using RepairShopr!', description: 'Ticket set to deprecated RS status - needs correction', repairshopr_status: 'DEPRECATED', show_customer_question: false, customer_visible_status: 'Being Processed', sort_order: 99, is_active: false },
 ];
 
 /**
@@ -1264,6 +1266,9 @@ export function getRepairShoprStatusForCustomStatus(
  * Get the default custom status for a RepairShopr status
  * Maps RepairShopr statuses to our custom status system
  * When multiple custom statuses map to the same RS status, returns the first/default one
+ *
+ * @version 1.0.0 - 2026-01-12T00:00:00Z - Initial implementation
+ * @version 1.1.0 - 2026-01-13T00:00:00Z - Added deprecated RS status mapping for unused statuses
  */
 export function getDefaultCustomStatusForRepairShoprStatus(
   repairshoprStatus: string
@@ -1272,7 +1277,7 @@ export function getDefaultCustomStatusForRepairShoprStatus(
 
   // Map RepairShopr statuses to our custom statuses
   // Using case-insensitive matching for robustness
-  if (statusLower === 'rework') return 'rework';
+  if (statusLower === 'rework' || statusLower === 're-work') return 'rework';
   if (statusLower === 'new') return 'new';
   if (statusLower === 'in progress') return 'diagnosing'; // Default to diagnosing for "In Progress"
   if (statusLower === 'waiting for parts') return 'waiting_for_parts';
@@ -1282,9 +1287,24 @@ export function getDefaultCustomStatusForRepairShoprStatus(
   if (statusLower === 'resolved') return 'completed';
 
   // Also handle CnC status which means "Call and Close" or similar
-  if (statusLower === 'cnc' || statusLower.includes('call')) return 'call_customer';
+  if (statusLower === 'cnc') return 'call_customer';
 
-  // Default to 'new' for unknown statuses
+  // Deprecated RepairShopr statuses - these should not be used
+  // Maps to deprecated_rs_status so they appear in the correction queue
+  const deprecatedStatuses = [
+    '30 day notice',
+    'called customer',
+    'final notice',
+    'remote work',
+    'rush service',
+    'scheduled',
+    'waiting for payment',
+  ];
+  if (deprecatedStatuses.includes(statusLower)) {
+    return 'deprecated_rs_status';
+  }
+
+  // Default to 'new' for truly unknown statuses
   return 'new';
 }
 

@@ -296,6 +296,8 @@ export default function TicketsListPage() {
       case 'completed':
       case 'resolved':
         return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300';
+      case 'deprecated_rs_status':
+        return 'bg-pink-200 text-pink-900 dark:bg-pink-900/70 dark:text-pink-200 font-bold animate-pulse';
       default:
         return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
     }

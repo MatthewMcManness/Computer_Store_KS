@@ -88,7 +88,8 @@ export type Permission =
   | 'manage_employees'
   // Admin Section
   | 'view_data_sync'
-  | 'manage_data_sync';
+  | 'manage_data_sync'
+  | 'view_deprecated_statuses';
 
 // ============================================================================
 // Role Hierarchy Configuration
@@ -169,7 +170,9 @@ export const ROLE_PERMISSIONS: Record<EmployeeRole, Permission[]> = {
     'view_blog',
     'manage_blog', // Manager+ automatically gets blog access
   ],
-  owner: [], // Inherits all from manager
+  owner: [
+    'view_deprecated_statuses', // Admin tool for legacy RS status cleanup
+  ],
 
   // Add-on roles (grant specific additional permissions)
   social_media: [
@@ -207,6 +210,7 @@ export const ROLE_PERMISSIONS: Record<EmployeeRole, Permission[]> = {
     'manage_employees',
     'view_data_sync',
     'manage_data_sync',
+    'view_deprecated_statuses',
   ],
 };
 
@@ -236,7 +240,8 @@ export type IconName =
   | 'FileText'
   | 'Images'
   | 'PenTool'
-  | 'RefreshCw';
+  | 'RefreshCw'
+  | 'AlertTriangle';
 
 /**
  * Individual sidebar menu item.
@@ -405,6 +410,12 @@ export const SIDEBAR_CONFIG: SidebarSection[] = [
         permissions: ['view_data_sync'],
         icon: 'RefreshCw',
       },
+      {
+        label: 'Deprecated Statuses',
+        href: '/admin/deprecated-statuses',
+        permissions: ['view_deprecated_statuses'],
+        icon: 'AlertTriangle',
+      },
     ],
   },
 ];
@@ -443,6 +454,7 @@ export const ROUTE_PERMISSIONS: Record<string, Permission[]> = {
   '/admin/employees': ['view_employees'],
   // Admin Section
   '/admin/sync': ['view_data_sync'],
+  '/admin/deprecated-statuses': ['view_deprecated_statuses'],
 };
 
 // ============================================================================

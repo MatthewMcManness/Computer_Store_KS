@@ -43,6 +43,7 @@ interface TicketData {
   problem_type?: string;
   created_at?: string;
   updated_at?: string;
+  asset_ids?: number[];
 }
 
 type ProtectionPlanTier = 'eset' | 'silver' | 'silver-plus' | null;
@@ -57,7 +58,7 @@ export default function TicketsListPage() {
   const [tickets, setTickets] = useState<TicketData[]>([]);
   const [statusDefinitions, setStatusDefinitions] = useState<StatusDefinition[]>([]);
   const [ticketStatusOverrides, setTicketStatusOverrides] = useState<Record<number, StatusOverride>>({});
-  const [customerPlanTiers, setCustomerPlanTiers] = useState<Record<number, ProtectionPlanTier>>({});
+  const [assetPlanTiers, setAssetPlanTiers] = useState<Record<number, ProtectionPlanTier>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
@@ -69,6 +70,9 @@ export default function TicketsListPage() {
    * 3. Silver devices = level 3
    * 4. ESET and No Protection Plan = level 4 (lowest)
    * Within same level, sort by oldest first (created_at ascending)
+   *
+   * Priority is based on the SPECIFIC ASSET being worked on, not customer level.
+   * If ticket has multiple assets, use the highest tier among them.
    */
   const getTicketPriorityLevel = useCallback((ticket: TicketData): number => {
     // Check if ticket has rework status (highest priority)
@@ -77,19 +81,31 @@ export default function TicketsListPage() {
       return 1; // Highest priority
     }
 
-    // Check protection plan tier
-    const tier = customerPlanTiers[ticket.customer_id];
-    switch (tier) {
-      case 'silver-plus':
-        return 2;
-      case 'silver':
-        return 3;
-      case 'eset':
-      case null:
-      default:
-        return 4; // Lowest priority
+    // Check protection plan tier for the ticket's assets
+    // If multiple assets, use the highest tier among them
+    const assetIds = ticket.asset_ids || [];
+    if (assetIds.length === 0) {
+      return 4; // No assets = lowest priority
     }
-  }, [ticketStatusOverrides, customerPlanTiers]);
+
+    // Tier hierarchy: silver-plus > silver > eset > null
+    const tierRanks: Record<string, number> = {
+      'silver-plus': 2,
+      'silver': 3,
+      'eset': 4,
+    };
+
+    let highestPriority = 4; // Start with lowest
+    for (const assetId of assetIds) {
+      const tier = assetPlanTiers[assetId];
+      const priority = tier ? (tierRanks[tier] || 4) : 4;
+      if (priority < highestPriority) {
+        highestPriority = priority;
+      }
+    }
+
+    return highestPriority;
+  }, [ticketStatusOverrides, assetPlanTiers]);
 
   // Sort tickets by priority
   const sortedTickets = useMemo(() => {
@@ -153,10 +169,15 @@ export default function TicketsListPage() {
       const fetchedTickets = data.tickets || [];
       setTickets(fetchedTickets);
 
-      // Fetch status overrides and protection plan tiers for all tickets
+      // Fetch status overrides and asset protection plan tiers for all tickets
       if (fetchedTickets.length > 0) {
         const ticketIds = fetchedTickets.map((t: TicketData) => t.id);
-        const customerIds = [...new Set(fetchedTickets.map((t: TicketData) => t.customer_id).filter(Boolean))];
+        // Collect all unique asset IDs from all tickets for priority sorting
+        const assetIds = [...new Set(
+          fetchedTickets
+            .flatMap((t: TicketData) => t.asset_ids || [])
+            .filter(Boolean)
+        )];
 
         // Fetch status overrides
         try {
@@ -173,31 +194,31 @@ export default function TicketsListPage() {
           console.error('Failed to fetch status overrides:', overrideErr);
         }
 
-        // Fetch protection plan tiers for priority sorting
-        if (customerIds.length > 0) {
+        // Fetch asset protection plan tiers for priority sorting
+        if (assetIds.length > 0) {
           try {
-            const tiersRes = await fetch('/api/repairshopr/customers/protection-plans-batch', {
+            const tiersRes = await fetch('/api/repairshopr/assets/protection-plans-batch', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ customer_ids: customerIds }),
+              body: JSON.stringify({ asset_ids: assetIds }),
             });
             const tiersData = await tiersRes.json();
             if (tiersRes.ok && tiersData.tiers) {
-              setCustomerPlanTiers(tiersData.tiers);
+              setAssetPlanTiers(tiersData.tiers);
             }
           } catch (tierErr) {
-            console.error('Failed to fetch protection plan tiers:', tierErr);
+            console.error('Failed to fetch asset protection plan tiers:', tierErr);
           }
         }
       } else {
         setTicketStatusOverrides({});
-        setCustomerPlanTiers({});
+        setAssetPlanTiers({});
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch tickets');
       setTickets([]);
       setTicketStatusOverrides({});
-      setCustomerPlanTiers({});
+      setAssetPlanTiers({});
     } finally {
       setIsLoading(false);
     }

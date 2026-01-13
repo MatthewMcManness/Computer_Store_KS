@@ -405,6 +405,7 @@ export async function syncAllTickets(): Promise<SyncResult> {
         user_id: ticket.user_id || null,
         properties: ticket.properties || {},
         tags: ticket.tag_list || [],
+        asset_ids: ticket.asset_ids || [],
         created_at: ticket.created_at,
         updated_at: ticket.updated_at,
         synced_at: new Date().toISOString(),

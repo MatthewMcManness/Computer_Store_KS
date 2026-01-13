@@ -311,6 +311,7 @@ export interface RepairShoprTicket {
   properties?: Record<string, unknown>;
   tag_list?: string[];
   priority?: string;
+  asset_ids?: number[];
 }
 
 /**

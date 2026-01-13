@@ -44,13 +44,33 @@ const AVAILABLE_SERVICES: Service[] = [
   },
   {
     id: 'data_transfer',
-    name: 'Data Transfer & Cloning',
-    description: 'Move files, settings, clone drives',
+    name: 'Data Transfer',
+    description: 'Move files and settings to new device',
   },
   {
-    id: 'os_installation',
-    name: 'OS Installation',
-    description: 'Windows or Linux installation',
+    id: 'drive_clone',
+    name: 'Drive Clone',
+    description: 'Clone entire drive to new drive',
+  },
+  {
+    id: 'windows_installation',
+    name: 'Windows 11 Installation',
+    description: 'Fresh Windows 11 installation',
+  },
+  {
+    id: 'linux_installation',
+    name: 'Linux Installation',
+    description: 'Linux OS installation',
+  },
+  {
+    id: 'other_os_installation',
+    name: 'Other OS Installation',
+    description: 'Other operating system installation',
+  },
+  {
+    id: 'install_office',
+    name: 'Install Office',
+    description: 'Microsoft Office installation',
   },
   {
     id: 'hardware_upgrades',

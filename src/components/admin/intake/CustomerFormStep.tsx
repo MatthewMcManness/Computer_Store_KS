@@ -1,21 +1,20 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Building2, User, Lock, Search, Loader2, AlertCircle, Eye, EyeOff } from 'lucide-react';
-import type { RepairShoprCustomer, RepairShoprBusiness } from '@/lib/repairshopr';
+import { User, Lock, Search, Loader2, AlertCircle, Eye, EyeOff, X, Plus, Users, Building2 } from 'lucide-react';
+import type { RepairShoprCustomer } from '@/lib/repairshopr';
 
 // =============================================================================
 // Types
 // =============================================================================
 
 interface CustomerFormStepProps {
-  customerType: 'individual' | 'business';
   onCustomerCreated: (customer: RepairShoprCustomer) => void;
   onBack: () => void;
 }
 
 interface FormData {
-  // Individual/Contact fields
+  // Contact fields
   firstname: string;
   lastname: string;
   email: string;
@@ -24,8 +23,6 @@ interface FormData {
   city: string;
   state: string;
   zip: string;
-  // Business fields
-  business_name: string;
   // Portal password
   password: string;
   confirmPassword: string;
@@ -35,12 +32,35 @@ interface FormErrors {
   [key: string]: string;
 }
 
+interface Family {
+  id: number;
+  name: string;
+  customerCount?: number;
+}
+
+interface Business {
+  id: number;
+  name: string;
+  customerCount?: number;
+}
+
 // =============================================================================
 // Component
 // =============================================================================
 
+/**
+ * Customer form for creating new customers with optional family and business associations.
+ *
+ * @param onCustomerCreated - Callback when customer is successfully created
+ * @param onBack - Callback to go back to previous step
+ *
+ * @functions_called validateField, validateForm, handleSubmit
+ * @called_by IntakeWizard
+ *
+ * @version 1.0.0 - 2026-01-13T00:00:00Z - Initial implementation
+ * @version 2.0.0 - 2026-01-13T00:00:00Z - Removed individual/business distinction, added family/business multi-select
+ */
 export function CustomerFormStep({
-  customerType,
   onCustomerCreated,
   onBack,
 }: CustomerFormStepProps) {
@@ -53,7 +73,6 @@ export function CustomerFormStep({
     city: '',
     state: '',
     zip: '',
-    business_name: '',
     password: '',
     confirmPassword: '',
   });
@@ -64,12 +83,25 @@ export function CustomerFormStep({
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Business search state
+  // =============================================================================
+  // Family Multi-Select State
+  // =============================================================================
+  const [familySearchQuery, setFamilySearchQuery] = useState('');
+  const [isSearchingFamilies, setIsSearchingFamilies] = useState(false);
+  const [familySearchResults, setFamilySearchResults] = useState<Family[]>([]);
+  const [selectedFamilies, setSelectedFamilies] = useState<Family[]>([]);
+  const [showFamilyDropdown, setShowFamilyDropdown] = useState(false);
+  const [isCreatingFamily, setIsCreatingFamily] = useState(false);
+
+  // =============================================================================
+  // Business Multi-Select State
+  // =============================================================================
   const [businessSearchQuery, setBusinessSearchQuery] = useState('');
   const [isSearchingBusinesses, setIsSearchingBusinesses] = useState(false);
-  const [searchResults, setSearchResults] = useState<RepairShoprBusiness[]>([]);
-  const [selectedBusiness, setSelectedBusiness] = useState<RepairShoprBusiness | null>(null);
-  const [showBusinessForm, setShowBusinessForm] = useState(false);
+  const [businessSearchResults, setBusinessSearchResults] = useState<Business[]>([]);
+  const [selectedBusinesses, setSelectedBusinesses] = useState<Business[]>([]);
+  const [showBusinessDropdown, setShowBusinessDropdown] = useState(false);
+  const [isCreatingBusiness, setIsCreatingBusiness] = useState(false);
 
   // =============================================================================
   // Validation
@@ -98,11 +130,6 @@ export function CustomerFormStep({
         if (!value) return 'Please confirm password';
         if (value !== formData.password) return 'Passwords do not match';
         return '';
-      case 'business_name':
-        if (customerType === 'business' && !value.trim()) {
-          return 'Business name is required';
-        }
-        return '';
       default:
         return '';
     }
@@ -111,18 +138,13 @@ export function CustomerFormStep({
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
 
-    // Common fields
+    // Required fields
     newErrors.firstname = validateField('firstname', formData.firstname);
     newErrors.lastname = validateField('lastname', formData.lastname);
     newErrors.email = validateField('email', formData.email);
     newErrors.phone = validateField('phone', formData.phone);
     newErrors.password = validateField('password', formData.password);
     newErrors.confirmPassword = validateField('confirmPassword', formData.confirmPassword);
-
-    // Business-specific validation
-    if (customerType === 'business') {
-      newErrors.business_name = validateField('business_name', formData.business_name);
-    }
 
     // Remove empty errors
     Object.keys(newErrors).forEach((key) => {
@@ -134,62 +156,154 @@ export function CustomerFormStep({
   };
 
   // =============================================================================
-  // Business Search
+  // Family Search & Management
   // =============================================================================
 
-  const handleBusinessSearch = async () => {
-    if (!businessSearchQuery.trim()) {
-      setSearchResults([]);
+  const searchFamilies = async (query: string) => {
+    if (!query.trim()) {
+      setFamilySearchResults([]);
+      return;
+    }
+
+    setIsSearchingFamilies(true);
+    try {
+      const response = await fetch(`/api/repairshopr/families?q=${encodeURIComponent(query)}`);
+      if (!response.ok) throw new Error('Failed to search families');
+      const data = await response.json();
+      // Filter out already selected families
+      const filtered = (data.families || []).filter(
+        (f: Family) => !selectedFamilies.some((sf) => sf.id === f.id)
+      );
+      setFamilySearchResults(filtered);
+    } catch (error) {
+      console.error('Family search error:', error);
+      setFamilySearchResults([]);
+    } finally {
+      setIsSearchingFamilies(false);
+    }
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (familySearchQuery.trim() && showFamilyDropdown) {
+        searchFamilies(familySearchQuery);
+      } else {
+        setFamilySearchResults([]);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [familySearchQuery, showFamilyDropdown, selectedFamilies]);
+
+  const handleSelectFamily = (family: Family) => {
+    setSelectedFamilies([...selectedFamilies, family]);
+    setFamilySearchQuery('');
+    setFamilySearchResults([]);
+    setShowFamilyDropdown(false);
+  };
+
+  const handleRemoveFamily = (familyId: number) => {
+    setSelectedFamilies(selectedFamilies.filter((f) => f.id !== familyId));
+  };
+
+  const handleCreateFamily = async () => {
+    if (!familySearchQuery.trim()) return;
+
+    setIsCreatingFamily(true);
+    try {
+      const response = await fetch('/api/repairshopr/families', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: familySearchQuery.trim() }),
+      });
+
+      if (!response.ok) throw new Error('Failed to create family');
+      const data = await response.json();
+
+      // Add the new family to selected list
+      setSelectedFamilies([...selectedFamilies, data.family]);
+      setFamilySearchQuery('');
+      setShowFamilyDropdown(false);
+    } catch (error) {
+      console.error('Create family error:', error);
+    } finally {
+      setIsCreatingFamily(false);
+    }
+  };
+
+  // =============================================================================
+  // Business Search & Management
+  // =============================================================================
+
+  const searchBusinesses = async (query: string) => {
+    if (!query.trim()) {
+      setBusinessSearchResults([]);
       return;
     }
 
     setIsSearchingBusinesses(true);
     try {
-      const response = await fetch(
-        `/api/repairshopr/businesses?q=${encodeURIComponent(businessSearchQuery)}`
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to search businesses');
-      }
-
+      const response = await fetch(`/api/repairshopr/businesses?q=${encodeURIComponent(query)}`);
+      if (!response.ok) throw new Error('Failed to search businesses');
       const data = await response.json();
-      setSearchResults(data.businesses || []);
+      // Filter out already selected businesses
+      const filtered = (data.businesses || []).filter(
+        (b: Business) => !selectedBusinesses.some((sb) => sb.id === b.id)
+      );
+      setBusinessSearchResults(filtered);
     } catch (error) {
       console.error('Business search error:', error);
-      setSearchResults([]);
+      setBusinessSearchResults([]);
     } finally {
       setIsSearchingBusinesses(false);
     }
   };
 
-  const handleSelectBusiness = (business: RepairShoprBusiness) => {
-    setSelectedBusiness(business);
-    setFormData({ ...formData, business_name: business.name });
-    setBusinessSearchQuery(business.name);
-    setSearchResults([]);
-    setShowBusinessForm(false);
-  };
-
-  const handleCreateNewBusiness = () => {
-    setSelectedBusiness(null);
-    setFormData({ ...formData, business_name: businessSearchQuery });
-    setShowBusinessForm(true);
-    setSearchResults([]);
-  };
-
-  // Trigger search on query change (debounced)
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (businessSearchQuery.trim()) {
-        handleBusinessSearch();
+      if (businessSearchQuery.trim() && showBusinessDropdown) {
+        searchBusinesses(businessSearchQuery);
       } else {
-        setSearchResults([]);
+        setBusinessSearchResults([]);
       }
     }, 300);
-
     return () => clearTimeout(timer);
-  }, [businessSearchQuery]);
+  }, [businessSearchQuery, showBusinessDropdown, selectedBusinesses]);
+
+  const handleSelectBusiness = (business: Business) => {
+    setSelectedBusinesses([...selectedBusinesses, business]);
+    setBusinessSearchQuery('');
+    setBusinessSearchResults([]);
+    setShowBusinessDropdown(false);
+  };
+
+  const handleRemoveBusiness = (businessId: number) => {
+    setSelectedBusinesses(selectedBusinesses.filter((b) => b.id !== businessId));
+  };
+
+  const handleCreateBusiness = async () => {
+    if (!businessSearchQuery.trim()) return;
+
+    setIsCreatingBusiness(true);
+    try {
+      const response = await fetch('/api/repairshopr/businesses', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: businessSearchQuery.trim() }),
+      });
+
+      if (!response.ok) throw new Error('Failed to create business');
+      const data = await response.json();
+
+      // Add the new business to selected list
+      setSelectedBusinesses([...selectedBusinesses, data.business]);
+      setBusinessSearchQuery('');
+      setShowBusinessDropdown(false);
+    } catch (error) {
+      console.error('Create business error:', error);
+    } finally {
+      setIsCreatingBusiness(false);
+    }
+  };
 
   // =============================================================================
   // Form Handlers
@@ -230,7 +344,10 @@ export function CustomerFormStep({
         lastname: formData.lastname.trim(),
         email: formData.email.trim(),
         phone: formData.phone.trim(),
-        password: formData.password, // For portal account creation
+        password: formData.password,
+        // Include family and business IDs for linking after creation
+        family_ids: selectedFamilies.map((f) => f.id),
+        business_ids: selectedBusinesses.map((b) => b.id),
       };
 
       // Add optional address fields if provided
@@ -239,9 +356,9 @@ export function CustomerFormStep({
       if (formData.state.trim()) customerData.state = formData.state.trim();
       if (formData.zip.trim()) customerData.zip = formData.zip.trim();
 
-      // Add business name for business customers
-      if (customerType === 'business' && formData.business_name.trim()) {
-        customerData.business_name = formData.business_name.trim();
+      // If a business is selected, use the first one as the primary business_name
+      if (selectedBusinesses.length > 0) {
+        customerData.business_name = selectedBusinesses[0].name;
       }
 
       // Create customer
@@ -277,7 +394,7 @@ export function CustomerFormStep({
   return (
     <div className="rounded-lg bg-white dark:bg-gray-900 p-8 shadow-sm">
       <h2 className="mb-6 text-2xl font-bold text-gray-900 dark:text-white">
-        {customerType === 'individual' ? 'New Individual Customer' : 'New Business Customer'}
+        New Customer
       </h2>
 
       {submitError && (
@@ -288,140 +405,11 @@ export function CustomerFormStep({
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Business Search (for business customers) */}
-        {customerType === 'business' && !showBusinessForm && (
-          <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-              <Building2 className="mr-1 inline-block h-4 w-4" />
-              Business Name
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                value={businessSearchQuery}
-                onChange={(e) => setBusinessSearchQuery(e.target.value)}
-                placeholder="Search for existing business or enter new name..."
-                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 px-4 py-2 pr-10 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              {isSearchingBusinesses && (
-                <Loader2 className="absolute right-3 top-3 h-5 w-5 animate-spin text-gray-400" />
-              )}
-              {!isSearchingBusinesses && businessSearchQuery && (
-                <Search className="absolute right-3 top-3 h-5 w-5 text-gray-400" />
-              )}
-            </div>
-
-            {/* Search Results */}
-            {searchResults.length > 0 && (
-              <div className="mt-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg">
-                <div className="p-2">
-                  <p className="px-2 py-1 text-xs font-medium text-gray-500 dark:text-gray-400">
-                    Existing Businesses
-                  </p>
-                  {searchResults.map((business) => (
-                    <button
-                      key={business.id}
-                      type="button"
-                      onClick={() => handleSelectBusiness(business)}
-                      className="w-full rounded px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
-                      <p className="font-medium text-gray-900 dark:text-white">{business.name}</p>
-                    </button>
-                  ))}
-                </div>
-                <div className="border-t border-gray-200 dark:border-gray-700 p-2">
-                  <button
-                    type="button"
-                    onClick={handleCreateNewBusiness}
-                    className="w-full rounded px-3 py-2 text-left text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30"
-                  >
-                    + Create new business "{businessSearchQuery}"
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Show "Create new" if no results */}
-            {businessSearchQuery &&
-              !isSearchingBusinesses &&
-              searchResults.length === 0 && (
-                <button
-                  type="button"
-                  onClick={handleCreateNewBusiness}
-                  className="mt-2 w-full rounded-lg border border-blue-200 dark:border-blue-700 bg-blue-50 dark:bg-blue-900/30 px-4 py-2 text-left text-blue-700 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50"
-                >
-                  + Create new business "{businessSearchQuery}"
-                </button>
-              )}
-
-            {errors.business_name && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.business_name}</p>
-            )}
-          </div>
-        )}
-
-        {/* Business Address Fields (if creating new business) */}
-        {customerType === 'business' && showBusinessForm && (
-          <div className="space-y-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-4">
-            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Business Information</p>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="md:col-span-2">
-                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Business Name
-                </label>
-                <input
-                  type="text"
-                  name="business_name"
-                  value={formData.business_name}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                {errors.business_name && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.business_name}</p>
-                )}
-              </div>
-              <div className="md:col-span-2">
-                <label className="mb-1 block text-sm text-gray-600 dark:text-gray-400">Address (optional)</label>
-                <input
-                  type="text"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleChange}
-                  placeholder="Street address"
-                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="mb-1 block text-sm text-gray-600 dark:text-gray-400">City</label>
-                <input
-                  type="text"
-                  name="city"
-                  value={formData.city}
-                  onChange={handleChange}
-                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="mb-1 block text-sm text-gray-600 dark:text-gray-400">State</label>
-                <input
-                  type="text"
-                  name="state"
-                  value={formData.state}
-                  onChange={handleChange}
-                  placeholder="KS"
-                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Contact Person Fields */}
+        {/* Customer Information */}
         <div className="space-y-4">
           <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
             <User className="mr-1 inline-block h-4 w-4" />
-            {customerType === 'business' ? 'Contact Person' : 'Customer Information'}
+            Customer Information
           </p>
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -499,52 +487,236 @@ export function CustomerFormStep({
             </div>
           </div>
 
-          {/* Address (optional for individuals) */}
-          {customerType === 'individual' && (
-            <div className="space-y-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-4">
-              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Address (optional)</p>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div className="md:col-span-2">
-                  <input
-                    type="text"
-                    name="address"
-                    value={formData.address}
-                    onChange={handleChange}
-                    placeholder="Street address"
-                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <input
-                    type="text"
-                    name="city"
-                    value={formData.city}
-                    onChange={handleChange}
-                    placeholder="City"
-                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <input
-                    type="text"
-                    name="state"
-                    value={formData.state}
-                    onChange={handleChange}
-                    placeholder="State"
-                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                  <input
-                    type="text"
-                    name="zip"
-                    value={formData.zip}
-                    onChange={handleChange}
-                    placeholder="ZIP"
-                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
+          {/* Address (optional) */}
+          <div className="space-y-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-4">
+            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Address (optional)</p>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="md:col-span-2">
+                <input
+                  type="text"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleChange}
+                  placeholder="Street address"
+                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <input
+                  type="text"
+                  name="city"
+                  value={formData.city}
+                  onChange={handleChange}
+                  placeholder="City"
+                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  type="text"
+                  name="state"
+                  value={formData.state}
+                  onChange={handleChange}
+                  placeholder="State"
+                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <input
+                  type="text"
+                  name="zip"
+                  value={formData.zip}
+                  onChange={handleChange}
+                  placeholder="ZIP"
+                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
               </div>
             </div>
-          )}
+          </div>
+        </div>
+
+        {/* =========================================================================== */}
+        {/* Details Section - Family & Business Associations */}
+        {/* =========================================================================== */}
+        <div className="space-y-6 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Details</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Optionally link this customer to families and businesses. You can add multiple of each.
+          </p>
+
+          {/* Family Multi-Select */}
+          <div className="space-y-3">
+            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+              <Users className="h-4 w-4" />
+              Families
+            </label>
+
+            {/* Selected Families Display */}
+            {selectedFamilies.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {selectedFamilies.map((family) => (
+                  <div
+                    key={family.id}
+                    className="inline-flex items-center gap-2 rounded-full bg-blue-100 dark:bg-blue-900/30 px-3 py-1 text-sm font-medium text-blue-800 dark:text-blue-300"
+                  >
+                    <Users className="h-3 w-3" />
+                    {family.name}
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveFamily(family.id)}
+                      className="rounded-full p-0.5 hover:bg-blue-200 dark:hover:bg-blue-800"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Family Search Input */}
+            <div className="relative">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  value={familySearchQuery}
+                  onChange={(e) => setFamilySearchQuery(e.target.value)}
+                  onFocus={() => setShowFamilyDropdown(true)}
+                  placeholder="Search or create family..."
+                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 pl-10 pr-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                {isSearchingFamilies && (
+                  <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-gray-400" />
+                )}
+              </div>
+
+              {/* Family Dropdown */}
+              {showFamilyDropdown && familySearchQuery.trim() && (
+                <div className="absolute z-10 mt-1 w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg">
+                  {familySearchResults.length > 0 && (
+                    <div className="max-h-48 overflow-y-auto p-2">
+                      {familySearchResults.map((family) => (
+                        <button
+                          key={family.id}
+                          type="button"
+                          onClick={() => handleSelectFamily(family)}
+                          className="w-full rounded px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700"
+                        >
+                          <span className="font-medium text-gray-900 dark:text-white">{family.name}</span>
+                          {family.customerCount !== undefined && (
+                            <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">
+                              ({family.customerCount} members)
+                            </span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  <div className="border-t border-gray-200 dark:border-gray-700 p-2">
+                    <button
+                      type="button"
+                      onClick={handleCreateFamily}
+                      disabled={isCreatingFamily}
+                      className="flex w-full items-center gap-2 rounded px-3 py-2 text-left text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 disabled:opacity-50"
+                    >
+                      {isCreatingFamily ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Plus className="h-4 w-4" />
+                      )}
+                      Create new family &ldquo;{familySearchQuery}&rdquo;
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Business Multi-Select */}
+          <div className="space-y-3">
+            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+              <Building2 className="h-4 w-4" />
+              Businesses
+            </label>
+
+            {/* Selected Businesses Display */}
+            {selectedBusinesses.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {selectedBusinesses.map((business) => (
+                  <div
+                    key={business.id}
+                    className="inline-flex items-center gap-2 rounded-full bg-indigo-100 dark:bg-indigo-900/30 px-3 py-1 text-sm font-medium text-indigo-800 dark:text-indigo-300"
+                  >
+                    <Building2 className="h-3 w-3" />
+                    {business.name}
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveBusiness(business.id)}
+                      className="rounded-full p-0.5 hover:bg-indigo-200 dark:hover:bg-indigo-800"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Business Search Input */}
+            <div className="relative">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  value={businessSearchQuery}
+                  onChange={(e) => setBusinessSearchQuery(e.target.value)}
+                  onFocus={() => setShowBusinessDropdown(true)}
+                  placeholder="Search or create business..."
+                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 pl-10 pr-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                {isSearchingBusinesses && (
+                  <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-gray-400" />
+                )}
+              </div>
+
+              {/* Business Dropdown */}
+              {showBusinessDropdown && businessSearchQuery.trim() && (
+                <div className="absolute z-10 mt-1 w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg">
+                  {businessSearchResults.length > 0 && (
+                    <div className="max-h-48 overflow-y-auto p-2">
+                      {businessSearchResults.map((business) => (
+                        <button
+                          key={business.id}
+                          type="button"
+                          onClick={() => handleSelectBusiness(business)}
+                          className="w-full rounded px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700"
+                        >
+                          <span className="font-medium text-gray-900 dark:text-white">{business.name}</span>
+                          {business.customerCount !== undefined && (
+                            <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">
+                              ({business.customerCount} employees)
+                            </span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  <div className="border-t border-gray-200 dark:border-gray-700 p-2">
+                    <button
+                      type="button"
+                      onClick={handleCreateBusiness}
+                      disabled={isCreatingBusiness}
+                      className="flex w-full items-center gap-2 rounded px-3 py-2 text-left text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 disabled:opacity-50"
+                    >
+                      {isCreatingBusiness ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Plus className="h-4 w-4" />
+                      )}
+                      Create new business &ldquo;{businessSearchQuery}&rdquo;
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Portal Password Section */}
@@ -645,6 +817,17 @@ export function CustomerFormStep({
           </button>
         </div>
       </form>
+
+      {/* Click-away listener for dropdowns */}
+      {(showFamilyDropdown || showBusinessDropdown) && (
+        <div
+          className="fixed inset-0 z-0"
+          onClick={() => {
+            setShowFamilyDropdown(false);
+            setShowBusinessDropdown(false);
+          }}
+        />
+      )}
     </div>
   );
 }

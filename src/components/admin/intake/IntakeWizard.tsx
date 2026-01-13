@@ -218,8 +218,8 @@ export function IntakeWizard() {
     }
   };
 
-  const handleCreateNew = (type: 'individual' | 'business') => {
-    dispatch({ type: 'SET_CUSTOMER', customer: {} as RepairShoprCustomer, isNew: true, customerType: type });
+  const handleCreateNew = () => {
+    dispatch({ type: 'SET_CUSTOMER', customer: {} as RepairShoprCustomer, isNew: true });
     dispatch({ type: 'NEXT_STEP' });
   };
 
@@ -394,21 +394,8 @@ export function IntakeWizard() {
           handleNext();
           return null;
         }
-        if (!state.customerType) {
-          return (
-            <div className="rounded-lg bg-white dark:bg-gray-900 p-8 shadow-sm">
-              <h2 className="mb-4 text-2xl font-bold text-gray-900 dark:text-white">
-                Step 2: Customer Details
-              </h2>
-              <p className="text-red-600 dark:text-red-400">
-                Error: No customer type selected. Please go back and select individual or business.
-              </p>
-            </div>
-          );
-        }
         return (
           <CustomerFormStep
-            customerType={state.customerType}
             onCustomerCreated={handleCustomerCreated}
             onBack={handleBack}
           />

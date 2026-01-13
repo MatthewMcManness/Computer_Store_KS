@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Search, UserPlus, Building2, Sparkles } from 'lucide-react';
+import { Search, UserPlus, Sparkles, Building2 } from 'lucide-react';
 import type { RepairShoprCustomer } from '@/lib/repairshopr';
 
 // Extended customer type with silver plan status from API
@@ -15,7 +15,7 @@ interface CustomerWithSilverStatus extends RepairShoprCustomer {
 
 interface CustomerSearchStepProps {
   onSelectCustomer: (customer: RepairShoprCustomer, skipToDevice: boolean) => void;
-  onCreateNew: (type: 'individual' | 'business') => void;
+  onCreateNew: () => void;
 }
 
 // =============================================================================
@@ -79,7 +79,7 @@ export function CustomerSearchStep({
         Step 1: Search Customer
       </h2>
 
-      {/* Search Input */}
+      {/* Search Input with New Customer Button */}
       <div className="mb-6">
         <label
           htmlFor="customer-search"
@@ -87,18 +87,27 @@ export function CustomerSearchStep({
         >
           Search for existing customer
         </label>
-        <div className="relative">
-          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-            <Search className="h-5 w-5 text-gray-400" />
+        <div className="flex gap-3">
+          <div className="relative flex-1">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+              <Search className="h-5 w-5 text-gray-400" />
+            </div>
+            <input
+              type="text"
+              id="customer-search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by name, email, or phone"
+              className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 py-3 pl-10 pr-3 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
           </div>
-          <input
-            type="text"
-            id="customer-search"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by name, email, or phone"
-            className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 py-3 pl-10 pr-3 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          <button
+            onClick={() => onCreateNew()}
+            className="flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition-all hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 whitespace-nowrap"
+          >
+            <UserPlus className="h-5 w-5" />
+            New Customer
+          </button>
         </div>
         {searchQuery.length > 0 && searchQuery.length < 2 && (
           <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
@@ -181,38 +190,16 @@ export function CustomerSearchStep({
           ) : (
             <div className="rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-8 text-center">
               <p className="text-gray-600 dark:text-gray-400">
-                No customers found for "{searchQuery}"
+                No customers found for &ldquo;{searchQuery}&rdquo;
               </p>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Try a different search or create a new customer below
+                Try a different search or click &ldquo;New Customer&rdquo; above to create one
               </p>
             </div>
           )}
         </div>
       )}
 
-      {/* Create New Customer Buttons */}
-      <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
-        <p className="mb-4 text-sm font-medium text-gray-700 dark:text-gray-300">
-          Or create a new customer:
-        </p>
-        <div className="flex gap-4">
-          <button
-            onClick={() => onCreateNew('individual')}
-            className="flex flex-1 items-center justify-center gap-2 rounded-lg border-2 border-blue-200 dark:border-blue-700 bg-white dark:bg-gray-800 px-6 py-4 font-medium text-blue-700 dark:text-blue-400 transition-all hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
-          >
-            <UserPlus className="h-5 w-5" />
-            Create New Individual Customer
-          </button>
-          <button
-            onClick={() => onCreateNew('business')}
-            className="flex flex-1 items-center justify-center gap-2 rounded-lg border-2 border-indigo-200 dark:border-indigo-700 bg-white dark:bg-gray-800 px-6 py-4 font-medium text-indigo-700 dark:text-indigo-400 transition-all hover:border-indigo-400 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
-          >
-            <Building2 className="h-5 w-5" />
-            Create New Business Customer
-          </button>
-        </div>
-      </div>
     </div>
   );
 }

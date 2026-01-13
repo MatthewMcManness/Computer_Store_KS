@@ -22,7 +22,8 @@ CREATE TYPE ticket_custom_status AS ENUM (
   'building',
   'call_customer',
   'waiting_for_customer_reply',
-  'ready_for_pickup',
+  'ready_for_pickup_no_payment_due',
+  'ready_for_pickup_payment_due',
   'completed'
 );
 
@@ -85,12 +86,13 @@ INSERT INTO ticket_status_definitions (status, display_name, description, repair
   ('repairing', 'Repairing', 'Active repair work in progress', 'In Progress', FALSE, 'Being Repaired', 3),
   ('data_transferring', 'Data Transferring', 'Transferring data between devices', 'In Progress', FALSE, 'Data Transfer in Progress', 4),
   ('installing', 'Installing', 'Installing software or components', 'In Progress', FALSE, 'Installation in Progress', 5),
-  ('waiting_for_parts', 'Waiting for Parts', 'Waiting for parts to arrive', 'On Hold', FALSE, 'Waiting for Parts', 6),
+  ('waiting_for_parts', 'Waiting for Parts', 'Waiting for parts to arrive', 'Waiting for Parts', FALSE, 'Waiting for Parts', 6),
   ('building', 'Building', 'Building custom system', 'In Progress', FALSE, 'Being Built', 7),
-  ('call_customer', 'Call Customer', 'Need to call customer with a question', 'Customer Reply', TRUE, 'We Have a Question', 8),
+  ('call_customer', 'Call Customer', 'Need to call customer with a question', 'CNC', TRUE, 'We Have a Question', 8),
   ('waiting_for_customer_reply', 'Waiting for Customer Reply', 'Waiting for customer to respond', 'Customer Reply', TRUE, 'Awaiting Your Response', 9),
-  ('ready_for_pickup', 'Ready for Pickup', 'Repair complete, on done shelf', 'Resolved', FALSE, 'Ready for Pickup', 10),
-  ('completed', 'Completed', 'Ticket fully resolved and closed', 'Resolved', FALSE, 'Completed', 11)
+  ('ready_for_pickup_no_payment_due', 'Ready for Pickup (No Payment Due)', 'On done shelf, no payment required', 'Done Shelf', FALSE, 'Ready for Pickup', 10),
+  ('ready_for_pickup_payment_due', 'Ready for Pickup (Payment Due)', 'On done shelf, payment required', 'Done Shelf', FALSE, 'Ready for Pickup - Payment Due', 11),
+  ('completed', 'Completed', 'Ticket fully resolved and closed', 'Resolved', FALSE, 'Completed', 12)
 ON CONFLICT (status) DO UPDATE SET
   display_name = EXCLUDED.display_name,
   description = EXCLUDED.description,

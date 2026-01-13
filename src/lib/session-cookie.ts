@@ -25,6 +25,7 @@ export interface SessionData {
   roles?: string[]; // Array of user roles (new multi-role system)
   userType: 'employee' | 'customer'; // Track whether user authenticated via RepairShopr or Supabase
   location_id?: string | null; // User's assigned location ID
+  default_location_id?: string | null; // User's default location ID (for global access users)
   apiToken: string; // Deprecated: kept for backwards compatibility, use shared API key instead
   createdAt: number;
   expiresAt: number;
@@ -39,6 +40,7 @@ export interface SafeSessionData {
   roles?: string[]; // Array of user roles (new multi-role system)
   userType: 'employee' | 'customer';
   location_id?: string | null; // User's assigned location ID
+  default_location_id?: string | null; // User's default location ID (for global access users)
   createdAt: number;
   expiresAt: number;
 }
@@ -52,6 +54,7 @@ export interface CreateSessionInput {
   roles?: string[]; // Array of user roles (new multi-role system)
   userType: 'employee' | 'customer';
   location_id?: string | null; // User's assigned location ID
+  default_location_id?: string | null; // User's default location ID (for global access users)
 }
 
 // =============================================================================
@@ -180,6 +183,7 @@ export function createSessionData(
     roles: input.roles,
     userType: input.userType,
     location_id: input.location_id,
+    default_location_id: input.default_location_id,
     apiToken,
     createdAt: now,
     expiresAt: now + SESSION_EXPIRY_MS,
@@ -199,6 +203,7 @@ export function getSafeSession(session: SessionData): SafeSessionData {
     roles: session.roles,
     userType: session.userType,
     location_id: session.location_id,
+    default_location_id: session.default_location_id,
     createdAt: session.createdAt,
     expiresAt: session.expiresAt,
   };

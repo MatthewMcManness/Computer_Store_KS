@@ -73,6 +73,8 @@ export interface UserSession {
   userType: 'employee' | 'customer';
   /** User's assigned location ID */
   location_id?: string | null;
+  /** User's default location ID (for global access users) */
+  default_location_id?: string | null;
 }
 
 /**
@@ -184,122 +186,6 @@ function mapRepairShoprRole(
   }
 
   return 'limited';
-}
-
-// =============================================================================
-// RepairShopr Authentication (DEPRECATED)
-// =============================================================================
-
-/**
- * @deprecated Use authenticateWithSupabase instead. This function is kept for
- * backwards compatibility during migration. New employee accounts should be
- * created in Supabase Auth with a user_profiles entry.
- *
- * Authenticate a user with RepairShopr credentials
- * @param email User's email address
- * @param password User's password
- * @returns AuthResult with success status and user data
- */
-export async function authenticateWithRepairShopr(
-  email: string,
-  password: string
-): Promise<AuthResult> {
-  // Step 1: Create client
-  let client;
-  try {
-    client = createRepairShoprClient();
-  } catch (error) {
-    const msg = error instanceof Error ? error.message : 'Unknown error creating client';
-    console.log(`[AUTH] Failed to create RepairShopr client:`, msg);
-    return {
-      success: false,
-      error: `Configuration error: ${msg}`,
-    };
-  }
-
-  // Step 2: Sign in to RepairShopr
-  let signInResponse;
-  try {
-    signInResponse = await client.signIn(email, password);
-  } catch (error) {
-    if (error instanceof RepairShoprAPIError) {
-      console.log(`[AUTH] RepairShopr sign-in failed:`, {
-        code: error.code,
-        status: error.status,
-        message: error.message,
-      });
-      if (error.code === 'UNAUTHORIZED') {
-        return { success: false, error: 'Invalid email or password' };
-      }
-      return { success: false, error: error.message };
-    }
-    const msg = error instanceof Error ? error.message : 'Unknown sign-in error';
-    console.log(`[AUTH] Unexpected sign-in error:`, msg);
-    return { success: false, error: `Sign-in failed: ${msg}` };
-  }
-
-  // Step 3: Get user details
-  let meResponse;
-  try {
-    meResponse = await client.getMe(signInResponse.api_key);
-  } catch (error) {
-    if (error instanceof RepairShoprAPIError) {
-      console.log(`[AUTH] RepairShopr getMe failed:`, error.message);
-      return { success: false, error: error.message };
-    }
-    const msg = error instanceof Error ? error.message : 'Unknown error';
-    console.log(`[AUTH] Unexpected getMe error:`, msg);
-    return { success: false, error: `Failed to get user info: ${msg}` };
-  }
-
-  // Step 4: Create session
-  try {
-    const role = mapRepairShoprRole(meResponse.admin, meResponse.permissions, meResponse.user.email);
-    const userData: CreateSessionInput = {
-      userId: meResponse.user.id,
-      supabaseUserId: '', // Legacy RepairShopr auth doesn't have Supabase UUID
-      email: meResponse.user.email,
-      name: meResponse.user.full_name,
-      role,
-      userType: 'employee', // RepairShopr users are employees
-    };
-
-    const sessionData = createSessionData(userData, signInResponse.api_key);
-    const encryptedSession = encryptSession(sessionData);
-
-    const cookieStore = await cookies();
-    cookieStore.set(SESSION_COOKIE_NAME, encryptedSession, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: SESSION_MAX_AGE,
-      path: '/',
-    });
-
-    cookieStore.set(ROLE_COOKIE_NAME, userData.role, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: SESSION_MAX_AGE,
-      path: '/',
-    });
-
-    return {
-      success: true,
-      user: {
-        userId: userData.userId,
-        supabaseUserId: userData.supabaseUserId,
-        email: userData.email,
-        name: userData.name,
-        role: userData.role,
-        userType: userData.userType,
-      },
-    };
-  } catch (error) {
-    const msg = error instanceof Error ? error.message : 'Unknown session error';
-    console.log(`[AUTH] Session creation failed:`, msg);
-    return { success: false, error: `Session error: ${msg}` };
-  }
 }
 
 // =============================================================================
@@ -416,6 +302,9 @@ export async function authenticateWithSupabase(
     // Get location_id from profile
     const locationId: string | null = profile?.location_id || null;
 
+    // Get default_location_id from profile (for global access users)
+    const defaultLocationId: string | null = profile?.default_location_id || null;
+
     // Determine role and userType based on profile
     // Profile roles: 'admin', 'technician', 'receptionist', 'customer', 'owner', etc.
     // Session roles: 'admin', 'employee', 'limited'
@@ -443,6 +332,7 @@ export async function authenticateWithSupabase(
       roles: profileRoles, // Multi-role system: store all roles in session
       userType: isEmployee ? 'employee' : 'customer',
       location_id: locationId, // User's assigned location
+      default_location_id: defaultLocationId, // User's default location (for global access users)
     };
 
     const sessionData = createSessionData(userData); // No API token - use shared key instead
@@ -478,6 +368,7 @@ export async function authenticateWithSupabase(
         roles: profileRoles,
         userType: userData.userType,
         location_id: locationId,
+        default_location_id: defaultLocationId,
       },
     };
   } catch (error) {
@@ -622,6 +513,7 @@ export async function getCurrentUser(): Promise<UserSession | null> {
       roles: safeSession.roles || (safeSession.role ? [safeSession.role] : []),
       userType: safeSession.userType,
       location_id: safeSession.location_id || null,
+      default_location_id: safeSession.default_location_id || null,
     };
   }
 
@@ -635,6 +527,7 @@ export async function getCurrentUser(): Promise<UserSession | null> {
     roles: ['admin', 'owner', 'lead_developer'],
     userType: 'employee',
     location_id: null,
+    default_location_id: null,
   };
 }
 

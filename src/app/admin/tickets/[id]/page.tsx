@@ -383,7 +383,8 @@ export default function TicketDetailPage() {
         return 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300';
       case 'waiting_for_customer_reply':
         return 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300';
-      case 'ready_for_pickup':
+      case 'ready_for_pickup_no_payment_due':
+      case 'ready_for_pickup_payment_due':
         return 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300';
       case 'completed':
         return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300';

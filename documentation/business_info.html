@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computer Store KS - Business & Client Information | Computer Store KS Documentation</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-light: #3b82f6;
+            --primary-dark: #1d4ed8;
+            --bg: #ffffff;
+            --bg-secondary: #f8fafc;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --code-bg: #1e293b;
+            --code-text: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.7;
+            color: var(--text);
+            background: var(--bg);
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Navigation */
+        .nav-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--primary);
+            color: white;
+            padding: 0.75rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        .nav-bar a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .nav-bar a:hover {
+            text-decoration: underline;
+        }
+
+        .nav-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .content {
+            margin-top: 4rem;
+        }
+
+        /* Typography */
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--text);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.4rem;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            color: var(--primary-dark);
+        }
+
+        h4 { font-size: 1.2rem; }
+        h5 { font-size: 1.1rem; }
+        h6 { font-size: 1rem; color: var(--text-muted); }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        /* Links */
+        a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin-bottom: 1rem;
+            padding-left: 2rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        li > ul, li > ol {
+            margin-top: 0.5rem;
+            margin-bottom: 0;
+        }
+
+        /* Code */
+        code {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9em;
+            background: var(--bg-secondary);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+        }
+
+        pre {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 1.25rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: 1.5rem;
+            border: 1px solid #334155;
+        }
+
+        pre code {
+            background: none;
+            border: none;
+            padding: 0;
+            color: inherit;
+            font-size: 0.875rem;
+            line-height: 1.6;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border: 1px solid var(--border);
+        }
+
+        th {
+            background: var(--bg-secondary);
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        tr:nth-child(even) {
+            background: var(--bg-secondary);
+        }
+
+        tr:hover {
+            background: #f1f5f9;
+        }
+
+        /* Blockquotes */
+        blockquote {
+            border-left: 4px solid var(--primary);
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        blockquote p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Horizontal rules */
+        hr {
+            border: none;
+            border-top: 2px solid var(--border);
+            margin: 2rem 0;
+        }
+
+        /* Images */
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        /* Task lists */
+        input[type="checkbox"] {
+            margin-right: 0.5rem;
+        }
+
+        /* Mermaid diagrams */
+        .mermaid {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            text-align: center;
+            border: 1px solid var(--border);
+            overflow-x: auto;
+        }
+
+        .mermaid svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Print styles */
+        @media print {
+            .nav-bar { display: none; }
+            .content { margin-top: 0; }
+            body { padding: 1rem; }
+            pre { white-space: pre-wrap; }
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            .nav-bar { padding: 0.5rem 1rem; }
+            h1 { font-size: 1.75rem; }
+            h2 { font-size: 1.4rem; }
+            pre { padding: 0.75rem; font-size: 0.8rem; }
+            table { font-size: 0.85rem; }
+            th, td { padding: 0.5rem; }
+        }
+    </style>
+    <!-- Mermaid.js for diagram rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+    <nav class="nav-bar">
+        <span class="nav-title">Computer Store KS Docs</span>
+        <a href="DOCUMENTATION_HUB.html">← Back to Hub</a>
+    </nav>
+    <div class="content">
+<h1>Computer Store KS - Business &amp; Client Information</h1>
+<h2>Client Overview</h2>
+<h3>Business Name:</h3>
+<p>The Computer Store</p>
+<h3>Location:</h3>
+<p>Topeka, Kansas</p>
+<h3>Industry:</h3>
+<p>Computer Repair &amp; Sales / Technology Services</p>
+<h3>Website:</h3>
+<p><a href="https://computerstoreks.com">https://computerstoreks.com</a></p>
+<hr>
+<h2>About the Business</h2>
+<h3>Business Type:</h3>
+<p>Local computer repair shop serving the Topeka, Kansas area with computer repair services, refurbished computer sales, and technology solutions.</p>
+<h3>Services Offered:</h3>
+<ul>
+<li><strong>Computer Repair</strong>: Diagnostics, virus removal, hardware upgrades</li>
+<li><strong>Data Services</strong>: Data transfer, backup, and recovery</li>
+<li><strong>OS Installation</strong>: Windows, Linux, macOS installation and configuration</li>
+<li><strong>Custom Computers</strong>: Custom-built PCs tailored to customer needs</li>
+<li><strong>Refurbished Sales</strong>: Quality refurbished desktops and laptops</li>
+<li><strong>Debloat Services</strong>: Windows optimization and bloatware removal</li>
+<li><strong>Antivirus Solutions</strong>: Security software installation and support</li>
+</ul>
+<h3>Target Market:</h3>
+<ul>
+<li>Local Topeka residents and businesses</li>
+<li>Budget-conscious consumers seeking quality refurbished computers</li>
+<li>Users needing reliable computer repair services</li>
+<li>Linux enthusiasts and those interested in alternative operating systems</li>
+</ul>
+<hr>
+<h2>Project Information</h2>
+<h3>Project Type:</h3>
+<p>Client Website</p>
+<h3>Project Status:</h3>
+<p>Live / Production</p>
+<h3>Live URL:</h3>
+<p><a href="https://computerstoreks.com">https://computerstoreks.com</a></p>
+<h3>Repository:</h3>
+<ul>
+<li><strong>Original Location</strong>: ~/Computer_Store_KS</li>
+<li><strong>Bast Project Location</strong>: ~/Bast/projects/clients/Computer_Store_KS</li>
+</ul>
+<hr>
+<h2>Technical Stack</h2>
+<h3>Framework &amp; Languages:</h3>
+<ul>
+<li><strong>Framework</strong>: Next.js 14 (App Router)</li>
+<li><strong>Language</strong>: TypeScript</li>
+<li><strong>Styling</strong>: Tailwind CSS + custom CSS (static-styles.css)</li>
+</ul>
+<h3>Infrastructure:</h3>
+<ul>
+<li><strong>Hosting</strong>: Render</li>
+<li><strong>Database</strong>: Supabase (PostgreSQL)</li>
+<li><strong>Image Storage</strong>: GitHub API</li>
+<li><strong>Email</strong>: Resend</li>
+<li><strong>Authentication</strong>: RepairShopr API</li>
+</ul>
+<h3>Key Features:</h3>
+<ul>
+<li>Public-facing website with services pages</li>
+<li>Blog system with Supabase backend</li>
+<li>Admin gallery management system</li>
+<li>Admin blog management system</li>
+<li>Flyer generator for promotions</li>
+<li>Contact form with email notifications</li>
+</ul>
+<hr>
+<h2>Development History</h2>
+<h3>Initial Development:</h3>
+<p>Website built from scratch by Matthew (Resilient Web Solutions) while working at The Computer Store.</p>
+<h3>Ongoing Maintenance:</h3>
+<ul>
+<li>Regular content updates</li>
+<li>Feature additions as needed</li>
+<li>Security updates and maintenance</li>
+</ul>
+<hr>
+<h2>Client Contact</h2>
+<h3>Primary Contact:</h3>
+<p>[Store Manager/Owner Name]</p>
+<h3>Communication Preferences:</h3>
+<p>[How client prefers to be contacted for updates/questions]</p>
+<h3>Billing:</h3>
+<p>[Billing arrangement details]</p>
+<hr>
+<h2>Project Notes</h2>
+<h3>Special Considerations:</h3>
+<ul>
+<li>RepairShopr integration for authentication and customer management</li>
+<li>Gallery system uses GitHub API for image storage</li>
+<li>Blog system uses Supabase for content management</li>
+</ul>
+<h3>Future Enhancements:</h3>
+<ul>
+<li>[Planned features or improvements]</li>
+</ul>
+<h3>Known Issues:</h3>
+<ul>
+<li>[Any ongoing issues or limitations]</li>
+</ul>
+<hr>
+<h2>Bast Integration</h2>
+<h3>Working Preferences:</h3>
+<ul>
+<li>Use bun for package management</li>
+<li>Follow existing CLAUDE.md conventions</li>
+<li>Maintain TypeScript strict mode</li>
+<li>Preserve existing styling patterns (Tailwind + static-styles.css)</li>
+</ul>
+<h3>Key Files:</h3>
+<ul>
+<li><code>CLAUDE.md</code> - Project-specific instructions</li>
+<li><code>src/app/</code> - Next.js App Router pages</li>
+<li><code>src/components/</code> - React components</li>
+<li><code>src/lib/</code> - Utility libraries and integrations</li>
+<li><code>src/data/</code> - Static data files</li>
+</ul>
+
+    </div>
+    <script>
+        // Initialize Mermaid with configuration
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'base',
+            themeVariables: {
+                // Primary colors for main nodes
+                primaryColor: '#dbeafe',
+                primaryTextColor: '#1e293b',
+                primaryBorderColor: '#2563eb',
+
+                // Secondary and tertiary colors
+                secondaryColor: '#f0fdf4',
+                secondaryTextColor: '#1e293b',
+                secondaryBorderColor: '#10b981',
+                tertiaryColor: '#fef3c7',
+                tertiaryTextColor: '#1e293b',
+                tertiaryBorderColor: '#f59e0b',
+
+                // General text and background
+                textColor: '#1e293b',
+                nodeTextColor: '#1e293b',
+                lineColor: '#64748b',
+                background: '#ffffff',
+                mainBkg: '#f8fafc',
+
+                // Node styling
+                nodeBorder: '#2563eb',
+                nodeBackgroundColor: '#eff6ff',
+
+                // Cluster/subgraph styling
+                clusterBkg: '#f1f5f9',
+                clusterBorder: '#cbd5e1',
+
+                // Labels and titles
+                titleColor: '#1e293b',
+                edgeLabelBackground: '#ffffff',
+                labelTextColor: '#1e293b',
+
+                // Additional diagram-specific colors
+                actorTextColor: '#1e293b',
+                actorLineColor: '#64748b',
+                signalTextColor: '#1e293b',
+                loopTextColor: '#1e293b',
+                noteBkgColor: '#fef3c7',
+                noteTextColor: '#1e293b',
+                noteBorderColor: '#f59e0b',
+
+                // Git graph colors
+                git0: '#2563eb',
+                git1: '#10b981',
+                git2: '#f59e0b',
+                git3: '#ef4444',
+                gitBranchLabel0: '#1e293b',
+                gitBranchLabel1: '#1e293b',
+                gitBranchLabel2: '#1e293b',
+                gitBranchLabel3: '#1e293b'
+            },
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis',
+                nodeSpacing: 50,
+                rankSpacing: 50
+            },
+            sequence: {
+                useMaxWidth: true,
+                wrap: true,
+                actorMargin: 50
+            },
+            er: {
+                useMaxWidth: true
+            },
+            gitGraph: {
+                useMaxWidth: true
+            }
+        });
+
+        // Find all mermaid code blocks and convert them
+        // Note: This processes static documentation content, not user input
+        document.querySelectorAll('pre code.language-mermaid, pre code').forEach(async (codeBlock, index) => {
+            const code = codeBlock.textContent.trim();
+
+            // Check if it looks like mermaid syntax
+            const mermaidKeywords = ['graph ', 'flowchart ', 'sequenceDiagram', 'classDiagram',
+                                      'stateDiagram', 'erDiagram', 'gantt', 'pie ', 'gitgraph',
+                                      'journey', 'quadrantChart', 'requirementDiagram', 'mindmap',
+                                      'timeline', 'sankey', 'block-beta'];
+
+            const isMermaid = codeBlock.classList.contains('language-mermaid') ||
+                              mermaidKeywords.some(kw => code.startsWith(kw));
+
+            if (isMermaid) {
+                try {
+                    const pre = codeBlock.parentElement;
+                    const container = document.createElement('div');
+                    container.className = 'mermaid';
+                    container.id = 'mermaid-' + index;
+
+                    // Render the diagram - mermaid.render returns sanitized SVG
+                    const { svg } = await mermaid.render('mermaid-svg-' + index, code);
+
+                    // Safe: SVG is generated by mermaid library from static docs
+                    container.insertAdjacentHTML('beforeend', svg);
+
+                    // Replace the pre block with the rendered diagram
+                    pre.parentNode.replaceChild(container, pre);
+                } catch (e) {
+                    console.warn('Failed to render mermaid diagram:', e.message);
+                    // Leave as code block if rendering fails
+                    codeBlock.parentElement.classList.add('mermaid-error');
+                }
+            }
+        });
+
+        // Add IDs to headers for linking
+        document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(header => {
+            if (!header.id) {
+                header.id = header.textContent.toLowerCase()
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/^-|-$/g, '');
+            }
+        });
+    </script>
+</body>
+</html>

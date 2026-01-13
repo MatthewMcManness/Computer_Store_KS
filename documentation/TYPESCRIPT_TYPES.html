@@ -1,0 +1,2271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TypeScript Type Definitions | Computer Store KS Documentation</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-light: #3b82f6;
+            --primary-dark: #1d4ed8;
+            --bg: #ffffff;
+            --bg-secondary: #f8fafc;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --code-bg: #1e293b;
+            --code-text: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.7;
+            color: var(--text);
+            background: var(--bg);
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Navigation */
+        .nav-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--primary);
+            color: white;
+            padding: 0.75rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        .nav-bar a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .nav-bar a:hover {
+            text-decoration: underline;
+        }
+
+        .nav-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .content {
+            margin-top: 4rem;
+        }
+
+        /* Typography */
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--text);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.4rem;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            color: var(--primary-dark);
+        }
+
+        h4 { font-size: 1.2rem; }
+        h5 { font-size: 1.1rem; }
+        h6 { font-size: 1rem; color: var(--text-muted); }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        /* Links */
+        a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin-bottom: 1rem;
+            padding-left: 2rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        li > ul, li > ol {
+            margin-top: 0.5rem;
+            margin-bottom: 0;
+        }
+
+        /* Code */
+        code {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9em;
+            background: var(--bg-secondary);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+        }
+
+        pre {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 1.25rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: 1.5rem;
+            border: 1px solid #334155;
+        }
+
+        pre code {
+            background: none;
+            border: none;
+            padding: 0;
+            color: inherit;
+            font-size: 0.875rem;
+            line-height: 1.6;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border: 1px solid var(--border);
+        }
+
+        th {
+            background: var(--bg-secondary);
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        tr:nth-child(even) {
+            background: var(--bg-secondary);
+        }
+
+        tr:hover {
+            background: #f1f5f9;
+        }
+
+        /* Blockquotes */
+        blockquote {
+            border-left: 4px solid var(--primary);
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        blockquote p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Horizontal rules */
+        hr {
+            border: none;
+            border-top: 2px solid var(--border);
+            margin: 2rem 0;
+        }
+
+        /* Images */
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        /* Task lists */
+        input[type="checkbox"] {
+            margin-right: 0.5rem;
+        }
+
+        /* Mermaid diagrams */
+        .mermaid {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            text-align: center;
+            border: 1px solid var(--border);
+            overflow-x: auto;
+        }
+
+        .mermaid svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Print styles */
+        @media print {
+            .nav-bar { display: none; }
+            .content { margin-top: 0; }
+            body { padding: 1rem; }
+            pre { white-space: pre-wrap; }
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            .nav-bar { padding: 0.5rem 1rem; }
+            h1 { font-size: 1.75rem; }
+            h2 { font-size: 1.4rem; }
+            pre { padding: 0.75rem; font-size: 0.8rem; }
+            table { font-size: 0.85rem; }
+            th, td { padding: 0.5rem; }
+        }
+    </style>
+    <!-- Mermaid.js for diagram rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+    <nav class="nav-bar">
+        <span class="nav-title">Computer Store KS Docs</span>
+        <a href="DOCUMENTATION_HUB.html">← Back to Hub</a>
+    </nav>
+    <div class="content">
+<h1>TypeScript Type Definitions</h1>
+<blockquote>
+<p>Comprehensive documentation of all TypeScript types used in the Computer Store KS application.</p>
+</blockquote>
+<p><strong>Last Updated:</strong> 2026-01-12</p>
+<hr>
+<h2>Table of Contents</h2>
+<ol>
+<li><a href="#1-type-files-overview">Type Files Overview</a></li>
+<li><a href="#2-core-type-definitions">Core Type Definitions</a></li>
+<li><a href="#3-api-response-types">API Response Types</a></li>
+<li><a href="#4-component-props-types">Component Props Types</a></li>
+<li><a href="#5-form-types">Form Types</a></li>
+<li><a href="#6-integration-types">Integration Types</a></li>
+<li><a href="#7-type-relationships">Type Relationships</a></li>
+<li><a href="#8-best-practices">Best Practices</a></li>
+</ol>
+<hr>
+<h2>1. Type Files Overview</h2>
+<h3>src/types/index.ts</h3>
+<p>The main type definitions file containing common types used throughout the application.</p>
+<p><strong>Exported Types:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Computer</code></td>
+<td>Legacy computer product with full details</td>
+</tr>
+<tr>
+<td><code>ComputerSpecs</code></td>
+<td>Hardware specifications for computers</td>
+</tr>
+<tr>
+<td><code>Service</code></td>
+<td>Service offering with pricing</td>
+</tr>
+<tr>
+<td><code>ContactFormData</code></td>
+<td>Contact form submission data</td>
+</tr>
+<tr>
+<td><code>RepairRequest</code></td>
+<td>Repair service request tracking</td>
+</tr>
+<tr>
+<td><code>ApiResponse&lt;T&gt;</code></td>
+<td>Generic API response wrapper</td>
+</tr>
+<tr>
+<td><code>PaginatedResponse&lt;T&gt;</code></td>
+<td>Paginated API response with metadata</td>
+</tr>
+<tr>
+<td><code>NavItem</code></td>
+<td>Navigation menu item structure</td>
+</tr>
+<tr>
+<td><code>BusinessHours</code></td>
+<td>Single day operating hours</td>
+</tr>
+<tr>
+<td><code>WeeklyHours</code></td>
+<td>Complete weekly schedule</td>
+</tr>
+</tbody></table>
+<p><strong>Re-exports:</strong> All types from <code>./google-business</code></p>
+<hr>
+<h3>src/types/roles.ts</h3>
+<p>Role-Based Access Control (RBAC) system definitions.</p>
+<p><strong>Role Types:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>BusinessRole</code></td>
+<td>Hierarchy: receptionist, technician, lead_technician, manager, owner</td>
+</tr>
+<tr>
+<td><code>AddOnRole</code></td>
+<td>Additional roles: social_media, lead_developer</td>
+</tr>
+<tr>
+<td><code>EmployeeRole</code></td>
+<td>Union of BusinessRole and AddOnRole</td>
+</tr>
+<tr>
+<td><code>CustomerRole</code></td>
+<td>Customer portal access</td>
+</tr>
+<tr>
+<td><code>UserRole</code></td>
+<td>Union of all roles</td>
+</tr>
+<tr>
+<td><code>Permission</code></td>
+<td>Permission identifiers for route/feature access</td>
+</tr>
+<tr>
+<td><code>IconName</code></td>
+<td>Lucide React icon names</td>
+</tr>
+</tbody></table>
+<p><strong>Interfaces:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Interface</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>SidebarItem</code></td>
+<td>Individual sidebar menu item</td>
+</tr>
+<tr>
+<td><code>SidebarSection</code></td>
+<td>Collapsible sidebar section</td>
+</tr>
+</tbody></table>
+<p><strong>Constants:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Constant</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>ROLE_HIERARCHY</code></td>
+<td>Inheritance chain for business roles</td>
+</tr>
+<tr>
+<td><code>BUSINESS_ROLE_LEVEL</code></td>
+<td>Numeric level for role comparison</td>
+</tr>
+<tr>
+<td><code>ROLE_PERMISSIONS</code></td>
+<td>Permissions granted to each role</td>
+</tr>
+<tr>
+<td><code>SIDEBAR_CONFIG</code></td>
+<td>Complete sidebar navigation structure</td>
+</tr>
+<tr>
+<td><code>ROUTE_PERMISSIONS</code></td>
+<td>Route-to-permission mapping</td>
+</tr>
+<tr>
+<td><code>ROLE_LABELS</code></td>
+<td>Human-readable role labels</td>
+</tr>
+<tr>
+<td><code>ROLE_DESCRIPTIONS</code></td>
+<td>Role descriptions for UI</td>
+</tr>
+</tbody></table>
+<hr>
+<h3>src/types/locations.ts</h3>
+<p>Multi-location support type definitions.</p>
+<p><strong>Types:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>LocationSlug</code></td>
+<td>URL-friendly location identifier: &#39;topeka&#39; or &#39;holton&#39;</td>
+</tr>
+</tbody></table>
+<p><strong>Interfaces:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Interface</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Location</code></td>
+<td>Full location object from database</td>
+</tr>
+<tr>
+<td><code>LocationOption</code></td>
+<td>Minimal info for dropdowns</td>
+</tr>
+</tbody></table>
+<p><strong>Constants:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Constant</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>ALL_LOCATION_SLUGS</code></td>
+<td><code>[&#39;topeka&#39;, &#39;holton&#39;]</code></td>
+</tr>
+<tr>
+<td><code>DEFAULT_LOCATION</code></td>
+<td><code>&#39;topeka&#39;</code></td>
+</tr>
+<tr>
+<td><code>LOCATION_CONFIG</code></td>
+<td>Location metadata for display</td>
+</tr>
+<tr>
+<td><code>GLOBAL_ACCESS_ROLES</code></td>
+<td>Roles with multi-location access</td>
+</tr>
+<tr>
+<td><code>LOCATION_COOKIE_NAME</code></td>
+<td><code>&#39;selected_location&#39;</code></td>
+</tr>
+<tr>
+<td><code>LOCATION_COOKIE_MAX_AGE</code></td>
+<td>30 days in seconds</td>
+</tr>
+</tbody></table>
+<p><strong>Functions:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>getLocationName(slug)</code></td>
+<td>Get display name for location</td>
+</tr>
+<tr>
+<td><code>isValidLocation(slug)</code></td>
+<td>Validate location slug</td>
+</tr>
+<tr>
+<td><code>canAccessAllLocations(roles)</code></td>
+<td>Check if user has global access</td>
+</tr>
+<tr>
+<td><code>getLocationFilter(...)</code></td>
+<td>Get location filter for queries</td>
+</tr>
+</tbody></table>
+<hr>
+<h3>src/types/google-business.ts</h3>
+<p>Google Business Profile API integration types.</p>
+<p><strong>Raw API Types:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>GoogleBusinessReview</code></td>
+<td>Review from GBP API</td>
+</tr>
+<tr>
+<td><code>GoogleBusinessPost</code></td>
+<td>Post from GBP API</td>
+</tr>
+<tr>
+<td><code>GoogleBusinessHours</code></td>
+<td>Operating hours from API</td>
+</tr>
+<tr>
+<td><code>GoogleBusinessLocation</code></td>
+<td>Full location info from API</td>
+</tr>
+</tbody></table>
+<p><strong>Display Types (Frontend-friendly):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>DisplayReview</code></td>
+<td>Simplified review for UI</td>
+</tr>
+<tr>
+<td><code>DisplayPost</code></td>
+<td>Simplified post for UI</td>
+</tr>
+<tr>
+<td><code>DisplayBusinessInfo</code></td>
+<td>Simplified business info</td>
+</tr>
+</tbody></table>
+<p><strong>API/Cache Types:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>GoogleBusinessApiResponse&lt;T&gt;</code></td>
+<td>API response wrapper</td>
+</tr>
+<tr>
+<td><code>GoogleBusinessCache</code></td>
+<td>Cache structure for API data</td>
+</tr>
+</tbody></table>
+<hr>
+<h3>src/types/gallery.ts</h3>
+<p>Gallery computer inventory system types.</p>
+<p><strong>Types:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>SaleType</code></td>
+<td>Sale event identifier: &#39;none&#39; or &#39;black-friday&#39;</td>
+</tr>
+</tbody></table>
+<p><strong>Interfaces:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Interface</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>GallerySpec</code></td>
+<td>Computer specification (label/value pair)</td>
+</tr>
+<tr>
+<td><code>BlackFridayData</code></td>
+<td>Sale pricing data</td>
+</tr>
+<tr>
+<td><code>GalleryComputer</code></td>
+<td>Complete computer listing</td>
+</tr>
+<tr>
+<td><code>SaleConfig</code></td>
+<td>Sale event configuration</td>
+</tr>
+<tr>
+<td><code>GallerySale</code></td>
+<td>Sale record from database</td>
+</tr>
+<tr>
+<td><code>GalleryData</code></td>
+<td>Legacy JSON-based gallery data (deprecated)</td>
+</tr>
+<tr>
+<td><code>GalleryApiResponse&lt;T&gt;</code></td>
+<td>Gallery API response wrapper</td>
+</tr>
+<tr>
+<td><code>ImageUploadResponse</code></td>
+<td>Image upload API response</td>
+</tr>
+<tr>
+<td><code>ComputerFormData</code></td>
+<td>Admin form data for computers</td>
+</tr>
+<tr>
+<td><code>CreateComputerInput</code></td>
+<td>Database insert input</td>
+</tr>
+<tr>
+<td><code>UpdateComputerInput</code></td>
+<td>Database update input</td>
+</tr>
+</tbody></table>
+<p><strong>Constants:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Constant</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>AVAILABLE_SALES</code></td>
+<td>Array of sale configurations</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>2. Core Type Definitions</h2>
+<h3>Computer Types</h3>
+<pre><code class="language-typescript">// Legacy computer type (src/types/index.ts)
+interface Computer {
+  id: string;
+  name: string;
+  brand: string;
+  model: string;
+  category: &#39;desktop&#39; | &#39;laptop&#39; | &#39;all-in-one&#39;;
+  price: number;
+  originalPrice?: number;
+  description: string;
+  specs: ComputerSpecs;
+  images: string[];
+  inStock: boolean;
+  featured: boolean;
+  condition: &#39;excellent&#39; | &#39;good&#39; | &#39;fair&#39;;
+  warranty: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface ComputerSpecs {
+  processor: string;
+  ram: string;
+  storage: string;
+  graphics?: string;
+  display?: string;
+  os: string;
+  ports?: string[];
+  wireless?: string;
+  battery?: string;
+}
+
+// Gallery computer type (src/types/gallery.ts)
+interface GalleryComputer {
+  id: string;                            // UUID from Supabase
+  name: string;
+  type: &#39;desktop&#39; | &#39;laptop&#39;;
+  category: &#39;custom&#39; | &#39;refurbished&#39; | &#39;new&#39;;
+  price: string;                         // Display format &quot;$599.99&quot;
+  image: string;
+  thumbnail?: string;                    // 400x300 WebP
+  specs: GallerySpec[];
+  blackFriday?: BlackFridayData;
+  created_at?: string;
+  updated_at?: string;
+}
+
+interface GallerySpec {
+  label: string;                         // e.g., &quot;Processor&quot;
+  value: string;                         // e.g., &quot;Intel Core i5-10400&quot;
+}
+</code></pre>
+<p><strong>Usage Context:</strong></p>
+<ul>
+<li><code>Computer</code> - Legacy type, may be unused. Check if gallery uses GalleryComputer instead.</li>
+<li><code>GalleryComputer</code> - Active type for admin gallery and public display.</li>
+</ul>
+<hr>
+<h3>Role &amp; Permission Types</h3>
+<pre><code class="language-typescript">type BusinessRole =
+  | &#39;receptionist&#39;
+  | &#39;technician&#39;
+  | &#39;lead_technician&#39;
+  | &#39;manager&#39;
+  | &#39;owner&#39;;
+
+type AddOnRole = &#39;social_media&#39; | &#39;lead_developer&#39;;
+
+type Permission =
+  | &#39;view_admin_dashboard&#39;
+  | &#39;view_reception_dashboard&#39;
+  | &#39;manage_intake&#39;
+  | &#39;view_customers&#39;
+  | &#39;manage_customers&#39;
+  | &#39;view_families&#39;
+  | &#39;manage_families&#39;
+  | &#39;view_businesses&#39;
+  | &#39;manage_businesses&#39;
+  | &#39;view_tickets&#39;
+  | &#39;manage_tickets&#39;
+  | &#39;view_invoices&#39;
+  | &#39;manage_invoices&#39;
+  | &#39;use_pos&#39;
+  | &#39;view_leads&#39;
+  | &#39;manage_leads&#39;
+  | &#39;use_quotes&#39;
+  | &#39;view_tech_dashboard&#39;
+  | &#39;manage_ticket_work&#39;
+  | &#39;view_gallery&#39;
+  | &#39;manage_gallery&#39;
+  | &#39;view_lead_tech_dashboard&#39;
+  | &#39;assign_tickets&#39;
+  | &#39;view_blog&#39;
+  | &#39;manage_blog&#39;
+  | &#39;view_employees&#39;
+  | &#39;manage_employees&#39;
+  | &#39;view_data_sync&#39;
+  | &#39;manage_data_sync&#39;;
+</code></pre>
+<p><strong>Usage Example:</strong></p>
+<pre><code class="language-typescript">import { hasPermission } from &#39;@/lib/auth&#39;;
+
+if (hasPermission(userRoles, &#39;manage_gallery&#39;)) {
+  // Allow gallery management
+}
+</code></pre>
+<hr>
+<h3>Location Types</h3>
+<pre><code class="language-typescript">type LocationSlug = &#39;topeka&#39; | &#39;holton&#39;;
+
+interface Location {
+  id: string;                  // UUID
+  slug: LocationSlug;
+  name: string;
+  address: string | null;
+  phone: string | null;
+  email: string | null;
+  timezone: string;            // e.g., &#39;America/Chicago&#39;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+interface LocationOption {
+  slug: LocationSlug;
+  name: string;
+  is_active: boolean;
+}
+</code></pre>
+<p><strong>Usage Example:</strong></p>
+<pre><code class="language-typescript">import { getLocationFilter, canAccessAllLocations } from &#39;@/types/locations&#39;;
+
+const locationId = getLocationFilter(
+  userRoles,
+  userLocationId,
+  selectedLocation
+);
+</code></pre>
+<hr>
+<h3>Ticket Status Types</h3>
+<pre><code class="language-typescript">// src/lib/supabase.ts
+type TicketCustomStatus =
+  | &#39;new&#39;
+  | &#39;diagnosing&#39;
+  | &#39;repairing&#39;
+  | &#39;data_transferring&#39;
+  | &#39;installing&#39;
+  | &#39;waiting_for_parts&#39;
+  | &#39;building&#39;
+  | &#39;call_customer&#39;
+  | &#39;waiting_for_customer_reply&#39;
+  | &#39;ready_for_pickup&#39;
+  | &#39;completed&#39;;
+
+interface TicketStatusOverride {
+  id: string;
+  repairshopr_ticket_id: number;
+  custom_status: TicketCustomStatus;
+  customer_question: string | null;
+  updated_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+interface TicketStatusDefinition {
+  status: TicketCustomStatus;
+  display_name: string;
+  description: string | null;
+  repairshopr_status: string;
+  show_customer_question: boolean;
+  customer_visible_status: string | null;
+  sort_order: number;
+  is_active: boolean;
+}
+</code></pre>
+<hr>
+<h2>3. API Response Types</h2>
+<h3>Generic Response Wrapper</h3>
+<pre><code class="language-typescript">// src/types/index.ts
+interface ApiResponse&lt;T&gt; {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message?: string;
+}
+
+// Usage
+const response: ApiResponse&lt;GalleryComputer[]&gt; = {
+  success: true,
+  data: computers,
+  message: &#39;Computers fetched successfully&#39;
+};
+</code></pre>
+<h3>Paginated Response</h3>
+<pre><code class="language-typescript">interface PaginatedResponse&lt;T&gt; {
+  items: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+// Usage
+const paginatedCustomers: PaginatedResponse&lt;RepairShoprCustomer&gt; = {
+  items: customers,
+  total: 100,
+  page: 1,
+  pageSize: 25,
+  totalPages: 4
+};
+</code></pre>
+<h3>Gallery-Specific Responses</h3>
+<pre><code class="language-typescript">// src/types/gallery.ts
+interface GalleryApiResponse&lt;T = unknown&gt; {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message?: string;
+}
+
+interface ImageUploadResponse {
+  success: boolean;
+  filename: string;
+  path: string;
+  url: string;
+  thumbnailUrl?: string;
+  thumbnailPath?: string;
+}
+</code></pre>
+<h3>Google Business Response</h3>
+<pre><code class="language-typescript">// src/types/google-business.ts
+interface GoogleBusinessApiResponse&lt;T = unknown&gt; {
+  success: boolean;
+  data?: T;
+  error?: string;
+  cached?: boolean;
+  cachedAt?: string;
+}
+</code></pre>
+<hr>
+<h2>4. Component Props Types</h2>
+<h3>Admin Components</h3>
+<pre><code class="language-typescript">// AdminHeader
+interface AdminHeaderProps {
+  title: string;
+  subtitle?: string;
+  actions?: React.ReactNode;
+}
+
+// AdminShell
+interface AdminShellProps {
+  children: React.ReactNode;
+  title?: string;
+  subtitle?: string;
+}
+
+// AdminSidebar
+interface AdminSidebarProps {
+  currentPath: string;
+  userRoles: string[];
+}
+
+// GalleryTable
+interface GalleryTableProps {
+  computers: GalleryComputer[];
+  onEdit: (computer: GalleryComputer) =&gt; void;
+  onDelete: (id: string) =&gt; void;
+}
+
+// ComputerForm
+interface ComputerFormProps {
+  computer?: GalleryComputer;
+  onSubmit: (data: ComputerFormData) =&gt; Promise&lt;void&gt;;
+  onCancel: () =&gt; void;
+}
+
+// ImageUpload
+interface ImageUploadProps {
+  onUpload: (response: ImageUploadResponse) =&gt; void;
+  currentImage?: string;
+  accept?: string;
+}
+
+// LocationSelector
+interface LocationSelectorProps {
+  currentLocation: string | null;
+  onLocationChange: (location: string) =&gt; void;
+  disabled?: boolean;
+}
+
+// SaleDropdown
+interface SaleDropdownProps {
+  currentSale: SaleType;
+  onSaleChange: (sale: SaleType) =&gt; void;
+}
+</code></pre>
+<h3>Intake Components</h3>
+<pre><code class="language-typescript">// CustomerSearchStep
+interface CustomerSearchStepProps {
+  onSelectCustomer: (customer: RepairShoprCustomer) =&gt; void;
+  onCreateNew: () =&gt; void;
+}
+
+// CustomerFormStep
+interface CustomerFormStepProps {
+  initialData?: Partial&lt;RepairShoprCustomer&gt;;
+  onSubmit: (customer: RepairShoprCustomer) =&gt; void;
+  onBack: () =&gt; void;
+}
+
+// DeviceStep
+interface DeviceStepProps {
+  customerId: number;
+  onSelectDevice: (asset: RepairShoprAsset) =&gt; void;
+  onCreateNew: () =&gt; void;
+  onBack: () =&gt; void;
+}
+
+// TicketStep
+interface TicketStepProps {
+  customer: RepairShoprCustomer;
+  asset: RepairShoprAsset;
+  onSubmit: (ticket: RepairShoprTicket) =&gt; void;
+  onBack: () =&gt; void;
+}
+
+// SuccessStep
+interface SuccessStepProps {
+  ticket: RepairShoprTicket;
+  onStartNew: () =&gt; void;
+}
+
+// PasswordSetupModal
+interface PasswordSetupModalProps {
+  isOpen: boolean;
+  onClose: () =&gt; void;
+  customerId: number;
+}
+</code></pre>
+<h3>Gallery Components</h3>
+<pre><code class="language-typescript">// GalleryGrid
+interface GalleryGridProps {
+  computers: GalleryComputer[];
+  onSelect?: (computer: GalleryComputer) =&gt; void;
+  isAdmin?: boolean;
+}
+
+// CategoryFilter
+interface CategoryFilterProps {
+  categories: string[];
+  selectedCategory: string;
+  onCategoryChange: (category: string) =&gt; void;
+}
+
+// FlipCard
+interface FlipCardProps {
+  computer: GalleryComputer;
+  onClick?: () =&gt; void;
+  isAdmin?: boolean;
+}
+
+// GallerySkeleton
+interface GallerySkeletonProps {
+  count?: number;
+}
+</code></pre>
+<h3>Layout Components</h3>
+<pre><code class="language-typescript">// Container
+interface ContainerProps extends React.HTMLAttributes&lt;HTMLDivElement&gt; {
+  children: React.ReactNode;
+  className?: string;
+}
+
+// Header
+interface HeaderProps {
+  transparent?: boolean;
+  fixed?: boolean;
+}
+
+// Nav
+interface NavProps {
+  items: NavItem[];
+  currentPath: string;
+}
+
+// MobileNav
+interface MobileNavProps {
+  items: NavItem[];
+  isOpen: boolean;
+  onClose: () =&gt; void;
+}
+
+// Modal
+interface ModalProps {
+  isOpen: boolean;
+  onClose: () =&gt; void;
+  title?: string;
+  children: React.ReactNode;
+}
+</code></pre>
+<h3>UI Components</h3>
+<pre><code class="language-typescript">// Button
+interface ButtonProps extends React.ButtonHTMLAttributes&lt;HTMLButtonElement&gt; {
+  variant?: &#39;primary&#39; | &#39;secondary&#39; | &#39;outline&#39; | &#39;ghost&#39; | &#39;destructive&#39;;
+  size?: &#39;sm&#39; | &#39;md&#39; | &#39;lg&#39;;
+  isLoading?: boolean;
+}
+
+// Input
+interface InputProps extends React.InputHTMLAttributes&lt;HTMLInputElement&gt; {
+  label?: string;
+  error?: string;
+  helperText?: string;
+}
+
+// Textarea
+interface TextareaProps extends React.TextareaHTMLAttributes&lt;HTMLTextAreaElement&gt; {
+  label?: string;
+  error?: string;
+}
+
+// Select
+interface SelectProps extends React.SelectHTMLAttributes&lt;HTMLSelectElement&gt; {
+  label?: string;
+  error?: string;
+  options: Array&lt;{ value: string; label: string }&gt;;
+}
+
+// Badge
+interface BadgeProps {
+  variant?: &#39;default&#39; | &#39;success&#39; | &#39;warning&#39; | &#39;error&#39; | &#39;info&#39;;
+  children: React.ReactNode;
+}
+</code></pre>
+<h3>Animation Components</h3>
+<pre><code class="language-typescript">// MotionContainer
+interface MotionContainerProps {
+  children: React.ReactNode;
+  className?: string;
+  delay?: number;
+}
+
+// MotionSection
+interface MotionSectionProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
+// MotionCard
+interface MotionCardProps {
+  children: React.ReactNode;
+  className?: string;
+  index?: number;
+}
+
+// MotionButton
+interface MotionButtonProps extends ButtonProps {
+  whileHover?: object;
+  whileTap?: object;
+}
+
+// PageTransition
+interface PageTransitionProps {
+  children: React.ReactNode;
+}
+
+// MotionHeading
+interface MotionHeadingProps {
+  children: React.ReactNode;
+  as?: &#39;h1&#39; | &#39;h2&#39; | &#39;h3&#39; | &#39;h4&#39; | &#39;h5&#39; | &#39;h6&#39;;
+  className?: string;
+}
+</code></pre>
+<h3>SEO Components</h3>
+<pre><code class="language-typescript">// LocalBusinessSchema
+interface LocalBusinessSchemaProps {
+  name: string;
+  description: string;
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    zip: string;
+  };
+  phone: string;
+  url: string;
+  hours?: string[];
+}
+
+// ProductSchema
+interface ProductSchemaProps {
+  name: string;
+  description: string;
+  price: number;
+  image?: string;
+  availability?: &#39;InStock&#39; | &#39;OutOfStock&#39;;
+}
+
+// FAQSchema
+interface FAQSchemaProps {
+  questions: Array&lt;{
+    question: string;
+    answer: string;
+  }&gt;;
+}
+
+// Breadcrumbs
+interface BreadcrumbsProps {
+  items: Array&lt;{
+    label: string;
+    href?: string;
+  }&gt;;
+}
+</code></pre>
+<hr>
+<h2>5. Form Types</h2>
+<h3>Contact Form</h3>
+<pre><code class="language-typescript">// src/types/index.ts
+interface ContactFormData {
+  name: string;
+  email: string;
+  phone?: string;
+  subject: string;
+  message: string;
+}
+
+// Extended with spam detection (src/lib/spam-detection.ts)
+interface ExtendedFormData extends ContactFormData {
+  honeypot?: string;
+  timestamp?: number;
+  userAgent?: string;
+}
+</code></pre>
+<h3>Repair Request Form</h3>
+<pre><code class="language-typescript">interface RepairRequest {
+  id: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  deviceType: string;
+  deviceBrand: string;
+  deviceModel: string;
+  issueDescription: string;
+  status: &#39;pending&#39; | &#39;in-progress&#39; | &#39;completed&#39; | &#39;cancelled&#39;;
+  createdAt: Date;
+  updatedAt: Date;
+}
+</code></pre>
+<h3>Computer Form (Admin)</h3>
+<pre><code class="language-typescript">// src/types/gallery.ts
+interface ComputerFormData {
+  name: string;
+  type: &#39;desktop&#39; | &#39;laptop&#39;;
+  category: &#39;custom&#39; | &#39;refurbished&#39; | &#39;new&#39;;
+  price: string;                        // Display format
+  image: string;
+  thumbnail?: string;
+  specs: GallerySpec[];
+}
+
+// Database input types
+interface CreateComputerInput {
+  name: string;
+  type: &#39;desktop&#39; | &#39;laptop&#39;;
+  category: &#39;refurbished&#39; | &#39;custom&#39; | &#39;new&#39;;
+  price: number;                        // Numeric for DB
+  image_url?: string;
+  thumbnail_url?: string;
+  specs?: GallerySpec[];
+  sort_order?: number;
+}
+
+interface UpdateComputerInput {
+  name?: string;
+  type?: &#39;desktop&#39; | &#39;laptop&#39;;
+  category?: &#39;refurbished&#39; | &#39;custom&#39; | &#39;new&#39;;
+  price?: number;
+  image_url?: string;
+  thumbnail_url?: string;
+  specs?: GallerySpec[];
+  is_active?: boolean;
+  sort_order?: number;
+}
+</code></pre>
+<h3>Blog Post Form</h3>
+<pre><code class="language-typescript">// src/lib/supabase.ts
+interface CreateBlogPostInput {
+  title: string;
+  slug: string;
+  excerpt?: string;
+  content: string;
+  featured_image_url?: string;
+  featured_image_thumbnail?: string;
+  category_id?: string;
+  author_name: string;
+  author_email?: string;
+  status?: &#39;draft&#39; | &#39;published&#39; | &#39;archived&#39;;
+  published_at?: string;
+  tag_ids?: string[];
+}
+
+interface UpdateBlogPostInput {
+  title?: string;
+  slug?: string;
+  excerpt?: string;
+  content?: string;
+  featured_image_url?: string;
+  featured_image_thumbnail?: string | null;
+  category_id?: string | null;
+  author_name?: string;
+  author_email?: string;
+  status?: &#39;draft&#39; | &#39;published&#39; | &#39;archived&#39;;
+  published_at?: string | null;
+  tag_ids?: string[];
+}
+</code></pre>
+<hr>
+<h2>6. Integration Types</h2>
+<h3>RepairShopr Types</h3>
+<p>Located in <code>src/lib/repairshopr.ts</code>:</p>
+<pre><code class="language-typescript">// Configuration
+interface RepairShoprConfig {
+  subdomain: string;
+  baseUrl?: string;
+}
+
+// User/Employee
+interface RepairShoprUser {
+  id: number;
+  email: string;
+  full_name: string;
+  phone?: string | null;
+  mobile?: string | null;
+  created_at?: string;
+  updated_at?: string;
+  address?: string | null;
+  city?: string | null;
+  state?: string | null;
+  zip?: string | null;
+  business_name?: string | null;
+  role?: string | null;
+  admin?: boolean;
+}
+
+// Customer
+interface RepairShoprCustomer {
+  id: number;
+  firstname: string;
+  lastname: string;
+  fullname: string;
+  business_name?: string | null;
+  email: string;
+  phone?: string | null;
+  mobile?: string | null;
+  address?: string | null;
+  city?: string | null;
+  state?: string | null;
+  zip?: string | null;
+  created_at?: string;
+  updated_at?: string;
+  tags?: string[] | null;
+  is_silver_plan?: boolean;
+  custom_fields?: Record&lt;string, unknown&gt; | null;
+}
+
+// Asset/Device
+interface RepairShoprAsset {
+  id: number;
+  name: string;
+  asset_type_name?: string | null;
+  customer_id: number;
+  properties?: Record&lt;string, unknown&gt;;
+  created_at?: string;
+  updated_at?: string;
+}
+
+// Ticket
+interface RepairShoprTicket {
+  id: number;
+  number: string;
+  subject: string;
+  customer_id: number;
+  customer_business_then_name?: string;
+  status?: string;
+  problem_type?: string;
+  created_at?: string;
+  updated_at?: string;
+  due_date?: string;
+  resolved_at?: string;
+  priority?: string;
+}
+
+interface RepairShoprTicketDetail extends RepairShoprTicket {
+  comments?: RepairShoprTicketComment[];
+  timers?: RepairShoprTimerEntry[];
+  customer?: RepairShoprCustomer;
+  assets?: RepairShoprAsset[];
+}
+
+// Ticket Comment
+interface RepairShoprTicketComment {
+  id: number;
+  created_at: string;
+  updated_at: string;
+  ticket_id: number;
+  subject?: string;
+  body: string;
+  tech?: string;
+  hidden: boolean;
+  user_id?: number;
+}
+
+// Invoice
+interface RepairShoprInvoice {
+  id: number;
+  number: string;
+  customer_id: number;
+  total: string;
+  balance_due: string;
+  status?: string;
+  date?: string;
+  due_date?: string;
+  is_paid?: boolean;
+  line_items?: RepairShoprLineItem[];
+}
+
+// Line Item
+interface RepairShoprLineItem {
+  id: number;
+  item: string;
+  name?: string;
+  description?: string;
+  quantity: number;
+  price: string;
+  cost?: string;
+  total?: string;
+  taxable?: boolean;
+}
+
+// Product
+interface RepairShoprProduct {
+  id: number;
+  name: string;
+  description?: string;
+  sku?: string;
+  upc_code?: string;
+  price_retail?: string;
+  price_cost?: string;
+  quantity?: number;
+  category?: string;
+  location?: string;
+}
+
+// Payment
+interface RepairShoprPayment {
+  id: number;
+  invoice_id: number;
+  customer_id: number;
+  amount: string;
+  payment_method?: string;
+  reference?: string;
+  applied_at?: string;
+}
+
+// Business
+interface RepairShoprBusiness {
+  id: number;
+  name: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+// Auth Responses
+interface SignInResponse {
+  api_key: string;
+  user: RepairShoprUser;
+  admin: boolean;
+  two_factor_required: boolean;
+  subdomain: string;
+  permissions: Record&lt;string, Record&lt;string, boolean&gt;&gt;;
+}
+
+// Input Types
+interface CreateCustomerInput {
+  firstname: string;
+  lastname: string;
+  email: string;
+  phone?: string;
+  mobile?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
+  business_name?: string;
+}
+
+interface CreateTicketInput {
+  customer_id: number;
+  subject: string;
+  problem_type?: string;
+  status?: string;
+  asset_id?: number;
+  due_date?: string;
+  user_id?: number;
+  comment_body?: string;
+}
+
+interface AddTicketCommentInput {
+  subject?: string;
+  body: string;
+  tech?: string;
+  hidden?: boolean;
+  do_not_email?: boolean;
+  sms_body?: string;
+}
+
+// Protection Plan Type
+type ProtectionPlanTier = &#39;eset&#39; | &#39;silver&#39; | &#39;silver-plus&#39; | null;
+</code></pre>
+<hr>
+<h3>NinjaOne Types</h3>
+<p>Located in <code>src/lib/ninjaone.ts</code>:</p>
+<pre><code class="language-typescript">// Configuration
+interface NinjaOneConfig {
+  apiUrl: string;
+  clientId: string;
+  clientSecret: string;
+  accessToken?: string;
+}
+
+// Hardware Info
+interface NinjaOneHardware {
+  manufacturer?: string;
+  model?: string;
+  serialNumber?: string;
+  processorName?: string;
+  processorCores?: number;
+  ramGb?: number;
+  diskDrives?: Array&lt;{
+    name?: string;
+    sizeGb?: number;
+    freeGb?: number;
+    type?: &#39;SSD&#39; | &#39;HDD&#39; | &#39;NVMe&#39; | &#39;Unknown&#39;;
+  }&gt;;
+  biosVersion?: string;
+  biosDate?: string;
+}
+
+// Operating System
+interface NinjaOneOS {
+  name: string;
+  version?: string;
+  build?: string;
+  architecture?: &#39;32-bit&#39; | &#39;64-bit&#39;;
+  lastBootTime?: string;
+}
+
+// Network Adapter
+interface NinjaOneNetworkAdapter {
+  name: string;
+  macAddress?: string;
+  ipAddresses?: string[];
+  type?: &#39;Ethernet&#39; | &#39;WiFi&#39; | &#39;Virtual&#39; | &#39;Unknown&#39;;
+}
+
+// Device (Normalized)
+interface NinjaOneDevice {
+  id: number;
+  name: string;
+  systemName?: string;
+  os: string;
+  osDetails?: NinjaOneOS;
+  status: &#39;online&#39; | &#39;offline&#39; | &#39;unknown&#39;;
+  lastSeen: Date;
+  lastContact?: Date;
+  hardware: NinjaOneHardware;
+  networkAdapters?: NinjaOneNetworkAdapter[];
+  deviceClass?: &#39;WINDOWS_WORKSTATION&#39; | &#39;WINDOWS_SERVER&#39; | &#39;MAC&#39; | &#39;LINUX&#39; | &#39;CLOUD_MONITOR&#39; | &#39;VMWARE_HOST&#39; | &#39;UNKNOWN&#39;;
+  organizationId?: number;
+  organizationName?: string;
+  locationId?: number;
+  locationName?: string;
+  notes?: string;
+  customFields?: Record&lt;string, unknown&gt;;
+  tags?: string[];
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+// Organization
+interface NinjaOneOrganization {
+  id: number;
+  name: string;
+  description?: string;
+  nodeApprovalMode?: string;
+  locations?: Array&lt;{
+    id: number;
+    name: string;
+    address?: string;
+  }&gt;;
+}
+
+// Device Mapping (Links NinjaOne to RepairShopr)
+interface DeviceMapping {
+  id: string;
+  repairshoprAssetId: number;
+  ninjaoneDeviceId: number;
+  deviceName?: string;
+  serialNumber?: string;
+  ownerUserId?: string;
+  lastSyncAt: Date;
+  syncStatus: &#39;synced&#39; | &#39;pending&#39; | &#39;error&#39; | &#39;stale&#39;;
+  syncError?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Error Response
+interface NinjaOneErrorResponse {
+  error?: string;
+  error_description?: string;
+  resultCode?: string;
+  errorMessage?: string;
+}
+</code></pre>
+<hr>
+<h3>Supabase Types</h3>
+<p>Located in <code>src/lib/supabase.ts</code> and <code>src/lib/supabase-auth.ts</code>:</p>
+<pre><code class="language-typescript">// Blog Category
+interface BlogCategory {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  created_at: string;
+}
+
+// Blog Tag
+interface BlogTag {
+  id: string;
+  name: string;
+  slug: string;
+  created_at: string;
+}
+
+// Blog Post
+interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  content: string;
+  featured_image_url: string | null;
+  featured_image_thumbnail: string | null;
+  category_id: string | null;
+  author_name: string;
+  author_email: string | null;
+  status: &#39;draft&#39; | &#39;published&#39; | &#39;archived&#39;;
+  published_at: string | null;
+  created_at: string;
+  updated_at: string;
+  category?: BlogCategory | null;
+  tags?: BlogTag[];
+}
+
+// User Profile
+interface UserProfile {
+  id: string;
+  email: string;
+  full_name: string | null;
+  role: LegacyUserRole;           // Deprecated
+  roles: string[];                // New multi-role system
+  location_id: string | null;
+  repairshopr_user_id: number | null;
+  repairshopr_customer_id: number | null;
+  protection_plan_tier: &#39;bronze&#39; | &#39;silver&#39; | &#39;gold&#39; | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// Authenticated User
+interface AuthenticatedUser {
+  user: User;                     // Supabase User type
+  session: Session;               // Supabase Session type
+  profile: UserProfile | null;
+}
+
+// Customer Protection Plan
+interface CustomerProtectionPlan {
+  id: string;
+  repairshopr_customer_id: number;
+  plan_tier: ProtectionPlanTier;
+  expiration_date: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// Asset Protection Plan
+interface AssetProtectionPlan {
+  id: string;
+  repairshopr_asset_id: number;
+  repairshopr_customer_id: number;
+  plan_tier: ProtectionPlanTier;
+  expiration_date: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// Customer Protection Summary
+interface CustomerProtectionSummary {
+  customer_id: number;
+  customer_tier: ProtectionPlanTier;
+  assets: Array&lt;{
+    asset_id: number;
+    asset_name: string;
+    tier: ProtectionPlanTier;
+    expiration: string | null;
+  }&gt;;
+}
+</code></pre>
+<hr>
+<h3>Session Types</h3>
+<p>Located in <code>src/lib/session-store.ts</code> and <code>src/lib/session-cookie.ts</code>:</p>
+<pre><code class="language-typescript">// Session Store Types
+interface Session {
+  id: string;
+  userId: string;
+  email: string;
+  fullName: string;
+  roles: string[];
+  locationId: string | null;
+  apiKey?: string;
+  createdAt: number;
+  expiresAt: number;
+}
+
+interface CreateSessionData {
+  userId: string;
+  email: string;
+  fullName: string;
+  roles: string[];
+  locationId?: string | null;
+  apiKey?: string;
+}
+
+// Session Cookie Types
+interface SessionData {
+  userId: string;
+  email: string;
+  fullName: string;
+  roles: string[];
+  locationId: string | null;
+  repairshoprUserId: number | null;
+  apiKey?: string;
+  expiresAt: number;
+}
+
+interface SafeSessionData {
+  userId: string;
+  email: string;
+  fullName: string;
+  roles: string[];
+  locationId: string | null;
+  repairshoprUserId: number | null;
+}
+
+interface CreateSessionInput {
+  userId: string;
+  email: string;
+  fullName: string;
+  roles: string[];
+  locationId?: string | null;
+  repairshoprUserId?: number | null;
+  apiKey?: string;
+}
+</code></pre>
+<hr>
+<h3>Spam Detection Types</h3>
+<p>Located in <code>src/lib/spam-detection.ts</code> and <code>src/lib/spam-patterns.ts</code>:</p>
+<pre><code class="language-typescript">// Spam Score Result
+interface SpamScoreResult {
+  isSpam: boolean;
+  score: number;                  // 0-100, higher = more spammy
+  reasons: string[];
+  confidence: &#39;low&#39; | &#39;medium&#39; | &#39;high&#39;;
+}
+
+// Content Analysis
+interface ContentAnalysis {
+  hasExcessiveLinks: boolean;
+  hasSpamKeywords: boolean;
+  hasEncodedContent: boolean;
+  linkCount: number;
+  keywordMatches: string[];
+}
+
+// Spam Pattern Result
+interface SpamPatternResult {
+  isSpam: boolean;
+  reason: string;
+  pattern?: string;
+}
+</code></pre>
+<hr>
+<h3>Audit Types</h3>
+<p>Located in <code>src/lib/audit.ts</code>:</p>
+<pre><code class="language-typescript">// Audit Log Entry
+interface AuditLogEntry {
+  action: string;
+  entityType: string;
+  entityId: string | number;
+  details?: Record&lt;string, unknown&gt;;
+  ipAddress?: string;
+  userAgent?: string;
+}
+
+// Employee Info
+interface EmployeeInfo {
+  userId: string;
+  email: string;
+  fullName: string;
+  roles: string[];
+}
+
+// Audit Log Record (Database)
+interface AuditLogRecord {
+  id: string;
+  user_id: string;
+  user_email: string;
+  user_name: string;
+  action: string;
+  entity_type: string;
+  entity_id: string;
+  details: Record&lt;string, unknown&gt; | null;
+  ip_address: string | null;
+  user_agent: string | null;
+  created_at: string;
+}
+</code></pre>
+<hr>
+<h3>Data Sync Types</h3>
+<p>Located in <code>src/lib/repairshopr-sync.ts</code>:</p>
+<pre><code class="language-typescript">// Sync Result
+interface SyncResult {
+  success: boolean;
+  synced: number;
+  errors: number;
+  errorMessages?: string[];
+}
+
+// Full Sync Result
+interface FullSyncResult {
+  customers: SyncResult;
+  tickets: SyncResult;
+  assets: SyncResult;
+}
+
+// Sync Log Entry
+interface SyncLogEntry {
+  id: string;
+  sync_type: string;
+  started_at: string;
+  completed_at: string | null;
+  status: &#39;running&#39; | &#39;completed&#39; | &#39;failed&#39;;
+  items_synced: number;
+  errors: number;
+  error_details: string[] | null;
+}
+</code></pre>
+<hr>
+<h2>7. Type Relationships</h2>
+<h3>Hierarchy Diagram</h3>
+<pre><code>UserRole
+  ├── EmployeeRole
+  │     ├── BusinessRole (receptionist → technician → lead_technician → manager → owner)
+  │     └── AddOnRole (social_media, lead_developer)
+  └── CustomerRole (customer)
+
+Permission → SidebarItem → SidebarSection → SIDEBAR_CONFIG
+           → ROUTE_PERMISSIONS (route protection)
+
+Location
+  └── LocationSlug → LocationOption
+                   → LOCATION_CONFIG
+
+GalleryComputer
+  ├── GallerySpec[]
+  ├── BlackFridayData
+  └── SaleType → SaleConfig → GallerySale
+
+RepairShoprTicket
+  ├── RepairShoprTicketDetail (extends)
+  │     ├── RepairShoprTicketComment[]
+  │     ├── RepairShoprTimerEntry[]
+  │     ├── RepairShoprCustomer
+  │     └── RepairShoprAsset[]
+  └── TicketStatusOverride (Supabase layer)
+        └── TicketCustomStatus
+
+BlogPost
+  ├── BlogCategory
+  └── BlogTag[]
+
+UserProfile
+  ├── roles: string[] → Permission[]
+  └── location_id → Location
+
+DeviceMapping
+  ├── repairshoprAssetId → RepairShoprAsset
+  └── ninjaoneDeviceId → NinjaOneDevice
+</code></pre>
+<h3>Cross-System Type Mapping</h3>
+<table>
+<thead>
+<tr>
+<th>System A</th>
+<th>System B</th>
+<th>Mapping</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>RepairShoprAsset</code></td>
+<td><code>NinjaOneDevice</code></td>
+<td><code>DeviceMapping</code></td>
+</tr>
+<tr>
+<td><code>RepairShoprTicket</code></td>
+<td><code>TicketStatusOverride</code></td>
+<td><code>repairshopr_ticket_id</code></td>
+</tr>
+<tr>
+<td><code>RepairShoprCustomer</code></td>
+<td><code>CustomerProtectionPlan</code></td>
+<td><code>repairshopr_customer_id</code></td>
+</tr>
+<tr>
+<td><code>RepairShoprUser</code></td>
+<td><code>UserProfile</code></td>
+<td><code>repairshopr_user_id</code></td>
+</tr>
+<tr>
+<td><code>BusinessRole</code></td>
+<td><code>Permission[]</code></td>
+<td><code>ROLE_PERMISSIONS</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h2>8. Best Practices</h2>
+<h3>Type Naming Conventions</h3>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Usage</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>PascalCase</code></td>
+<td>Interfaces and Types</td>
+<td><code>GalleryComputer</code>, <code>UserRole</code></td>
+</tr>
+<tr>
+<td><code>camelCase</code></td>
+<td>Properties and methods</td>
+<td><code>createdAt</code>, <code>isActive</code></td>
+</tr>
+<tr>
+<td><code>SCREAMING_SNAKE_CASE</code></td>
+<td>Constants</td>
+<td><code>ROLE_PERMISSIONS</code>, <code>DEFAULT_LOCATION</code></td>
+</tr>
+<tr>
+<td><code>*Props</code> suffix</td>
+<td>Component props</td>
+<td><code>ButtonProps</code>, <code>AdminHeaderProps</code></td>
+</tr>
+<tr>
+<td><code>*Input</code> suffix</td>
+<td>Create/Update DTOs</td>
+<td><code>CreateComputerInput</code>, <code>UpdateBlogPostInput</code></td>
+</tr>
+<tr>
+<td><code>*Response</code> suffix</td>
+<td>API responses</td>
+<td><code>SignInResponse</code>, <code>ImageUploadResponse</code></td>
+</tr>
+</tbody></table>
+<h3>Type vs Interface</h3>
+<p><strong>Use <code>interface</code> when:</strong></p>
+<ul>
+<li>Defining object shapes that may be extended</li>
+<li>Creating component props</li>
+<li>Defining API response structures</li>
+</ul>
+<pre><code class="language-typescript">interface GalleryComputer {
+  id: string;
+  name: string;
+  // ...
+}
+</code></pre>
+<p><strong>Use <code>type</code> when:</strong></p>
+<ul>
+<li>Creating union types</li>
+<li>Defining literal types</li>
+<li>Creating aliases for primitives</li>
+</ul>
+<pre><code class="language-typescript">type BusinessRole = &#39;receptionist&#39; | &#39;technician&#39; | &#39;lead_technician&#39; | &#39;manager&#39; | &#39;owner&#39;;
+type SaleType = &#39;none&#39; | &#39;black-friday&#39;;
+type ProtectionPlanTier = &#39;eset&#39; | &#39;silver&#39; | &#39;silver-plus&#39; | null;
+</code></pre>
+<h3>Generic Type Patterns</h3>
+<p><strong>API Response Wrapper:</strong></p>
+<pre><code class="language-typescript">interface ApiResponse&lt;T&gt; {
+  success: boolean;
+  data?: T;
+  error?: string;
+}
+
+// Usage
+const response: ApiResponse&lt;GalleryComputer[]&gt; = await fetchComputers();
+</code></pre>
+<p><strong>Paginated Response:</strong></p>
+<pre><code class="language-typescript">interface PaginatedResponse&lt;T&gt; {
+  items: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+// Usage
+const customers: PaginatedResponse&lt;RepairShoprCustomer&gt; = await getCustomers(page);
+</code></pre>
+<h3>Discriminated Unions</h3>
+<pre><code class="language-typescript">// Status-based discriminated union
+type TicketStatus =
+  | { status: &#39;new&#39;; assignedTo?: never }
+  | { status: &#39;in_progress&#39;; assignedTo: string }
+  | { status: &#39;completed&#39;; assignedTo: string; resolvedAt: Date };
+
+// Type guard
+function isCompleted(ticket: TicketStatus): ticket is { status: &#39;completed&#39;; assignedTo: string; resolvedAt: Date } {
+  return ticket.status === &#39;completed&#39;;
+}
+</code></pre>
+<h3>Type Guards</h3>
+<pre><code class="language-typescript">// src/types/roles.ts
+function isAddOnRole(role: string): role is AddOnRole {
+  return ADD_ON_ROLES.includes(role as AddOnRole);
+}
+
+function isBusinessRole(role: string): role is BusinessRole {
+  return BUSINESS_ROLES.includes(role as BusinessRole);
+}
+
+// src/types/locations.ts
+function isValidLocation(slug: string): slug is LocationSlug {
+  return ALL_LOCATION_SLUGS.includes(slug as LocationSlug);
+}
+</code></pre>
+<h3>Optional vs Required Properties</h3>
+<p><strong>Use optional (<code>?</code>) when:</strong></p>
+<ul>
+<li>Property may not be present in API responses</li>
+<li>Property has a sensible default</li>
+<li>Property is optional in forms</li>
+</ul>
+<p><strong>Use required when:</strong></p>
+<ul>
+<li>Property is essential for the object&#39;s identity</li>
+<li>Property must be provided at creation time</li>
+<li>Property is always present in the data</li>
+</ul>
+<pre><code class="language-typescript">interface GalleryComputer {
+  id: string;              // Required - always present
+  name: string;            // Required - essential for display
+  thumbnail?: string;      // Optional - may not exist
+  blackFriday?: BlackFridayData;  // Optional - only during sales
+}
+</code></pre>
+<h3>Null vs Undefined</h3>
+<p><strong>Use <code>null</code> when:</strong></p>
+<ul>
+<li>Explicitly indicating &quot;no value&quot; from database</li>
+<li>API returns null for missing data</li>
+</ul>
+<p><strong>Use <code>undefined</code> when:</strong></p>
+<ul>
+<li>Property is optional and not provided</li>
+<li>Default parameter values</li>
+</ul>
+<pre><code class="language-typescript">interface Location {
+  address: string | null;   // Database may have null
+  phone: string | null;
+  timezone: string;         // Always has a value
+}
+
+interface LocationOption {
+  name?: string;            // May not be provided
+}
+</code></pre>
+<hr>
+<h2>File Locations Summary</h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>src/types/index.ts</code></td>
+<td>Core application types</td>
+</tr>
+<tr>
+<td><code>src/types/roles.ts</code></td>
+<td>RBAC types and configuration</td>
+</tr>
+<tr>
+<td><code>src/types/locations.ts</code></td>
+<td>Multi-location types</td>
+</tr>
+<tr>
+<td><code>src/types/google-business.ts</code></td>
+<td>Google Business API types</td>
+</tr>
+<tr>
+<td><code>src/types/gallery.ts</code></td>
+<td>Gallery/computer inventory types</td>
+</tr>
+<tr>
+<td><code>src/lib/repairshopr.ts</code></td>
+<td>RepairShopr API types</td>
+</tr>
+<tr>
+<td><code>src/lib/ninjaone.ts</code></td>
+<td>NinjaOne RMM types</td>
+</tr>
+<tr>
+<td><code>src/lib/supabase.ts</code></td>
+<td>Blog, ticket, protection plan types</td>
+</tr>
+<tr>
+<td><code>src/lib/supabase-auth.ts</code></td>
+<td>Authentication types</td>
+</tr>
+<tr>
+<td><code>src/lib/session-store.ts</code></td>
+<td>Session management types</td>
+</tr>
+<tr>
+<td><code>src/lib/session-cookie.ts</code></td>
+<td>Cookie session types</td>
+</tr>
+<tr>
+<td><code>src/lib/spam-detection.ts</code></td>
+<td>Spam detection types</td>
+</tr>
+<tr>
+<td><code>src/lib/audit.ts</code></td>
+<td>Audit logging types</td>
+</tr>
+<tr>
+<td><code>src/lib/repairshopr-sync.ts</code></td>
+<td>Data sync types</td>
+</tr>
+</tbody></table>
+
+    </div>
+    <script>
+        // Initialize Mermaid with configuration
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'base',
+            themeVariables: {
+                // Primary colors for main nodes
+                primaryColor: '#dbeafe',
+                primaryTextColor: '#1e293b',
+                primaryBorderColor: '#2563eb',
+
+                // Secondary and tertiary colors
+                secondaryColor: '#f0fdf4',
+                secondaryTextColor: '#1e293b',
+                secondaryBorderColor: '#10b981',
+                tertiaryColor: '#fef3c7',
+                tertiaryTextColor: '#1e293b',
+                tertiaryBorderColor: '#f59e0b',
+
+                // General text and background
+                textColor: '#1e293b',
+                nodeTextColor: '#1e293b',
+                lineColor: '#64748b',
+                background: '#ffffff',
+                mainBkg: '#f8fafc',
+
+                // Node styling
+                nodeBorder: '#2563eb',
+                nodeBackgroundColor: '#eff6ff',
+
+                // Cluster/subgraph styling
+                clusterBkg: '#f1f5f9',
+                clusterBorder: '#cbd5e1',
+
+                // Labels and titles
+                titleColor: '#1e293b',
+                edgeLabelBackground: '#ffffff',
+                labelTextColor: '#1e293b',
+
+                // Additional diagram-specific colors
+                actorTextColor: '#1e293b',
+                actorLineColor: '#64748b',
+                signalTextColor: '#1e293b',
+                loopTextColor: '#1e293b',
+                noteBkgColor: '#fef3c7',
+                noteTextColor: '#1e293b',
+                noteBorderColor: '#f59e0b',
+
+                // Git graph colors
+                git0: '#2563eb',
+                git1: '#10b981',
+                git2: '#f59e0b',
+                git3: '#ef4444',
+                gitBranchLabel0: '#1e293b',
+                gitBranchLabel1: '#1e293b',
+                gitBranchLabel2: '#1e293b',
+                gitBranchLabel3: '#1e293b'
+            },
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis',
+                nodeSpacing: 50,
+                rankSpacing: 50
+            },
+            sequence: {
+                useMaxWidth: true,
+                wrap: true,
+                actorMargin: 50
+            },
+            er: {
+                useMaxWidth: true
+            },
+            gitGraph: {
+                useMaxWidth: true
+            }
+        });
+
+        // Find all mermaid code blocks and convert them
+        // Note: This processes static documentation content, not user input
+        document.querySelectorAll('pre code.language-mermaid, pre code').forEach(async (codeBlock, index) => {
+            const code = codeBlock.textContent.trim();
+
+            // Check if it looks like mermaid syntax
+            const mermaidKeywords = ['graph ', 'flowchart ', 'sequenceDiagram', 'classDiagram',
+                                      'stateDiagram', 'erDiagram', 'gantt', 'pie ', 'gitgraph',
+                                      'journey', 'quadrantChart', 'requirementDiagram', 'mindmap',
+                                      'timeline', 'sankey', 'block-beta'];
+
+            const isMermaid = codeBlock.classList.contains('language-mermaid') ||
+                              mermaidKeywords.some(kw => code.startsWith(kw));
+
+            if (isMermaid) {
+                try {
+                    const pre = codeBlock.parentElement;
+                    const container = document.createElement('div');
+                    container.className = 'mermaid';
+                    container.id = 'mermaid-' + index;
+
+                    // Render the diagram - mermaid.render returns sanitized SVG
+                    const { svg } = await mermaid.render('mermaid-svg-' + index, code);
+
+                    // Safe: SVG is generated by mermaid library from static docs
+                    container.insertAdjacentHTML('beforeend', svg);
+
+                    // Replace the pre block with the rendered diagram
+                    pre.parentNode.replaceChild(container, pre);
+                } catch (e) {
+                    console.warn('Failed to render mermaid diagram:', e.message);
+                    // Leave as code block if rendering fails
+                    codeBlock.parentElement.classList.add('mermaid-error');
+                }
+            }
+        });
+
+        // Add IDs to headers for linking
+        document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(header => {
+            if (!header.id) {
+                header.id = header.textContent.toLowerCase()
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/^-|-$/g, '');
+            }
+        });
+    </script>
+</body>
+</html>

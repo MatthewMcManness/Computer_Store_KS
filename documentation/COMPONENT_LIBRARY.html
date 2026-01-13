@@ -1,0 +1,1522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computer Store KS - Component Library | Computer Store KS Documentation</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-light: #3b82f6;
+            --primary-dark: #1d4ed8;
+            --bg: #ffffff;
+            --bg-secondary: #f8fafc;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --code-bg: #1e293b;
+            --code-text: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.7;
+            color: var(--text);
+            background: var(--bg);
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Navigation */
+        .nav-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--primary);
+            color: white;
+            padding: 0.75rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        .nav-bar a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .nav-bar a:hover {
+            text-decoration: underline;
+        }
+
+        .nav-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .content {
+            margin-top: 4rem;
+        }
+
+        /* Typography */
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--text);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.4rem;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            color: var(--primary-dark);
+        }
+
+        h4 { font-size: 1.2rem; }
+        h5 { font-size: 1.1rem; }
+        h6 { font-size: 1rem; color: var(--text-muted); }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        /* Links */
+        a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin-bottom: 1rem;
+            padding-left: 2rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        li > ul, li > ol {
+            margin-top: 0.5rem;
+            margin-bottom: 0;
+        }
+
+        /* Code */
+        code {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9em;
+            background: var(--bg-secondary);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+        }
+
+        pre {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 1.25rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: 1.5rem;
+            border: 1px solid #334155;
+        }
+
+        pre code {
+            background: none;
+            border: none;
+            padding: 0;
+            color: inherit;
+            font-size: 0.875rem;
+            line-height: 1.6;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border: 1px solid var(--border);
+        }
+
+        th {
+            background: var(--bg-secondary);
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        tr:nth-child(even) {
+            background: var(--bg-secondary);
+        }
+
+        tr:hover {
+            background: #f1f5f9;
+        }
+
+        /* Blockquotes */
+        blockquote {
+            border-left: 4px solid var(--primary);
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        blockquote p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Horizontal rules */
+        hr {
+            border: none;
+            border-top: 2px solid var(--border);
+            margin: 2rem 0;
+        }
+
+        /* Images */
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        /* Task lists */
+        input[type="checkbox"] {
+            margin-right: 0.5rem;
+        }
+
+        /* Mermaid diagrams */
+        .mermaid {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            text-align: center;
+            border: 1px solid var(--border);
+            overflow-x: auto;
+        }
+
+        .mermaid svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Print styles */
+        @media print {
+            .nav-bar { display: none; }
+            .content { margin-top: 0; }
+            body { padding: 1rem; }
+            pre { white-space: pre-wrap; }
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            .nav-bar { padding: 0.5rem 1rem; }
+            h1 { font-size: 1.75rem; }
+            h2 { font-size: 1.4rem; }
+            pre { padding: 0.75rem; font-size: 0.8rem; }
+            table { font-size: 0.85rem; }
+            th, td { padding: 0.5rem; }
+        }
+    </style>
+    <!-- Mermaid.js for diagram rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+    <nav class="nav-bar">
+        <span class="nav-title">Computer Store KS Docs</span>
+        <a href="DOCUMENTATION_HUB.html">← Back to Hub</a>
+    </nav>
+    <div class="content">
+<h1>Computer Store KS - Component Library</h1>
+<blockquote>
+<p>Comprehensive documentation for all React components in the Computer Store KS project.</p>
+</blockquote>
+<p><strong>Last Updated:</strong> 2026-01-12<br><strong>React Version:</strong> 18+<br><strong>TypeScript:</strong> Strict Mode Enabled</p>
+<hr>
+<h2>Table of Contents</h2>
+<ol>
+<li><a href="#component-categories">Component Categories</a></li>
+<li><a href="#ui-components">UI Components</a></li>
+<li><a href="#admin-components">Admin Components</a></li>
+<li><a href="#layout-components">Layout Components</a></li>
+<li><a href="#gallery-components">Gallery Components</a></li>
+<li><a href="#home-components">Home Components</a></li>
+<li><a href="#reviews-components">Reviews Components</a></li>
+<li><a href="#seo-components">SEO Components</a></li>
+<li><a href="#forms-components">Forms Components</a></li>
+<li><a href="#animation-components">Animation Components</a></li>
+<li><a href="#static-components">Static Components</a></li>
+<li><a href="#component-hierarchy">Component Hierarchy</a></li>
+<li><a href="#shared-typescript-interfaces">Shared TypeScript Interfaces</a></li>
+</ol>
+<hr>
+<h2>Component Categories</h2>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Location</th>
+<th>Count</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>UI</td>
+<td><code>src/components/ui/</code></td>
+<td>10</td>
+<td>Core reusable UI primitives</td>
+</tr>
+<tr>
+<td>Admin</td>
+<td><code>src/components/admin/</code></td>
+<td>12</td>
+<td>Admin dashboard components</td>
+</tr>
+<tr>
+<td>Layout</td>
+<td><code>src/components/layout/</code></td>
+<td>5</td>
+<td>Page structure components</td>
+</tr>
+<tr>
+<td>Gallery</td>
+<td><code>src/components/gallery/</code></td>
+<td>4</td>
+<td>Computer gallery display</td>
+</tr>
+<tr>
+<td>Home</td>
+<td><code>src/components/home/</code></td>
+<td>5</td>
+<td>Homepage sections</td>
+</tr>
+<tr>
+<td>Reviews</td>
+<td><code>src/components/reviews/</code></td>
+<td>2</td>
+<td>Google reviews display</td>
+</tr>
+<tr>
+<td>SEO</td>
+<td><code>src/components/seo/</code></td>
+<td>2</td>
+<td>Structured data &amp; breadcrumbs</td>
+</tr>
+<tr>
+<td>Forms</td>
+<td><code>src/components/forms/</code></td>
+<td>1</td>
+<td>Contact form with spam protection</td>
+</tr>
+<tr>
+<td>Animations</td>
+<td><code>src/components/animations/</code></td>
+<td>1</td>
+<td>Framer Motion utilities</td>
+</tr>
+<tr>
+<td>Static</td>
+<td><code>src/components/static/</code></td>
+<td>2</td>
+<td>Public site header/footer</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>UI Components</h2>
+<h3>Button</h3>
+<p><strong>File:</strong> <code>src/components/ui/button.tsx</code><br><strong>Status:</strong> Production<br><strong>Uses:</strong> Class Variance Authority (CVA), Lucide Icons</p>
+<p><strong>Purpose:</strong> Primary button component with multiple variants, sizes, and loading states.</p>
+<p><strong>Props Interface:</strong></p>
+<pre><code class="language-typescript">interface ButtonProps extends React.ButtonHTMLAttributes&lt;HTMLButtonElement&gt;,
+  VariantProps&lt;typeof buttonVariants&gt; {
+  isLoading?: boolean;
+  leftIcon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
+}
+</code></pre>
+<p><strong>Variants:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Variant</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>primary</code></td>
+<td>Blue background, white text</td>
+</tr>
+<tr>
+<td><code>secondary</code></td>
+<td>Gray background</td>
+</tr>
+<tr>
+<td><code>outline</code></td>
+<td>Border only, transparent background</td>
+</tr>
+<tr>
+<td><code>ghost</code></td>
+<td>No background, hover effect</td>
+</tr>
+<tr>
+<td><code>destructive</code></td>
+<td>Red/danger styling</td>
+</tr>
+<tr>
+<td><code>link</code></td>
+<td>Text link appearance</td>
+</tr>
+</tbody></table>
+<p><strong>Sizes:</strong> <code>sm</code>, <code>md</code> (default), <code>lg</code>, <code>icon</code></p>
+<p><strong>Usage Example:</strong></p>
+<pre><code class="language-tsx">&lt;Button variant=&quot;primary&quot; size=&quot;lg&quot; isLoading={isSubmitting}&gt;
+  Submit
+&lt;/Button&gt;
+
+&lt;Button variant=&quot;outline&quot; leftIcon={&lt;Phone className=&quot;h-4 w-4&quot; /&gt;}&gt;
+  Call Now
+&lt;/Button&gt;
+</code></pre>
+<hr>
+<h3>Card</h3>
+<p><strong>File:</strong> <code>src/components/ui/card.tsx</code><br><strong>Status:</strong> Production<br><strong>Pattern:</strong> Compound Component</p>
+<p><strong>Purpose:</strong> Flexible card container with semantic sub-components.</p>
+<p><strong>Exports:</strong></p>
+<ul>
+<li><code>Card</code> - Main container</li>
+<li><code>CardHeader</code> - Header section with spacing</li>
+<li><code>CardTitle</code> - Card heading (h3)</li>
+<li><code>CardDescription</code> - Muted description text</li>
+<li><code>CardContent</code> - Main content area</li>
+<li><code>CardFooter</code> - Footer with flex layout</li>
+</ul>
+<p><strong>Usage Example:</strong></p>
+<pre><code class="language-tsx">&lt;Card&gt;
+  &lt;CardHeader&gt;
+    &lt;CardTitle&gt;Computer Repair&lt;/CardTitle&gt;
+    &lt;CardDescription&gt;Expert diagnosis and repair&lt;/CardDescription&gt;
+  &lt;/CardHeader&gt;
+  &lt;CardContent&gt;
+    &lt;p&gt;Content goes here...&lt;/p&gt;
+  &lt;/CardContent&gt;
+  &lt;CardFooter&gt;
+    &lt;Button&gt;Learn More&lt;/Button&gt;
+  &lt;/CardFooter&gt;
+&lt;/Card&gt;
+</code></pre>
+<hr>
+<h3>Input</h3>
+<p><strong>File:</strong> <code>src/components/ui/input.tsx</code><br><strong>Status:</strong> Production</p>
+<p><strong>Purpose:</strong> Form input with label, error state, and helper text.</p>
+<p><strong>Props Interface:</strong></p>
+<pre><code class="language-typescript">interface InputProps extends React.InputHTMLAttributes&lt;HTMLInputElement&gt; {
+  label?: string;
+  error?: string;
+  helperText?: string;
+}
+</code></pre>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Automatic ID generation from label</li>
+<li>Required indicator asterisk</li>
+<li>Error styling with red border</li>
+<li>ARIA attributes for accessibility</li>
+</ul>
+<p><strong>Usage Example:</strong></p>
+<pre><code class="language-tsx">&lt;Input
+  label=&quot;Email&quot;
+  name=&quot;email&quot;
+  type=&quot;email&quot;
+  error={errors.email}
+  required
+  placeholder=&quot;john@example.com&quot;
+/&gt;
+</code></pre>
+<hr>
+<h3>Textarea</h3>
+<p><strong>File:</strong> <code>src/components/ui/textarea.tsx</code><br><strong>Status:</strong> Production</p>
+<p><strong>Purpose:</strong> Multi-line text input with same pattern as Input.</p>
+<p><strong>Props Interface:</strong></p>
+<pre><code class="language-typescript">interface TextareaProps extends React.TextareaHTMLAttributes&lt;HTMLTextAreaElement&gt; {
+  label?: string;
+  error?: string;
+  helperText?: string;
+}
+</code></pre>
+<p><strong>Usage Example:</strong></p>
+<pre><code class="language-tsx">&lt;Textarea
+  label=&quot;Message&quot;
+  name=&quot;message&quot;
+  rows={5}
+  error={errors.message}
+  required
+/&gt;
+</code></pre>
+<hr>
+<h3>Select</h3>
+<p><strong>File:</strong> <code>src/components/ui/select.tsx</code><br><strong>Status:</strong> Production</p>
+<p><strong>Purpose:</strong> Native select dropdown with consistent styling.</p>
+<p><strong>Props Interface:</strong></p>
+<pre><code class="language-typescript">interface SelectProps extends React.SelectHTMLAttributes&lt;HTMLSelectElement&gt; {
+  label?: string;
+  error?: string;
+  helperText?: string;
+  options: Array&lt;{ value: string; label: string }&gt;;
+  placeholder?: string;
+}
+</code></pre>
+<p><strong>Features:</strong></p>
+<ul>
+<li>ChevronDown icon indicator</li>
+<li>Placeholder option support</li>
+<li>Consistent form field patterns</li>
+</ul>
+<p><strong>Usage Example:</strong></p>
+<pre><code class="language-tsx">&lt;Select
+  label=&quot;Subject&quot;
+  name=&quot;subject&quot;
+  options={[
+    { value: &#39;repair&#39;, label: &#39;Computer Repair&#39; },
+    { value: &#39;custom&#39;, label: &#39;Custom Build&#39; },
+  ]}
+  placeholder=&quot;Select a subject&quot;
+  required
+/&gt;
+</code></pre>
+<hr>
+<h3>Modal</h3>
+<p><strong>File:</strong> <code>src/components/ui/modal.tsx</code><br><strong>Status:</strong> Production</p>
+<p><strong>Purpose:</strong> Accessible modal dialog with focus trap and keyboard handling.</p>
+<p><strong>Props Interface:</strong></p>
+<pre><code class="language-typescript">interface ModalProps {
+  isOpen: boolean;
+  onClose: () =&gt; void;
+  children: React.ReactNode;
+  title?: string;
+  description?: string;
+  className?: string;
+  showCloseButton?: boolean;
+  closeOnOverlayClick?: boolean;
+  closeOnEscape?: boolean;
+}
+</code></pre>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Escape key to close</li>
+<li>Click overlay to close</li>
+<li>Focus trap (first focusable element)</li>
+<li>Body scroll lock</li>
+<li>ARIA attributes</li>
+</ul>
+<p><strong>Usage Example:</strong></p>
+<pre><code class="language-tsx">&lt;Modal
+  isOpen={showModal}
+  onClose={() =&gt; setShowModal(false)}
+  title=&quot;Confirm Action&quot;
+  description=&quot;Are you sure you want to proceed?&quot;
+&gt;
+  &lt;div className=&quot;flex gap-2&quot;&gt;
+    &lt;Button onClick={handleConfirm}&gt;Confirm&lt;/Button&gt;
+    &lt;Button variant=&quot;outline&quot; onClick={() =&gt; setShowModal(false)}&gt;Cancel&lt;/Button&gt;
+  &lt;/div&gt;
+&lt;/Modal&gt;
+</code></pre>
+<hr>
+<h3>Badge</h3>
+<p><strong>File:</strong> <code>src/components/ui/badge.tsx</code><br><strong>Status:</strong> Production</p>
+<p><strong>Purpose:</strong> Small status indicators and labels.</p>
+<p><strong>Variants:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Variant</th>
+<th>Color</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>default</code></td>
+<td>Primary blue</td>
+</tr>
+<tr>
+<td><code>secondary</code></td>
+<td>Gray</td>
+</tr>
+<tr>
+<td><code>success</code></td>
+<td>Green</td>
+</tr>
+<tr>
+<td><code>warning</code></td>
+<td>Yellow</td>
+</tr>
+<tr>
+<td><code>destructive</code></td>
+<td>Red</td>
+</tr>
+<tr>
+<td><code>outline</code></td>
+<td>Border only</td>
+</tr>
+<tr>
+<td><code>info</code></td>
+<td>Blue</td>
+</tr>
+</tbody></table>
+<p><strong>Usage Example:</strong></p>
+<pre><code class="language-tsx">&lt;Badge variant=&quot;success&quot;&gt;In Stock&lt;/Badge&gt;
+&lt;Badge variant=&quot;warning&quot;&gt;On Sale&lt;/Badge&gt;
+</code></pre>
+<hr>
+<h3>Skeleton</h3>
+<p><strong>File:</strong> <code>src/components/ui/skeleton.tsx</code><br><strong>Status:</strong> Production</p>
+<p><strong>Purpose:</strong> Loading placeholder with pulse animation.</p>
+<p><strong>Usage Example:</strong></p>
+<pre><code class="language-tsx">&lt;Skeleton className=&quot;h-4 w-3/4&quot; /&gt;
+&lt;Skeleton className=&quot;h-32 w-full rounded-lg&quot; /&gt;
+</code></pre>
+<hr>
+<h3>ChatWidget</h3>
+<p><strong>File:</strong> <code>src/components/ui/chat-widget.tsx</code><br><strong>Status:</strong> Production</p>
+<p><strong>Purpose:</strong> Floating chat widget for quick customer inquiries.</p>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Multi-step conversation flow (name, email, message)</li>
+<li>Form submission to <code>/api/contact</code></li>
+<li>Auto-show after 3 second delay</li>
+<li>Desktop only (hidden on mobile)</li>
+<li>Attention pulse animation</li>
+</ul>
+<p><strong>State Machine:</strong><br><code>greeting</code> -&gt; <code>name</code> -&gt; <code>email</code> -&gt; <code>message</code> -&gt; <code>sending</code> -&gt; <code>sent</code>/<code>error</code></p>
+<hr>
+<h3>MobileCallButton</h3>
+<p><strong>File:</strong> <code>src/components/ui/mobile-call-button.tsx</code><br><strong>Status:</strong> Production</p>
+<p><strong>Purpose:</strong> Sticky call-to-action button for mobile users.</p>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Fixed position at bottom of screen</li>
+<li>Shows after 100px scroll</li>
+<li>Mobile-only (<code>md:hidden</code>)</li>
+<li>Pulse animation on phone icon</li>
+</ul>
+<hr>
+<h2>Admin Components</h2>
+<h3>AdminShell</h3>
+<p><strong>File:</strong> <code>src/components/admin/admin-shell.tsx</code><br><strong>Status:</strong> Production</p>
+<p><strong>Purpose:</strong> Main admin layout wrapper with persistent sidebar and header.</p>
+<p><strong>Props Interface:</strong></p>
+<pre><code class="language-typescript">interface AdminShellProps {
+  children: React.ReactNode;
+}
+</code></pre>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Three sidebar modes: <code>expanded</code>, <code>collapsed</code>, <code>hidden</code></li>
+<li>LocalStorage persistence of sidebar state</li>
+<li>Keyboard shortcut (Escape) to close mobile menu</li>
+<li>Responsive resize handling</li>
+</ul>
+<p><strong>Sidebar Mode Type:</strong></p>
+<pre><code class="language-typescript">type SidebarMode = &#39;expanded&#39; | &#39;collapsed&#39; | &#39;hidden&#39;;
+</code></pre>
+<hr>
+<h3>AdminSidebar</h3>
+<p><strong>File:</strong> <code>src/components/admin/admin-sidebar.tsx</code><br><strong>Status:</strong> Production</p>
+<p><strong>Purpose:</strong> Role-based navigation sidebar with collapsible sections.</p>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Role-based filtering using RBAC system</li>
+<li>Collapsible section groups</li>
+<li>Location selector for multi-location access</li>
+<li>Mobile overlay with slide-out animation</li>
+<li>LocalStorage persistence of collapsed sections</li>
+</ul>
+<hr>
+<h3>AdminHeader</h3>
+<p><strong>File:</strong> <code>src/components/admin/admin-header.tsx</code><br><strong>Status:</strong> Production</p>
+<p><strong>Purpose:</strong> Admin dashboard header with search and controls.</p>
+<p><strong>Props Interface:</strong></p>
+<pre><code class="language-typescript">interface AdminHeaderProps {
+  onMenuToggle: () =&gt; void;
+  onSidebarToggle: () =&gt; void;
+  sidebarMode: SidebarMode;
+  isMobileMenuOpen: boolean;
+}
+</code></pre>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Global search with autocomplete</li>
+<li>Dark mode toggle</li>
+<li>Sidebar mode cycle button</li>
+<li>Mobile menu hamburger</li>
+</ul>
+<hr>
+<h3>ComputerForm</h3>
+<p><strong>File:</strong> <code>src/components/admin/computer-form.tsx</code><br><strong>Status:</strong> Production</p>
+<p><strong>Purpose:</strong> Dynamic form for adding/editing gallery computers.</p>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Dynamic spec fields based on computer type/category</li>
+<li>Image upload integration</li>
+<li>Sale pricing options</li>
+<li>Form validation</li>
+</ul>
+<hr>
+<h3>GalleryTable</h3>
+<p><strong>File:</strong> <code>src/components/admin/gallery-table.tsx</code><br><strong>Status:</strong> Production</p>
+<p><strong>Purpose:</strong> Admin table for gallery computer management.</p>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Edit/Delete actions</li>
+<li>Generate flyer action</li>
+<li>Thumbnail preview</li>
+<li>Sort and filter</li>
+</ul>
+<hr>
+<h3>ImageUpload</h3>
+<p><strong>File:</strong> <code>src/components/admin/image-upload.tsx</code><br><strong>Status:</strong> Production</p>
+<p><strong>Purpose:</strong> Drag-and-drop image upload with progress tracking.</p>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Drag-and-drop zone</li>
+<li>Click to browse</li>
+<li>Progress bar during upload</li>
+<li>File type validation (JPG, PNG, WebP, GIF, HEIC)</li>
+<li>Max file size: 50MB</li>
+</ul>
+<hr>
+<h3>LocationSelector</h3>
+<p><strong>File:</strong> <code>src/components/admin/location-selector.tsx</code><br><strong>Status:</strong> Production</p>
+<p><strong>Purpose:</strong> Location dropdown for multi-location access.</p>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Only visible to users with global access</li>
+<li>Stores selection in cookie</li>
+<li>Updates data context on change</li>
+</ul>
+<hr>
+<h3>CallCustomerTickets</h3>
+<p><strong>File:</strong> <code>src/components/admin/call-customer-tickets.tsx</code><br><strong>Status:</strong> Production</p>
+<p><strong>Purpose:</strong> Widget showing tickets with &quot;Call Customer&quot; status.</p>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Auto-refresh every 30 seconds</li>
+<li>Quick click-to-call</li>
+<li>Expandable ticket details</li>
+</ul>
+<hr>
+<h3>Intake Wizard Components</h3>
+<p>Located in <code>src/components/admin/intake-wizard/</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>IntakeWizard</code></td>
+<td>Multi-step wizard container</td>
+</tr>
+<tr>
+<td><code>CustomerSearchStep</code></td>
+<td>Search existing customers</td>
+</tr>
+<tr>
+<td><code>CustomerFormStep</code></td>
+<td>New customer registration</td>
+</tr>
+<tr>
+<td><code>DeviceStep</code></td>
+<td>Device information collection</td>
+</tr>
+<tr>
+<td><code>TicketStep</code></td>
+<td>Ticket creation details</td>
+</tr>
+<tr>
+<td><code>SuccessStep</code></td>
+<td>Confirmation and next steps</td>
+</tr>
+<tr>
+<td><code>PasswordSetupModal</code></td>
+<td>Customer portal password setup</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>Layout Components</h2>
+<h3>Header</h3>
+<p><strong>File:</strong> <code>src/components/layout/header.tsx</code><br><strong>Status:</strong> Production</p>
+<p><strong>Purpose:</strong> Public site header with navigation and CTAs.</p>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Scroll-triggered shadow</li>
+<li>Logo with business name</li>
+<li>Desktop navigation</li>
+<li>Phone CTA</li>
+<li>Quote button</li>
+<li>Mobile nav integration</li>
+</ul>
+<hr>
+<h3>Footer</h3>
+<p><strong>File:</strong> <code>src/components/layout/footer.tsx</code><br><strong>Status:</strong> Production</p>
+<p><strong>Purpose:</strong> Site footer with contact info and links.</p>
+<p><strong>Sections:</strong></p>
+<ul>
+<li>Company info and social links</li>
+<li>Quick navigation links</li>
+<li>Contact information (address, phone, email)</li>
+<li>Business hours</li>
+<li>Copyright and legal links</li>
+</ul>
+<hr>
+<h3>Nav</h3>
+<p><strong>File:</strong> <code>src/components/layout/nav.tsx</code><br><strong>Status:</strong> Production</p>
+<p><strong>Purpose:</strong> Desktop navigation links.</p>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Active state highlighting</li>
+<li>Uses <code>NAV_ITEMS</code> from constants</li>
+<li>Hidden on mobile (<code>md:flex</code>)</li>
+</ul>
+<hr>
+<h3>MobileNav</h3>
+<p><strong>File:</strong> <code>src/components/layout/mobile-nav.tsx</code><br><strong>Status:</strong> Production</p>
+<p><strong>Purpose:</strong> Mobile slide-out navigation menu.</p>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Hamburger toggle</li>
+<li>Overlay backdrop</li>
+<li>Body scroll lock</li>
+<li>Auto-close on route change</li>
+<li>CTA button at bottom</li>
+</ul>
+<hr>
+<h3>Container</h3>
+<p><strong>File:</strong> <code>src/components/layout/container.tsx</code><br><strong>Status:</strong> Production</p>
+<p><strong>Purpose:</strong> Centered content wrapper with responsive padding.</p>
+<p><strong>Props Interface:</strong></p>
+<pre><code class="language-typescript">interface ContainerProps extends React.HTMLAttributes&lt;HTMLDivElement&gt; {
+  as?: React.ElementType;
+}
+</code></pre>
+<p><strong>Usage Example:</strong></p>
+<pre><code class="language-tsx">&lt;Container&gt;
+  &lt;h1&gt;Page Title&lt;/h1&gt;
+  &lt;p&gt;Content with max-width and padding...&lt;/p&gt;
+&lt;/Container&gt;
+
+&lt;Container as=&quot;section&quot; className=&quot;py-12&quot;&gt;
+  &lt;SectionContent /&gt;
+&lt;/Container&gt;
+</code></pre>
+<hr>
+<h2>Gallery Components</h2>
+<h3>GalleryGrid</h3>
+<p><strong>File:</strong> <code>src/components/gallery/gallery-grid.tsx</code><br><strong>Status:</strong> Production</p>
+<p><strong>Purpose:</strong> Animated grid display of computers.</p>
+<p><strong>Props Interface:</strong></p>
+<pre><code class="language-typescript">interface GalleryGridProps {
+  computers: Computer[];
+  isLoading?: boolean;
+  emptyMessage?: string;
+}
+</code></pre>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Staggered animation on load</li>
+<li>Loading skeleton state</li>
+<li>Empty state message</li>
+<li>Responsive grid (1-4 columns)</li>
+</ul>
+<hr>
+<h3>CategoryFilter</h3>
+<p><strong>File:</strong> <code>src/components/gallery/category-filter.tsx</code><br><strong>Status:</strong> Production</p>
+<p><strong>Purpose:</strong> Category filter buttons for gallery.</p>
+<p><strong>Categories:</strong></p>
+<ul>
+<li>All</li>
+<li>Desktop</li>
+<li>Laptop</li>
+<li>Custom</li>
+<li>Refurbished</li>
+</ul>
+<p><strong>Props Interface:</strong></p>
+<pre><code class="language-typescript">interface CategoryFilterProps {
+  selectedCategory: string;
+  onCategoryChange: (category: string) =&gt; void;
+  className?: string;
+}
+</code></pre>
+<hr>
+<h3>FlipCard</h3>
+<p><strong>File:</strong> <code>src/components/gallery/flip-card.tsx</code><br><strong>Status:</strong> Production</p>
+<p><strong>Purpose:</strong> Interactive card that flips to reveal specifications.</p>
+<p><strong>Props Interface:</strong></p>
+<pre><code class="language-typescript">interface FlipCardProps {
+  id: string;
+  name: string;
+  category: &#39;desktop&#39; | &#39;laptop&#39; | &#39;custom&#39; | &#39;refurbished&#39;;
+  price: number;
+  imageFront: string;
+  imageBack?: string;
+  specs: ComputerSpec;
+  inStock?: boolean;
+  className?: string;
+}
+</code></pre>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Click/keyboard to flip</li>
+<li>Front: Image, name, price, category badge</li>
+<li>Back: Detailed specifications</li>
+<li>Keyboard accessible (Enter/Space)</li>
+</ul>
+<hr>
+<h3>GallerySkeleton</h3>
+<p><strong>File:</strong> <code>src/components/gallery/gallery-skeleton.tsx</code><br><strong>Status:</strong> Production</p>
+<p><strong>Purpose:</strong> Loading placeholder for gallery grid.</p>
+<p><strong>Exports:</strong></p>
+<ul>
+<li><code>GallerySkeleton</code> - Grid of skeleton cards</li>
+<li><code>CategoryFilterSkeleton</code> - Filter button skeletons</li>
+</ul>
+<hr>
+<h2>Home Components</h2>
+<h3>HeroSection</h3>
+<p><strong>File:</strong> <code>src/components/home/hero-section.tsx</code><br><strong>Status:</strong> Production</p>
+<p><strong>Purpose:</strong> Homepage hero with headline, highlights, CTAs, and stats.</p>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Gradient background with pattern</li>
+<li>Animated text reveal</li>
+<li>Highlight checklist</li>
+<li>CTA buttons (Quote, Call)</li>
+<li>Animated stat cards</li>
+</ul>
+<hr>
+<h3>ServicesPreview</h3>
+<p><strong>File:</strong> <code>src/components/home/services-preview.tsx</code><br><strong>Status:</strong> Production</p>
+<p><strong>Purpose:</strong> Grid preview of main services.</p>
+<p><strong>Services Displayed:</strong></p>
+<ul>
+<li>Computer Repair</li>
+<li>Refurbished Computers</li>
+<li>Custom Builds</li>
+<li>Data Recovery</li>
+</ul>
+<hr>
+<h3>StatsSection</h3>
+<p><strong>File:</strong> <code>src/components/home/stats-section.tsx</code><br><strong>Status:</strong> Production</p>
+<p><strong>Purpose:</strong> Business statistics display.</p>
+<p><strong>Stats:</strong></p>
+<ul>
+<li>20+ Years in Business</li>
+<li>10,000+ Happy Customers</li>
+<li>25,000+ Computers Repaired</li>
+<li>98% Satisfaction Rate</li>
+</ul>
+<hr>
+<h3>Testimonials</h3>
+<p><strong>File:</strong> <code>src/components/home/testimonials.tsx</code><br><strong>Status:</strong> Production</p>
+<p><strong>Purpose:</strong> Customer testimonial carousel.</p>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Auto-play (5s interval)</li>
+<li>Pause on hover</li>
+<li>Navigation arrows and dots</li>
+<li>Star ratings</li>
+</ul>
+<hr>
+<h3>CtaSection</h3>
+<p><strong>File:</strong> <code>src/components/home/cta-section.tsx</code><br><strong>Status:</strong> Production</p>
+<p><strong>Purpose:</strong> Call-to-action section with contact options.</p>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Primary color background</li>
+<li>Call and quote buttons</li>
+<li>Business hours display</li>
+</ul>
+<hr>
+<h2>Reviews Components</h2>
+<h3>ReviewsDisplay</h3>
+<p><strong>File:</strong> <code>src/components/reviews/ReviewsDisplay.tsx</code><br><strong>Status:</strong> Production</p>
+<p><strong>Purpose:</strong> Full reviews page display with Google Business integration.</p>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Fetches from <code>/api/google-business/reviews</code></li>
+<li>Loading skeleton</li>
+<li>Fallback reviews if API unavailable</li>
+<li>Average rating and count display</li>
+<li>Owner reply support</li>
+</ul>
+<hr>
+<h3>ReviewsWidget</h3>
+<p><strong>File:</strong> <code>src/components/reviews/ReviewsWidget.tsx</code><br><strong>Status:</strong> Production</p>
+<p><strong>Purpose:</strong> Compact reviews display for homepage.</p>
+<p><strong>Props Interface:</strong></p>
+<pre><code class="language-typescript">interface ReviewsWidgetProps {
+  maxReviews?: number; // default: 6
+}
+</code></pre>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Paginated display (3 per page)</li>
+<li>Navigation arrows</li>
+<li>&quot;Write a review&quot; link</li>
+<li>Filters to 4+ star reviews</li>
+</ul>
+<hr>
+<h2>SEO Components</h2>
+<h3>LocalBusinessSchema</h3>
+<p><strong>File:</strong> <code>src/components/seo/json-ld.tsx</code><br><strong>Status:</strong> Production</p>
+<p><strong>Purpose:</strong> Schema.org LocalBusiness structured data.</p>
+<p><strong>Includes:</strong></p>
+<ul>
+<li>Business name and contact</li>
+<li>Address and geo coordinates</li>
+<li>Opening hours</li>
+<li>Service types</li>
+<li>Social media links</li>
+</ul>
+<hr>
+<h3>ProductSchema</h3>
+<p><strong>File:</strong> <code>src/components/seo/json-ld.tsx</code><br><strong>Status:</strong> Production</p>
+<p><strong>Purpose:</strong> Schema.org Product structured data for computers.</p>
+<p><strong>Props Interface:</strong></p>
+<pre><code class="language-typescript">interface ProductSchemaProps {
+  name: string;
+  description: string;
+  image: string;
+  price: number;
+  availability?: &#39;InStock&#39; | &#39;OutOfStock&#39; | &#39;PreOrder&#39;;
+  sku?: string;
+}
+</code></pre>
+<hr>
+<h3>FAQSchema</h3>
+<p><strong>File:</strong> <code>src/components/seo/json-ld.tsx</code><br><strong>Status:</strong> Production</p>
+<p><strong>Purpose:</strong> Schema.org FAQPage structured data.</p>
+<p><strong>Props Interface:</strong></p>
+<pre><code class="language-typescript">interface FAQSchemaProps {
+  questions: Array&lt;{ question: string; answer: string }&gt;;
+}
+</code></pre>
+<hr>
+<h3>Breadcrumbs</h3>
+<p><strong>File:</strong> <code>src/components/seo/breadcrumbs.tsx</code><br><strong>Status:</strong> Production</p>
+<p><strong>Purpose:</strong> Visual breadcrumb navigation with Schema.org markup.</p>
+<p><strong>Props Interface:</strong></p>
+<pre><code class="language-typescript">interface BreadcrumbsProps {
+  items: Array&lt;{ label: string; href?: string }&gt;;
+  className?: string;
+}
+</code></pre>
+<hr>
+<h2>Forms Components</h2>
+<h3>ContactForm</h3>
+<p><strong>File:</strong> <code>src/components/forms/contact-form.tsx</code><br><strong>Status:</strong> Production</p>
+<p><strong>Purpose:</strong> Contact form with multi-layer spam protection.</p>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Honeypot fields (hidden inputs)</li>
+<li>Timing validation (min fill time)</li>
+<li>Cloudflare Turnstile CAPTCHA</li>
+<li>Interaction tracking</li>
+<li>Browser fingerprinting</li>
+<li>Rate limiting feedback</li>
+<li>Client-side validation</li>
+</ul>
+<p><strong>Subject Options:</strong></p>
+<ul>
+<li>General Inquiry</li>
+<li>Computer Repair</li>
+<li>Custom Build</li>
+<li>Protection Plans</li>
+<li>Other</li>
+</ul>
+<hr>
+<h2>Animation Components</h2>
+<h3>Motion Utilities</h3>
+<p><strong>File:</strong> <code>src/components/animations/motion.tsx</code><br><strong>Status:</strong> Production</p>
+<p><strong>Purpose:</strong> Framer Motion animation variants and wrapper components.</p>
+<p><strong>Exported Variants:</strong></p>
+<pre><code class="language-typescript">export const fadeInUp: Variants;
+export const fadeIn: Variants;
+export const slideInLeft: Variants;
+export const slideInRight: Variants;
+export const scaleIn: Variants;
+export const staggerContainer: Variants;
+</code></pre>
+<p><strong>Exported Components:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>MotionContainer</code></td>
+<td>Scroll-triggered animation wrapper</td>
+</tr>
+<tr>
+<td><code>MotionSection</code></td>
+<td>Section with stagger effect</td>
+</tr>
+<tr>
+<td><code>MotionCard</code></td>
+<td>Card with hover lift effect</td>
+</tr>
+<tr>
+<td><code>MotionButton</code></td>
+<td>Button with press effect</td>
+</tr>
+<tr>
+<td><code>PageTransition</code></td>
+<td>Page enter/exit transitions</td>
+</tr>
+<tr>
+<td><code>MotionHeading</code></td>
+<td>Animated heading (h1-h4)</td>
+</tr>
+</tbody></table>
+<p><strong>Usage Example:</strong></p>
+<pre><code class="language-tsx">&lt;MotionSection&gt;
+  &lt;MotionCard index={0}&gt;First card&lt;/MotionCard&gt;
+  &lt;MotionCard index={1}&gt;Second card&lt;/MotionCard&gt;
+&lt;/MotionSection&gt;
+
+&lt;MotionHeading as=&quot;h1&quot; className=&quot;text-4xl&quot;&gt;
+  Page Title
+&lt;/MotionHeading&gt;
+</code></pre>
+<hr>
+<h2>Static Components</h2>
+<h3>Header (Static)</h3>
+<p><strong>File:</strong> <code>src/components/static/Header.tsx</code><br><strong>Status:</strong> Production</p>
+<p><strong>Purpose:</strong> Public site header with services dropdown menu.</p>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Scroll-triggered styling</li>
+<li>Services mega-dropdown (desktop only)</li>
+<li>Mobile hamburger menu</li>
+<li>Active link highlighting</li>
+<li>Login link</li>
+</ul>
+<p><strong>Services Dropdown Links:</strong></p>
+<ul>
+<li>Custom-Built PCs (featured)</li>
+<li>Data Transfer &amp; Cloning</li>
+<li>OS Installation</li>
+<li>Laptops</li>
+<li>Refurbished Desktops</li>
+<li>Diagnostics</li>
+<li>Virus &amp; Malware Removal</li>
+<li>Hardware Upgrades</li>
+<li>Windows Debloat</li>
+<li>Antivirus &amp; Protection</li>
+<li>Why Linux?</li>
+<li>Protection Plans</li>
+</ul>
+<hr>
+<h3>Footer (Static)</h3>
+<p><strong>File:</strong> <code>src/components/static/Footer.tsx</code><br><strong>Status:</strong> Production</p>
+<p><strong>Purpose:</strong> Simple public site footer.</p>
+<p><strong>Content:</strong></p>
+<ul>
+<li>Phone number link</li>
+<li>Address</li>
+<li>Copyright</li>
+<li>Resilient Web Solutions credit</li>
+</ul>
+<hr>
+<h2>Component Hierarchy</h2>
+<pre><code>App
++-- (Public Pages)
+|   +-- Header (static/)
+|   +-- Container (layout/)
+|   |   +-- HeroSection (home/)
+|   |   +-- ServicesPreview (home/)
+|   |   +-- StatsSection (home/)
+|   |   +-- ReviewsWidget (reviews/)
+|   |   +-- Testimonials (home/)
+|   |   +-- CtaSection (home/)
+|   +-- Footer (static/)
+|   +-- ChatWidget (ui/)
+|   +-- MobileCallButton (ui/)
+|
++-- (Admin Pages)
+    +-- AdminShell (admin/)
+        +-- AdminSidebar (admin/)
+        |   +-- LocationSelector (admin/)
+        +-- AdminHeader (admin/)
+        +-- [Page Content]
+            +-- GalleryTable (admin/)
+            +-- ComputerForm (admin/)
+            +-- ImageUpload (admin/)
+            +-- IntakeWizard (admin/intake-wizard/)
+            +-- CallCustomerTickets (admin/)
+</code></pre>
+<hr>
+<h2>Shared TypeScript Interfaces</h2>
+<h3>Core Types (<code>src/types/index.ts</code>)</h3>
+<pre><code class="language-typescript">interface Computer {
+  id: string;
+  name: string;
+  brand: string;
+  model: string;
+  category: &#39;desktop&#39; | &#39;laptop&#39; | &#39;all-in-one&#39;;
+  price: number;
+  originalPrice?: number;
+  description: string;
+  specs: ComputerSpecs;
+  images: string[];
+  inStock: boolean;
+  featured: boolean;
+  condition: &#39;excellent&#39; | &#39;good&#39; | &#39;fair&#39;;
+  warranty: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface ComputerSpecs {
+  processor: string;
+  ram: string;
+  storage: string;
+  graphics?: string;
+  display?: string;
+  os: string;
+  ports?: string[];
+  wireless?: string;
+  battery?: string;
+}
+
+interface ApiResponse&lt;T&gt; {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message?: string;
+}
+
+interface NavItem {
+  label: string;
+  href: string;
+  icon?: string;
+  children?: NavItem[];
+}
+</code></pre>
+<h3>Gallery Types (<code>src/types/gallery.ts</code>)</h3>
+<pre><code class="language-typescript">interface GallerySpec {
+  label: string;
+  value: string;
+}
+
+interface GalleryComputer {
+  id: string;
+  name: string;
+  type: &#39;desktop&#39; | &#39;laptop&#39;;
+  category: &#39;custom&#39; | &#39;refurbished&#39; | &#39;new&#39;;
+  price: string;
+  image: string;
+  thumbnail?: string;
+  specs: GallerySpec[];
+  blackFriday?: BlackFridayData;
+  created_at?: string;
+  updated_at?: string;
+}
+
+interface BlackFridayData {
+  enabled: boolean;
+  originalPrice: string;
+  salePrice: string;
+  discount: number;
+}
+
+type SaleType = &#39;none&#39; | &#39;black-friday&#39;;
+</code></pre>
+<h3>Role Types (<code>src/types/roles.ts</code>)</h3>
+<pre><code class="language-typescript">type BusinessRole = &#39;receptionist&#39; | &#39;technician&#39; | &#39;lead_technician&#39; | &#39;manager&#39; | &#39;owner&#39;;
+type AddOnRole = &#39;social_media&#39; | &#39;lead_developer&#39;;
+type EmployeeRole = BusinessRole | AddOnRole;
+type CustomerRole = &#39;customer&#39;;
+type UserRole = EmployeeRole | CustomerRole;
+
+type Permission =
+  | &#39;view_admin_dashboard&#39;
+  | &#39;manage_intake&#39;
+  | &#39;view_customers&#39;
+  | &#39;manage_customers&#39;
+  | &#39;view_tickets&#39;
+  | &#39;manage_tickets&#39;
+  | &#39;view_gallery&#39;
+  | &#39;manage_gallery&#39;
+  | &#39;view_blog&#39;
+  | &#39;manage_blog&#39;
+  // ... (see full list in types/roles.ts)
+</code></pre>
+<h3>Location Types (<code>src/types/locations.ts</code>)</h3>
+<pre><code class="language-typescript">type LocationSlug = &#39;topeka&#39; | &#39;holton&#39;;
+
+interface Location {
+  id: string;
+  slug: LocationSlug;
+  name: string;
+  address: string | null;
+  phone: string | null;
+  email: string | null;
+  timezone: string;
+  is_active: boolean;
+  sort_order: number;
+}
+</code></pre>
+<h3>Google Business Types (<code>src/types/google-business.ts</code>)</h3>
+<pre><code class="language-typescript">interface DisplayReview {
+  id: string;
+  authorName: string;
+  authorPhoto?: string;
+  rating: number;
+  text?: string;
+  date: string;
+  reply?: {
+    text: string;
+    date: string;
+  };
+}
+
+interface GoogleBusinessCache {
+  reviews?: {
+    data: DisplayReview[];
+    fetchedAt: string;
+    averageRating: number;
+    totalCount: number;
+  };
+}
+</code></pre>
+<hr>
+<h2>Component Development Guidelines</h2>
+<h3>Creating New Components</h3>
+<ol>
+<li><strong>File Location:</strong> Place in appropriate category folder</li>
+<li><strong>TypeScript:</strong> Export props interface</li>
+<li><strong>Documentation:</strong> Add JSDoc comments with <code>@version</code> tag</li>
+<li><strong>Accessibility:</strong> Include ARIA attributes where needed</li>
+<li><strong>Styling:</strong> Use Tailwind CSS with <code>cn()</code> utility</li>
+<li><strong>Testing:</strong> Add unit tests in same directory</li>
+</ol>
+<h3>Component Template</h3>
+<pre><code class="language-tsx">&#39;use client&#39;;
+
+import * as React from &#39;react&#39;;
+import { cn } from &#39;@/lib/utils&#39;;
+
+interface MyComponentProps {
+  /** Description of prop */
+  propName: string;
+  /** Optional prop with default */
+  optional?: boolean;
+  className?: string;
+}
+
+/**
+ * Brief description of component purpose.
+ *
+ * @param props - Component properties
+ * @returns JSX element
+ *
+ * @version 1.0.0 - 2026-01-12T00:00:00Z - Initial implementation
+ */
+export function MyComponent({
+  propName,
+  optional = false,
+  className,
+}: MyComponentProps) {
+  return (
+    &lt;div className={cn(&#39;base-styles&#39;, className)}&gt;
+      {/* Component content */}
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+<hr>
+<h2>Version History</h2>
+<table>
+<thead>
+<tr>
+<th>Version</th>
+<th>Date</th>
+<th>Changes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1.0.0</td>
+<td>2026-01-12</td>
+<td>Initial documentation</td>
+</tr>
+</tbody></table>
+
+    </div>
+    <script>
+        // Initialize Mermaid with configuration
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'base',
+            themeVariables: {
+                // Primary colors for main nodes
+                primaryColor: '#dbeafe',
+                primaryTextColor: '#1e293b',
+                primaryBorderColor: '#2563eb',
+
+                // Secondary and tertiary colors
+                secondaryColor: '#f0fdf4',
+                secondaryTextColor: '#1e293b',
+                secondaryBorderColor: '#10b981',
+                tertiaryColor: '#fef3c7',
+                tertiaryTextColor: '#1e293b',
+                tertiaryBorderColor: '#f59e0b',
+
+                // General text and background
+                textColor: '#1e293b',
+                nodeTextColor: '#1e293b',
+                lineColor: '#64748b',
+                background: '#ffffff',
+                mainBkg: '#f8fafc',
+
+                // Node styling
+                nodeBorder: '#2563eb',
+                nodeBackgroundColor: '#eff6ff',
+
+                // Cluster/subgraph styling
+                clusterBkg: '#f1f5f9',
+                clusterBorder: '#cbd5e1',
+
+                // Labels and titles
+                titleColor: '#1e293b',
+                edgeLabelBackground: '#ffffff',
+                labelTextColor: '#1e293b',
+
+                // Additional diagram-specific colors
+                actorTextColor: '#1e293b',
+                actorLineColor: '#64748b',
+                signalTextColor: '#1e293b',
+                loopTextColor: '#1e293b',
+                noteBkgColor: '#fef3c7',
+                noteTextColor: '#1e293b',
+                noteBorderColor: '#f59e0b',
+
+                // Git graph colors
+                git0: '#2563eb',
+                git1: '#10b981',
+                git2: '#f59e0b',
+                git3: '#ef4444',
+                gitBranchLabel0: '#1e293b',
+                gitBranchLabel1: '#1e293b',
+                gitBranchLabel2: '#1e293b',
+                gitBranchLabel3: '#1e293b'
+            },
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis',
+                nodeSpacing: 50,
+                rankSpacing: 50
+            },
+            sequence: {
+                useMaxWidth: true,
+                wrap: true,
+                actorMargin: 50
+            },
+            er: {
+                useMaxWidth: true
+            },
+            gitGraph: {
+                useMaxWidth: true
+            }
+        });
+
+        // Find all mermaid code blocks and convert them
+        // Note: This processes static documentation content, not user input
+        document.querySelectorAll('pre code.language-mermaid, pre code').forEach(async (codeBlock, index) => {
+            const code = codeBlock.textContent.trim();
+
+            // Check if it looks like mermaid syntax
+            const mermaidKeywords = ['graph ', 'flowchart ', 'sequenceDiagram', 'classDiagram',
+                                      'stateDiagram', 'erDiagram', 'gantt', 'pie ', 'gitgraph',
+                                      'journey', 'quadrantChart', 'requirementDiagram', 'mindmap',
+                                      'timeline', 'sankey', 'block-beta'];
+
+            const isMermaid = codeBlock.classList.contains('language-mermaid') ||
+                              mermaidKeywords.some(kw => code.startsWith(kw));
+
+            if (isMermaid) {
+                try {
+                    const pre = codeBlock.parentElement;
+                    const container = document.createElement('div');
+                    container.className = 'mermaid';
+                    container.id = 'mermaid-' + index;
+
+                    // Render the diagram - mermaid.render returns sanitized SVG
+                    const { svg } = await mermaid.render('mermaid-svg-' + index, code);
+
+                    // Safe: SVG is generated by mermaid library from static docs
+                    container.insertAdjacentHTML('beforeend', svg);
+
+                    // Replace the pre block with the rendered diagram
+                    pre.parentNode.replaceChild(container, pre);
+                } catch (e) {
+                    console.warn('Failed to render mermaid diagram:', e.message);
+                    // Leave as code block if rendering fails
+                    codeBlock.parentElement.classList.add('mermaid-error');
+                }
+            }
+        });
+
+        // Add IDs to headers for linking
+        document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(header => {
+            if (!header.id) {
+                header.id = header.textContent.toLowerCase()
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/^-|-$/g, '');
+            }
+        });
+    </script>
+</body>
+</html>

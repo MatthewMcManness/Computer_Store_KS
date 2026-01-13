@@ -120,6 +120,13 @@ export interface UserProfile {
    * Employees are assigned to a location; owner/lead_developer can access all
    */
   location_id: string | null;
+  /**
+   * Default location ID - UUID reference to locations table
+   * For users with global access (owner/lead_developer), this is their preferred
+   * location that gets pre-selected when opening the portal.
+   * Falls back to location_id if not set.
+   */
+  default_location_id: string | null;
   repairshopr_user_id: number | null;
   repairshopr_customer_id: number | null;
   protection_plan_tier: 'bronze' | 'silver' | 'gold' | null;

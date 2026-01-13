@@ -1,0 +1,3166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computer Store KS Database Schema | Computer Store KS Documentation</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-light: #3b82f6;
+            --primary-dark: #1d4ed8;
+            --bg: #ffffff;
+            --bg-secondary: #f8fafc;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --code-bg: #1e293b;
+            --code-text: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.7;
+            color: var(--text);
+            background: var(--bg);
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Navigation */
+        .nav-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--primary);
+            color: white;
+            padding: 0.75rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        .nav-bar a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .nav-bar a:hover {
+            text-decoration: underline;
+        }
+
+        .nav-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .content {
+            margin-top: 4rem;
+        }
+
+        /* Typography */
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--text);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.4rem;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            color: var(--primary-dark);
+        }
+
+        h4 { font-size: 1.2rem; }
+        h5 { font-size: 1.1rem; }
+        h6 { font-size: 1rem; color: var(--text-muted); }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        /* Links */
+        a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin-bottom: 1rem;
+            padding-left: 2rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        li > ul, li > ol {
+            margin-top: 0.5rem;
+            margin-bottom: 0;
+        }
+
+        /* Code */
+        code {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9em;
+            background: var(--bg-secondary);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+        }
+
+        pre {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 1.25rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: 1.5rem;
+            border: 1px solid #334155;
+        }
+
+        pre code {
+            background: none;
+            border: none;
+            padding: 0;
+            color: inherit;
+            font-size: 0.875rem;
+            line-height: 1.6;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border: 1px solid var(--border);
+        }
+
+        th {
+            background: var(--bg-secondary);
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        tr:nth-child(even) {
+            background: var(--bg-secondary);
+        }
+
+        tr:hover {
+            background: #f1f5f9;
+        }
+
+        /* Blockquotes */
+        blockquote {
+            border-left: 4px solid var(--primary);
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        blockquote p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Horizontal rules */
+        hr {
+            border: none;
+            border-top: 2px solid var(--border);
+            margin: 2rem 0;
+        }
+
+        /* Images */
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        /* Task lists */
+        input[type="checkbox"] {
+            margin-right: 0.5rem;
+        }
+
+        /* Mermaid diagrams */
+        .mermaid {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            text-align: center;
+            border: 1px solid var(--border);
+            overflow-x: auto;
+        }
+
+        .mermaid svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Print styles */
+        @media print {
+            .nav-bar { display: none; }
+            .content { margin-top: 0; }
+            body { padding: 1rem; }
+            pre { white-space: pre-wrap; }
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            .nav-bar { padding: 0.5rem 1rem; }
+            h1 { font-size: 1.75rem; }
+            h2 { font-size: 1.4rem; }
+            pre { padding: 0.75rem; font-size: 0.8rem; }
+            table { font-size: 0.85rem; }
+            th, td { padding: 0.5rem; }
+        }
+    </style>
+    <!-- Mermaid.js for diagram rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+    <nav class="nav-bar">
+        <span class="nav-title">Computer Store KS Docs</span>
+        <a href="DOCUMENTATION_HUB.html">← Back to Hub</a>
+    </nav>
+    <div class="content">
+<h1>Computer Store KS Database Schema</h1>
+<h2>1. Overview</h2>
+<h3>Database Platform</h3>
+<ul>
+<li><strong>Database</strong>: Supabase (PostgreSQL)</li>
+<li><strong>Connection</strong>: Via Supabase client libraries</li>
+<li><strong>Extensions</strong>: <code>uuid-ossp</code> for UUID generation</li>
+</ul>
+<h3>Connection Configuration</h3>
+<pre><code class="language-typescript">// Public client (anon key) - for public read operations
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
+
+// Admin client (service role key) - bypasses RLS for admin operations
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY,
+  { auth: { autoRefreshToken: false, persistSession: false } }
+);
+</code></pre>
+<h3>Row-Level Security (RLS)</h3>
+<p>All tables have RLS enabled with policies for:</p>
+<ul>
+<li><strong>Public access</strong>: Read-only for published/active content</li>
+<li><strong>Authenticated access</strong>: Based on user roles (customer, staff, admin)</li>
+<li><strong>Service role access</strong>: Full access for backend operations (bypasses RLS)</li>
+</ul>
+<hr>
+<h2>2. Entity Relationship Diagram</h2>
+<pre><code class="language-mermaid">erDiagram
+    %% Authentication &amp; User Management
+    auth_users ||--o| user_profiles : &quot;has profile&quot;
+    user_profiles ||--o| locations : &quot;belongs to&quot;
+
+    %% Customer Management
+    rs_customers ||--o| businesses : &quot;works for&quot;
+    rs_customers ||--o| families : &quot;belongs to&quot;
+    rs_customers ||--o| locations : &quot;assigned to&quot;
+    rs_customers ||--o{ customer_silver_plans : &quot;has plan&quot;
+    rs_customers ||--o{ rs_tickets : &quot;has tickets&quot;
+    rs_customers ||--o{ rs_assets : &quot;owns assets&quot;
+    rs_customers ||--o{ rs_invoices : &quot;has invoices&quot;
+    rs_customers ||--o| customer_accounts : &quot;portal login&quot;
+
+    %% Ticket System
+    rs_tickets ||--o| locations : &quot;at location&quot;
+    rs_tickets ||--o{ rs_ticket_comments : &quot;has comments&quot;
+    rs_tickets ||--o{ ticket_status_overrides : &quot;has status&quot;
+    rs_tickets ||--o{ ticket_public_notes : &quot;has public notes&quot;
+    rs_tickets ||--o{ rs_invoices : &quot;has invoices&quot;
+    ticket_status_definitions ||--o{ ticket_status_overrides : &quot;defines&quot;
+
+    %% Asset &amp; Protection Plans
+    rs_assets ||--o| locations : &quot;at location&quot;
+    rs_assets ||--o{ asset_protection_plans : &quot;has protection&quot;
+    rs_assets ||--o{ device_mappings : &quot;mapped to NinjaOne&quot;
+
+    %% Financial
+    rs_invoices ||--o| locations : &quot;at location&quot;
+    rs_invoices ||--o{ rs_payments : &quot;has payments&quot;
+    rs_products ||--o| locations : &quot;at location&quot;
+    rs_payments ||--o| locations : &quot;at location&quot;
+
+    %% Blog System
+    blog_posts ||--o| blog_categories : &quot;categorized&quot;
+    blog_posts ||--o{ blog_post_tags : &quot;tagged&quot;
+    blog_tags ||--o{ blog_post_tags : &quot;tags posts&quot;
+
+    %% Gallery System
+    gallery_computers ||--o| locations : &quot;at location&quot;
+    gallery_sales ||--o{ gallery_computers : &quot;applies to&quot;
+
+    %% Families &amp; Businesses
+    families ||--o| locations : &quot;at location&quot;
+    businesses ||--o| locations : &quot;at location&quot;
+</code></pre>
+<hr>
+<h2>3. Tables by Domain</h2>
+<h3>3.1 User &amp; Authentication Tables</h3>
+<h4><code>user_profiles</code></h4>
+<p>Links Supabase Auth users to RepairShopr and stores role/permissions.</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Constraints</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>id</code></td>
+<td>UUID</td>
+<td>PK, FK(auth.users)</td>
+<td>-</td>
+<td>References Supabase Auth user</td>
+</tr>
+<tr>
+<td><code>email</code></td>
+<td>TEXT</td>
+<td>UNIQUE, NOT NULL</td>
+<td>-</td>
+<td>User email address</td>
+</tr>
+<tr>
+<td><code>full_name</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Display name</td>
+</tr>
+<tr>
+<td><code>role</code></td>
+<td>TEXT</td>
+<td>NOT NULL, CHECK</td>
+<td>&#39;customer&#39;</td>
+<td>Legacy role: admin, technician, receptionist, customer</td>
+</tr>
+<tr>
+<td><code>roles</code></td>
+<td>TEXT[]</td>
+<td>NOT NULL, CHECK</td>
+<td>[&#39;customer&#39;]</td>
+<td>Array of roles for RBAC</td>
+</tr>
+<tr>
+<td><code>repairshopr_user_id</code></td>
+<td>INTEGER</td>
+<td>-</td>
+<td>NULL</td>
+<td>RepairShopr user ID (employees)</td>
+</tr>
+<tr>
+<td><code>repairshopr_customer_id</code></td>
+<td>INTEGER</td>
+<td>-</td>
+<td>NULL</td>
+<td>RepairShopr customer ID</td>
+</tr>
+<tr>
+<td><code>protection_plan_tier</code></td>
+<td>TEXT</td>
+<td>CHECK</td>
+<td>NULL</td>
+<td>bronze, silver, gold (deprecated)</td>
+</tr>
+<tr>
+<td><code>location_id</code></td>
+<td>UUID</td>
+<td>FK(locations)</td>
+<td>NULL</td>
+<td>Assigned business location</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>NOT NULL</td>
+<td>NOW()</td>
+<td>Record creation time</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>NOT NULL</td>
+<td>NOW()</td>
+<td>Last modification time</td>
+</tr>
+</tbody></table>
+<p><strong>Valid roles array values</strong>: <code>receptionist</code>, <code>technician</code>, <code>lead_technician</code>, <code>manager</code>, <code>owner</code>, <code>social_media</code>, <code>lead_developer</code>, <code>customer</code></p>
+<h4><code>customer_accounts</code></h4>
+<p>Customer portal login credentials separate from Supabase Auth.</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Constraints</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>id</code></td>
+<td>UUID</td>
+<td>PK</td>
+<td>gen_random_uuid()</td>
+<td>Primary key</td>
+</tr>
+<tr>
+<td><code>email</code></td>
+<td>VARCHAR(255)</td>
+<td>UNIQUE, NOT NULL</td>
+<td>-</td>
+<td>Login email</td>
+</tr>
+<tr>
+<td><code>password_hash</code></td>
+<td>VARCHAR(255)</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>bcrypt hashed password</td>
+</tr>
+<tr>
+<td><code>repairshopr_customer_id</code></td>
+<td>INTEGER</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>RepairShopr customer link</td>
+</tr>
+<tr>
+<td><code>first_name</code></td>
+<td>VARCHAR(100)</td>
+<td>-</td>
+<td>NULL</td>
+<td>Customer first name</td>
+</tr>
+<tr>
+<td><code>location_id</code></td>
+<td>UUID</td>
+<td>FK(locations)</td>
+<td>NULL</td>
+<td>Customer&#39;s location</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NOW()</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NOW()</td>
+<td>-</td>
+</tr>
+</tbody></table>
+<h4><code>locations</code></h4>
+<p>Multi-location support for business locations.</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Constraints</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>id</code></td>
+<td>UUID</td>
+<td>PK</td>
+<td>gen_random_uuid()</td>
+<td>Primary key</td>
+</tr>
+<tr>
+<td><code>slug</code></td>
+<td>TEXT</td>
+<td>UNIQUE, NOT NULL</td>
+<td>-</td>
+<td>URL-friendly identifier</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>TEXT</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>Display name</td>
+</tr>
+<tr>
+<td><code>address</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Full address</td>
+</tr>
+<tr>
+<td><code>phone</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Phone number</td>
+</tr>
+<tr>
+<td><code>email</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Contact email</td>
+</tr>
+<tr>
+<td><code>timezone</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>&#39;America/Chicago&#39;</td>
+<td>Location timezone</td>
+</tr>
+<tr>
+<td><code>is_active</code></td>
+<td>BOOLEAN</td>
+<td>-</td>
+<td>true</td>
+<td>Whether location is operational</td>
+</tr>
+<tr>
+<td><code>sort_order</code></td>
+<td>INTEGER</td>
+<td>-</td>
+<td>0</td>
+<td>Display ordering</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NOW()</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NOW()</td>
+<td>-</td>
+</tr>
+</tbody></table>
+<p><strong>Initial locations</strong>: Topeka (active, primary), Holton (for expansion)</p>
+<hr>
+<h3>3.2 RepairShopr Sync Tables</h3>
+<p>These tables mirror data from RepairShopr for faster queries and eventual migration.</p>
+<h4><code>rs_customers</code></h4>
+<p>Synced customer data from RepairShopr.</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Constraints</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>id</code></td>
+<td>SERIAL</td>
+<td>PK</td>
+<td>-</td>
+<td>Internal ID</td>
+</tr>
+<tr>
+<td><code>repairshopr_id</code></td>
+<td>INTEGER</td>
+<td>UNIQUE, NOT NULL</td>
+<td>-</td>
+<td>RepairShopr customer ID</td>
+</tr>
+<tr>
+<td><code>firstname</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>First name</td>
+</tr>
+<tr>
+<td><code>lastname</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Last name</td>
+</tr>
+<tr>
+<td><code>fullname</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Full name</td>
+</tr>
+<tr>
+<td><code>business_name</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Business name</td>
+</tr>
+<tr>
+<td><code>email</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Email address</td>
+</tr>
+<tr>
+<td><code>phone</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Phone number</td>
+</tr>
+<tr>
+<td><code>mobile</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Mobile number</td>
+</tr>
+<tr>
+<td><code>address</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Address line 1</td>
+</tr>
+<tr>
+<td><code>address_2</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Address line 2</td>
+</tr>
+<tr>
+<td><code>city</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>City</td>
+</tr>
+<tr>
+<td><code>state</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>State</td>
+</tr>
+<tr>
+<td><code>zip</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>ZIP code</td>
+</tr>
+<tr>
+<td><code>tags</code></td>
+<td>TEXT[]</td>
+<td>-</td>
+<td>NULL</td>
+<td>Customer tags</td>
+</tr>
+<tr>
+<td><code>properties</code></td>
+<td>JSONB</td>
+<td>-</td>
+<td>NULL</td>
+<td>Custom fields</td>
+</tr>
+<tr>
+<td><code>custom_fields</code></td>
+<td>JSONB</td>
+<td>-</td>
+<td>NULL</td>
+<td>Custom field data</td>
+</tr>
+<tr>
+<td><code>business_id</code></td>
+<td>INTEGER</td>
+<td>FK(businesses)</td>
+<td>NULL</td>
+<td>Linked business entity</td>
+</tr>
+<tr>
+<td><code>family_id</code></td>
+<td>INTEGER</td>
+<td>FK(families)</td>
+<td>NULL</td>
+<td>Linked family group</td>
+</tr>
+<tr>
+<td><code>location_id</code></td>
+<td>UUID</td>
+<td>FK(locations)</td>
+<td>NULL</td>
+<td>Assigned location</td>
+</tr>
+<tr>
+<td><code>assets_updated</code></td>
+<td>BOOLEAN</td>
+<td>-</td>
+<td>FALSE</td>
+<td>Migration flag for asset-level plans</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NULL</td>
+<td>RepairShopr creation time</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NULL</td>
+<td>RepairShopr update time</td>
+</tr>
+<tr>
+<td><code>synced_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NOW()</td>
+<td>Last sync time</td>
+</tr>
+</tbody></table>
+<h4><code>rs_tickets</code></h4>
+<p>Synced ticket/work order data from RepairShopr.</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Constraints</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>id</code></td>
+<td>SERIAL</td>
+<td>PK</td>
+<td>-</td>
+<td>Internal ID</td>
+</tr>
+<tr>
+<td><code>repairshopr_id</code></td>
+<td>INTEGER</td>
+<td>UNIQUE, NOT NULL</td>
+<td>-</td>
+<td>RepairShopr ticket ID</td>
+</tr>
+<tr>
+<td><code>number</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Ticket number</td>
+</tr>
+<tr>
+<td><code>subject</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Ticket subject</td>
+</tr>
+<tr>
+<td><code>customer_id</code></td>
+<td>INTEGER</td>
+<td>-</td>
+<td>NULL</td>
+<td>RepairShopr customer ID</td>
+</tr>
+<tr>
+<td><code>customer_business_then_name</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Display name</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>RepairShopr status</td>
+</tr>
+<tr>
+<td><code>problem_type</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Issue category</td>
+</tr>
+<tr>
+<td><code>priority</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Priority level</td>
+</tr>
+<tr>
+<td><code>due_date</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NULL</td>
+<td>Due date</td>
+</tr>
+<tr>
+<td><code>resolved_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NULL</td>
+<td>Resolution time</td>
+</tr>
+<tr>
+<td><code>user_id</code></td>
+<td>INTEGER</td>
+<td>-</td>
+<td>NULL</td>
+<td>Assigned technician</td>
+</tr>
+<tr>
+<td><code>properties</code></td>
+<td>JSONB</td>
+<td>-</td>
+<td>NULL</td>
+<td>Custom fields</td>
+</tr>
+<tr>
+<td><code>tags</code></td>
+<td>TEXT[]</td>
+<td>-</td>
+<td>NULL</td>
+<td>Ticket tags</td>
+</tr>
+<tr>
+<td><code>location_id</code></td>
+<td>UUID</td>
+<td>FK(locations)</td>
+<td>NULL</td>
+<td>Location</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NULL</td>
+<td>Creation time</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NULL</td>
+<td>Update time</td>
+</tr>
+<tr>
+<td><code>synced_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NOW()</td>
+<td>Last sync</td>
+</tr>
+</tbody></table>
+<h4><code>rs_ticket_comments</code></h4>
+<p>Synced ticket comments from RepairShopr.</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Constraints</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>id</code></td>
+<td>SERIAL</td>
+<td>PK</td>
+<td>-</td>
+<td>Internal ID</td>
+</tr>
+<tr>
+<td><code>repairshopr_id</code></td>
+<td>INTEGER</td>
+<td>UNIQUE, NOT NULL</td>
+<td>-</td>
+<td>RepairShopr comment ID</td>
+</tr>
+<tr>
+<td><code>ticket_id</code></td>
+<td>INTEGER</td>
+<td>-</td>
+<td>NULL</td>
+<td>RepairShopr ticket ID</td>
+</tr>
+<tr>
+<td><code>subject</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Comment subject</td>
+</tr>
+<tr>
+<td><code>body</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Comment content</td>
+</tr>
+<tr>
+<td><code>tech</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Technician name</td>
+</tr>
+<tr>
+<td><code>hidden</code></td>
+<td>BOOLEAN</td>
+<td>-</td>
+<td>FALSE</td>
+<td>True = private/internal</td>
+</tr>
+<tr>
+<td><code>user_id</code></td>
+<td>INTEGER</td>
+<td>-</td>
+<td>NULL</td>
+<td>Author user ID</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NULL</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NULL</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>synced_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NOW()</td>
+<td>-</td>
+</tr>
+</tbody></table>
+<h4><code>rs_assets</code></h4>
+<p>Synced customer devices/assets from RepairShopr.</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Constraints</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>id</code></td>
+<td>SERIAL</td>
+<td>PK</td>
+<td>-</td>
+<td>Internal ID</td>
+</tr>
+<tr>
+<td><code>repairshopr_id</code></td>
+<td>INTEGER</td>
+<td>UNIQUE, NOT NULL</td>
+<td>-</td>
+<td>RepairShopr asset ID</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Asset name</td>
+</tr>
+<tr>
+<td><code>asset_type_name</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Asset type</td>
+</tr>
+<tr>
+<td><code>customer_id</code></td>
+<td>INTEGER</td>
+<td>-</td>
+<td>NULL</td>
+<td>Owner customer ID</td>
+</tr>
+<tr>
+<td><code>properties</code></td>
+<td>JSONB</td>
+<td>-</td>
+<td>NULL</td>
+<td>Custom properties</td>
+</tr>
+<tr>
+<td><code>location_id</code></td>
+<td>UUID</td>
+<td>FK(locations)</td>
+<td>NULL</td>
+<td>Location</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NULL</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NULL</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>synced_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NOW()</td>
+<td>-</td>
+</tr>
+</tbody></table>
+<h4><code>rs_invoices</code></h4>
+<p>Synced invoices from RepairShopr.</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Constraints</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>id</code></td>
+<td>SERIAL</td>
+<td>PK</td>
+<td>-</td>
+<td>Internal ID</td>
+</tr>
+<tr>
+<td><code>repairshopr_id</code></td>
+<td>INTEGER</td>
+<td>UNIQUE, NOT NULL</td>
+<td>-</td>
+<td>RepairShopr invoice ID</td>
+</tr>
+<tr>
+<td><code>number</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Invoice number</td>
+</tr>
+<tr>
+<td><code>customer_id</code></td>
+<td>INTEGER</td>
+<td>-</td>
+<td>NULL</td>
+<td>Customer ID</td>
+</tr>
+<tr>
+<td><code>customer_business_then_name</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Customer display name</td>
+</tr>
+<tr>
+<td><code>ticket_id</code></td>
+<td>INTEGER</td>
+<td>-</td>
+<td>NULL</td>
+<td>Related ticket ID</td>
+</tr>
+<tr>
+<td><code>total</code></td>
+<td>DECIMAL(10,2)</td>
+<td>-</td>
+<td>NULL</td>
+<td>Total amount</td>
+</tr>
+<tr>
+<td><code>balance_due</code></td>
+<td>DECIMAL(10,2)</td>
+<td>-</td>
+<td>NULL</td>
+<td>Amount remaining</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Invoice status</td>
+</tr>
+<tr>
+<td><code>date</code></td>
+<td>DATE</td>
+<td>-</td>
+<td>NULL</td>
+<td>Invoice date</td>
+</tr>
+<tr>
+<td><code>due_date</code></td>
+<td>DATE</td>
+<td>-</td>
+<td>NULL</td>
+<td>Due date</td>
+</tr>
+<tr>
+<td><code>po_number</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Purchase order</td>
+</tr>
+<tr>
+<td><code>note</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Notes</td>
+</tr>
+<tr>
+<td><code>is_paid</code></td>
+<td>BOOLEAN</td>
+<td>-</td>
+<td>FALSE</td>
+<td>Payment status</td>
+</tr>
+<tr>
+<td><code>location_id</code></td>
+<td>UUID</td>
+<td>FK(locations)</td>
+<td>NULL</td>
+<td>Location</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NULL</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NULL</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>synced_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NOW()</td>
+<td>-</td>
+</tr>
+</tbody></table>
+<h4><code>rs_payments</code></h4>
+<p>Synced payments from RepairShopr.</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Constraints</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>id</code></td>
+<td>SERIAL</td>
+<td>PK</td>
+<td>-</td>
+<td>Internal ID</td>
+</tr>
+<tr>
+<td><code>repairshopr_id</code></td>
+<td>INTEGER</td>
+<td>UNIQUE, NOT NULL</td>
+<td>-</td>
+<td>RepairShopr payment ID</td>
+</tr>
+<tr>
+<td><code>invoice_id</code></td>
+<td>INTEGER</td>
+<td>-</td>
+<td>NULL</td>
+<td>Related invoice ID</td>
+</tr>
+<tr>
+<td><code>customer_id</code></td>
+<td>INTEGER</td>
+<td>-</td>
+<td>NULL</td>
+<td>Customer ID</td>
+</tr>
+<tr>
+<td><code>customer_business_then_name</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Customer name</td>
+</tr>
+<tr>
+<td><code>amount</code></td>
+<td>DECIMAL(10,2)</td>
+<td>-</td>
+<td>NULL</td>
+<td>Payment amount</td>
+</tr>
+<tr>
+<td><code>payment_method</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Method (cash, card, etc)</td>
+</tr>
+<tr>
+<td><code>reference</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Reference number</td>
+</tr>
+<tr>
+<td><code>applied_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NULL</td>
+<td>Application time</td>
+</tr>
+<tr>
+<td><code>location_id</code></td>
+<td>UUID</td>
+<td>FK(locations)</td>
+<td>NULL</td>
+<td>Location</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NULL</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NULL</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>synced_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NOW()</td>
+<td>-</td>
+</tr>
+</tbody></table>
+<h4><code>rs_products</code></h4>
+<p>Synced product/inventory data from RepairShopr.</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Constraints</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>id</code></td>
+<td>SERIAL</td>
+<td>PK</td>
+<td>-</td>
+<td>Internal ID</td>
+</tr>
+<tr>
+<td><code>repairshopr_id</code></td>
+<td>INTEGER</td>
+<td>UNIQUE, NOT NULL</td>
+<td>-</td>
+<td>RepairShopr product ID</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>TEXT</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>Product name</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Description</td>
+</tr>
+<tr>
+<td><code>sku</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>SKU</td>
+</tr>
+<tr>
+<td><code>upc_code</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>UPC code</td>
+</tr>
+<tr>
+<td><code>price_retail</code></td>
+<td>DECIMAL(10,2)</td>
+<td>-</td>
+<td>NULL</td>
+<td>Retail price</td>
+</tr>
+<tr>
+<td><code>price_cost</code></td>
+<td>DECIMAL(10,2)</td>
+<td>-</td>
+<td>NULL</td>
+<td>Cost price</td>
+</tr>
+<tr>
+<td><code>quantity</code></td>
+<td>INTEGER</td>
+<td>-</td>
+<td>0</td>
+<td>Stock quantity</td>
+</tr>
+<tr>
+<td><code>quantity_minimum</code></td>
+<td>INTEGER</td>
+<td>-</td>
+<td>NULL</td>
+<td>Reorder point</td>
+</tr>
+<tr>
+<td><code>category</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Product category</td>
+</tr>
+<tr>
+<td><code>taxable</code></td>
+<td>BOOLEAN</td>
+<td>-</td>
+<td>FALSE</td>
+<td>Tax applicable</td>
+</tr>
+<tr>
+<td><code>disabled</code></td>
+<td>BOOLEAN</td>
+<td>-</td>
+<td>FALSE</td>
+<td>Disabled status</td>
+</tr>
+<tr>
+<td><code>notes</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Notes</td>
+</tr>
+<tr>
+<td><code>location</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Stock location</td>
+</tr>
+<tr>
+<td><code>rs_location_id</code></td>
+<td>INTEGER</td>
+<td>-</td>
+<td>NULL</td>
+<td>RepairShopr location ID</td>
+</tr>
+<tr>
+<td><code>vendor</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Vendor name</td>
+</tr>
+<tr>
+<td><code>vendor_id</code></td>
+<td>INTEGER</td>
+<td>-</td>
+<td>NULL</td>
+<td>Vendor ID</td>
+</tr>
+<tr>
+<td><code>location_id</code></td>
+<td>UUID</td>
+<td>FK(locations)</td>
+<td>NULL</td>
+<td>Our location</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NULL</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NULL</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>synced_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NOW()</td>
+<td>-</td>
+</tr>
+</tbody></table>
+<h4><code>rs_sync_log</code></h4>
+<p>Tracks RepairShopr sync operations for monitoring.</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Constraints</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>id</code></td>
+<td>SERIAL</td>
+<td>PK</td>
+<td>-</td>
+<td>Internal ID</td>
+</tr>
+<tr>
+<td><code>sync_type</code></td>
+<td>TEXT</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>&#39;full&#39;, &#39;incremental&#39;, &#39;entity&#39;</td>
+</tr>
+<tr>
+<td><code>entity_type</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Table being synced</td>
+</tr>
+<tr>
+<td><code>started_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NOW()</td>
+<td>Start time</td>
+</tr>
+<tr>
+<td><code>completed_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NULL</td>
+<td>End time</td>
+</tr>
+<tr>
+<td><code>records_synced</code></td>
+<td>INTEGER</td>
+<td>-</td>
+<td>0</td>
+<td>Success count</td>
+</tr>
+<tr>
+<td><code>records_failed</code></td>
+<td>INTEGER</td>
+<td>-</td>
+<td>0</td>
+<td>Failure count</td>
+</tr>
+<tr>
+<td><code>errors</code></td>
+<td>JSONB</td>
+<td>-</td>
+<td>NULL</td>
+<td>Error details</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>&#39;running&#39;</td>
+<td>running, completed, failed</td>
+</tr>
+</tbody></table>
+<hr>
+<h3>3.3 Ticket Status Tables</h3>
+<h4><code>ticket_status_definitions</code></h4>
+<p>Reference table defining custom ticket statuses.</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Constraints</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>status</code></td>
+<td>ticket_custom_status</td>
+<td>PK</td>
+<td>-</td>
+<td>Status key (enum)</td>
+</tr>
+<tr>
+<td><code>display_name</code></td>
+<td>VARCHAR(100)</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>Human-readable name</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Status description</td>
+</tr>
+<tr>
+<td><code>repairshopr_status</code></td>
+<td>VARCHAR(50)</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>Maps to RepairShopr</td>
+</tr>
+<tr>
+<td><code>show_customer_question</code></td>
+<td>BOOLEAN</td>
+<td>-</td>
+<td>FALSE</td>
+<td>Show question input</td>
+</tr>
+<tr>
+<td><code>customer_visible_status</code></td>
+<td>VARCHAR(100)</td>
+<td>-</td>
+<td>NULL</td>
+<td>Portal display text</td>
+</tr>
+<tr>
+<td><code>sort_order</code></td>
+<td>INTEGER</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>Display order</td>
+</tr>
+<tr>
+<td><code>is_active</code></td>
+<td>BOOLEAN</td>
+<td>-</td>
+<td>TRUE</td>
+<td>Status availability</td>
+</tr>
+</tbody></table>
+<p><strong>Custom Status Enum Values</strong>:</p>
+<ul>
+<li><code>new</code> - Ticket just created</li>
+<li><code>diagnosing</code> - Diagnosing the issue</li>
+<li><code>repairing</code> - Active repair</li>
+<li><code>data_transferring</code> - Data transfer</li>
+<li><code>installing</code> - Installing software/components</li>
+<li><code>waiting_for_parts</code> - Awaiting parts</li>
+<li><code>building</code> - Building custom system</li>
+<li><code>call_customer</code> - Need to call customer</li>
+<li><code>waiting_for_customer_reply</code> - Awaiting response</li>
+<li><code>ready_for_pickup</code> - On done shelf</li>
+<li><code>completed</code> - Fully resolved</li>
+</ul>
+<h4><code>ticket_status_overrides</code></h4>
+<p>Per-ticket custom status overrides.</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Constraints</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>id</code></td>
+<td>UUID</td>
+<td>PK</td>
+<td>gen_random_uuid()</td>
+<td>Primary key</td>
+</tr>
+<tr>
+<td><code>repairshopr_ticket_id</code></td>
+<td>INTEGER</td>
+<td>UNIQUE, NOT NULL</td>
+<td>-</td>
+<td>Ticket ID</td>
+</tr>
+<tr>
+<td><code>custom_status</code></td>
+<td>ticket_custom_status</td>
+<td>NOT NULL</td>
+<td>&#39;new&#39;</td>
+<td>Current status</td>
+</tr>
+<tr>
+<td><code>customer_question</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Question for customer</td>
+</tr>
+<tr>
+<td><code>updated_by</code></td>
+<td>VARCHAR(255)</td>
+<td>-</td>
+<td>NULL</td>
+<td>Last modifier</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NOW()</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NOW()</td>
+<td>-</td>
+</tr>
+</tbody></table>
+<h4><code>ticket_public_notes</code></h4>
+<p>Public notes visible to customers in portal.</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Constraints</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>id</code></td>
+<td>UUID</td>
+<td>PK</td>
+<td>gen_random_uuid()</td>
+<td>Primary key</td>
+</tr>
+<tr>
+<td><code>repairshopr_ticket_id</code></td>
+<td>INTEGER</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>Ticket ID</td>
+</tr>
+<tr>
+<td><code>repairshopr_customer_id</code></td>
+<td>INTEGER</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>Customer ID</td>
+</tr>
+<tr>
+<td><code>author_name</code></td>
+<td>VARCHAR(255)</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>Author name</td>
+</tr>
+<tr>
+<td><code>author_email</code></td>
+<td>VARCHAR(255)</td>
+<td>-</td>
+<td>NULL</td>
+<td>Author email</td>
+</tr>
+<tr>
+<td><code>content</code></td>
+<td>TEXT</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>Note content</td>
+</tr>
+<tr>
+<td><code>location_id</code></td>
+<td>UUID</td>
+<td>FK(locations)</td>
+<td>NULL</td>
+<td>Location</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NOW()</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NOW()</td>
+<td>-</td>
+</tr>
+</tbody></table>
+<hr>
+<h3>3.4 Protection Plan Tables</h3>
+<h4><code>customer_silver_plans</code></h4>
+<p>Customer-level protection plan status (legacy, being migrated to asset-level).</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Constraints</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>id</code></td>
+<td>UUID</td>
+<td>PK</td>
+<td>gen_random_uuid()</td>
+<td>Primary key</td>
+</tr>
+<tr>
+<td><code>repairshopr_customer_id</code></td>
+<td>INTEGER</td>
+<td>UNIQUE, NOT NULL</td>
+<td>-</td>
+<td>Customer ID</td>
+</tr>
+<tr>
+<td><code>is_silver_plan</code></td>
+<td>BOOLEAN</td>
+<td>NOT NULL</td>
+<td>FALSE</td>
+<td>Legacy silver flag</td>
+</tr>
+<tr>
+<td><code>plan_tier</code></td>
+<td>TEXT</td>
+<td>CHECK</td>
+<td>NULL</td>
+<td>eset, silver, silver-plus</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NOW()</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NOW()</td>
+<td>-</td>
+</tr>
+</tbody></table>
+<p><strong>Valid plan_tier values</strong>: <code>eset</code>, <code>silver</code>, <code>silver-plus</code>, <code>NULL</code> (no plan)</p>
+<h4><code>asset_protection_plans</code></h4>
+<p>Asset-level protection plans (current system).</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Constraints</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>id</code></td>
+<td>UUID</td>
+<td>PK</td>
+<td>gen_random_uuid()</td>
+<td>Primary key</td>
+</tr>
+<tr>
+<td><code>repairshopr_asset_id</code></td>
+<td>INTEGER</td>
+<td>UNIQUE, NOT NULL</td>
+<td>-</td>
+<td>Asset ID</td>
+</tr>
+<tr>
+<td><code>repairshopr_customer_id</code></td>
+<td>INTEGER</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>Owner customer ID</td>
+</tr>
+<tr>
+<td><code>plan_tier</code></td>
+<td>TEXT</td>
+<td>CHECK</td>
+<td>NULL</td>
+<td>eset, silver, silver-plus</td>
+</tr>
+<tr>
+<td><code>eset_status</code></td>
+<td>TEXT</td>
+<td>CHECK</td>
+<td>NULL</td>
+<td>protected, expired, unprotected</td>
+</tr>
+<tr>
+<td><code>eset_expiry</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NULL</td>
+<td>ESET expiration date</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NOW()</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NOW()</td>
+<td>-</td>
+</tr>
+</tbody></table>
+<hr>
+<h3>3.5 Customer Grouping Tables</h3>
+<h4><code>businesses</code></h4>
+<p>Business entities that customers can belong to.</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Constraints</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>id</code></td>
+<td>SERIAL</td>
+<td>PK</td>
+<td>-</td>
+<td>Primary key</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>TEXT</td>
+<td>UNIQUE, NOT NULL</td>
+<td>-</td>
+<td>Business name</td>
+</tr>
+<tr>
+<td><code>location_id</code></td>
+<td>UUID</td>
+<td>FK(locations)</td>
+<td>NULL</td>
+<td>Location</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NOW()</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NOW()</td>
+<td>-</td>
+</tr>
+</tbody></table>
+<p><strong>Trigger</strong>: Customers are auto-linked when <code>business_name</code> is set.</p>
+<h4><code>families</code></h4>
+<p>Family groupings for household customers.</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Constraints</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>id</code></td>
+<td>SERIAL</td>
+<td>PK</td>
+<td>-</td>
+<td>Primary key</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>TEXT</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>Family name</td>
+</tr>
+<tr>
+<td><code>location_id</code></td>
+<td>UUID</td>
+<td>FK(locations)</td>
+<td>NULL</td>
+<td>Location</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NOW()</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NOW()</td>
+<td>-</td>
+</tr>
+</tbody></table>
+<hr>
+<h3>3.6 Blog Tables</h3>
+<h4><code>blog_posts</code></h4>
+<p>Main blog posts table.</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Constraints</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>id</code></td>
+<td>UUID</td>
+<td>PK</td>
+<td>uuid_generate_v4()</td>
+<td>Primary key</td>
+</tr>
+<tr>
+<td><code>title</code></td>
+<td>VARCHAR(255)</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>Post title</td>
+</tr>
+<tr>
+<td><code>slug</code></td>
+<td>VARCHAR(255)</td>
+<td>UNIQUE, NOT NULL</td>
+<td>-</td>
+<td>URL slug</td>
+</tr>
+<tr>
+<td><code>excerpt</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Summary text</td>
+</tr>
+<tr>
+<td><code>content</code></td>
+<td>TEXT</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>Full content (markdown)</td>
+</tr>
+<tr>
+<td><code>featured_image_url</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Main image URL</td>
+</tr>
+<tr>
+<td><code>featured_image_thumbnail</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Thumbnail URL</td>
+</tr>
+<tr>
+<td><code>category_id</code></td>
+<td>UUID</td>
+<td>FK(blog_categories)</td>
+<td>NULL</td>
+<td>Category</td>
+</tr>
+<tr>
+<td><code>author_name</code></td>
+<td>VARCHAR(100)</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>Author name</td>
+</tr>
+<tr>
+<td><code>author_email</code></td>
+<td>VARCHAR(255)</td>
+<td>-</td>
+<td>NULL</td>
+<td>Author email</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td>VARCHAR(20)</td>
+<td>CHECK</td>
+<td>&#39;draft&#39;</td>
+<td>draft, published, archived</td>
+</tr>
+<tr>
+<td><code>published_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NULL</td>
+<td>Publication time</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NOW()</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NOW()</td>
+<td>-</td>
+</tr>
+</tbody></table>
+<h4><code>blog_categories</code></h4>
+<p>Blog post categories.</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Constraints</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>id</code></td>
+<td>UUID</td>
+<td>PK</td>
+<td>uuid_generate_v4()</td>
+<td>Primary key</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>VARCHAR(100)</td>
+<td>UNIQUE, NOT NULL</td>
+<td>-</td>
+<td>Category name</td>
+</tr>
+<tr>
+<td><code>slug</code></td>
+<td>VARCHAR(100)</td>
+<td>UNIQUE, NOT NULL</td>
+<td>-</td>
+<td>URL slug</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Description</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NOW()</td>
+<td>-</td>
+</tr>
+</tbody></table>
+<p><strong>Default categories</strong>: Tech Tips, Repairs &amp; Maintenance, Linux, News &amp; Updates, Security</p>
+<h4><code>blog_tags</code></h4>
+<p>Blog post tags.</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Constraints</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>id</code></td>
+<td>UUID</td>
+<td>PK</td>
+<td>uuid_generate_v4()</td>
+<td>Primary key</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>VARCHAR(50)</td>
+<td>UNIQUE, NOT NULL</td>
+<td>-</td>
+<td>Tag name</td>
+</tr>
+<tr>
+<td><code>slug</code></td>
+<td>VARCHAR(50)</td>
+<td>UNIQUE, NOT NULL</td>
+<td>-</td>
+<td>URL slug</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NOW()</td>
+<td>-</td>
+</tr>
+</tbody></table>
+<p><strong>Default tags</strong>: Windows, Linux, Hardware, Software, Security, Performance, Troubleshooting, How-To, News, Deals</p>
+<h4><code>blog_post_tags</code></h4>
+<p>Junction table for post-tag relationships (many-to-many).</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Constraints</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>post_id</code></td>
+<td>UUID</td>
+<td>PK, FK(blog_posts)</td>
+<td>-</td>
+<td>Post ID</td>
+</tr>
+<tr>
+<td><code>tag_id</code></td>
+<td>UUID</td>
+<td>PK, FK(blog_tags)</td>
+<td>-</td>
+<td>Tag ID</td>
+</tr>
+</tbody></table>
+<hr>
+<h3>3.7 Gallery Tables</h3>
+<h4><code>gallery_computers</code></h4>
+<p>Computers available for sale in the gallery.</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Constraints</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>id</code></td>
+<td>UUID</td>
+<td>PK</td>
+<td>uuid_generate_v4()</td>
+<td>Primary key</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>VARCHAR(255)</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>Computer name</td>
+</tr>
+<tr>
+<td><code>type</code></td>
+<td>VARCHAR(20)</td>
+<td>NOT NULL, CHECK</td>
+<td>-</td>
+<td>desktop, laptop</td>
+</tr>
+<tr>
+<td><code>category</code></td>
+<td>VARCHAR(20)</td>
+<td>NOT NULL, CHECK</td>
+<td>-</td>
+<td>refurbished, custom, new</td>
+</tr>
+<tr>
+<td><code>price</code></td>
+<td>DECIMAL(10,2)</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>Price</td>
+</tr>
+<tr>
+<td><code>image_url</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Full image URL</td>
+</tr>
+<tr>
+<td><code>thumbnail_url</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Thumbnail URL</td>
+</tr>
+<tr>
+<td><code>specs</code></td>
+<td>JSONB</td>
+<td>-</td>
+<td>&#39;[]&#39;</td>
+<td>Array of {label, value} specs</td>
+</tr>
+<tr>
+<td><code>is_active</code></td>
+<td>BOOLEAN</td>
+<td>-</td>
+<td>TRUE</td>
+<td>Active listing</td>
+</tr>
+<tr>
+<td><code>sort_order</code></td>
+<td>INTEGER</td>
+<td>-</td>
+<td>0</td>
+<td>Display order</td>
+</tr>
+<tr>
+<td><code>location_id</code></td>
+<td>UUID</td>
+<td>FK(locations)</td>
+<td>NULL</td>
+<td>Location</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NOW()</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NOW()</td>
+<td>-</td>
+</tr>
+</tbody></table>
+<h4><code>gallery_sales</code></h4>
+<p>Sale configurations (e.g., Black Friday).</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Constraints</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>id</code></td>
+<td>UUID</td>
+<td>PK</td>
+<td>uuid_generate_v4()</td>
+<td>Primary key</td>
+</tr>
+<tr>
+<td><code>sale_type</code></td>
+<td>VARCHAR(50)</td>
+<td>UNIQUE, NOT NULL</td>
+<td>-</td>
+<td>Sale identifier</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>VARCHAR(100)</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>Display name</td>
+</tr>
+<tr>
+<td><code>discount_percent</code></td>
+<td>INTEGER</td>
+<td>NOT NULL</td>
+<td>0</td>
+<td>Discount percentage</td>
+</tr>
+<tr>
+<td><code>applies_to</code></td>
+<td>TEXT[]</td>
+<td>-</td>
+<td>[&#39;refurbished&#39;]</td>
+<td>Categories affected</td>
+</tr>
+<tr>
+<td><code>is_active</code></td>
+<td>BOOLEAN</td>
+<td>-</td>
+<td>FALSE</td>
+<td>Currently active</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NOW()</td>
+<td>-</td>
+</tr>
+</tbody></table>
+<p><strong>Default sales</strong>: none (0%), black-friday (10% on refurbished)</p>
+<hr>
+<h3>3.8 Device Mapping Tables</h3>
+<h4><code>device_mappings</code></h4>
+<p>Links RepairShopr assets to NinjaOne devices for RMM integration.</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Constraints</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>id</code></td>
+<td>UUID</td>
+<td>PK</td>
+<td>gen_random_uuid()</td>
+<td>Primary key</td>
+</tr>
+<tr>
+<td><code>repairshopr_asset_id</code></td>
+<td>INTEGER</td>
+<td>UNIQUE, NOT NULL</td>
+<td>-</td>
+<td>RepairShopr asset ID</td>
+</tr>
+<tr>
+<td><code>ninjaone_device_id</code></td>
+<td>INTEGER</td>
+<td>UNIQUE, NOT NULL</td>
+<td>-</td>
+<td>NinjaOne device ID</td>
+</tr>
+<tr>
+<td><code>device_name</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Device name</td>
+</tr>
+<tr>
+<td><code>serial_number</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Serial number</td>
+</tr>
+<tr>
+<td><code>owner_user_id</code></td>
+<td>UUID</td>
+<td>FK(user_profiles)</td>
+<td>NULL</td>
+<td>Device owner</td>
+</tr>
+<tr>
+<td><code>last_sync_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>NOT NULL</td>
+<td>NOW()</td>
+<td>Last sync time</td>
+</tr>
+<tr>
+<td><code>sync_status</code></td>
+<td>TEXT</td>
+<td>CHECK</td>
+<td>&#39;synced&#39;</td>
+<td>synced, pending, error, stale</td>
+</tr>
+<tr>
+<td><code>sync_error</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Error message</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>NOT NULL</td>
+<td>NOW()</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>NOT NULL</td>
+<td>NOW()</td>
+<td>-</td>
+</tr>
+</tbody></table>
+<hr>
+<h3>3.9 Audit Tables</h3>
+<h4><code>employee_audit_log</code></h4>
+<p>Tracks employee actions for accountability.</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Constraints</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>id</code></td>
+<td>UUID</td>
+<td>PK</td>
+<td>gen_random_uuid()</td>
+<td>Primary key</td>
+</tr>
+<tr>
+<td><code>employee_user_id</code></td>
+<td>UUID</td>
+<td>NOT NULL, FK(user_profiles)</td>
+<td>-</td>
+<td>Actor</td>
+</tr>
+<tr>
+<td><code>employee_email</code></td>
+<td>TEXT</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>Actor email</td>
+</tr>
+<tr>
+<td><code>employee_name</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Actor name</td>
+</tr>
+<tr>
+<td><code>action_type</code></td>
+<td>TEXT</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>Specific action</td>
+</tr>
+<tr>
+<td><code>action_category</code></td>
+<td>TEXT</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>Category</td>
+</tr>
+<tr>
+<td><code>target_type</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Target entity type</td>
+</tr>
+<tr>
+<td><code>target_id</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Target ID</td>
+</tr>
+<tr>
+<td><code>target_name</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Target name</td>
+</tr>
+<tr>
+<td><code>changes</code></td>
+<td>JSONB</td>
+<td>-</td>
+<td>NULL</td>
+<td>Before/after values</td>
+</tr>
+<tr>
+<td><code>request_data</code></td>
+<td>JSONB</td>
+<td>-</td>
+<td>NULL</td>
+<td>Request payload</td>
+</tr>
+<tr>
+<td><code>ip_address</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Client IP</td>
+</tr>
+<tr>
+<td><code>user_agent</code></td>
+<td>TEXT</td>
+<td>-</td>
+<td>NULL</td>
+<td>Client user agent</td>
+</tr>
+<tr>
+<td><code>created_at</code></td>
+<td>TIMESTAMPTZ</td>
+<td>-</td>
+<td>NOW()</td>
+<td>-</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>4. Indexes</h2>
+<h3>Performance Indexes</h3>
+<pre><code class="language-sql">-- Blog
+CREATE INDEX idx_blog_posts_slug ON blog_posts(slug);
+CREATE INDEX idx_blog_posts_status ON blog_posts(status);
+CREATE INDEX idx_blog_posts_published_at ON blog_posts(published_at DESC);
+CREATE INDEX idx_blog_posts_category ON blog_posts(category_id);
+CREATE INDEX idx_blog_categories_slug ON blog_categories(slug);
+CREATE INDEX idx_blog_tags_slug ON blog_tags(slug);
+
+-- RepairShopr Sync
+CREATE INDEX idx_rs_customers_repairshopr_id ON rs_customers(repairshopr_id);
+CREATE INDEX idx_rs_customers_email ON rs_customers(email);
+CREATE INDEX idx_rs_customers_fullname ON rs_customers(fullname);
+CREATE INDEX idx_rs_customers_phone ON rs_customers(phone);
+CREATE INDEX idx_rs_customers_business ON rs_customers(business_name);
+CREATE INDEX idx_rs_customers_business_id ON rs_customers(business_id);
+CREATE INDEX idx_rs_customers_family_id ON rs_customers(family_id);
+CREATE INDEX idx_rs_customers_location ON rs_customers(location_id);
+CREATE INDEX idx_rs_customers_assets_updated ON rs_customers(assets_updated);
+
+CREATE INDEX idx_rs_tickets_repairshopr_id ON rs_tickets(repairshopr_id);
+CREATE INDEX idx_rs_tickets_customer_id ON rs_tickets(customer_id);
+CREATE INDEX idx_rs_tickets_status ON rs_tickets(status);
+CREATE INDEX idx_rs_tickets_number ON rs_tickets(number);
+CREATE INDEX idx_rs_tickets_created ON rs_tickets(created_at DESC);
+CREATE INDEX idx_rs_tickets_location ON rs_tickets(location_id);
+
+-- Ticket Status
+CREATE INDEX idx_ticket_status_overrides_ticket_id ON ticket_status_overrides(repairshopr_ticket_id);
+CREATE INDEX idx_ticket_status_overrides_status ON ticket_status_overrides(custom_status);
+
+-- Protection Plans
+CREATE INDEX idx_customer_silver_plans_customer_id ON customer_silver_plans(repairshopr_customer_id);
+CREATE INDEX idx_asset_plans_customer_id ON asset_protection_plans(repairshopr_customer_id);
+CREATE INDEX idx_asset_plans_asset_id ON asset_protection_plans(repairshopr_asset_id);
+
+-- Gallery
+CREATE INDEX idx_gallery_computers_type ON gallery_computers(type);
+CREATE INDEX idx_gallery_computers_category ON gallery_computers(category);
+CREATE INDEX idx_gallery_computers_is_active ON gallery_computers(is_active);
+CREATE INDEX idx_gallery_computers_sort_order ON gallery_computers(sort_order);
+CREATE INDEX idx_gallery_sales_is_active ON gallery_sales(is_active);
+
+-- User Profiles
+CREATE INDEX idx_user_profiles_email ON user_profiles(email);
+CREATE INDEX idx_user_profiles_role ON user_profiles(role);
+CREATE INDEX idx_user_profiles_roles ON user_profiles USING GIN (roles);
+CREATE INDEX idx_user_profiles_location ON user_profiles(location_id);
+
+-- Locations
+CREATE INDEX idx_locations_slug ON locations(slug);
+CREATE INDEX idx_locations_active ON locations(is_active) WHERE is_active = true;
+</code></pre>
+<hr>
+<h2>5. Row-Level Security Policies</h2>
+<h3>Blog Tables</h3>
+<pre><code class="language-sql">-- Public read for published posts
+CREATE POLICY &quot;Public can view published posts&quot; ON blog_posts
+  FOR SELECT USING (status = &#39;published&#39;);
+
+-- Service role full access
+CREATE POLICY &quot;Service role full access to posts&quot; ON blog_posts
+  FOR ALL USING (auth.role() = &#39;service_role&#39;);
+</code></pre>
+<h3>RepairShopr Tables</h3>
+<pre><code class="language-sql">-- Service role full access for sync
+CREATE POLICY &quot;Service role full access on rs_customers&quot; ON rs_customers
+  FOR ALL USING (auth.role() = &#39;service_role&#39;);
+
+-- Staff can read synced data
+CREATE POLICY &quot;Staff read rs_customers&quot; ON rs_customers FOR SELECT
+  USING (EXISTS (
+    SELECT 1 FROM user_profiles
+    WHERE user_profiles.id = auth.uid()
+    AND user_profiles.role IN (&#39;admin&#39;, &#39;technician&#39;, &#39;receptionist&#39;)
+  ));
+</code></pre>
+<h3>User Profiles</h3>
+<pre><code class="language-sql">-- Users can read own profile
+CREATE POLICY &quot;Users can read own profile&quot; ON user_profiles
+  FOR SELECT USING (auth.uid() = id);
+
+-- Management can read all profiles
+CREATE POLICY &quot;Management can read all profiles&quot; ON user_profiles
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM user_profiles up
+      WHERE up.id = auth.uid()
+      AND (up.roles &amp;&amp; ARRAY[&#39;manager&#39;, &#39;owner&#39;, &#39;lead_developer&#39;]::TEXT[])
+    )
+  );
+</code></pre>
+<hr>
+<h2>6. Functions and Triggers</h2>
+<h3>Timestamp Triggers</h3>
+<pre><code class="language-sql">-- Auto-update updated_at on modification
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Applied to: blog_posts, gallery_computers, ticket_status_overrides,
+--             customer_silver_plans, asset_protection_plans, etc.
+</code></pre>
+<h3>Role Helper Functions</h3>
+<pre><code class="language-sql">-- Get user roles array
+CREATE OR REPLACE FUNCTION get_user_roles(p_user_id UUID DEFAULT auth.uid())
+RETURNS TEXT[] AS $$ ... $$;
+
+-- Check if user has any of specified roles
+CREATE OR REPLACE FUNCTION has_any_role(p_roles TEXT[], p_user_id UUID DEFAULT auth.uid())
+RETURNS BOOLEAN AS $$ ... $$;
+
+-- Check if user is admin (owner, manager, or lead_developer)
+CREATE OR REPLACE FUNCTION is_admin(p_user_id UUID DEFAULT auth.uid())
+RETURNS BOOLEAN AS $$ ... $$;
+
+-- Check if user is staff (any employee role)
+CREATE OR REPLACE FUNCTION is_staff(p_user_id UUID DEFAULT auth.uid())
+RETURNS BOOLEAN AS $$ ... $$;
+
+-- Check if user has blog access
+CREATE OR REPLACE FUNCTION has_blog_access(p_user_id UUID DEFAULT auth.uid())
+RETURNS BOOLEAN AS $$ ... $$;
+
+-- Get business role level for inheritance
+CREATE OR REPLACE FUNCTION get_business_role_level(p_user_id UUID DEFAULT auth.uid())
+RETURNS INTEGER AS $$ ... $$;
+</code></pre>
+<h3>Location Helper Functions</h3>
+<pre><code class="language-sql">-- Check if user can access all locations
+CREATE OR REPLACE FUNCTION can_access_all_locations(user_roles TEXT[])
+RETURNS BOOLEAN AS $$
+BEGIN
+  RETURN (&#39;owner&#39; = ANY(user_roles) OR &#39;lead_developer&#39; = ANY(user_roles) OR &#39;admin&#39; = ANY(user_roles));
+END;
+$$ LANGUAGE plpgsql IMMUTABLE;
+
+-- Get user&#39;s location ID
+CREATE OR REPLACE FUNCTION get_user_location_id(user_id UUID)
+RETURNS UUID AS $$ ... $$;
+</code></pre>
+<h3>Business Auto-Linking Trigger</h3>
+<pre><code class="language-sql">-- Auto-create and link business when customer has business_name
+CREATE OR REPLACE FUNCTION link_customer_to_business()
+RETURNS TRIGGER AS $$ ... $$;
+
+CREATE TRIGGER trg_link_customer_business
+  BEFORE INSERT OR UPDATE OF business_name ON rs_customers
+  FOR EACH ROW
+  EXECUTE FUNCTION link_customer_to_business();
+</code></pre>
+<hr>
+<h2>7. Views</h2>
+<h3>Customer Protection Summary</h3>
+<pre><code class="language-sql">CREATE OR REPLACE VIEW customer_protection_summary AS
+SELECT
+  repairshopr_customer_id,
+  COUNT(*) FILTER (WHERE plan_tier IS NOT NULL) AS protected_asset_count,
+  COUNT(*) AS total_assets_with_records,
+  BOOL_OR(plan_tier IN (&#39;silver&#39;, &#39;silver-plus&#39;)) AS has_paid_plan,
+  ARRAY_AGG(DISTINCT plan_tier) FILTER (WHERE plan_tier IS NOT NULL) AS plan_tiers
+FROM asset_protection_plans
+GROUP BY repairshopr_customer_id;
+</code></pre>
+<hr>
+<h2>8. Migration History</h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+<th>Date</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>blog-schema.sql</code></td>
+<td>Blog tables, categories, tags</td>
+<td>Initial</td>
+</tr>
+<tr>
+<td><code>gallery-schema.sql</code></td>
+<td>Gallery computers and sales</td>
+<td>Initial</td>
+</tr>
+<tr>
+<td><code>ticket-statuses-schema.sql</code></td>
+<td>Custom ticket status system</td>
+<td>Initial</td>
+</tr>
+<tr>
+<td><code>ticket-notes-schema.sql</code></td>
+<td>Public ticket notes</td>
+<td>Initial</td>
+</tr>
+<tr>
+<td><code>customer-accounts-schema.sql</code></td>
+<td>Customer portal accounts</td>
+<td>Initial</td>
+</tr>
+<tr>
+<td><code>customer-silver-plans-schema.sql</code></td>
+<td>Customer protection plans</td>
+<td>Initial</td>
+</tr>
+<tr>
+<td><code>user-profiles-schema.sql</code></td>
+<td>User profiles and device mappings</td>
+<td>2025-12-26</td>
+</tr>
+<tr>
+<td><code>repairshopr-sync-schema.sql</code></td>
+<td>RepairShopr data sync tables</td>
+<td>2026-01-08</td>
+</tr>
+<tr>
+<td><code>businesses-table-migration.sql</code></td>
+<td>Business entities</td>
+<td>2026-01-XX</td>
+</tr>
+<tr>
+<td><code>families-table-migration.sql</code></td>
+<td>Family groupings</td>
+<td>2026-01-12</td>
+</tr>
+<tr>
+<td><code>asset-protection-plans-schema.sql</code></td>
+<td>Asset-level protection</td>
+<td>2026-01-XX</td>
+</tr>
+<tr>
+<td><code>customer-protection-plans-migration.sql</code></td>
+<td>Add plan_tier column</td>
+<td>2026-01-XX</td>
+</tr>
+<tr>
+<td><code>add-plan-tier-column.sql</code></td>
+<td>Add plan_tier to silver_plans</td>
+<td>2026-01-XX</td>
+</tr>
+<tr>
+<td><code>fix-plan-tier-constraint.sql</code></td>
+<td>Fix constraint for silver-plus</td>
+<td>2026-01-XX</td>
+</tr>
+<tr>
+<td><code>remove-bronze-gold-tiers-migration.sql</code></td>
+<td>Simplify to eset/silver/silver-plus</td>
+<td>2026-01-XX</td>
+</tr>
+<tr>
+<td><code>assets-updated-migration.sql</code></td>
+<td>Migration tracking flag</td>
+<td>2026-01-10</td>
+</tr>
+<tr>
+<td><code>image-thumbnail-migration.sql</code></td>
+<td>Add thumbnail columns</td>
+<td>2026-01-XX</td>
+</tr>
+<tr>
+<td><code>employee-audit-log-schema.sql</code></td>
+<td>Employee action tracking</td>
+<td>2026-01-XX</td>
+</tr>
+<tr>
+<td><code>rbac-migration.sql</code></td>
+<td>Multi-role array system</td>
+<td>2026-01-11</td>
+</tr>
+<tr>
+<td><code>locations-migration.sql</code></td>
+<td>Multi-location support</td>
+<td>2026-01-XX</td>
+</tr>
+<tr>
+<td><code>enable-holton-and-roles.sql</code></td>
+<td>Enable Holton, set user roles</td>
+<td>2026-01-XX</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>9. Data Flow</h2>
+<h3>RepairShopr to Supabase Sync</h3>
+<pre><code>RepairShopr API
+      |
+      v
+  /api/sync/repairshopr (batch sync)
+      |
+      v
+  Supabase Tables (rs_*)
+      |
+      +-- rs_customers
+      +-- rs_tickets
+      +-- rs_ticket_comments
+      +-- rs_assets
+      +-- rs_invoices
+      +-- rs_payments
+      +-- rs_products
+</code></pre>
+<p><strong>Sync Flow</strong>:</p>
+<ol>
+<li>API route calls RepairShopr API</li>
+<li>Data is transformed and upserted into <code>rs_*</code> tables</li>
+<li><code>synced_at</code> timestamp is updated</li>
+<li>Progress logged to <code>rs_sync_log</code></li>
+</ol>
+<h3>Application Data Flow</h3>
+<pre><code>User Request
+      |
+      v
+  Next.js API Route
+      |
+      +-- Read: supabase (anon key, respects RLS)
+      |
+      +-- Write: supabaseAdmin (service role, bypasses RLS)
+      |
+      v
+  Supabase PostgreSQL
+</code></pre>
+<h3>Protection Plan Tier Resolution</h3>
+<pre><code>getEffectiveCustomerPlanTier(customerId)
+      |
+      v
+  Check rs_customers.assets_updated
+      |
+      +-- FALSE: Use customer_silver_plans.plan_tier (legacy/RepairShopr)
+      |
+      +-- TRUE: Use asset_protection_plans (asset-level)
+             |
+             v
+         Get highest tier from customer&#39;s assets
+</code></pre>
+<h3>Ticket Status Flow</h3>
+<pre><code>RepairShopr Ticket Status
+      |
+      v
+  ticket_status_overrides (our custom status)
+      |
+      v
+  ticket_status_definitions (display names, mappings)
+      |
+      v
+  Customer Portal (customer_visible_status)
+</code></pre>
+<hr>
+<h2>10. Common Queries</h2>
+<h3>Get Published Blog Posts with Tags</h3>
+<pre><code class="language-sql">SELECT p.*, c.name as category_name, array_agg(t.name) as tags
+FROM blog_posts p
+LEFT JOIN blog_categories c ON p.category_id = c.id
+LEFT JOIN blog_post_tags pt ON p.id = pt.post_id
+LEFT JOIN blog_tags t ON pt.tag_id = t.id
+WHERE p.status = &#39;published&#39;
+GROUP BY p.id, c.name
+ORDER BY p.published_at DESC;
+</code></pre>
+<h3>Get Customer&#39;s Protection Plan Status</h3>
+<pre><code class="language-sql">SELECT
+  c.repairshopr_id,
+  c.fullname,
+  c.assets_updated,
+  CASE
+    WHEN c.assets_updated THEN (
+      SELECT plan_tier FROM asset_protection_plans
+      WHERE repairshopr_customer_id = c.repairshopr_id
+      ORDER BY CASE plan_tier WHEN &#39;silver-plus&#39; THEN 3 WHEN &#39;silver&#39; THEN 2 WHEN &#39;eset&#39; THEN 1 END DESC
+      LIMIT 1
+    )
+    ELSE sp.plan_tier
+  END as effective_plan_tier
+FROM rs_customers c
+LEFT JOIN customer_silver_plans sp ON c.repairshopr_id = sp.repairshopr_customer_id
+WHERE c.repairshopr_id = $1;
+</code></pre>
+<h3>Get Tickets by Custom Status</h3>
+<pre><code class="language-sql">SELECT t.*, tso.custom_status, tsd.display_name, tso.customer_question
+FROM rs_tickets t
+LEFT JOIN ticket_status_overrides tso ON t.repairshopr_id = tso.repairshopr_ticket_id
+LEFT JOIN ticket_status_definitions tsd ON tso.custom_status = tsd.status
+WHERE tso.custom_status = &#39;call_customer&#39;
+ORDER BY t.updated_at DESC;
+</code></pre>
+<h3>Get Active Gallery Computers with Sale Pricing</h3>
+<pre><code class="language-sql">SELECT
+  gc.*,
+  gs.discount_percent,
+  CASE
+    WHEN gs.is_active AND gc.category = ANY(gs.applies_to)
+    THEN gc.price * (1 - gs.discount_percent / 100.0)
+    ELSE gc.price
+  END as sale_price
+FROM gallery_computers gc
+CROSS JOIN (SELECT * FROM gallery_sales WHERE is_active = true LIMIT 1) gs
+WHERE gc.is_active = true
+ORDER BY gc.sort_order, gc.created_at DESC;
+</code></pre>
+
+    </div>
+    <script>
+        // Initialize Mermaid with configuration
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'base',
+            themeVariables: {
+                // Primary colors for main nodes
+                primaryColor: '#dbeafe',
+                primaryTextColor: '#1e293b',
+                primaryBorderColor: '#2563eb',
+
+                // Secondary and tertiary colors
+                secondaryColor: '#f0fdf4',
+                secondaryTextColor: '#1e293b',
+                secondaryBorderColor: '#10b981',
+                tertiaryColor: '#fef3c7',
+                tertiaryTextColor: '#1e293b',
+                tertiaryBorderColor: '#f59e0b',
+
+                // General text and background
+                textColor: '#1e293b',
+                nodeTextColor: '#1e293b',
+                lineColor: '#64748b',
+                background: '#ffffff',
+                mainBkg: '#f8fafc',
+
+                // Node styling
+                nodeBorder: '#2563eb',
+                nodeBackgroundColor: '#eff6ff',
+
+                // Cluster/subgraph styling
+                clusterBkg: '#f1f5f9',
+                clusterBorder: '#cbd5e1',
+
+                // Labels and titles
+                titleColor: '#1e293b',
+                edgeLabelBackground: '#ffffff',
+                labelTextColor: '#1e293b',
+
+                // Additional diagram-specific colors
+                actorTextColor: '#1e293b',
+                actorLineColor: '#64748b',
+                signalTextColor: '#1e293b',
+                loopTextColor: '#1e293b',
+                noteBkgColor: '#fef3c7',
+                noteTextColor: '#1e293b',
+                noteBorderColor: '#f59e0b',
+
+                // Git graph colors
+                git0: '#2563eb',
+                git1: '#10b981',
+                git2: '#f59e0b',
+                git3: '#ef4444',
+                gitBranchLabel0: '#1e293b',
+                gitBranchLabel1: '#1e293b',
+                gitBranchLabel2: '#1e293b',
+                gitBranchLabel3: '#1e293b'
+            },
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis',
+                nodeSpacing: 50,
+                rankSpacing: 50
+            },
+            sequence: {
+                useMaxWidth: true,
+                wrap: true,
+                actorMargin: 50
+            },
+            er: {
+                useMaxWidth: true
+            },
+            gitGraph: {
+                useMaxWidth: true
+            }
+        });
+
+        // Find all mermaid code blocks and convert them
+        // Note: This processes static documentation content, not user input
+        document.querySelectorAll('pre code.language-mermaid, pre code').forEach(async (codeBlock, index) => {
+            const code = codeBlock.textContent.trim();
+
+            // Check if it looks like mermaid syntax
+            const mermaidKeywords = ['graph ', 'flowchart ', 'sequenceDiagram', 'classDiagram',
+                                      'stateDiagram', 'erDiagram', 'gantt', 'pie ', 'gitgraph',
+                                      'journey', 'quadrantChart', 'requirementDiagram', 'mindmap',
+                                      'timeline', 'sankey', 'block-beta'];
+
+            const isMermaid = codeBlock.classList.contains('language-mermaid') ||
+                              mermaidKeywords.some(kw => code.startsWith(kw));
+
+            if (isMermaid) {
+                try {
+                    const pre = codeBlock.parentElement;
+                    const container = document.createElement('div');
+                    container.className = 'mermaid';
+                    container.id = 'mermaid-' + index;
+
+                    // Render the diagram - mermaid.render returns sanitized SVG
+                    const { svg } = await mermaid.render('mermaid-svg-' + index, code);
+
+                    // Safe: SVG is generated by mermaid library from static docs
+                    container.insertAdjacentHTML('beforeend', svg);
+
+                    // Replace the pre block with the rendered diagram
+                    pre.parentNode.replaceChild(container, pre);
+                } catch (e) {
+                    console.warn('Failed to render mermaid diagram:', e.message);
+                    // Leave as code block if rendering fails
+                    codeBlock.parentElement.classList.add('mermaid-error');
+                }
+            }
+        });
+
+        // Add IDs to headers for linking
+        document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(header => {
+            if (!header.id) {
+                header.id = header.textContent.toLowerCase()
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/^-|-$/g, '');
+            }
+        });
+    </script>
+</body>
+</html>

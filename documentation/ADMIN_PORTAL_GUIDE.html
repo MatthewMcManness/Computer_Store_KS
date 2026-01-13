@@ -1,0 +1,1712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computer Store KS - Admin/Employee Portal Guide | Computer Store KS Documentation</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-light: #3b82f6;
+            --primary-dark: #1d4ed8;
+            --bg: #ffffff;
+            --bg-secondary: #f8fafc;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --code-bg: #1e293b;
+            --code-text: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.7;
+            color: var(--text);
+            background: var(--bg);
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Navigation */
+        .nav-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--primary);
+            color: white;
+            padding: 0.75rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        .nav-bar a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .nav-bar a:hover {
+            text-decoration: underline;
+        }
+
+        .nav-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .content {
+            margin-top: 4rem;
+        }
+
+        /* Typography */
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--text);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.4rem;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            color: var(--primary-dark);
+        }
+
+        h4 { font-size: 1.2rem; }
+        h5 { font-size: 1.1rem; }
+        h6 { font-size: 1rem; color: var(--text-muted); }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        /* Links */
+        a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin-bottom: 1rem;
+            padding-left: 2rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        li > ul, li > ol {
+            margin-top: 0.5rem;
+            margin-bottom: 0;
+        }
+
+        /* Code */
+        code {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9em;
+            background: var(--bg-secondary);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+        }
+
+        pre {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 1.25rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: 1.5rem;
+            border: 1px solid #334155;
+        }
+
+        pre code {
+            background: none;
+            border: none;
+            padding: 0;
+            color: inherit;
+            font-size: 0.875rem;
+            line-height: 1.6;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border: 1px solid var(--border);
+        }
+
+        th {
+            background: var(--bg-secondary);
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        tr:nth-child(even) {
+            background: var(--bg-secondary);
+        }
+
+        tr:hover {
+            background: #f1f5f9;
+        }
+
+        /* Blockquotes */
+        blockquote {
+            border-left: 4px solid var(--primary);
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        blockquote p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Horizontal rules */
+        hr {
+            border: none;
+            border-top: 2px solid var(--border);
+            margin: 2rem 0;
+        }
+
+        /* Images */
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        /* Task lists */
+        input[type="checkbox"] {
+            margin-right: 0.5rem;
+        }
+
+        /* Mermaid diagrams */
+        .mermaid {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            text-align: center;
+            border: 1px solid var(--border);
+            overflow-x: auto;
+        }
+
+        .mermaid svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Print styles */
+        @media print {
+            .nav-bar { display: none; }
+            .content { margin-top: 0; }
+            body { padding: 1rem; }
+            pre { white-space: pre-wrap; }
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            .nav-bar { padding: 0.5rem 1rem; }
+            h1 { font-size: 1.75rem; }
+            h2 { font-size: 1.4rem; }
+            pre { padding: 0.75rem; font-size: 0.8rem; }
+            table { font-size: 0.85rem; }
+            th, td { padding: 0.5rem; }
+        }
+    </style>
+    <!-- Mermaid.js for diagram rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+    <nav class="nav-bar">
+        <span class="nav-title">Computer Store KS Docs</span>
+        <a href="DOCUMENTATION_HUB.html">← Back to Hub</a>
+    </nav>
+    <div class="content">
+<h1>Computer Store KS - Admin/Employee Portal Guide</h1>
+<p><strong>Version:</strong> 2.0 (with Role-Based Access Control)<br><strong>Last Updated:</strong> January 2026</p>
+<h2>Table of Contents</h2>
+<ol>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#authentication--access">Authentication &amp; Access</a></li>
+<li><a href="#dashboard-pages">Dashboard Pages</a></li>
+<li><a href="#role-based-access-control">Role-Based Access Control</a></li>
+<li><a href="#key-features">Key Features</a></li>
+<li><a href="#ui-components">UI Components</a></li>
+<li><a href="#technical-architecture">Technical Architecture</a></li>
+</ol>
+<hr>
+<h2>Overview</h2>
+<h3>Purpose</h3>
+<p>The Admin/Employee Portal is the internal management interface for The Computer Store KS repair shop operations. It provides comprehensive tools for:</p>
+<ul>
+<li>Customer intake and management</li>
+<li>Ticket tracking and status updates</li>
+<li>Family group management</li>
+<li>Employee account administration</li>
+<li>Gallery inventory management</li>
+<li>Blog content management</li>
+<li>Data synchronization with RepairShopr</li>
+</ul>
+<h3>Who Uses It</h3>
+<p>The portal serves different staff roles with appropriate access levels:</p>
+<ul>
+<li><strong>Reception</strong> - Front desk operations, customer intake, ticket management</li>
+<li><strong>Technicians</strong> - Repair work tracking, technical dashboards</li>
+<li><strong>Lead Technicians</strong> - Team oversight, ticket assignment</li>
+<li><strong>Managers</strong> - Employee management, blog access, business operations</li>
+<li><strong>Owner</strong> - Full system access</li>
+<li><strong>Add-on Roles</strong> - Social media (blog), Lead Developer (IT superuser)</li>
+</ul>
+<h3>Access URL</h3>
+<ul>
+<li><strong>Production:</strong> <code>https://computerstoreks.com/admin</code></li>
+<li><strong>Development:</strong> Development Render deployment URL + <code>/admin</code></li>
+</ul>
+<hr>
+<h2>Authentication &amp; Access</h2>
+<h3>Login System</h3>
+<p>The portal uses <strong>Supabase Authentication</strong> with encrypted session cookies.</p>
+<p><strong>Login Process:</strong></p>
+<ol>
+<li>Navigate to <code>/admin/login</code></li>
+<li>Enter employee email and password</li>
+<li>System validates credentials against Supabase Auth</li>
+<li>Creates encrypted session (8-hour expiry)</li>
+<li>Sets HTTP-only session cookies</li>
+<li>Redirects to appropriate dashboard based on role</li>
+</ol>
+<p><strong>Session Security:</strong></p>
+<ul>
+<li>Sessions encrypted with AES-256-GCM</li>
+<li>HTTP-only cookies (XSS protection)</li>
+<li>Secure flag in production (HTTPS only)</li>
+<li>SameSite: lax (CSRF protection)</li>
+<li>8-hour automatic expiration</li>
+</ul>
+<p><strong>Password Requirements:</strong></p>
+<ul>
+<li>Managed through Supabase Auth</li>
+<li>Minimum 6 characters (Supabase default)</li>
+<li>Case-sensitive</li>
+<li>Email verification optional</li>
+</ul>
+<h3>Role Assignment</h3>
+<p>User roles are stored in the <code>user_profiles</code> table in Supabase:</p>
+<pre><code class="language-typescript">interface UserProfile {
+  id: string;               // Supabase Auth UUID
+  email: string;
+  full_name: string;
+  role: string;             // Primary role (legacy field)
+  roles: string[];          // Array of roles (new multi-role system)
+  location_id: string | null;  // Assigned location
+  repairshopr_user_id: number;
+  created_at: string;
+}
+</code></pre>
+<p><strong>Role Types:</strong></p>
+<ul>
+<li><p><strong>Business Hierarchy Roles</strong> - Single role per user (linear inheritance):</p>
+<ul>
+<li><code>receptionist</code> → <code>technician</code> → <code>lead_technician</code> → <code>manager</code> → <code>owner</code></li>
+</ul>
+</li>
+<li><p><strong>Add-on Roles</strong> - Can be combined with any business role:</p>
+<ul>
+<li><code>social_media</code> - Blog access for users below Manager level</li>
+<li><code>lead_developer</code> - IT superuser with full system access</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2>Dashboard Pages</h2>
+<h3>Reception Dashboard (<code>/admin</code>)</h3>
+<p><strong>Primary Features:</strong></p>
+<ul>
+<li><strong>Customer Intake Button</strong> - Prominent call-to-action for new tickets</li>
+<li><strong>Call Customer Widget</strong> - Auto-refreshing list of tickets requiring customer contact (30s refresh)</li>
+<li><strong>System Status</strong> - Supabase and GitHub connection indicators</li>
+</ul>
+<p><strong>Who Can Access:</strong> All employees (requires <code>view_reception_dashboard</code> permission)</p>
+<p><strong>Key Components:</strong></p>
+<pre><code class="language-typescript">&lt;CallCustomerTickets /&gt;  // Auto-refresh widget
+</code></pre>
+<hr>
+<h3>Customer Management (<code>/admin/customers</code>)</h3>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Searchable customer list with pagination (50 per page)</li>
+<li>Protection plan filtering (ESET, Silver, Silver+)</li>
+<li>Customer detail view with:<ul>
+<li>Contact information</li>
+<li>Protection plan badge</li>
+<li>Linked tickets, invoices, assets</li>
+<li>Family associations</li>
+</ul>
+</li>
+<li><strong>Add Customer</strong> modal with portal password setup</li>
+<li><strong>Edit Customer</strong> modal with:<ul>
+<li>Contact info editing</li>
+<li>Assets migration status tracking</li>
+<li>Protection plan indicators</li>
+</ul>
+</li>
+</ul>
+<p><strong>Protection Plans:</strong></p>
+<ul>
+<li><strong>ESET</strong> - Basic antivirus protection</li>
+<li><strong>Silver</strong> - Standard protection plan</li>
+<li><strong>Silver+</strong> - Premium protection plan with additional benefits</li>
+</ul>
+<p><strong>Migration Tracking:</strong><br>The system tracks migration from customer-level to asset-level protection plans:</p>
+<ul>
+<li>Progress indicator shows migration percentage</li>
+<li><code>assets_updated</code> flag per customer</li>
+<li>Prevents marking customers as migrated without assets</li>
+</ul>
+<p><strong>Who Can Access:</strong></p>
+<ul>
+<li>View: <code>view_customers</code></li>
+<li>Create/Edit: <code>manage_customers</code></li>
+</ul>
+<hr>
+<h3>Business Management (<code>/admin/businesses</code>)</h3>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Business account listing</li>
+<li>Separate from individual customers</li>
+<li>Links to associated contacts and tickets</li>
+</ul>
+<p><strong>Business vs Individual:</strong></p>
+<ul>
+<li>Business accounts can have multiple linked contacts</li>
+<li>Useful for companies with multiple employees</li>
+<li>Separate billing and contact workflows</li>
+</ul>
+<p><strong>Who Can Access:</strong></p>
+<ul>
+<li>View: <code>view_businesses</code></li>
+<li>Manage: <code>manage_businesses</code></li>
+</ul>
+<hr>
+<h3>Ticket System (<code>/admin/tickets</code>)</h3>
+<h4>Ticket List Page</h4>
+<p><strong>Features:</strong></p>
+<ul>
+<li><strong>Search</strong> - By ticket #, customer name, or subject</li>
+<li><strong>Status Filters</strong> - Desktop horizontal layout, mobile collapsible grid</li>
+<li><strong>Status Badges</strong> - Color-coded custom status display</li>
+<li>Real-time status from custom status system</li>
+</ul>
+<p><strong>Filter Options:</strong></p>
+<ul>
+<li>All tickets</li>
+<li>New</li>
+<li>Diagnosing</li>
+<li>Repairing</li>
+<li>Data Transferring</li>
+<li>Installing</li>
+<li>Waiting for Parts</li>
+<li>Building</li>
+<li>Call Customer (highlighted in red)</li>
+<li>Waiting for Customer Reply</li>
+<li>Ready for Pickup</li>
+<li>Completed (not shown in active filters)</li>
+</ul>
+<p><strong>Display Information:</strong></p>
+<ul>
+<li>Ticket number and subject</li>
+<li>Customer name</li>
+<li>Status badge with custom display name</li>
+<li>Time since creation</li>
+</ul>
+<p><strong>Who Can Access:</strong></p>
+<ul>
+<li>View: <code>view_tickets</code></li>
+<li>Filter/Search: All with view access</li>
+</ul>
+<hr>
+<h4>Ticket Detail Page (<code>/admin/tickets/[id]</code>)</h4>
+<p><strong>Layout: Three-Column Design</strong></p>
+<p><strong>Left Sidebar (Customer Info Panel):</strong></p>
+<ul>
+<li>Customer profile with avatar</li>
+<li>Protection plan badge (Silver Plan with sparkle icon)</li>
+<li>Contact information (email, phone, business, address)</li>
+<li>Portal access status (Active/No Password with visual indicator)</li>
+</ul>
+<p><strong>Center Column (Main Content):</strong></p>
+<p><strong>Header:</strong></p>
+<ul>
+<li>Back button</li>
+<li>Ticket number</li>
+<li>Custom status badge</li>
+<li>Subject line</li>
+<li>Edit button</li>
+</ul>
+<p><strong>Notes Timeline:</strong><br>Three types of notes with visual distinction:</p>
+<ol>
+<li><p><strong>Private Notes</strong> (Internal Only)</p>
+<ul>
+<li>Amber border and background</li>
+<li>EyeOff icon</li>
+<li>Not sent to RepairShopr</li>
+<li>For internal staff communication</li>
+</ul>
+</li>
+<li><p><strong>Staff Comments</strong> (RepairShopr)</p>
+<ul>
+<li>Blue border and background</li>
+<li>Eye icon</li>
+<li>Standard RepairShopr comments</li>
+<li>Visible to staff only</li>
+</ul>
+</li>
+<li><p><strong>Public Notes</strong> (Customer Communication)</p>
+<ul>
+<li>Green border and background</li>
+<li>Eye icon</li>
+<li>Sent to customer via SMS/email through RepairShopr</li>
+<li>Can be deleted by staff</li>
+<li>Shows &quot;Delete&quot; button</li>
+</ul>
+</li>
+<li><p><strong>Customer Notes</strong> (From Customer)</p>
+<ul>
+<li>Purple border and background</li>
+<li>User icon</li>
+<li>Replies from customer</li>
+<li>Read-only</li>
+</ul>
+</li>
+</ol>
+<p><strong>Note Input:</strong></p>
+<ul>
+<li>Private note input with &quot;Send&quot; button (amber)</li>
+<li>Public note input with &quot;Send&quot; button (green)</li>
+<li>Both inputs at bottom of notes section</li>
+</ul>
+<p><strong>Right Sidebar (Status Control):</strong></p>
+<ul>
+<li><strong>Status Dropdown</strong> - Select custom status</li>
+<li><strong>Customer Question Field</strong> - Appears for statuses that require it:<ul>
+<li><code>call_customer</code></li>
+<li><code>waiting_for_customer_reply</code></li>
+</ul>
+</li>
+<li><strong>Update Status Button</strong> - Blue with check icon</li>
+<li><strong>Ticket Metadata:</strong><ul>
+<li>Created date</li>
+<li>Last updated date</li>
+<li>Problem type</li>
+</ul>
+</li>
+</ul>
+<p><strong>Who Can Access:</strong></p>
+<ul>
+<li>View: <code>view_tickets</code></li>
+<li>Edit: <code>manage_tickets</code></li>
+<li>Status changes sync to RepairShopr via API</li>
+</ul>
+<hr>
+<h4>Custom Status System</h4>
+<p>The portal implements a custom ticket status layer <strong>on top of</strong> RepairShopr statuses:</p>
+<p><strong>Database Tables:</strong></p>
+<pre><code class="language-sql">-- Status definitions with display names
+ticket_status_definitions:
+  - status (PK, e.g., &#39;call_customer&#39;)
+  - display_name (e.g., &#39;Call Customer&#39;)
+  - repairshopr_status (e.g., &#39;Customer Reply&#39;)
+  - show_customer_question (boolean)
+  - customer_visible_status (e.g., &#39;We Have a Question&#39;)
+  - sort_order
+  - is_active
+
+-- Per-ticket status overrides
+ticket_status_overrides:
+  - repairshopr_ticket_id
+  - custom_status
+  - customer_question (optional text)
+  - updated_by
+  - timestamps
+</code></pre>
+<p><strong>Status Mapping:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Custom Status</th>
+<th>RepairShopr Status</th>
+<th>Customer Sees</th>
+<th>Question?</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>new</td>
+<td>New</td>
+<td>Received</td>
+<td>No</td>
+</tr>
+<tr>
+<td>diagnosing</td>
+<td>In Progress</td>
+<td>Being Diagnosed</td>
+<td>No</td>
+</tr>
+<tr>
+<td>repairing</td>
+<td>In Progress</td>
+<td>Being Repaired</td>
+<td>No</td>
+</tr>
+<tr>
+<td>data_transferring</td>
+<td>In Progress</td>
+<td>Data Transfer in Progress</td>
+<td>No</td>
+</tr>
+<tr>
+<td>installing</td>
+<td>In Progress</td>
+<td>Installation in Progress</td>
+<td>No</td>
+</tr>
+<tr>
+<td>waiting_for_parts</td>
+<td>Waiting for Parts</td>
+<td>Waiting for Parts</td>
+<td>No</td>
+</tr>
+<tr>
+<td>building</td>
+<td>In Progress</td>
+<td>Being Built</td>
+<td>No</td>
+</tr>
+<tr>
+<td>call_customer</td>
+<td>Customer Reply</td>
+<td>We Have a Question</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td>waiting_for_customer_reply</td>
+<td>Customer Reply</td>
+<td>Awaiting Your Response</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td>ready_for_pickup</td>
+<td>Done Shelf</td>
+<td>Ready for Pickup</td>
+<td>No</td>
+</tr>
+<tr>
+<td>completed</td>
+<td>Resolved</td>
+<td>Completed</td>
+<td>No</td>
+</tr>
+</tbody></table>
+<p><strong>How It Works:</strong></p>
+<ol>
+<li>Staff selects custom status in portal UI</li>
+<li>System stores override in <code>ticket_status_overrides</code></li>
+<li>Corresponding RepairShopr status updated via API</li>
+<li>Customer portal displays customer-friendly status text</li>
+<li>Question field shown when status requires it</li>
+</ol>
+<p><strong>Benefits:</strong></p>
+<ul>
+<li>More granular status tracking than RepairShopr provides</li>
+<li>Customer-friendly status messages</li>
+<li>Ability to ask specific questions per status</li>
+<li>Maintains compatibility with RepairShopr workflow</li>
+</ul>
+<hr>
+<h4>Edit Ticket Modal</h4>
+<p><strong>Fields:</strong></p>
+<ul>
+<li>Subject</li>
+<li>Problem Type</li>
+<li>Priority (Low/Medium/High/Urgent)</li>
+<li>RepairShopr Status (read-only, managed via custom status)</li>
+</ul>
+<p><strong>Validation:</strong></p>
+<ul>
+<li>Subject required</li>
+<li>Changes sync to RepairShopr immediately</li>
+</ul>
+<hr>
+<h3>Family Management (<code>/admin/families</code>)</h3>
+<p><strong>NEW FEATURE</strong> - Family group management system.</p>
+<p><strong>Features:</strong></p>
+<ul>
+<li><strong>Family List</strong> with pagination</li>
+<li><strong>Protection Plan Filtering</strong> - Filter families by plan tier</li>
+<li><strong>Create Family</strong> - Modal with name input</li>
+<li><strong>Family Detail View</strong> - Shows all family members</li>
+<li><strong>Delete Family</strong> - Only allowed for empty families</li>
+</ul>
+<p><strong>Family Structure:</strong></p>
+<ul>
+<li>Each family has a unique name (e.g., &quot;Smith Family&quot;)</li>
+<li>Multiple customers can belong to one family</li>
+<li>Protection plans can be tracked at family level</li>
+<li>Useful for household-level service tracking</li>
+</ul>
+<p><strong>Use Cases:</strong></p>
+<ul>
+<li>Track protection plans for entire households</li>
+<li>Family discounts and billing</li>
+<li>Shared service history</li>
+<li>Multi-device support tracking</li>
+</ul>
+<p><strong>Display:</strong></p>
+<ul>
+<li>Desktop: Table with columns (Family Name, Members, Protection Plan, Actions)</li>
+<li>Mobile: Cards with icon and summary</li>
+</ul>
+<p><strong>Who Can Access:</strong></p>
+<ul>
+<li>View: <code>view_families</code></li>
+<li>Create/Edit/Delete: <code>manage_families</code></li>
+</ul>
+<hr>
+<h3>Gallery Management (<code>/admin/gallery</code>)</h3>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Computer inventory management</li>
+<li>Desktop/Laptop categorization</li>
+<li>Image upload to Supabase Storage</li>
+<li>Pricing and specifications</li>
+<li>Sale/Black Friday pricing controls</li>
+<li>Publish to live site</li>
+</ul>
+<p><strong>Computer Types:</strong></p>
+<ul>
+<li>Desktop (refurbished/custom/new)</li>
+<li>Laptop (refurbished/custom/new)</li>
+</ul>
+<p><strong>Who Can Access:</strong></p>
+<ul>
+<li>View: <code>view_gallery</code></li>
+<li>Edit: <code>manage_gallery</code></li>
+</ul>
+<hr>
+<h3>Blog Management (<code>/admin/blog</code>)</h3>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Post creation and editing</li>
+<li>Draft/Published status</li>
+<li>Categories and tags</li>
+<li>Featured images</li>
+<li>Markdown content editor</li>
+<li>SEO-friendly slugs</li>
+</ul>
+<p><strong>Post Management:</strong></p>
+<ul>
+<li><code>/admin/blog</code> - List all posts</li>
+<li><code>/admin/blog/new</code> - Create new post</li>
+<li><code>/admin/blog/[id]</code> - Edit existing post</li>
+</ul>
+<p><strong>Who Can Access:</strong></p>
+<ul>
+<li>View: <code>view_blog</code></li>
+<li>Create/Edit/Delete: <code>manage_blog</code></li>
+<li><strong>Auto-granted to:</strong> Manager, Owner, Lead Developer</li>
+<li><strong>Can be added to:</strong> Any role via <code>social_media</code> add-on</li>
+</ul>
+<hr>
+<h3>Employee Management (<code>/admin/employees</code>)</h3>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Employee list with role badges</li>
+<li><strong>Add Employee</strong> (<code>/admin/employees/new</code>)</li>
+<li><strong>Edit Roles</strong> - Multi-role modal with:<ul>
+<li>Business role selection (radio buttons)</li>
+<li>Add-on role toggles (checkboxes)</li>
+<li>Visual role descriptions</li>
+</ul>
+</li>
+<li><strong>Delete Employee</strong> - With confirmation (cannot delete self)</li>
+</ul>
+<p><strong>Role Badge Colors:</strong></p>
+<ul>
+<li>Receptionist: Green</li>
+<li>Technician: Blue</li>
+<li>Lead Technician: Indigo</li>
+<li>Manager: Amber</li>
+<li>Owner: Purple</li>
+<li>Social Media: Pink</li>
+<li>Lead Developer: Red</li>
+</ul>
+<p><strong>Employee Creation Flow:</strong></p>
+<ol>
+<li>Create Supabase Auth user</li>
+<li>Create <code>user_profiles</code> entry</li>
+<li>Assign business role + optional add-ons</li>
+<li>Send password setup email (optional)</li>
+</ol>
+<p><strong>Who Can Access:</strong></p>
+<ul>
+<li>View: <code>view_employees</code></li>
+<li>Create/Edit/Delete: <code>manage_employees</code></li>
+<li><strong>Restricted to:</strong> Manager, Owner, Lead Developer</li>
+</ul>
+<hr>
+<h3>Sync Page (<code>/admin/sync</code>)</h3>
+<p><strong>Features:</strong></p>
+<ul>
+<li>RepairShopr data synchronization</li>
+<li>Customer data sync</li>
+<li>Ticket status sync</li>
+<li>Manual trigger for data refresh</li>
+</ul>
+<p><strong>Who Can Access:</strong></p>
+<ul>
+<li>View: <code>view_data_sync</code></li>
+<li>Trigger: <code>manage_data_sync</code></li>
+<li><strong>Restricted to:</strong> Lead Developer only</li>
+</ul>
+<hr>
+<h3>Additional Pages</h3>
+<p><strong>POS (<code>/admin/pos</code>):</strong></p>
+<ul>
+<li>Point of sale interface</li>
+<li>Requires: <code>use_pos</code></li>
+</ul>
+<p><strong>Leads (<code>/admin/leads</code>):</strong></p>
+<ul>
+<li>Sales lead tracking</li>
+<li>Requires: <code>view_leads</code>, <code>manage_leads</code></li>
+</ul>
+<p><strong>Invoices (<code>/admin/invoices</code>):</strong></p>
+<ul>
+<li>Invoice management</li>
+<li>Requires: <code>view_invoices</code>, <code>manage_invoices</code></li>
+</ul>
+<p><strong>Quotes (<code>/admin/quotes</code>):</strong></p>
+<ul>
+<li>Quote generation</li>
+<li>Requires: <code>use_quotes</code></li>
+</ul>
+<p><strong>Tech Dashboard (<code>/admin/tech</code>):</strong></p>
+<ul>
+<li>Technician-specific view</li>
+<li>Requires: <code>view_tech_dashboard</code></li>
+</ul>
+<p><strong>Lead Tech Dashboard (<code>/admin/lead-tech</code>):</strong></p>
+<ul>
+<li>Lead technician oversight</li>
+<li>Requires: <code>view_lead_tech_dashboard</code></li>
+</ul>
+<p><strong>Intake (<code>/admin/intake</code>):</strong></p>
+<ul>
+<li>Multi-step customer intake wizard</li>
+<li>Customer search → Create/Select → Device info → Ticket creation → Success</li>
+<li>Requires: <code>manage_intake</code></li>
+</ul>
+<hr>
+<h2>Role-Based Access Control</h2>
+<h3>Permission Model</h3>
+<p>The portal uses a <strong>hierarchical role system with add-ons</strong>:</p>
+<p><strong>Business Hierarchy</strong> (linear inheritance):</p>
+<pre><code>receptionist
+    ↓ (inherits from)
+technician
+    ↓
+lead_technician
+    ↓
+manager
+    ↓
+owner (all permissions)
+</code></pre>
+<p><strong>Add-on Roles</strong> (combinable):</p>
+<ul>
+<li><code>social_media</code> - Grants blog access</li>
+<li><code>lead_developer</code> - Full superuser access</li>
+</ul>
+<h3>Permission Matrix</h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Receptionist</th>
+<th>Technician</th>
+<th>Lead Tech</th>
+<th>Manager</th>
+<th>Owner</th>
+<th>Social Media</th>
+<th>Lead Dev</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Reception Dashboard</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>-</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Customer Management</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>-</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Families</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>-</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Tickets (View)</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>-</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Tickets (Manage)</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>-</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>POS</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>-</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Invoices</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>-</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Leads</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>-</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Quotes</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>-</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Tech Dashboard</td>
+<td>-</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>-</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Gallery</td>
+<td>-</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>-</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Ticket Assignment</td>
+<td>-</td>
+<td>-</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>-</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Blog</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Employee Management</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>✓</td>
+<td>✓</td>
+<td>-</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Data Sync</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>✓</td>
+</tr>
+</tbody></table>
+<h3>Permission Definitions</h3>
+<p>All permissions are defined in <code>src/types/roles.ts</code>:</p>
+<pre><code class="language-typescript">type Permission =
+  // General
+  | &#39;view_admin_dashboard&#39;
+  // Reception
+  | &#39;view_reception_dashboard&#39;
+  | &#39;manage_intake&#39;
+  | &#39;view_customers&#39;
+  | &#39;manage_customers&#39;
+  | &#39;view_families&#39;
+  | &#39;manage_families&#39;
+  | &#39;view_businesses&#39;
+  | &#39;manage_businesses&#39;
+  | &#39;view_tickets&#39;
+  | &#39;manage_tickets&#39;
+  | &#39;view_invoices&#39;
+  | &#39;manage_invoices&#39;
+  | &#39;use_pos&#39;
+  | &#39;view_leads&#39;
+  | &#39;manage_leads&#39;
+  | &#39;use_quotes&#39;
+  // Technician
+  | &#39;view_tech_dashboard&#39;
+  | &#39;manage_ticket_work&#39;
+  | &#39;view_gallery&#39;
+  | &#39;manage_gallery&#39;
+  // Lead Tech
+  | &#39;view_lead_tech_dashboard&#39;
+  | &#39;assign_tickets&#39;
+  // Social Media
+  | &#39;view_blog&#39;
+  | &#39;manage_blog&#39;
+  // Management
+  | &#39;view_employees&#39;
+  | &#39;manage_employees&#39;
+  // Admin
+  | &#39;view_data_sync&#39;
+  | &#39;manage_data_sync&#39;;
+</code></pre>
+<h3>Sidebar Navigation</h3>
+<p>The sidebar is <strong>dynamically filtered</strong> based on user permissions:</p>
+<p><strong>Sections:</strong></p>
+<ol>
+<li><strong>Reception</strong> - Customer intake, tickets, invoices, POS, leads, quotes</li>
+<li><strong>Technician</strong> - Tech dashboard, ticket work, gallery</li>
+<li><strong>Lead Tech</strong> - Lead tech dashboard</li>
+<li><strong>Social Media</strong> - Blog posts</li>
+<li><strong>Management</strong> - Employees</li>
+<li><strong>Admin</strong> - Data sync</li>
+</ol>
+<p><strong>Collapsible Behavior:</strong></p>
+<ul>
+<li>Each section can be expanded/collapsed</li>
+<li>Expanded state saved in localStorage</li>
+<li>Mobile: Full-width overlay menu</li>
+<li>Desktop: Fixed sidebar (expanded or icon-only)</li>
+</ul>
+<p><strong>Location Selector:</strong></p>
+<ul>
+<li>Shown for users with global access (multi-location roles)</li>
+<li>Shows location badge for single-location users</li>
+<li>Hidden when sidebar is collapsed</li>
+</ul>
+<hr>
+<h2>Key Features</h2>
+<h3>Call Customer Widget</h3>
+<p><strong>Location:</strong> Reception Dashboard (<code>/admin</code>)</p>
+<p><strong>Purpose:</strong> Displays tickets that need customer contact.</p>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Auto-refresh every 30 seconds</li>
+<li>Shows tickets with <code>call_customer</code> status</li>
+<li>Displays:<ul>
+<li>Ticket number and subject</li>
+<li>Customer name</li>
+<li>Time since status changed</li>
+<li>Customer question (if provided)</li>
+</ul>
+</li>
+<li>Click to navigate to ticket detail</li>
+</ul>
+<p><strong>Visual Design:</strong></p>
+<ul>
+<li>Red icon (Phone) for urgency</li>
+<li>Rounded card with border</li>
+<li>Header with ticket count</li>
+<li>Refresh button (manual trigger)</li>
+<li>Empty state: Green check icon with &quot;No tickets need customer calls&quot;</li>
+</ul>
+<hr>
+<h3>Protection Plan System</h3>
+<p><strong>Plan Tiers:</strong></p>
+<ol>
+<li><strong>ESET</strong> - Basic antivirus protection</li>
+<li><strong>Silver</strong> - Standard protection with benefits</li>
+<li><strong>Silver+</strong> - Premium tier with enhanced benefits</li>
+</ol>
+<p><strong>Visual Indicators:</strong></p>
+<ul>
+<li><strong>Badges</strong> - Color-coded plan badges on customer cards</li>
+<li><strong>Card Styling</strong> - Border highlights for plan customers:<ul>
+<li>ESET: Green border</li>
+<li>Silver: Blue/silver border</li>
+<li>Silver+: Amber/gold border with special styling</li>
+</ul>
+</li>
+</ul>
+<p><strong>Tracking Levels:</strong></p>
+<ol>
+<li><strong>Customer-Level</strong> (Legacy) - Stored in <code>customer_silver_plans</code> table</li>
+<li><strong>Asset-Level</strong> (New) - Stored in <code>asset_protection_plans</code> table per device</li>
+</ol>
+<p><strong>Migration Tracking:</strong></p>
+<ul>
+<li><code>assets_updated</code> flag in <code>rs_customers</code> table</li>
+<li>Progress bar on customers list showing migration %</li>
+<li>Prevents marking customers as migrated without assets</li>
+</ul>
+<hr>
+<h3>Customer Intake Wizard</h3>
+<p><strong>Location:</strong> <code>/admin/intake</code></p>
+<p><strong>Steps:</strong></p>
+<ol>
+<li><strong>Customer Search</strong> - Find existing or create new</li>
+<li><strong>Customer Form</strong> - Contact details (if new)</li>
+<li><strong>Device Information</strong> - Device type, make, model, issue</li>
+<li><strong>Ticket Creation</strong> - Problem description, priority</li>
+<li><strong>Success</strong> - Confirmation with ticket number</li>
+</ol>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Multi-step progress indicator</li>
+<li>Validation at each step</li>
+<li>Back/Next navigation</li>
+<li>Auto-save draft (optional)</li>
+<li>Portal password setup for new customers</li>
+</ul>
+<hr>
+<h3>Real-Time Features</h3>
+<p><strong>Auto-Refresh:</strong></p>
+<ul>
+<li>Call Customer widget: 30 seconds</li>
+<li>Ticket status badges: On page load</li>
+<li>Protection plan indicators: Lazy-loaded</li>
+</ul>
+<p><strong>Optimistic UI Updates:</strong></p>
+<ul>
+<li>Status changes show immediately</li>
+<li>Notes appear before server confirmation</li>
+<li>Rollback on error</li>
+</ul>
+<hr>
+<h2>UI Components</h2>
+<h3>Core Admin Components</h3>
+<p><strong>Location:</strong> <code>src/components/admin/</code></p>
+<h4>AdminSidebar</h4>
+<p><strong>Purpose:</strong> Main navigation sidebar with collapsible sections.</p>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Role-based filtering</li>
+<li>Collapsible sections with localStorage persistence</li>
+<li>Location selector (for multi-location users)</li>
+<li>Mobile responsive (overlay mode)</li>
+<li>Icon-only collapsed state</li>
+</ul>
+<p><strong>Component:</strong></p>
+<pre><code class="language-tsx">&lt;AdminSidebar
+  mode=&quot;expanded&quot; | &quot;collapsed&quot; | &quot;hidden&quot;
+  mobileMenuOpen={boolean}
+  onCloseMobileMenu={() =&gt; void}
+  onLogout={() =&gt; void}
+/&gt;
+</code></pre>
+<hr>
+<h4>AdminHeader</h4>
+<p><strong>Purpose:</strong> Top navigation bar with user menu.</p>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Sidebar toggle button</li>
+<li>Page title</li>
+<li>User profile menu</li>
+<li>Logout option</li>
+</ul>
+<hr>
+<h4>CallCustomerTickets</h4>
+<p><strong>Purpose:</strong> Widget showing tickets needing customer contact.</p>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Auto-refresh (30s interval)</li>
+<li>Click to navigate to ticket</li>
+<li>Shows customer question if provided</li>
+<li>Time since status change</li>
+</ul>
+<p><strong>Component:</strong></p>
+<pre><code class="language-tsx">&lt;CallCustomerTickets /&gt;
+</code></pre>
+<p><strong>API Endpoint:</strong> <code>GET /api/repairshopr/tickets/call-customer</code></p>
+<hr>
+<h4>IntakeWizard</h4>
+<p><strong>Purpose:</strong> Multi-step customer intake process.</p>
+<p><strong>Components:</strong></p>
+<ul>
+<li><code>CustomerSearchStep</code> - Search existing customers</li>
+<li><code>CustomerFormStep</code> - Create new customer</li>
+<li><code>DeviceStep</code> - Device information</li>
+<li><code>TicketStep</code> - Problem description</li>
+<li><code>SuccessStep</code> - Confirmation</li>
+</ul>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Step validation</li>
+<li>Progress indicator</li>
+<li>Back/Next navigation</li>
+<li>Portal password setup modal</li>
+</ul>
+<hr>
+<h3>Ticket Components</h3>
+<p><strong>TicketList:</strong></p>
+<ul>
+<li>Searchable, filterable ticket list</li>
+<li>Status badges</li>
+<li>Customer info</li>
+<li>Click to navigate</li>
+</ul>
+<p><strong>TicketDetail:</strong></p>
+<ul>
+<li>Three-column layout</li>
+<li>Customer info panel</li>
+<li>Notes timeline (private/public/staff/customer)</li>
+<li>Status control sidebar</li>
+<li>Edit modal</li>
+</ul>
+<p><strong>StatusBadge:</strong></p>
+<ul>
+<li>Color-coded badges</li>
+<li>Custom status display names</li>
+<li>Tooltip with description</li>
+</ul>
+<hr>
+<h3>Customer Components</h3>
+<p><strong>CustomerList:</strong></p>
+<ul>
+<li>Pagination (50 per page)</li>
+<li>Search by name/email</li>
+<li>Plan tier filtering</li>
+<li>Protection plan badges</li>
+<li>Migration progress indicator</li>
+</ul>
+<p><strong>CustomerDetail:</strong></p>
+<ul>
+<li>Contact information</li>
+<li>Protection plan indicator</li>
+<li>Linked tickets, invoices, assets</li>
+<li>Family association</li>
+<li>Portal access status</li>
+</ul>
+<hr>
+<h3>Family Components</h3>
+<p><strong>FamilyList:</strong></p>
+<ul>
+<li>Pagination</li>
+<li>Plan filtering</li>
+<li>Create family modal</li>
+<li>Delete confirmation (empty families only)</li>
+</ul>
+<p><strong>FamilyDetail:</strong></p>
+<ul>
+<li>Member list</li>
+<li>Protection plan summary</li>
+<li>Add/remove members</li>
+</ul>
+<hr>
+<h3>Employee Components</h3>
+<p><strong>EmployeeList:</strong></p>
+<ul>
+<li>Role badges (color-coded)</li>
+<li>Created date</li>
+<li>Edit/Delete actions</li>
+<li>Cannot delete self</li>
+</ul>
+<p><strong>EmployeeEditRoles Modal:</strong></p>
+<ul>
+<li>Business role selection (radio)</li>
+<li>Add-on role toggles (checkboxes)</li>
+<li>Role descriptions</li>
+<li>Visual role icons and colors</li>
+</ul>
+<hr>
+<h2>Technical Architecture</h2>
+<h3>Frontend Stack</h3>
+<ul>
+<li><strong>Framework:</strong> Next.js 14 (App Router)</li>
+<li><strong>Language:</strong> TypeScript (strict mode)</li>
+<li><strong>Styling:</strong> Tailwind CSS</li>
+<li><strong>Icons:</strong> Lucide React</li>
+<li><strong>State:</strong> React hooks (useState, useEffect, useCallback)</li>
+</ul>
+<h3>Backend Stack</h3>
+<ul>
+<li><strong>Database:</strong> Supabase (PostgreSQL)</li>
+<li><strong>Authentication:</strong> Supabase Auth + custom session encryption</li>
+<li><strong>External API:</strong> RepairShopr REST API</li>
+<li><strong>API Routes:</strong> Next.js API routes (<code>src/app/api/</code>)</li>
+</ul>
+<h3>Key Libraries</h3>
+<p><strong>Client-Side:</strong></p>
+<pre><code class="language-typescript">// State management
+useState, useEffect, useCallback, useRouter
+
+// UI Components
+import { Loader2, Check, X } from &#39;lucide-react&#39;
+import { cn } from &#39;@/lib/utils&#39;
+</code></pre>
+<p><strong>Server-Side:</strong></p>
+<pre><code class="language-typescript">// Authentication
+import { isAuthenticated, getCurrentUser } from &#39;@/lib/auth&#39;
+import { supabaseAdmin } from &#39;@/lib/supabase&#39;
+
+// RepairShopr API
+import { createRepairShoprClient } from &#39;@/lib/repairshopr&#39;
+</code></pre>
+<h3>Database Schema</h3>
+<p><strong>Key Tables:</strong></p>
+<pre><code class="language-sql">-- User authentication and profiles
+user_profiles (
+  id UUID PRIMARY KEY,           -- Supabase Auth UUID
+  email TEXT,
+  full_name TEXT,
+  role TEXT,                     -- Legacy single role
+  roles TEXT[],                  -- New multi-role system
+  location_id TEXT,
+  repairshopr_user_id INTEGER,
+  repairshopr_customer_id INTEGER,
+  created_at TIMESTAMP
+)
+
+-- Ticket custom status tracking
+ticket_status_definitions (
+  status TEXT PRIMARY KEY,
+  display_name TEXT,
+  repairshopr_status TEXT,
+  show_customer_question BOOLEAN,
+  customer_visible_status TEXT,
+  sort_order INTEGER,
+  is_active BOOLEAN
+)
+
+ticket_status_overrides (
+  repairshopr_ticket_id INTEGER PRIMARY KEY,
+  custom_status TEXT,
+  customer_question TEXT,
+  updated_by TEXT,
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP
+)
+
+-- Protection plans (legacy customer-level)
+customer_silver_plans (
+  repairshopr_customer_id INTEGER PRIMARY KEY,
+  is_silver_plan BOOLEAN,       -- Legacy field
+  plan_tier TEXT,                -- &#39;eset&#39;, &#39;silver&#39;, &#39;silver-plus&#39;
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP
+)
+
+-- Protection plans (new asset-level)
+asset_protection_plans (
+  repairshopr_asset_id INTEGER PRIMARY KEY,
+  repairshopr_customer_id INTEGER,
+  plan_tier TEXT,                -- &#39;eset&#39;, &#39;silver&#39;, &#39;silver-plus&#39;
+  eset_status TEXT,              -- &#39;protected&#39;, &#39;expired&#39;, &#39;unprotected&#39;
+  eset_expiry TIMESTAMP,
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP
+)
+
+-- Migration tracking
+rs_customers (
+  repairshopr_id INTEGER PRIMARY KEY,
+  assets_updated BOOLEAN,        -- Has this customer been migrated?
+  -- Other RepairShopr synced data
+)
+
+-- Public notes for customer communication
+ticket_public_notes (
+  id UUID PRIMARY KEY,
+  repairshopr_ticket_id INTEGER,
+  repairshopr_customer_id INTEGER,
+  author_name TEXT,
+  author_email TEXT,
+  content TEXT,
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP
+)
+
+-- Family groups
+families (
+  id SERIAL PRIMARY KEY,
+  name TEXT UNIQUE,
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP
+)
+
+family_members (
+  family_id INTEGER,
+  customer_id INTEGER,
+  PRIMARY KEY (family_id, customer_id)
+)
+</code></pre>
+<h3>API Routes</h3>
+<p><strong>Authentication:</strong></p>
+<ul>
+<li><code>POST /api/auth/login</code> - User login</li>
+<li><code>POST /api/auth/logout</code> - Session destruction</li>
+<li><code>GET /api/auth/check</code> - Session validation</li>
+</ul>
+<p><strong>Customers:</strong></p>
+<ul>
+<li><code>GET /api/repairshopr/customers</code> - List with filters</li>
+<li><code>GET /api/repairshopr/customers/[id]</code> - Customer details</li>
+<li><code>POST /api/repairshopr/customers</code> - Create customer</li>
+<li><code>PUT /api/repairshopr/customers/[id]</code> - Update customer</li>
+<li><code>DELETE /api/repairshopr/customers/[id]</code> - Delete customer</li>
+</ul>
+<p><strong>Tickets:</strong></p>
+<ul>
+<li><code>GET /api/repairshopr/tickets</code> - List with filters</li>
+<li><code>GET /api/repairshopr/tickets/[id]</code> - Ticket details</li>
+<li><code>PUT /api/repairshopr/tickets/[id]</code> - Update ticket</li>
+<li><code>GET /api/repairshopr/tickets/call-customer</code> - Call customer list</li>
+<li><code>GET /api/repairshopr/tickets/status-definitions</code> - Status definitions</li>
+<li><code>GET /api/repairshopr/tickets/status/[id]</code> - Get status override</li>
+<li><code>PUT /api/repairshopr/tickets/status/[id]</code> - Set status override</li>
+<li><code>POST /api/repairshopr/tickets/status-batch</code> - Batch status fetch</li>
+<li><code>GET /api/repairshopr/tickets/[id]/notes</code> - Get ticket notes</li>
+<li><code>POST /api/repairshopr/tickets/[id]/notes</code> - Add note</li>
+<li><code>GET /api/repairshopr/tickets/[id]/public-notes</code> - Get public notes</li>
+<li><code>POST /api/repairshopr/tickets/[id]/public-notes</code> - Create public note</li>
+<li><code>DELETE /api/repairshopr/tickets/[id]/public-notes</code> - Delete public note</li>
+</ul>
+<p><strong>Families:</strong></p>
+<ul>
+<li><code>GET /api/repairshopr/families</code> - List families</li>
+<li><code>GET /api/repairshopr/families/[id]</code> - Family details</li>
+<li><code>POST /api/repairshopr/families</code> - Create family</li>
+<li><code>PUT /api/repairshopr/families/[id]</code> - Update family</li>
+<li><code>DELETE /api/repairshopr/families/[id]</code> - Delete family</li>
+</ul>
+<p><strong>Employees:</strong></p>
+<ul>
+<li><code>GET /api/admin/employees</code> - List employees</li>
+<li><code>GET /api/admin/employees/[id]</code> - Employee details</li>
+<li><code>PUT /api/admin/employees/[id]</code> - Update employee roles</li>
+<li><code>DELETE /api/admin/employees/[id]</code> - Delete employee</li>
+</ul>
+<p><strong>Gallery:</strong></p>
+<ul>
+<li><code>GET /api/gallery</code> - List computers</li>
+<li><code>POST /api/gallery</code> - Create computer</li>
+<li><code>PUT /api/gallery/[id]</code> - Update computer</li>
+<li><code>DELETE /api/gallery/[id]</code> - Delete computer</li>
+<li><code>POST /api/gallery/upload</code> - Upload image</li>
+</ul>
+<p><strong>Blog:</strong></p>
+<ul>
+<li><code>GET /api/blog</code> - List posts</li>
+<li><code>POST /api/blog</code> - Create post</li>
+<li><code>PUT /api/blog/[id]</code> - Update post</li>
+<li><code>DELETE /api/blog/[id]</code> - Delete post</li>
+<li><code>POST /api/blog/upload</code> - Upload image</li>
+</ul>
+<h3>Session Management</h3>
+<p><strong>Session Cookie Structure:</strong></p>
+<pre><code class="language-typescript">interface SessionData {
+  userId: number;              // RepairShopr user/customer ID
+  supabaseUserId: string;      // Supabase Auth UUID
+  email: string;
+  name: string;
+  role: &#39;admin&#39; | &#39;employee&#39; | &#39;limited&#39;;
+  roles: string[];             // Multi-role array
+  userType: &#39;employee&#39; | &#39;customer&#39;;
+  location_id?: string | null;
+  apiToken?: string;           // RepairShopr API token (employees only)
+  expiresAt: number;
+}
+</code></pre>
+<p><strong>Encryption:</strong></p>
+<ul>
+<li>Algorithm: AES-256-GCM</li>
+<li>Key derivation: PBKDF2 from <code>SESSION_SECRET</code></li>
+<li>IV: Random 16 bytes per session</li>
+<li>Auth tag: 16 bytes</li>
+</ul>
+<p><strong>Cookie Settings:</strong></p>
+<ul>
+<li>Name: <code>admin_session</code></li>
+<li>HttpOnly: true</li>
+<li>Secure: true (production)</li>
+<li>SameSite: lax</li>
+<li>MaxAge: 28800 (8 hours)</li>
+</ul>
+<p><strong>Role Cookie (for Edge Middleware):</strong></p>
+<ul>
+<li>Name: <code>user_role</code></li>
+<li>Contains: user&#39;s primary role</li>
+<li>Used for route protection in middleware</li>
+</ul>
+<h3>Security Features</h3>
+<p><strong>XSS Protection:</strong></p>
+<ul>
+<li>HTTP-only cookies</li>
+<li>Input sanitization</li>
+<li>Content Security Policy headers</li>
+</ul>
+<p><strong>CSRF Protection:</strong></p>
+<ul>
+<li>SameSite cookies</li>
+<li>Origin validation on mutations</li>
+</ul>
+<p><strong>SQL Injection Prevention:</strong></p>
+<ul>
+<li>Parameterized queries (Supabase)</li>
+<li>Input validation</li>
+</ul>
+<p><strong>Authentication:</strong></p>
+<ul>
+<li>Encrypted sessions</li>
+<li>Secure password hashing (Supabase bcrypt)</li>
+<li>Session expiration</li>
+</ul>
+<p><strong>Authorization:</strong></p>
+<ul>
+<li>Role-based access control</li>
+<li>Permission checking on every route</li>
+<li>Middleware protection for admin routes</li>
+</ul>
+<hr>
+<h2>Conclusion</h2>
+<p>The Admin/Employee Portal is a comprehensive management interface designed for efficient repair shop operations. With role-based access control, real-time updates, and seamless integration with RepairShopr, it provides staff with the tools they need to deliver excellent customer service.</p>
+<p>For technical implementation details, see:</p>
+<ul>
+<li><code>src/types/roles.ts</code> - Role definitions and permissions</li>
+<li><code>src/lib/auth.ts</code> - Authentication logic</li>
+<li><code>src/lib/supabase.ts</code> - Database operations</li>
+<li><code>src/components/admin/</code> - UI components</li>
+</ul>
+<p>For questions or support, contact the development team at Resilient Web Solutions.</p>
+
+    </div>
+    <script>
+        // Initialize Mermaid with configuration
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'base',
+            themeVariables: {
+                // Primary colors for main nodes
+                primaryColor: '#dbeafe',
+                primaryTextColor: '#1e293b',
+                primaryBorderColor: '#2563eb',
+
+                // Secondary and tertiary colors
+                secondaryColor: '#f0fdf4',
+                secondaryTextColor: '#1e293b',
+                secondaryBorderColor: '#10b981',
+                tertiaryColor: '#fef3c7',
+                tertiaryTextColor: '#1e293b',
+                tertiaryBorderColor: '#f59e0b',
+
+                // General text and background
+                textColor: '#1e293b',
+                nodeTextColor: '#1e293b',
+                lineColor: '#64748b',
+                background: '#ffffff',
+                mainBkg: '#f8fafc',
+
+                // Node styling
+                nodeBorder: '#2563eb',
+                nodeBackgroundColor: '#eff6ff',
+
+                // Cluster/subgraph styling
+                clusterBkg: '#f1f5f9',
+                clusterBorder: '#cbd5e1',
+
+                // Labels and titles
+                titleColor: '#1e293b',
+                edgeLabelBackground: '#ffffff',
+                labelTextColor: '#1e293b',
+
+                // Additional diagram-specific colors
+                actorTextColor: '#1e293b',
+                actorLineColor: '#64748b',
+                signalTextColor: '#1e293b',
+                loopTextColor: '#1e293b',
+                noteBkgColor: '#fef3c7',
+                noteTextColor: '#1e293b',
+                noteBorderColor: '#f59e0b',
+
+                // Git graph colors
+                git0: '#2563eb',
+                git1: '#10b981',
+                git2: '#f59e0b',
+                git3: '#ef4444',
+                gitBranchLabel0: '#1e293b',
+                gitBranchLabel1: '#1e293b',
+                gitBranchLabel2: '#1e293b',
+                gitBranchLabel3: '#1e293b'
+            },
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis',
+                nodeSpacing: 50,
+                rankSpacing: 50
+            },
+            sequence: {
+                useMaxWidth: true,
+                wrap: true,
+                actorMargin: 50
+            },
+            er: {
+                useMaxWidth: true
+            },
+            gitGraph: {
+                useMaxWidth: true
+            }
+        });
+
+        // Find all mermaid code blocks and convert them
+        // Note: This processes static documentation content, not user input
+        document.querySelectorAll('pre code.language-mermaid, pre code').forEach(async (codeBlock, index) => {
+            const code = codeBlock.textContent.trim();
+
+            // Check if it looks like mermaid syntax
+            const mermaidKeywords = ['graph ', 'flowchart ', 'sequenceDiagram', 'classDiagram',
+                                      'stateDiagram', 'erDiagram', 'gantt', 'pie ', 'gitgraph',
+                                      'journey', 'quadrantChart', 'requirementDiagram', 'mindmap',
+                                      'timeline', 'sankey', 'block-beta'];
+
+            const isMermaid = codeBlock.classList.contains('language-mermaid') ||
+                              mermaidKeywords.some(kw => code.startsWith(kw));
+
+            if (isMermaid) {
+                try {
+                    const pre = codeBlock.parentElement;
+                    const container = document.createElement('div');
+                    container.className = 'mermaid';
+                    container.id = 'mermaid-' + index;
+
+                    // Render the diagram - mermaid.render returns sanitized SVG
+                    const { svg } = await mermaid.render('mermaid-svg-' + index, code);
+
+                    // Safe: SVG is generated by mermaid library from static docs
+                    container.insertAdjacentHTML('beforeend', svg);
+
+                    // Replace the pre block with the rendered diagram
+                    pre.parentNode.replaceChild(container, pre);
+                } catch (e) {
+                    console.warn('Failed to render mermaid diagram:', e.message);
+                    // Leave as code block if rendering fails
+                    codeBlock.parentElement.classList.add('mermaid-error');
+                }
+            }
+        });
+
+        // Add IDs to headers for linking
+        document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(header => {
+            if (!header.id) {
+                header.id = header.textContent.toLowerCase()
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/^-|-$/g, '');
+            }
+        });
+    </script>
+</body>
+</html>

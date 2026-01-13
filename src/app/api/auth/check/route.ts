@@ -54,7 +54,11 @@ export async function GET() {
       let locationContext = null;
       if (user.userType === 'employee') {
         try {
-          locationContext = await getLocationContext(roles, user.location_id || null);
+          locationContext = await getLocationContext(
+            roles,
+            user.location_id || null,
+            user.default_location_id || null
+          );
         } catch (locError) {
           console.error('[AUTH CHECK] Failed to get location context:', locError);
           // Continue without location context - not a fatal error

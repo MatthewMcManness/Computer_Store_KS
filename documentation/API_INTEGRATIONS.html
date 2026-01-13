@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Integrations Guide | Computer Store KS Documentation</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-light: #3b82f6;
+            --primary-dark: #1d4ed8;
+            --bg: #ffffff;
+            --bg-secondary: #f8fafc;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --code-bg: #1e293b;
+            --code-text: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.7;
+            color: var(--text);
+            background: var(--bg);
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Navigation */
+        .nav-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--primary);
+            color: white;
+            padding: 0.75rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        .nav-bar a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .nav-bar a:hover {
+            text-decoration: underline;
+        }
+
+        .nav-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .content {
+            margin-top: 4rem;
+        }
+
+        /* Typography */
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--text);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.4rem;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            color: var(--primary-dark);
+        }
+
+        h4 { font-size: 1.2rem; }
+        h5 { font-size: 1.1rem; }
+        h6 { font-size: 1rem; color: var(--text-muted); }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        /* Links */
+        a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin-bottom: 1rem;
+            padding-left: 2rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        li > ul, li > ol {
+            margin-top: 0.5rem;
+            margin-bottom: 0;
+        }
+
+        /* Code */
+        code {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9em;
+            background: var(--bg-secondary);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+        }
+
+        pre {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 1.25rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: 1.5rem;
+            border: 1px solid #334155;
+        }
+
+        pre code {
+            background: none;
+            border: none;
+            padding: 0;
+            color: inherit;
+            font-size: 0.875rem;
+            line-height: 1.6;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border: 1px solid var(--border);
+        }
+
+        th {
+            background: var(--bg-secondary);
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        tr:nth-child(even) {
+            background: var(--bg-secondary);
+        }
+
+        tr:hover {
+            background: #f1f5f9;
+        }
+
+        /* Blockquotes */
+        blockquote {
+            border-left: 4px solid var(--primary);
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        blockquote p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Horizontal rules */
+        hr {
+            border: none;
+            border-top: 2px solid var(--border);
+            margin: 2rem 0;
+        }
+
+        /* Images */
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        /* Task lists */
+        input[type="checkbox"] {
+            margin-right: 0.5rem;
+        }
+
+        /* Mermaid diagrams */
+        .mermaid {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            text-align: center;
+            border: 1px solid var(--border);
+            overflow-x: auto;
+        }
+
+        .mermaid svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Print styles */
+        @media print {
+            .nav-bar { display: none; }
+            .content { margin-top: 0; }
+            body { padding: 1rem; }
+            pre { white-space: pre-wrap; }
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            .nav-bar { padding: 0.5rem 1rem; }
+            h1 { font-size: 1.75rem; }
+            h2 { font-size: 1.4rem; }
+            pre { padding: 0.75rem; font-size: 0.8rem; }
+            table { font-size: 0.85rem; }
+            th, td { padding: 0.5rem; }
+        }
+    </style>
+    <!-- Mermaid.js for diagram rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+    <nav class="nav-bar">
+        <span class="nav-title">Computer Store KS Docs</span>
+        <a href="DOCUMENTATION_HUB.html">← Back to Hub</a>
+    </nav>
+    <div class="content">
+<h1>API Integrations Guide</h1>
+<blockquote>
+<p>Comprehensive reference for all external API connections and internal utilities in the Computer Store KS codebase.</p>
+</blockquote>
+<p><strong>Last Updated:</strong> 2026-01-11T15:28:09Z</p>
+<hr>
+<h2>Table of Contents</h2>
+<ol>
+<li><a href="#integration-overview">Integration Overview</a></li>
+<li><a href="#1-supabase-database--auth">Supabase (Database &amp; Auth)</a></li>
+<li><a href="#2-repairshopr-crm--ticketing">RepairShopr (CRM &amp; Ticketing)</a></li>
+<li><a href="#3-ninjaone-rmm-device-monitoring">NinjaOne RMM (Device Monitoring)</a></li>
+<li><a href="#4-github-api-image-storage">GitHub API (Image Storage)</a></li>
+<li><a href="#5-resend-email-service">Resend (Email Service)</a></li>
+<li><a href="#6-google-business-profile">Google Business Profile</a></li>
+<li><a href="#7-cloudflare-turnstile-captcha">Cloudflare Turnstile (CAPTCHA)</a></li>
+<li><a href="#8-internal-utilities">Internal Utilities</a></li>
+<li><a href="#9-environment-variables-reference">Environment Variables Reference</a></li>
+<li><a href="#10-integration-status">Integration Status</a></li>
+</ol>
+<hr>
+<h2>Integration Overview</h2>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Purpose</th>
+<th>File(s)</th>
+<th>Usage Count</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Supabase</strong></td>
+<td>Database, Auth, Blog</td>
+<td><code>supabase.ts</code>, <code>supabase-auth.ts</code>, <code>supabase-server.ts</code></td>
+<td>190 occurrences / 16 files</td>
+<td>✅ Active</td>
+</tr>
+<tr>
+<td><strong>RepairShopr</strong></td>
+<td>Customer/Ticket CRM</td>
+<td><code>repairshopr.ts</code>, <code>repairshopr-sync.ts</code>, <code>auth.ts</code></td>
+<td>120 occurrences / 25 files</td>
+<td>✅ Active</td>
+</tr>
+<tr>
+<td><strong>NinjaOne RMM</strong></td>
+<td>Device Monitoring</td>
+<td><code>ninjaone.ts</code></td>
+<td>27 occurrences / 5 files</td>
+<td>✅ Active</td>
+</tr>
+<tr>
+<td><strong>GitHub API</strong></td>
+<td>Gallery Image Storage</td>
+<td><code>github.ts</code></td>
+<td>4 occurrences / 1 file</td>
+<td>✅ Active</td>
+</tr>
+<tr>
+<td><strong>Resend</strong></td>
+<td>Transactional Email</td>
+<td><code>email.ts</code></td>
+<td>8 occurrences / 2 files</td>
+<td>✅ Active</td>
+</tr>
+<tr>
+<td><strong>Google Business</strong></td>
+<td>Reviews &amp; Posts</td>
+<td><code>google-business.ts</code></td>
+<td>19 occurrences / 7 files</td>
+<td>✅ Active</td>
+</tr>
+<tr>
+<td><strong>Cloudflare Turnstile</strong></td>
+<td>Bot Protection</td>
+<td><code>spam-detection.ts</code></td>
+<td>Integrated</td>
+<td>✅ Active</td>
+</tr>
+<tr>
+<td><strong>ESET</strong></td>
+<td>Antivirus Integration</td>
+<td>—</td>
+<td>—</td>
+<td>❌ Not Integrated</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>1. Supabase (Database &amp; Auth)</h2>
+<p><strong>Files:</strong> <code>src/lib/supabase.ts</code>, <code>src/lib/supabase-auth.ts</code>, <code>src/lib/supabase-server.ts</code></p>
+<p><strong>Purpose:</strong> PostgreSQL database for blog, gallery, customer sync, and user authentication.</p>
+<h3>Environment Variables</h3>
+<pre><code class="language-bash">NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...          # Client-side (public)
+SUPABASE_SERVICE_ROLE_KEY=eyJ...              # Server-side only (bypasses RLS)
+</code></pre>
+<h3>Client Instances</h3>
+<table>
+<thead>
+<tr>
+<th>Export</th>
+<th>Type</th>
+<th>Description</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>supabase</code></td>
+<td>Browser client</td>
+<td>Uses anon key, respects RLS</td>
+<td>Client components</td>
+</tr>
+<tr>
+<td><code>supabaseAdmin</code></td>
+<td>Server client</td>
+<td>Uses service role key</td>
+<td>Server actions, API routes</td>
+</tr>
+<tr>
+<td><code>createFreshAdminClient()</code></td>
+<td>Factory</td>
+<td>Creates isolated admin client</td>
+<td>Auth flows (prevents session tainting)</td>
+</tr>
+</tbody></table>
+<h3>Blog Functions</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Called By</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>getPublishedPosts()</code></td>
+<td>List all published blog posts</td>
+<td><code>/blog</code> page</td>
+</tr>
+<tr>
+<td><code>getBlogPost(id)</code></td>
+<td>Get post by ID or slug</td>
+<td><code>/blog/[slug]</code> page</td>
+</tr>
+<tr>
+<td><code>createPost(input)</code></td>
+<td>Create new blog post</td>
+<td>Admin blog editor</td>
+</tr>
+<tr>
+<td><code>updatePost(id, input)</code></td>
+<td>Update existing post</td>
+<td>Admin blog editor</td>
+</tr>
+<tr>
+<td><code>deletePost(id)</code></td>
+<td>Soft delete a post</td>
+<td>Admin blog list</td>
+</tr>
+<tr>
+<td><code>getCategories()</code></td>
+<td>List all blog categories</td>
+<td>Blog sidebar, editor</td>
+</tr>
+<tr>
+<td><code>getTags()</code></td>
+<td>List all tags</td>
+<td>Blog editor</td>
+</tr>
+</tbody></table>
+<h3>Gallery Functions</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Called By</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>getGalleryComputers()</code></td>
+<td>List all computers from Supabase</td>
+<td><code>/gallery</code> page</td>
+</tr>
+<tr>
+<td><code>getGalleryComputer(id)</code></td>
+<td>Get single computer</td>
+<td><code>/gallery/[id]</code> page</td>
+</tr>
+<tr>
+<td><code>createGalleryComputer(input)</code></td>
+<td>Add computer to inventory</td>
+<td>Admin gallery form</td>
+</tr>
+<tr>
+<td><code>updateGalleryComputer(id, input)</code></td>
+<td>Update computer details</td>
+<td>Admin gallery form</td>
+</tr>
+<tr>
+<td><code>deleteGalleryComputer(id)</code></td>
+<td>Remove computer</td>
+<td>Admin gallery list</td>
+</tr>
+</tbody></table>
+<h3>Sync Functions</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Called By</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>syncCustomerToSupabase(customer)</code></td>
+<td>Sync RepairShopr customer</td>
+<td>RepairShopr sync job</td>
+</tr>
+<tr>
+<td><code>syncTicketToSupabase(ticket)</code></td>
+<td>Sync RepairShopr ticket</td>
+<td>RepairShopr sync job</td>
+</tr>
+<tr>
+<td><code>getTicketStatusDefinitions()</code></td>
+<td>Get ticket status list</td>
+<td>Admin intake form</td>
+</tr>
+<tr>
+<td><code>createSyncLog(data)</code></td>
+<td>Log sync operation</td>
+<td>Sync jobs</td>
+</tr>
+</tbody></table>
+<h3>Database Tables</h3>
+<pre><code>blog_posts          - Blog articles with markdown content
+blog_categories     - Blog post categories
+blog_tags           - Tag definitions
+blog_post_tags      - Post-tag junction table
+gallery_computers   - Computer inventory (mirrors gallery.json)
+customers           - Synced RepairShopr customers
+tickets             - Synced RepairShopr tickets
+sync_logs           - Sync operation history
+user_profiles       - User roles and metadata
+audit_logs          - Action audit trail
+</code></pre>
+<hr>
+<h2>2. RepairShopr (CRM &amp; Ticketing)</h2>
+<p><strong>Files:</strong> <code>src/lib/repairshopr.ts</code> (1,788 lines), <code>src/lib/repairshopr-sync.ts</code>, <code>src/lib/auth.ts</code></p>
+<p><strong>Purpose:</strong> Customer relationship management, ticket tracking, device assets, employee authentication.</p>
+<h3>Environment Variables</h3>
+<pre><code class="language-bash">REPAIRSHOPR_SUBDOMAIN=thecomputerstore     # Account subdomain
+REPAIRSHOPR_API_KEY=xxx                     # Admin API token
+AUTH_MODE=repairshopr                       # Authentication mode
+</code></pre>
+<h3>API Details</h3>
+<ul>
+<li><strong>Base URL:</strong> <code>https://{subdomain}.repairshopr.com/api/v1</code></li>
+<li><strong>Auth:</strong> Bearer token in Authorization header</li>
+<li><strong>Pagination:</strong> Max 100 per page, use <code>page</code> parameter</li>
+</ul>
+<h3>Core Functions</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Usage</th>
+<th>Called By</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>createRepairShoprClient()</code></td>
+<td>Factory for API client</td>
+<td>High (25+ files)</td>
+<td>All RepairShopr operations</td>
+</tr>
+<tr>
+<td><code>signIn(email, password)</code></td>
+<td>Authenticate user</td>
+<td>Medium</td>
+<td>Login API route</td>
+</tr>
+<tr>
+<td><code>getMe(apiKey)</code></td>
+<td>Get current user info</td>
+<td>Medium</td>
+<td>Auth flows</td>
+</tr>
+<tr>
+<td><code>getCustomers()</code></td>
+<td>List all customers</td>
+<td>High</td>
+<td>Admin search, sync</td>
+</tr>
+<tr>
+<td><code>getCustomer(id)</code></td>
+<td>Get single customer</td>
+<td>High</td>
+<td>Customer detail pages</td>
+</tr>
+<tr>
+<td><code>searchCustomers(query, limit)</code></td>
+<td>Search by name/email</td>
+<td>High</td>
+<td>Admin customer search</td>
+</tr>
+<tr>
+<td><code>updateCustomer(id, data)</code></td>
+<td>Update customer record</td>
+<td>Medium</td>
+<td>Admin forms</td>
+</tr>
+<tr>
+<td><code>getTickets()</code></td>
+<td>List all tickets</td>
+<td>High</td>
+<td>Admin dashboard, sync</td>
+</tr>
+<tr>
+<td><code>getTicket(id)</code></td>
+<td>Get ticket details</td>
+<td>High</td>
+<td>Ticket detail page</td>
+</tr>
+<tr>
+<td><code>getTicketComments(id)</code></td>
+<td>Get ticket comments</td>
+<td>Medium</td>
+<td>Ticket detail page</td>
+</tr>
+<tr>
+<td><code>updateTicketStatus(id, status)</code></td>
+<td>Change ticket status</td>
+<td>Medium</td>
+<td>Admin actions</td>
+</tr>
+<tr>
+<td><code>addTicketComment(id, text)</code></td>
+<td>Add comment to ticket</td>
+<td>Medium</td>
+<td>Admin actions</td>
+</tr>
+<tr>
+<td><code>getAssets()</code></td>
+<td>List customer devices</td>
+<td>Medium</td>
+<td>Asset management</td>
+</tr>
+<tr>
+<td><code>getAsset(id)</code></td>
+<td>Get device details</td>
+<td>Medium</td>
+<td>Device detail page</td>
+</tr>
+<tr>
+<td><code>getInvoices()</code></td>
+<td>List invoices</td>
+<td>Low</td>
+<td>Billing pages</td>
+</tr>
+<tr>
+<td><code>getProducts()</code></td>
+<td>List products/services</td>
+<td>Low</td>
+<td>Product catalog</td>
+</tr>
+<tr>
+<td><code>getPayments()</code></td>
+<td>List payments</td>
+<td>Low</td>
+<td>Payment history</td>
+</tr>
+</tbody></table>
+<h3>Protection Plan Functions</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Used For</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>getProtectionPlanTier(customer)</code></td>
+<td>Detect Silver/Silver+ plan</td>
+<td>Plan badge display</td>
+</tr>
+<tr>
+<td><code>isProtectionPlanCustomer(customer)</code></td>
+<td>Check if has any plan</td>
+<td>Conditional UI</td>
+</tr>
+<tr>
+<td><code>getCustomersWithPlans()</code></td>
+<td>List all plan members</td>
+<td>Admin reporting</td>
+</tr>
+</tbody></table>
+<p><strong>Plan Detection Logic:</strong></p>
+<ul>
+<li>Checks <code>plan_name</code> field for &quot;silver&quot; or &quot;silver plus&quot;</li>
+<li>Checks custom fields with answer IDs (4027=silver, 4028=silver-plus)</li>
+<li>Checks customer tags for plan keywords</li>
+</ul>
+<h3>Sync Functions (<code>repairshopr-sync.ts</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Frequency</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>triggerSyncIfNeeded()</code></td>
+<td>Conditional sync trigger</td>
+<td>On API calls</td>
+</tr>
+<tr>
+<td><code>syncAllCustomers()</code></td>
+<td>Full customer sync</td>
+<td>Manual/scheduled</td>
+</tr>
+<tr>
+<td><code>syncAllTickets()</code></td>
+<td>Full ticket sync</td>
+<td>Manual/scheduled</td>
+</tr>
+<tr>
+<td><code>syncCustomerData(customerId)</code></td>
+<td>Sync single customer</td>
+<td>On customer view</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>3. NinjaOne RMM (Device Monitoring)</h2>
+<p><strong>File:</strong> <code>src/lib/ninjaone.ts</code> (900+ lines)</p>
+<p><strong>Purpose:</strong> Remote device monitoring, hardware inventory, device status tracking.</p>
+<h3>Environment Variables</h3>
+<pre><code class="language-bash">NINJAONE_API_URL=https://app.ninjarmm.com    # Regional URL
+NINJAONE_CLIENT_ID=xxx                        # OAuth2 Client ID
+NINJAONE_CLIENT_SECRET=xxx                    # OAuth2 Client Secret
+</code></pre>
+<h3>Regional URLs</h3>
+<ul>
+<li><strong>US:</strong> <code>https://app.ninjarmm.com</code></li>
+<li><strong>EU:</strong> <code>https://eu.ninjarmm.com</code></li>
+<li><strong>Oceania:</strong> <code>https://oc.ninjarmm.com</code></li>
+</ul>
+<h3>Core Functions</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Usage</th>
+<th>Called By</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>createNinjaOneClient()</code></td>
+<td>Factory for NinjaOne client</td>
+<td>Medium</td>
+<td>Device operations</td>
+</tr>
+<tr>
+<td><code>getAccessToken()</code></td>
+<td>OAuth2 token retrieval</td>
+<td>Internal</td>
+<td>All API calls</td>
+</tr>
+<tr>
+<td><code>getDevices()</code></td>
+<td>List all monitored devices</td>
+<td>Medium</td>
+<td>Admin device list</td>
+</tr>
+<tr>
+<td><code>getDevice(id)</code></td>
+<td>Get specific device details</td>
+<td>Medium</td>
+<td>Device detail page</td>
+</tr>
+<tr>
+<td><code>getDeviceCustomFields(id)</code></td>
+<td>Get device custom fields</td>
+<td>Low</td>
+<td>Extended device info</td>
+</tr>
+<tr>
+<td><code>getDevicesByCustomer(email)</code></td>
+<td>Find devices by customer</td>
+<td>Medium</td>
+<td>Customer portal</td>
+</tr>
+<tr>
+<td><code>mapToRepairShoprAsset(device)</code></td>
+<td>Convert to RS format</td>
+<td>Low</td>
+<td>Asset sync</td>
+</tr>
+<tr>
+<td><code>refreshToken()</code></td>
+<td>Refresh OAuth token</td>
+<td>Internal</td>
+<td>Token management</td>
+</tr>
+</tbody></table>
+<h3>Device Data Structure</h3>
+<pre><code class="language-typescript">interface NinjaDevice {
+  id: number;
+  systemName: string;
+  dnsName: string;
+  lastContact: string;
+  offline: boolean;
+  os: {
+    name: string;
+    manufacturer: string;
+    architecture: string;
+    buildNumber: string;
+  };
+  system: {
+    manufacturer: string;
+    model: string;
+    biosSerialNumber: string;
+    serialNumber: string;
+  };
+  processors: Array&lt;{ name: string; cores: number }&gt;;
+  memory: { total: number };
+  volumes: Array&lt;{ name: string; size: number; free: number }&gt;;
+}
+</code></pre>
+<h3>Caching &amp; Rate Limiting</h3>
+<ul>
+<li>In-memory cache with 5-minute TTL</li>
+<li>Exponential backoff on rate limit (429)</li>
+<li>Graceful degradation when API unavailable</li>
+</ul>
+<hr>
+<h2>4. GitHub API (Image Storage)</h2>
+<p><strong>File:</strong> <code>src/lib/github.ts</code></p>
+<p><strong>Purpose:</strong> Store and manage gallery images in the GitHub repository.</p>
+<h3>Environment Variables</h3>
+<pre><code class="language-bash">GITHUB_TOKEN=ghp_xxx                   # Personal Access Token
+GITHUB_OWNER=MatthewMcManness          # Repository owner
+GITHUB_REPO=Computer_Store_KS          # Repository name
+GITHUB_BRANCH=Computer-Store-KS        # Target branch
+</code></pre>
+<h3>Functions</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Usage</th>
+<th>Called By</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>isGitHubConfigured()</code></td>
+<td>Check if GitHub is configured</td>
+<td>Low</td>
+<td>Config validation</td>
+</tr>
+<tr>
+<td><code>getFileFromGitHub(path)</code></td>
+<td>Get file content</td>
+<td>Low</td>
+<td>File retrieval</td>
+</tr>
+<tr>
+<td><code>getFileSha(path)</code></td>
+<td>Get file SHA for updates</td>
+<td>Internal</td>
+<td>Update operations</td>
+</tr>
+<tr>
+<td><code>uploadImageToGitHub(filename, buffer, msg)</code></td>
+<td>Upload new image</td>
+<td>Medium</td>
+<td>Gallery upload</td>
+</tr>
+<tr>
+<td><code>updateFileOnGitHub(path, content, msg)</code></td>
+<td>Update existing file</td>
+<td>Low</td>
+<td>Gallery publish</td>
+</tr>
+<tr>
+<td><code>deleteFileFromGitHub(path, msg)</code></td>
+<td>Delete file</td>
+<td>Low</td>
+<td>Image removal</td>
+</tr>
+<tr>
+<td><code>createFileOnGitHub(path, content, msg)</code></td>
+<td>Create new file</td>
+<td>Low</td>
+<td>Initial upload</td>
+</tr>
+</tbody></table>
+<h3>Image Storage Path</h3>
+<pre><code>public/assets/gallery/{type}/{filename}
+  - type: &#39;desktop&#39; | &#39;laptop&#39;
+  - filename: UUID + extension
+</code></pre>
+<h3>Library</h3>
+<p>Uses <code>@octokit/rest</code> for GitHub API v3 integration.</p>
+<hr>
+<h2>5. Resend (Email Service)</h2>
+<p><strong>File:</strong> <code>src/lib/email.ts</code></p>
+<p><strong>Purpose:</strong> Send transactional emails for contact form submissions.</p>
+<h3>Environment Variables</h3>
+<pre><code class="language-bash">RESEND_API_KEY=re_xxx                              # API key
+NOTIFICATION_EMAIL=contact@computerstoreks.com     # Business inbox
+</code></pre>
+<h3>Functions</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Usage</th>
+<th>Called By</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>sendEmail(options)</code></td>
+<td>Low-level email send</td>
+<td>Internal</td>
+<td>Other email functions</td>
+</tr>
+<tr>
+<td><code>sendContactNotification(data)</code></td>
+<td>Notify business of submission</td>
+<td>High</td>
+<td>Contact API route</td>
+</tr>
+<tr>
+<td><code>sendContactConfirmation(data)</code></td>
+<td>Send confirmation to user</td>
+<td>High</td>
+<td>Contact API route</td>
+</tr>
+</tbody></table>
+<h3>Email Templates</h3>
+<ul>
+<li><strong>Contact Notification:</strong> HTML email with submission details</li>
+<li><strong>Contact Confirmation:</strong> Thank you email with business info</li>
+</ul>
+<h3>API Details</h3>
+<ul>
+<li><strong>Endpoint:</strong> <code>https://api.resend.com/emails</code></li>
+<li><strong>Auth:</strong> Bearer token</li>
+<li><strong>From:</strong> <code>Computer Store Kansas &lt;contact@computerstoreks.com&gt;</code></li>
+</ul>
+<hr>
+<h2>6. Google Business Profile</h2>
+<p><strong>File:</strong> <code>src/lib/google-business.ts</code></p>
+<p><strong>Purpose:</strong> Fetch customer reviews, business posts, and location information from Google Business Profile.</p>
+<h3>Environment Variables</h3>
+<pre><code class="language-bash">GOOGLE_BUSINESS_CLIENT_ID=xxx           # OAuth2 Client ID
+GOOGLE_BUSINESS_CLIENT_SECRET=xxx       # OAuth2 Client Secret
+GOOGLE_BUSINESS_REFRESH_TOKEN=xxx       # Refresh token
+GOOGLE_BUSINESS_ACCOUNT_ID=xxx          # Account ID
+GOOGLE_BUSINESS_LOCATION_ID=xxx         # Location ID
+</code></pre>
+<h3>Functions</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Usage</th>
+<th>Called By</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>isGoogleBusinessConfigured()</code></td>
+<td>Check configuration</td>
+<td>Low</td>
+<td>Config validation</td>
+</tr>
+<tr>
+<td><code>fetchReviews(pageSize?)</code></td>
+<td>Get customer reviews</td>
+<td>Medium</td>
+<td>Reviews page/widget</td>
+</tr>
+<tr>
+<td><code>fetchPosts(pageSize?)</code></td>
+<td>Get business posts</td>
+<td>Low</td>
+<td>Homepage, updates</td>
+</tr>
+<tr>
+<td><code>fetchBusinessInfo()</code></td>
+<td>Get business details</td>
+<td>Low</td>
+<td>Footer, about page</td>
+</tr>
+<tr>
+<td><code>fetchAllGoogleBusinessData()</code></td>
+<td>Parallel fetch all</td>
+<td>Medium</td>
+<td>Initial page load</td>
+</tr>
+<tr>
+<td><code>getCachedReviewsStats()</code></td>
+<td>Get cached stats</td>
+<td>Medium</td>
+<td>Review badge</td>
+</tr>
+<tr>
+<td><code>clearCache()</code></td>
+<td>Clear all caches</td>
+<td>Low</td>
+<td>Manual refresh</td>
+</tr>
+<tr>
+<td><code>clearCacheType(type)</code></td>
+<td>Clear specific cache</td>
+<td>Low</td>
+<td>Selective refresh</td>
+</tr>
+</tbody></table>
+<h3>Caching</h3>
+<ul>
+<li>15-minute in-memory cache</li>
+<li>Separate caches for reviews, posts, info</li>
+<li>Automatic cache invalidation</li>
+</ul>
+<h3>API Endpoints</h3>
+<ul>
+<li><strong>Business Info:</strong> <code>https://mybusinessbusinessinformation.googleapis.com/v1</code></li>
+<li><strong>Reviews/Posts:</strong> <code>https://mybusiness.googleapis.com/v4</code></li>
+</ul>
+<hr>
+<h2>7. Cloudflare Turnstile (CAPTCHA)</h2>
+<p><strong>Files:</strong> <code>src/lib/spam-detection.ts</code>, <code>src/components/forms/contact-form.tsx</code></p>
+<p><strong>Purpose:</strong> Bot protection for contact form submissions.</p>
+<h3>Environment Variables</h3>
+<pre><code class="language-bash">NEXT_PUBLIC_TURNSTILE_SITE_KEY=xxx     # Public key (client-side)
+TURNSTILE_SECRET_KEY=xxx                # Private key (server-side)
+</code></pre>
+<h3>Test Keys (Development)</h3>
+<pre><code class="language-bash">NEXT_PUBLIC_TURNSTILE_SITE_KEY=1x00000000000000000000AA
+TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA
+</code></pre>
+<h3>Integration Points</h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>ContactForm</code></td>
+<td>Renders Turnstile widget</td>
+</tr>
+<tr>
+<td><code>calculateSpamScore()</code></td>
+<td>Verifies token server-side</td>
+</tr>
+<tr>
+<td>Contact API route</td>
+<td>Validates before processing</td>
+</tr>
+</tbody></table>
+<h3>Verification Endpoint</h3>
+<p><code>https://challenges.cloudflare.com/turnstile/v0/siteverify</code></p>
+<hr>
+<h2>8. Internal Utilities</h2>
+<h3>Authentication (<code>src/lib/auth.ts</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>getAuthMode()</code></td>
+<td>Get configured auth mode (repairshopr/legacy)</td>
+</tr>
+<tr>
+<td><code>authenticateWithRepairShopr(email, pass)</code></td>
+<td>RepairShopr login</td>
+</tr>
+<tr>
+<td><code>authenticateWithSupabase(email, pass)</code></td>
+<td>Supabase login</td>
+</tr>
+<tr>
+<td><code>createSession(user)</code></td>
+<td>Create encrypted session cookie</td>
+</tr>
+<tr>
+<td><code>destroySession()</code></td>
+<td>Clear session cookies</td>
+</tr>
+<tr>
+<td><code>getCurrentUser()</code></td>
+<td>Get logged-in user</td>
+</tr>
+<tr>
+<td><code>isAuthenticated()</code></td>
+<td>Check auth status</td>
+</tr>
+<tr>
+<td><code>verifyPassword(password)</code></td>
+<td>Legacy password check</td>
+</tr>
+<tr>
+<td><code>checkAuthFromRequest(request)</code></td>
+<td>Middleware auth check</td>
+</tr>
+</tbody></table>
+<h3>Session Management (<code>src/lib/session-cookie.ts</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>encryptSession(data)</code></td>
+<td>AES-256-GCM encryption</td>
+</tr>
+<tr>
+<td><code>decryptSession(token)</code></td>
+<td>Decrypt session token</td>
+</tr>
+<tr>
+<td><code>createSessionData(input, apiToken?)</code></td>
+<td>Build session object</td>
+</tr>
+<tr>
+<td><code>getSafeSession(session)</code></td>
+<td>Strip sensitive data</td>
+</tr>
+</tbody></table>
+<h3>Spam Detection (<code>src/lib/spam-detection.ts</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>calculateSpamScore(data)</code></td>
+<td>Multi-factor spam scoring</td>
+</tr>
+<tr>
+<td><code>isLikelySpam(score)</code></td>
+<td>Threshold check (&gt;50 = spam)</td>
+</tr>
+<tr>
+<td><code>getSpamReasons(score, details)</code></td>
+<td>Human-readable reasons</td>
+</tr>
+</tbody></table>
+<p><strong>Spam Score Factors:</strong></p>
+<ul>
+<li>Turnstile verification (30 pts if failed)</li>
+<li>Honeypot fields (25 pts if filled)</li>
+<li>Interaction tracking (20 pts if no interactions)</li>
+<li>Browser fingerprint (15 pts if suspicious)</li>
+<li>Disposable email (20 pts if detected)</li>
+<li>Content patterns (10-30 pts for spam phrases)</li>
+<li>Submission timing (10 pts if too fast)</li>
+</ul>
+<h3>Audit Logging (<code>src/lib/audit.ts</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>createAuditLog(action, details, userId)</code></td>
+<td>Log user action</td>
+</tr>
+<tr>
+<td><code>getAuditLogs(filters)</code></td>
+<td>Query audit history</td>
+</tr>
+</tbody></table>
+<h3>Utilities (<code>src/lib/utils.ts</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>cn(...classes)</code></td>
+<td>Tailwind class merger</td>
+</tr>
+<tr>
+<td><code>formatPhoneNumber(phone)</code></td>
+<td>Format US phone</td>
+</tr>
+<tr>
+<td><code>formatCurrency(amount)</code></td>
+<td>Format USD</td>
+</tr>
+<tr>
+<td><code>slugify(text)</code></td>
+<td>URL-safe slug</td>
+</tr>
+<tr>
+<td><code>truncate(text, length)</code></td>
+<td>Truncate with ellipsis</td>
+</tr>
+<tr>
+<td><code>absoluteUrl(path)</code></td>
+<td>Build absolute URL</td>
+</tr>
+</tbody></table>
+<h3>Constants (<code>src/lib/constants.ts</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Export</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>BUSINESS_INFO</code></td>
+<td>Business name, phone, address, hours</td>
+</tr>
+<tr>
+<td><code>SITE_CONFIG</code></td>
+<td>Site title, description, URL</td>
+</tr>
+<tr>
+<td><code>NAV_ITEMS</code></td>
+<td>Navigation menu structure</td>
+</tr>
+<tr>
+<td><code>SERVICES</code></td>
+<td>Service offerings list</td>
+</tr>
+</tbody></table>
+<h3>Flyer Generator (<code>src/lib/flyer-generator.ts</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>generateFlyer(computer)</code></td>
+<td>Create PDF sales flyer</td>
+</tr>
+<tr>
+<td><code>generateFlyerHTML(computer)</code></td>
+<td>Create HTML flyer</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>9. Environment Variables Reference</h2>
+<h3>Required for Production</h3>
+<pre><code class="language-bash"># Supabase (Database)
+NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
+SUPABASE_SERVICE_ROLE_KEY=eyJ...
+
+# RepairShopr (CRM)
+REPAIRSHOPR_SUBDOMAIN=thecomputerstore
+REPAIRSHOPR_API_KEY=xxx
+AUTH_MODE=repairshopr
+
+# Authentication
+SESSION_SECRET=&lt;64-hex-chars&gt;
+
+# Email (Contact Form)
+RESEND_API_KEY=re_xxx
+NOTIFICATION_EMAIL=contact@computerstoreks.com
+
+# Bot Protection
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=xxx
+TURNSTILE_SECRET_KEY=xxx
+</code></pre>
+<h3>Optional Integrations</h3>
+<pre><code class="language-bash"># GitHub (Gallery Images)
+GITHUB_TOKEN=ghp_xxx
+GITHUB_OWNER=MatthewMcManness
+GITHUB_REPO=Computer_Store_KS
+GITHUB_BRANCH=Computer-Store-KS
+
+# NinjaOne RMM
+NINJAONE_API_URL=https://app.ninjarmm.com
+NINJAONE_CLIENT_ID=xxx
+NINJAONE_CLIENT_SECRET=xxx
+
+# Google Business Profile
+GOOGLE_BUSINESS_CLIENT_ID=xxx
+GOOGLE_BUSINESS_CLIENT_SECRET=xxx
+GOOGLE_BUSINESS_REFRESH_TOKEN=xxx
+GOOGLE_BUSINESS_ACCOUNT_ID=xxx
+GOOGLE_BUSINESS_LOCATION_ID=xxx
+
+# Analytics (Optional)
+NEXT_PUBLIC_GA_ID=G-xxx
+NEXT_PUBLIC_GTM_ID=GTM-xxx
+
+# Google Maps
+GOOGLE_MAPS_API_KEY=xxx
+</code></pre>
+<hr>
+<h2>10. Integration Status</h2>
+<h3>Active Integrations ✅</h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Status</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Supabase</td>
+<td>✅ Fully Active</td>
+<td>Primary database, blog, auth</td>
+</tr>
+<tr>
+<td>RepairShopr</td>
+<td>✅ Fully Active</td>
+<td>Customer/ticket management</td>
+</tr>
+<tr>
+<td>NinjaOne RMM</td>
+<td>✅ Active</td>
+<td>Device monitoring</td>
+</tr>
+<tr>
+<td>GitHub API</td>
+<td>✅ Active</td>
+<td>Gallery image storage</td>
+</tr>
+<tr>
+<td>Resend</td>
+<td>✅ Active</td>
+<td>Contact form emails</td>
+</tr>
+<tr>
+<td>Google Business</td>
+<td>✅ Active</td>
+<td>Reviews display</td>
+</tr>
+<tr>
+<td>Cloudflare Turnstile</td>
+<td>✅ Active</td>
+<td>Bot protection</td>
+</tr>
+</tbody></table>
+<h3>Not Integrated ❌</h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Status</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ESET</td>
+<td>❌ Not Integrated</td>
+<td>No current API integration</td>
+</tr>
+<tr>
+<td>Cloudinary</td>
+<td>❌ Configured Only</td>
+<td>Env vars exist but unused</td>
+</tr>
+</tbody></table>
+<h3>Potential Future Integrations</h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Purpose</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ESET</td>
+<td>Antivirus license management</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>Stripe</td>
+<td>Payment processing</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>Twilio</td>
+<td>SMS notifications</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>QuickBooks</td>
+<td>Accounting sync</td>
+<td>Low</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>Quick Reference: &quot;How Do I...?&quot;</h2>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Use This</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Authenticate a user</td>
+<td><code>authenticateWithSupabase()</code> or <code>authenticateWithRepairShopr()</code></td>
+</tr>
+<tr>
+<td>Get customer info</td>
+<td><code>repairshoprClient.getCustomer(id)</code></td>
+</tr>
+<tr>
+<td>Search customers</td>
+<td><code>repairshoprClient.searchCustomers(query)</code></td>
+</tr>
+<tr>
+<td>Get blog posts</td>
+<td><code>getPublishedPosts()</code></td>
+</tr>
+<tr>
+<td>Upload gallery image</td>
+<td><code>uploadImageToGitHub()</code></td>
+</tr>
+<tr>
+<td>Send email</td>
+<td><code>sendContactNotification()</code></td>
+</tr>
+<tr>
+<td>Check protection plan</td>
+<td><code>getProtectionPlanTier(customer)</code></td>
+</tr>
+<tr>
+<td>Get device info</td>
+<td><code>ninjaClient.getDevice(id)</code></td>
+</tr>
+<tr>
+<td>Fetch reviews</td>
+<td><code>fetchReviews()</code></td>
+</tr>
+<tr>
+<td>Validate CAPTCHA</td>
+<td><code>calculateSpamScore()</code> with Turnstile token</td>
+</tr>
+<tr>
+<td>Log audit event</td>
+<td><code>createAuditLog()</code></td>
+</tr>
+<tr>
+<td>Create session</td>
+<td><code>createSession(user)</code></td>
+</tr>
+<tr>
+<td>Check auth</td>
+<td><code>isAuthenticated()</code> or <code>getCurrentUser()</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h2>Adding New Integrations</h2>
+<p>When adding a new external API integration:</p>
+<ol>
+<li><strong>Create lib file:</strong> <code>src/lib/{service-name}.ts</code></li>
+<li><strong>Add env vars:</strong> Update <code>.env.example</code> with required variables</li>
+<li><strong>Document functions:</strong> Follow code documentation standards (see CLAUDE.md)</li>
+<li><strong>Add to this guide:</strong> Update this file with new integration details</li>
+<li><strong>Create API routes:</strong> If needed, add routes in <code>src/app/api/{service}/</code></li>
+<li><strong>Add error handling:</strong> Include rate limiting, retries, graceful degradation</li>
+<li><strong>Add caching:</strong> Consider in-memory caching for frequently accessed data</li>
+</ol>
+<h3>Template for New Integration</h3>
+<pre><code class="language-typescript">/**
+ * {ServiceName} API Integration
+ *
+ * Purpose: {Brief description}
+ *
+ * @see https://{service-docs-url}
+ *
+ * Environment Variables:
+ * - {SERVICE}_API_KEY - API authentication key
+ * - {SERVICE}_BASE_URL - API base URL (optional)
+ *
+ * @version 1.0.0 - {date} - Initial implementation
+ */
+
+// Check configuration
+export function is{ServiceName}Configured(): boolean {
+  return !!(process.env.{SERVICE}_API_KEY);
+}
+
+// Create client
+export function create{ServiceName}Client() {
+  if (!is{ServiceName}Configured()) {
+    throw new Error(&#39;{ServiceName} is not configured&#39;);
+  }
+  // Return client instance
+}
+</code></pre>
+
+    </div>
+    <script>
+        // Initialize Mermaid with configuration
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'base',
+            themeVariables: {
+                // Primary colors for main nodes
+                primaryColor: '#dbeafe',
+                primaryTextColor: '#1e293b',
+                primaryBorderColor: '#2563eb',
+
+                // Secondary and tertiary colors
+                secondaryColor: '#f0fdf4',
+                secondaryTextColor: '#1e293b',
+                secondaryBorderColor: '#10b981',
+                tertiaryColor: '#fef3c7',
+                tertiaryTextColor: '#1e293b',
+                tertiaryBorderColor: '#f59e0b',
+
+                // General text and background
+                textColor: '#1e293b',
+                nodeTextColor: '#1e293b',
+                lineColor: '#64748b',
+                background: '#ffffff',
+                mainBkg: '#f8fafc',
+
+                // Node styling
+                nodeBorder: '#2563eb',
+                nodeBackgroundColor: '#eff6ff',
+
+                // Cluster/subgraph styling
+                clusterBkg: '#f1f5f9',
+                clusterBorder: '#cbd5e1',
+
+                // Labels and titles
+                titleColor: '#1e293b',
+                edgeLabelBackground: '#ffffff',
+                labelTextColor: '#1e293b',
+
+                // Additional diagram-specific colors
+                actorTextColor: '#1e293b',
+                actorLineColor: '#64748b',
+                signalTextColor: '#1e293b',
+                loopTextColor: '#1e293b',
+                noteBkgColor: '#fef3c7',
+                noteTextColor: '#1e293b',
+                noteBorderColor: '#f59e0b',
+
+                // Git graph colors
+                git0: '#2563eb',
+                git1: '#10b981',
+                git2: '#f59e0b',
+                git3: '#ef4444',
+                gitBranchLabel0: '#1e293b',
+                gitBranchLabel1: '#1e293b',
+                gitBranchLabel2: '#1e293b',
+                gitBranchLabel3: '#1e293b'
+            },
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis',
+                nodeSpacing: 50,
+                rankSpacing: 50
+            },
+            sequence: {
+                useMaxWidth: true,
+                wrap: true,
+                actorMargin: 50
+            },
+            er: {
+                useMaxWidth: true
+            },
+            gitGraph: {
+                useMaxWidth: true
+            }
+        });
+
+        // Find all mermaid code blocks and convert them
+        // Note: This processes static documentation content, not user input
+        document.querySelectorAll('pre code.language-mermaid, pre code').forEach(async (codeBlock, index) => {
+            const code = codeBlock.textContent.trim();
+
+            // Check if it looks like mermaid syntax
+            const mermaidKeywords = ['graph ', 'flowchart ', 'sequenceDiagram', 'classDiagram',
+                                      'stateDiagram', 'erDiagram', 'gantt', 'pie ', 'gitgraph',
+                                      'journey', 'quadrantChart', 'requirementDiagram', 'mindmap',
+                                      'timeline', 'sankey', 'block-beta'];
+
+            const isMermaid = codeBlock.classList.contains('language-mermaid') ||
+                              mermaidKeywords.some(kw => code.startsWith(kw));
+
+            if (isMermaid) {
+                try {
+                    const pre = codeBlock.parentElement;
+                    const container = document.createElement('div');
+                    container.className = 'mermaid';
+                    container.id = 'mermaid-' + index;
+
+                    // Render the diagram - mermaid.render returns sanitized SVG
+                    const { svg } = await mermaid.render('mermaid-svg-' + index, code);
+
+                    // Safe: SVG is generated by mermaid library from static docs
+                    container.insertAdjacentHTML('beforeend', svg);
+
+                    // Replace the pre block with the rendered diagram
+                    pre.parentNode.replaceChild(container, pre);
+                } catch (e) {
+                    console.warn('Failed to render mermaid diagram:', e.message);
+                    // Leave as code block if rendering fails
+                    codeBlock.parentElement.classList.add('mermaid-error');
+                }
+            }
+        });
+
+        // Add IDs to headers for linking
+        document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(header => {
+            if (!header.id) {
+                header.id = header.textContent.toLowerCase()
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/^-|-$/g, '');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -295,26 +295,39 @@ export async function getEffectiveLocationId(
  *
  * @param userRoles - User's roles array
  * @param userLocationId - User's assigned location ID
+ * @param defaultLocationId - User's default location ID (for global access users)
  * @returns Location context object
  *
- * @functions_called canAccessAllLocations, getSelectedLocation, getLocations, getLocationById
+ * @functions_called canAccessAllLocations, getSelectedLocation, getLocations, getLocationById, setSelectedLocation
  * @called_by AdminLayout, LocationContext
  *
- * @version 1.0.0 - 2026-01-11T00:00:00Z - Initial implementation
+ * @version 1.1.0 - 2026-01-13T00:00:00Z - Added default location support
  */
 export async function getLocationContext(
   userRoles: string[],
-  userLocationId: string | null
+  userLocationId: string | null,
+  defaultLocationId?: string | null
 ): Promise<{
   hasGlobalAccess: boolean;
   selectedLocation: string | null;
   userLocation: Location | null;
+  defaultLocation: Location | null;
   availableLocations: LocationOption[];
 }> {
   const hasGlobalAccess = canAccessAllLocations(userRoles);
 
   // Get selected location for global access users
-  const selectedLocation = hasGlobalAccess ? await getSelectedLocation() : null;
+  let selectedLocation = hasGlobalAccess ? await getSelectedLocation() : null;
+
+  // Get user's default location (for global access users)
+  const defaultLocation = defaultLocationId ? await getLocationById(defaultLocationId) : null;
+
+  // If user has global access but no selected location, use their default
+  if (hasGlobalAccess && !selectedLocation && defaultLocation) {
+    // Auto-select the user's default location
+    await setSelectedLocation(defaultLocation.slug);
+    selectedLocation = defaultLocation.slug;
+  }
 
   // Get user's assigned location
   const userLocation = userLocationId ? await getLocationById(userLocationId) : null;
@@ -330,6 +343,7 @@ export async function getLocationContext(
     hasGlobalAccess,
     selectedLocation,
     userLocation,
+    defaultLocation,
     availableLocations,
   };
 }

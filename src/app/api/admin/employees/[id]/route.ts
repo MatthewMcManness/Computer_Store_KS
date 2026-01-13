@@ -11,6 +11,7 @@ import {
   isBusinessRole,
 } from '@/types/roles';
 import { canManageEmployees } from '@/lib/role-helpers';
+import { getLocationBySlug } from '@/lib/location-helpers';
 
 export const dynamic = 'force-dynamic';
 
@@ -131,21 +132,23 @@ export async function GET(
 
 /**
  * PUT /api/admin/employees/[id]
- * Update employee profile (roles, name, RepairShopr ID)
+ * Update employee profile (roles, name, RepairShopr ID, default location)
  *
  * Accepts either:
  * - `roles`: string[] (new multi-role system)
  * - `role`: string (legacy single-role, converted to array)
+ * - `default_location`: string (location slug for global access users)
  *
- * @param request - Request with updated fields (roles, full_name, repairshopr_user_id)
+ * @param request - Request with updated fields (roles, full_name, repairshopr_user_id, default_location)
  * @param params - Route params containing employee id
  * @returns Updated employee profile
  *
- * @functions_called getCurrentUser, createAuthAdminClient, validateRoles, updateUserProfile
+ * @functions_called getCurrentUser, createAuthAdminClient, validateRoles, updateUserProfile, getLocationBySlug
  * @called_by EmployeesPage (edit modal)
  *
  * @version 1.0.0 - 2026-01-11T00:00:00Z - Initial implementation
  * @version 2.0.0 - 2026-01-11T00:00:00Z - Updated for multi-role support
+ * @version 2.1.0 - 2026-01-13T00:00:00Z - Added default_location support
  */
 export async function PUT(
   request: NextRequest,
@@ -174,7 +177,7 @@ export async function PUT(
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
   }
 
-  const { roles, role, full_name, repairshopr_user_id } = body;
+  const { roles, role, full_name, repairshopr_user_id, default_location } = body;
 
   try {
     // Get the employee being updated
@@ -195,6 +198,7 @@ export async function PUT(
       roles: string[];
       full_name: string | null;
       repairshopr_user_id: number | null;
+      default_location_id: string | null;
     }> = {};
 
     // Handle roles update (new array or legacy single role)
@@ -272,6 +276,21 @@ export async function PUT(
     if (full_name !== undefined) updates.full_name = full_name;
     if (repairshopr_user_id !== undefined) {
       updates.repairshopr_user_id = repairshopr_user_id ? parseInt(repairshopr_user_id, 10) : null;
+    }
+
+    // Handle default_location update (for global access users)
+    if (default_location !== undefined) {
+      if (default_location === null || default_location === '') {
+        // Clear the default location
+        updates.default_location_id = null;
+      } else {
+        // Look up location ID from slug
+        const location = await getLocationBySlug(default_location);
+        if (!location) {
+          return NextResponse.json({ error: `Invalid location: ${default_location}` }, { status: 400 });
+        }
+        updates.default_location_id = location.id;
+      }
     }
 
     // Update the profile

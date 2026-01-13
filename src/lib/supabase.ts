@@ -1110,7 +1110,8 @@ export type TicketCustomStatus =
   | 'building'
   | 'call_customer'
   | 'waiting_for_customer_reply'
-  | 'ready_for_pickup'
+  | 'ready_for_pickup_no_payment_due'
+  | 'ready_for_pickup_payment_due'
   | 'completed';
 
 export interface TicketStatusOverride {
@@ -1143,10 +1144,11 @@ export const TICKET_STATUS_DEFINITIONS: TicketStatusDefinition[] = [
   { status: 'installing', display_name: 'Installing', description: 'Installing software/components', repairshopr_status: 'In Progress', show_customer_question: false, customer_visible_status: 'Installation in Progress', sort_order: 5, is_active: true },
   { status: 'waiting_for_parts', display_name: 'Waiting for Parts', description: 'Waiting for parts', repairshopr_status: 'Waiting for Parts', show_customer_question: false, customer_visible_status: 'Waiting for Parts', sort_order: 6, is_active: true },
   { status: 'building', display_name: 'Building', description: 'Building custom system', repairshopr_status: 'In Progress', show_customer_question: false, customer_visible_status: 'Being Built', sort_order: 7, is_active: true },
-  { status: 'call_customer', display_name: 'Call Customer', description: 'Need to call customer', repairshopr_status: 'Customer Reply', show_customer_question: true, customer_visible_status: 'We Have a Question', sort_order: 8, is_active: true },
+  { status: 'call_customer', display_name: 'Call Customer', description: 'Need to call customer', repairshopr_status: 'CNC', show_customer_question: true, customer_visible_status: 'We Have a Question', sort_order: 8, is_active: true },
   { status: 'waiting_for_customer_reply', display_name: 'Waiting for Customer Reply', description: 'Waiting for response', repairshopr_status: 'Customer Reply', show_customer_question: true, customer_visible_status: 'Awaiting Your Response', sort_order: 9, is_active: true },
-  { status: 'ready_for_pickup', display_name: 'Ready for Pickup', description: 'On done shelf', repairshopr_status: 'Done Shelf', show_customer_question: false, customer_visible_status: 'Ready for Pickup', sort_order: 10, is_active: true },
-  { status: 'completed', display_name: 'Completed', description: 'Fully resolved', repairshopr_status: 'Resolved', show_customer_question: false, customer_visible_status: 'Completed', sort_order: 11, is_active: true },
+  { status: 'ready_for_pickup_no_payment_due', display_name: 'Ready for Pickup (No Payment Due)', description: 'On done shelf, no payment required', repairshopr_status: 'Done Shelf', show_customer_question: false, customer_visible_status: 'Ready for Pickup', sort_order: 10, is_active: true },
+  { status: 'ready_for_pickup_payment_due', display_name: 'Ready for Pickup (Payment Due)', description: 'On done shelf, payment required', repairshopr_status: 'Done Shelf', show_customer_question: false, customer_visible_status: 'Ready for Pickup - Payment Due', sort_order: 11, is_active: true },
+  { status: 'completed', display_name: 'Completed', description: 'Fully resolved', repairshopr_status: 'Resolved', show_customer_question: false, customer_visible_status: 'Completed', sort_order: 12, is_active: true },
 ];
 
 /**
@@ -1272,7 +1274,7 @@ export function getDefaultCustomStatusForRepairShoprStatus(
   if (statusLower === 'in progress') return 'diagnosing'; // Default to diagnosing for "In Progress"
   if (statusLower === 'waiting for parts') return 'waiting_for_parts';
   if (statusLower === 'customer reply') return 'call_customer'; // Default to call_customer for "Customer Reply"
-  if (statusLower === 'done shelf') return 'ready_for_pickup';
+  if (statusLower === 'done shelf') return 'ready_for_pickup_no_payment_due';
   if (statusLower === 'resolved') return 'completed';
 
   // Also handle CnC status which means "Call and Close" or similar
@@ -1397,17 +1399,6 @@ export async function setCustomerProtectionPlan(
 }
 
 /**
- * Legacy function - Set silver plan status
- * @deprecated Use setCustomerProtectionPlan instead
- */
-export async function setCustomerSilverPlan(
-  customerId: number,
-  isSilverPlan: boolean
-): Promise<CustomerProtectionPlan | null> {
-  return setCustomerProtectionPlan(customerId, isSilverPlan ? 'silver' : null);
-}
-
-/**
  * Get customer's protection plan tier
  */
 export async function getCustomerPlanTier(customerId: number): Promise<ProtectionPlanTier> {
@@ -1421,15 +1412,6 @@ export async function getCustomerPlanTier(customerId: number): Promise<Protectio
 export async function hasProtectionPlan(customerId: number): Promise<boolean> {
   const tier = await getCustomerPlanTier(customerId);
   return tier !== null;
-}
-
-/**
- * Check if a customer has silver plan (from Supabase only)
- * @deprecated Use getCustomerPlanTier instead
- */
-export async function isCustomerSilverPlan(customerId: number): Promise<boolean> {
-  const plan = await getCustomerProtectionPlan(customerId);
-  return plan?.is_silver_plan ?? false;
 }
 
 // =============================================================================

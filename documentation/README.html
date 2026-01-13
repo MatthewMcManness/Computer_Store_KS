@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computer Store KS | Computer Store KS Documentation</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-light: #3b82f6;
+            --primary-dark: #1d4ed8;
+            --bg: #ffffff;
+            --bg-secondary: #f8fafc;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --code-bg: #1e293b;
+            --code-text: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.7;
+            color: var(--text);
+            background: var(--bg);
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Navigation */
+        .nav-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--primary);
+            color: white;
+            padding: 0.75rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        .nav-bar a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .nav-bar a:hover {
+            text-decoration: underline;
+        }
+
+        .nav-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .content {
+            margin-top: 4rem;
+        }
+
+        /* Typography */
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--text);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.4rem;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            color: var(--primary-dark);
+        }
+
+        h4 { font-size: 1.2rem; }
+        h5 { font-size: 1.1rem; }
+        h6 { font-size: 1rem; color: var(--text-muted); }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        /* Links */
+        a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin-bottom: 1rem;
+            padding-left: 2rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        li > ul, li > ol {
+            margin-top: 0.5rem;
+            margin-bottom: 0;
+        }
+
+        /* Code */
+        code {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9em;
+            background: var(--bg-secondary);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+        }
+
+        pre {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 1.25rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: 1.5rem;
+            border: 1px solid #334155;
+        }
+
+        pre code {
+            background: none;
+            border: none;
+            padding: 0;
+            color: inherit;
+            font-size: 0.875rem;
+            line-height: 1.6;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border: 1px solid var(--border);
+        }
+
+        th {
+            background: var(--bg-secondary);
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        tr:nth-child(even) {
+            background: var(--bg-secondary);
+        }
+
+        tr:hover {
+            background: #f1f5f9;
+        }
+
+        /* Blockquotes */
+        blockquote {
+            border-left: 4px solid var(--primary);
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        blockquote p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Horizontal rules */
+        hr {
+            border: none;
+            border-top: 2px solid var(--border);
+            margin: 2rem 0;
+        }
+
+        /* Images */
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        /* Task lists */
+        input[type="checkbox"] {
+            margin-right: 0.5rem;
+        }
+
+        /* Mermaid diagrams */
+        .mermaid {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            text-align: center;
+            border: 1px solid var(--border);
+            overflow-x: auto;
+        }
+
+        .mermaid svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Print styles */
+        @media print {
+            .nav-bar { display: none; }
+            .content { margin-top: 0; }
+            body { padding: 1rem; }
+            pre { white-space: pre-wrap; }
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            .nav-bar { padding: 0.5rem 1rem; }
+            h1 { font-size: 1.75rem; }
+            h2 { font-size: 1.4rem; }
+            pre { padding: 0.75rem; font-size: 0.8rem; }
+            table { font-size: 0.85rem; }
+            th, td { padding: 0.5rem; }
+        }
+    </style>
+    <!-- Mermaid.js for diagram rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+    <nav class="nav-bar">
+        <span class="nav-title">Computer Store KS Docs</span>
+        <a href="DOCUMENTATION_HUB.html">← Back to Hub</a>
+    </nav>
+    <div class="content">
+<h1>Computer Store KS</h1>
+<blockquote>
+<p>Professional website and employee portal for The Computer Store, a computer repair and sales business in Topeka, Kansas.</p>
+</blockquote>
+<p><a href="https://computerstoreks.com"><img src="https://img.shields.io/badge/Live-computerstoreks.com-blue" alt="Live Site"></a><br><a href="https://nextjs.org/"><img src="https://img.shields.io/badge/Next.js-14-black" alt="Next.js"></a><br><a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-5.9-blue" alt="TypeScript"></a><br><a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/Tailwind-3-38B2AC" alt="Tailwind CSS"></a><br><a href="https://supabase.com/"><img src="https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E" alt="Supabase"></a></p>
+<hr>
+<h2>Table of Contents</h2>
+<ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#key-features">Key Features</a></li>
+<li><a href="#tech-stack">Tech Stack</a></li>
+<li><a href="#getting-started">Getting Started</a><ul>
+<li><a href="#prerequisites">Prerequisites</a></li>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#environment-setup">Environment Setup</a></li>
+<li><a href="#running-locally">Running Locally</a></li>
+</ul>
+</li>
+<li><a href="#project-structure">Project Structure</a></li>
+<li><a href="#documentation">Documentation</a></li>
+<li><a href="#api-endpoints">API Endpoints</a></li>
+<li><a href="#deployment">Deployment</a></li>
+<li><a href="#contributing">Contributing</a></li>
+</ul>
+<hr>
+<h2>Overview</h2>
+<p>Computer Store KS is a full-featured website and employee management system designed for a local computer repair shop. The platform combines a public-facing website for customers with a comprehensive admin portal for managing repair tickets, customer relationships, inventory, and business operations.</p>
+<h3>What This Project Does</h3>
+<ul>
+<li><strong>Public Website</strong>: Showcases services, refurbished computers, blog posts, and provides contact forms</li>
+<li><strong>Employee Portal</strong>: Manages customer intake, ticket tracking, inventory, and business operations</li>
+<li><strong>CRM Integration</strong>: Syncs with RepairShopr for customer and ticket management</li>
+<li><strong>RMM Integration</strong>: Connects with NinjaOne for remote device monitoring</li>
+<li><strong>Customer Portal</strong>: Allows customers to view their tickets, invoices, and devices</li>
+</ul>
+<h3>Target Users</h3>
+<ul>
+<li><strong>Customers</strong>: Browse services, view available computers, read blog posts, submit contact forms</li>
+<li><strong>Employees</strong>: Manage customer intake, track repair tickets, update inventory, handle business operations</li>
+<li><strong>Business Owners</strong>: Monitor business metrics, review sales data, manage employee accounts</li>
+</ul>
+<hr>
+<h2>Key Features</h2>
+<h3>Public Website</h3>
+<h4>Service Pages</h4>
+<ul>
+<li><strong>Homepage</strong>: Hero section, services overview, testimonials, call-to-action</li>
+<li><strong>Services Hub</strong>: Comprehensive listing of all services offered</li>
+<li><strong>Individual Service Pages</strong>: Detailed pages for each service (Data Services, OS Installation, Custom Computers, Laptops, Desktops, Diagnostics, Virus Removal, Hardware Upgrades, Windows Debloat, Antivirus)</li>
+<li><strong>Gallery</strong>: Browsable catalog of refurbished computers with filtering and search</li>
+<li><strong>Blog System</strong>: Category and tag-based content management with markdown support</li>
+<li><strong>Contact Form</strong>: Cloudflare Turnstile-protected form with email notifications via Resend</li>
+<li><strong>Reviews</strong>: Google Business Reviews display widget</li>
+<li><strong>Why Linux</strong>: Educational page about Linux advantages</li>
+<li><strong>Silver Plan</strong>: Managed service subscription offering</li>
+</ul>
+<h4>User Experience</h4>
+<ul>
+<li>Responsive design with mobile-first approach</li>
+<li>SEO-optimized with structured data (JSON-LD)</li>
+<li>Dynamic breadcrumbs for navigation</li>
+<li>Smooth animations with Framer Motion</li>
+<li>Accessible UI components</li>
+</ul>
+<h3>Admin Portal (Employee Portal)</h3>
+<h4>Reception Dashboard</h4>
+<ul>
+<li><strong>Customer Intake Wizard</strong>: Multi-step form for new customer onboarding</li>
+<li><strong>Call Customer Widget</strong>: Auto-refreshing list of tickets needing customer contact</li>
+<li><strong>System Status</strong>: Quick health checks and operational indicators</li>
+<li><strong>Quick Actions</strong>: Fast access to common tasks</li>
+</ul>
+<h4>Customer Management</h4>
+<ul>
+<li><strong>Customer Search</strong>: Full-text search with RepairShopr integration</li>
+<li><strong>Customer Details</strong>: View tickets, assets, invoices, payments, family members</li>
+<li><strong>Business Accounts</strong>: Manage business customers separately</li>
+<li><strong>Family Management</strong>: Link related customer accounts</li>
+</ul>
+<h4>Ticket Management</h4>
+<ul>
+<li><strong>Ticket List</strong>: Searchable and filterable by custom status</li>
+<li><strong>Ticket Details</strong>: Comprehensive view with timeline, notes, and status controls</li>
+<li><strong>Custom Status System</strong>: Enhanced workflow beyond RepairShopr statuses<ul>
+<li>Status definitions: new, diagnosing, repairing, data_transferring, installing, waiting_for_parts, building, call_customer, waiting_for_customer_reply, ready_for_pickup, completed</li>
+<li>Customer-visible status mapping</li>
+<li>Optional customer questions per status</li>
+</ul>
+</li>
+<li><strong>Notes System</strong>: Private and public notes with timeline view</li>
+<li><strong>Silver Plan Badge</strong>: Visual indicator for managed service customers</li>
+</ul>
+<h4>Content Management</h4>
+<ul>
+<li><strong>Gallery Manager</strong>: Add, edit, and publish refurbished computer listings<ul>
+<li>Image upload to GitHub storage</li>
+<li>Spec management (CPU, RAM, storage, GPU)</li>
+<li>Sale pricing controls</li>
+<li>Category filtering (desktop/laptop)</li>
+</ul>
+</li>
+<li><strong>Blog Manager</strong>: Create and edit blog posts<ul>
+<li>Markdown content editor</li>
+<li>Featured image support</li>
+<li>Category and tag management</li>
+<li>Draft/publish workflow</li>
+<li>Image uploads to Supabase storage</li>
+</ul>
+</li>
+</ul>
+<h4>Employee Management</h4>
+<ul>
+<li><strong>Employee Accounts</strong>: User management with RepairShopr authentication</li>
+<li><strong>Role-Based Access</strong>: Different permission levels for employees</li>
+</ul>
+<h3>External Integrations</h3>
+<h4>RepairShopr CRM</h4>
+<ul>
+<li><strong>Authentication</strong>: OAuth-style login with encrypted session cookies</li>
+<li><strong>Customer Sync</strong>: Real-time customer data retrieval</li>
+<li><strong>Ticket Management</strong>: Create, update, and track repair tickets</li>
+<li><strong>Asset Tracking</strong>: Device inventory linked to customers</li>
+<li><strong>Invoice &amp; Payment Data</strong>: Financial transaction history</li>
+<li><strong>Family Accounts</strong>: Multi-member household management</li>
+<li><strong>Webhook Support</strong>: Real-time updates from RepairShopr events</li>
+</ul>
+<h4>NinjaOne RMM</h4>
+<ul>
+<li><strong>Device Monitoring</strong>: Remote device status and health checks</li>
+<li><strong>Customer Device Linking</strong>: Associate monitored devices with customers by email</li>
+<li><strong>Device Details</strong>: Hardware specs, software inventory, and agent status</li>
+</ul>
+<h4>Google Business Profile</h4>
+<ul>
+<li><strong>Reviews Display</strong>: Fetch and display customer reviews</li>
+<li><strong>Business Posts</strong>: Sync promotional posts and updates</li>
+<li><strong>Business Info</strong>: Location, hours, and contact information</li>
+</ul>
+<h4>Other Services</h4>
+<ul>
+<li><strong>Resend Email</strong>: Transactional emails for contact form and notifications</li>
+<li><strong>GitHub API</strong>: Image storage for gallery system</li>
+<li><strong>Cloudflare Turnstile</strong>: Bot protection for contact forms</li>
+<li><strong>Supabase</strong>: PostgreSQL database for blog, customer portal, and ticket statuses</li>
+</ul>
+<hr>
+<h2>Tech Stack</h2>
+<h3>Core Framework</h3>
+<ul>
+<li><strong>Next.js 14</strong> - React framework with App Router</li>
+<li><strong>React 18</strong> - UI library</li>
+<li><strong>TypeScript 5.9</strong> - Type-safe JavaScript</li>
+</ul>
+<h3>Styling</h3>
+<ul>
+<li><strong>Tailwind CSS 3</strong> - Utility-first CSS framework</li>
+<li><strong>Custom CSS</strong> (<code>static-styles.css</code>) - Legacy styles for public pages</li>
+<li><strong>Framer Motion</strong> - Animation library</li>
+<li><strong>Lucide React</strong> - Icon library</li>
+<li><strong>class-variance-authority</strong> - Component variant styling</li>
+<li><strong>clsx</strong> / <strong>tailwind-merge</strong> - Conditional class utilities</li>
+</ul>
+<h3>Database &amp; Storage</h3>
+<ul>
+<li><strong>Supabase</strong> - PostgreSQL database<ul>
+<li>Blog posts and categories</li>
+<li>Ticket status overrides</li>
+<li>Customer portal accounts</li>
+<li>Authentication (planned)</li>
+</ul>
+</li>
+<li><strong>GitHub API</strong> - Image storage for gallery</li>
+<li><strong>Supabase Storage</strong> - Image storage for blog posts</li>
+</ul>
+<h3>Authentication &amp; Security</h3>
+<ul>
+<li><strong>RepairShopr API</strong> - Primary authentication provider</li>
+<li><strong>AES-256-GCM</strong> - Session encryption</li>
+<li><strong>bcrypt</strong> - Password hashing (legacy mode)</li>
+<li><strong>Cloudflare Turnstile</strong> - Bot protection</li>
+<li><strong>Zod</strong> - Runtime type validation</li>
+<li><strong>@fingerprintjs/fingerprintjs</strong> - Device fingerprinting</li>
+</ul>
+<h3>External APIs</h3>
+<ul>
+<li><strong>RepairShopr</strong> - CRM integration for customers, tickets, assets</li>
+<li><strong>NinjaOne</strong> - RMM integration for device monitoring</li>
+<li><strong>Google Business Profile</strong> - Reviews and business information</li>
+<li><strong>Resend</strong> - Email delivery service</li>
+</ul>
+<h3>Development Tools</h3>
+<ul>
+<li><strong>npm</strong> - Package manager (Node 20.11.0)</li>
+<li><strong>ESLint</strong> - Code linting</li>
+<li><strong>PostCSS</strong> - CSS processing</li>
+<li><strong>Sharp</strong> - Image optimization</li>
+</ul>
+<h3>Hosting &amp; Infrastructure</h3>
+<ul>
+<li><strong>Render</strong> - Hosting platform<ul>
+<li>Production: <code>computerstoreks.com</code></li>
+<li>Development: <code>csk-development.onrender.com</code></li>
+</ul>
+</li>
+<li><strong>Node.js 20.11.0</strong> - Runtime environment</li>
+<li><strong>Render Blueprint</strong> (<code>render.yaml</code>) - Infrastructure as code</li>
+</ul>
+<hr>
+<h2>Getting Started</h2>
+<h3>Prerequisites</h3>
+<p>Before you begin, ensure you have the following installed:</p>
+<ul>
+<li><strong>Node.js</strong>: Version 20.11.0 or higher (LTS recommended)</li>
+<li><strong>npm</strong>: Version 10 or higher (comes with Node.js)</li>
+<li><strong>Git</strong>: For version control</li>
+</ul>
+<p>Optional for full functionality:</p>
+<ul>
+<li><strong>Supabase Account</strong>: For database and blog features</li>
+<li><strong>RepairShopr Account</strong>: For CRM integration</li>
+<li><strong>GitHub Account</strong>: For gallery image storage</li>
+<li><strong>Resend Account</strong>: For email functionality</li>
+<li><strong>Cloudflare Account</strong>: For Turnstile bot protection</li>
+<li><strong>Google Cloud Console</strong>: For Google Business integration</li>
+<li><strong>NinjaOne Account</strong>: For RMM integration</li>
+</ul>
+<h3>Installation</h3>
+<ol>
+<li><p><strong>Clone the repository</strong></p>
+<pre><code class="language-bash">cd /home/matthew/Bast/Projects/Clients/Computer_Store_KS
+</code></pre>
+</li>
+<li><p><strong>Install dependencies</strong></p>
+<pre><code class="language-bash">npm install
+</code></pre>
+</li>
+<li><p><strong>Verify installation</strong></p>
+<pre><code class="language-bash">npm run type-check
+</code></pre>
+</li>
+</ol>
+<h3>Environment Setup</h3>
+<ol>
+<li><p><strong>Copy the environment template</strong></p>
+<pre><code class="language-bash">cp .env.example .env
+</code></pre>
+</li>
+<li><p><strong>Configure required environment variables</strong></p>
+<p>Open <code>.env</code> and configure the following minimum variables:</p>
+<h4>Required for Basic Functionality</h4>
+<pre><code class="language-bash"># Application
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+NODE_ENV=development
+
+# Authentication (Required for Admin Portal)
+AUTH_MODE=repairshopr
+SESSION_SECRET=&lt;generate-with-openssl-rand-hex-32&gt;
+REPAIRSHOPR_SUBDOMAIN=thecomputerstore
+
+# Supabase (Required for Blog &amp; Customer Portal)
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+
+# Email (Required for Contact Form)
+RESEND_API_KEY=re_your_api_key
+NOTIFICATION_EMAIL=contact@computerstoreks.com
+</code></pre>
+<h4>Optional Services</h4>
+<pre><code class="language-bash"># GitHub (Gallery Image Storage)
+GITHUB_TOKEN=ghp_your_token
+GITHUB_OWNER=MatthewMcManness
+GITHUB_REPO=Computer_Store_KS
+GITHUB_BRANCH=Development
+
+# Bot Protection
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=1x00000000000000000000AA
+TURNSTILE_SECRET_KEY=&lt;your-secret-key&gt;
+
+# NinjaOne RMM
+NINJAONE_API_URL=https://app.ninjarmm.com
+NINJAONE_CLIENT_ID=&lt;your-client-id&gt;
+NINJAONE_CLIENT_SECRET=&lt;your-client-secret&gt;
+
+# Google Business
+GOOGLE_BUSINESS_CLIENT_ID=&lt;your-client-id&gt;
+GOOGLE_BUSINESS_CLIENT_SECRET=&lt;your-client-secret&gt;
+GOOGLE_BUSINESS_REFRESH_TOKEN=&lt;your-refresh-token&gt;
+GOOGLE_BUSINESS_ACCOUNT_ID=&lt;your-account-id&gt;
+GOOGLE_BUSINESS_LOCATION_ID=&lt;your-location-id&gt;
+</code></pre>
+</li>
+<li><p><strong>Generate secure secrets</strong></p>
+<pre><code class="language-bash"># Generate SESSION_SECRET (64 hex characters)
+openssl rand -hex 32
+
+# Or using Node.js
+node -e &quot;console.log(require(&#39;crypto&#39;).randomBytes(32).toString(&#39;hex&#39;))&quot;
+</code></pre>
+</li>
+<li><p><strong>Set up Supabase database</strong></p>
+<p>Run the database schema for blog and ticket status systems:</p>
+<ul>
+<li>Navigate to your Supabase project SQL Editor</li>
+<li>Execute the schema files (see Deployment section)</li>
+</ul>
+</li>
+</ol>
+<h3>Running Locally</h3>
+<ol>
+<li><p><strong>Start the development server</strong></p>
+<pre><code class="language-bash">npm run dev
+</code></pre>
+</li>
+<li><p><strong>Open your browser</strong></p>
+<p>Navigate to <a href="http://localhost:3000">http://localhost:3000</a></p>
+</li>
+<li><p><strong>Access the admin portal</strong></p>
+<p>Navigate to <a href="http://localhost:3000/admin">http://localhost:3000/admin</a></p>
+<p>Login with your RepairShopr credentials (if <code>AUTH_MODE=repairshopr</code>)</p>
+</li>
+<li><p><strong>Common development commands</strong></p>
+<pre><code class="language-bash"># Run TypeScript type checking
+npm run type-check
+
+# Run linter
+npm run lint
+
+# Build for production (test build)
+npm run build
+
+# Start production build locally
+npm run start
+
+# Clean build artifacts
+npm run clean
+</code></pre>
+</li>
+</ol>
+<hr>
+<h2>Project Structure</h2>
+<pre><code>Computer_Store_KS/
+├── src/
+│   ├── app/                          # Next.js App Router
+│   │   ├── (auth)/                   # Authentication pages (login, register)
+│   │   ├── (public)/                 # Public customer-facing pages
+│   │   │   ├── page.tsx              # Homepage
+│   │   │   ├── about/                # About page
+│   │   │   ├── blog/                 # Blog listing and posts
+│   │   │   ├── contact/              # Contact form
+│   │   │   ├── gallery/              # Computer gallery
+│   │   │   ├── reviews/              # Customer reviews
+│   │   │   ├── services/             # Services hub + 10 service detail pages
+│   │   │   ├── silver-plan/          # Managed service offering
+│   │   │   └── why-linux/            # Educational content
+│   │   ├── admin/                    # Admin portal (protected)
+│   │   │   ├── page.tsx              # Reception dashboard
+│   │   │   ├── intake/               # Customer intake wizard
+│   │   │   ├── customers/            # Customer management
+│   │   │   ├── businesses/           # Business accounts
+│   │   │   ├── tickets/              # Ticket management with status filters
+│   │   │   ├── gallery/              # Gallery CRUD
+│   │   │   ├── blog/                 # Blog CRUD
+│   │   │   └── reception/            # Reception desk view
+│   │   ├── portal/                   # Customer portal
+│   │   ├── internal/                 # Internal tools (plan proposals, etc.)
+│   │   ├── api/                      # API routes
+│   │   │   ├── auth/                 # Authentication endpoints
+│   │   │   ├── contact/              # Contact form handler
+│   │   │   ├── gallery/              # Gallery CRUD + image upload
+│   │   │   ├── blog/                 # Blog CRUD + image upload
+│   │   │   ├── repairshopr/          # RepairShopr integration
+│   │   │   │   ├── customers/        # Customer API
+│   │   │   │   ├── businesses/       # Business API
+│   │   │   │   ├── tickets/          # Ticket API + status overrides
+│   │   │   │   ├── assets/           # Asset API
+│   │   │   │   └── families/         # Family account API
+│   │   │   ├── ninjaone/             # NinjaOne RMM integration
+│   │   │   ├── google-business/      # Google Business Profile API
+│   │   │   └── webhooks/             # Webhook handlers
+│   │   ├── layout.tsx                # Root layout
+│   │   ├── error.tsx                 # Error boundary
+│   │   ├── not-found.tsx             # 404 page
+│   │   └── global-error.tsx          # Global error handler
+│   │
+│   ├── components/
+│   │   ├── admin/                    # Admin-specific components
+│   │   │   ├── admin-header.tsx      # Admin navigation header
+│   │   │   ├── admin-shell.tsx       # Admin layout wrapper
+│   │   │   ├── intake/               # Customer intake wizard components
+│   │   │   ├── computer-form.tsx     # Gallery computer form
+│   │   │   ├── gallery-table.tsx     # Gallery management table
+│   │   │   └── image-upload.tsx      # Image upload component
+│   │   ├── gallery/                  # Gallery display components
+│   │   │   ├── gallery-grid.tsx      # Computer grid
+│   │   │   ├── flip-card.tsx         # Computer card with flip animation
+│   │   │   ├── category-filter.tsx   # Desktop/laptop filter
+│   │   │   └── gallery-skeleton.tsx  # Loading skeleton
+│   │   ├── home/                     # Homepage components
+│   │   │   ├── hero-section.tsx      # Hero banner
+│   │   │   ├── services-preview.tsx  # Services overview
+│   │   │   ├── testimonials.tsx      # Customer testimonials
+│   │   │   ├── stats-section.tsx     # Business stats
+│   │   │   └── cta-section.tsx       # Call-to-action section
+│   │   ├── layout/                   # Layout components
+│   │   │   ├── header.tsx            # Site header
+│   │   │   ├── nav.tsx               # Navigation menu
+│   │   │   ├── mobile-nav.tsx        # Mobile navigation
+│   │   │   ├── footer.tsx            # Site footer
+│   │   │   └── container.tsx         # Content container
+│   │   ├── forms/                    # Form components
+│   │   │   └── contact-form.tsx      # Contact form with validation
+│   │   ├── reviews/                  # Review components
+│   │   │   ├── ReviewsDisplay.tsx    # Google reviews grid
+│   │   │   └── ReviewsWidget.tsx     # Reviews sidebar widget
+│   │   ├── seo/                      # SEO components
+│   │   │   ├── breadcrumbs.tsx       # Breadcrumb navigation
+│   │   │   └── json-ld.tsx           # Structured data
+│   │   ├── ui/                       # Generic UI components
+│   │   │   ├── button.tsx            # Button variants
+│   │   │   ├── card.tsx              # Card component
+│   │   │   ├── badge.tsx             # Badge/label component
+│   │   │   ├── input.tsx             # Text input
+│   │   │   ├── textarea.tsx          # Textarea input
+│   │   │   ├── select.tsx            # Select dropdown
+│   │   │   ├── modal.tsx             # Modal dialog
+│   │   │   ├── skeleton.tsx          # Loading skeleton
+│   │   │   ├── chat-widget.tsx       # Chat/support widget
+│   │   │   └── mobile-call-button.tsx # Floating call button
+│   │   └── animations/               # Animation utilities
+│   │       └── motion.tsx            # Framer Motion wrappers
+│   │
+│   ├── lib/                          # Utility libraries
+│   │   ├── auth.ts                   # RepairShopr authentication
+│   │   ├── supabase.ts               # Supabase client + ticket status definitions
+│   │   ├── github.ts                 # GitHub API for image storage
+│   │   ├── email.ts                  # Resend email integration
+│   │   ├── repairshopr.ts            # RepairShopr API client
+│   │   ├── ninjaone.ts               # NinjaOne RMM client
+│   │   ├── google-business.ts        # Google Business API client
+│   │   └── utils.ts                  # Helper functions
+│   │
+│   └── data/                         # Static data files
+│       └── gallery.json              # Gallery computer inventory (legacy)
+│
+├── public/                           # Static assets
+│   ├── images/                       # Images
+│   ├── icons/                        # Favicons and icons
+│   └── robots.txt                    # SEO robots file
+│
+├── documentation/                    # Project documentation (this folder)
+│   ├── README.md                     # This file
+│   └── business_info.md              # Client and business information
+│
+├── .claude/                          # Claude Code PM system
+│   ├── agents/                       # Custom agent definitions
+│   ├── commands/                     # PM slash commands
+│   ├── rules/                        # Development rules
+│   ├── prds/                         # Product requirement documents
+│   ├── epics/                        # Epic planning and tracking
+│   └── PM_GUIDE.md                   # PM system documentation
+│
+├── scripts/                          # Utility scripts
+│   └── migrate-users.ts              # RepairShopr user migration
+│
+├── _archive/                         # Archived/deprecated code
+│   └── ...                           # Legacy static HTML site
+│
+├── api/                              # Legacy Express.js backend (unused)
+│   └── ...                           # Preserved for reference
+│
+├── .env.example                      # Environment variables template
+├── .gitignore                        # Git ignore rules
+├── CLAUDE.md                         # Project-specific AI instructions
+├── next.config.js                    # Next.js configuration
+├── tailwind.config.ts                # Tailwind CSS configuration
+├── tsconfig.json                     # TypeScript configuration
+├── package.json                      # npm dependencies and scripts
+├── package-lock.json                 # Dependency lock file
+└── render.yaml                       # Render deployment blueprint
+</code></pre>
+<h3>Key Directories Explained</h3>
+<ul>
+<li><strong><code>(auth)/</code></strong> - Route group for authentication pages (login, register, password reset)</li>
+<li><strong><code>(public)/</code></strong> - Route group for public customer-facing pages with consistent styling</li>
+<li><strong><code>admin/</code></strong> - Protected admin portal for employees</li>
+<li><strong><code>portal/</code></strong> - Customer self-service portal (view tickets, invoices, devices)</li>
+<li><strong><code>internal/</code></strong> - Internal tools not visible to customers or general employees</li>
+<li><strong><code>api/</code></strong> - Next.js API routes following RESTful conventions</li>
+<li><strong><code>components/admin/</code></strong> - Admin-specific UI components</li>
+<li><strong><code>lib/</code></strong> - Business logic, API clients, and utility functions</li>
+<li><strong><code>data/</code></strong> - Static JSON data (being phased out in favor of database)</li>
+<li><strong><code>_archive/</code></strong> - Deprecated code kept for reference (do NOT use)</li>
+</ul>
+<hr>
+<h2>Documentation</h2>
+<p>Comprehensive documentation for different aspects of the project:</p>
+<h3>Core Documentation</h3>
+<ul>
+<li><strong><a href="README.md">README.md</a></strong> - This file (overview and getting started)</li>
+<li><strong><a href="business_info.md">business_info.md</a></strong> - Client information and project context</li>
+</ul>
+<h3>Future Documentation (Planned)</h3>
+<ul>
+<li><strong>ARCHITECTURE.md</strong> - System architecture diagrams and design decisions</li>
+<li><strong>API_REFERENCE.md</strong> - Complete API endpoint documentation</li>
+<li><strong>ADMIN_PORTAL_GUIDE.md</strong> - Admin features and workflows</li>
+<li><strong>PUBLIC_WEBSITE_GUIDE.md</strong> - Public site features and content management</li>
+<li><strong>DATABASE_SCHEMA.md</strong> - Database structure and relationships</li>
+<li><strong>COMPONENT_LIBRARY.md</strong> - React component documentation</li>
+<li><strong>HOOKS_AND_UTILITIES.md</strong> - Custom hooks and utility function reference</li>
+<li><strong>SECURITY.md</strong> - Security implementation and best practices</li>
+<li><strong>DEPLOYMENT_GUIDE.md</strong> - Deployment instructions and troubleshooting</li>
+<li><strong>CODE_STATUS_REPORT.md</strong> - Legacy/unused code analysis</li>
+<li><strong>API_INTEGRATIONS.md</strong> - External API integration reference</li>
+</ul>
+<h3>Development Documentation</h3>
+<ul>
+<li><strong><a href="../.claude/PM_GUIDE.md">.claude/PM_GUIDE.md</a></strong> - Project management system guide</li>
+<li><strong><a href=".env.example">.env.example</a></strong> - Environment variables reference</li>
+<li><strong><a href="../CLAUDE.md">CLAUDE.md</a></strong> - AI agent instructions for this project</li>
+</ul>
+<hr>
+<h2>API Endpoints</h2>
+<h3>Authentication</h3>
+<pre><code>POST   /api/auth/login              # Login with RepairShopr credentials
+POST   /api/auth/logout             # Logout and clear session
+GET    /api/auth/check              # Verify session validity
+</code></pre>
+<h3>Blog</h3>
+<pre><code>GET    /api/blog                    # List published posts (public)
+GET    /api/blog?admin=true         # List all posts including drafts (admin)
+POST   /api/blog                    # Create new post (admin)
+GET    /api/blog/[id]               # Get post by ID or slug
+PUT    /api/blog/[id]               # Update post (admin)
+DELETE /api/blog/[id]               # Delete post (admin)
+POST   /api/blog/upload             # Upload image (admin)
+</code></pre>
+<h3>Gallery</h3>
+<pre><code>GET    /api/gallery                 # List all computers
+POST   /api/gallery                 # Add computer (admin)
+GET    /api/gallery/[id]            # Get single computer
+PUT    /api/gallery/[id]            # Update computer (admin)
+DELETE /api/gallery/[id]            # Delete computer (admin)
+POST   /api/gallery/upload          # Upload image to GitHub (admin)
+POST   /api/gallery/sale            # Update sale status (admin)
+</code></pre>
+<h3>RepairShopr Integration</h3>
+<h4>Customers</h4>
+<pre><code>GET    /api/repairshopr/customers                # Search customers (query: q)
+GET    /api/repairshopr/customers/[id]           # Get customer details
+GET    /api/repairshopr/customers/[id]/tickets   # Get customer&#39;s tickets
+GET    /api/repairshopr/customers/[id]/assets    # Get customer&#39;s assets
+GET    /api/repairshopr/customers/[id]/invoices  # Get customer&#39;s invoices
+GET    /api/repairshopr/customers/[id]/payments  # Get customer&#39;s payments
+GET    /api/repairshopr/customers/[id]/family    # Get family members
+</code></pre>
+<h4>Businesses</h4>
+<pre><code>GET    /api/repairshopr/businesses                # List all businesses
+GET    /api/repairshopr/businesses/customers      # Get customers for business
+</code></pre>
+<h4>Tickets</h4>
+<pre><code>GET    /api/repairshopr/tickets                   # Search/list tickets (query: q, status)
+POST   /api/repairshopr/tickets                   # Create ticket
+GET    /api/repairshopr/tickets/[id]              # Get ticket details
+PUT    /api/repairshopr/tickets/[id]              # Update ticket
+GET    /api/repairshopr/tickets/[id]/public-notes # Get public notes timeline
+POST   /api/repairshopr/tickets/[id]/comment      # Add comment/note
+GET    /api/repairshopr/tickets/call-customer     # Get tickets needing customer call
+POST   /api/repairshopr/tickets/sync-statuses     # Sync status overrides from RepairShopr
+</code></pre>
+<h4>Ticket Status System</h4>
+<pre><code>GET    /api/repairshopr/tickets/status-definitions # Get custom status definitions
+GET    /api/repairshopr/tickets/status/[id]        # Get status override for ticket
+POST   /api/repairshopr/tickets/status/[id]        # Set/update status override
+POST   /api/repairshopr/tickets/status-batch       # Get status overrides for multiple tickets
+</code></pre>
+<h4>Assets</h4>
+<pre><code>GET    /api/repairshopr/assets                    # List all assets
+GET    /api/repairshopr/assets/[id]               # Get asset details
+</code></pre>
+<h4>Families</h4>
+<pre><code>GET    /api/repairshopr/families                  # List all families
+GET    /api/repairshopr/families/[id]             # Get family details
+GET    /api/repairshopr/families/customers        # Get customers in family
+</code></pre>
+<h3>NinjaOne RMM</h3>
+<pre><code>GET    /api/ninjaone/devices                      # List all devices
+GET    /api/ninjaone/devices/[id]                 # Get device details
+GET    /api/ninjaone/devices/customer/[email]     # Get devices for customer by email
+</code></pre>
+<h3>Google Business</h3>
+<pre><code>GET    /api/google-business/info                  # Get business information
+GET    /api/google-business/reviews               # Get customer reviews
+GET    /api/google-business/posts                 # Get business posts
+</code></pre>
+<h3>Admin Operations</h3>
+<pre><code>GET    /api/admin/search                          # Universal search (customers, tickets)
+GET    /api/admin/employees                       # List employees
+POST   /api/admin/employees                       # Create employee
+GET    /api/admin/employees/[id]                  # Get employee details
+PUT    /api/admin/employees/[id]                  # Update employee
+DELETE /api/admin/employees/[id]                  # Delete employee
+GET    /api/admin/silver-plan                     # Get Silver Plan customers
+GET    /api/admin/asset-plans                     # Get asset plan assignments
+POST   /api/admin/sync                            # Sync data from external sources
+POST   /api/admin/set-location                    # Set user&#39;s location
+</code></pre>
+<h3>Customer Portal</h3>
+<pre><code>POST   /api/customers/portal-account              # Create/link portal account
+</code></pre>
+<h3>Health Check</h3>
+<pre><code>GET    /api/health                                # Health check endpoint
+</code></pre>
+<h3>Contact Form</h3>
+<pre><code>POST   /api/contact                               # Submit contact form
+</code></pre>
+<h3>Webhooks</h3>
+<pre><code>POST   /api/webhooks/repairshopr                  # RepairShopr webhook handler
+</code></pre>
+<hr>
+<h2>Deployment</h2>
+<h3>Render Configuration</h3>
+<p>This project uses Render Blueprints for automated deployment:</p>
+<p><strong>Production Environment</strong></p>
+<ul>
+<li><strong>Branch</strong>: <code>Production</code></li>
+<li><strong>URL</strong>: <a href="https://computerstoreks.com">https://computerstoreks.com</a></li>
+<li><strong>Build</strong>: <code>npm install &amp;&amp; npm run build &amp;&amp; &lt;copy standalone&gt;</code></li>
+<li><strong>Start</strong>: <code>cd .next/standalone &amp;&amp; node server.js</code></li>
+</ul>
+<p><strong>Development Environment</strong></p>
+<ul>
+<li><strong>Branch</strong>: <code>Development</code></li>
+<li><strong>URL</strong>: <a href="https://csk-development.onrender.com">https://csk-development.onrender.com</a></li>
+<li><strong>Build</strong>: Same as production</li>
+<li><strong>Start</strong>: Same as production</li>
+</ul>
+<h3>Deployment Steps</h3>
+<ol>
+<li><p><strong>Push to branch</strong></p>
+<pre><code class="language-bash"># For development
+git checkout Development
+git add .
+git commit -m &quot;Your changes&quot;
+git push origin Development
+
+# For production
+git checkout Production
+git merge Development  # Merge tested changes
+git push origin Production
+</code></pre>
+</li>
+<li><p><strong>Render auto-deploys</strong> from the configured branch</p>
+</li>
+<li><p><strong>Configure environment variables</strong> in Render dashboard:</p>
+<ul>
+<li>Navigate to your service in Render</li>
+<li>Go to Environment tab</li>
+<li>Add all required variables from <code>.env.example</code></li>
+<li>Required variables are marked with <code>sync: false</code> in <code>render.yaml</code></li>
+</ul>
+</li>
+</ol>
+<h3>Database Setup</h3>
+<ol>
+<li><p><strong>Create Supabase project</strong> at <a href="https://supabase.com">https://supabase.com</a></p>
+</li>
+<li><p><strong>Run SQL migrations</strong> in Supabase SQL Editor:</p>
+<pre><code class="language-sql">-- Blog schema
+CREATE TABLE blog_categories (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name TEXT NOT NULL UNIQUE,
+  slug TEXT NOT NULL UNIQUE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE blog_posts (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  title TEXT NOT NULL,
+  slug TEXT NOT NULL UNIQUE,
+  content TEXT NOT NULL,
+  excerpt TEXT,
+  featured_image TEXT,
+  category_id UUID REFERENCES blog_categories(id),
+  published BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE blog_tags (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name TEXT NOT NULL UNIQUE,
+  slug TEXT NOT NULL UNIQUE
+);
+
+CREATE TABLE blog_post_tags (
+  post_id UUID REFERENCES blog_posts(id) ON DELETE CASCADE,
+  tag_id UUID REFERENCES blog_tags(id) ON DELETE CASCADE,
+  PRIMARY KEY (post_id, tag_id)
+);
+
+-- Ticket status system
+CREATE TABLE ticket_status_definitions (
+  status TEXT PRIMARY KEY,
+  display_name TEXT NOT NULL,
+  sort_order INTEGER NOT NULL,
+  repairshopr_status TEXT NOT NULL,
+  show_customer_question BOOLEAN DEFAULT FALSE,
+  customer_visible_status TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE ticket_status_overrides (
+  repairshopr_ticket_id INTEGER PRIMARY KEY,
+  custom_status TEXT REFERENCES ticket_status_definitions(status),
+  customer_question TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Insert default status definitions
+INSERT INTO ticket_status_definitions (status, display_name, sort_order, repairshopr_status, show_customer_question, customer_visible_status) VALUES
+  (&#39;new&#39;, &#39;New&#39;, 0, &#39;New&#39;, false, &#39;Received&#39;),
+  (&#39;diagnosing&#39;, &#39;Diagnosing&#39;, 1, &#39;In Progress&#39;, false, &#39;Being Diagnosed&#39;),
+  (&#39;repairing&#39;, &#39;Repairing&#39;, 2, &#39;In Progress&#39;, false, &#39;Being Repaired&#39;),
+  (&#39;data_transferring&#39;, &#39;Data Transfer&#39;, 3, &#39;In Progress&#39;, false, &#39;Transferring Data&#39;),
+  (&#39;installing&#39;, &#39;Installing&#39;, 4, &#39;In Progress&#39;, false, &#39;Installing Software&#39;),
+  (&#39;waiting_for_parts&#39;, &#39;Waiting for Parts&#39;, 5, &#39;Waiting on Parts&#39;, false, &#39;Waiting for Parts&#39;),
+  (&#39;building&#39;, &#39;Building&#39;, 6, &#39;In Progress&#39;, false, &#39;Being Built&#39;),
+  (&#39;call_customer&#39;, &#39;Call Customer&#39;, 7, &#39;Waiting on Customer&#39;, true, &#39;Pending Your Response&#39;),
+  (&#39;waiting_for_customer_reply&#39;, &#39;Waiting for Reply&#39;, 8, &#39;Waiting on Customer&#39;, false, &#39;Pending Your Response&#39;),
+  (&#39;ready_for_pickup&#39;, &#39;Ready for Pickup&#39;, 9, &#39;Resolved&#39;, false, &#39;Ready for Pickup&#39;),
+  (&#39;completed&#39;, &#39;Completed&#39;, 10, &#39;Resolved&#39;, false, &#39;Completed&#39;);
+</code></pre>
+</li>
+<li><p><strong>Configure Supabase Storage</strong> (for blog images):</p>
+<ul>
+<li>Create a bucket named <code>blog-images</code></li>
+<li>Set appropriate access policies</li>
+</ul>
+</li>
+</ol>
+<h3>Post-Deployment Verification</h3>
+<ol>
+<li><strong>Check health endpoint</strong>: <a href="https://computerstoreks.com/api/health">https://computerstoreks.com/api/health</a></li>
+<li><strong>Test public site</strong>: Browse services, gallery, blog</li>
+<li><strong>Test admin login</strong>: Login with RepairShopr credentials</li>
+<li><strong>Verify integrations</strong>: Check RepairShopr, NinjaOne, Google Business data loads</li>
+</ol>
+<h3>Troubleshooting</h3>
+<p><strong>Build fails</strong></p>
+<ul>
+<li>Check Node.js version matches (20.11.0)</li>
+<li>Verify all dependencies are in <code>package.json</code></li>
+<li>Check for TypeScript errors: <code>npm run type-check</code></li>
+</ul>
+<p><strong>Environment variables not working</strong></p>
+<ul>
+<li>Ensure they&#39;re set in Render dashboard</li>
+<li>Check variable names match exactly</li>
+<li>Remember to restart service after changing env vars</li>
+</ul>
+<p><strong>Database connection fails</strong></p>
+<ul>
+<li>Verify Supabase project URL and keys</li>
+<li>Check if SQL migrations were run</li>
+<li>Test connection from local environment first</li>
+</ul>
+<hr>
+<h2>Contributing</h2>
+<h3>Development Workflow</h3>
+<ol>
+<li><p><strong>Always work in <code>Development</code> branch</strong></p>
+<pre><code class="language-bash">git checkout Development
+</code></pre>
+</li>
+<li><p><strong>Make changes and test locally</strong></p>
+<pre><code class="language-bash">npm run dev
+npm run type-check
+npm run build  # Test production build
+</code></pre>
+</li>
+<li><p><strong>Commit with clear messages</strong></p>
+<pre><code class="language-bash">git add .
+git commit -m &quot;feat: add customer search to intake wizard&quot;
+</code></pre>
+</li>
+<li><p><strong>Push to Development branch</strong></p>
+<pre><code class="language-bash">git push origin Development
+</code></pre>
+</li>
+<li><p><strong>Test on development site</strong></p>
+<ul>
+<li>Wait for Render deployment</li>
+<li>Visit <a href="https://csk-development.onrender.com">https://csk-development.onrender.com</a></li>
+<li>Verify changes work correctly</li>
+</ul>
+</li>
+<li><p><strong>Merge to Production when ready</strong></p>
+<pre><code class="language-bash">git checkout Production
+git merge Development
+git push origin Production
+</code></pre>
+</li>
+</ol>
+<h3>Code Standards</h3>
+<ul>
+<li><strong>TypeScript</strong>: Use strict mode, no <code>any</code> types</li>
+<li><strong>Components</strong>: Functional components with TypeScript interfaces</li>
+<li><strong>Styling</strong>: Tailwind CSS for admin, custom CSS for public pages</li>
+<li><strong>API Routes</strong>: Use Zod for request validation</li>
+<li><strong>Error Handling</strong>: Always use try/catch with proper error responses</li>
+<li><strong>Documentation</strong>: All functions MUST have comprehensive JSDoc comments (see <a href="../CLAUDE.md">CLAUDE.md</a> for requirements)</li>
+</ul>
+<h3>Git Conventions</h3>
+<p><strong>Branch Strategy</strong></p>
+<ul>
+<li><code>Production</code> - Live customer site</li>
+<li><code>Development</code> - Testing and staging</li>
+</ul>
+<p><strong>Commit Message Format</strong></p>
+<pre><code>&lt;type&gt;: &lt;description&gt;
+
+[optional body]
+</code></pre>
+<p>Types:</p>
+<ul>
+<li><code>feat</code> - New feature</li>
+<li><code>fix</code> - Bug fix</li>
+<li><code>docs</code> - Documentation changes</li>
+<li><code>refactor</code> - Code refactoring</li>
+<li><code>test</code> - Adding tests</li>
+<li><code>chore</code> - Maintenance tasks</li>
+</ul>
+<h3>Project Management</h3>
+<p>This project uses the <strong>Bast + CCPM</strong> system for spec-driven development.</p>
+<pre><code class="language-bash"># Create requirements document
+/pm:prd-new &lt;feature-name&gt;
+
+# Parse into implementation plan
+/pm:prd-parse &lt;feature-name&gt;
+
+# Break into tasks
+/pm:epic-decompose &lt;feature-name&gt;
+
+# Sync to GitHub
+/pm:epic-sync &lt;feature-name&gt;
+
+# Start parallel work
+/pm:issue-start &lt;issue-number&gt;
+</code></pre>
+<p>See <a href="../.claude/PM_GUIDE.md">.claude/PM_GUIDE.md</a> for complete documentation.</p>
+<hr>
+<h2>License</h2>
+<p>Proprietary - All rights reserved by Resilient Web Solutions and The Computer Store.</p>
+<hr>
+<h2>Contact</h2>
+<p><strong>Project Maintainer</strong>: Matthew McManness (Resilient Web Solutions)<br><strong>Client</strong>: The Computer Store, Topeka, Kansas<br><strong>Website</strong>: <a href="https://computerstoreks.com">https://computerstoreks.com</a></p>
+<hr>
+<p><strong>Last Updated</strong>: 2026-01-12</p>
+
+    </div>
+    <script>
+        // Initialize Mermaid with configuration
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'base',
+            themeVariables: {
+                // Primary colors for main nodes
+                primaryColor: '#dbeafe',
+                primaryTextColor: '#1e293b',
+                primaryBorderColor: '#2563eb',
+
+                // Secondary and tertiary colors
+                secondaryColor: '#f0fdf4',
+                secondaryTextColor: '#1e293b',
+                secondaryBorderColor: '#10b981',
+                tertiaryColor: '#fef3c7',
+                tertiaryTextColor: '#1e293b',
+                tertiaryBorderColor: '#f59e0b',
+
+                // General text and background
+                textColor: '#1e293b',
+                nodeTextColor: '#1e293b',
+                lineColor: '#64748b',
+                background: '#ffffff',
+                mainBkg: '#f8fafc',
+
+                // Node styling
+                nodeBorder: '#2563eb',
+                nodeBackgroundColor: '#eff6ff',
+
+                // Cluster/subgraph styling
+                clusterBkg: '#f1f5f9',
+                clusterBorder: '#cbd5e1',
+
+                // Labels and titles
+                titleColor: '#1e293b',
+                edgeLabelBackground: '#ffffff',
+                labelTextColor: '#1e293b',
+
+                // Additional diagram-specific colors
+                actorTextColor: '#1e293b',
+                actorLineColor: '#64748b',
+                signalTextColor: '#1e293b',
+                loopTextColor: '#1e293b',
+                noteBkgColor: '#fef3c7',
+                noteTextColor: '#1e293b',
+                noteBorderColor: '#f59e0b',
+
+                // Git graph colors
+                git0: '#2563eb',
+                git1: '#10b981',
+                git2: '#f59e0b',
+                git3: '#ef4444',
+                gitBranchLabel0: '#1e293b',
+                gitBranchLabel1: '#1e293b',
+                gitBranchLabel2: '#1e293b',
+                gitBranchLabel3: '#1e293b'
+            },
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis',
+                nodeSpacing: 50,
+                rankSpacing: 50
+            },
+            sequence: {
+                useMaxWidth: true,
+                wrap: true,
+                actorMargin: 50
+            },
+            er: {
+                useMaxWidth: true
+            },
+            gitGraph: {
+                useMaxWidth: true
+            }
+        });
+
+        // Find all mermaid code blocks and convert them
+        // Note: This processes static documentation content, not user input
+        document.querySelectorAll('pre code.language-mermaid, pre code').forEach(async (codeBlock, index) => {
+            const code = codeBlock.textContent.trim();
+
+            // Check if it looks like mermaid syntax
+            const mermaidKeywords = ['graph ', 'flowchart ', 'sequenceDiagram', 'classDiagram',
+                                      'stateDiagram', 'erDiagram', 'gantt', 'pie ', 'gitgraph',
+                                      'journey', 'quadrantChart', 'requirementDiagram', 'mindmap',
+                                      'timeline', 'sankey', 'block-beta'];
+
+            const isMermaid = codeBlock.classList.contains('language-mermaid') ||
+                              mermaidKeywords.some(kw => code.startsWith(kw));
+
+            if (isMermaid) {
+                try {
+                    const pre = codeBlock.parentElement;
+                    const container = document.createElement('div');
+                    container.className = 'mermaid';
+                    container.id = 'mermaid-' + index;
+
+                    // Render the diagram - mermaid.render returns sanitized SVG
+                    const { svg } = await mermaid.render('mermaid-svg-' + index, code);
+
+                    // Safe: SVG is generated by mermaid library from static docs
+                    container.insertAdjacentHTML('beforeend', svg);
+
+                    // Replace the pre block with the rendered diagram
+                    pre.parentNode.replaceChild(container, pre);
+                } catch (e) {
+                    console.warn('Failed to render mermaid diagram:', e.message);
+                    // Leave as code block if rendering fails
+                    codeBlock.parentElement.classList.add('mermaid-error');
+                }
+            }
+        });
+
+        // Add IDs to headers for linking
+        document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(header => {
+            if (!header.id) {
+                header.id = header.textContent.toLowerCase()
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/^-|-$/g, '');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -21,6 +21,7 @@ import {
   AlertCircle,
   Check,
   X,
+  MapPin,
 } from 'lucide-react';
 import type { UserProfile } from '@/lib/supabase-auth';
 import {
@@ -34,6 +35,11 @@ import {
   isBusinessRole,
   isAddOnRole,
 } from '@/types/roles';
+import {
+  type LocationOption,
+  canAccessAllLocations,
+  GLOBAL_ACCESS_ROLES,
+} from '@/types/locations';
 
 /**
  * Role badge styling configuration.
@@ -72,10 +78,12 @@ const roleStyles: Record<EmployeeRole, { icon: React.ReactNode; className: strin
 };
 
 /**
- * Extended UserProfile with roles array.
+ * Extended UserProfile with roles array and default location.
  */
 interface ExtendedUserProfile extends UserProfile {
   roles?: string[];
+  location_id?: string | null;
+  default_location_id?: string | null;
 }
 
 /**
@@ -120,8 +128,12 @@ export default function EmployeesPage() {
   const [editingEmployee, setEditingEmployee] = useState<ExtendedUserProfile | null>(null);
   const [selectedBusinessRole, setSelectedBusinessRole] = useState<BusinessRole>('receptionist');
   const [selectedAddOns, setSelectedAddOns] = useState<Set<AddOnRole>>(new Set());
+  const [selectedDefaultLocation, setSelectedDefaultLocation] = useState<string | null>(null);
   const [savingRoles, setSavingRoles] = useState(false);
   const [roleError, setRoleError] = useState<string | null>(null);
+
+  // Available locations for default location dropdown
+  const [locations, setLocations] = useState<LocationOption[]>([]);
 
   // Delete confirmation modal state
   const [deletingEmployee, setDeletingEmployee] = useState<ExtendedUserProfile | null>(null);
@@ -175,6 +187,11 @@ export default function EmployeesPage() {
             ['admin', 'manager', 'owner', 'lead_developer'].includes(r)
           );
           setCanManageEmployees(canManage);
+
+          // Get available locations from the location context
+          if (data.locationContext?.availableLocations) {
+            setLocations(data.locationContext.availableLocations);
+          }
         }
       })
       .catch(() => router.push('/admin/login'));
@@ -192,6 +209,13 @@ export default function EmployeesPage() {
     // Find add-on roles
     const addOns = currentRoles.filter(r => isAddOnRole(r)) as AddOnRole[];
     setSelectedAddOns(new Set(addOns));
+
+    // Set current default location
+    // Find the location slug from the location_id
+    const defaultLocSlug = employee.default_location_id
+      ? locations.find(l => l.slug === employee.default_location_id)?.slug || null
+      : null;
+    setSelectedDefaultLocation(defaultLocSlug);
 
     setEditingEmployee(employee);
     setRoleError(null);
@@ -222,23 +246,30 @@ export default function EmployeesPage() {
       const response = await fetch(`/api/admin/employees/${editingEmployee.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ roles: newRoles }),
+        body: JSON.stringify({
+          roles: newRoles,
+          default_location: selectedDefaultLocation, // Location slug
+        }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to update roles');
+        throw new Error(data.error || 'Failed to update employee');
       }
 
       // Update local state
       setEmployees(prev =>
-        prev.map(e => (e.id === editingEmployee.id ? { ...e, roles: newRoles } : e))
+        prev.map(e => (e.id === editingEmployee.id ? {
+          ...e,
+          roles: newRoles,
+          default_location_id: selectedDefaultLocation,
+        } : e))
       );
       setEditingEmployee(null);
-      showToast('success', `${editingEmployee.full_name || editingEmployee.email}'s roles updated`);
+      showToast('success', `${editingEmployee.full_name || editingEmployee.email}'s settings updated`);
     } catch (err) {
-      setRoleError(err instanceof Error ? err.message : 'Failed to update roles');
+      setRoleError(err instanceof Error ? err.message : 'Failed to update employee');
     } finally {
       setSavingRoles(false);
     }
@@ -570,6 +601,61 @@ export default function EmployeesPage() {
                 })}
               </div>
             </div>
+
+            {/* Default Location - Only for users with global access roles */}
+            {(() => {
+              // Check if the selected roles include a global access role
+              const selectedRoles = [selectedBusinessRole, ...Array.from(selectedAddOns)];
+              const hasGlobalAccess = selectedRoles.some(r =>
+                GLOBAL_ACCESS_ROLES.includes(r as typeof GLOBAL_ACCESS_ROLES[number])
+              );
+
+              if (!hasGlobalAccess || locations.length === 0) return null;
+
+              return (
+                <div className="mb-6">
+                  <h3 className="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Default Location <span className="text-gray-400">(For multi-location access)</span>
+                  </h3>
+                  <p className="mb-3 text-xs text-gray-500 dark:text-gray-400">
+                    This location will be pre-selected when the employee opens the portal.
+                  </p>
+                  <div className="space-y-2">
+                    {locations.map((location) => (
+                      <button
+                        key={location.slug}
+                        onClick={() => setSelectedDefaultLocation(
+                          selectedDefaultLocation === location.slug ? null : location.slug
+                        )}
+                        disabled={!location.is_active}
+                        className={`flex w-full items-center gap-3 rounded-lg border p-3 transition-colors ${
+                          selectedDefaultLocation === location.slug
+                            ? 'border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-900/30'
+                            : location.is_active
+                              ? 'border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800'
+                              : 'border-gray-200 opacity-50 cursor-not-allowed dark:border-gray-700'
+                        }`}
+                      >
+                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
+                          <MapPin className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                        </span>
+                        <div className="flex-1 text-left">
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {location.name}
+                          </p>
+                          {!location.is_active && (
+                            <p className="text-xs text-gray-400">Coming Soon</p>
+                          )}
+                        </div>
+                        {selectedDefaultLocation === location.slug && (
+                          <Check className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
 
             <div className="flex items-center justify-end gap-3">
               <button

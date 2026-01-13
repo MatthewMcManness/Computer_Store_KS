@@ -24,7 +24,7 @@ import {
   RepairShoprTicketComment,
   RepairShoprProduct,
 } from './repairshopr';
-import { supabaseAdmin } from './supabase';
+import { supabaseAdmin, getDefaultCustomStatusForRepairShoprStatus } from './supabase';
 
 // =============================================================================
 // Types
@@ -345,7 +345,18 @@ async function fetchTicketWithComments(
 
 /**
  * Sync all tickets from RepairShopr to Supabase
- * Uses streaming batch processing to avoid timeouts and memory issues
+ * Uses streaming batch processing to avoid timeouts and memory issues.
+ * Also automatically creates/updates status overrides for each ticket.
+ *
+ * @returns SyncResult with count of synced/failed tickets
+ *
+ * @sideEffects
+ * - Upserts records into rs_tickets table
+ * - Upserts records into ticket_status_overrides table
+ * - Logs sync progress and errors
+ *
+ * @version 1.0.0 - 2026-01-12T00:00:00Z - Initial implementation
+ * @version 1.1.0 - 2026-01-13T00:00:00Z - Added automatic status override sync
  */
 export async function syncAllTickets(): Promise<SyncResult> {
   const startTime = Date.now();
@@ -406,6 +417,27 @@ export async function syncAllTickets(): Promise<SyncResult> {
         result.errors.push(`Batch upsert failed: ${error.message}`);
       } else {
         result.synced += tickets.length;
+
+        // Also update status overrides for tickets with status
+        const statusOverrides = tickets
+          .filter((t) => t.status)
+          .map((ticket) => ({
+            repairshopr_ticket_id: ticket.id,
+            custom_status: getDefaultCustomStatusForRepairShoprStatus(ticket.status || ''),
+            updated_by: 'sync_all',
+            updated_at: new Date().toISOString(),
+          }));
+
+        if (statusOverrides.length > 0) {
+          const { error: overrideError } = await supabaseAdmin
+            .from('ticket_status_overrides')
+            .upsert(statusOverrides, { onConflict: 'repairshopr_ticket_id' });
+
+          if (overrideError) {
+            console.error('[Sync] Status override batch upsert error:', overrideError);
+            // Non-critical - don't fail the whole sync
+          }
+        }
       }
     };
 

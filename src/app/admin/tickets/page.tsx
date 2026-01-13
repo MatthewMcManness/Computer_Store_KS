@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Search,
@@ -45,6 +45,8 @@ interface TicketData {
   updated_at?: string;
 }
 
+type ProtectionPlanTier = 'eset' | 'silver' | 'silver-plus' | null;
+
 export default function TicketsListPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -55,9 +57,59 @@ export default function TicketsListPage() {
   const [tickets, setTickets] = useState<TicketData[]>([]);
   const [statusDefinitions, setStatusDefinitions] = useState<StatusDefinition[]>([]);
   const [ticketStatusOverrides, setTicketStatusOverrides] = useState<Record<number, StatusOverride>>({});
+  const [customerPlanTiers, setCustomerPlanTiers] = useState<Record<number, ProtectionPlanTier>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
+
+  /**
+   * Priority sorting for tickets:
+   * 1. Rework status = highest priority (level 1)
+   * 2. Silver Plus devices = level 2
+   * 3. Silver devices = level 3
+   * 4. ESET and No Protection Plan = level 4 (lowest)
+   * Within same level, sort by oldest first (created_at ascending)
+   */
+  const getTicketPriorityLevel = useCallback((ticket: TicketData): number => {
+    // Check if ticket has rework status (highest priority)
+    const override = ticketStatusOverrides[ticket.id];
+    if (override?.custom_status === 'rework') {
+      return 1; // Highest priority
+    }
+
+    // Check protection plan tier
+    const tier = customerPlanTiers[ticket.customer_id];
+    switch (tier) {
+      case 'silver-plus':
+        return 2;
+      case 'silver':
+        return 3;
+      case 'eset':
+      case null:
+      default:
+        return 4; // Lowest priority
+    }
+  }, [ticketStatusOverrides, customerPlanTiers]);
+
+  // Sort tickets by priority
+  const sortedTickets = useMemo(() => {
+    if (!tickets.length) return tickets;
+
+    return [...tickets].sort((a, b) => {
+      // First, compare by priority level (lower = higher priority)
+      const priorityA = getTicketPriorityLevel(a);
+      const priorityB = getTicketPriorityLevel(b);
+
+      if (priorityA !== priorityB) {
+        return priorityA - priorityB;
+      }
+
+      // Same priority level - sort by oldest first (created_at ascending)
+      const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+      const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+      return dateA - dateB;
+    });
+  }, [tickets, getTicketPriorityLevel]);
 
   // Load status definitions on mount
   useEffect(() => {
@@ -101,9 +153,12 @@ export default function TicketsListPage() {
       const fetchedTickets = data.tickets || [];
       setTickets(fetchedTickets);
 
-      // Fetch status overrides for all tickets
+      // Fetch status overrides and protection plan tiers for all tickets
       if (fetchedTickets.length > 0) {
         const ticketIds = fetchedTickets.map((t: TicketData) => t.id);
+        const customerIds = [...new Set(fetchedTickets.map((t: TicketData) => t.customer_id).filter(Boolean))];
+
+        // Fetch status overrides
         try {
           const overridesRes = await fetch('/api/repairshopr/tickets/status-batch', {
             method: 'POST',
@@ -117,13 +172,32 @@ export default function TicketsListPage() {
         } catch (overrideErr) {
           console.error('Failed to fetch status overrides:', overrideErr);
         }
+
+        // Fetch protection plan tiers for priority sorting
+        if (customerIds.length > 0) {
+          try {
+            const tiersRes = await fetch('/api/repairshopr/customers/protection-plans-batch', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ customer_ids: customerIds }),
+            });
+            const tiersData = await tiersRes.json();
+            if (tiersRes.ok && tiersData.tiers) {
+              setCustomerPlanTiers(tiersData.tiers);
+            }
+          } catch (tierErr) {
+            console.error('Failed to fetch protection plan tiers:', tierErr);
+          }
+        }
       } else {
         setTicketStatusOverrides({});
+        setCustomerPlanTiers({});
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch tickets');
       setTickets([]);
       setTicketStatusOverrides({});
+      setCustomerPlanTiers({});
     } finally {
       setIsLoading(false);
     }
@@ -175,6 +249,8 @@ export default function TicketsListPage() {
   const getStatusColorClass = (status: string, customStatus?: string) => {
     const statusKey = customStatus || status?.toLowerCase();
     switch (statusKey) {
+      case 'rework':
+        return 'bg-red-200 text-red-900 dark:bg-red-900/70 dark:text-red-200 font-bold';
       case 'new':
         return 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300';
       case 'diagnosing':
@@ -324,7 +400,7 @@ export default function TicketsListPage() {
               Try again
             </button>
           </div>
-        ) : tickets.length === 0 ? (
+        ) : sortedTickets.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <Ticket className="h-12 w-12 text-gray-300 dark:text-gray-600" />
             <p className="mt-4 text-gray-500 dark:text-gray-400">
@@ -335,16 +411,21 @@ export default function TicketsListPage() {
           </div>
         ) : (
           <div className="divide-y divide-gray-200 dark:divide-gray-700">
-            {tickets.map((ticket) => {
+            {sortedTickets.map((ticket) => {
               const override = ticketStatusOverrides[ticket.id];
               const displayStatus = getDisplayStatus(ticket);
               const statusColor = getStatusColorClass(ticket.status || '', override?.custom_status);
+              const isRework = override?.custom_status === 'rework';
 
               return (
                 <button
                   key={ticket.id}
                   onClick={() => router.push(`/admin/tickets/${ticket.id}`)}
-                  className="flex w-full items-center justify-between p-4 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
+                  className={`flex w-full items-center justify-between p-4 text-left transition-colors ${
+                    isRework
+                      ? 'bg-red-50 hover:bg-red-100 dark:bg-red-950/30 dark:hover:bg-red-950/50 border-l-4 border-red-500'
+                      : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+                  }`}
                 >
                   <div className="flex min-w-0 flex-1 items-start gap-4">
                     <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800">

@@ -1101,6 +1101,7 @@ export async function getCustomerTicketPublicNotes(
 // =============================================================================
 
 export type TicketCustomStatus =
+  | 'rework'
   | 'new'
   | 'diagnosing'
   | 'repairing'
@@ -1137,6 +1138,7 @@ export interface TicketStatusDefinition {
 
 // Static status definitions (used when DB not available or for quick lookups)
 export const TICKET_STATUS_DEFINITIONS: TicketStatusDefinition[] = [
+  { status: 'rework', display_name: 'Rework', description: 'Needs rework - highest priority', repairshopr_status: 'Rework', show_customer_question: false, customer_visible_status: 'Being Repaired', sort_order: 0, is_active: true },
   { status: 'new', display_name: 'New', description: 'Ticket just created', repairshopr_status: 'New', show_customer_question: false, customer_visible_status: 'Received', sort_order: 1, is_active: true },
   { status: 'diagnosing', display_name: 'Diagnosing', description: 'Diagnosing the issue', repairshopr_status: 'In Progress', show_customer_question: false, customer_visible_status: 'Being Diagnosed', sort_order: 2, is_active: true },
   { status: 'repairing', display_name: 'Repairing', description: 'Repair in progress', repairshopr_status: 'In Progress', show_customer_question: false, customer_visible_status: 'Being Repaired', sort_order: 3, is_active: true },
@@ -1270,6 +1272,7 @@ export function getDefaultCustomStatusForRepairShoprStatus(
 
   // Map RepairShopr statuses to our custom statuses
   // Using case-insensitive matching for robustness
+  if (statusLower === 'rework') return 'rework';
   if (statusLower === 'new') return 'new';
   if (statusLower === 'in progress') return 'diagnosing'; // Default to diagnosing for "In Progress"
   if (statusLower === 'waiting for parts') return 'waiting_for_parts';

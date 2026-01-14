@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getEmployeeAuditInfo, getSessionToken } from '@/lib/auth';
+import { getEmployeeAuditInfo, getSessionToken, getCurrentUser } from '@/lib/auth';
 import { createRepairShoprClient, RepairShoprAPIError, getApiToken } from '@/lib/repairshopr';
 import { logTicketAction } from '@/lib/audit';
 import {
+  supabaseAdmin,
   getTicketStatusOverride,
   setTicketStatusOverride,
   getRepairShoprStatusForCustomStatus,
@@ -10,11 +11,56 @@ import {
   TICKET_STATUS_DEFINITIONS,
   TicketCustomStatus,
 } from '@/lib/supabase';
+import { getEffectiveLocationId } from '@/lib/location-helpers';
 
 export const dynamic = 'force-dynamic';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
+}
+
+/**
+ * Check if the user has access to a ticket based on its customer's location.
+ *
+ * @param ticketId - The ticket ID to check
+ * @param apiToken - API token for RepairShopr
+ * @param effectiveLocationId - Location ID to check against (null means no filtering)
+ * @returns true if user has access, false otherwise
+ *
+ * @version 1.0.0 - 2026-01-14T00:00:00Z - Initial implementation
+ */
+async function hasTicketLocationAccess(
+  ticketId: number,
+  apiToken: string,
+  effectiveLocationId: string | null
+): Promise<boolean> {
+  // No filtering needed if user has access to all locations
+  if (!effectiveLocationId || !supabaseAdmin) {
+    return true;
+  }
+
+  // Fetch ticket from RepairShopr to get customer_id
+  const client = createRepairShoprClient();
+  const ticket = await client.getTicket(apiToken, ticketId);
+
+  if (!ticket.customer_id) {
+    // Tickets without customer_id are denied for safety
+    return false;
+  }
+
+  // Check if customer belongs to the effective location
+  const { data: customer, error } = await supabaseAdmin
+    .from('rs_customers')
+    .select('location_id')
+    .eq('repairshopr_id', ticket.customer_id)
+    .single();
+
+  if (error) {
+    console.error('[API] Failed to check ticket status location access:', error);
+    return false;
+  }
+
+  return customer?.location_id === effectiveLocationId;
 }
 
 /**
@@ -58,6 +104,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
  * PUT /api/repairshopr/tickets/[id]/status
  * Update the custom status for a ticket
  * Body: { custom_status: string, customer_question?: string }
+ *
+ * Location filtering:
+ * - Verifies user has access to update the ticket based on customer location
+ * - Returns 403 if user doesn't have access to the ticket's customer location
+ *
+ * @version 1.0.0 - Initial implementation
+ * @version 1.1.0 - 2026-01-14T00:00:00Z - Added location-based access check
  */
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   // Check employee authentication and get audit info
@@ -72,6 +125,14 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ error: 'Session expired' }, { status: 401 });
   }
 
+  // Get current user for location filtering
+  const currentUser = await getCurrentUser();
+  const userRoles = currentUser?.roles || [];
+  const userLocationId = currentUser?.location_id || null;
+
+  // Get the effective location ID to filter by
+  const effectiveLocationId = await getEffectiveLocationId(userRoles, userLocationId);
+
   const { id } = await params;
   const ticketId = parseInt(id, 10);
 
@@ -79,6 +140,27 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json(
       { error: 'Invalid ticket ID' },
       { status: 400 }
+    );
+  }
+
+  // Check location access before allowing status update
+  try {
+    if (!(await hasTicketLocationAccess(ticketId, apiToken, effectiveLocationId))) {
+      return NextResponse.json(
+        { error: 'Access denied - ticket belongs to a different location' },
+        { status: 403 }
+      );
+    }
+  } catch (error) {
+    if (error instanceof RepairShoprAPIError) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: error.status }
+      );
+    }
+    return NextResponse.json(
+      { error: 'Failed to verify ticket access' },
+      { status: 500 }
     );
   }
 

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getEmployeeAuditInfo, getSessionToken } from '@/lib/auth';
+import { getEmployeeAuditInfo, getSessionToken, getCurrentUser } from '@/lib/auth';
 import { createRepairShoprClient, getApiToken } from '@/lib/repairshopr';
 import { supabaseAdmin } from '@/lib/supabase';
+import { getEffectiveLocationId } from '@/lib/location-helpers';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,6 +12,14 @@ export const dynamic = 'force-dynamic';
  * 1. RepairShopr tickets with "CnC" status
  * 2. Supabase overrides with 'call_customer' custom status
  * Returns combined, deduplicated list with customer details
+ *
+ * Location filtering:
+ * - Tickets are filtered based on the customer's location_id
+ * - Users with global access see all tickets (unless they select a location)
+ * - Regular users only see tickets for their assigned location
+ *
+ * @version 1.0.0 - Initial implementation
+ * @version 1.1.0 - 2026-01-14T00:00:00Z - Added location-based filtering
  */
 export async function GET(request: NextRequest) {
   // Check employee authentication
@@ -24,6 +33,14 @@ export async function GET(request: NextRequest) {
   if (!apiToken) {
     return NextResponse.json({ error: 'Session expired' }, { status: 401 });
   }
+
+  // Get current user for location filtering
+  const currentUser = await getCurrentUser();
+  const userRoles = currentUser?.roles || [];
+  const userLocationId = currentUser?.location_id || null;
+
+  // Get the effective location ID to filter by
+  const effectiveLocationId = await getEffectiveLocationId(userRoles, userLocationId);
 
   try {
     const client = createRepairShoprClient();
@@ -105,9 +122,38 @@ export async function GET(request: NextRequest) {
     }
 
     // Convert map to array and sort by status_changed_at ascending (oldest first)
-    const tickets = Array.from(ticketMap.values()).sort(
+    let tickets = Array.from(ticketMap.values()).sort(
       (a, b) => new Date(a.status_changed_at).getTime() - new Date(b.status_changed_at).getTime()
     );
+
+    // Filter tickets by location if user doesn't have access to all locations
+    if (effectiveLocationId && supabaseAdmin) {
+      // Get customer IDs from tickets
+      const customerIds = tickets.map((t) => t.customer_id);
+
+      if (customerIds.length > 0) {
+        // Query rs_customers to find which customers belong to the effective location
+        const { data: allowedCustomers, error: locationError } = await supabaseAdmin
+          .from('rs_customers')
+          .select('repairshopr_id')
+          .eq('location_id', effectiveLocationId)
+          .in('repairshopr_id', customerIds);
+
+        if (locationError) {
+          console.error('[API] Failed to filter call-customer tickets by location:', locationError);
+          // On error, return no tickets rather than leaking data
+          return NextResponse.json({ tickets: [] });
+        }
+
+        // Create a set of allowed customer IDs for fast lookup
+        const allowedCustomerIds = new Set(
+          (allowedCustomers || []).map((c) => c.repairshopr_id)
+        );
+
+        // Filter tickets to only include those with customers in the allowed location
+        tickets = tickets.filter((t) => allowedCustomerIds.has(t.customer_id));
+      }
+    }
 
     return NextResponse.json({ tickets });
   } catch (error) {

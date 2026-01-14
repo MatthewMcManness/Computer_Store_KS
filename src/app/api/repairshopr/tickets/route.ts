@@ -1,10 +1,69 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getEmployeeAuditInfo, getSessionToken } from '@/lib/auth';
+import { getEmployeeAuditInfo, getSessionToken, getCurrentUser } from '@/lib/auth';
 import { createRepairShoprClient, RepairShoprAPIError, getApiToken } from '@/lib/repairshopr';
 import { logTicketAction } from '@/lib/audit';
 import { supabaseAdmin, TICKET_STATUS_DEFINITIONS } from '@/lib/supabase';
+import { getEffectiveLocationId } from '@/lib/location-helpers';
 
 export const dynamic = 'force-dynamic';
+
+/**
+ * Filter tickets by location based on customer location_id.
+ *
+ * @param tickets - Array of tickets to filter
+ * @param effectiveLocationId - Location ID to filter by (null means no filtering)
+ * @returns Filtered array of tickets
+ *
+ * @functions_called supabaseAdmin
+ * @called_by GET /api/repairshopr/tickets
+ *
+ * @version 1.0.0 - 2026-01-14T00:00:00Z - Initial implementation
+ */
+async function filterTicketsByLocation(
+  tickets: Array<{ id: number; customer_id?: number; [key: string]: unknown }>,
+  effectiveLocationId: string | null
+): Promise<Array<{ id: number; customer_id?: number; [key: string]: unknown }>> {
+  // No filtering needed if user has access to all locations
+  if (!effectiveLocationId || !supabaseAdmin) {
+    return tickets;
+  }
+
+  // Get customer IDs from tickets
+  const customerIds = tickets
+    .map((t) => t.customer_id)
+    .filter((id): id is number => typeof id === 'number');
+
+  if (customerIds.length === 0) {
+    return tickets;
+  }
+
+  // Query rs_customers to find which customers belong to the effective location
+  const { data: allowedCustomers, error } = await supabaseAdmin
+    .from('rs_customers')
+    .select('repairshopr_id')
+    .eq('location_id', effectiveLocationId)
+    .in('repairshopr_id', customerIds);
+
+  if (error) {
+    console.error('[API] Failed to filter tickets by location:', error);
+    // On error, return no tickets rather than leaking data
+    return [];
+  }
+
+  // Create a set of allowed customer IDs for fast lookup
+  const allowedCustomerIds = new Set(
+    (allowedCustomers || []).map((c) => c.repairshopr_id)
+  );
+
+  // Filter tickets to only include those with customers in the allowed location
+  return tickets.filter((t) => {
+    if (typeof t.customer_id !== 'number') {
+      // Tickets without customer_id are filtered out for safety
+      return false;
+    }
+    return allowedCustomerIds.has(t.customer_id);
+  });
+}
 
 /**
  * GET /api/repairshopr/tickets
@@ -18,8 +77,14 @@ export const dynamic = 'force-dynamic';
  *   passes directly to RepairShopr API
  * - If no status, returns all tickets
  *
+ * Location filtering:
+ * - Tickets are filtered based on the customer's location_id
+ * - Users with global access see all tickets (unless they select a location)
+ * - Regular users only see tickets for their assigned location
+ *
  * @version 1.0.0 - 2026-01-12T00:00:00Z - Initial implementation
  * @version 1.1.0 - 2026-01-12T00:00:00Z - Added custom status filtering via Supabase
+ * @version 1.2.0 - 2026-01-14T00:00:00Z - Added location-based filtering
  */
 export async function GET(request: NextRequest) {
   // Check employee authentication and get audit info
@@ -33,6 +98,14 @@ export async function GET(request: NextRequest) {
   if (!apiToken) {
     return NextResponse.json({ error: 'Session expired' }, { status: 401 });
   }
+
+  // Get current user for location filtering
+  const currentUser = await getCurrentUser();
+  const userRoles = currentUser?.roles || [];
+  const userLocationId = currentUser?.location_id || null;
+
+  // Get the effective location ID to filter by
+  const effectiveLocationId = await getEffectiveLocationId(userRoles, userLocationId);
 
   // Get search parameters
   const searchParams = request.nextUrl.searchParams;
@@ -104,7 +177,13 @@ export async function GET(request: NextRequest) {
         currentPage++;
       }
 
-      return NextResponse.json({ tickets: allTickets });
+      // Filter tickets by location
+      const filteredTickets = await filterTicketsByLocation(
+        allTickets as Array<{ id: number; customer_id?: number; [key: string]: unknown }>,
+        effectiveLocationId
+      );
+
+      return NextResponse.json({ tickets: filteredTickets });
     }
 
     // For RepairShopr statuses or no status filter, pass directly to API
@@ -115,7 +194,13 @@ export async function GET(request: NextRequest) {
       page: page ? parseInt(page, 10) : undefined,
     });
 
-    return NextResponse.json({ tickets });
+    // Filter tickets by location
+    const filteredTickets = await filterTicketsByLocation(
+      tickets as unknown as Array<{ id: number; customer_id?: number; [key: string]: unknown }>,
+      effectiveLocationId
+    );
+
+    return NextResponse.json({ tickets: filteredTickets });
   } catch (error) {
     if (error instanceof RepairShoprAPIError) {
       return NextResponse.json(

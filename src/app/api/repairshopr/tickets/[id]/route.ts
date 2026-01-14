@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getEmployeeAuditInfo, getSessionToken } from '@/lib/auth';
+import { getEmployeeAuditInfo, getSessionToken, getCurrentUser } from '@/lib/auth';
 import { createRepairShoprClient, RepairShoprAPIError, getApiToken } from '@/lib/repairshopr';
 import { logTicketAction } from '@/lib/audit';
+import { supabaseAdmin } from '@/lib/supabase';
+import { getEffectiveLocationId } from '@/lib/location-helpers';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,8 +12,52 @@ interface RouteParams {
 }
 
 /**
+ * Check if the user has access to view a ticket based on location.
+ *
+ * @param customerId - Customer ID from the ticket
+ * @param effectiveLocationId - Location ID to check against (null means no filtering)
+ * @returns true if user has access, false otherwise
+ *
+ * @functions_called supabaseAdmin
+ * @called_by GET /api/repairshopr/tickets/[id], PUT /api/repairshopr/tickets/[id]
+ *
+ * @version 1.0.0 - 2026-01-14T00:00:00Z - Initial implementation
+ */
+async function hasLocationAccess(
+  customerId: number,
+  effectiveLocationId: string | null
+): Promise<boolean> {
+  // No filtering needed if user has access to all locations
+  if (!effectiveLocationId || !supabaseAdmin) {
+    return true;
+  }
+
+  // Check if customer belongs to the effective location
+  const { data: customer, error } = await supabaseAdmin
+    .from('rs_customers')
+    .select('location_id')
+    .eq('repairshopr_id', customerId)
+    .single();
+
+  if (error) {
+    console.error('[API] Failed to check ticket location access:', error);
+    // On error, deny access for safety
+    return false;
+  }
+
+  return customer?.location_id === effectiveLocationId;
+}
+
+/**
  * GET /api/repairshopr/tickets/[id]
  * Get a single ticket with full details (comments, timers, etc.)
+ *
+ * Location filtering:
+ * - Verifies user has access to view the ticket based on customer location
+ * - Returns 403 if user doesn't have access to the ticket's customer location
+ *
+ * @version 1.0.0 - Initial implementation
+ * @version 1.1.0 - 2026-01-14T00:00:00Z - Added location-based access check
  */
 export async function GET(request: NextRequest, { params }: RouteParams) {
   // Check employee authentication and get audit info
@@ -26,6 +72,14 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ error: 'Session expired' }, { status: 401 });
   }
 
+  // Get current user for location filtering
+  const currentUser = await getCurrentUser();
+  const userRoles = currentUser?.roles || [];
+  const userLocationId = currentUser?.location_id || null;
+
+  // Get the effective location ID to filter by
+  const effectiveLocationId = await getEffectiveLocationId(userRoles, userLocationId);
+
   const { id } = await params;
   const ticketId = parseInt(id, 10);
 
@@ -39,6 +93,14 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const client = createRepairShoprClient();
     const ticket = await client.getTicket(apiToken, ticketId);
+
+    // Check if user has access to this ticket based on customer location
+    if (ticket.customer_id && !(await hasLocationAccess(ticket.customer_id, effectiveLocationId))) {
+      return NextResponse.json(
+        { error: 'Access denied - ticket belongs to a different location' },
+        { status: 403 }
+      );
+    }
 
     return NextResponse.json({ ticket });
   } catch (error) {
@@ -61,6 +123,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
  * PUT /api/repairshopr/tickets/[id]
  * Update a ticket
  * Body: UpdateTicketInput
+ *
+ * Location filtering:
+ * - Verifies user has access to update the ticket based on customer location
+ * - Returns 403 if user doesn't have access to the ticket's customer location
+ *
+ * @version 1.0.0 - Initial implementation
+ * @version 1.1.0 - 2026-01-14T00:00:00Z - Added location-based access check
  */
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   // Check employee authentication and get audit info
@@ -74,6 +143,14 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   if (!apiToken) {
     return NextResponse.json({ error: 'Session expired' }, { status: 401 });
   }
+
+  // Get current user for location filtering
+  const currentUser = await getCurrentUser();
+  const userRoles = currentUser?.roles || [];
+  const userLocationId = currentUser?.location_id || null;
+
+  // Get the effective location ID to filter by
+  const effectiveLocationId = await getEffectiveLocationId(userRoles, userLocationId);
 
   const { id } = await params;
   const ticketId = parseInt(id, 10);
@@ -98,6 +175,18 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
   try {
     const client = createRepairShoprClient();
+
+    // First fetch the ticket to check location access
+    const existingTicket = await client.getTicket(apiToken, ticketId);
+
+    // Check if user has access to this ticket based on customer location
+    if (existingTicket.customer_id && !(await hasLocationAccess(existingTicket.customer_id, effectiveLocationId))) {
+      return NextResponse.json(
+        { error: 'Access denied - ticket belongs to a different location' },
+        { status: 403 }
+      );
+    }
+
     const ticket = await client.updateTicket(apiToken, ticketId, body);
 
     // Log the ticket update for audit trail

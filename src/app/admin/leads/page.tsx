@@ -18,7 +18,7 @@ import { Target, Phone, Calendar, TrendingUp } from 'lucide-react';
 export default async function LeadsPage() {
   const authenticated = await isAuthenticated();
   if (!authenticated) {
-    redirect('/admin/login');
+    redirect('/login');
   }
 
   return (

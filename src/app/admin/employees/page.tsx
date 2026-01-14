@@ -159,7 +159,7 @@ export default function EmployeesPage() {
       const response = await fetch('/api/admin/employees');
       if (!response.ok) {
         if (response.status === 401) {
-          router.push('/admin/login');
+          router.push('/login');
           return;
         }
         throw new Error('Failed to fetch employees');
@@ -178,7 +178,7 @@ export default function EmployeesPage() {
     fetch('/api/auth/check')
       .then(res => {
         if (!res.ok) {
-          router.push('/admin/login');
+          router.push('/login');
           return null;
         }
         return res.json();
@@ -205,7 +205,7 @@ export default function EmployeesPage() {
           }
         }
       })
-      .catch(() => router.push('/admin/login'));
+      .catch(() => router.push('/login'));
 
     fetchEmployees();
   }, [router, fetchEmployees]);

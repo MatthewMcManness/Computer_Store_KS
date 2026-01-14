@@ -122,7 +122,7 @@ export default function NewEmployeePage() {
     fetch('/api/auth/check')
       .then(res => {
         if (!res.ok) {
-          router.push('/admin/login');
+          router.push('/login');
           return null;
         }
         return res.json();
@@ -143,7 +143,7 @@ export default function NewEmployeePage() {
         }
         setAuthChecked(true);
       })
-      .catch(() => router.push('/admin/login'));
+      .catch(() => router.push('/login'));
   }, [router]);
 
   const handleInputChange = (field: keyof typeof formData, value: string) => {

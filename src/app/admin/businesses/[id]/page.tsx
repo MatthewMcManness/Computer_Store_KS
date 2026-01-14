@@ -79,9 +79,9 @@ export default function BusinessDetailsPage() {
   useEffect(() => {
     fetch('/api/auth/check')
       .then(res => {
-        if (!res.ok) router.push('/admin/login');
+        if (!res.ok) router.push('/login');
       })
-      .catch(() => router.push('/admin/login'));
+      .catch(() => router.push('/login'));
   }, [router]);
 
   // Load business by customer ID

@@ -18,7 +18,7 @@ import { Wrench, ListTodo, Clock, CheckCircle2 } from 'lucide-react';
 export default async function TechDashboardPage() {
   const authenticated = await isAuthenticated();
   if (!authenticated) {
-    redirect('/admin/login');
+    redirect('/login');
   }
 
   return (

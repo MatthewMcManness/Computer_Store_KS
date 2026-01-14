@@ -18,7 +18,7 @@ import { FileText, DollarSign, Send, CheckCircle } from 'lucide-react';
 export default async function InvoicesPage() {
   const authenticated = await isAuthenticated();
   if (!authenticated) {
-    redirect('/admin/login');
+    redirect('/login');
   }
 
   return (

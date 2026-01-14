@@ -489,11 +489,6 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  // Skip admin login page to prevent redirect loops
-  if (pathname === '/admin/login') {
-    return response;
-  }
-
   // Initialize auth state
   let isAuthenticated = false;
   let userRoles: string[] = [];

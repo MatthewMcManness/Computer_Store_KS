@@ -18,7 +18,7 @@ import { ClipboardList, Clock, Users, Inbox } from 'lucide-react';
 export default async function ReceptionDashboardPage() {
   const authenticated = await isAuthenticated();
   if (!authenticated) {
-    redirect('/admin/login');
+    redirect('/login');
   }
 
   return (

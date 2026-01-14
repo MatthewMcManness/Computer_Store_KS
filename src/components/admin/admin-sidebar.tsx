@@ -374,7 +374,7 @@ export function AdminSidebar({
    *
    * @sideEffects
    * - Calls POST /api/auth/logout
-   * - Redirects to /admin/login or calls onLogout callback
+   * - Redirects to /login or calls onLogout callback
    *
    * @functions_called fetch
    * @called_by Logout button click handler
@@ -387,7 +387,7 @@ export function AdminSidebar({
       if (onLogout) {
         onLogout();
       } else {
-        window.location.href = '/admin/login';
+        window.location.href = '/login';
       }
     } catch (error) {
       console.error('Logout error:', error);

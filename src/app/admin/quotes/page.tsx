@@ -18,7 +18,7 @@ import { Calculator, FileText, Send, Clock } from 'lucide-react';
 export default async function QuotesPage() {
   const authenticated = await isAuthenticated();
   if (!authenticated) {
-    redirect('/admin/login');
+    redirect('/login');
   }
 
   return (

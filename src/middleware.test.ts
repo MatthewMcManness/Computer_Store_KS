@@ -39,7 +39,7 @@ describe('Role-Based Middleware', () => {
 
       expect(response.status).toBe(307); // Redirect
       expect(response.headers.get('location')).toBe(
-        'http://localhost:3000/admin/login'
+        'http://localhost:3000/login'
       );
     });
 
@@ -49,12 +49,12 @@ describe('Role-Based Middleware', () => {
 
       expect(response.status).toBe(307);
       expect(response.headers.get('location')).toBe(
-        'http://localhost:3000/admin/login'
+        'http://localhost:3000/login'
       );
     });
 
     test('allows access to login page without session', () => {
-      const request = createMockRequest('/admin/login');
+      const request = createMockRequest('/login');
       const response = middleware(request);
 
       expect(response.status).toBe(200);
@@ -229,7 +229,7 @@ describe('Role-Based Middleware', () => {
 
   describe('login page redirection', () => {
     test('redirects away from login if already authenticated', () => {
-      const request = createMockRequest('/admin/login', {
+      const request = createMockRequest('/login', {
         sessionCookie: 'valid-session',
         roleCookie: 'admin',
       });

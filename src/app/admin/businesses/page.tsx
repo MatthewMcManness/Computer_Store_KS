@@ -45,12 +45,12 @@ export default function BusinessesPage() {
       .then(res => res.json())
       .then(data => {
         if (!data?.authenticated || !data?.user) {
-          router.push('/admin/login');
+          router.push('/login');
         } else if (data.user.role === 'admin') {
           setIsAdmin(true);
         }
       })
-      .catch(() => router.push('/admin/login'));
+      .catch(() => router.push('/login'));
   }, [router]);
 
   // Load migration progress

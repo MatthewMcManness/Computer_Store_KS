@@ -18,7 +18,7 @@ import { ClipboardCheck, Wrench, MessageSquare, Camera } from 'lucide-react';
 export default async function TicketWorkPage() {
   const authenticated = await isAuthenticated();
   if (!authenticated) {
-    redirect('/admin/login');
+    redirect('/login');
   }
 
   return (

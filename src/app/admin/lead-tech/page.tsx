@@ -18,7 +18,7 @@ import { Crown, Users, ArrowUpDown, BarChart3 } from 'lucide-react';
 export default async function LeadTechDashboardPage() {
   const authenticated = await isAuthenticated();
   if (!authenticated) {
-    redirect('/admin/login');
+    redirect('/login');
   }
 
   return (

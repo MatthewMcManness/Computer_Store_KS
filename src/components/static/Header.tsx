@@ -152,7 +152,7 @@ export function Header() {
               </Link>
             </li>
             <li className="nav-action primary">
-              <Link className="nav-link" href="/admin/login">
+              <Link className="nav-link" href="/login">
                 Login
               </Link>
             </li>

@@ -529,6 +529,7 @@ export async function middleware(request: NextRequest) {
 
       if (!error && user) {
         isAuthenticated = true;
+        console.log(`[AUTH DEBUG] Supabase user found: ${user.id}, email: ${user.email}`);
 
         // Get user profile for roles
         // Note: Using session client - RLS policy "Users can read own profile" allows this

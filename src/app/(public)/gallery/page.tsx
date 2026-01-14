@@ -221,7 +221,7 @@ function GalleryContent() {
                   <div className="gallery-row-category">
                     <span className={`category-tag category-${item.category.toLowerCase()}`}>
                       {item.category.toLowerCase() === 'refurbished' ? 'Refurbished' :
-                       (item.category.toLowerCase() === 'new' && item.type.toLowerCase() === 'laptop') ? 'New' : 'Custom Built'}
+                       (item.category.toLowerCase() === 'custom' && item.type.toLowerCase() === 'laptop') ? 'New' : 'Custom Built'}
                     </span>
                     <span className={`type-tag type-${item.type.toLowerCase()}`}>
                       {item.type.toLowerCase() === 'desktop' ? 'Desktop' : 'Laptop'}

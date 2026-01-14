@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
-  Search,
   Ticket,
   User,
   Clock,
@@ -53,7 +52,6 @@ export default function TicketsListPage() {
   const searchParams = useSearchParams();
   const initialStatus = searchParams.get('status') || '';
 
-  const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState(initialStatus);
   const [tickets, setTickets] = useState<TicketData[]>([]);
   const [statusDefinitions, setStatusDefinitions] = useState<StatusDefinition[]>([]);
@@ -146,17 +144,16 @@ export default function TicketsListPage() {
   // Load initial tickets based on status filter
   useEffect(() => {
     if (initialStatus) {
-      fetchTickets(initialStatus, '');
+      fetchTickets(initialStatus);
     }
   }, []);
 
-  const fetchTickets = useCallback(async (status: string, query: string) => {
+  const fetchTickets = useCallback(async (status: string) => {
     setIsLoading(true);
     setError(null);
 
     try {
       const params = new URLSearchParams();
-      if (query.trim()) params.append('q', query.trim());
       if (status) params.append('status', status);
 
       const response = await fetch(`/api/repairshopr/tickets?${params.toString()}`);
@@ -236,25 +233,8 @@ export default function TicketsListPage() {
       params.delete('status');
     }
     router.replace(`/admin/tickets?${params.toString()}`);
-    fetchTickets(status, searchQuery);
+    fetchTickets(status);
   };
-
-  // Handle search
-  const handleSearch = () => {
-    if (searchQuery.trim().length >= 2 || statusFilter) {
-      fetchTickets(statusFilter, searchQuery);
-    }
-  };
-
-  // Debounced search
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (searchQuery.trim().length >= 2) {
-        fetchTickets(statusFilter, searchQuery);
-      }
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [searchQuery, statusFilter, fetchTickets]);
 
   // Get display status for a ticket (custom override or RepairShopr status)
   const getDisplayStatus = (ticket: TicketData) => {
@@ -324,21 +304,9 @@ export default function TicketsListPage() {
         <p className="text-gray-600 dark:text-gray-400">View and manage repair tickets</p>
       </div>
 
-      {/* Search and Filter Bar */}
+      {/* Status Filter Bar */}
       <div className="mb-6 rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
-          {/* Search Input */}
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by ticket #, customer name, or subject..."
-              className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-4 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-            />
-          </div>
-
           {/* Mobile Filter Button */}
           <button
             onClick={() => setShowMobileFilters(!showMobileFilters)}
@@ -417,7 +385,7 @@ export default function TicketsListPage() {
           <div className="p-6 text-center">
             <div className="text-red-600 dark:text-red-400">{error}</div>
             <button
-              onClick={() => fetchTickets(statusFilter, searchQuery)}
+              onClick={() => fetchTickets(statusFilter)}
               className="mt-2 text-sm text-blue-600 hover:underline dark:text-blue-400"
             >
               Try again
@@ -427,9 +395,9 @@ export default function TicketsListPage() {
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <Ticket className="h-12 w-12 text-gray-300 dark:text-gray-600" />
             <p className="mt-4 text-gray-500 dark:text-gray-400">
-              {searchQuery || statusFilter
-                ? 'No tickets match your search criteria'
-                : 'Select a status filter or search for tickets'}
+              {statusFilter
+                ? 'No tickets match the selected status'
+                : 'Select a status filter to view tickets'}
             </p>
           </div>
         ) : (

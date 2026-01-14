@@ -266,7 +266,7 @@ export async function authenticateWithSupabase(
       console.log(`[AUTH] Profile lookup error: ${profileError.code} - ${profileError.message}`);
     }
     if (profile) {
-      console.log(`[AUTH] Found profile with role: ${profile.role}`);
+      console.log(`[AUTH] Found profile - role: ${profile.role}, roles: ${JSON.stringify(profile.roles)}, raw profile: ${JSON.stringify(profile)}`);
     }
 
     // Only create profile if it truly doesn't exist (PGRST116 = no rows returned)
@@ -299,6 +299,7 @@ export async function authenticateWithSupabase(
     // Get roles array (new multi-role system) or fallback to single role
     // Profile may have 'roles' (TEXT[]) or 'role' (TEXT)
     const profileRoles: string[] = profile?.roles || (profile?.role ? [profile.role] : ['customer']);
+    console.log(`[AUTH] Computed profileRoles: ${JSON.stringify(profileRoles)} (from profile.roles: ${JSON.stringify(profile?.roles)}, profile.role: ${profile?.role})`);
 
     // Get location_id from profile
     const locationId: string | null = profile?.location_id || null;
@@ -357,7 +358,9 @@ export async function authenticateWithSupabase(
     });
 
     // Set the actual roles array as JSON for the multi-role system
-    cookieStore.set(ROLES_COOKIE_NAME, JSON.stringify(profileRoles), {
+    const rolesJsonValue = JSON.stringify(profileRoles);
+    console.log(`[AUTH] Setting user_roles cookie to: ${rolesJsonValue}`);
+    cookieStore.set(ROLES_COOKIE_NAME, rolesJsonValue, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',

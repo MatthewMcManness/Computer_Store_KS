@@ -408,6 +408,9 @@ function checkLegacyAuth(request: NextRequest): {
     return { isAuth: false, legacyRole: null, roles: [] };
   }
 
+  // Debug: Log all cookie values
+  console.log(`[AUTH DEBUG] Legacy cookies - session: ${sessionCookie?.value ? 'present' : 'missing'}, role: ${roleCookie?.value}, roles: ${rolesCookie?.value}`);
+
   // First, try to read the actual roles array from the user_roles cookie
   if (rolesCookie?.value) {
     try {

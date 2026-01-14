@@ -1111,6 +1111,7 @@ export type TicketCustomStatus =
   | 'building'
   | 'call_customer'
   | 'waiting_for_customer_reply'
+  | 'on_hold'
   | 'ready_for_pickup_no_payment_due'
   | 'ready_for_pickup_payment_due'
   | 'completed'
@@ -1149,9 +1150,10 @@ export const TICKET_STATUS_DEFINITIONS: TicketStatusDefinition[] = [
   { status: 'building', display_name: 'Building', description: 'Building custom system', repairshopr_status: 'In Progress', show_customer_question: false, customer_visible_status: 'Being Built', sort_order: 7, is_active: true },
   { status: 'call_customer', display_name: 'Call Customer', description: 'Need to call customer', repairshopr_status: 'CNC', show_customer_question: true, customer_visible_status: 'We Have a Question', sort_order: 8, is_active: true },
   { status: 'waiting_for_customer_reply', display_name: 'Waiting for Customer Reply', description: 'Waiting for response', repairshopr_status: 'Customer Reply', show_customer_question: true, customer_visible_status: 'Awaiting Your Response', sort_order: 9, is_active: true },
-  { status: 'ready_for_pickup_no_payment_due', display_name: 'Ready for Pickup (No Payment Due)', description: 'On done shelf, no payment required', repairshopr_status: 'Done Shelf', show_customer_question: false, customer_visible_status: 'Ready for Pickup', sort_order: 10, is_active: true },
-  { status: 'ready_for_pickup_payment_due', display_name: 'Ready for Pickup (Payment Due)', description: 'On done shelf, payment required', repairshopr_status: 'Done Shelf', show_customer_question: false, customer_visible_status: 'Ready for Pickup - Payment Due', sort_order: 11, is_active: true },
-  { status: 'completed', display_name: 'Completed', description: 'Fully resolved', repairshopr_status: 'Resolved', show_customer_question: false, customer_visible_status: 'Completed', sort_order: 12, is_active: true },
+  { status: 'on_hold', display_name: 'On Hold', description: 'Ticket on hold waiting for customer', repairshopr_status: 'Waiting on Customer', show_customer_question: false, customer_visible_status: 'On Hold', sort_order: 10, is_active: true },
+  { status: 'ready_for_pickup_no_payment_due', display_name: 'Ready for Pickup (No Payment Due)', description: 'On done shelf, no payment required', repairshopr_status: 'Done Shelf', show_customer_question: false, customer_visible_status: 'Ready for Pickup', sort_order: 11, is_active: true },
+  { status: 'ready_for_pickup_payment_due', display_name: 'Ready for Pickup (Payment Due)', description: 'On done shelf, payment required', repairshopr_status: 'Done Shelf', show_customer_question: false, customer_visible_status: 'Ready for Pickup - Payment Due', sort_order: 12, is_active: true },
+  { status: 'completed', display_name: 'Completed', description: 'Fully resolved', repairshopr_status: 'Resolved', show_customer_question: false, customer_visible_status: 'Completed', sort_order: 13, is_active: true },
   { status: 'deprecated_rs_status', display_name: 'Stop Using RepairShopr!', description: 'Ticket set to deprecated RS status - needs correction', repairshopr_status: 'DEPRECATED', show_customer_question: false, customer_visible_status: 'Being Processed', sort_order: 99, is_active: false },
 ];
 
@@ -1281,7 +1283,7 @@ export function getDefaultCustomStatusForRepairShoprStatus(
   if (statusLower === 'new') return 'new';
   if (statusLower === 'in progress') return 'diagnosing'; // Default to diagnosing for "In Progress"
   if (statusLower === 'waiting for parts') return 'waiting_for_parts';
-  if (statusLower === 'waiting on customer') return 'waiting_for_customer_reply';
+  if (statusLower === 'waiting on customer') return 'on_hold';
   if (statusLower === 'customer reply') return 'call_customer'; // Default to call_customer for "Customer Reply"
   if (statusLower === 'done shelf') return 'ready_for_pickup_no_payment_due';
   if (statusLower === 'resolved') return 'completed';

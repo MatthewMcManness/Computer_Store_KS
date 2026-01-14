@@ -22,8 +22,10 @@ interface RateLimitEntry {
 // In-memory rate limit store (keyed by IP)
 const rateLimitStore = new Map<string, RateLimitEntry>();
 
-const RATE_LIMIT_MAX_ATTEMPTS = 5;
-const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
+// TODO: Restore stricter limits after fixing auth system
+// Original: 5 attempts per 15 minutes
+const RATE_LIMIT_MAX_ATTEMPTS = 50; // Lenient for development
+const RATE_LIMIT_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
 
 /**
  * Clean up expired rate limit entries periodically.

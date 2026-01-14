@@ -163,8 +163,10 @@ async function syncCustomer(customer: RepairShoprWebhookCustomer): Promise<void>
     city: customer.city || null,
     state: customer.state || null,
     zip: customer.zip || null,
-    rs_created_at: customer.created_at || null,
-    rs_updated_at: customer.updated_at || null,
+    tags: customer.tags || null,
+    properties: customer.properties || null,
+    created_at: customer.created_at || null,
+    updated_at: customer.updated_at || null,
     synced_at: new Date().toISOString(),
   };
 
@@ -196,14 +198,13 @@ async function syncTicket(ticket: RepairShoprWebhookTicket): Promise<void> {
     status: ticket.status || null,
     problem_type: ticket.problem_type || null,
     customer_id: ticket.customer_id || null,
-    customer_name: ticket.customer_business_then_name || null,
+    customer_business_then_name: ticket.customer_business_then_name || null,
     user_id: ticket.user_id || null,
     due_date: ticket.due_date || null,
     priority: ticket.priority || null,
     resolved_at: ticket.resolved_at || null,
-    location_id: ticket.location_id || null,
-    rs_created_at: ticket.created_at || null,
-    rs_updated_at: ticket.updated_at || null,
+    created_at: ticket.created_at || null,
+    updated_at: ticket.updated_at || null,
     synced_at: new Date().toISOString(),
   };
 
@@ -255,11 +256,11 @@ async function syncInvoice(invoice: RepairShoprWebhookInvoice): Promise<void> {
     number: invoice.number || null,
     customer_id: invoice.customer_id || null,
     total: invoice.total || 0,
-    balance: invoice.balance || 0,
+    balance_due: invoice.balance || 0,
     status: invoice.status || null,
-    paid_at: invoice.paid_at || null,
-    rs_created_at: invoice.created_at || null,
-    rs_updated_at: invoice.updated_at || null,
+    is_paid: invoice.paid_at ? true : (invoice.balance === 0 && invoice.total > 0),
+    created_at: invoice.created_at || null,
+    updated_at: invoice.updated_at || null,
     synced_at: new Date().toISOString(),
   };
 
@@ -286,12 +287,11 @@ async function syncAsset(asset: RepairShoprWebhookAsset): Promise<void> {
   const record = {
     repairshopr_id: asset.id,
     name: asset.name || null,
-    asset_type: asset.asset_type || null,
+    asset_type_name: asset.asset_type || null,
     customer_id: asset.customer_id || null,
-    serial: asset.serial || null,
     properties: asset.properties || null,
-    rs_created_at: asset.created_at || null,
-    rs_updated_at: asset.updated_at || null,
+    created_at: asset.created_at || null,
+    updated_at: asset.updated_at || null,
     synced_at: new Date().toISOString(),
   };
 

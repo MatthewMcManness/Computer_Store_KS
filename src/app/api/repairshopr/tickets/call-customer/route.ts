@@ -104,9 +104,9 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Convert map to array and sort by status_changed_at descending
+    // Convert map to array and sort by status_changed_at ascending (oldest first)
     const tickets = Array.from(ticketMap.values()).sort(
-      (a, b) => new Date(b.status_changed_at).getTime() - new Date(a.status_changed_at).getTime()
+      (a, b) => new Date(a.status_changed_at).getTime() - new Date(b.status_changed_at).getTime()
     );
 
     return NextResponse.json({ tickets });

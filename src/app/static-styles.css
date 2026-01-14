@@ -2211,18 +2211,24 @@ form button {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 3rem;
-  padding: 3rem 0;
+  padding: 3rem 2rem;
   border-bottom: 1px solid var(--background-dark);
   align-items: center;
+  margin: 0 -2rem;
+  width: calc(100% + 4rem);
+}
+
+/* Alternating row colors */
+.gallery-row:nth-child(even) {
+  background-color: var(--background-light);
 }
 
 .gallery-row:first-child {
-  padding-top: 0;
+  padding-top: 2rem;
 }
 
 .gallery-row:last-child {
   border-bottom: none;
-  padding-bottom: 0;
 }
 
 /* Reverse layout for alternating rows */

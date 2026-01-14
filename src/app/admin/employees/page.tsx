@@ -297,13 +297,15 @@ export default function EmployeesPage() {
         throw new Error(data.error || 'Failed to update employee');
       }
 
-      // Update local state
+      // Update local state with actual server response
+      const updatedEmployee = data.employee;
       setEmployees(prev =>
         prev.map(e => (e.id === editingEmployee.id ? {
           ...e,
-          roles: newRoles,
-          default_location_id: selectedDefaultLocation,
-          full_name: editingName || e.full_name,
+          roles: updatedEmployee.roles || newRoles,
+          role: updatedEmployee.role,
+          default_location_id: updatedEmployee.default_location_id,
+          full_name: updatedEmployee.full_name || e.full_name,
         } : e))
       );
       setEditingEmployee(null);

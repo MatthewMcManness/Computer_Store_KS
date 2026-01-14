@@ -484,8 +484,11 @@ export async function updateUserProfile(
 ): Promise<UserProfile | null> {
   const client = createAuthAdminClient();
   if (!client) {
+    console.error('[updateUserProfile] No admin client available');
     return null;
   }
+
+  console.log(`[updateUserProfile] Updating user ${userId} with:`, JSON.stringify(updates));
 
   const { data, error } = await client
     .from('user_profiles')
@@ -495,9 +498,14 @@ export async function updateUserProfile(
     .single();
 
   if (error) {
-    console.error('Error updating user profile:', error);
+    console.error('[updateUserProfile] Supabase error:', error.code, error.message, error.details);
     return null;
   }
+
+  console.log(`[updateUserProfile] Success! Returned data:`, JSON.stringify({
+    roles: data?.roles,
+    role: data?.role,
+  }));
 
   return data as UserProfile;
 }

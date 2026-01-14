@@ -243,6 +243,9 @@ export async function authenticateWithSupabase(
       };
     }
 
+    // CRITICAL DEBUG: Log exactly what Supabase auth returned
+    console.log(`[AUTH] Supabase auth SUCCESS - email used: ${email}, returned user ID: ${authData.user.id}, returned email: ${authData.user.email}`);
+
     // Step 2: Get or create user profile from user_profiles table
     // IMPORTANT: Use a fresh admin client to ensure service_role context
     // (signInWithPassword may have attached user session to the original client)
@@ -266,7 +269,7 @@ export async function authenticateWithSupabase(
       console.log(`[AUTH] Profile lookup error: ${profileError.code} - ${profileError.message}`);
     }
     if (profile) {
-      console.log(`[AUTH] Found profile - role: ${profile.role}, roles: ${JSON.stringify(profile.roles)}, raw profile: ${JSON.stringify(profile)}`);
+      console.log(`[AUTH] Found profile - email: ${profile.email}, role: ${profile.role}, roles: ${JSON.stringify(profile.roles)}, id: ${profile.id}`);
     }
 
     // Only create profile if it truly doesn't exist (PGRST116 = no rows returned)

@@ -298,7 +298,10 @@ export async function authenticateWithSupabase(
 
     // Get roles array (new multi-role system) or fallback to single role
     // Profile may have 'roles' (TEXT[]) or 'role' (TEXT)
-    const profileRoles: string[] = profile?.roles || (profile?.role ? [profile.role] : ['customer']);
+    // IMPORTANT: Check for non-empty array since [] is truthy in JavaScript
+    const profileRoles: string[] = (profile?.roles && Array.isArray(profile.roles) && profile.roles.length > 0)
+      ? profile.roles
+      : (profile?.role ? [profile.role] : ['customer']);
     console.log(`[AUTH] Computed profileRoles: ${JSON.stringify(profileRoles)} (from profile.roles: ${JSON.stringify(profile?.roles)}, profile.role: ${profile?.role})`);
 
     // Get location_id from profile

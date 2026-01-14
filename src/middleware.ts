@@ -366,6 +366,26 @@ function createMiddlewareSupabaseClient(request: NextRequest, response: NextResp
   });
 }
 
+/**
+ * Create a Supabase admin client for middleware that bypasses RLS.
+ * Used to query user_profiles for roles without RLS restrictions.
+ */
+function createMiddlewareAdminClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseUrl || !supabaseServiceKey) {
+    return null;
+  }
+
+  return createServerClient(supabaseUrl, supabaseServiceKey, {
+    cookies: {
+      getAll() { return []; },
+      setAll() { /* no-op */ },
+    },
+  });
+}
+
 // =============================================================================
 // Legacy Auth Support
 // =============================================================================
@@ -508,8 +528,12 @@ export async function middleware(request: NextRequest) {
       if (!error && user) {
         isAuthenticated = true;
 
-        // Get user profile for roles (prefer roles array, fall back to role)
-        const { data: profile } = await supabase
+        // Get user profile for roles using admin client to bypass RLS
+        // This ensures we get accurate role data regardless of RLS policies
+        const adminClient = createMiddlewareAdminClient();
+        const profileClient = adminClient || supabase;
+
+        const { data: profile } = await profileClient
           .from('user_profiles')
           .select('role, roles')
           .eq('id', user.id)

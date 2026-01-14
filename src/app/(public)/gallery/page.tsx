@@ -19,7 +19,20 @@ interface GalleryItem {
   isBlackFridaySale?: boolean;
 }
 
-// Transform API response to the format we need
+/**
+ * Transforms API computer data to the display format.
+ *
+ * Parses price strings to numbers and extracts sale pricing
+ * from Black Friday data when enabled.
+ *
+ * @param computer - Raw computer data from API
+ * @returns Transformed gallery item for display
+ *
+ * @functions_called parseFloat
+ * @called_by GalleryContent
+ *
+ * @version 1.0.0 - 2026-01-14T18:30:00Z - Initial implementation
+ */
 function transformComputer(computer: GalleryComputer): GalleryItem {
   const price = parseFloat(computer.price.replace(/[$,]/g, ''));
   const salePrice = computer.blackFriday?.enabled
@@ -153,57 +166,66 @@ function GalleryContent() {
               <p>No computers found{filter !== 'all' ? ` in "${filter}" category` : ''}.</p>
             </div>
           ) : (
-          <div className="gallery-grid" id="gallery-grid">
-            {filteredItems.map((item) => (
+          <div className="gallery-rows" id="gallery-grid">
+            {filteredItems.map((item, index) => (
               <div
                 key={item.id}
-                className="gallery-card"
+                className={`gallery-row ${index % 2 === 1 ? 'gallery-row-reverse' : ''}`}
                 data-category={item.category}
                 data-computer-id={item.id}
                 data-type={item.type}
               >
-                <div className="gallery-card-inner">
-                  <div className="gallery-card-front">
-                    {item.isBlackFridaySale && <div className="bf-ribbon-corner"></div>}
-                    {item.isBlackFridaySale && (
-                      <div className="gallery-card-badge badge-black-friday">
-                        Black Friday Sale
-                      </div>
+                {/* Image Section - 16:9 aspect ratio */}
+                <div className="gallery-row-image">
+                  {item.isBlackFridaySale && <div className="bf-ribbon-corner"></div>}
+                  {item.isBlackFridaySale && (
+                    <div className="gallery-row-badge badge-black-friday">
+                      Black Friday Sale
+                    </div>
+                  )}
+                  <Image
+                    src={item.thumbnailUrl || item.imageUrl}
+                    alt={item.name}
+                    width={640}
+                    height={360}
+                    className="gallery-row-img"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/assets/logo.png';
+                    }}
+                  />
+                </div>
+
+                {/* Specs Section */}
+                <div className="gallery-row-specs">
+                  <h3 className="gallery-row-title">{item.name}</h3>
+                  <div className="gallery-row-price">
+                    {item.salePrice ? (
+                      <>
+                        <span className="original-price">${item.price.toFixed(2)}</span>
+                        <span className="sale-price">${item.salePrice.toFixed(2)}</span>
+                        <span className="savings-badge">
+                          Save {Math.round(((item.price - item.salePrice) / item.price) * 100)}%
+                        </span>
+                      </>
+                    ) : (
+                      <span className="current-price">${item.price.toFixed(2)}</span>
                     )}
-                    <div className="gallery-card-image">
-                      <Image
-                        src={item.thumbnailUrl || item.imageUrl}
-                        alt={item.name}
-                        width={300}
-                        height={200}
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = '/assets/logo.png';
-                        }}
-                      />
-                    </div>
                   </div>
-                  <div className="gallery-card-back">
-                    <h3 className="gallery-card-title">{item.name}</h3>
-                    <div className="gallery-card-price">
-                      {item.salePrice ? (
-                        <>
-                          <span className="original-price">${item.price.toFixed(2)}</span>
-                          <span className="sale-price">${item.salePrice.toFixed(2)}</span>
-                          <span className="savings-badge">
-                            Save {Math.round(((item.price - item.salePrice) / item.price) * 100)}%
-                          </span>
-                        </>
-                      ) : (
-                        <span className="current-price">${item.price.toFixed(2)}</span>
-                      )}
-                    </div>
-                    <div className="gallery-card-specs">
-                      {item.specs.map((spec, index) => (
-                        <div key={index} className="spec-item">
-                          <strong>{spec.label}:</strong> {spec.value}
-                        </div>
-                      ))}
-                    </div>
+                  <div className="gallery-row-specs-list">
+                    {item.specs.map((spec, specIndex) => (
+                      <div key={specIndex} className="spec-item">
+                        <strong>{spec.label}:</strong> {spec.value}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="gallery-row-category">
+                    <span className={`category-tag category-${item.category}`}>
+                      {item.category === 'custom' ? 'Custom Build' :
+                       item.category === 'refurbished' ? 'Refurbished' : 'New'}
+                    </span>
+                    <span className={`type-tag type-${item.type}`}>
+                      {item.type === 'desktop' ? 'Desktop' : 'Laptop'}
+                    </span>
                   </div>
                 </div>
               </div>

@@ -335,12 +335,14 @@ export async function PUT(
     }
 
     // Update the profile
+    console.log(`[API] Updating employee ${id} with:`, JSON.stringify(updates));
     const updatedProfile = await updateUserProfile(id, updates);
 
     if (!updatedProfile) {
       return NextResponse.json({ error: 'Failed to update employee' }, { status: 500 });
     }
 
+    console.log(`[API] Updated employee result:`, JSON.stringify({ roles: updatedProfile.roles, role: updatedProfile.role }));
     return NextResponse.json({ employee: updatedProfile });
   } catch (error) {
     console.error('[API] Employee update error:', error);

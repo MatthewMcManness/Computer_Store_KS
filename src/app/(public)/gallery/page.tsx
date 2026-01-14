@@ -220,8 +220,8 @@ function GalleryContent() {
                   </div>
                   <div className="gallery-row-category">
                     <span className={`category-tag category-${item.category}`}>
-                      {item.category === 'custom' ? 'Custom Build' :
-                       item.category === 'refurbished' ? 'Refurbished' : 'New'}
+                      {item.category === 'refurbished' ? 'Refurbished' :
+                       (item.category === 'new' && item.type === 'laptop') ? 'New' : 'Custom Built'}
                     </span>
                     <span className={`type-tag type-${item.type}`}>
                       {item.type === 'desktop' ? 'Desktop' : 'Laptop'}

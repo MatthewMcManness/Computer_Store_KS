@@ -523,10 +523,20 @@ export async function middleware(request: NextRequest) {
   let userRoles: string[] = [];
   let legacyRole: LegacyUserRole | null = null;
 
-  // Try Supabase auth first
+  // IMPORTANT: Check our custom session cookies FIRST since they are set during login
+  // and are always up-to-date. Supabase auth cookies may be stale from previous sessions.
+  const legacyAuth = checkLegacyAuth(request);
+  if (legacyAuth.isAuth && legacyAuth.roles.length > 0) {
+    isAuthenticated = true;
+    userRoles = legacyAuth.roles;
+    legacyRole = legacyAuth.legacyRole;
+    console.log(`[AUTH DEBUG] Using custom session cookies - roles: ${JSON.stringify(userRoles)}`);
+  }
+
+  // Only try Supabase auth if custom cookies didn't provide auth
   const supabase = createMiddlewareSupabaseClient(request, response);
 
-  if (supabase) {
+  if (supabase && !isAuthenticated) {
     try {
       const { data: { user }, error } = await supabase.auth.getUser();
 
@@ -582,18 +592,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Fall back to legacy auth if Supabase not configured or failed
-  // Also check legacy auth for roles if Supabase auth succeeded but no roles found
-  if (!isAuthenticated || userRoles.length === 0) {
-    const legacyAuth = checkLegacyAuth(request);
-    if (!isAuthenticated) {
-      isAuthenticated = legacyAuth.isAuth;
-    }
-    if (userRoles.length === 0 && legacyAuth.roles.length > 0) {
-      userRoles = legacyAuth.roles;
-      legacyRole = legacyAuth.legacyRole;
-    }
-  }
+  // Legacy auth was already checked first above, no need to check again
 
   // Handle auth routes - redirect authenticated users away
   if (isAuthRoute(pathname) && isAuthenticated) {

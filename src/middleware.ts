@@ -516,6 +516,7 @@ export async function middleware(request: NextRequest) {
           .single();
 
         if (profile) {
+          console.log(`[AUTH DEBUG] Profile found - role: ${profile.role}, roles: ${JSON.stringify(profile.roles)}`);
           // Use roles array if available, otherwise map from legacy role
           if (profile.roles && Array.isArray(profile.roles) && profile.roles.length > 0) {
             userRoles = profile.roles;
@@ -539,7 +540,11 @@ export async function middleware(request: NextRequest) {
                 userRoles = ['customer'];
             }
           }
+        } else {
+          console.log(`[AUTH DEBUG] No profile found for user ${user.id}`);
         }
+      } else {
+        console.log(`[AUTH DEBUG] Supabase auth - no user or error: ${error?.message || 'no user'}`);
       }
     } catch (error) {
       console.error('[MIDDLEWARE] Supabase auth error:', error);
@@ -575,6 +580,9 @@ export async function middleware(request: NextRequest) {
       loginUrl.searchParams.set('returnTo', pathname);
       return NextResponse.redirect(loginUrl);
     }
+
+    // Debug logging for authorization issues
+    console.log(`[AUTH DEBUG] Route: ${pathname}, userRoles: ${JSON.stringify(userRoles)}`);
 
     // Check permission-based authorization
     if (!canAccessRoute(userRoles, pathname)) {

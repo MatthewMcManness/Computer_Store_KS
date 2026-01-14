@@ -25,10 +25,11 @@ import {
 
 const SESSION_COOKIE_NAME = 'admin_session';
 const ROLE_COOKIE_NAME = 'user_role'; // Separate cookie for Edge middleware access
+const ROLES_COOKIE_NAME = 'user_roles'; // JSON array of roles for multi-role system
 const SESSION_MAX_AGE = 8 * 60 * 60; // 8 hours in seconds
 
 // Export for middleware
-export { ROLE_COOKIE_NAME };
+export { ROLE_COOKIE_NAME, ROLES_COOKIE_NAME };
 
 /**
  * Retrieves the legacy admin password from environment variables.
@@ -355,6 +356,15 @@ export async function authenticateWithSupabase(
       path: '/',
     });
 
+    // Set the actual roles array as JSON for the multi-role system
+    cookieStore.set(ROLES_COOKIE_NAME, JSON.stringify(profileRoles), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: SESSION_MAX_AGE,
+      path: '/',
+    });
+
     console.log(`[AUTH] Login successful via Supabase Auth: ${email} (roles: ${profileRoles.join(',')}, userType: ${userData.userType})`);
 
     return {
@@ -460,6 +470,7 @@ export async function destroySession(): Promise<void> {
   // No server-side cleanup needed
   cookieStore.delete(SESSION_COOKIE_NAME);
   cookieStore.delete(ROLE_COOKIE_NAME);
+  cookieStore.delete(ROLES_COOKIE_NAME);
 }
 
 /**

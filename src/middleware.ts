@@ -24,6 +24,7 @@ type LegacyUserRole = 'admin' | 'technician' | 'receptionist' | 'customer';
  */
 const LEGACY_SESSION_COOKIE = 'admin_session';
 const LEGACY_ROLE_COOKIE = 'user_role';
+const LEGACY_ROLES_COOKIE = 'user_roles'; // JSON array of actual roles
 
 // =============================================================================
 // Route Configuration
@@ -401,12 +402,37 @@ function checkLegacyAuth(request: NextRequest): {
 } {
   const sessionCookie = request.cookies.get(LEGACY_SESSION_COOKIE);
   const roleCookie = request.cookies.get(LEGACY_ROLE_COOKIE);
+  const rolesCookie = request.cookies.get(LEGACY_ROLES_COOKIE);
 
   if (!sessionCookie?.value) {
     return { isAuth: false, legacyRole: null, roles: [] };
   }
 
-  // Map legacy roles to new role system
+  // First, try to read the actual roles array from the user_roles cookie
+  if (rolesCookie?.value) {
+    try {
+      const actualRoles = JSON.parse(rolesCookie.value);
+      if (Array.isArray(actualRoles) && actualRoles.length > 0) {
+        // Determine legacy role from actual roles for backward compatibility
+        let legacyRole: LegacyUserRole | null = null;
+        if (actualRoles.some((r: string) => ['owner', 'lead_developer', 'manager'].includes(r))) {
+          legacyRole = 'admin';
+        } else if (actualRoles.some((r: string) => ['technician', 'lead_technician'].includes(r))) {
+          legacyRole = 'technician';
+        } else if (actualRoles.includes('receptionist')) {
+          legacyRole = 'receptionist';
+        } else if (actualRoles.includes('customer')) {
+          legacyRole = 'customer';
+        }
+        console.log(`[AUTH DEBUG] Legacy auth with actual roles: ${JSON.stringify(actualRoles)}`);
+        return { isAuth: true, legacyRole, roles: actualRoles };
+      }
+    } catch {
+      // JSON parse failed, fall through to legacy mapping
+    }
+  }
+
+  // Fallback: Map legacy roles to new role system
   const legacyRole = roleCookie?.value;
   let role: LegacyUserRole | null = null;
   let roles: string[] = [];

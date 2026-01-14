@@ -83,6 +83,58 @@ interface EditFormData {
 
 type TabType = 'assets' | 'tickets' | 'invoices' | 'payments';
 
+// =============================================================================
+// Brand and Model Data (shared with DeviceStep)
+// =============================================================================
+
+const deviceTypes = [
+  { value: 'Desktop', label: 'Desktop', icon: '🖥️' },
+  { value: 'Laptop', label: 'Laptop', icon: '💻' },
+] as const;
+
+const brands = [
+  'Dell',
+  'HP',
+  'Lenovo',
+  'ASUS',
+  'Acer',
+  'MSI',
+  'Samsung',
+  'Microsoft',
+  'Toshiba/Dynabook',
+  'Custom Build',
+] as const;
+
+type Brand = typeof brands[number];
+
+// Laptop models by brand
+const laptopModels: Record<Brand, string[]> = {
+  'Dell': ['Inspiron', 'XPS', 'Latitude', 'Vostro', 'Precision', 'Alienware', 'G Series'],
+  'HP': ['Pavilion', 'Envy', 'Spectre', 'EliteBook', 'ProBook', 'ZBook', 'OMEN', 'Victus', 'OmniBook'],
+  'Lenovo': ['ThinkPad', 'IdeaPad', 'Yoga', 'Legion', 'LOQ', 'ThinkBook'],
+  'ASUS': ['ZenBook', 'VivoBook', 'ROG', 'TUF Gaming', 'ExpertBook', 'ProArt StudioBook'],
+  'Acer': ['Aspire', 'Swift', 'Predator Helios', 'Nitro', 'TravelMate', 'Chromebook'],
+  'MSI': ['Stealth', 'Raider', 'Titan', 'Creator', 'Prestige', 'Modern', 'Crosshair', 'Vector', 'Katana', 'Thin'],
+  'Samsung': ['Galaxy Book', 'Galaxy Book Pro', 'Galaxy Book Pro 360', 'Galaxy Book Ultra', 'Galaxy Book Odyssey'],
+  'Microsoft': ['Surface Laptop', 'Surface Pro', 'Surface Go', 'Surface Laptop Go', 'Surface Laptop Studio'],
+  'Toshiba/Dynabook': ['Portégé', 'Tecra', 'Satellite Pro'],
+  'Custom Build': [],
+};
+
+// Desktop models by brand
+const desktopModels: Record<Brand, string[]> = {
+  'Dell': ['OptiPlex', 'Precision', 'Inspiron Desktop', 'XPS Desktop', 'Alienware Aurora', 'Vostro Desktop', 'G Series Desktop'],
+  'HP': ['Pavilion Desktop', 'Envy Desktop', 'EliteDesk', 'ProDesk', 'OMEN Desktop', 'Victus Desktop', 'OmniDesk', 'Z Workstation'],
+  'Lenovo': ['ThinkCentre', 'IdeaCentre', 'Legion Tower', 'ThinkStation', 'LOQ Tower'],
+  'ASUS': ['ROG Desktop', 'TUF Gaming Desktop', 'ProArt Desktop', 'ExpertCenter'],
+  'Acer': ['Aspire Desktop', 'Predator Orion', 'Nitro Desktop', 'Veriton'],
+  'MSI': ['Trident', 'MEG Aegis', 'MAG Infinite', 'Codex'],
+  'Samsung': [],
+  'Microsoft': ['Surface Studio'],
+  'Toshiba/Dynabook': [],
+  'Custom Build': [],
+};
+
 export default function CustomerDetailsPage() {
   const router = useRouter();
   const params = useParams();
@@ -108,8 +160,9 @@ export default function CustomerDetailsPage() {
   const [editingAssetEset, setEditingAssetEset] = useState<EsetStatus>(null);
   const [savingAsset, setSavingAsset] = useState(false);
   const [showAddAsset, setShowAddAsset] = useState(false);
-  const [newAssetName, setNewAssetName] = useState('');
-  const [newAssetType, setNewAssetType] = useState('');
+  const [newDeviceType, setNewDeviceType] = useState<'Desktop' | 'Laptop'>('Desktop');
+  const [newBrand, setNewBrand] = useState<Brand | ''>('');
+  const [newModel, setNewModel] = useState('');
   const [addingAsset, setAddingAsset] = useState(false);
 
   // Edit modal state
@@ -379,19 +432,49 @@ export default function CustomerDetailsPage() {
     }
   };
 
+  // Get available models based on device type and brand
+  const getAvailableModels = (): string[] => {
+    if (!newBrand || newBrand === 'Custom Build') return [];
+    const models = newDeviceType === 'Laptop' ? laptopModels : desktopModels;
+    return models[newBrand] || [];
+  };
+
+  // Handle brand change - reset model when brand changes
+  const handleBrandChange = (brand: Brand | '') => {
+    setNewBrand(brand);
+    setNewModel('');
+  };
+
+  // Handle device type change - reset model when type changes
+  const handleDeviceTypeChange = (type: 'Desktop' | 'Laptop') => {
+    setNewDeviceType(type);
+    setNewModel('');
+  };
+
   // Add a new asset
   const addAsset = async () => {
-    if (!customer || !newAssetName.trim()) return;
+    if (!customer || !newBrand) return;
+
+    // Require model selection unless it's a custom build
+    if (newBrand !== 'Custom Build' && !newModel) return;
 
     setAddingAsset(true);
     try {
+      // Build device name based on brand and model
+      let deviceName: string;
+      if (newBrand === 'Custom Build') {
+        deviceName = `Custom Build ${newDeviceType}`;
+      } else {
+        deviceName = newModel ? `${newBrand} ${newModel}` : newBrand;
+      }
+
       const response = await fetch('/api/repairshopr/assets', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: newAssetName.trim(),
+          name: deviceName,
           customer_id: customer.id,
-          asset_type_name: newAssetType.trim() || undefined,
+          asset_type_name: newDeviceType,
         }),
       });
 
@@ -399,8 +482,9 @@ export default function CustomerDetailsPage() {
 
       await loadTabData(customer.id, 'assets');
       setShowAddAsset(false);
-      setNewAssetName('');
-      setNewAssetType('');
+      setNewDeviceType('Desktop');
+      setNewBrand('');
+      setNewModel('');
     } catch (err) {
       console.error('Failed to add asset:', err);
     } finally {
@@ -945,38 +1029,87 @@ export default function CustomerDetailsPage() {
                         {/* Add new asset section */}
                         {showAddAsset ? (
                           <div className="rounded-lg border border-dashed border-gray-300 dark:border-gray-600 p-4 bg-gray-50 dark:bg-gray-800/50">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                            <div className="space-y-4 mb-4">
+                              {/* Device Type Selection */}
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                  Device Type *
+                                </label>
+                                <div className="flex gap-2">
+                                  {deviceTypes.map((type) => (
+                                    <button
+                                      key={type.value}
+                                      type="button"
+                                      onClick={() => handleDeviceTypeChange(type.value as 'Desktop' | 'Laptop')}
+                                      className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-all ${
+                                        newDeviceType === type.value
+                                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                                      }`}
+                                    >
+                                      <span className="text-lg">{type.icon}</span>
+                                      <span className="font-medium">{type.label}</span>
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+
+                              {/* Brand Selection */}
                               <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                  Asset Name *
+                                  Brand *
                                 </label>
-                                <input
-                                  type="text"
-                                  value={newAssetName}
-                                  onChange={(e) => setNewAssetName(e.target.value)}
-                                  placeholder="e.g., Dell Laptop"
+                                <select
+                                  value={newBrand}
+                                  onChange={(e) => handleBrandChange(e.target.value as Brand | '')}
                                   className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                                />
+                                >
+                                  <option value="">Select a brand...</option>
+                                  {brands.map((brand) => (
+                                    <option key={brand} value={brand}>
+                                      {brand}
+                                    </option>
+                                  ))}
+                                </select>
                               </div>
-                              <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                  Asset Type
-                                </label>
-                                <input
-                                  type="text"
-                                  value={newAssetType}
-                                  onChange={(e) => setNewAssetType(e.target.value)}
-                                  placeholder="e.g., Laptop, Desktop"
-                                  className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                                />
-                              </div>
+
+                              {/* Model Selection - Only show if brand is selected and not Custom Build */}
+                              {newBrand && newBrand !== 'Custom Build' && (
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    Model *
+                                  </label>
+                                  <select
+                                    value={newModel}
+                                    onChange={(e) => setNewModel(e.target.value)}
+                                    className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                                  >
+                                    <option value="">Select a model...</option>
+                                    {getAvailableModels().map((model) => (
+                                      <option key={model} value={model}>
+                                        {model}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </div>
+                              )}
+
+                              {/* Preview of asset name */}
+                              {newBrand && (newBrand === 'Custom Build' || newModel) && (
+                                <div className="text-sm text-gray-600 dark:text-gray-400">
+                                  Asset will be created as: <span className="font-medium text-gray-900 dark:text-white">
+                                    {newBrand === 'Custom Build' ? `Custom Build ${newDeviceType}` : `${newBrand} ${newModel}`}
+                                  </span>
+                                </div>
+                              )}
                             </div>
                             <div className="flex gap-2 justify-end">
                               <button
                                 onClick={() => {
                                   setShowAddAsset(false);
-                                  setNewAssetName('');
-                                  setNewAssetType('');
+                                  setNewDeviceType('Desktop');
+                                  setNewBrand('');
+                                  setNewModel('');
                                 }}
                                 disabled={addingAsset}
                                 className="px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
@@ -985,7 +1118,7 @@ export default function CustomerDetailsPage() {
                               </button>
                               <button
                                 onClick={addAsset}
-                                disabled={addingAsset || !newAssetName.trim()}
+                                disabled={addingAsset || !newBrand || (newBrand !== 'Custom Build' && !newModel)}
                                 className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
                               >
                                 {addingAsset ? (

@@ -129,8 +129,13 @@ export default function EmployeesPage() {
   const [selectedBusinessRole, setSelectedBusinessRole] = useState<BusinessRole>('receptionist');
   const [selectedAddOns, setSelectedAddOns] = useState<Set<AddOnRole>>(new Set());
   const [selectedDefaultLocation, setSelectedDefaultLocation] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState('');
+  const [editingPassword, setEditingPassword] = useState('');
   const [savingRoles, setSavingRoles] = useState(false);
   const [roleError, setRoleError] = useState<string | null>(null);
+
+  // Track if current user has lead_developer or owner role (for advanced editing)
+  const [isLeadDeveloperOrOwner, setIsLeadDeveloperOrOwner] = useState(false);
 
   // Available locations for default location dropdown
   const [locations, setLocations] = useState<LocationOption[]>([]);
@@ -188,6 +193,12 @@ export default function EmployeesPage() {
           );
           setCanManageEmployees(canManage);
 
+          // Check if user is lead_developer or owner (for advanced editing features)
+          const hasAdvancedEditAccess = userRoles.some((r: string) =>
+            ['lead_developer', 'owner'].includes(r)
+          );
+          setIsLeadDeveloperOrOwner(hasAdvancedEditAccess);
+
           // Get available locations from the location context
           if (data.locationContext?.availableLocations) {
             setLocations(data.locationContext.availableLocations);
@@ -217,6 +228,10 @@ export default function EmployeesPage() {
       : null;
     setSelectedDefaultLocation(defaultLocSlug);
 
+    // Set current name and clear password
+    setEditingName(employee.full_name || '');
+    setEditingPassword('');
+
     setEditingEmployee(employee);
     setRoleError(null);
   };
@@ -242,14 +257,38 @@ export default function EmployeesPage() {
     // Combine business role with add-ons
     const newRoles: string[] = [selectedBusinessRole, ...Array.from(selectedAddOns)];
 
+    // Build the update payload
+    const updatePayload: {
+      roles: string[];
+      default_location?: string | null;
+      full_name?: string;
+      password?: string;
+    } = {
+      roles: newRoles,
+      default_location: selectedDefaultLocation,
+    };
+
+    // Include name and password only if current user has lead_developer or owner role
+    if (isLeadDeveloperOrOwner) {
+      if (editingName && editingName !== editingEmployee.full_name) {
+        updatePayload.full_name = editingName;
+      }
+      if (editingPassword && editingPassword.length > 0) {
+        // Validate password length client-side
+        if (editingPassword.length < 12) {
+          setRoleError('Password must be at least 12 characters long');
+          setSavingRoles(false);
+          return;
+        }
+        updatePayload.password = editingPassword;
+      }
+    }
+
     try {
       const response = await fetch(`/api/admin/employees/${editingEmployee.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          roles: newRoles,
-          default_location: selectedDefaultLocation, // Location slug
-        }),
+        body: JSON.stringify(updatePayload),
       });
 
       const data = await response.json();
@@ -264,10 +303,11 @@ export default function EmployeesPage() {
           ...e,
           roles: newRoles,
           default_location_id: selectedDefaultLocation,
+          full_name: editingName || e.full_name,
         } : e))
       );
       setEditingEmployee(null);
-      showToast('success', `${editingEmployee.full_name || editingEmployee.email}'s settings updated`);
+      showToast('success', `${editingName || editingEmployee.email}'s settings updated`);
     } catch (err) {
       setRoleError(err instanceof Error ? err.message : 'Failed to update employee');
     } finally {
@@ -498,16 +538,16 @@ export default function EmployeesPage() {
         )}
       </div>
 
-      {/* Edit Roles Modal */}
+      {/* Edit Employee Modal */}
       {editingEmployee && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-900">
+          <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-900">
             <div className="mb-6">
               <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                Edit Roles
+                Edit Employee
               </h2>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Assign roles for {editingEmployee.full_name || editingEmployee.email}
+                Manage settings for {editingEmployee.full_name || editingEmployee.email}
               </p>
             </div>
 
@@ -602,7 +642,43 @@ export default function EmployeesPage() {
               </div>
             </div>
 
-            {/* Default Location - Only for users with global access roles */}
+            {/* Name Editing - Only for lead_developer or owner */}
+            {isLeadDeveloperOrOwner && (
+              <div className="mb-6">
+                <h3 className="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Employee Name
+                </h3>
+                <input
+                  type="text"
+                  value={editingName}
+                  onChange={(e) => setEditingName(e.target.value)}
+                  placeholder="Enter employee name"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400"
+                />
+              </div>
+            )}
+
+            {/* Password Reset - Only for lead_developer or owner */}
+            {isLeadDeveloperOrOwner && (
+              <div className="mb-6">
+                <h3 className="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Reset Password <span className="text-gray-400">(Optional)</span>
+                </h3>
+                <p className="mb-3 text-xs text-gray-500 dark:text-gray-400">
+                  Leave blank to keep current password. Minimum 12 characters.
+                </p>
+                <input
+                  type="password"
+                  value={editingPassword}
+                  onChange={(e) => setEditingPassword(e.target.value)}
+                  placeholder="Enter new password"
+                  minLength={12}
+                  className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400"
+                />
+              </div>
+            )}
+
+            {/* Default Location - For users with global access roles OR when current user is lead_developer/owner */}
             {(() => {
               // Check if the selected roles include a global access role
               const selectedRoles = [selectedBusinessRole, ...Array.from(selectedAddOns)];
@@ -610,7 +686,8 @@ export default function EmployeesPage() {
                 GLOBAL_ACCESS_ROLES.includes(r as typeof GLOBAL_ACCESS_ROLES[number])
               );
 
-              if (!hasGlobalAccess || locations.length === 0) return null;
+              // Show if employee has global access OR if current user is lead_developer/owner
+              if ((!hasGlobalAccess && !isLeadDeveloperOrOwner) || locations.length === 0) return null;
 
               return (
                 <div className="mb-6">

@@ -132,14 +132,16 @@ export async function GET(
 
 /**
  * PUT /api/admin/employees/[id]
- * Update employee profile (roles, name, RepairShopr ID, default location)
+ * Update employee profile (roles, name, RepairShopr ID, default location, password)
  *
  * Accepts either:
  * - `roles`: string[] (new multi-role system)
  * - `role`: string (legacy single-role, converted to array)
  * - `default_location`: string (location slug for global access users)
+ * - `full_name`: string (employee name)
+ * - `password`: string (new password, requires lead_developer or owner role)
  *
- * @param request - Request with updated fields (roles, full_name, repairshopr_user_id, default_location)
+ * @param request - Request with updated fields (roles, full_name, repairshopr_user_id, default_location, password)
  * @param params - Route params containing employee id
  * @returns Updated employee profile
  *
@@ -149,6 +151,7 @@ export async function GET(
  * @version 1.0.0 - 2026-01-11T00:00:00Z - Initial implementation
  * @version 2.0.0 - 2026-01-11T00:00:00Z - Updated for multi-role support
  * @version 2.1.0 - 2026-01-13T00:00:00Z - Added default_location support
+ * @version 2.2.0 - 2026-01-14T00:00:00Z - Added password change support for lead_developer/owner
  */
 export async function PUT(
   request: NextRequest,
@@ -177,7 +180,7 @@ export async function PUT(
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
   }
 
-  const { roles, role, full_name, repairshopr_user_id, default_location } = body;
+  const { roles, role, full_name, repairshopr_user_id, default_location, password } = body;
 
   try {
     // Get the employee being updated
@@ -291,6 +294,44 @@ export async function PUT(
         }
         updates.default_location_id = location.id;
       }
+    }
+
+    // Handle password update (only for lead_developer or owner)
+    if (password && typeof password === 'string' && password.length > 0) {
+      // Check if current user has lead_developer or owner role
+      const canChangePassword = userRoles.some((r: string) =>
+        ['lead_developer', 'owner'].includes(r)
+      );
+
+      if (!canChangePassword) {
+        return NextResponse.json(
+          { error: 'Only lead developers and owners can change employee passwords' },
+          { status: 403 }
+        );
+      }
+
+      // Validate password length
+      if (password.length < 12) {
+        return NextResponse.json(
+          { error: 'Password must be at least 12 characters long' },
+          { status: 400 }
+        );
+      }
+
+      // Update password using Supabase Admin API
+      const { error: passwordError } = await supabase.auth.admin.updateUserById(id, {
+        password: password,
+      });
+
+      if (passwordError) {
+        console.error('[API] Password update error:', passwordError);
+        return NextResponse.json(
+          { error: 'Failed to update password' },
+          { status: 500 }
+        );
+      }
+
+      console.log(`[API] Password updated for employee: ${id}`);
     }
 
     // Update the profile

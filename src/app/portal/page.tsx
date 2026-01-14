@@ -18,7 +18,7 @@ export default function CustomerPortalPage() {
         const data = await response.json();
 
         if (!data.authenticated) {
-          router.push('/admin/login');
+          router.push('/login');
           return;
         }
 
@@ -30,7 +30,7 @@ export default function CustomerPortalPage() {
 
         setUser(data.user);
       } catch {
-        router.push('/admin/login');
+        router.push('/login');
       } finally {
         setIsLoading(false);
       }
@@ -42,7 +42,7 @@ export default function CustomerPortalPage() {
   const handleLogout = async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
-      router.push('/admin/login');
+      router.push('/login');
     } catch (error) {
       console.error('Logout error:', error);
     }

@@ -100,12 +100,29 @@ export async function GET(request: NextRequest) {
   const results: SearchResult[] = [];
   const searchPattern = `%${query}%`;
 
+  // Split query into words for multi-word name searches (e.g., "Matthew McManness")
+  const searchWords = query.split(/\s+/).filter(word => word.length >= 2);
+
   try {
     // Search customers (rs_customers table from sync) with location filtering
+    // Build OR conditions for each word against firstname and lastname
+    const customerOrConditions: string[] = [];
+
+    // Add conditions for each search word against name fields
+    for (const word of searchWords) {
+      const wordPattern = `%${word}%`;
+      customerOrConditions.push(`firstname.ilike.${wordPattern}`);
+      customerOrConditions.push(`lastname.ilike.${wordPattern}`);
+    }
+
+    // Also search email and phone with the full query
+    customerOrConditions.push(`email.ilike.${searchPattern}`);
+    customerOrConditions.push(`phone.ilike.${searchPattern}`);
+
     let customerQuery = supabaseClient
       .from('rs_customers')
       .select('repairshopr_id, firstname, lastname, email, phone')
-      .or(`firstname.ilike.${searchPattern},lastname.ilike.${searchPattern},email.ilike.${searchPattern},phone.ilike.${searchPattern}`);
+      .or(customerOrConditions.join(','));
 
     // Apply location filter if user doesn't have access to all locations
     if (effectiveLocationId) {

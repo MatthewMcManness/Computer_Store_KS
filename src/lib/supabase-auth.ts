@@ -284,7 +284,8 @@ export async function requestPasswordReset(
   }
 
   const { error } = await client.auth.resetPasswordForEmail(email, {
-    redirectTo: redirectTo || `${process.env.NEXT_PUBLIC_APP_URL}/auth/reset-password`,
+    // Redirect to auth/confirm which verifies the token, then redirects to reset-password/confirm
+    redirectTo: redirectTo || `${process.env.NEXT_PUBLIC_APP_URL}/auth/confirm`,
   });
 
   if (error) {
@@ -590,8 +591,9 @@ export async function inviteUser(
   }
 
   // Use Supabase's admin invite function
+  // Redirect to password reset confirmation page where they can set their password
   const { data, error } = await client.auth.admin.inviteUserByEmail(email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/accept-invite`,
+    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/reset-password/confirm`,
     data: {
       role,
       full_name: options?.fullName,

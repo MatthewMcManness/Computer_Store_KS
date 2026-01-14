@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { ChevronLeft } from 'lucide-react';
 import type { RepairShoprCustomer, RepairShoprAsset } from '@/lib/repairshopr';
 
 // =============================================================================
@@ -389,6 +390,17 @@ export function DeviceStep({ customer, onSelectDevice, onBack }: DeviceStepProps
           >
             + Add New Device
           </button>
+
+          {/* Back button */}
+          <div className="mt-6 flex items-center">
+            <button
+              onClick={onBack}
+              className="inline-flex items-center gap-2 rounded-lg bg-white dark:bg-gray-800 px-6 py-3 font-medium text-gray-700 dark:text-gray-300 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700"
+            >
+              <ChevronLeft className="h-5 w-5" />
+              Back
+            </button>
+          </div>
         </>
       )}
 
@@ -491,6 +503,19 @@ export function DeviceStep({ customer, onSelectDevice, onBack }: DeviceStepProps
               className="flex-1 rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {creating ? 'Adding...' : 'Add Device'}
+            </button>
+          </div>
+
+          {/* Back to previous step */}
+          <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <button
+              type="button"
+              onClick={onBack}
+              disabled={creating}
+              className="inline-flex items-center gap-2 rounded-lg bg-white dark:bg-gray-800 px-6 py-3 font-medium text-gray-700 dark:text-gray-300 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 border border-gray-200 dark:border-gray-700"
+            >
+              <ChevronLeft className="h-5 w-5" />
+              Back to Previous Step
             </button>
           </div>
         </form>

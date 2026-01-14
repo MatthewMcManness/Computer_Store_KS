@@ -2,9 +2,7 @@ import { redirect } from 'next/navigation';
 import { isAuthenticated } from '@/lib/auth';
 import Link from 'next/link';
 import NextImage from 'next/image';
-import { ClipboardList, Settings, RefreshCw } from 'lucide-react';
-import { isGitHubConfigured } from '@/lib/github';
-import { isSupabaseConfigured } from '@/lib/supabase';
+import { ClipboardList } from 'lucide-react';
 import { CallCustomerTickets } from '@/components/admin/call-customer-tickets';
 
 export default async function AdminDashboardPage() {
@@ -13,9 +11,6 @@ export default async function AdminDashboardPage() {
   if (!authenticated) {
     redirect('/admin/login');
   }
-
-  const githubConnected = isGitHubConfigured();
-  const supabaseConnected = isSupabaseConfigured();
 
   return (
     <div>
@@ -44,36 +39,6 @@ export default async function AdminDashboardPage() {
       {/* Call Customer Tickets Card */}
       <div className="mb-8">
         <CallCustomerTickets />
-      </div>
-
-      {/* System Status - Simplified */}
-      <div>
-        <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">System Status</h2>
-        <div className="rounded-xl bg-white p-6 shadow-sm dark:bg-gray-900">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-gray-600 dark:text-gray-400">Database (Supabase)</span>
-              <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${
-                supabaseConnected
-                  ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-400'
-                  : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-400'
-              }`}>
-                {supabaseConnected ? 'Connected' : 'Not Configured'}
-              </span>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span className="text-gray-600 dark:text-gray-400">Image Storage (GitHub)</span>
-              <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${
-                githubConnected
-                  ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-400'
-                  : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-400'
-              }`}>
-                {githubConnected ? 'Connected' : 'Not Configured'}
-              </span>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* RWS Footer */}

@@ -523,20 +523,30 @@ export async function middleware(request: NextRequest) {
   let userRoles: string[] = [];
   let legacyRole: LegacyUserRole | null = null;
 
-  // IMPORTANT: Check our custom session cookies FIRST since they are set during login
-  // and are always up-to-date. Supabase auth cookies may be stale from previous sessions.
+  // SECURITY: Check our custom session cookies FIRST and EXCLUSIVELY if present.
+  // Our custom cookies (admin_session, user_roles) are set during login and are authoritative.
+  // We NEVER fall back to Supabase session cookies if our session exists - this prevents
+  // stale Supabase sessions from being used (major security risk).
   const legacyAuth = checkLegacyAuth(request);
-  if (legacyAuth.isAuth && legacyAuth.roles.length > 0) {
+
+  if (legacyAuth.isAuth) {
+    // We have a custom session - use it exclusively
     isAuthenticated = true;
     userRoles = legacyAuth.roles;
     legacyRole = legacyAuth.legacyRole;
     console.log(`[AUTH DEBUG] Using custom session cookies - roles: ${JSON.stringify(userRoles)}`);
+
+    // If roles are empty but session exists, something is wrong - don't fall back to Supabase
+    if (userRoles.length === 0) {
+      console.warn('[AUTH DEBUG] Custom session exists but roles are empty - user should re-login');
+    }
   }
 
-  // Only try Supabase auth if custom cookies didn't provide auth
+  // Only try Supabase auth if NO custom session exists at all
+  // This is for backwards compatibility only - all logins should set custom cookies
   const supabase = createMiddlewareSupabaseClient(request, response);
 
-  if (supabase && !isAuthenticated) {
+  if (supabase && !legacyAuth.isAuth) {
     try {
       const { data: { user }, error } = await supabase.auth.getUser();
 

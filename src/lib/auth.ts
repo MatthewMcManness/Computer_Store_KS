@@ -220,6 +220,11 @@ export async function authenticateWithSupabase(
   }
 
   try {
+    // SECURITY: Sign out any existing Supabase session first to prevent stale session attacks
+    // This ensures old session cookies don't persist and get used by middleware
+    await authClient.auth.signOut();
+    console.log('[AUTH] Cleared any existing Supabase session before new login');
+
     // Step 1: Sign in with Supabase Auth using a dedicated fresh client
     // This prevents tainting the global supabaseAdmin with user session context
     const { data: authData, error: authError } = await authClient.auth.signInWithPassword({
@@ -471,15 +476,36 @@ export async function createSession(user?: UserSession): Promise<string> {
 
 /**
  * Destroy the current session
+ *
+ * Clears all authentication cookies including:
+ * - Custom session cookies (admin_session, user_role, user_roles)
+ * - Supabase auth session cookies
+ *
+ * @sideEffects
+ * - Deletes session cookies
+ * - Signs out of Supabase auth
  */
 export async function destroySession(): Promise<void> {
   const cookieStore = await cookies();
 
-  // With cookie-based sessions, we just delete the cookies
-  // No server-side cleanup needed
+  // Clear our custom session cookies
   cookieStore.delete(SESSION_COOKIE_NAME);
   cookieStore.delete(ROLE_COOKIE_NAME);
   cookieStore.delete(ROLES_COOKIE_NAME);
+
+  // SECURITY: Also sign out of Supabase to clear any Supabase auth cookies
+  // This prevents stale Supabase sessions from being used after logout
+  try {
+    const { createFreshAdminClient } = await import('./supabase');
+    const supabase = createFreshAdminClient();
+    if (supabase) {
+      await supabase.auth.signOut();
+      console.log('[AUTH] Cleared Supabase session during logout');
+    }
+  } catch (error) {
+    console.error('[AUTH] Failed to clear Supabase session:', error);
+    // Continue with logout even if Supabase signOut fails
+  }
 }
 
 /**

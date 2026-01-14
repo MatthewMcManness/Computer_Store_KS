@@ -134,7 +134,13 @@ export function IntakeWizard() {
   };
 
   const handleBack = () => {
-    dispatch({ type: 'PREV_STEP' });
+    // Smart back navigation that skips irrelevant steps
+    if (state.step === 3 && !state.isNewCustomer) {
+      // Existing customer on step 3 - skip step 2 (not relevant) and go to step 1
+      dispatch({ type: 'JUMP_TO_STEP', step: 1 });
+    } else {
+      dispatch({ type: 'PREV_STEP' });
+    }
   };
 
   const handleNewIntake = () => {
@@ -390,9 +396,21 @@ export function IntakeWizard() {
       case 2:
         // Only show customer form if creating a new customer
         if (!state.isNewCustomer) {
-          // Skip this step for existing customers
-          handleNext();
-          return null;
+          // Existing customers shouldn't be on step 2 - redirect to step 3
+          // This is a fallback; the smart back navigation should prevent this
+          return (
+            <div className="rounded-lg bg-white dark:bg-gray-900 p-8 shadow-sm text-center">
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
+                Redirecting to device selection...
+              </p>
+              <button
+                onClick={() => dispatch({ type: 'JUMP_TO_STEP', step: 3 })}
+                className="rounded-lg bg-blue-600 px-6 py-3 font-medium text-white hover:bg-blue-700"
+              >
+                Continue to Device Selection
+              </button>
+            </div>
+          );
         }
         return (
           <CustomerFormStep

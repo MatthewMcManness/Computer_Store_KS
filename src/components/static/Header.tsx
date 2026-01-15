@@ -137,8 +137,8 @@ export function Header() {
               )}
             </li>
             <li>
-              <Link className={`nav-link ${isActive('/gallery') ? 'active' : ''}`} href="/gallery">
-                Gallery
+              <Link className={`nav-link ${isActive('/in-store-pcs') ? 'active' : ''}`} href="/in-store-pcs">
+                In-Store PCs
               </Link>
             </li>
             <li>

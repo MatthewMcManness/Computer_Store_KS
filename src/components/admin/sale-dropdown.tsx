@@ -33,8 +33,8 @@ interface SaleDropdownProps {
  * @returns {JSX.Element} Dropdown button with sale selection menu
  *
  * @sideEffects
- * - Makes GET request to `/api/gallery/sale` on mount to load current sale
- * - Makes POST request to `/api/gallery/sale` to update sale
+ * - Makes GET request to `/api/in-store/sale` on mount to load current sale
+ * - Makes POST request to `/api/in-store/sale` to update sale
  * - Shows browser confirm dialog before applying sale
  * - Displays toast notification for 4 seconds after changes
  *
@@ -63,7 +63,7 @@ export function SaleDropdown({ onSaleChange }: SaleDropdownProps) {
   useEffect(() => {
     const loadSaleSetting = async () => {
       try {
-        const response = await fetch('/api/gallery/sale');
+        const response = await fetch('/api/in-store/sale');
         const result = await response.json();
 
         if (result.success) {
@@ -107,7 +107,7 @@ export function SaleDropdown({ onSaleChange }: SaleDropdownProps) {
     setIsOpen(false);
 
     try {
-      const response = await fetch('/api/gallery/sale', {
+      const response = await fetch('/api/in-store/sale', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ saleType }),

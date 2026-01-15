@@ -69,8 +69,8 @@ const warrantyConfigs = {
  * @returns {JSX.Element} Computer form with all fields and controls
  *
  * @sideEffects
- * - Makes POST/PUT requests to `/api/gallery` or `/api/gallery/[id]`
- * - Navigates to /admin/gallery on successful submission
+ * - Makes POST/PUT requests to `/api/in-store` or `/api/in-store/[id]`
+ * - Navigates to /admin/in-store on successful submission
  * - Updates form state and specs based on type/category changes
  *
  * @example
@@ -206,8 +206,8 @@ export function ComputerForm({ computer, onSubmit, isLoading }: ComputerFormProp
       } else {
         // Default API call
         const url = isEditing
-          ? `/api/gallery/${computer.id}`
-          : '/api/gallery';
+          ? `/api/in-store/${computer.id}`
+          : '/api/in-store';
         const method = isEditing ? 'PUT' : 'POST';
 
         const response = await fetch(url, {
@@ -222,7 +222,7 @@ export function ComputerForm({ computer, onSubmit, isLoading }: ComputerFormProp
           throw new Error(result.error || 'Failed to save computer');
         }
 
-        router.push('/admin/gallery');
+        router.push('/admin/in-store');
         router.refresh();
       }
     } catch (err) {

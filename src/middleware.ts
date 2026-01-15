@@ -42,7 +42,7 @@ const PUBLIC_ROUTES = [
   '/auth/confirm',
   '/about',
   '/contact',
-  '/gallery',
+  '/in-store-pcs',
   '/reviews',
   '/silver-plan',
   '/why-linux',

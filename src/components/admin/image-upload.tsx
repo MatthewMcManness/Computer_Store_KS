@@ -66,7 +66,7 @@ interface ImageUploadProps {
  * @returns {JSX.Element} Upload area with preview or dropzone
  *
  * @sideEffects
- * - Makes POST request to `/api/gallery/upload`
+ * - Makes POST request to `/api/in-store/upload`
  * - Creates FormData with image file and type
  * - Shows browser file picker dialog
  * - Reads file as Data URL for preview
@@ -162,7 +162,7 @@ export function ImageUpload({
         xhr.onerror = () => reject(new Error('Network error'));
       });
 
-      xhr.open('POST', '/api/gallery/upload');
+      xhr.open('POST', '/api/in-store/upload');
       xhr.send(formData);
 
       const result = await uploadPromise;

@@ -11,7 +11,7 @@ import {
 import { AVAILABLE_SALES } from '@/types/gallery';
 import type { SaleType } from '@/types/gallery';
 
-// GET /api/gallery/sale - Get current sale setting
+// GET /api/in-store/sale - Get current sale setting
 export async function GET() {
   try {
     if (!isSupabaseConfigured()) {
@@ -62,7 +62,7 @@ export async function GET() {
   }
 }
 
-// POST /api/gallery/sale - Update global sale setting
+// POST /api/in-store/sale - Update global sale setting
 export async function POST(request: NextRequest) {
   try {
     // Check authentication

@@ -21,7 +21,7 @@ const ALLOWED_TYPES = [
   'image/heif',
 ];
 
-// POST /api/gallery/upload - Upload image with thumbnail generation to Supabase Storage
+// POST /api/in-store/upload - Upload image with thumbnail generation to Supabase Storage
 export async function POST(request: NextRequest) {
   try {
     // Check authentication

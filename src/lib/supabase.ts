@@ -902,7 +902,7 @@ export async function updateComputer(
  * - Sets archived_at timestamp
  *
  * @functions_called supabaseAdmin.from
- * @called_by DELETE /api/gallery/[id]
+ * @called_by DELETE /api/in-store/[id]
  *
  * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
  * @version 1.1.0 - 2026-01-15T00:00:00Z - Added archived_at timestamp
@@ -961,7 +961,7 @@ export async function hardDeleteComputer(id: string): Promise<boolean> {
  * - Updates stock_quantity in database
  *
  * @functions_called supabaseAdmin.from, getComputerByIdAdmin
- * @called_by PATCH /api/gallery/[id]/stock
+ * @called_by PATCH /api/in-store/[id]/stock
  *
  * @version 1.0.0 - 2026-01-15T00:00:00Z - Initial implementation
  */
@@ -1001,7 +1001,7 @@ export async function updateStockQuantity(
  * @returns Array of archived computers
  *
  * @functions_called supabaseAdmin.from, applySalePricing
- * @called_by GET /api/gallery/archived
+ * @called_by GET /api/in-store/archived
  *
  * @version 1.0.0 - 2026-01-15T00:00:00Z - Initial implementation
  */
@@ -1037,7 +1037,7 @@ export async function getArchivedComputers(): Promise<GalleryComputer[]> {
  * - Clears archived_at timestamp
  *
  * @functions_called supabaseAdmin.from, applySalePricing
- * @called_by POST /api/gallery/[id]/restore
+ * @called_by POST /api/in-store/[id]/restore
  *
  * @version 1.0.0 - 2026-01-15T00:00:00Z - Initial implementation
  */

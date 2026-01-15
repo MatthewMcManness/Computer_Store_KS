@@ -17,9 +17,9 @@ import type { GalleryComputer } from '@/types/gallery';
  * @returns {JSX.Element} Archived gallery management page
  *
  * @sideEffects
- * - Fetches archived computers from /api/gallery/archived
- * - Can restore computers via POST to /api/gallery/[id]/restore
- * - Can permanently delete via DELETE to /api/gallery/archived
+ * - Fetches archived computers from /api/in-store/archived
+ * - Can restore computers via POST to /api/in-store/[id]/restore
+ * - Can permanently delete via DELETE to /api/in-store/archived
  *
  * @functions_called fetch, useState, useEffect, useRouter
  * @called_by AdminLayout (via routing)
@@ -38,7 +38,7 @@ export default function ArchivedGalleryPage() {
   useEffect(() => {
     const loadComputers = async () => {
       try {
-        const response = await fetch('/api/gallery/archived');
+        const response = await fetch('/api/in-store/archived');
         const result = await response.json();
 
         if (result.success) {
@@ -66,7 +66,7 @@ export default function ArchivedGalleryPage() {
   // Restore computer
   const handleRestore = async (id: string, name: string) => {
     try {
-      const response = await fetch(`/api/gallery/${id}/restore`, {
+      const response = await fetch(`/api/in-store/${id}/restore`, {
         method: 'POST',
       });
 
@@ -101,7 +101,7 @@ export default function ArchivedGalleryPage() {
     if (!deleteConfirm) return;
 
     try {
-      const response = await fetch('/api/gallery/archived', {
+      const response = await fetch('/api/in-store/archived', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: deleteConfirm.id }),
@@ -133,11 +133,11 @@ export default function ArchivedGalleryPage() {
       {/* Header */}
       <div className="mb-6 sm:mb-8">
         <Link
-          href="/admin/gallery"
+          href="/admin/in-store"
           className="inline-flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 mb-4"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to Gallery Manager
+          Back to In-Store Manager
         </Link>
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Archived Computers</h1>
         <p className="mt-1 text-sm sm:text-base text-gray-500 dark:text-gray-400">

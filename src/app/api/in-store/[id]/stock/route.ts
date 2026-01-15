@@ -1,37 +1,42 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isAuthenticated } from '@/lib/auth';
 import {
-  restoreComputer,
+  updateStockQuantity,
   isSupabaseAdminConfigured,
 } from '@/lib/supabase';
 
 /**
- * Restores an archived (soft-deleted) computer to active status.
+ * Adjusts stock quantity for a computer by a delta value.
  *
- * Sets is_active to true and clears the archived_at timestamp,
- * making the computer visible in the public gallery again.
+ * Increases or decreases stock by the specified amount. Stock cannot
+ * go below 0.
  *
- * @param request - Next.js request (no body required)
+ * @param request - Next.js request with JSON body containing delta
  * @param params - Route params containing computer ID
- * @returns NextResponse with restored computer data
+ * @returns NextResponse with updated computer data
  *
  * @throws {401} When not authenticated
- * @throws {400} When computer ID is invalid
+ * @throws {400} When delta is missing or invalid
  * @throws {404} When computer not found
  *
  * @sideEffects
- * - Updates is_active to true in database
- * - Clears archived_at timestamp
+ * - Updates stock_quantity in database
  *
  * @example
- * POST /api/gallery/[id]/restore
+ * // Decrease stock by 1
+ * PATCH /api/in-store/[id]/stock
+ * Body: { "delta": -1 }
  *
- * @functions_called isAuthenticated, restoreComputer
- * @called_by ArchivedGalleryTable restore button
+ * // Increase stock by 5
+ * PATCH /api/in-store/[id]/stock
+ * Body: { "delta": 5 }
+ *
+ * @functions_called isAuthenticated, updateStockQuantity
+ * @called_by GalleryTable stock +/- buttons
  *
  * @version 1.0.0 - 2026-01-15T00:00:00Z - Initial implementation
  */
-export async function POST(
+export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -63,24 +68,34 @@ export async function POST(
       );
     }
 
-    const restoredComputer = await restoreComputer(id);
+    const body = await request.json();
+    const { delta } = body;
 
-    if (!restoredComputer) {
+    if (typeof delta !== 'number') {
       return NextResponse.json(
-        { success: false, error: 'Computer not found or restore failed' },
+        { success: false, error: 'Delta must be a number' },
+        { status: 400 }
+      );
+    }
+
+    const updatedComputer = await updateStockQuantity(id, delta);
+
+    if (!updatedComputer) {
+      return NextResponse.json(
+        { success: false, error: 'Computer not found or update failed' },
         { status: 404 }
       );
     }
 
     return NextResponse.json({
       success: true,
-      data: restoredComputer,
-      message: 'Computer restored successfully',
+      data: updatedComputer,
+      message: `Stock ${delta > 0 ? 'increased' : 'decreased'} successfully`,
     });
   } catch (error) {
-    console.error('Error restoring computer:', error);
+    console.error('Error updating stock:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to restore computer' },
+      { success: false, error: 'Failed to update stock' },
       { status: 500 }
     );
   }

@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
  * - Permanently removes computer from database
  *
  * @example
- * DELETE /api/gallery/archived
+ * DELETE /api/in-store/archived
  * Body: { "id": "uuid-here" }
  *
  * @functions_called isAuthenticated, hardDeleteComputer

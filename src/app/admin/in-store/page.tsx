@@ -23,10 +23,10 @@ export default function AdminGalleryPage() {
     if (message === 'added') {
       showToast('Computer added successfully!', 'success');
       // Clear the URL param
-      router.replace('/admin/gallery', { scroll: false });
+      router.replace('/admin/in-store', { scroll: false });
     } else if (message === 'updated') {
       showToast('Computer updated successfully!', 'success');
-      router.replace('/admin/gallery', { scroll: false });
+      router.replace('/admin/in-store', { scroll: false });
     }
   }, [searchParams, router]);
 
@@ -34,7 +34,7 @@ export default function AdminGalleryPage() {
   useEffect(() => {
     const loadComputers = async () => {
       try {
-        const response = await fetch('/api/gallery?admin=true');
+        const response = await fetch('/api/in-store?admin=true');
         const result = await response.json();
 
         if (result.success) {
@@ -74,7 +74,7 @@ export default function AdminGalleryPage() {
   // Delete computer
   const handleDelete = async (id: string) => {
     try {
-      const response = await fetch(`/api/gallery/${id}`, {
+      const response = await fetch(`/api/in-store/${id}`, {
         method: 'DELETE',
       });
 
@@ -95,7 +95,7 @@ export default function AdminGalleryPage() {
   // Update stock quantity
   const handleStockChange = async (id: string, delta: number) => {
     try {
-      const response = await fetch(`/api/gallery/${id}/stock`, {
+      const response = await fetch(`/api/in-store/${id}/stock`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ delta }),
@@ -131,7 +131,7 @@ export default function AdminGalleryPage() {
       {/* Header */}
       <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Gallery Management</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">In-Store Manager</h1>
           <p className="mt-1 text-sm sm:text-base text-gray-500 dark:text-gray-400">
             Manage your computer inventory
           </p>
@@ -143,14 +143,14 @@ export default function AdminGalleryPage() {
             window.location.reload();
           }} />
           <Link
-            href="/admin/gallery/archived"
+            href="/admin/in-store/archived"
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-gray-100 dark:bg-gray-800 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 w-full sm:w-auto"
           >
             <Archive className="h-4 w-4" />
             View Archived
           </Link>
           <Link
-            href="/admin/gallery/new"
+            href="/admin/in-store/new"
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 w-full sm:w-auto"
           >
             <Plus className="h-4 w-4" />

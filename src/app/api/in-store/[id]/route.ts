@@ -11,7 +11,7 @@ import {
 } from '@/lib/supabase';
 import type { GallerySpec } from '@/types/gallery';
 
-// GET /api/gallery/[id] - Get single computer
+// GET /api/in-store/[id] - Get single computer
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -73,7 +73,7 @@ export async function GET(
   }
 }
 
-// PUT /api/gallery/[id] - Update computer
+// PUT /api/in-store/[id] - Update computer
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -152,7 +152,7 @@ export async function PUT(
   }
 }
 
-// DELETE /api/gallery/[id] - Delete computer (soft delete)
+// DELETE /api/in-store/[id] - Delete computer (soft delete)
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }

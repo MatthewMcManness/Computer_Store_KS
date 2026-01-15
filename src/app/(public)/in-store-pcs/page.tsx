@@ -67,7 +67,7 @@ function GalleryContent() {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await fetch('/api/gallery');
+      const response = await fetch('/api/in-store');
       const result = await response.json();
 
       if (result.success && result.data) {
@@ -245,18 +245,18 @@ function GalleryContent() {
   );
 }
 
-export default function GalleryPage() {
+export default function InStorePCsPage() {
   return (
     <>
       {/* Hero Section */}
       <section className="hero">
         <div className="container">
-          <h2>Our Gallery</h2>
+          <h2>In-Store PCs</h2>
           <p>Browse our collection of custom-built and refurbished computers ready for your home or business.</p>
         </div>
       </section>
 
-      <Suspense fallback={<div className="container" style={{ padding: '2rem', textAlign: 'center' }}>Loading gallery...</div>}>
+      <Suspense fallback={<div className="container" style={{ padding: '2rem', textAlign: 'center' }}>Loading computers...</div>}>
         <GalleryContent />
       </Suspense>
 

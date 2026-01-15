@@ -10,7 +10,7 @@ import {
 } from '@/lib/supabase';
 import type { GallerySpec } from '@/types/gallery';
 
-// GET /api/gallery - Get all computers
+// GET /api/in-store - Get all computers
 export async function GET(request: NextRequest) {
   try {
     if (!isSupabaseConfigured()) {
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/gallery - Add new computer
+// POST /api/in-store - Add new computer
 export async function POST(request: NextRequest) {
   try {
     // Check authentication

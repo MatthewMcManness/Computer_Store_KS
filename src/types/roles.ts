@@ -347,8 +347,8 @@ export const SIDEBAR_CONFIG: SidebarSection[] = [
         icon: 'Ticket',
       },
       {
-        label: 'Gallery',
-        href: '/admin/gallery',
+        label: 'In-Store Manager',
+        href: '/admin/in-store',
         permissions: ['view_gallery'],
         icon: 'Images',
       },
@@ -444,7 +444,7 @@ export const ROUTE_PERMISSIONS: Record<string, Permission[]> = {
   // Technician Section
   '/admin/tech': ['view_tech_dashboard'],
   '/admin/tickets/work': ['manage_ticket_work'],
-  '/admin/gallery': ['view_gallery'],
+  '/admin/in-store': ['view_gallery'],
   // Lead Tech Section
   '/admin/lead-tech': ['view_lead_tech_dashboard'],
   // Social Media Section

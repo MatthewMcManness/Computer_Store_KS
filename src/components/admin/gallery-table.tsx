@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import type { GalleryComputer } from '@/types/gallery';
-import { Pencil, Trash2, Eye, Printer } from 'lucide-react';
+import { Pencil, Trash2, Eye, Printer, Minus, Plus } from 'lucide-react';
 import { generateFlyer } from '@/lib/flyer-generator';
 
 /**
@@ -14,6 +14,7 @@ import { generateFlyer } from '@/lib/flyer-generator';
 interface GalleryTableProps {
   computers: GalleryComputer[];
   onDelete?: (id: string) => void;
+  onStockChange?: (id: string, delta: number) => void;
   isLoading?: boolean;
 }
 
@@ -53,8 +54,21 @@ interface GalleryTableProps {
  *
  * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
  */
-export function GalleryTable({ computers, onDelete, isLoading }: GalleryTableProps) {
+export function GalleryTable({ computers, onDelete, onStockChange, isLoading }: GalleryTableProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [updatingStock, setUpdatingStock] = useState<string | null>(null);
+
+  const handleStockChange = async (id: string, delta: number) => {
+    if (updatingStock) return; // Prevent double clicks
+    setUpdatingStock(id);
+    try {
+      if (onStockChange) {
+        await onStockChange(id, delta);
+      }
+    } finally {
+      setUpdatingStock(null);
+    }
+  };
 
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Are you sure you want to delete "${name}"?`)) {
@@ -138,6 +152,9 @@ export function GalleryTable({ computers, onDelete, isLoading }: GalleryTablePro
             <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
               Price
             </th>
+            <th className="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+              Stock
+            </th>
             <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
               Status
             </th>
@@ -210,7 +227,50 @@ export function GalleryTable({ computers, onDelete, isLoading }: GalleryTablePro
                 )}
               </td>
               <td className="whitespace-nowrap px-6 py-4">
-                {computer.blackFriday?.enabled ? (
+                <div className="flex items-center justify-center gap-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleStockChange(computer.id, -1);
+                    }}
+                    disabled={computer.stockQuantity <= 0 || updatingStock === computer.id}
+                    className={cn(
+                      'rounded p-1 transition-colors',
+                      computer.stockQuantity <= 0
+                        ? 'cursor-not-allowed text-gray-300 dark:text-gray-600'
+                        : 'text-gray-500 hover:bg-red-50 hover:text-red-600 dark:text-gray-400 dark:hover:bg-red-900/30 dark:hover:text-red-400'
+                    )}
+                    title="Decrease stock"
+                  >
+                    <Minus className="h-4 w-4" />
+                  </button>
+                  <span className={cn(
+                    'min-w-[2rem] text-center font-medium',
+                    computer.stockQuantity === 0
+                      ? 'text-red-600 dark:text-red-400'
+                      : 'text-gray-900 dark:text-white'
+                  )}>
+                    {updatingStock === computer.id ? '...' : computer.stockQuantity}
+                  </span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleStockChange(computer.id, 1);
+                    }}
+                    disabled={updatingStock === computer.id}
+                    className="rounded p-1 text-gray-500 transition-colors hover:bg-green-50 hover:text-green-600 dark:text-gray-400 dark:hover:bg-green-900/30 dark:hover:text-green-400"
+                    title="Increase stock"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </button>
+                </div>
+              </td>
+              <td className="whitespace-nowrap px-6 py-4">
+                {computer.stockQuantity === 0 ? (
+                  <span className="inline-flex rounded-full bg-red-100 dark:bg-red-900/30 px-2 py-1 text-xs font-medium text-red-800 dark:text-red-400">
+                    Out of Stock
+                  </span>
+                ) : computer.blackFriday?.enabled ? (
                   <span className="inline-flex rounded-full bg-red-100 dark:bg-red-900/30 px-2 py-1 text-xs font-medium text-red-800 dark:text-red-400">
                     Black Friday
                   </span>

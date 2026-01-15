@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { GalleryTable, SaleDropdown } from '@/components/admin';
 import type { GalleryComputer } from '@/types/gallery';
-import { Plus, Filter } from 'lucide-react';
+import { Plus, Filter, Archive } from 'lucide-react';
 
 export default function AdminGalleryPage() {
   const router = useRouter();
@@ -82,13 +82,38 @@ export default function AdminGalleryPage() {
 
       if (result.success) {
         setComputers(computers.filter(c => c.id !== id));
-        showToast('Computer deleted successfully!', 'success');
+        showToast('Computer archived successfully!', 'success');
       } else {
-        showToast(result.error || 'Failed to delete computer', 'error');
+        showToast(result.error || 'Failed to archive computer', 'error');
       }
     } catch (err) {
-      showToast('Failed to delete computer', 'error');
+      showToast('Failed to archive computer', 'error');
       console.error('Delete error:', err);
+    }
+  };
+
+  // Update stock quantity
+  const handleStockChange = async (id: string, delta: number) => {
+    try {
+      const response = await fetch(`/api/gallery/${id}/stock`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ delta }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Update local state with new stock quantity
+        setComputers(computers.map(c =>
+          c.id === id ? { ...c, stockQuantity: result.data.stockQuantity } : c
+        ));
+      } else {
+        showToast(result.error || 'Failed to update stock', 'error');
+      }
+    } catch (err) {
+      showToast('Failed to update stock', 'error');
+      console.error('Stock update error:', err);
     }
   };
 
@@ -117,6 +142,13 @@ export default function AdminGalleryPage() {
             // Reload computers when sale changes
             window.location.reload();
           }} />
+          <Link
+            href="/admin/gallery/archived"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-gray-100 dark:bg-gray-800 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 w-full sm:w-auto"
+          >
+            <Archive className="h-4 w-4" />
+            View Archived
+          </Link>
           <Link
             href="/admin/gallery/new"
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 w-full sm:w-auto"
@@ -168,6 +200,7 @@ export default function AdminGalleryPage() {
       <GalleryTable
         computers={filteredComputers}
         onDelete={handleDelete}
+        onStockChange={handleStockChange}
         isLoading={isLoading}
       />
 

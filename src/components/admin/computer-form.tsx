@@ -97,6 +97,7 @@ export function ComputerForm({ computer, onSubmit, isLoading }: ComputerFormProp
     type: computer?.type || 'desktop' as 'desktop' | 'laptop',
     category: computer?.category || 'custom' as 'custom' | 'refurbished' | 'new',
     price: computer?.price || '',
+    stockQuantity: computer?.stockQuantity ?? 1,
     image: computer?.image || '',
     thumbnail: computer?.thumbnail || '',
   });
@@ -194,6 +195,7 @@ export function ComputerForm({ computer, onSubmit, isLoading }: ComputerFormProp
         type: formData.type,
         category: formData.category,
         price: formData.price,
+        stockQuantity: formData.stockQuantity,
         image: formData.image,
         thumbnail: formData.thumbnail || undefined,
         specs: specs.filter(s => s.value.trim() !== ''),
@@ -289,20 +291,36 @@ export function ComputerForm({ computer, onSubmit, isLoading }: ComputerFormProp
         </div>
       </div>
 
-      {/* Price */}
-      <div>
-        <label htmlFor="price" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          Price *
-        </label>
-        <input
-          type="text"
-          id="price"
-          value={formData.price}
-          onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-          placeholder="$1,299"
-          className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-          required
-        />
+      {/* Price and Stock */}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label htmlFor="price" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Price *
+          </label>
+          <input
+            type="text"
+            id="price"
+            value={formData.price}
+            onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+            placeholder="$1,299"
+            className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            required
+          />
+        </div>
+        <div>
+          <label htmlFor="stockQuantity" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Initial Stock
+          </label>
+          <input
+            type="number"
+            id="stockQuantity"
+            value={formData.stockQuantity}
+            onChange={(e) => setFormData({ ...formData, stockQuantity: Math.max(0, parseInt(e.target.value) || 0) })}
+            min="0"
+            className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          />
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Default: 1. Can be adjusted later.</p>
+        </div>
       </div>
 
       {/* Image Upload */}

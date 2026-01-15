@@ -17,6 +17,7 @@ interface GalleryItem {
   thumbnailUrl?: string;
   specs: Array<{ label: string; value: string }>;
   isBlackFridaySale?: boolean;
+  stockQuantity: number;
 }
 
 /**
@@ -50,6 +51,7 @@ function transformComputer(computer: GalleryComputer): GalleryItem {
     thumbnailUrl: computer.thumbnail || undefined,
     specs: computer.specs || [],
     isBlackFridaySale: computer.blackFriday?.enabled || false,
+    stockQuantity: computer.stockQuantity ?? 1,
   };
 }
 
@@ -177,6 +179,11 @@ function GalleryContent() {
               >
                 {/* Image Section - 16:9 aspect ratio */}
                 <div className="gallery-row-image">
+                  {item.stockQuantity === 0 && (
+                    <div className="out-of-stock-ribbon">
+                      <span className="out-of-stock-text">OUT OF STOCK</span>
+                    </div>
+                  )}
                   {item.isBlackFridaySale && <div className="bf-ribbon-corner"></div>}
                   {item.isBlackFridaySale && (
                     <div className="gallery-row-badge badge-black-friday">

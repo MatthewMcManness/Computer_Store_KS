@@ -553,6 +553,8 @@ export interface GalleryComputerDB {
   specs: GallerySpec[];
   is_active: boolean;
   sort_order: number;
+  stock_quantity: number;
+  archived_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -635,6 +637,9 @@ function applySalePricing(
     image: computer.image_url || '',
     thumbnail: computer.thumbnail_url || undefined,
     specs: computer.specs || [],
+    stockQuantity: computer.stock_quantity ?? 1,
+    isActive: computer.is_active,
+    archivedAt: computer.archived_at || undefined,
     created_at: computer.created_at,
     updated_at: computer.updated_at,
   };
@@ -845,6 +850,7 @@ export async function createComputer(input: CreateComputerInput): Promise<Galler
       thumbnail_url: input.thumbnail_url || null,
       specs: input.specs || [],
       sort_order: input.sort_order || 0,
+      stock_quantity: input.stock_quantity ?? 1,
     })
     .select()
     .single();
@@ -885,13 +891,31 @@ export async function updateComputer(
 
 /**
  * Delete a computer (soft delete - sets is_active to false) (Admin)
+ *
+ * Sets is_active to false and records the archived_at timestamp.
+ *
+ * @param id - UUID of the computer to archive
+ * @returns true if successful, false otherwise
+ *
+ * @sideEffects
+ * - Updates is_active to false in database
+ * - Sets archived_at timestamp
+ *
+ * @functions_called supabaseAdmin.from
+ * @called_by DELETE /api/gallery/[id]
+ *
+ * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+ * @version 1.1.0 - 2026-01-15T00:00:00Z - Added archived_at timestamp
  */
 export async function deleteComputer(id: string): Promise<boolean> {
   if (!supabaseAdmin) return false;
 
   const { error } = await supabaseAdmin
     .from('gallery_computers')
-    .update({ is_active: false })
+    .update({
+      is_active: false,
+      archived_at: new Date().toISOString(),
+    })
     .eq('id', id);
 
   if (error) {
@@ -919,6 +943,124 @@ export async function hardDeleteComputer(id: string): Promise<boolean> {
   }
 
   return true;
+}
+
+/**
+ * Update stock quantity for a computer (Admin)
+ *
+ * Adjusts the stock quantity by the specified delta. Ensures stock
+ * cannot go below 0.
+ *
+ * @param id - UUID of the computer to update
+ * @param delta - Amount to adjust stock by (positive or negative)
+ * @returns Updated computer or null on error
+ *
+ * @throws Will not allow stock to go below 0
+ *
+ * @sideEffects
+ * - Updates stock_quantity in database
+ *
+ * @functions_called supabaseAdmin.from, getComputerByIdAdmin
+ * @called_by PATCH /api/gallery/[id]/stock
+ *
+ * @version 1.0.0 - 2026-01-15T00:00:00Z - Initial implementation
+ */
+export async function updateStockQuantity(
+  id: string,
+  delta: number
+): Promise<GalleryComputer | null> {
+  if (!supabaseAdmin) return null;
+
+  // First get current stock
+  const current = await getComputerByIdAdmin(id);
+  if (!current) return null;
+
+  const newStock = Math.max(0, current.stockQuantity + delta);
+
+  const { data, error } = await supabaseAdmin
+    .from('gallery_computers')
+    .update({ stock_quantity: newStock })
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error updating stock quantity:', error);
+    return null;
+  }
+
+  const activeSale = await getActiveSaleAdmin();
+  return applySalePricing(data, activeSale);
+}
+
+/**
+ * Get all archived (soft-deleted) computers (Admin)
+ *
+ * Returns computers where is_active = false, ordered by archived_at date.
+ *
+ * @returns Array of archived computers
+ *
+ * @functions_called supabaseAdmin.from, applySalePricing
+ * @called_by GET /api/gallery/archived
+ *
+ * @version 1.0.0 - 2026-01-15T00:00:00Z - Initial implementation
+ */
+export async function getArchivedComputers(): Promise<GalleryComputer[]> {
+  if (!supabaseAdmin) return [];
+
+  const activeSale = await getActiveSaleAdmin();
+
+  const { data, error } = await supabaseAdmin
+    .from('gallery_computers')
+    .select('*')
+    .eq('is_active', false)
+    .order('archived_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching archived computers:', error);
+    return [];
+  }
+
+  return (data || []).map((computer) => applySalePricing(computer, activeSale));
+}
+
+/**
+ * Restore an archived computer (Admin)
+ *
+ * Sets is_active to true and clears the archived_at timestamp.
+ *
+ * @param id - UUID of the computer to restore
+ * @returns Restored computer or null on error
+ *
+ * @sideEffects
+ * - Updates is_active to true in database
+ * - Clears archived_at timestamp
+ *
+ * @functions_called supabaseAdmin.from, applySalePricing
+ * @called_by POST /api/gallery/[id]/restore
+ *
+ * @version 1.0.0 - 2026-01-15T00:00:00Z - Initial implementation
+ */
+export async function restoreComputer(id: string): Promise<GalleryComputer | null> {
+  if (!supabaseAdmin) return null;
+
+  const { data, error } = await supabaseAdmin
+    .from('gallery_computers')
+    .update({
+      is_active: true,
+      archived_at: null,
+    })
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error restoring computer:', error);
+    return null;
+  }
+
+  const activeSale = await getActiveSaleAdmin();
+  return applySalePricing(data, activeSale);
 }
 
 /**

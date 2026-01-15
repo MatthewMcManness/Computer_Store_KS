@@ -126,6 +126,8 @@ export async function PUT(
     if (body.specs !== undefined) updateData.specs = body.specs as GallerySpec[];
     if (body.is_active !== undefined) updateData.is_active = body.is_active;
     if (body.sort_order !== undefined) updateData.sort_order = body.sort_order;
+    if (body.stock_quantity !== undefined) updateData.stock_quantity = body.stock_quantity;
+    if (body.stockQuantity !== undefined) updateData.stock_quantity = body.stockQuantity;
 
     const updatedComputer = await updateComputer(id, updateData);
 

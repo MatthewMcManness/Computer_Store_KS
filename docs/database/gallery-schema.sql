@@ -15,6 +15,8 @@ CREATE TABLE IF NOT EXISTS gallery_computers (
   specs JSONB DEFAULT '[]',
   is_active BOOLEAN DEFAULT true,
   sort_order INTEGER DEFAULT 0,
+  stock_quantity INTEGER NOT NULL DEFAULT 1,
+  archived_at TIMESTAMP WITH TIME ZONE DEFAULT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -36,6 +38,7 @@ CREATE INDEX IF NOT EXISTS idx_gallery_computers_type ON gallery_computers(type)
 CREATE INDEX IF NOT EXISTS idx_gallery_computers_category ON gallery_computers(category);
 CREATE INDEX IF NOT EXISTS idx_gallery_computers_is_active ON gallery_computers(is_active);
 CREATE INDEX IF NOT EXISTS idx_gallery_computers_sort_order ON gallery_computers(sort_order);
+CREATE INDEX IF NOT EXISTS idx_gallery_computers_stock ON gallery_computers(stock_quantity);
 CREATE INDEX IF NOT EXISTS idx_gallery_sales_is_active ON gallery_sales(is_active);
 CREATE INDEX IF NOT EXISTS idx_gallery_sales_sale_type ON gallery_sales(sale_type);
 

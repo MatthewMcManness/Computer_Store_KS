@@ -74,7 +74,10 @@ export interface GalleryComputer {
   image: string;
   thumbnail?: string; // Small 400x300 WebP for grid display
   specs: GallerySpec[];
+  stockQuantity: number; // Inventory count (0 = out of stock)
   blackFriday?: BlackFridayData;
+  isActive?: boolean; // Whether computer is visible in public gallery
+  archivedAt?: string; // ISO timestamp when archived (soft deleted)
   created_at?: string;
   updated_at?: string;
 }
@@ -198,6 +201,7 @@ export interface ComputerFormData {
   image: string;
   thumbnail?: string;
   specs: GallerySpec[];
+  stockQuantity: number; // Inventory count
 }
 
 /**
@@ -216,6 +220,7 @@ export interface CreateComputerInput {
   thumbnail_url?: string;
   specs?: GallerySpec[];
   sort_order?: number;
+  stock_quantity?: number; // Default: 1
 }
 
 /**
@@ -235,4 +240,5 @@ export interface UpdateComputerInput {
   specs?: GallerySpec[];
   is_active?: boolean;
   sort_order?: number;
+  stock_quantity?: number;
 }

@@ -664,6 +664,8 @@ export async function fetchCallHistory(params: CallHistoryParams = {}): Promise<
   const start = startDate || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
   const end = endDate || new Date();
 
+  console.log('[Cytracom] fetchCallHistory params:', { phoneNumber, extension, direction, limit, start: start.toISOString(), end: end.toISOString() });
+
   // Create cache key
   const cacheKey = `cdr:${start.toISOString()}:${end.toISOString()}:${phoneNumber || ''}:${extension || ''}:${direction || ''}`;
   const cached = getCached<CytracomCDR[]>(cacheKey);
@@ -717,6 +719,7 @@ export async function fetchCallHistory(params: CallHistoryParams = {}): Promise<
     });
 
     const records = response?.data?.search?.records || [];
+    console.log('[Cytracom] Got', records.length, 'records from API');
 
     let cdrs: CytracomCDR[] = records.map(record => {
       // Extract caller info from original_caller_id like "\"OSBORNE KENNETH\" <7015090351>"
@@ -734,6 +737,16 @@ export async function fetchCallHistory(params: CallHistoryParams = {}): Promise<
         disposition = 'answered';
       } else if (lastLeg?.callee?.type === 'mailbox') {
         disposition = 'voicemail';
+      }
+
+      // Debug log for unanswered calls
+      if (!record.answered) {
+        console.log('[Cytracom] Unanswered call:', {
+          uuid: record.uuid,
+          answered: record.answered,
+          lastLegCalleeType: lastLeg?.callee?.type,
+          disposition,
+        });
       }
 
       return {
@@ -756,6 +769,13 @@ export async function fetchCallHistory(params: CallHistoryParams = {}): Promise<
       };
     });
 
+    // Log disposition breakdown before filtering
+    const dispositionCounts = cdrs.reduce((acc, cdr) => {
+      acc[cdr.disposition] = (acc[cdr.disposition] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+    console.log('[Cytracom] Disposition breakdown:', dispositionCounts);
+
     // Filter by extension if specified
     if (extension) {
       cdrs = cdrs.filter(cdr => cdr.extension === extension);
@@ -763,7 +783,9 @@ export async function fetchCallHistory(params: CallHistoryParams = {}): Promise<
 
     // Filter by direction if specified
     if (direction) {
+      const beforeFilter = cdrs.length;
       cdrs = cdrs.filter(cdr => cdr.direction === direction);
+      console.log('[Cytracom] Direction filter:', direction, '- before:', beforeFilter, 'after:', cdrs.length);
     }
 
     // Sort by start time descending (most recent first)
@@ -828,6 +850,8 @@ export async function getMissedCalls(
   startDate?: Date,
   endDate?: Date
 ): Promise<CytracomCDR[]> {
+  console.log('[Cytracom] getMissedCalls called with:', { startDate, endDate });
+
   const calls = await fetchCallHistory({
     startDate,
     endDate,
@@ -835,10 +859,16 @@ export async function getMissedCalls(
     limit: 200,
   });
 
-  return calls.filter(call =>
+  console.log('[Cytracom] getMissedCalls got', calls.length, 'inbound calls');
+
+  const missedCalls = calls.filter(call =>
     call.disposition === 'no_answer' ||
     call.disposition === 'voicemail'
   );
+
+  console.log('[Cytracom] getMissedCalls filtered to', missedCalls.length, 'missed/voicemail calls');
+
+  return missedCalls;
 }
 
 // =============================================================================

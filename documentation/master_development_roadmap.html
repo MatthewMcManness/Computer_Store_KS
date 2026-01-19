@@ -1151,7 +1151,7 @@
                         <p>Integrate Cytracom phone system with the website for click-to-call, voicemail management, and call tracking.</p>
                     </div>
                     <div class="phase-meta">
-                        <span class="badge badge-not-started">Not Started</span>
+                        <span class="badge badge-partial">40% Complete</span>
                         <span class="badge badge-critical">Priority</span>
                         <span class="hours-badge">~40-60 hours</span>
                     </div>
@@ -1159,9 +1159,9 @@
 
                 <h4>Phase 2.1: Call History Integration (Week 1)</h4>
                 <ul class="checklist">
-                    <li class="pending">Create Cytracom API service wrapper</li>
-                    <li class="pending">Implement token authentication</li>
-                    <li class="pending">Fetch call history via Insights API (CDR data)</li>
+                    <li class="done">Create Cytracom API service wrapper</li>
+                    <li class="done">Implement token authentication (Basic Auth)</li>
+                    <li class="done">Fetch call history via Insights API (POST /insights/search)</li>
                     <li class="pending">Display call history on customer detail pages</li>
                     <li class="pending">Match calls to RepairShopr customers by phone number</li>
                 </ul>
@@ -1170,19 +1170,19 @@
                 <ul class="checklist">
                     <li class="pending">Configure Cytracom voicemail-to-email with transcription</li>
                     <li class="pending">Set up email parsing (SendGrid Inbound Parse or IMAP)</li>
-                    <li class="pending">Create <code>missed_calls</code> table in Supabase</li>
+                    <li class="done">Create <code>call_logs</code> table in Supabase</li>
                     <li class="pending">Build voicemail webhook endpoint to parse emails</li>
-                    <li class="pending">Create Missed Calls widget in admin dashboard</li>
+                    <li class="done">Create Missed Calls widget in admin dashboard</li>
                     <li class="pending">Auto-lookup customer in RepairShopr by caller ID</li>
-                    <li class="pending">Add "Call Back" button with click-to-call</li>
+                    <li class="done">Add "Call Back" button with click-to-call</li>
                 </ul>
 
                 <h4>Phase 2.3: Employee Click-to-Call (Week 3)</h4>
                 <ul class="checklist">
-                    <li class="pending">Implement Call Control API (originate endpoint)</li>
+                    <li class="done">Implement Call Control API (originate endpoint)</li>
                     <li class="pending">Add click-to-call buttons on ticket pages</li>
                     <li class="pending">Add click-to-call buttons on customer pages</li>
-                    <li class="pending">Log outbound calls to ticket notes automatically</li>
+                    <li class="done">Log outbound calls to Supabase call_logs table</li>
                 </ul>
 
                 <h4>Phase 2.4: Website Callback Widget (Week 4-5)</h4>
@@ -1194,15 +1194,7 @@
                     <li class="pending">Track callback requests and conversions</li>
                 </ul>
 
-                <h4>Phase 2.5: Auto-Ticket from Voicemail (Week 6)</h4>
-                <ul class="checklist">
-                    <li class="pending">Auto-create RepairShopr ticket for known customers</li>
-                    <li class="pending">Include transcription in ticket description</li>
-                    <li class="pending">Attach audio file if available</li>
-                    <li class="pending">Set appropriate ticket status for follow-up</li>
-                </ul>
-
-                <h4>Phase 2.6: Real-Time Call Events (Future)</h4>
+                <h4>Phase 2.5: Real-Time Call Events (Future)</h4>
                 <ul class="checklist">
                     <li class="pending">Subscribe to Cytracom SSE events stream</li>
                     <li class="pending">Display incoming call popup in admin portal</li>

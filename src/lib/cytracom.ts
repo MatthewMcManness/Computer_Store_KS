@@ -534,7 +534,7 @@ export async function updateCallLogStatus(
 /**
  * Make an authenticated request to the Cytracom API
  *
- * @param endpoint - API endpoint (e.g., "/insights/cdr")
+ * @param endpoint - API endpoint (e.g., "/insights/search")
  * @param options - Fetch options
  * @returns Response data
  * @throws Error if request fails or not configured
@@ -689,7 +689,7 @@ export async function fetchCallHistory(params: CallHistoryParams = {}): Promise<
   if (cached) return cached;
 
   try {
-    const data = await cytracomFetch<CytracomRawCDR[]>(`/insights/cdr?${queryParams}`);
+    const data = await cytracomFetch<CytracomRawCDR[]>(`/insights/search?${queryParams}`);
 
     let cdrs: CytracomCDR[] = (data || []).map(raw => ({
       callId: raw.id || raw.uuid || '',

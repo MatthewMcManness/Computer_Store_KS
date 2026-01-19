@@ -84,27 +84,53 @@ export async function GET(request: NextRequest) {
 
       // If debug mode, also get all calls for comparison
       if (debug) {
+        // Test 1: Fetch ALL calls (no direction filter)
         const allCalls = await fetchCallHistory({
           startDate,
           endDate,
           limit: 50,
         });
-        const inboundCalls = allCalls.filter(c => c.direction === 'inbound');
+
+        // Test 2: Fetch with direction:'inbound' (same as getMissedCalls)
+        const inboundCallsFromAPI = await fetchCallHistory({
+          startDate,
+          endDate,
+          direction: 'inbound',
+          limit: 200,
+        });
+
+        // Test 3: Manual filter of allCalls
+        const inboundCallsManual = allCalls.filter(c => c.direction === 'inbound');
+        const missedCallsManual = inboundCallsManual.filter(c =>
+          c.disposition === 'no_answer' || c.disposition === 'voicemail'
+        );
+
         debugInfo = {
-          allCallsCount: allCalls.length,
-          inboundCallsCount: inboundCalls.length,
+          // From getMissedCalls (the problematic one)
           missedCallsCount: calls.length,
-          dispositionBreakdown: allCalls.reduce((acc, c) => {
+
+          // Test 1: All calls
+          allCallsCount: allCalls.length,
+          allCallsDispositions: allCalls.reduce((acc, c) => {
             acc[c.disposition] = (acc[c.disposition] || 0) + 1;
             return acc;
           }, {} as Record<string, number>),
-          inboundDispositions: inboundCalls.reduce((acc, c) => {
+
+          // Test 2: fetchCallHistory with direction:'inbound'
+          inboundFromAPICount: inboundCallsFromAPI.length,
+          inboundFromAPIDispositions: inboundCallsFromAPI.reduce((acc, c) => {
             acc[c.disposition] = (acc[c.disposition] || 0) + 1;
             return acc;
           }, {} as Record<string, number>),
+
+          // Test 3: Manual filter
+          inboundManualCount: inboundCallsManual.length,
+          missedManualCount: missedCallsManual.length,
+
+          // Sample data
           sampleUnanswered: allCalls
             .filter(c => c.disposition !== 'answered')
-            .slice(0, 5)
+            .slice(0, 3)
             .map(c => ({
               id: c.callId,
               direction: c.direction,

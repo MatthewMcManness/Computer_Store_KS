@@ -4,6 +4,7 @@ import Link from 'next/link';
 import NextImage from 'next/image';
 import { ClipboardList } from 'lucide-react';
 import { CallCustomerTickets } from '@/components/admin/call-customer-tickets';
+import { ReceptionPhoneWidgets } from '@/components/admin/reception-phone-widgets';
 
 export default async function AdminDashboardPage() {
   // Check authentication
@@ -39,6 +40,11 @@ export default async function AdminDashboardPage() {
       {/* Call Customer Tickets Card */}
       <div className="mb-8">
         <CallCustomerTickets />
+      </div>
+
+      {/* Phone System Widgets (Missed Calls, Voicemails) */}
+      <div className="mb-8">
+        <ReceptionPhoneWidgets />
       </div>
 
       {/* RWS Footer */}

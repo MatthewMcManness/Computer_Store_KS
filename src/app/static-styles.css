@@ -3734,6 +3734,18 @@ form button {
   border-left-color: #a0a0a0;
 }
 
+/* Free/Recycling dropdown link styling */
+.dropdown-link.free {
+  background: linear-gradient(145deg, #e8f5e9 0%, #c8e6c9 100%);
+  font-weight: 600;
+  border-left: 3px solid #4caf50;
+}
+
+.dropdown-link.free:hover {
+  background: linear-gradient(145deg, #c8e6c9 0%, #a5d6a7 100%);
+  border-left-color: #388e3c;
+}
+
 /* ================================================
    26. BLOG STYLES
    Blog list, cards, and article pages

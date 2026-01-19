@@ -16,6 +16,7 @@ const serviceLinks = [
   { href: '/services/upgrades', label: 'Hardware Upgrades' },
   { href: '/services/debloat', label: 'Windows Debloat' },
   { href: '/services/antivirus', label: 'Antivirus & Protection' },
+  { href: '/services/recycling', label: 'Free Electronics Recycling', className: 'free' },
   { href: '/why-linux', label: 'Why Linux?', className: 'linux' },
   { href: '/silver-plan', label: 'Protection Plans', className: 'silver' },
 ];

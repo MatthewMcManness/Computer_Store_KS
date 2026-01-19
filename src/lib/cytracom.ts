@@ -850,23 +850,18 @@ export async function getMissedCalls(
   startDate?: Date,
   endDate?: Date
 ): Promise<CytracomCDR[]> {
-  console.log('[Cytracom] getMissedCalls called with:', { startDate, endDate });
-
-  const calls = await fetchCallHistory({
+  // Fetch all calls first, then filter - avoids direction filter bug
+  const allCalls = await fetchCallHistory({
     startDate,
     endDate,
-    direction: 'inbound',
     limit: 200,
   });
 
-  console.log('[Cytracom] getMissedCalls got', calls.length, 'inbound calls');
-
-  const missedCalls = calls.filter(call =>
-    call.disposition === 'no_answer' ||
-    call.disposition === 'voicemail'
+  // Filter for inbound missed/voicemail calls
+  const missedCalls = allCalls.filter(call =>
+    call.direction === 'inbound' &&
+    (call.disposition === 'no_answer' || call.disposition === 'voicemail')
   );
-
-  console.log('[Cytracom] getMissedCalls filtered to', missedCalls.length, 'missed/voicemail calls');
 
   return missedCalls;
 }

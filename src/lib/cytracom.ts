@@ -550,8 +550,13 @@ async function cytracomFetch<T>(
   }
 
   const url = `${config.apiUrl}${endpoint}`;
+
+  // Cytracom uses Basic Auth with username "token" and the API token as password
+  // This matches their curl example: --user token:<<YOUR-TOKEN>>
+  const basicAuth = Buffer.from(`token:${config.apiToken}`).toString('base64');
+
   const headers: HeadersInit = {
-    'Authorization': `Bearer ${config.apiToken}`,
+    'Authorization': `Basic ${basicAuth}`,
     'Content-Type': 'application/json',
     ...options.headers,
   };

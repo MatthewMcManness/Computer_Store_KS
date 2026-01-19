@@ -74,6 +74,12 @@ const services = [
     icon: '🖱️',
   },
   {
+    href: '/services/recycling',
+    title: 'Free Electronics Recycling',
+    description: 'Drop off old computers, TVs, radios, consoles, and more. Data destruction guaranteed. No cost to you.',
+    icon: '♻️',
+  },
+  {
     href: '/silver-plan',
     title: 'Protection Plans',
     description: 'Bronze, Silver, and Gold protection plans with antivirus, discounts on repairs, priority service, and peace of mind.',

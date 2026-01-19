@@ -79,8 +79,16 @@ export async function GET(request: NextRequest) {
     let debugInfo: Record<string, unknown> | undefined;
 
     if (missedOnly) {
-      // Get only missed calls
-      calls = await getMissedCalls(startDate, endDate);
+      // Get missed calls using manual filter (direction filter in fetchCallHistory is broken)
+      const allCalls = await fetchCallHistory({
+        startDate,
+        endDate,
+        limit: 200,
+      });
+      calls = allCalls.filter(call =>
+        call.direction === 'inbound' &&
+        (call.disposition === 'no_answer' || call.disposition === 'voicemail')
+      );
 
       // If debug mode, also get all calls for comparison
       if (debug) {

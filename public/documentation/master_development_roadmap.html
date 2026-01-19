@@ -650,10 +650,11 @@
             <li><a href="#phase-1">Foundation</a></li>
             <li><a href="#phase-2">Cytracom</a></li>
             <li><a href="#phase-3">RepairShopr</a></li>
-            <li><a href="#phase-4">NinjaOne</a></li>
-            <li><a href="#phase-5">Customer Portal</a></li>
-            <li><a href="#phase-6">PC Builder</a></li>
-            <li><a href="#phase-7">Social Media</a></li>
+            <li><a href="#phase-4">ESET</a></li>
+            <li><a href="#phase-5">NinjaOne</a></li>
+            <li><a href="#phase-6">Customer Portal</a></li>
+            <li><a href="#phase-7">PC Builder</a></li>
+            <li><a href="#phase-8">Social Media</a></li>
             <li><a href="#timeline">Timeline</a></li>
             <li><a href="#costs">Costs</a></li>
         </ul>
@@ -740,7 +741,25 @@
 
                 <div class="progress-section">
                     <h4>
-                        Phase 4: NinjaOne
+                        Phase 4: ESET
+                        <span class="badge badge-not-started">Not Started</span>
+                    </h4>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: 0%; background: #9ca3af;"></div>
+                    </div>
+                    <ul style="margin: 0; padding-left: 20px; font-size: 0.9rem;">
+                        <li><span class="status-icon status-pending">○</span> ESET Connect API integration</li>
+                        <li><span class="status-icon status-pending">○</span> Device protection status</li>
+                        <li><span class="status-icon status-pending">○</span> Threat detection dashboard</li>
+                        <li><span class="status-icon status-pending">○</span> Scan history & alerts</li>
+                        <li><span class="status-icon status-pending">○</span> Remote scan triggers</li>
+                        <li><span class="status-icon status-pending">○</span> License management</li>
+                    </ul>
+                </div>
+
+                <div class="progress-section">
+                    <h4>
+                        Phase 5: NinjaOne
                         <span class="badge badge-not-started">Not Started</span>
                     </h4>
                     <div class="progress-container">
@@ -758,7 +777,7 @@
 
                 <div class="progress-section">
                     <h4>
-                        Phase 5: Customer Portal
+                        Phase 6: Customer Portal
                         <span class="badge badge-partial">10% Done</span>
                     </h4>
                     <div class="progress-container">
@@ -776,7 +795,7 @@
 
                 <div class="progress-section">
                     <h4>
-                        Phase 6: PC Builder
+                        Phase 7: PC Builder
                         <span class="badge badge-not-started">Not Started</span>
                     </h4>
                     <div class="progress-container">
@@ -792,7 +811,7 @@
 
                 <div class="progress-section">
                     <h4>
-                        Phase 7: Social Media
+                        Phase 8: Social Media
                         <span class="badge badge-not-started">Not Started</span>
                     </h4>
                     <div class="progress-container">
@@ -1503,7 +1522,161 @@
 
     <section id="phase-4">
         <div class="container">
-            <h2>Phase 4: Employee Portal - NinjaOne</h2>
+            <h2>Phase 4: ESET Antivirus Integration</h2>
+
+            <div class="phase-section high">
+                <div class="phase-header">
+                    <div>
+                        <h3>🛡️ Endpoint Protection & Threat Management</h3>
+                        <p>Integrate ESET PROTECT into the employee portal for unified antivirus monitoring, threat detection, and remote scan management.</p>
+                    </div>
+                    <div class="phase-meta">
+                        <span class="badge badge-not-started">Not Started</span>
+                        <span class="badge" style="background: #fef3c7; color: #92400e;">High Priority</span>
+                        <span class="hours-badge">~30-40 hours</span>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <h4>ESET API Overview</h4>
+                    <p>ESET provides the <strong>ESET Connect API</strong> - a REST gateway to ESET PROTECT backend services. Key capabilities include:</p>
+                    <ul style="margin-top: 10px; margin-left: 20px;">
+                        <li><strong>Device Management</strong> - View protected devices, status, and agent info</li>
+                        <li><strong>Detection Management</strong> - Access threat detections (active and resolved)</li>
+                        <li><strong>Task Automation</strong> - Trigger scans, updates, and other device tasks</li>
+                        <li><strong>Reporting</strong> - Pull detection statistics and device health data</li>
+                    </ul>
+                    <p style="margin-top: 10px;"><strong>API Docs:</strong> <a href="https://help.eset.com/eset_connect/en-US/" target="_blank">ESET Connect Online Help</a> | <a href="https://help.eset.com/developers/" target="_blank">ESET Developer Portal</a></p>
+                </div>
+
+                <ol class="step-list">
+                    <li>
+                        <h4>Build ESET API Service Wrapper</h4>
+                        <p>Create server-side integration with ESET Connect API.</p>
+                        <ul class="substep-list">
+                            <li>○ Set up OAuth2 authentication with ESET Connect</li>
+                            <li>○ Create API wrapper in <code>src/lib/eset.ts</code></li>
+                            <li>○ Implement device listing endpoint</li>
+                            <li>○ Implement detection fetching endpoint</li>
+                            <li>○ Add error handling and rate limiting</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Build Device Protection Status View</h4>
+                        <p>Show ESET protection status on customer devices.</p>
+                        <ul class="substep-list">
+                            <li>○ Display protection status (protected, outdated, offline)</li>
+                            <li>○ Show last scan date and result</li>
+                            <li>○ Show definition version and update status</li>
+                            <li>○ Link to NinjaOne device (if mapped)</li>
+                            <li>○ Color-coded health indicators</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Build Threat Detection Dashboard</h4>
+                        <p>Centralized view of all detected threats across devices.</p>
+                        <ul class="substep-list">
+                            <li>○ List active (unresolved) detections with severity</li>
+                            <li>○ Filter by customer, device, threat type</li>
+                            <li>○ Show detection details (threat name, file path, action taken)</li>
+                            <li>○ Mark detections as reviewed/resolved</li>
+                            <li>○ Link detection to customer ticket</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Build Scan History & Alerts</h4>
+                        <p>View scan history and configure alerting.</p>
+                        <ul class="substep-list">
+                            <li>○ Display recent scan history per device</li>
+                            <li>○ Show scan results (clean, threats found, errors)</li>
+                            <li>○ Configure alert thresholds (critical threats, offline devices)</li>
+                            <li>○ Push notifications for new critical detections</li>
+                            <li>○ Email alerts for MSP customers (optional)</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Implement Remote Scan Triggers</h4>
+                        <p>Initiate scans from the employee portal.</p>
+                        <ul class="substep-list">
+                            <li>○ Quick scan button on device detail page</li>
+                            <li>○ Full scan option for deeper analysis</li>
+                            <li>○ Update definitions command</li>
+                            <li>○ Task status tracking (pending, running, complete)</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h4>Build License Management View</h4>
+                        <p>Track ESET license usage and expiration.</p>
+                        <ul class="substep-list">
+                            <li>○ Display license count (used vs available)</li>
+                            <li>○ Show expiration dates</li>
+                            <li>○ Alert on low license availability</li>
+                            <li>○ Link to ESET license purchase (if available via API)</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h4>Deliverables</h4>
+                <table>
+                    <tr>
+                        <th>Item</th>
+                        <th>Description</th>
+                        <th>Est. Hours</th>
+                        <th>Status</th>
+                    </tr>
+                    <tr>
+                        <td>ESET API wrapper</td>
+                        <td>OAuth2 auth + core endpoints</td>
+                        <td>6-8</td>
+                        <td><span class="badge badge-not-started">Not Started</span></td>
+                    </tr>
+                    <tr>
+                        <td>Device protection status</td>
+                        <td>Status view on customer devices</td>
+                        <td>4-6</td>
+                        <td><span class="badge badge-not-started">Not Started</span></td>
+                    </tr>
+                    <tr>
+                        <td>Threat detection dashboard</td>
+                        <td>Centralized threat management</td>
+                        <td>8-10</td>
+                        <td><span class="badge badge-not-started">Not Started</span></td>
+                    </tr>
+                    <tr>
+                        <td>Scan history & alerts</td>
+                        <td>History view + notifications</td>
+                        <td>4-6</td>
+                        <td><span class="badge badge-not-started">Not Started</span></td>
+                    </tr>
+                    <tr>
+                        <td>Remote scan triggers</td>
+                        <td>Initiate scans from portal</td>
+                        <td>4-6</td>
+                        <td><span class="badge badge-not-started">Not Started</span></td>
+                    </tr>
+                    <tr>
+                        <td>License management</td>
+                        <td>License tracking and alerts</td>
+                        <td>3-4</td>
+                        <td><span class="badge badge-not-started">Not Started</span></td>
+                    </tr>
+                </table>
+
+                <div class="warning-box">
+                    <h4>⚠️ Prerequisites</h4>
+                    <ul style="margin: 10px 0 0 20px;">
+                        <li>ESET PROTECT Cloud or On-Prem account with API access enabled</li>
+                        <li>API credentials configured in ESET Business Account</li>
+                        <li>Devices enrolled in ESET PROTECT management console</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="phase-5">
+        <div class="container">
+            <h2>Phase 5: Employee Portal - NinjaOne</h2>
 
             <div class="phase-section critical">
                 <div class="phase-header">
@@ -1649,9 +1822,9 @@
         </div>
     </section>
 
-    <section id="phase-5">
+    <section id="phase-6">
         <div class="container">
-            <h2>Phase 5: Customer Portal</h2>
+            <h2>Phase 6: Customer Portal</h2>
 
             <div class="phase-section high">
                 <div class="phase-header">
@@ -1772,9 +1945,9 @@
         </div>
     </section>
 
-    <section id="phase-6">
+    <section id="phase-7">
         <div class="container">
-            <h2>Phase 6: PC Builder</h2>
+            <h2>Phase 7: PC Builder</h2>
 
             <div class="phase-section medium">
                 <div class="phase-header">
@@ -1901,9 +2074,9 @@
         </div>
     </section>
 
-    <section id="phase-7">
+    <section id="phase-8">
         <div class="container">
-            <h2>Phase 7: Social Media Automation</h2>
+            <h2>Phase 8: Social Media Automation</h2>
 
             <div class="phase-section medium">
                 <div class="phase-header">

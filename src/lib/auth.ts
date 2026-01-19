@@ -687,3 +687,35 @@ export async function isStaffUser(): Promise<boolean> {
   const user = await getCurrentUser();
   return user !== null && user.userType === 'employee';
 }
+
+/**
+ * Get the current user's roles array.
+ *
+ * Returns an empty array if user is not authenticated.
+ * Falls back to legacy role field if roles array is not set.
+ *
+ * @returns Array of role identifiers
+ *
+ * @version 1.0.0 - 2026-01-19T00:00:00Z - Initial implementation
+ */
+export async function getUserRoles(): Promise<string[]> {
+  const user = await getCurrentUser();
+  if (!user) {
+    return [];
+  }
+
+  // Use roles array if available, otherwise fall back to legacy role
+  if (user.roles && user.roles.length > 0) {
+    return user.roles;
+  }
+
+  // Legacy fallback: map old role to new system
+  if (user.role === 'admin') {
+    return ['owner'];
+  }
+  if (user.role === 'employee') {
+    return ['receptionist'];
+  }
+
+  return [];
+}

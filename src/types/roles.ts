@@ -83,6 +83,8 @@ export type Permission =
   // Social Media Section
   | 'view_blog'
   | 'manage_blog'
+  | 'view_photo_gallery'
+  | 'manage_photo_gallery'
   // Management Section
   | 'view_employees'
   | 'manage_employees'
@@ -169,6 +171,8 @@ export const ROLE_PERMISSIONS: Record<EmployeeRole, Permission[]> = {
     'manage_employees',
     'view_blog',
     'manage_blog', // Manager+ automatically gets blog access
+    'view_photo_gallery',
+    'manage_photo_gallery',
   ],
   owner: [
     'view_deprecated_statuses', // Admin tool for legacy RS status cleanup
@@ -178,6 +182,8 @@ export const ROLE_PERMISSIONS: Record<EmployeeRole, Permission[]> = {
   social_media: [
     'view_blog',
     'manage_blog',
+    'view_photo_gallery',
+    'manage_photo_gallery',
   ],
   lead_developer: [
     // Lead developer gets ALL permissions (superuser)
@@ -206,6 +212,8 @@ export const ROLE_PERMISSIONS: Record<EmployeeRole, Permission[]> = {
     'assign_tickets',
     'view_blog',
     'manage_blog',
+    'view_photo_gallery',
+    'manage_photo_gallery',
     'view_employees',
     'manage_employees',
     'view_data_sync',
@@ -378,6 +386,12 @@ export const SIDEBAR_CONFIG: SidebarSection[] = [
         permissions: ['view_blog'],
         icon: 'PenTool',
       },
+      {
+        label: 'Photo Gallery',
+        href: '/admin/photo-gallery',
+        permissions: ['view_photo_gallery'],
+        icon: 'Images',
+      },
     ],
   },
   {
@@ -450,6 +464,8 @@ export const ROUTE_PERMISSIONS: Record<string, Permission[]> = {
   // Social Media Section
   '/admin/blog': ['view_blog'],
   '/admin/blog/new': ['manage_blog'],
+  '/admin/photo-gallery': ['view_photo_gallery'],
+  '/admin/photo-gallery/new': ['manage_photo_gallery'],
   // Management Section
   '/admin/employees': ['view_employees'],
   // Admin Section

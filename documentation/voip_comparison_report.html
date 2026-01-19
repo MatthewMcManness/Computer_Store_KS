@@ -431,7 +431,7 @@
                     <li><strong>Scalability</strong> - Grows from small team to enterprise without switching platforms</li>
                     <li><strong>Pricing</strong> - $20-35/user/month (annual) is competitive for full-featured business VoIP</li>
                 </ul>
-                <p style="margin-top: 15px;"><strong>Runner-up:</strong> Dialpad offers excellent AI features and a developer-friendly API at $15-25/user/month, but has more limited desk phone options.</p>
+                <p style="margin-top: 15px;"><strong>Runner-up:</strong> <strong>Cytracom</strong> (the original choice) offers all required API features including click-to-call, call history, and SSE events at ~$25/user/month. <strong>Dialpad</strong> offers excellent AI features at $15-25/user/month but has more limited desk phone options.</p>
             </div>
         </div>
 
@@ -482,6 +482,7 @@
                 <tr>
                     <th>Feature</th>
                     <th>RingCentral</th>
+                    <th>Cytracom</th>
                     <th>Dialpad</th>
                     <th>Aircall</th>
                     <th>Giant Comm.</th>
@@ -492,6 +493,7 @@
                 <tr>
                     <td><strong>Public API</strong></td>
                     <td class="feature-yes">✓ Full REST API</td>
+                    <td class="feature-yes">✓ REST API</td>
                     <td class="feature-yes">✓ Full REST API</td>
                     <td class="feature-yes">✓ Full REST API</td>
                     <td class="feature-no">✗ None</td>
@@ -500,6 +502,7 @@
                 <tr>
                     <td><strong>Webhooks</strong></td>
                     <td class="feature-yes">✓ Call events, voicemail</td>
+                    <td class="feature-yes">✓ SSE events stream</td>
                     <td class="feature-yes">✓ Call events, SMS</td>
                     <td class="feature-yes">✓ All events</td>
                     <td class="feature-no">✗ None</td>
@@ -508,6 +511,7 @@
                 <tr>
                     <td><strong>Click-to-Call API</strong></td>
                     <td class="feature-yes">✓ Call Control API</td>
+                    <td class="feature-yes">✓ Originate endpoint</td>
                     <td class="feature-yes">✓ CTI Embed</td>
                     <td class="feature-yes">✓ Click-to-Dial</td>
                     <td class="feature-no">✗ No</td>
@@ -516,6 +520,7 @@
                 <tr>
                     <td><strong>Call History API</strong></td>
                     <td class="feature-yes">✓ Call Log API</td>
+                    <td class="feature-yes">✓ Insights API (CDR)</td>
                     <td class="feature-yes">✓ Stats API</td>
                     <td class="feature-yes">✓ Calls endpoint</td>
                     <td class="feature-no">✗ No</td>
@@ -525,6 +530,7 @@
                     <td><strong>Desk Phone Support</strong></td>
                     <td class="feature-yes">✓ Poly, Yealink, Cisco</td>
                     <td class="feature-yes">✓ Poly, Yealink</td>
+                    <td class="feature-yes">✓ Poly, Yealink</td>
                     <td class="feature-no">✗ Softphone only</td>
                     <td class="feature-yes">✓ SIP phones</td>
                     <td class="feature-no">✗ No</td>
@@ -532,6 +538,7 @@
                 <tr>
                     <td><strong>Softphone/Headset</strong></td>
                     <td class="feature-yes">✓ Web, Desktop, Mobile</td>
+                    <td class="feature-yes">✓ Desktop, Mobile</td>
                     <td class="feature-yes">✓ Web, Desktop, Mobile</td>
                     <td class="feature-yes">✓ Web, Desktop, Mobile</td>
                     <td class="feature-yes">✓ Softphone apps</td>
@@ -540,6 +547,7 @@
                 <tr>
                     <td><strong>Voicemail Transcription</strong></td>
                     <td class="feature-yes">✓ AI-powered</td>
+                    <td class="feature-yes">✓ Included</td>
                     <td class="feature-yes">✓ AI-powered</td>
                     <td class="feature-yes">✓ Included</td>
                     <td class="feature-yes">✓ Included</td>
@@ -548,6 +556,7 @@
                 <tr>
                     <td><strong>Real-Time Call Events</strong></td>
                     <td class="feature-yes">✓ Webhooks + Active Call API</td>
+                    <td class="feature-yes">✓ SSE events stream</td>
                     <td class="feature-yes">✓ Webhooks</td>
                     <td class="feature-yes">✓ Webhooks</td>
                     <td class="feature-no">✗ No</td>
@@ -558,12 +567,14 @@
                     <td class="feature-partial">⚠ Via custom API</td>
                     <td class="feature-partial">⚠ Via custom API</td>
                     <td class="feature-partial">⚠ Via custom API</td>
+                    <td class="feature-partial">⚠ Via custom API</td>
                     <td class="feature-partial">⚠ Via Asterisk</td>
                     <td class="feature-no">✗ No</td>
                 </tr>
                 <tr>
                     <td><strong>Starting Price</strong></td>
                     <td>$20/user/mo (annual)</td>
+                    <td>~$25/user/mo</td>
                     <td>$15/user/mo (annual)</td>
                     <td>$30/user/mo (3 min)</td>
                     <td>Contact for quote</td>
@@ -572,6 +583,7 @@
                 <tr>
                     <td><strong>Local Kansas Provider</strong></td>
                     <td class="feature-no">✗ No</td>
+                    <td class="feature-no">✗ No (Texas-based)</td>
                     <td class="feature-no">✗ No</td>
                     <td class="feature-no">✗ No</td>
                     <td class="feature-yes">✓ Holton, KS</td>
@@ -631,6 +643,59 @@
                         <li>Past reliability issues reported</li>
                     </ul>
                 </div>
+            </div>
+        </div>
+
+        <!-- Cytracom -->
+        <div class="provider-card">
+            <h3>
+                Cytracom
+                <span class="provider-badge" style="background: #fef3c7; color: #92400e;">Strong Alternative</span>
+            </h3>
+            <p>Cytracom is a Texas-based UCaaS provider offering hosted VoIP with a developer-friendly API. Originally selected for Computer Store KS integration due to comprehensive API capabilities and desk phone support.</p>
+
+            <div class="pricing-info">
+                <strong>Pricing (per user/month, estimated):</strong><br>
+                • Business: ~$25 (unified communications, desk phones)<br>
+                • Contact sales for exact pricing and volume discounts
+            </div>
+
+            <div class="api-features">
+                <h4>API Capabilities</h4>
+                <ul>
+                    <li><strong>Call Control API</strong> - Originate endpoint for click-to-call functionality</li>
+                    <li><strong>Insights API</strong> - CDR (Call Detail Records) for call history</li>
+                    <li><strong>SSE Events</strong> - Server-Sent Events for real-time call notifications</li>
+                    <li><strong>Token Authentication</strong> - Secure API access via admin portal</li>
+                    <li><strong>Voicemail-to-Email</strong> - With transcription support</li>
+                </ul>
+            </div>
+
+            <div class="pros-cons">
+                <div class="pros">
+                    <h4>Pros</h4>
+                    <ul>
+                        <li>Full API for click-to-call and call history</li>
+                        <li>SSE events for real-time call popups</li>
+                        <li>Good desk phone selection (Poly, Yealink)</li>
+                        <li>Voicemail transcription included</li>
+                        <li>Straightforward hosted PBX features</li>
+                    </ul>
+                </div>
+                <div class="cons">
+                    <h4>Cons</h4>
+                    <ul>
+                        <li>Less market presence than RingCentral</li>
+                        <li>API documentation not as extensive</li>
+                        <li>Fewer third-party integrations</li>
+                        <li>Limited public information on advanced features</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h4>💡 Original Choice</h4>
+                <p>Cytracom was the original provider selected for the employee portal integration. It remains a viable option with all required API features. The switch to RingCentral was considered due to RingCentral's larger ecosystem and more extensive documentation.</p>
             </div>
         </div>
 

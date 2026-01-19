@@ -658,74 +658,112 @@ export async function fetchCallHistory(params: CallHistoryParams = {}): Promise<
     endDate,
     direction,
     limit = 100,
-    offset = 0,
   } = params;
 
-  // Build query parameters
-  const queryParams = new URLSearchParams();
-
-  if (startDate) {
-    queryParams.set('start', startDate.toISOString());
-  } else {
-    // Default to last 30 days
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    queryParams.set('start', thirtyDaysAgo.toISOString());
-  }
-
-  if (endDate) {
-    queryParams.set('end', endDate.toISOString());
-  }
-
-  if (extension) {
-    queryParams.set('extension', extension);
-  }
-
-  if (direction) {
-    queryParams.set('direction', direction);
-  }
-
-  queryParams.set('limit', limit.toString());
-  queryParams.set('offset', offset.toString());
+  // Build date range - default to last 30 days
+  const start = startDate || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  const end = endDate || new Date();
 
   // Create cache key
-  const cacheKey = `cdr:${queryParams.toString()}:${phoneNumber || ''}`;
+  const cacheKey = `cdr:${start.toISOString()}:${end.toISOString()}:${phoneNumber || ''}:${extension || ''}:${direction || ''}`;
   const cached = getCached<CytracomCDR[]>(cacheKey);
   if (cached) return cached;
 
   try {
-    const data = await cytracomFetch<CytracomRawCDR[]>(`/insights/search?${queryParams}`);
+    // Cytracom API requires POST with JSON body
+    interface CytracomSearchResponse {
+      data: {
+        total: number;
+        search: {
+          scroll_id: string;
+          records: CytracomSearchRecord[];
+        };
+      };
+      code: number;
+    }
 
-    let cdrs: CytracomCDR[] = (data || []).map(raw => ({
-      callId: raw.id || raw.uuid || '',
-      direction: normalizeDirection(raw.direction),
-      callerNumber: raw.src || '',
-      callerName: raw.src_name,
-      calledNumber: raw.dst || '',
-      calledName: raw.dst_name,
-      extension: raw.extension,
-      startTime: new Date(raw.start || Date.now()),
-      answerTime: raw.answer ? new Date(raw.answer) : undefined,
-      endTime: new Date(raw.end || Date.now()),
-      durationSeconds: raw.billsec || raw.duration || 0,
-      ringDurationSeconds: raw.ring_duration,
-      disposition: normalizeDisposition(raw.disposition),
-      recorded: raw.recorded,
-      recordingUrl: raw.recording_url,
-      queue: raw.queue,
-    }));
+    interface CytracomSearchRecord {
+      uuid: string;
+      direction: string;
+      started_on: string;
+      started_on_ts: number;
+      duration: number;
+      answered: boolean;
+      original_caller_id: string;
+      dialed_number: string;
+      recording_url?: string;
+      legs: Array<{
+        caller: { number: string; name: string; type: string };
+        callee: { number: string; name: string; type: string };
+        duration: number;
+        bridged: boolean;
+      }>;
+    }
 
-    // Filter by phone number if specified (match either caller or called)
-    if (phoneNumber) {
-      const normalizedSearch = normalizePhoneNumber(phoneNumber);
-      cdrs = cdrs.filter(cdr => {
-        const callerNorm = normalizePhoneNumber(cdr.callerNumber);
-        const calledNorm = normalizePhoneNumber(cdr.calledNumber);
-        return callerNorm.includes(normalizedSearch) ||
-               calledNorm.includes(normalizedSearch) ||
-               normalizedSearch.includes(callerNorm) ||
-               normalizedSearch.includes(calledNorm);
-      });
+    const response = await cytracomFetch<CytracomSearchResponse>('/insights/search', {
+      method: 'POST',
+      body: JSON.stringify({
+        query: {
+          date_range: {
+            start: start.toISOString(),
+            end: end.toISOString(),
+          },
+          ...(phoneNumber ? { general_search: phoneNumber } : {}),
+        },
+        options: {
+          size: limit,
+        },
+      }),
+    });
+
+    const records = response?.data?.search?.records || [];
+
+    let cdrs: CytracomCDR[] = records.map(record => {
+      // Extract caller info from original_caller_id like "\"OSBORNE KENNETH\" <7015090351>"
+      const callerMatch = record.original_caller_id?.match(/"([^"]*)" <(\d+)>/);
+      const callerName = callerMatch?.[1] || '';
+      const callerNumber = callerMatch?.[2] || '';
+
+      // Get the last leg to find the answering extension
+      const lastLeg = record.legs?.[record.legs.length - 1];
+      const answeredExtension = lastLeg?.callee?.type === 'extension' ? lastLeg.callee.number : undefined;
+
+      // Determine disposition based on answered flag
+      let disposition: CallDisposition = 'no_answer';
+      if (record.answered) {
+        disposition = 'answered';
+      } else if (lastLeg?.callee?.type === 'mailbox') {
+        disposition = 'voicemail';
+      }
+
+      return {
+        callId: record.uuid,
+        direction: normalizeDirection(record.direction),
+        callerNumber,
+        callerName,
+        calledNumber: record.dialed_number || '',
+        calledName: '',
+        extension: answeredExtension,
+        startTime: new Date(record.started_on),
+        answerTime: record.answered ? new Date(record.started_on) : undefined,
+        endTime: new Date(new Date(record.started_on).getTime() + (record.duration * 1000)),
+        durationSeconds: record.duration,
+        ringDurationSeconds: undefined,
+        disposition,
+        recorded: !!record.recording_url,
+        recordingUrl: record.recording_url,
+        queue: undefined,
+      };
+    });
+
+    // Filter by extension if specified
+    if (extension) {
+      cdrs = cdrs.filter(cdr => cdr.extension === extension);
+    }
+
+    // Filter by direction if specified
+    if (direction) {
+      cdrs = cdrs.filter(cdr => cdr.direction === direction);
     }
 
     // Sort by start time descending (most recent first)

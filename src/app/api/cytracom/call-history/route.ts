@@ -80,15 +80,53 @@ export async function GET(request: NextRequest) {
 
     if (missedOnly) {
       // Get missed calls using manual filter (direction filter in fetchCallHistory is broken)
+      console.log('[API] Fetching all calls for missedOnly filter...');
       const allCalls = await fetchCallHistory({
         startDate,
         endDate,
         limit: 200,
       });
+      console.log('[API] Got', allCalls.length, 'total calls');
+
+      // Log direction breakdown
+      const directionBreakdown = allCalls.reduce((acc, c) => {
+        acc[c.direction] = (acc[c.direction] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+      console.log('[API] Direction breakdown:', JSON.stringify(directionBreakdown));
+
+      // Log disposition breakdown
+      const dispositionBreakdown = allCalls.reduce((acc, c) => {
+        acc[c.disposition] = (acc[c.disposition] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+      console.log('[API] Disposition breakdown:', JSON.stringify(dispositionBreakdown));
+
+      // Log a sample of calls to see actual values
+      if (allCalls.length > 0) {
+        console.log('[API] Sample calls:', JSON.stringify(allCalls.slice(0, 3).map(c => ({
+          id: c.callId.slice(0, 8),
+          direction: c.direction,
+          disposition: c.disposition,
+          callerNumber: c.callerNumber,
+        }))));
+      }
+
+      // Filter for inbound missed/voicemail calls
       calls = allCalls.filter(call =>
         call.direction === 'inbound' &&
         (call.disposition === 'no_answer' || call.disposition === 'voicemail')
       );
+      console.log('[API] After filter for inbound + missed/voicemail:', calls.length, 'calls');
+
+      // Log filtered calls
+      if (calls.length > 0) {
+        console.log('[API] Filtered missed calls:', JSON.stringify(calls.slice(0, 3).map(c => ({
+          id: c.callId.slice(0, 8),
+          callerNumber: c.callerNumber,
+          disposition: c.disposition,
+        }))));
+      }
 
       // If debug mode, also get all calls for comparison
       if (debug) {

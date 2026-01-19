@@ -55,12 +55,44 @@ function transformComputer(computer: GalleryComputer): GalleryItem {
   };
 }
 
+/**
+ * Skeleton loading placeholder for gallery rows
+ */
+function SkeletonRow({ reverse }: { reverse: boolean }) {
+  return (
+    <div className={`gallery-row ${reverse ? 'gallery-row-reverse' : ''}`}>
+      <div className="gallery-row-image skeleton-image">
+        <div className="skeleton-shimmer"></div>
+      </div>
+      <div className="gallery-row-specs skeleton-specs">
+        <div className="skeleton-title"></div>
+        <div className="skeleton-price"></div>
+        <div className="skeleton-spec-list">
+          <div className="skeleton-spec"></div>
+          <div className="skeleton-spec"></div>
+          <div className="skeleton-spec"></div>
+          <div className="skeleton-spec"></div>
+        </div>
+        <div className="skeleton-tags">
+          <div className="skeleton-tag"></div>
+          <div className="skeleton-tag"></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function GalleryContent() {
   const searchParams = useSearchParams();
   const [filter, setFilter] = useState('all');
   const [items, setItems] = useState<GalleryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
+
+  const handleImageLoad = (id: string) => {
+    setLoadedImages((prev) => new Set(prev).add(id));
+  };
 
   // Fetch gallery data from API (Supabase)
   const fetchGallery = useCallback(async () => {
@@ -106,6 +138,104 @@ function GalleryContent() {
 
   return (
     <>
+      {/* Skeleton Loading Styles */}
+      <style jsx>{`
+        .skeleton-image {
+          background: #e5e7eb;
+          position: relative;
+          overflow: hidden;
+          min-height: 300px;
+        }
+
+        .skeleton-shimmer {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.5) 50%,
+            transparent 100%
+          );
+          animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+
+        .skeleton-specs {
+          padding: 1.5rem;
+        }
+
+        .skeleton-title {
+          height: 28px;
+          width: 70%;
+          background: #e5e7eb;
+          border-radius: 4px;
+          margin-bottom: 1rem;
+        }
+
+        .skeleton-price {
+          height: 32px;
+          width: 40%;
+          background: #e5e7eb;
+          border-radius: 4px;
+          margin-bottom: 1.5rem;
+        }
+
+        .skeleton-spec-list {
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+          margin-bottom: 1.5rem;
+        }
+
+        .skeleton-spec {
+          height: 20px;
+          width: 90%;
+          background: #e5e7eb;
+          border-radius: 4px;
+        }
+
+        .skeleton-spec:nth-child(2) { width: 85%; }
+        .skeleton-spec:nth-child(3) { width: 75%; }
+        .skeleton-spec:nth-child(4) { width: 80%; }
+
+        .skeleton-tags {
+          display: flex;
+          gap: 0.5rem;
+        }
+
+        .skeleton-tag {
+          height: 24px;
+          width: 80px;
+          background: #e5e7eb;
+          border-radius: 12px;
+        }
+
+        .image-container {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          min-height: 300px;
+        }
+
+        .image-skeleton {
+          position: absolute;
+          inset: 0;
+          background: #e5e7eb;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
+        }
+
+        .image-skeleton.loaded {
+          display: none;
+        }
+      `}</style>
+
       {/* Gallery Filters Section */}
       <section className="gallery-filters-section horizontal-diamond texture-dots overlap-card-container">
         <div className="diamond-accent diamond-accent-1"></div>
@@ -149,8 +279,10 @@ function GalleryContent() {
       <section className="gallery-section">
         <div className="container">
           {isLoading ? (
-            <div style={{ padding: '3rem', textAlign: 'center' }}>
-              <p>Loading gallery...</p>
+            <div className="gallery-rows" id="gallery-grid">
+              {[0, 1, 2, 3].map((i) => (
+                <SkeletonRow key={i} reverse={i % 2 === 1} />
+              ))}
             </div>
           ) : error ? (
             <div style={{ padding: '3rem', textAlign: 'center' }}>
@@ -179,27 +311,36 @@ function GalleryContent() {
               >
                 {/* Image Section - 16:9 aspect ratio */}
                 <div className="gallery-row-image">
-                  {item.stockQuantity === 0 && (
-                    <div className="out-of-stock-ribbon">
-                      <span className="out-of-stock-text">OUT OF STOCK</span>
+                  <div className="image-container">
+                    {/* Skeleton placeholder */}
+                    <div className={`image-skeleton ${loadedImages.has(item.id) ? 'loaded' : ''}`}>
+                      <div className="skeleton-shimmer"></div>
                     </div>
-                  )}
-                  {item.isBlackFridaySale && <div className="bf-ribbon-corner"></div>}
-                  {item.isBlackFridaySale && (
-                    <div className="gallery-row-badge badge-black-friday">
-                      Black Friday Sale
-                    </div>
-                  )}
-                  <Image
-                    src={item.thumbnailUrl || item.imageUrl}
-                    alt={item.name}
-                    width={640}
-                    height={360}
-                    className="gallery-row-img"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/assets/logo.png';
-                    }}
-                  />
+
+                    {item.stockQuantity === 0 && (
+                      <div className="out-of-stock-ribbon">
+                        <span className="out-of-stock-text">OUT OF STOCK</span>
+                      </div>
+                    )}
+                    {item.isBlackFridaySale && <div className="bf-ribbon-corner"></div>}
+                    {item.isBlackFridaySale && (
+                      <div className="gallery-row-badge badge-black-friday">
+                        Black Friday Sale
+                      </div>
+                    )}
+                    <Image
+                      src={item.thumbnailUrl || item.imageUrl}
+                      alt={item.name}
+                      width={640}
+                      height={360}
+                      className="gallery-row-img"
+                      onLoad={() => handleImageLoad(item.id)}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/assets/logo.png';
+                        handleImageLoad(item.id);
+                      }}
+                    />
+                  </div>
                 </div>
 
                 {/* Specs Section */}

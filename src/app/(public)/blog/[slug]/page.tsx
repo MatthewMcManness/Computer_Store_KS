@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { getPublishedPostBySlug, getPublishedPosts, type BlogPost } from '@/lib/supabase';
+import BlogImage from '@/components/blog/BlogImage';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -110,14 +110,14 @@ export default async function BlogPostPage({ params }: PageProps) {
       {post.featured_image_url && (
         <section className="blog-featured-image">
           <div className="container">
-            <Image
-              src={post.featured_image_url}
-              alt={post.title}
-              width={1200}
-              height={600}
-              style={{ objectFit: 'cover', width: '100%', height: 'auto', borderRadius: '12px' }}
-              priority
-            />
+            <div style={{ borderRadius: '12px', overflow: 'hidden' }}>
+              <BlogImage
+                src={post.featured_image_url}
+                alt={post.title}
+                width={1200}
+                height={600}
+              />
+            </div>
           </div>
         </section>
       )}

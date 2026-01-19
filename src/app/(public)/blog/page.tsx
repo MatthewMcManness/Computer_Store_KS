@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import Image from 'next/image';
 import { getPublishedPosts, getCategories, type BlogPost, type BlogCategory } from '@/lib/supabase';
+import BlogImage from '@/components/blog/BlogImage';
 
 export const metadata: Metadata = {
   title: 'Blog | Computer Store Kansas',
@@ -32,12 +32,11 @@ function BlogPostCard({ post }: { post: BlogPost }) {
     <article className="blog-card">
       {imageUrl && (
         <Link href={`/blog/${post.slug}`} className="blog-card-image">
-          <Image
+          <BlogImage
             src={imageUrl}
             alt={post.title}
             width={400}
             height={225}
-            style={{ objectFit: 'cover', width: '100%', height: '100%' }}
           />
         </Link>
       )}

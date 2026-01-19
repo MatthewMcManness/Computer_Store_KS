@@ -77,6 +77,7 @@ export const PHOTO_CATEGORIES = [
   { value: 'store', label: 'Our Store' },
   { value: 'repairs', label: 'Repairs & Work' },
   { value: 'custom-builds', label: 'Custom Builds' },
+  { value: 'pokemon', label: 'Pokemon' },
   { value: 'events', label: 'Events' },
   { value: 'team', label: 'Our Team' },
   { value: 'general', label: 'General' },

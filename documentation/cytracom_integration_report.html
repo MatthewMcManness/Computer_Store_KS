@@ -635,6 +635,7 @@
                 <li><a href="#integration-options">Integration Options</a></li>
                 <li><a href="#repairshopr-connection">RepairShopr Connection</a></li>
                 <li><a href="#implementation-approaches">Implementation Approaches</a></li>
+                <li><a href="#missed-calls">Missed Calls & Voicemail Handling</a></li>
                 <li><a href="#comparison">Options Comparison</a></li>
                 <li><a href="#recommendation">Recommendation</a></li>
                 <li><a href="#resources">Resources & Documentation</a></li>
@@ -1024,6 +1025,282 @@ eventSource.onmessage = <span class="keyword">async</span> (event) => {
             </div>
         </section>
 
+        <!-- Missed Calls & Voicemail -->
+        <section class="section" id="missed-calls">
+            <h2 class="section-title"><span class="icon">📵</span> Missed Calls & Voicemail Handling</h2>
+
+            <p>Handling missed calls and voicemails is critical for a repair shop where customers often call about urgent issues. Here's how to integrate these into your website and admin portal.</p>
+
+            <div class="info-box">
+                <h4>📧 Cytracom Voicemail Features</h4>
+                <p>Cytracom includes built-in voicemail-to-email with transcription. Voicemails can be sent to multiple email addresses with audio attachments and text transcriptions. This is your primary data source for voicemail integration.</p>
+            </div>
+
+            <h3 style="margin: 30px 0 20px;">Integration Strategies</h3>
+
+            <div class="card-grid">
+                <div class="card recommended">
+                    <div class="card-header">
+                        <div class="card-icon widget">📧</div>
+                        <div>
+                            <h3>Strategy 1: Email-Based Integration</h3>
+                            <span class="subtitle">Parse voicemail emails automatically</span>
+                        </div>
+                    </div>
+                    <span class="complexity-badge complexity-medium">Medium Complexity</span>
+                    <p>Configure Cytracom to send voicemail notifications to a dedicated inbox. Use an email parsing service or custom IMAP listener to automatically process incoming voicemails.</p>
+                    <ul class="feature-list">
+                        <li><span class="check">✓</span> Works with existing Cytracom voicemail settings</li>
+                        <li><span class="check">✓</span> Captures transcription text automatically</li>
+                        <li><span class="check">✓</span> Can attach audio file to ticket</li>
+                        <li><span class="check">✓</span> Look up customer by caller ID in RepairShopr</li>
+                        <li><span class="check">✓</span> Auto-create ticket or alert for follow-up</li>
+                    </ul>
+                    <div class="info-box success">
+                        <h4>Workflow</h4>
+                        <p>Voicemail → Email → Parse → Customer Lookup → Create Ticket/Alert → Display in Admin Dashboard</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon webhook">⚡</div>
+                        <div>
+                            <h3>Strategy 2: SSE Events + Email Combo</h3>
+                            <span class="subtitle">Real-time missed call detection</span>
+                        </div>
+                    </div>
+                    <span class="complexity-badge complexity-high">High Complexity</span>
+                    <p>Use the Events API (SSE) to detect unanswered calls in real-time. When a call goes to voicemail, trigger an immediate alert. Then enrich with transcription when the email arrives.</p>
+                    <ul class="feature-list">
+                        <li><span class="check">✓</span> Instant notification when call missed</li>
+                        <li><span class="check">✓</span> Real-time missed call counter in dashboard</li>
+                        <li><span class="check">✓</span> Customer lookup happens immediately</li>
+                        <li><span class="warning">⚠</span> Transcription arrives later via email</li>
+                        <li><span class="warning">⚠</span> Requires correlating SSE events with emails</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon desktop">📊</div>
+                        <div>
+                            <h3>Strategy 3: Dashboard Widget</h3>
+                            <span class="subtitle">Missed calls queue display</span>
+                        </div>
+                    </div>
+                    <span class="complexity-badge complexity-low">Low Complexity</span>
+                    <p>Create a "Missed Calls" widget in the admin dashboard that displays voicemails needing follow-up. Employees can mark items as "called back" when resolved.</p>
+                    <ul class="feature-list">
+                        <li><span class="check">✓</span> Simple queue-based workflow</li>
+                        <li><span class="check">✓</span> Shows caller, time, transcription</li>
+                        <li><span class="check">✓</span> One-click to call back</li>
+                        <li><span class="check">✓</span> Mark as resolved/create ticket</li>
+                        <li><span class="check">✓</span> Integrates with existing admin portal</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 style="margin: 30px 0 20px;">Implementation: Email-Based Voicemail Processing</h3>
+
+            <div class="code-block">
+                <pre><span class="comment">// API Route: /api/voicemail/webhook (for email service like SendGrid Inbound Parse)</span>
+<span class="keyword">export async function</span> <span class="function">POST</span>(request: Request) {
+  <span class="keyword">const</span> formData = <span class="keyword">await</span> request.formData()
+
+  <span class="comment">// Parse voicemail email from Cytracom</span>
+  <span class="keyword">const</span> from = formData.get(<span class="string">'from'</span>) <span class="comment">// Cytracom notification address</span>
+  <span class="keyword">const</span> subject = formData.get(<span class="string">'subject'</span>) <span class="comment">// Contains caller number</span>
+  <span class="keyword">const</span> body = formData.get(<span class="string">'text'</span>) <span class="comment">// Contains transcription</span>
+  <span class="keyword">const</span> attachments = formData.getAll(<span class="string">'attachments'</span>) <span class="comment">// Audio file</span>
+
+  <span class="comment">// Extract caller phone number from subject/body</span>
+  <span class="keyword">const</span> callerPhone = <span class="function">extractPhoneNumber</span>(subject, body)
+
+  <span class="comment">// Extract transcription text</span>
+  <span class="keyword">const</span> transcription = <span class="function">extractTranscription</span>(body)
+
+  <span class="comment">// Look up customer in RepairShopr</span>
+  <span class="keyword">const</span> customer = <span class="keyword">await</span> <span class="function">searchRepairShoprByPhone</span>(callerPhone)
+
+  <span class="comment">// Create missed call record in database</span>
+  <span class="keyword">const</span> missedCall = <span class="keyword">await</span> db.missedCalls.create({
+    callerPhone,
+    transcription,
+    customerId: customer?.id,
+    customerName: customer?.name || <span class="string">'Unknown Caller'</span>,
+    receivedAt: <span class="keyword">new</span> Date(),
+    status: <span class="string">'pending'</span>, <span class="comment">// pending, called_back, ticket_created</span>
+    audioUrl: attachments[0] ? <span class="keyword">await</span> <span class="function">uploadAudio</span>(attachments[0]) : <span class="keyword">null</span>
+  })
+
+  <span class="comment">// Optional: Auto-create ticket for known customers</span>
+  <span class="keyword">if</span> (customer && AUTO_CREATE_TICKETS) {
+    <span class="keyword">await</span> <span class="function">createRepairShoprTicket</span>({
+      customerId: customer.id,
+      subject: <span class="string">`Voicemail from ${customer.name}`</span>,
+      description: <span class="string">`Transcription: ${transcription}\n\nPlease call back.`</span>,
+      status: <span class="string">'New'</span>
+    })
+  }
+
+  <span class="comment">// Broadcast to admin dashboard (WebSocket/SSE)</span>
+  <span class="function">broadcastToAdmins</span>({ type: <span class="string">'new_voicemail'</span>, missedCall })
+
+  <span class="keyword">return</span> Response.json({ success: <span class="keyword">true</span> })
+}</pre>
+            </div>
+
+            <h3 style="margin: 30px 0 20px;">Admin Dashboard Widget</h3>
+
+            <div class="code-block">
+                <pre><span class="comment">// Component: MissedCallsWidget.tsx</span>
+<span class="keyword">export function</span> <span class="function">MissedCallsWidget</span>() {
+  <span class="keyword">const</span> { data: missedCalls } = useSWR(<span class="string">'/api/voicemail/pending'</span>, fetcher, {
+    refreshInterval: 30000 <span class="comment">// Refresh every 30 seconds</span>
+  })
+
+  <span class="keyword">const</span> <span class="function">handleCallBack</span> = <span class="keyword">async</span> (call: MissedCall) => {
+    <span class="comment">// Initiate call via Cytracom API</span>
+    <span class="keyword">await</span> <span class="function">fetch</span>(<span class="string">'/api/cytracom/call'</span>, {
+      method: <span class="string">'POST'</span>,
+      body: JSON.stringify({ destination: call.callerPhone })
+    })
+    <span class="comment">// Mark as called back</span>
+    <span class="keyword">await</span> <span class="function">fetch</span>(<span class="string">`/api/voicemail/${call.id}/status`</span>, {
+      method: <span class="string">'PATCH'</span>,
+      body: JSON.stringify({ status: <span class="string">'called_back'</span> })
+    })
+  }
+
+  <span class="keyword">return</span> (
+    &lt;div className=<span class="string">"missed-calls-widget"</span>&gt;
+      &lt;h3&gt;📵 Missed Calls ({missedCalls?.length || 0})&lt;/h3&gt;
+      {missedCalls?.map(call => (
+        &lt;div key={call.id} className=<span class="string">"missed-call-item"</span>&gt;
+          &lt;div className=<span class="string">"caller-info"</span>&gt;
+            &lt;strong&gt;{call.customerName}&lt;/strong&gt;
+            &lt;span&gt;{call.callerPhone}&lt;/span&gt;
+            &lt;time&gt;{formatTime(call.receivedAt)}&lt;/time&gt;
+          &lt;/div&gt;
+          &lt;p className=<span class="string">"transcription"</span>&gt;{call.transcription}&lt;/p&gt;
+          &lt;div className=<span class="string">"actions"</span>&gt;
+            &lt;button onClick={() => handleCallBack(call)}&gt;📞 Call Back&lt;/button&gt;
+            &lt;button onClick={() => createTicket(call)}&gt;🎫 Create Ticket&lt;/button&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      ))}
+    &lt;/div&gt;
+  )
+}</pre>
+            </div>
+
+            <h3 style="margin: 30px 0 20px;">Cytracom Voicemail Configuration</h3>
+
+            <div class="info-box warning">
+                <h4>⚙️ Required Cytracom Settings</h4>
+                <p>Configure these settings in the Cytracom portal at <strong>secure.cytracom.net</strong>:</p>
+            </div>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Setting</th>
+                        <th>Location</th>
+                        <th>Recommended Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Enable Email Notification</strong></td>
+                        <td>PBX → Voicemail → Configure Mailbox</td>
+                        <td class="status-yes">✓ Enabled</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Voicemail Transcription</strong></td>
+                        <td>PBX → Voicemail → Configure Mailbox</td>
+                        <td class="status-yes">✓ Enabled (if on C2 plan or higher)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Email Addresses</strong></td>
+                        <td>PBX → Voicemail → Configure Mailbox</td>
+                        <td>Add dedicated parsing address (e.g., voicemail-parse@yourdomain.com)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Attach Voicemail</strong></td>
+                        <td>PBX → Voicemail → Configure Mailbox</td>
+                        <td class="status-yes">✓ Enabled (to get audio files)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Delete After Emailed</strong></td>
+                        <td>PBX → Voicemail → Configure Mailbox</td>
+                        <td class="status-partial">⚠ Keep enabled only if not using mobile app</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 style="margin: 30px 0 20px;">Email Parsing Options</h3>
+
+            <div class="card-grid">
+                <div class="card">
+                    <h3>SendGrid Inbound Parse</h3>
+                    <p>Route emails to a webhook endpoint. Free tier includes 100 emails/day.</p>
+                    <ul class="feature-list">
+                        <li><span class="check">✓</span> Webhook-based, real-time</li>
+                        <li><span class="check">✓</span> Handles attachments</li>
+                        <li><span class="check">✓</span> Free tier available</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Zapier Email Parser</h3>
+                    <p>No-code solution to parse emails and trigger actions.</p>
+                    <ul class="feature-list">
+                        <li><span class="check">✓</span> No coding required</li>
+                        <li><span class="check">✓</span> Direct RepairShopr integration</li>
+                        <li><span class="warning">⚠</span> Monthly subscription cost</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Custom IMAP Listener</h3>
+                    <p>Build a Node.js service that monitors an email inbox.</p>
+                    <ul class="feature-list">
+                        <li><span class="check">✓</span> Full control</li>
+                        <li><span class="check">✓</span> No third-party costs</li>
+                        <li><span class="warning">⚠</span> More development time</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 style="margin: 30px 0 20px;">Database Schema</h3>
+
+            <div class="code-block">
+                <pre><span class="comment">-- Supabase table for missed calls/voicemails</span>
+<span class="keyword">CREATE TABLE</span> missed_calls (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  caller_phone VARCHAR(20) NOT NULL,
+  customer_id VARCHAR(50), <span class="comment">-- RepairShopr customer ID</span>
+  customer_name VARCHAR(255),
+  transcription TEXT,
+  audio_url TEXT,
+  received_at TIMESTAMPTZ DEFAULT NOW(),
+  status VARCHAR(20) DEFAULT <span class="string">'pending'</span>, <span class="comment">-- pending, called_back, ticket_created, dismissed</span>
+  called_back_at TIMESTAMPTZ,
+  called_back_by VARCHAR(100),
+  ticket_id VARCHAR(50), <span class="comment">-- RepairShopr ticket ID if created</span>
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+<span class="comment">-- Index for quick pending lookups</span>
+<span class="keyword">CREATE INDEX</span> idx_missed_calls_status ON missed_calls(status) WHERE status = <span class="string">'pending'</span>;
+<span class="keyword">CREATE INDEX</span> idx_missed_calls_customer ON missed_calls(customer_id);
+
+<span class="comment">-- Enable RLS</span>
+<span class="keyword">ALTER TABLE</span> missed_calls ENABLE ROW LEVEL SECURITY;</pre>
+            </div>
+        </section>
+
         <!-- Comparison -->
         <section class="section" id="comparison">
             <h2 class="section-title"><span class="icon">⚖️</span> Options Comparison</h2>
@@ -1067,6 +1344,20 @@ eventSource.onmessage = <span class="keyword">async</span> (event) => {
                         <td>$20-100/month</td>
                         <td class="status-yes">High - Quick implementation</td>
                     </tr>
+                    <tr style="background: #f0fdf4;">
+                        <td><strong>5. Voicemail Dashboard Widget</strong></td>
+                        <td><span class="complexity-badge complexity-low">Low</span></td>
+                        <td>3-5 days</td>
+                        <td>$0 (email parsing)</td>
+                        <td class="status-yes">High - Never miss a lead</td>
+                    </tr>
+                    <tr style="background: #f0fdf4;">
+                        <td><strong>6. Auto-Ticket from Voicemail</strong></td>
+                        <td><span class="complexity-badge complexity-medium">Medium</span></td>
+                        <td>1 week</td>
+                        <td>$0 (or $20/mo Zapier)</td>
+                        <td class="status-yes">High - Automated follow-up</td>
+                    </tr>
                 </tbody>
             </table>
 
@@ -1096,21 +1387,35 @@ eventSource.onmessage = <span class="keyword">async</span> (event) => {
                     <div class="step">
                         <div class="step-number">2</div>
                         <div class="step-content">
-                            <h4>Phase 2: Employee Click-to-Call (Week 2)</h4>
-                            <p>Add click-to-call buttons on ticket pages so employees can call customers with one click. Streamlines outbound calling workflow.</p>
+                            <h4>Phase 2: Missed Calls & Voicemail Dashboard (Week 2)</h4>
+                            <p>Configure voicemail-to-email with transcription, build email parser, and create "Missed Calls" widget in admin dashboard. Ensures no customer inquiry falls through the cracks.</p>
                         </div>
                     </div>
                     <div class="step">
                         <div class="step-number">3</div>
                         <div class="step-content">
-                            <h4>Phase 3: Website Callback Widget (Week 3-4)</h4>
-                            <p>Build customer-facing callback request widget for the public website. Highest customer acquisition value.</p>
+                            <h4>Phase 3: Employee Click-to-Call (Week 3)</h4>
+                            <p>Add click-to-call buttons on ticket pages so employees can call customers with one click. Streamlines outbound calling workflow.</p>
                         </div>
                     </div>
                     <div class="step">
                         <div class="step-number">4</div>
                         <div class="step-content">
-                            <h4>Phase 4: Real-Time Events (Future)</h4>
+                            <h4>Phase 4: Website Callback Widget (Week 4-5)</h4>
+                            <p>Build customer-facing callback request widget for the public website. Highest customer acquisition value.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">5</div>
+                        <div class="step-content">
+                            <h4>Phase 5: Auto-Ticket from Voicemail (Week 6)</h4>
+                            <p>Automatically create RepairShopr tickets from voicemails for known customers. Optionally integrate with Zapier for no-code workflow.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">6</div>
+                        <div class="step-content">
+                            <h4>Phase 6: Real-Time Events (Future)</h4>
                             <p>Add incoming call popup with RepairShopr customer lookup. Most complex but provides the best employee experience.</p>
                         </div>
                     </div>
@@ -1166,6 +1471,20 @@ eventSource.onmessage = <span class="keyword">async</span> (event) => {
                     <a href="https://zadarma.com/en/services/calls/callback/" target="_blank">Zadarma Callback Widget</a>
                     <a href="https://voximplant.com/products/click-to-call" target="_blank">Voximplant Click-to-Call</a>
                     <a href="https://www.twilio.com/docs/glossary/what-is-click-to-call" target="_blank">Twilio Click-to-Call Guide</a>
+                </div>
+
+                <div class="resource-card">
+                    <h4>Cytracom Voicemail</h4>
+                    <a href="https://help.cytracom.com/hc/en-us/articles/115004041023-Voicemail-Transcription" target="_blank">Voicemail Transcription</a>
+                    <a href="https://help.cytracom.com/hc/en-us/articles/206623526-Configure-a-Mailbox" target="_blank">Configure a Mailbox</a>
+                    <a href="https://help.cytracom.com/hc/en-us/articles/206623536-Check-Voicemail" target="_blank">Check Voicemail</a>
+                </div>
+
+                <div class="resource-card">
+                    <h4>Email Parsing Services</h4>
+                    <a href="https://docs.sendgrid.com/for-developers/parsing-email/setting-up-the-inbound-parse-webhook" target="_blank">SendGrid Inbound Parse</a>
+                    <a href="https://zapier.com/apps/email-parser" target="_blank">Zapier Email Parser</a>
+                    <a href="https://nodemailer.com/" target="_blank">Nodemailer (IMAP)</a>
                 </div>
 
                 <div class="resource-card">

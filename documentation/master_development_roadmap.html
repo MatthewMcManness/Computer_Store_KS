@@ -648,7 +648,7 @@
             <li><a href="#vision">Vision</a></li>
             <li><a href="#architecture">Architecture</a></li>
             <li><a href="#phase-1">Foundation</a></li>
-            <li><a href="#phase-2">Cytracom</a></li>
+            <li><a href="#phase-2">RingCentral</a></li>
             <li><a href="#phase-3">RepairShopr</a></li>
             <li><a href="#phase-4">NinjaOne</a></li>
             <li><a href="#phase-5">Customer Portal</a></li>
@@ -672,7 +672,7 @@
                 <div class="progress-container" style="height: 30px;">
                     <div class="progress-bar" style="width: 30%;">~30% Complete</div>
                 </div>
-                <p style="margin-bottom: 0;"><strong>Priority:</strong> Phase 1 Foundation complete. <strong>Now starting Phase 2: Cytracom Phone Integration</strong> - adding call history, voicemail dashboard, click-to-call, and callback widgets. Phase 3 (RepairShopr) at 55% with data sync complete. Next: Cytracom API integration, then ticket templates and Kanban dashboard.</p>
+                <p style="margin-bottom: 0;"><strong>Priority:</strong> Phase 1 Foundation complete. <strong>Now starting Phase 2: RingCentral Phone Integration</strong> - adding call history, voicemail dashboard, click-to-call, and callback widgets. Phase 3 (RepairShopr) at 55% with data sync complete. Next: RingCentral API integration, then ticket templates and Kanban dashboard.</p>
             </div>
 
             <div class="card-grid">
@@ -698,7 +698,7 @@
 
                 <div class="progress-section">
                     <h4>
-                        Phase 2: Cytracom
+                        Phase 2: RingCentral
                         <span class="badge badge-not-started">Not Started</span>
                     </h4>
                     <div class="progress-container">
@@ -1123,13 +1123,13 @@
 
     <section id="phase-2">
         <div class="container">
-            <h2>Phase 2: Cytracom Phone Integration</h2>
+            <h2>Phase 2: RingCentral Phone Integration</h2>
 
             <div class="phase-section critical">
                 <div class="phase-header">
                     <div>
                         <h3>📞 Phone System Website Integration</h3>
-                        <p>Integrate Cytracom phone system with the website for click-to-call, voicemail management, and call tracking.</p>
+                        <p>Integrate RingCentral phone system with the website for click-to-call, voicemail management, and call tracking.</p>
                     </div>
                     <div class="phase-meta">
                         <span class="badge badge-not-started">Not Started</span>
@@ -1140,7 +1140,7 @@
 
                 <h4>Phase 2.1: Call History Integration (Week 1)</h4>
                 <ul class="checklist">
-                    <li class="pending">Create Cytracom API service wrapper</li>
+                    <li class="pending">Create RingCentral API service wrapper</li>
                     <li class="pending">Implement token authentication</li>
                     <li class="pending">Fetch call history via Insights API (CDR data)</li>
                     <li class="pending">Display call history on customer detail pages</li>
@@ -1149,7 +1149,7 @@
 
                 <h4>Phase 2.2: Missed Calls & Voicemail Dashboard (Week 2)</h4>
                 <ul class="checklist">
-                    <li class="pending">Configure Cytracom voicemail-to-email with transcription</li>
+                    <li class="pending">Configure RingCentral voicemail-to-email with transcription</li>
                     <li class="pending">Set up email parsing (SendGrid Inbound Parse or IMAP)</li>
                     <li class="pending">Create <code>missed_calls</code> table in Supabase</li>
                     <li class="pending">Build voicemail webhook endpoint to parse emails</li>
@@ -1170,7 +1170,7 @@
                 <ul class="checklist">
                     <li class="pending">Design callback request UI component</li>
                     <li class="pending">Build callback request API endpoint</li>
-                    <li class="pending">Integrate with Cytracom originate call API</li>
+                    <li class="pending">Integrate with RingCentral Call Control API</li>
                     <li class="pending">Add to public website pages (services, contact)</li>
                     <li class="pending">Track callback requests and conversions</li>
                 </ul>
@@ -1185,7 +1185,7 @@
 
                 <h4>Phase 2.6: Real-Time Call Events (Future)</h4>
                 <ul class="checklist">
-                    <li class="pending">Subscribe to Cytracom SSE events stream</li>
+                    <li class="pending">Subscribe to RingCentral webhook events</li>
                     <li class="pending">Display incoming call popup in admin portal</li>
                     <li class="pending">Show customer info from RepairShopr lookup</li>
                     <li class="pending">Real-time call status updates</li>
@@ -1194,20 +1194,20 @@
                 <div class="info-box">
                     <h4>📋 Prerequisites</h4>
                     <ul style="margin: 10px 0 0 20px;">
-                        <li>Cytracom API Token (create in admin portal at secure.cytracom.net)</li>
+                        <li>RingCentral API Credentials (create app at developers.ringcentral.com)</li>
                         <li>Voicemail-to-email configured with transcription enabled</li>
-                        <li>Email parsing service (SendGrid Inbound Parse recommended - free tier)</li>
+                        <li>Webhook endpoint for call events (or use RingCentral's built-in integrations)</li>
                     </ul>
                 </div>
 
                 <div class="warning-box">
                     <h4>⚠️ Security Note</h4>
-                    <p>Cytracom API token must be kept server-side only. Never expose in client-side code. All API calls go through Next.js API routes.</p>
+                    <p>RingCentral API credentials must be kept server-side only. Never expose in client-side code. All API calls go through Next.js API routes.</p>
                 </div>
             </div>
 
             <h3>Detailed Documentation</h3>
-            <p>See the full <a href="/documentation/cytracom_integration_report.html">Cytracom Phone Integration Report</a> for implementation details, code examples, and configuration guides.</p>
+            <p>See the full <a href="/documentation/voip_comparison_report.html">VoIP Phone System Comparison Report</a> for provider comparison, implementation details, and configuration guides.</p>
         </div>
     </section>
 

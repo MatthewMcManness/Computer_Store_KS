@@ -1441,6 +1441,137 @@ Come by Computer Store KS and ask:
   '2026-01-17 10:00:00+00'
 ON CONFLICT (slug) DO NOTHING;
 
+-- Post 16: January 19, 2026 - Why Linux
+INSERT INTO blog_posts (title, slug, excerpt, content, featured_image_url, category_id, author_name, status, published_at, created_at)
+SELECT
+  'Why Linux Might Be Perfect for Your Next Computer',
+  'why-linux-perfect-for-your-computer-2026',
+  'Thinking about trying Linux? Here''s why 2026 might be the year you make the switch, and how we can help.',
+  '## Linux: It''s Not Just for Tech Experts Anymore
+
+Linux has come a long way. What was once the domain of programmers and server admins is now a polished, user-friendly operating system that might be exactly what you need.
+
+### What Is Linux?
+
+Linux is a free, open-source operating system. Unlike Windows or macOS, it''s:
+- **Free** - No license fees, ever
+- **Open source** - Anyone can inspect and improve the code
+- **Customizable** - Make it look and work how you want
+- **Secure** - Far fewer viruses and malware target Linux
+
+### Why Consider Linux in 2026?
+
+**1. Breathe Life into Old Hardware**
+
+That "slow" computer might not need replacing:
+- Linux runs great on older machines
+- Lightweight versions use minimal RAM
+- No bloatware slowing things down
+- SSDs + Linux = surprisingly fast old PCs
+
+**2. Privacy and Security**
+
+Linux respects your privacy:
+- No telemetry sent to Microsoft
+- You control what runs on your computer
+- Fewer malware threats
+- No forced updates at inconvenient times
+
+**3. It''s Actually Easy Now**
+
+Modern Linux distributions (distros) are user-friendly:
+- **Linux Mint** - Feels familiar to Windows users
+- **Ubuntu** - Huge community, lots of help available
+- **Pop!_OS** - Great for gaming
+- **Zorin OS** - Designed for Windows switchers
+
+### What Can You Do on Linux?
+
+**Everything most people need:**
+- Web browsing (Firefox, Chrome, Brave)
+- Email and calendar
+- Office work (LibreOffice, Google Docs)
+- Photo editing (GIMP, Darktable)
+- Video streaming (Netflix, YouTube, etc.)
+- Music (Spotify, local files)
+
+**Gaming has improved dramatically:**
+- Steam runs natively on Linux
+- Proton compatibility layer runs most Windows games
+- Many games work out of the box
+- Check ProtonDB.com for compatibility
+
+### When Linux Makes Sense
+
+**Great fit if you:**
+- Mainly browse the web and do office work
+- Have an older computer you want to revive
+- Value privacy and control
+- Want to stop paying for Windows licenses
+- Are curious and willing to learn a little
+
+**Maybe not ideal if you:**
+- Rely on specific Windows-only software
+- Play competitive multiplayer games with anti-cheat
+- Need Adobe Creative Suite (no native Linux version)
+- Don''t want to learn anything new
+
+### The Dual-Boot Option
+
+Not ready to commit? Try dual-booting:
+- Keep Windows AND Linux on the same computer
+- Choose which to boot each time you start
+- Best of both worlds
+- Test Linux without losing Windows
+
+### Our Linux Services
+
+At Computer Store KS, we offer:
+
+**Linux Installation:**
+- Choose the right distro for your needs
+- Proper installation and setup
+- Dual-boot configuration
+- Driver installation and testing
+
+**Linux Support:**
+- Help with common tasks
+- Software recommendations
+- Troubleshooting
+- Migration assistance
+
+**Linux Computers:**
+- Pre-built systems with Linux
+- Refurbished PCs with Linux (great value!)
+- Custom builds optimized for Linux
+
+### Try Before You Buy
+
+Most Linux distros offer "Live USB" mode:
+1. We create a bootable USB
+2. You boot from it without installing
+3. Test everything on your actual hardware
+4. Install only if you like it
+
+### Ready to Explore?
+
+Visit Computer Store KS to:
+- See Linux in action
+- Get honest advice on whether it''s right for you
+- Try different distros
+- Get professional installation
+
+We''ve helped many customers discover that Linux is exactly what they needed. Maybe you''re next?
+
+*Freedom, privacy, and performance. That''s Linux.*',
+  'https://images.unsplash.com/photo-1629654297299-c8506221ca97?w=1200',
+  (SELECT id FROM blog_categories WHERE slug = 'tech-tips'),
+  'Matthew McManness',
+  'published',
+  '2026-01-19 10:00:00+00',
+  '2026-01-19 10:00:00+00'
+ON CONFLICT (slug) DO NOTHING;
+
 -- Verify insertions
 SELECT
   title,
@@ -1451,5 +1582,5 @@ SELECT
 FROM blog_posts
 WHERE author_name = 'Matthew McManness'
   AND published_at >= '2025-12-20'
-  AND published_at <= '2026-01-17'
+  AND published_at <= '2026-01-19'
 ORDER BY published_at;

@@ -15,6 +15,7 @@ import { PHOTO_CATEGORIES, transformPhoto, type PhotoGalleryDisplay } from '@/ty
  * manage the public photo gallery.
  *
  * @version 1.0.0 - 2026-01-19T00:00:00Z - Initial implementation
+ * @version 1.1.0 - 2026-01-19T00:00:00Z - Added dark mode support for modals
  */
 export default function AdminPhotoGalleryPage() {
   const [photos, setPhotos] = useState<PhotoGalleryDisplay[]>([]);
@@ -248,13 +249,13 @@ export default function AdminPhotoGalleryPage() {
         <div className="flex items-center gap-4">
           <Link
             href="/admin"
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
           >
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="h-5 w-5 text-gray-700 dark:text-gray-300" />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Photo Gallery</h1>
-            <p className="text-sm text-gray-500">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Photo Gallery</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               Manage photos displayed on the public gallery page
             </p>
           </div>
@@ -282,7 +283,7 @@ export default function AdminPhotoGalleryPage() {
       {/* Loading */}
       {isLoading && (
         <div className="text-center py-12">
-          <p className="text-gray-500">Loading photos...</p>
+          <p className="text-gray-500 dark:text-gray-400">Loading photos...</p>
         </div>
       )}
 
@@ -302,7 +303,7 @@ export default function AdminPhotoGalleryPage() {
       {/* Empty state */}
       {!isLoading && !error && photos.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-gray-500 mb-4">No photos yet. Add your first photo!</p>
+          <p className="text-gray-500 dark:text-gray-400 mb-4">No photos yet. Add your first photo!</p>
           <button
             onClick={openNewModal}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
@@ -318,7 +319,7 @@ export default function AdminPhotoGalleryPage() {
           {photos.map((photo) => (
             <div
               key={photo.id}
-              className={`relative rounded-lg overflow-hidden shadow-md bg-white ${
+              className={`relative rounded-lg overflow-hidden shadow-md bg-white dark:bg-gray-800 ${
                 !photo.isActive ? 'opacity-60' : ''
               }`}
             >
@@ -339,29 +340,29 @@ export default function AdminPhotoGalleryPage() {
 
               {/* Info */}
               <div className="p-3">
-                <h3 className="font-medium text-gray-900 truncate">{photo.title}</h3>
-                <p className="text-xs text-gray-500 capitalize">{photo.category}</p>
+                <h3 className="font-medium text-gray-900 dark:text-white truncate">{photo.title}</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{photo.category}</p>
               </div>
 
               {/* Actions */}
               <div className="absolute top-2 right-2 flex gap-1">
                 <button
                   onClick={() => toggleVisibility(photo)}
-                  className="p-1.5 rounded bg-white/90 hover:bg-white shadow text-gray-700"
+                  className="p-1.5 rounded bg-white/90 dark:bg-gray-700/90 hover:bg-white dark:hover:bg-gray-600 shadow text-gray-700 dark:text-gray-200"
                   title={photo.isActive ? 'Hide from gallery' : 'Show in gallery'}
                 >
                   {photo.isActive ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
                 </button>
                 <button
                   onClick={() => openEditModal(photo)}
-                  className="p-1.5 rounded bg-white/90 hover:bg-white shadow text-gray-700"
+                  className="p-1.5 rounded bg-white/90 dark:bg-gray-700/90 hover:bg-white dark:hover:bg-gray-600 shadow text-gray-700 dark:text-gray-200"
                   title="Edit"
                 >
                   <Pencil className="h-4 w-4" />
                 </button>
                 <button
                   onClick={() => setDeleteConfirm(photo.id)}
-                  className="p-1.5 rounded bg-white/90 hover:bg-white shadow text-red-600"
+                  className="p-1.5 rounded bg-white/90 dark:bg-gray-700/90 hover:bg-white dark:hover:bg-gray-600 shadow text-red-600 dark:text-red-400"
                   title="Delete"
                 >
                   <Trash2 className="h-4 w-4" />
@@ -375,15 +376,15 @@ export default function AdminPhotoGalleryPage() {
       {/* Add/Edit Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-4 border-b">
-              <h2 className="text-lg font-semibold">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                 {editingPhoto ? 'Edit Photo' : 'Add New Photo'}
               </h2>
               <button
                 onClick={closeModal}
-                className="p-1 rounded hover:bg-gray-100"
+                className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -393,11 +394,11 @@ export default function AdminPhotoGalleryPage() {
             <div className="p-4 space-y-4">
               {/* Image Upload/Preview */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Image *
                 </label>
                 {formData.imageUrl ? (
-                  <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-gray-100">
+                  <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700">
                     <Image
                       src={formData.thumbnailUrl || formData.imageUrl}
                       alt="Preview"
@@ -414,15 +415,15 @@ export default function AdminPhotoGalleryPage() {
                 ) : (
                   <div
                     onClick={() => fileInputRef.current?.click()}
-                    className="aspect-[4/3] rounded-lg border-2 border-dashed border-gray-300 hover:border-blue-500 cursor-pointer flex flex-col items-center justify-center bg-gray-50"
+                    className="aspect-[4/3] rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-blue-500 dark:hover:border-blue-400 cursor-pointer flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-700"
                   >
                     {isUploading ? (
-                      <p className="text-gray-500">Uploading...</p>
+                      <p className="text-gray-500 dark:text-gray-400">Uploading...</p>
                     ) : (
                       <>
-                        <Upload className="h-8 w-8 text-gray-400 mb-2" />
-                        <p className="text-sm text-gray-500">Click to upload image</p>
-                        <p className="text-xs text-gray-400 mt-1">JPEG, PNG, WebP up to 50MB</p>
+                        <Upload className="h-8 w-8 text-gray-400 dark:text-gray-500 mb-2" />
+                        <p className="text-sm text-gray-500 dark:text-gray-400">Click to upload image</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">JPEG, PNG, WebP up to 50MB</p>
                       </>
                     )}
                   </div>
@@ -438,41 +439,41 @@ export default function AdminPhotoGalleryPage() {
 
               {/* Title */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Title *
                 </label>
                 <input
                   type="text"
                   value={formData.title}
                   onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Photo title"
                 />
               </div>
 
               {/* Description */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Description
                 </label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Optional description"
                 />
               </div>
 
               {/* Category */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Category
                 </label>
                 <select
                   value={formData.category}
                   onChange={(e) => setFormData((prev) => ({ ...prev, category: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   {PHOTO_CATEGORIES.filter((c) => c.value !== 'all').map((cat) => (
                     <option key={cat.value} value={cat.value}>
@@ -484,10 +485,10 @@ export default function AdminPhotoGalleryPage() {
             </div>
 
             {/* Modal Footer */}
-            <div className="flex justify-end gap-3 p-4 border-t">
+            <div className="flex justify-end gap-3 p-4 border-t border-gray-200 dark:border-gray-700">
               <button
                 onClick={closeModal}
-                className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
               >
                 Cancel
               </button>
@@ -506,15 +507,15 @@ export default function AdminPhotoGalleryPage() {
       {/* Delete Confirmation Modal */}
       {deleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4 p-6">
-            <h3 className="text-lg font-semibold mb-2">Delete Photo?</h3>
-            <p className="text-gray-600 mb-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-sm mx-4 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Delete Photo?</h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
               This action cannot be undone. The photo will be permanently deleted.
             </p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setDeleteConfirm(null)}
-                className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
               >
                 Cancel
               </button>

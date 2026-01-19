@@ -851,10 +851,11 @@ export async function getMissedCalls(
   endDate?: Date
 ): Promise<CytracomCDR[]> {
   // Fetch all calls first, then filter - avoids direction filter bug
+  // NOTE: Cytracom API fails when size > 100
   const allCalls = await fetchCallHistory({
     startDate,
     endDate,
-    limit: 200,
+    limit: 100,
   });
 
   // Filter for inbound missed/voicemail calls

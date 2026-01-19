@@ -80,11 +80,12 @@ export async function GET(request: NextRequest) {
 
     if (missedOnly) {
       // Get missed calls using manual filter (direction filter in fetchCallHistory is broken)
+      // NOTE: Cytracom API appears to fail when size > 100, so we use 100 as max
       console.log('[API] Fetching all calls for missedOnly filter...');
       const allCalls = await fetchCallHistory({
         startDate,
         endDate,
-        limit: 200,
+        limit: 100,
       });
       console.log('[API] Got', allCalls.length, 'total calls');
 
@@ -142,7 +143,7 @@ export async function GET(request: NextRequest) {
           startDate,
           endDate,
           direction: 'inbound',
-          limit: 200,
+          limit: 100,
         });
 
         // Test 3: Manual filter of allCalls

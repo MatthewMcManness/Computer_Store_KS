@@ -648,11 +648,12 @@
             <li><a href="#vision">Vision</a></li>
             <li><a href="#architecture">Architecture</a></li>
             <li><a href="#phase-1">Foundation</a></li>
-            <li><a href="#phase-2">RepairShopr</a></li>
-            <li><a href="#phase-3">NinjaOne</a></li>
-            <li><a href="#phase-4">Customer Portal</a></li>
-            <li><a href="#phase-5">PC Builder</a></li>
-            <li><a href="#phase-6">Social Media</a></li>
+            <li><a href="#phase-2">Cytracom</a></li>
+            <li><a href="#phase-3">RepairShopr</a></li>
+            <li><a href="#phase-4">NinjaOne</a></li>
+            <li><a href="#phase-5">Customer Portal</a></li>
+            <li><a href="#phase-6">PC Builder</a></li>
+            <li><a href="#phase-7">Social Media</a></li>
             <li><a href="#timeline">Timeline</a></li>
             <li><a href="#costs">Costs</a></li>
         </ul>
@@ -671,7 +672,7 @@
                 <div class="progress-container" style="height: 30px;">
                     <div class="progress-bar" style="width: 30%;">~30% Complete</div>
                 </div>
-                <p style="margin-bottom: 0;"><strong>Priority:</strong> Phase 1 Foundation complete. Phase 2 major milestone achieved: RepairShopr data sync to Supabase implemented with full migration of customers, tickets, invoices, payments, and assets. This enables faster queries and lays groundwork for eventual RepairShopr deprecation (1-2 year timeline). Next: Ticket templates, Kanban dashboard, invoicing features.</p>
+                <p style="margin-bottom: 0;"><strong>Priority:</strong> Phase 1 Foundation complete. <strong>Now starting Phase 2: Cytracom Phone Integration</strong> - adding call history, voicemail dashboard, click-to-call, and callback widgets. Phase 3 (RepairShopr) at 55% with data sync complete. Next: Cytracom API integration, then ticket templates and Kanban dashboard.</p>
             </div>
 
             <div class="card-grid">
@@ -697,7 +698,25 @@
 
                 <div class="progress-section">
                     <h4>
-                        Phase 2: RepairShopr
+                        Phase 2: Cytracom
+                        <span class="badge badge-not-started">Not Started</span>
+                    </h4>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: 0%; background: #9ca3af;"></div>
+                    </div>
+                    <ul style="margin: 0; padding-left: 20px; font-size: 0.9rem;">
+                        <li><span class="status-icon status-pending">○</span> Call history integration</li>
+                        <li><span class="status-icon status-pending">○</span> Missed calls & voicemail dashboard</li>
+                        <li><span class="status-icon status-pending">○</span> Employee click-to-call</li>
+                        <li><span class="status-icon status-pending">○</span> Website callback widget</li>
+                        <li><span class="status-icon status-pending">○</span> Auto-ticket from voicemail</li>
+                        <li><span class="status-icon status-pending">○</span> Real-time call events</li>
+                    </ul>
+                </div>
+
+                <div class="progress-section">
+                    <h4>
+                        Phase 3: RepairShopr
                         <span class="badge badge-partial">55% Done</span>
                     </h4>
                     <div class="progress-container">
@@ -716,13 +735,12 @@
                         <li><span class="status-icon status-pending">○</span> Quote system</li>
                         <li><span class="status-icon status-pending">○</span> POS / Cash drawer</li>
                         <li><span class="status-icon status-pending">○</span> Leads management</li>
-                        <li><span class="status-icon status-pending">○</span> Cytracom voicemail</li>
                     </ul>
                 </div>
 
                 <div class="progress-section">
                     <h4>
-                        Phase 3: NinjaOne
+                        Phase 4: NinjaOne
                         <span class="badge badge-not-started">Not Started</span>
                     </h4>
                     <div class="progress-container">
@@ -740,7 +758,7 @@
 
                 <div class="progress-section">
                     <h4>
-                        Phase 4: Customer Portal
+                        Phase 5: Customer Portal
                         <span class="badge badge-partial">10% Done</span>
                     </h4>
                     <div class="progress-container">
@@ -758,7 +776,7 @@
 
                 <div class="progress-section">
                     <h4>
-                        Phase 5: PC Builder
+                        Phase 6: PC Builder
                         <span class="badge badge-not-started">Not Started</span>
                     </h4>
                     <div class="progress-container">
@@ -774,7 +792,7 @@
 
                 <div class="progress-section">
                     <h4>
-                        Phase 6: Social Media
+                        Phase 7: Social Media
                         <span class="badge badge-not-started">Not Started</span>
                     </h4>
                     <div class="progress-container">
@@ -1105,7 +1123,97 @@
 
     <section id="phase-2">
         <div class="container">
-            <h2>Phase 2: Employee Portal - RepairShopr</h2>
+            <h2>Phase 2: Cytracom Phone Integration</h2>
+
+            <div class="phase-section critical">
+                <div class="phase-header">
+                    <div>
+                        <h3>📞 Phone System Website Integration</h3>
+                        <p>Integrate Cytracom phone system with the website for click-to-call, voicemail management, and call tracking.</p>
+                    </div>
+                    <div class="phase-meta">
+                        <span class="badge badge-not-started">Not Started</span>
+                        <span class="badge badge-critical">Priority</span>
+                        <span class="hours-badge">~40-60 hours</span>
+                    </div>
+                </div>
+
+                <h4>Phase 2.1: Call History Integration (Week 1)</h4>
+                <ul class="checklist">
+                    <li class="pending">Create Cytracom API service wrapper</li>
+                    <li class="pending">Implement token authentication</li>
+                    <li class="pending">Fetch call history via Insights API (CDR data)</li>
+                    <li class="pending">Display call history on customer detail pages</li>
+                    <li class="pending">Match calls to RepairShopr customers by phone number</li>
+                </ul>
+
+                <h4>Phase 2.2: Missed Calls & Voicemail Dashboard (Week 2)</h4>
+                <ul class="checklist">
+                    <li class="pending">Configure Cytracom voicemail-to-email with transcription</li>
+                    <li class="pending">Set up email parsing (SendGrid Inbound Parse or IMAP)</li>
+                    <li class="pending">Create <code>missed_calls</code> table in Supabase</li>
+                    <li class="pending">Build voicemail webhook endpoint to parse emails</li>
+                    <li class="pending">Create Missed Calls widget in admin dashboard</li>
+                    <li class="pending">Auto-lookup customer in RepairShopr by caller ID</li>
+                    <li class="pending">Add "Call Back" button with click-to-call</li>
+                </ul>
+
+                <h4>Phase 2.3: Employee Click-to-Call (Week 3)</h4>
+                <ul class="checklist">
+                    <li class="pending">Implement Call Control API (originate endpoint)</li>
+                    <li class="pending">Add click-to-call buttons on ticket pages</li>
+                    <li class="pending">Add click-to-call buttons on customer pages</li>
+                    <li class="pending">Log outbound calls to ticket notes automatically</li>
+                </ul>
+
+                <h4>Phase 2.4: Website Callback Widget (Week 4-5)</h4>
+                <ul class="checklist">
+                    <li class="pending">Design callback request UI component</li>
+                    <li class="pending">Build callback request API endpoint</li>
+                    <li class="pending">Integrate with Cytracom originate call API</li>
+                    <li class="pending">Add to public website pages (services, contact)</li>
+                    <li class="pending">Track callback requests and conversions</li>
+                </ul>
+
+                <h4>Phase 2.5: Auto-Ticket from Voicemail (Week 6)</h4>
+                <ul class="checklist">
+                    <li class="pending">Auto-create RepairShopr ticket for known customers</li>
+                    <li class="pending">Include transcription in ticket description</li>
+                    <li class="pending">Attach audio file if available</li>
+                    <li class="pending">Set appropriate ticket status for follow-up</li>
+                </ul>
+
+                <h4>Phase 2.6: Real-Time Call Events (Future)</h4>
+                <ul class="checklist">
+                    <li class="pending">Subscribe to Cytracom SSE events stream</li>
+                    <li class="pending">Display incoming call popup in admin portal</li>
+                    <li class="pending">Show customer info from RepairShopr lookup</li>
+                    <li class="pending">Real-time call status updates</li>
+                </ul>
+
+                <div class="info-box">
+                    <h4>📋 Prerequisites</h4>
+                    <ul style="margin: 10px 0 0 20px;">
+                        <li>Cytracom API Token (create in admin portal at secure.cytracom.net)</li>
+                        <li>Voicemail-to-email configured with transcription enabled</li>
+                        <li>Email parsing service (SendGrid Inbound Parse recommended - free tier)</li>
+                    </ul>
+                </div>
+
+                <div class="warning-box">
+                    <h4>⚠️ Security Note</h4>
+                    <p>Cytracom API token must be kept server-side only. Never expose in client-side code. All API calls go through Next.js API routes.</p>
+                </div>
+            </div>
+
+            <h3>Detailed Documentation</h3>
+            <p>See the full <a href="/documentation/cytracom_integration_report.html">Cytracom Phone Integration Report</a> for implementation details, code examples, and configuration guides.</p>
+        </div>
+    </section>
+
+    <section id="phase-3">
+        <div class="container">
+            <h2>Phase 3: Employee Portal - RepairShopr</h2>
 
             <div class="phase-section critical">
                 <div class="phase-header">
@@ -1370,11 +1478,11 @@
                         <td>6-8</td>
                         <td><span class="badge badge-not-started">Not Started</span></td>
                     </tr>
-                    <tr>
+                    <tr style="background: #f0f9ff;">
                         <td>Cytracom integration</td>
-                        <td>Voicemail to leads</td>
-                        <td>8-12 (research dependent)</td>
-                        <td><span class="badge badge-not-started">Not Started</span></td>
+                        <td>Moved to Phase 2</td>
+                        <td>—</td>
+                        <td><span class="badge" style="background: #dbeafe; color: #1e40af;">See Phase 2</span></td>
                     </tr>
                     <tr style="background: #f0fdf4;">
                         <td><strong>RepairShopr Data Sync</strong></td>
@@ -1393,9 +1501,9 @@
         </div>
     </section>
 
-    <section id="phase-3">
+    <section id="phase-4">
         <div class="container">
-            <h2>Phase 3: Employee Portal - NinjaOne</h2>
+            <h2>Phase 4: Employee Portal - NinjaOne</h2>
 
             <div class="phase-section critical">
                 <div class="phase-header">
@@ -1541,9 +1649,9 @@
         </div>
     </section>
 
-    <section id="phase-4">
+    <section id="phase-5">
         <div class="container">
-            <h2>Phase 4: Customer Portal</h2>
+            <h2>Phase 5: Customer Portal</h2>
 
             <div class="phase-section high">
                 <div class="phase-header">
@@ -1664,9 +1772,9 @@
         </div>
     </section>
 
-    <section id="phase-5">
+    <section id="phase-6">
         <div class="container">
-            <h2>Phase 5: PC Builder</h2>
+            <h2>Phase 6: PC Builder</h2>
 
             <div class="phase-section medium">
                 <div class="phase-header">
@@ -1793,9 +1901,9 @@
         </div>
     </section>
 
-    <section id="phase-6">
+    <section id="phase-7">
         <div class="container">
-            <h2>Phase 6: Social Media Automation</h2>
+            <h2>Phase 7: Social Media Automation</h2>
 
             <div class="phase-section medium">
                 <div class="phase-header">
@@ -1943,7 +2051,7 @@
 
             <div class="warning-box">
                 <h4>Holton Launch Deadline: Q1 2026</h4>
-                <p>At 20-30 hours/week, you have approximately <strong>300-450 hours</strong> between now and end of Q1 2026 (assuming ~15 weeks). Phases 1-3 are estimated at 170-210 hours total, leaving buffer for testing and iterations. Phases 4-6 can continue post-launch.</p>
+                <p>At 20-30 hours/week, you have approximately <strong>300-450 hours</strong> between now and end of Q1 2026 (assuming ~15 weeks). Phases 1-4 are estimated at 210-270 hours total, leaving buffer for testing and iterations. Phases 5-7 can continue post-launch.</p>
             </div>
 
             <h3>Gantt Chart Overview</h3>
@@ -1951,37 +2059,43 @@
                 <div class="gantt-bar">
                     <div class="gantt-label">Phase 1: Foundation</div>
                     <div class="gantt-track">
-                        <div class="gantt-fill phase-1" style="width: 15%; margin-left: 0;">Wk 1-3</div>
+                        <div class="gantt-fill phase-1" style="width: 12%; margin-left: 0;">Wk 1-3</div>
                     </div>
                 </div>
                 <div class="gantt-bar">
-                    <div class="gantt-label">Phase 2: RepairShopr</div>
+                    <div class="gantt-label">Phase 2: Cytracom</div>
                     <div class="gantt-track">
-                        <div class="gantt-fill phase-2" style="width: 35%; margin-left: 12%;">Wk 3-10</div>
+                        <div class="gantt-fill" style="width: 20%; margin-left: 10%; background: linear-gradient(135deg, #0891b2, #06b6d4);">Wk 3-8</div>
                     </div>
                 </div>
                 <div class="gantt-bar">
-                    <div class="gantt-label">Phase 3: NinjaOne</div>
+                    <div class="gantt-label">Phase 3: RepairShopr</div>
                     <div class="gantt-track">
-                        <div class="gantt-fill phase-3" style="width: 25%; margin-left: 40%;">Wk 8-14</div>
+                        <div class="gantt-fill phase-2" style="width: 30%; margin-left: 10%;">Wk 3-12</div>
                     </div>
                 </div>
                 <div class="gantt-bar">
-                    <div class="gantt-label">Phase 4: Customer Portal</div>
+                    <div class="gantt-label">Phase 4: NinjaOne</div>
                     <div class="gantt-track">
-                        <div class="gantt-fill phase-4" style="width: 30%; margin-left: 55%;">Wk 12-20</div>
+                        <div class="gantt-fill phase-3" style="width: 25%; margin-left: 35%;">Wk 10-16</div>
                     </div>
                 </div>
                 <div class="gantt-bar">
-                    <div class="gantt-label">Phase 5: PC Builder</div>
+                    <div class="gantt-label">Phase 5: Customer Portal</div>
                     <div class="gantt-track">
-                        <div class="gantt-fill phase-5" style="width: 35%; margin-left: 65%;">Wk 16-26</div>
+                        <div class="gantt-fill phase-4" style="width: 25%; margin-left: 50%;">Wk 14-22</div>
                     </div>
                 </div>
                 <div class="gantt-bar">
-                    <div class="gantt-label">Phase 6: Social Media</div>
+                    <div class="gantt-label">Phase 6: PC Builder</div>
                     <div class="gantt-track">
-                        <div class="gantt-fill phase-6" style="width: 30%; margin-left: 70%;">Wk 18-28</div>
+                        <div class="gantt-fill phase-5" style="width: 30%; margin-left: 60%;">Wk 18-28</div>
+                    </div>
+                </div>
+                <div class="gantt-bar">
+                    <div class="gantt-label">Phase 7: Social Media</div>
+                    <div class="gantt-track">
+                        <div class="gantt-fill phase-6" style="width: 25%; margin-left: 70%;">Wk 22-30</div>
                     </div>
                 </div>
             </div>
@@ -2165,13 +2279,22 @@
                         <li><strong style="color: #92400e;">Payment integration (ON HOLD)</strong> - Awaiting provider decision</li>
                     </ol>
                 </div>
+                <div class="card" style="border-top-color: #0891b2;">
+                    <h3 style="color: #0891b2;">📞 Phase 2: Cytracom Integration</h3>
+                    <ol>
+                        <li><strong>Call history integration</strong> - Display on customer pages</li>
+                        <li><strong>Missed calls dashboard</strong> - Voicemail with transcription</li>
+                        <li><strong>Employee click-to-call</strong> - From ticket/customer pages</li>
+                        <li><strong>Website callback widget</strong> - Customer acquisition</li>
+                    </ol>
+                </div>
                 <div class="card phase-2">
-                    <h3>Phase 2 Priorities (After Auth)</h3>
+                    <h3>Phase 3 Priorities (RepairShopr)</h3>
                     <ol>
                         <li><strong>Ticket Kanban dashboard</strong> - Visual workflow</li>
                         <li><strong>Invoice creation</strong> - Full CRUD</li>
                         <li><strong>Quote system</strong> - Create and send estimates</li>
-                        <li><strong>Cytracom research</strong> - Voicemail API</li>
+                        <li><strong>POS / Cash drawer</strong> - In-store payments</li>
                     </ol>
                 </div>
             </div>

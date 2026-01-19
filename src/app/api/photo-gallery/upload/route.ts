@@ -37,7 +37,8 @@ const ALLOWED_TYPES = [
  * POST /api/photo-gallery/upload - Upload image
  *
  * Expects multipart form data with 'image' field.
- * Generates full-size (1200x900) and thumbnail (400x300) WebP images.
+ * Generates high-quality full-size (max 2048px) and thumbnail (400px) images.
+ * Preserves aspect ratio for professional gallery display.
  *
  * @returns URLs for full image and thumbnail
  */
@@ -106,25 +107,26 @@ export async function POST(request: NextRequest) {
     const fullFilename = `photo-gallery-${timestamp}-full.webp`;
     const thumbFilename = `photo-gallery-${timestamp}-thumb.webp`;
 
-    // Generate full-size image (1200x900 WebP)
+    // Generate high-quality full-size image (max 2048px, preserves aspect ratio)
     const fullBuffer = await sharp(buffer)
-      .resize(1200, 900, {
-        fit: 'cover',
-        position: 'center',
+      .resize(2048, 2048, {
+        fit: 'inside',           // Preserve aspect ratio, fit within bounds
+        withoutEnlargement: true, // Don't upscale small images
       })
       .webp({
-        quality: 85,
+        quality: 92,             // High quality for gallery display
+        effort: 6,               // Higher compression effort for better quality/size
       })
       .toBuffer();
 
-    // Generate thumbnail (400x300 WebP)
+    // Generate thumbnail (400px max, preserves aspect ratio)
     const thumbBuffer = await sharp(buffer)
-      .resize(400, 300, {
-        fit: 'cover',
-        position: 'center',
+      .resize(400, 400, {
+        fit: 'inside',           // Preserve aspect ratio
+        withoutEnlargement: true,
       })
       .webp({
-        quality: 80,
+        quality: 85,             // Good quality for thumbnails
       })
       .toBuffer();
 

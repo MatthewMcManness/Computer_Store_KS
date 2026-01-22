@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Logo Options Comparison | Computer Store KS</title>
     <style>
-        /* CSS Variables - RWS Style */
+        /* CSS Variables */
         :root {
             --primary-color: #2563eb;
             --primary-dark: #1e40af;
@@ -38,18 +38,84 @@
             background: var(--light);
         }
 
-        /* Header - RWS Style */
-        .header {
+        /* Page Header */
+        .page-header {
             background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
             color: var(--white);
-            padding: 2rem 0;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: var(--shadow-lg);
+            padding: 2rem;
+            text-align: center;
         }
 
-        .header::before {
+        .page-header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header p {
+            opacity: 0.9;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Instructions */
+        .instructions {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: var(--border-radius-lg);
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .instructions h2 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .instructions p {
+            color: var(--gray-dark);
+        }
+
+        /* Header Preview Container */
+        .header-preview-container {
+            margin-bottom: 3rem;
+        }
+
+        .preview-label {
+            background: var(--dark);
+            color: var(--white);
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .preview-label .file-name {
+            font-family: monospace;
+            background: rgba(255,255,255,0.1);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        /* Hero Background for Headers */
+        .hero-background {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            position: relative;
+            overflow: hidden;
+            border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
+            min-height: 200px;
+        }
+
+        .hero-background::before {
             content: '';
             position: absolute;
             top: 0;
@@ -62,228 +128,157 @@
             pointer-events: none;
         }
 
-        .header-content {
-            max-width: 1400px;
+        /* Frosted Glass Navbar - RWS Style */
+        .navbar {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 1rem 0;
+            position: relative;
+            z-index: 10;
+        }
+
+        .navbar-inner {
+            max-width: 1200px;
             margin: 0 auto;
             padding: 0 2rem;
-            position: relative;
-            z-index: 1;
-        }
-
-        .header-brand {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .logo-badge {
-            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-            color: var(--white);
-            padding: 0.5rem 0.75rem;
-            border-radius: var(--border-radius);
-            font-weight: 800;
-            font-size: 1.25rem;
-        }
-
-        .brand-name {
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-
-        .header-subtitle {
-            margin-top: 0.5rem;
-            opacity: 0.9;
-            font-size: 1rem;
-        }
-
-        /* Main Content */
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-
-        /* Section Headers - RWS Style */
-        .section-header {
-            background: var(--white);
-            padding: 1.5rem 2rem;
-            border-radius: var(--border-radius-lg);
-            margin-bottom: 1.5rem;
-            box-shadow: var(--shadow);
-            border-left: 4px solid var(--primary-color);
-        }
-
-        .section-title {
-            font-size: 1.5rem;
-            color: var(--dark);
-            margin-bottom: 0.25rem;
-        }
-
-        .section-subtitle {
-            color: var(--gray);
-            font-size: 0.95rem;
-        }
-
-        /* Size Controls */
-        .controls {
-            background: var(--white);
-            padding: 1.5rem;
-            border-radius: var(--border-radius-lg);
-            margin-bottom: 2rem;
-            box-shadow: var(--shadow);
-        }
-
-        .controls-title {
-            font-size: 1rem;
-            color: var(--gray-dark);
-            margin-bottom: 1rem;
-        }
-
-        .size-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-
-        .size-btn {
-            padding: 0.5rem 1rem;
-            border: 2px solid var(--gray-light);
-            background: var(--white);
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            font-weight: 500;
-            color: var(--gray-dark);
-            transition: var(--transition);
-        }
-
-        .size-btn:hover {
-            border-color: var(--primary-color);
-            color: var(--primary-color);
-        }
-
-        .size-btn.active {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-            color: var(--white);
-            border-color: var(--primary-color);
-        }
-
-        /* Logo Grid */
-        .logo-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 3rem;
-        }
-
-        .logo-card {
-            background: var(--white);
-            border-radius: var(--border-radius-lg);
-            box-shadow: var(--shadow);
-            overflow: hidden;
-            transition: var(--transition);
-        }
-
-        .logo-card:hover {
-            box-shadow: var(--shadow-lg);
-            transform: translateY(-2px);
-        }
-
-        .logo-card-header {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-            color: var(--white);
-            padding: 1rem 1.5rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .logo-card-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
-
-        .logo-card-badge {
-            background: rgba(255,255,255,0.2);
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-        }
-
-        .logo-display {
-            padding: 2rem;
+        .nav-brand {
             display: flex;
             align-items: center;
-            justify-content: center;
-            min-height: 200px;
-            background: var(--light);
-            position: relative;
+            gap: 0.75rem;
+            color: var(--dark);
+            font-weight: 700;
+            font-size: 1.25rem;
+            text-decoration: none;
         }
 
-        .logo-display.dark-bg {
-            background: var(--dark);
+        .nav-brand .logo-img {
+            height: 40px;
+            width: auto;
         }
 
-        .logo-display.white-bg {
-            background: var(--white);
+        .nav-brand .brand-name {
+            font-weight: 700;
+            color: var(--dark);
         }
 
-        .logo-display img {
-            max-width: 100%;
-            height: auto;
-            transition: var(--transition);
+        /* Text-based logo badge (fallback style) */
+        .nav-brand .logo-badge {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: var(--white);
+            padding: 0.5rem 0.75rem;
+            border-radius: var(--border-radius);
+            font-weight: 800;
         }
 
-        .logo-actions {
-            padding: 1rem 1.5rem;
-            border-top: 1px solid var(--gray-light);
+        .nav-menu {
             display: flex;
-            gap: 0.5rem;
+            list-style: none;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--gray-dark);
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--primary-color);
+            background: rgba(37, 99, 235, 0.1);
+        }
+
+        .nav-link.btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: var(--white);
+            box-shadow: var(--shadow);
+        }
+
+        .nav-link.btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Hero Content Below Header */
+        .hero-content {
+            padding: 3rem 2rem;
+            color: var(--white);
+            text-align: center;
+        }
+
+        .hero-content h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            opacity: 0.7;
+        }
+
+        .hero-content p {
+            opacity: 0.5;
+            font-style: italic;
+        }
+
+        /* Size Controls */
+        .size-controls {
+            background: var(--white);
+            padding: 1rem 1.5rem;
+            border-radius: var(--border-radius-lg);
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
             flex-wrap: wrap;
         }
 
-        .bg-toggle {
-            padding: 0.4rem 0.8rem;
-            border: 1px solid var(--gray-light);
-            background: var(--white);
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            font-size: 0.85rem;
-            transition: var(--transition);
+        .size-controls label {
+            font-weight: 600;
+            color: var(--gray-dark);
         }
 
-        .bg-toggle:hover {
-            border-color: var(--primary-color);
+        .size-slider {
+            flex: 1;
+            min-width: 200px;
         }
 
-        .bg-toggle.active {
-            background: var(--primary-color);
-            color: var(--white);
-            border-color: var(--primary-color);
+        .size-value {
+            font-family: monospace;
+            background: var(--light);
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            min-width: 60px;
+            text-align: center;
         }
 
-        /* Comparison Table */
+        /* Comparison Grid */
         .comparison-section {
             background: var(--white);
             border-radius: var(--border-radius-lg);
             box-shadow: var(--shadow);
             overflow: hidden;
-            margin-bottom: 2rem;
+            margin-top: 3rem;
         }
 
         .comparison-header {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            background: var(--dark);
             color: var(--white);
-            padding: 1.5rem;
-        }
-
-        .comparison-title {
-            font-size: 1.25rem;
-            font-weight: 600;
+            padding: 1rem 1.5rem;
         }
 
         .comparison-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 1px;
             background: var(--gray-light);
         }
@@ -292,369 +287,429 @@
             background: var(--white);
             padding: 1.5rem;
             text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 150px;
         }
 
         .comparison-cell img {
-            max-width: 100%;
-            height: auto;
+            max-width: 80px;
+            max-height: 80px;
         }
 
         .comparison-cell-label {
-            margin-top: 0.5rem;
+            margin-top: 0.75rem;
             font-size: 0.85rem;
             color: var(--gray);
+            font-family: monospace;
         }
-
-        /* Size Classes */
-        .size-xs img { max-width: 32px; max-height: 32px; }
-        .size-sm img { max-width: 48px; max-height: 48px; }
-        .size-md img { max-width: 80px; max-height: 80px; }
-        .size-lg img { max-width: 120px; max-height: 120px; }
-        .size-xl img { max-width: 200px; max-height: 200px; }
-        .size-2xl img { max-width: 300px; max-height: 300px; }
-        .size-full img { max-width: 100%; max-height: 400px; }
 
         /* Footer */
         .footer {
             text-align: center;
             padding: 2rem;
             color: var(--gray);
-            font-size: 0.9rem;
         }
 
         /* Responsive */
         @media (max-width: 768px) {
-            .logo-grid {
-                grid-template-columns: 1fr;
+            .nav-menu {
+                display: none;
             }
 
-            .header-content {
+            .navbar-inner {
                 padding: 0 1rem;
             }
 
-            .container {
-                padding: 1rem;
+            .hero-background {
+                min-height: 150px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Header - RWS Style -->
-    <header class="header">
-        <div class="header-content">
-            <div class="header-brand">
-                <span class="logo-badge">CSKS</span>
-                <div>
-                    <div class="brand-name">Computer Store KS</div>
-                    <div class="header-subtitle">Logo Options Comparison</div>
-                </div>
-            </div>
-        </div>
-    </header>
+    <div class="page-header">
+        <h1>Logo Options - Header Preview</h1>
+        <p>See how each logo looks in the frosted glass navigation header</p>
+    </div>
 
     <div class="container">
-        <!-- Size Controls -->
-        <div class="controls">
-            <div class="controls-title">Display Size</div>
-            <div class="size-buttons">
-                <button class="size-btn" data-size="size-xs">32px (Favicon)</button>
-                <button class="size-btn" data-size="size-sm">48px (Small Icon)</button>
-                <button class="size-btn" data-size="size-md">80px (Nav Logo)</button>
-                <button class="size-btn active" data-size="size-lg">120px (Default)</button>
-                <button class="size-btn" data-size="size-xl">200px (Large)</button>
-                <button class="size-btn" data-size="size-2xl">300px (Hero)</button>
-                <button class="size-btn" data-size="size-full">Full Size</button>
-            </div>
+        <div class="instructions">
+            <h2>How to Use This Page</h2>
+            <p>Each section below shows a complete header mockup with a different logo option. This helps you visualize how each logo will look in the actual website navigation bar with the frosted glass effect.</p>
         </div>
 
-        <!-- Logo Option 1 -->
-        <div class="section-header">
-            <h2 class="section-title">Option 1: Plain K Logo</h2>
-            <p class="section-subtitle">Clean, minimal K design - File: 1 plain.svg</p>
-        </div>
-        <div class="logo-grid">
-            <div class="logo-card">
-                <div class="logo-card-header">
-                    <span class="logo-card-title">1 plain.svg</span>
-                    <span class="logo-card-badge">7.5 KB</span>
-                </div>
-                <div class="logo-display white-bg size-lg" id="logo-1">
-                    <img src="logos/1 plain.svg" alt="Logo Option 1 - Plain">
-                </div>
-                <div class="logo-actions">
-                    <button class="bg-toggle active" data-target="logo-1" data-bg="white-bg">White</button>
-                    <button class="bg-toggle" data-target="logo-1" data-bg="dark-bg">Dark</button>
-                </div>
-            </div>
+        <!-- Size Control -->
+        <div class="size-controls">
+            <label for="logoSize">Logo Size:</label>
+            <input type="range" id="logoSize" class="size-slider" min="24" max="80" value="40">
+            <span class="size-value" id="sizeValue">40px</span>
         </div>
 
-        <!-- Logo Options 2-4 -->
-        <div class="section-header">
-            <h2 class="section-title">Options 2, 3 &amp; 4</h2>
-            <p class="section-subtitle">Additional logo variations</p>
-        </div>
-        <div class="logo-grid">
-            <div class="logo-card">
-                <div class="logo-card-header">
-                    <span class="logo-card-title">2.svg</span>
-                    <span class="logo-card-badge">4 MB</span>
-                </div>
-                <div class="logo-display white-bg size-lg" id="logo-2">
-                    <img src="logos/2.svg" alt="Logo Option 2">
-                </div>
-                <div class="logo-actions">
-                    <button class="bg-toggle active" data-target="logo-2" data-bg="white-bg">White</button>
-                    <button class="bg-toggle" data-target="logo-2" data-bg="dark-bg">Dark</button>
-                </div>
+        <!-- Logo Option 1: 1 plain.svg -->
+        <div class="header-preview-container">
+            <div class="preview-label">
+                <span>Option 1: Plain K Logo</span>
+                <span class="file-name">1 plain.svg</span>
             </div>
-
-            <div class="logo-card">
-                <div class="logo-card-header">
-                    <span class="logo-card-title">3.svg</span>
-                    <span class="logo-card-badge">5.9 KB</span>
-                </div>
-                <div class="logo-display white-bg size-lg" id="logo-3">
-                    <img src="logos/3.svg" alt="Logo Option 3">
-                </div>
-                <div class="logo-actions">
-                    <button class="bg-toggle active" data-target="logo-3" data-bg="white-bg">White</button>
-                    <button class="bg-toggle" data-target="logo-3" data-bg="dark-bg">Dark</button>
-                </div>
-            </div>
-
-            <div class="logo-card">
-                <div class="logo-card-header">
-                    <span class="logo-card-title">4.svg</span>
-                    <span class="logo-card-badge">5.8 KB</span>
-                </div>
-                <div class="logo-display white-bg size-lg" id="logo-4">
-                    <img src="logos/4.svg" alt="Logo Option 4">
-                </div>
-                <div class="logo-actions">
-                    <button class="bg-toggle active" data-target="logo-4" data-bg="white-bg">White</button>
-                    <button class="bg-toggle" data-target="logo-4" data-bg="dark-bg">Dark</button>
+            <div class="hero-background">
+                <nav class="navbar">
+                    <div class="navbar-inner">
+                        <a href="#" class="nav-brand">
+                            <img src="logos/1 plain.svg" alt="Logo" class="logo-img">
+                            <span class="brand-name">Computer Store KS</span>
+                        </a>
+                        <ul class="nav-menu">
+                            <li><a href="#" class="nav-link active">Home</a></li>
+                            <li><a href="#" class="nav-link">Services</a></li>
+                            <li><a href="#" class="nav-link">Gallery</a></li>
+                            <li><a href="#" class="nav-link">About</a></li>
+                            <li><a href="#" class="nav-link btn-primary">Contact</a></li>
+                        </ul>
+                    </div>
+                </nav>
+                <div class="hero-content">
+                    <h2>Hero Section Preview</h2>
+                    <p>This shows how the header appears over the hero background</p>
                 </div>
             </div>
         </div>
 
-        <!-- C Variations Section -->
-        <div class="section-header">
-            <h2 class="section-title">C Logo Variations</h2>
-            <p class="section-subtitle">Various C-style logo designs</p>
-        </div>
-        <div class="logo-grid">
-            <!-- C.svg -->
-            <div class="logo-card">
-                <div class="logo-card-header">
-                    <span class="logo-card-title">C.svg</span>
-                    <span class="logo-card-badge">6.5 KB</span>
-                </div>
-                <div class="logo-display white-bg size-lg" id="logo-c">
-                    <img src="logos/C.svg" alt="Logo C">
-                </div>
-                <div class="logo-actions">
-                    <button class="bg-toggle active" data-target="logo-c" data-bg="white-bg">White</button>
-                    <button class="bg-toggle" data-target="logo-c" data-bg="dark-bg">Dark</button>
-                </div>
+        <!-- Logo Option 2: 2.svg -->
+        <div class="header-preview-container">
+            <div class="preview-label">
+                <span>Option 2: Detailed Logo</span>
+                <span class="file-name">2.svg</span>
             </div>
-
-            <!-- C (1).svg -->
-            <div class="logo-card">
-                <div class="logo-card-header">
-                    <span class="logo-card-title">C (1).svg</span>
-                    <span class="logo-card-badge">4.7 KB</span>
-                </div>
-                <div class="logo-display white-bg size-lg" id="logo-c1">
-                    <img src="logos/C (1).svg" alt="Logo C Variant 1">
-                </div>
-                <div class="logo-actions">
-                    <button class="bg-toggle active" data-target="logo-c1" data-bg="white-bg">White</button>
-                    <button class="bg-toggle" data-target="logo-c1" data-bg="dark-bg">Dark</button>
-                </div>
-            </div>
-
-            <!-- C (2).svg -->
-            <div class="logo-card">
-                <div class="logo-card-header">
-                    <span class="logo-card-title">C (2).svg</span>
-                    <span class="logo-card-badge">9.2 KB</span>
-                </div>
-                <div class="logo-display white-bg size-lg" id="logo-c2">
-                    <img src="logos/C (2).svg" alt="Logo C Variant 2">
-                </div>
-                <div class="logo-actions">
-                    <button class="bg-toggle active" data-target="logo-c2" data-bg="white-bg">White</button>
-                    <button class="bg-toggle" data-target="logo-c2" data-bg="dark-bg">Dark</button>
-                </div>
-            </div>
-
-            <!-- C (3).svg -->
-            <div class="logo-card">
-                <div class="logo-card-header">
-                    <span class="logo-card-title">C (3).svg</span>
-                    <span class="logo-card-badge">11.6 KB</span>
-                </div>
-                <div class="logo-display white-bg size-lg" id="logo-c3">
-                    <img src="logos/C (3).svg" alt="Logo C Variant 3">
-                </div>
-                <div class="logo-actions">
-                    <button class="bg-toggle active" data-target="logo-c3" data-bg="white-bg">White</button>
-                    <button class="bg-toggle" data-target="logo-c3" data-bg="dark-bg">Dark</button>
-                </div>
-            </div>
-
-            <!-- C (4).svg -->
-            <div class="logo-card">
-                <div class="logo-card-header">
-                    <span class="logo-card-title">C (4).svg</span>
-                    <span class="logo-card-badge">9.5 KB</span>
-                </div>
-                <div class="logo-display white-bg size-lg" id="logo-c4">
-                    <img src="logos/C (4).svg" alt="Logo C Variant 4">
-                </div>
-                <div class="logo-actions">
-                    <button class="bg-toggle active" data-target="logo-c4" data-bg="white-bg">White</button>
-                    <button class="bg-toggle" data-target="logo-c4" data-bg="dark-bg">Dark</button>
-                </div>
-            </div>
-
-            <!-- C (5).svg -->
-            <div class="logo-card">
-                <div class="logo-card-header">
-                    <span class="logo-card-title">C (5).svg</span>
-                    <span class="logo-card-badge">15.4 KB</span>
-                </div>
-                <div class="logo-display white-bg size-lg" id="logo-c5">
-                    <img src="logos/C (5).svg" alt="Logo C Variant 5">
-                </div>
-                <div class="logo-actions">
-                    <button class="bg-toggle active" data-target="logo-c5" data-bg="white-bg">White</button>
-                    <button class="bg-toggle" data-target="logo-c5" data-bg="dark-bg">Dark</button>
-                </div>
-            </div>
-
-            <!-- C (6).svg -->
-            <div class="logo-card">
-                <div class="logo-card-header">
-                    <span class="logo-card-title">C (6).svg</span>
-                    <span class="logo-card-badge">12.5 KB</span>
-                </div>
-                <div class="logo-display white-bg size-lg" id="logo-c6">
-                    <img src="logos/C (6).svg" alt="Logo C Variant 6">
-                </div>
-                <div class="logo-actions">
-                    <button class="bg-toggle active" data-target="logo-c6" data-bg="white-bg">White</button>
-                    <button class="bg-toggle" data-target="logo-c6" data-bg="dark-bg">Dark</button>
+            <div class="hero-background">
+                <nav class="navbar">
+                    <div class="navbar-inner">
+                        <a href="#" class="nav-brand">
+                            <img src="logos/2.svg" alt="Logo" class="logo-img">
+                            <span class="brand-name">Computer Store KS</span>
+                        </a>
+                        <ul class="nav-menu">
+                            <li><a href="#" class="nav-link active">Home</a></li>
+                            <li><a href="#" class="nav-link">Services</a></li>
+                            <li><a href="#" class="nav-link">Gallery</a></li>
+                            <li><a href="#" class="nav-link">About</a></li>
+                            <li><a href="#" class="nav-link btn-primary">Contact</a></li>
+                        </ul>
+                    </div>
+                </nav>
+                <div class="hero-content">
+                    <h2>Hero Section Preview</h2>
+                    <p>This shows how the header appears over the hero background</p>
                 </div>
             </div>
         </div>
 
-        <!-- Side by Side Comparison -->
+        <!-- Logo Option 3: 3.svg -->
+        <div class="header-preview-container">
+            <div class="preview-label">
+                <span>Option 3</span>
+                <span class="file-name">3.svg</span>
+            </div>
+            <div class="hero-background">
+                <nav class="navbar">
+                    <div class="navbar-inner">
+                        <a href="#" class="nav-brand">
+                            <img src="logos/3.svg" alt="Logo" class="logo-img">
+                            <span class="brand-name">Computer Store KS</span>
+                        </a>
+                        <ul class="nav-menu">
+                            <li><a href="#" class="nav-link active">Home</a></li>
+                            <li><a href="#" class="nav-link">Services</a></li>
+                            <li><a href="#" class="nav-link">Gallery</a></li>
+                            <li><a href="#" class="nav-link">About</a></li>
+                            <li><a href="#" class="nav-link btn-primary">Contact</a></li>
+                        </ul>
+                    </div>
+                </nav>
+                <div class="hero-content">
+                    <h2>Hero Section Preview</h2>
+                    <p>This shows how the header appears over the hero background</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logo Option 4: 4.svg -->
+        <div class="header-preview-container">
+            <div class="preview-label">
+                <span>Option 4</span>
+                <span class="file-name">4.svg</span>
+            </div>
+            <div class="hero-background">
+                <nav class="navbar">
+                    <div class="navbar-inner">
+                        <a href="#" class="nav-brand">
+                            <img src="logos/4.svg" alt="Logo" class="logo-img">
+                            <span class="brand-name">Computer Store KS</span>
+                        </a>
+                        <ul class="nav-menu">
+                            <li><a href="#" class="nav-link active">Home</a></li>
+                            <li><a href="#" class="nav-link">Services</a></li>
+                            <li><a href="#" class="nav-link">Gallery</a></li>
+                            <li><a href="#" class="nav-link">About</a></li>
+                            <li><a href="#" class="nav-link btn-primary">Contact</a></li>
+                        </ul>
+                    </div>
+                </nav>
+                <div class="hero-content">
+                    <h2>Hero Section Preview</h2>
+                    <p>This shows how the header appears over the hero background</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logo Option C: C.svg -->
+        <div class="header-preview-container">
+            <div class="preview-label">
+                <span>Option C: Base C Logo</span>
+                <span class="file-name">C.svg</span>
+            </div>
+            <div class="hero-background">
+                <nav class="navbar">
+                    <div class="navbar-inner">
+                        <a href="#" class="nav-brand">
+                            <img src="logos/C.svg" alt="Logo" class="logo-img">
+                            <span class="brand-name">Computer Store KS</span>
+                        </a>
+                        <ul class="nav-menu">
+                            <li><a href="#" class="nav-link active">Home</a></li>
+                            <li><a href="#" class="nav-link">Services</a></li>
+                            <li><a href="#" class="nav-link">Gallery</a></li>
+                            <li><a href="#" class="nav-link">About</a></li>
+                            <li><a href="#" class="nav-link btn-primary">Contact</a></li>
+                        </ul>
+                    </div>
+                </nav>
+                <div class="hero-content">
+                    <h2>Hero Section Preview</h2>
+                    <p>This shows how the header appears over the hero background</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logo Option C (1): C (1).svg -->
+        <div class="header-preview-container">
+            <div class="preview-label">
+                <span>Option C (1)</span>
+                <span class="file-name">C (1).svg</span>
+            </div>
+            <div class="hero-background">
+                <nav class="navbar">
+                    <div class="navbar-inner">
+                        <a href="#" class="nav-brand">
+                            <img src="logos/C (1).svg" alt="Logo" class="logo-img">
+                            <span class="brand-name">Computer Store KS</span>
+                        </a>
+                        <ul class="nav-menu">
+                            <li><a href="#" class="nav-link active">Home</a></li>
+                            <li><a href="#" class="nav-link">Services</a></li>
+                            <li><a href="#" class="nav-link">Gallery</a></li>
+                            <li><a href="#" class="nav-link">About</a></li>
+                            <li><a href="#" class="nav-link btn-primary">Contact</a></li>
+                        </ul>
+                    </div>
+                </nav>
+                <div class="hero-content">
+                    <h2>Hero Section Preview</h2>
+                    <p>This shows how the header appears over the hero background</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logo Option C (2): C (2).svg -->
+        <div class="header-preview-container">
+            <div class="preview-label">
+                <span>Option C (2)</span>
+                <span class="file-name">C (2).svg</span>
+            </div>
+            <div class="hero-background">
+                <nav class="navbar">
+                    <div class="navbar-inner">
+                        <a href="#" class="nav-brand">
+                            <img src="logos/C (2).svg" alt="Logo" class="logo-img">
+                            <span class="brand-name">Computer Store KS</span>
+                        </a>
+                        <ul class="nav-menu">
+                            <li><a href="#" class="nav-link active">Home</a></li>
+                            <li><a href="#" class="nav-link">Services</a></li>
+                            <li><a href="#" class="nav-link">Gallery</a></li>
+                            <li><a href="#" class="nav-link">About</a></li>
+                            <li><a href="#" class="nav-link btn-primary">Contact</a></li>
+                        </ul>
+                    </div>
+                </nav>
+                <div class="hero-content">
+                    <h2>Hero Section Preview</h2>
+                    <p>This shows how the header appears over the hero background</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logo Option C (3): C (3).svg -->
+        <div class="header-preview-container">
+            <div class="preview-label">
+                <span>Option C (3)</span>
+                <span class="file-name">C (3).svg</span>
+            </div>
+            <div class="hero-background">
+                <nav class="navbar">
+                    <div class="navbar-inner">
+                        <a href="#" class="nav-brand">
+                            <img src="logos/C (3).svg" alt="Logo" class="logo-img">
+                            <span class="brand-name">Computer Store KS</span>
+                        </a>
+                        <ul class="nav-menu">
+                            <li><a href="#" class="nav-link active">Home</a></li>
+                            <li><a href="#" class="nav-link">Services</a></li>
+                            <li><a href="#" class="nav-link">Gallery</a></li>
+                            <li><a href="#" class="nav-link">About</a></li>
+                            <li><a href="#" class="nav-link btn-primary">Contact</a></li>
+                        </ul>
+                    </div>
+                </nav>
+                <div class="hero-content">
+                    <h2>Hero Section Preview</h2>
+                    <p>This shows how the header appears over the hero background</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logo Option C (4): C (4).svg -->
+        <div class="header-preview-container">
+            <div class="preview-label">
+                <span>Option C (4)</span>
+                <span class="file-name">C (4).svg</span>
+            </div>
+            <div class="hero-background">
+                <nav class="navbar">
+                    <div class="navbar-inner">
+                        <a href="#" class="nav-brand">
+                            <img src="logos/C (4).svg" alt="Logo" class="logo-img">
+                            <span class="brand-name">Computer Store KS</span>
+                        </a>
+                        <ul class="nav-menu">
+                            <li><a href="#" class="nav-link active">Home</a></li>
+                            <li><a href="#" class="nav-link">Services</a></li>
+                            <li><a href="#" class="nav-link">Gallery</a></li>
+                            <li><a href="#" class="nav-link">About</a></li>
+                            <li><a href="#" class="nav-link btn-primary">Contact</a></li>
+                        </ul>
+                    </div>
+                </nav>
+                <div class="hero-content">
+                    <h2>Hero Section Preview</h2>
+                    <p>This shows how the header appears over the hero background</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logo Option C (5): C (5).svg -->
+        <div class="header-preview-container">
+            <div class="preview-label">
+                <span>Option C (5)</span>
+                <span class="file-name">C (5).svg</span>
+            </div>
+            <div class="hero-background">
+                <nav class="navbar">
+                    <div class="navbar-inner">
+                        <a href="#" class="nav-brand">
+                            <img src="logos/C (5).svg" alt="Logo" class="logo-img">
+                            <span class="brand-name">Computer Store KS</span>
+                        </a>
+                        <ul class="nav-menu">
+                            <li><a href="#" class="nav-link active">Home</a></li>
+                            <li><a href="#" class="nav-link">Services</a></li>
+                            <li><a href="#" class="nav-link">Gallery</a></li>
+                            <li><a href="#" class="nav-link">About</a></li>
+                            <li><a href="#" class="nav-link btn-primary">Contact</a></li>
+                        </ul>
+                    </div>
+                </nav>
+                <div class="hero-content">
+                    <h2>Hero Section Preview</h2>
+                    <p>This shows how the header appears over the hero background</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logo Option C (6): C (6).svg -->
+        <div class="header-preview-container">
+            <div class="preview-label">
+                <span>Option C (6)</span>
+                <span class="file-name">C (6).svg</span>
+            </div>
+            <div class="hero-background">
+                <nav class="navbar">
+                    <div class="navbar-inner">
+                        <a href="#" class="nav-brand">
+                            <img src="logos/C (6).svg" alt="Logo" class="logo-img">
+                            <span class="brand-name">Computer Store KS</span>
+                        </a>
+                        <ul class="nav-menu">
+                            <li><a href="#" class="nav-link active">Home</a></li>
+                            <li><a href="#" class="nav-link">Services</a></li>
+                            <li><a href="#" class="nav-link">Gallery</a></li>
+                            <li><a href="#" class="nav-link">About</a></li>
+                            <li><a href="#" class="nav-link btn-primary">Contact</a></li>
+                        </ul>
+                    </div>
+                </nav>
+                <div class="hero-content">
+                    <h2>Hero Section Preview</h2>
+                    <p>This shows how the header appears over the hero background</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Comparison Grid -->
         <div class="comparison-section">
             <div class="comparison-header">
-                <h2 class="comparison-title">Side-by-Side Comparison (120px)</h2>
+                <h2>Quick Side-by-Side Comparison</h2>
             </div>
             <div class="comparison-grid">
                 <div class="comparison-cell">
-                    <img src="logos/1 plain.svg" alt="1 plain" style="max-width: 100px; max-height: 100px;">
+                    <img src="logos/1 plain.svg" alt="1 plain">
                     <div class="comparison-cell-label">1 plain</div>
                 </div>
                 <div class="comparison-cell">
-                    <img src="logos/2.svg" alt="2" style="max-width: 100px; max-height: 100px;">
+                    <img src="logos/2.svg" alt="2">
                     <div class="comparison-cell-label">2</div>
                 </div>
                 <div class="comparison-cell">
-                    <img src="logos/3.svg" alt="3" style="max-width: 100px; max-height: 100px;">
+                    <img src="logos/3.svg" alt="3">
                     <div class="comparison-cell-label">3</div>
                 </div>
                 <div class="comparison-cell">
-                    <img src="logos/4.svg" alt="4" style="max-width: 100px; max-height: 100px;">
+                    <img src="logos/4.svg" alt="4">
                     <div class="comparison-cell-label">4</div>
                 </div>
                 <div class="comparison-cell">
-                    <img src="logos/C.svg" alt="C" style="max-width: 100px; max-height: 100px;">
+                    <img src="logos/C.svg" alt="C">
                     <div class="comparison-cell-label">C</div>
                 </div>
                 <div class="comparison-cell">
-                    <img src="logos/C (1).svg" alt="C (1)" style="max-width: 100px; max-height: 100px;">
+                    <img src="logos/C (1).svg" alt="C (1)">
                     <div class="comparison-cell-label">C (1)</div>
                 </div>
                 <div class="comparison-cell">
-                    <img src="logos/C (2).svg" alt="C (2)" style="max-width: 100px; max-height: 100px;">
+                    <img src="logos/C (2).svg" alt="C (2)">
                     <div class="comparison-cell-label">C (2)</div>
                 </div>
                 <div class="comparison-cell">
-                    <img src="logos/C (3).svg" alt="C (3)" style="max-width: 100px; max-height: 100px;">
+                    <img src="logos/C (3).svg" alt="C (3)">
                     <div class="comparison-cell-label">C (3)</div>
                 </div>
                 <div class="comparison-cell">
-                    <img src="logos/C (4).svg" alt="C (4)" style="max-width: 100px; max-height: 100px;">
+                    <img src="logos/C (4).svg" alt="C (4)">
                     <div class="comparison-cell-label">C (4)</div>
                 </div>
                 <div class="comparison-cell">
-                    <img src="logos/C (5).svg" alt="C (5)" style="max-width: 100px; max-height: 100px;">
+                    <img src="logos/C (5).svg" alt="C (5)">
                     <div class="comparison-cell-label">C (5)</div>
                 </div>
                 <div class="comparison-cell">
-                    <img src="logos/C (6).svg" alt="C (6)" style="max-width: 100px; max-height: 100px;">
-                    <div class="comparison-cell-label">C (6)</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Small Size Comparison -->
-        <div class="comparison-section">
-            <div class="comparison-header">
-                <h2 class="comparison-title">Small Size Test (48px - Icon Size)</h2>
-            </div>
-            <div class="comparison-grid">
-                <div class="comparison-cell">
-                    <img src="logos/1 plain.svg" alt="1 plain" style="max-width: 48px; max-height: 48px;">
-                    <div class="comparison-cell-label">1 plain</div>
-                </div>
-                <div class="comparison-cell">
-                    <img src="logos/2.svg" alt="2" style="max-width: 48px; max-height: 48px;">
-                    <div class="comparison-cell-label">2</div>
-                </div>
-                <div class="comparison-cell">
-                    <img src="logos/3.svg" alt="3" style="max-width: 48px; max-height: 48px;">
-                    <div class="comparison-cell-label">3</div>
-                </div>
-                <div class="comparison-cell">
-                    <img src="logos/4.svg" alt="4" style="max-width: 48px; max-height: 48px;">
-                    <div class="comparison-cell-label">4</div>
-                </div>
-                <div class="comparison-cell">
-                    <img src="logos/C.svg" alt="C" style="max-width: 48px; max-height: 48px;">
-                    <div class="comparison-cell-label">C</div>
-                </div>
-                <div class="comparison-cell">
-                    <img src="logos/C (1).svg" alt="C (1)" style="max-width: 48px; max-height: 48px;">
-                    <div class="comparison-cell-label">C (1)</div>
-                </div>
-                <div class="comparison-cell">
-                    <img src="logos/C (2).svg" alt="C (2)" style="max-width: 48px; max-height: 48px;">
-                    <div class="comparison-cell-label">C (2)</div>
-                </div>
-                <div class="comparison-cell">
-                    <img src="logos/C (3).svg" alt="C (3)" style="max-width: 48px; max-height: 48px;">
-                    <div class="comparison-cell-label">C (3)</div>
-                </div>
-                <div class="comparison-cell">
-                    <img src="logos/C (4).svg" alt="C (4)" style="max-width: 48px; max-height: 48px;">
-                    <div class="comparison-cell-label">C (4)</div>
-                </div>
-                <div class="comparison-cell">
-                    <img src="logos/C (5).svg" alt="C (5)" style="max-width: 48px; max-height: 48px;">
-                    <div class="comparison-cell-label">C (5)</div>
-                </div>
-                <div class="comparison-cell">
-                    <img src="logos/C (6).svg" alt="C (6)" style="max-width: 48px; max-height: 48px;">
+                    <img src="logos/C (6).svg" alt="C (6)">
                     <div class="comparison-cell-label">C (6)</div>
                 </div>
             </div>
@@ -666,33 +721,16 @@
     </div>
 
     <script>
-        // Size toggle functionality
-        document.querySelectorAll('.size-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
+        // Logo size slider
+        const slider = document.getElementById('logoSize');
+        const sizeValue = document.getElementById('sizeValue');
+        const logos = document.querySelectorAll('.logo-img');
 
-                const size = this.dataset.size;
-                document.querySelectorAll('.logo-display').forEach(display => {
-                    display.className = display.className.replace(/size-\S+/g, '') + ' ' + size;
-                });
-            });
-        });
-
-        // Background toggle functionality
-        document.querySelectorAll('.bg-toggle').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const targetId = this.dataset.target;
-                const bgClass = this.dataset.bg;
-                const target = document.getElementById(targetId);
-
-                // Remove active from siblings
-                this.parentElement.querySelectorAll('.bg-toggle').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-
-                // Update background
-                target.classList.remove('white-bg', 'dark-bg');
-                target.classList.add(bgClass);
+        slider.addEventListener('input', function() {
+            const size = this.value;
+            sizeValue.textContent = size + 'px';
+            logos.forEach(logo => {
+                logo.style.height = size + 'px';
             });
         });
     </script>

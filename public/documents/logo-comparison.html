@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logo Options Comparison | Computer Store KS</title>
+    <style>
+        /* CSS Variables - RWS Style */
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1e40af;
+            --primary-light: #3b82f6;
+            --secondary-color: #10b981;
+            --accent-color: #8b5cf6;
+            --dark: #1f2937;
+            --gray-dark: #374151;
+            --gray: #6b7280;
+            --gray-light: #d1d5db;
+            --light: #f3f4f6;
+            --white: #ffffff;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --border-radius: 8px;
+            --border-radius-lg: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background: var(--light);
+        }
+
+        /* Header - RWS Style */
+        .header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: var(--white);
+            padding: 2rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.3) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-badge {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: var(--white);
+            padding: 0.5rem 0.75rem;
+            border-radius: var(--border-radius);
+            font-weight: 800;
+            font-size: 1.25rem;
+        }
+
+        .brand-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .header-subtitle {
+            margin-top: 0.5rem;
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Section Headers - RWS Style */
+        .section-header {
+            background: var(--white);
+            padding: 1.5rem 2rem;
+            border-radius: var(--border-radius-lg);
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: var(--dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .section-subtitle {
+            color: var(--gray);
+            font-size: 0.95rem;
+        }
+
+        /* Size Controls */
+        .controls {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: var(--border-radius-lg);
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .controls-title {
+            font-size: 1rem;
+            color: var(--gray-dark);
+            margin-bottom: 1rem;
+        }
+
+        .size-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .size-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--gray-light);
+            background: var(--white);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--gray-dark);
+            transition: var(--transition);
+        }
+
+        .size-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .size-btn.active {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: var(--white);
+            border-color: var(--primary-color);
+        }
+
+        /* Logo Grid */
+        .logo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .logo-card {
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .logo-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+
+        .logo-card-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: var(--white);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .logo-card-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+
+        .logo-display {
+            padding: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+            background: var(--light);
+            position: relative;
+        }
+
+        .logo-display.dark-bg {
+            background: var(--dark);
+        }
+
+        .logo-display.white-bg {
+            background: var(--white);
+        }
+
+        .logo-display img {
+            max-width: 100%;
+            height: auto;
+            transition: var(--transition);
+        }
+
+        .logo-actions {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--gray-light);
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .bg-toggle {
+            padding: 0.4rem 0.8rem;
+            border: 1px solid var(--gray-light);
+            background: var(--white);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: var(--transition);
+        }
+
+        .bg-toggle:hover {
+            border-color: var(--primary-color);
+        }
+
+        .bg-toggle.active {
+            background: var(--primary-color);
+            color: var(--white);
+            border-color: var(--primary-color);
+        }
+
+        /* Comparison Table */
+        .comparison-section {
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .comparison-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: var(--white);
+            padding: 1.5rem;
+        }
+
+        .comparison-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1px;
+            background: var(--gray-light);
+        }
+
+        .comparison-cell {
+            background: var(--white);
+            padding: 1.5rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 150px;
+        }
+
+        .comparison-cell img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .comparison-cell-label {
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        /* Size Classes */
+        .size-xs img { max-width: 32px; max-height: 32px; }
+        .size-sm img { max-width: 48px; max-height: 48px; }
+        .size-md img { max-width: 80px; max-height: 80px; }
+        .size-lg img { max-width: 120px; max-height: 120px; }
+        .size-xl img { max-width: 200px; max-height: 200px; }
+        .size-2xl img { max-width: 300px; max-height: 300px; }
+        .size-full img { max-width: 100%; max-height: 400px; }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .logo-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header-content {
+                padding: 0 1rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header - RWS Style -->
+    <header class="header">
+        <div class="header-content">
+            <div class="header-brand">
+                <span class="logo-badge">CSKS</span>
+                <div>
+                    <div class="brand-name">Computer Store KS</div>
+                    <div class="header-subtitle">Logo Options Comparison</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Size Controls -->
+        <div class="controls">
+            <div class="controls-title">Display Size</div>
+            <div class="size-buttons">
+                <button class="size-btn" data-size="size-xs">32px (Favicon)</button>
+                <button class="size-btn" data-size="size-sm">48px (Small Icon)</button>
+                <button class="size-btn" data-size="size-md">80px (Nav Logo)</button>
+                <button class="size-btn active" data-size="size-lg">120px (Default)</button>
+                <button class="size-btn" data-size="size-xl">200px (Large)</button>
+                <button class="size-btn" data-size="size-2xl">300px (Hero)</button>
+                <button class="size-btn" data-size="size-full">Full Size</button>
+            </div>
+        </div>
+
+        <!-- Logo Option 1 -->
+        <div class="section-header">
+            <h2 class="section-title">Option 1: Plain K Logo</h2>
+            <p class="section-subtitle">Clean, minimal K design - File: 1 plain.svg</p>
+        </div>
+        <div class="logo-grid">
+            <div class="logo-card">
+                <div class="logo-card-header">
+                    <span class="logo-card-title">1 plain.svg</span>
+                    <span class="logo-card-badge">7.5 KB</span>
+                </div>
+                <div class="logo-display white-bg size-lg" id="logo-1">
+                    <img src="logos/1 plain.svg" alt="Logo Option 1 - Plain">
+                </div>
+                <div class="logo-actions">
+                    <button class="bg-toggle active" data-target="logo-1" data-bg="white-bg">White</button>
+                    <button class="bg-toggle" data-target="logo-1" data-bg="dark-bg">Dark</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logo Options 2-4 -->
+        <div class="section-header">
+            <h2 class="section-title">Options 2, 3 &amp; 4</h2>
+            <p class="section-subtitle">Additional logo variations</p>
+        </div>
+        <div class="logo-grid">
+            <div class="logo-card">
+                <div class="logo-card-header">
+                    <span class="logo-card-title">2.svg</span>
+                    <span class="logo-card-badge">4 MB</span>
+                </div>
+                <div class="logo-display white-bg size-lg" id="logo-2">
+                    <img src="logos/2.svg" alt="Logo Option 2">
+                </div>
+                <div class="logo-actions">
+                    <button class="bg-toggle active" data-target="logo-2" data-bg="white-bg">White</button>
+                    <button class="bg-toggle" data-target="logo-2" data-bg="dark-bg">Dark</button>
+                </div>
+            </div>
+
+            <div class="logo-card">
+                <div class="logo-card-header">
+                    <span class="logo-card-title">3.svg</span>
+                    <span class="logo-card-badge">5.9 KB</span>
+                </div>
+                <div class="logo-display white-bg size-lg" id="logo-3">
+                    <img src="logos/3.svg" alt="Logo Option 3">
+                </div>
+                <div class="logo-actions">
+                    <button class="bg-toggle active" data-target="logo-3" data-bg="white-bg">White</button>
+                    <button class="bg-toggle" data-target="logo-3" data-bg="dark-bg">Dark</button>
+                </div>
+            </div>
+
+            <div class="logo-card">
+                <div class="logo-card-header">
+                    <span class="logo-card-title">4.svg</span>
+                    <span class="logo-card-badge">5.8 KB</span>
+                </div>
+                <div class="logo-display white-bg size-lg" id="logo-4">
+                    <img src="logos/4.svg" alt="Logo Option 4">
+                </div>
+                <div class="logo-actions">
+                    <button class="bg-toggle active" data-target="logo-4" data-bg="white-bg">White</button>
+                    <button class="bg-toggle" data-target="logo-4" data-bg="dark-bg">Dark</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- C Variations Section -->
+        <div class="section-header">
+            <h2 class="section-title">C Logo Variations</h2>
+            <p class="section-subtitle">Various C-style logo designs</p>
+        </div>
+        <div class="logo-grid">
+            <!-- C.svg -->
+            <div class="logo-card">
+                <div class="logo-card-header">
+                    <span class="logo-card-title">C.svg</span>
+                    <span class="logo-card-badge">6.5 KB</span>
+                </div>
+                <div class="logo-display white-bg size-lg" id="logo-c">
+                    <img src="logos/C.svg" alt="Logo C">
+                </div>
+                <div class="logo-actions">
+                    <button class="bg-toggle active" data-target="logo-c" data-bg="white-bg">White</button>
+                    <button class="bg-toggle" data-target="logo-c" data-bg="dark-bg">Dark</button>
+                </div>
+            </div>
+
+            <!-- C (1).svg -->
+            <div class="logo-card">
+                <div class="logo-card-header">
+                    <span class="logo-card-title">C (1).svg</span>
+                    <span class="logo-card-badge">4.7 KB</span>
+                </div>
+                <div class="logo-display white-bg size-lg" id="logo-c1">
+                    <img src="logos/C (1).svg" alt="Logo C Variant 1">
+                </div>
+                <div class="logo-actions">
+                    <button class="bg-toggle active" data-target="logo-c1" data-bg="white-bg">White</button>
+                    <button class="bg-toggle" data-target="logo-c1" data-bg="dark-bg">Dark</button>
+                </div>
+            </div>
+
+            <!-- C (2).svg -->
+            <div class="logo-card">
+                <div class="logo-card-header">
+                    <span class="logo-card-title">C (2).svg</span>
+                    <span class="logo-card-badge">9.2 KB</span>
+                </div>
+                <div class="logo-display white-bg size-lg" id="logo-c2">
+                    <img src="logos/C (2).svg" alt="Logo C Variant 2">
+                </div>
+                <div class="logo-actions">
+                    <button class="bg-toggle active" data-target="logo-c2" data-bg="white-bg">White</button>
+                    <button class="bg-toggle" data-target="logo-c2" data-bg="dark-bg">Dark</button>
+                </div>
+            </div>
+
+            <!-- C (3).svg -->
+            <div class="logo-card">
+                <div class="logo-card-header">
+                    <span class="logo-card-title">C (3).svg</span>
+                    <span class="logo-card-badge">11.6 KB</span>
+                </div>
+                <div class="logo-display white-bg size-lg" id="logo-c3">
+                    <img src="logos/C (3).svg" alt="Logo C Variant 3">
+                </div>
+                <div class="logo-actions">
+                    <button class="bg-toggle active" data-target="logo-c3" data-bg="white-bg">White</button>
+                    <button class="bg-toggle" data-target="logo-c3" data-bg="dark-bg">Dark</button>
+                </div>
+            </div>
+
+            <!-- C (4).svg -->
+            <div class="logo-card">
+                <div class="logo-card-header">
+                    <span class="logo-card-title">C (4).svg</span>
+                    <span class="logo-card-badge">9.5 KB</span>
+                </div>
+                <div class="logo-display white-bg size-lg" id="logo-c4">
+                    <img src="logos/C (4).svg" alt="Logo C Variant 4">
+                </div>
+                <div class="logo-actions">
+                    <button class="bg-toggle active" data-target="logo-c4" data-bg="white-bg">White</button>
+                    <button class="bg-toggle" data-target="logo-c4" data-bg="dark-bg">Dark</button>
+                </div>
+            </div>
+
+            <!-- C (5).svg -->
+            <div class="logo-card">
+                <div class="logo-card-header">
+                    <span class="logo-card-title">C (5).svg</span>
+                    <span class="logo-card-badge">15.4 KB</span>
+                </div>
+                <div class="logo-display white-bg size-lg" id="logo-c5">
+                    <img src="logos/C (5).svg" alt="Logo C Variant 5">
+                </div>
+                <div class="logo-actions">
+                    <button class="bg-toggle active" data-target="logo-c5" data-bg="white-bg">White</button>
+                    <button class="bg-toggle" data-target="logo-c5" data-bg="dark-bg">Dark</button>
+                </div>
+            </div>
+
+            <!-- C (6).svg -->
+            <div class="logo-card">
+                <div class="logo-card-header">
+                    <span class="logo-card-title">C (6).svg</span>
+                    <span class="logo-card-badge">12.5 KB</span>
+                </div>
+                <div class="logo-display white-bg size-lg" id="logo-c6">
+                    <img src="logos/C (6).svg" alt="Logo C Variant 6">
+                </div>
+                <div class="logo-actions">
+                    <button class="bg-toggle active" data-target="logo-c6" data-bg="white-bg">White</button>
+                    <button class="bg-toggle" data-target="logo-c6" data-bg="dark-bg">Dark</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Side by Side Comparison -->
+        <div class="comparison-section">
+            <div class="comparison-header">
+                <h2 class="comparison-title">Side-by-Side Comparison (120px)</h2>
+            </div>
+            <div class="comparison-grid">
+                <div class="comparison-cell">
+                    <img src="logos/1 plain.svg" alt="1 plain" style="max-width: 100px; max-height: 100px;">
+                    <div class="comparison-cell-label">1 plain</div>
+                </div>
+                <div class="comparison-cell">
+                    <img src="logos/2.svg" alt="2" style="max-width: 100px; max-height: 100px;">
+                    <div class="comparison-cell-label">2</div>
+                </div>
+                <div class="comparison-cell">
+                    <img src="logos/3.svg" alt="3" style="max-width: 100px; max-height: 100px;">
+                    <div class="comparison-cell-label">3</div>
+                </div>
+                <div class="comparison-cell">
+                    <img src="logos/4.svg" alt="4" style="max-width: 100px; max-height: 100px;">
+                    <div class="comparison-cell-label">4</div>
+                </div>
+                <div class="comparison-cell">
+                    <img src="logos/C.svg" alt="C" style="max-width: 100px; max-height: 100px;">
+                    <div class="comparison-cell-label">C</div>
+                </div>
+                <div class="comparison-cell">
+                    <img src="logos/C (1).svg" alt="C (1)" style="max-width: 100px; max-height: 100px;">
+                    <div class="comparison-cell-label">C (1)</div>
+                </div>
+                <div class="comparison-cell">
+                    <img src="logos/C (2).svg" alt="C (2)" style="max-width: 100px; max-height: 100px;">
+                    <div class="comparison-cell-label">C (2)</div>
+                </div>
+                <div class="comparison-cell">
+                    <img src="logos/C (3).svg" alt="C (3)" style="max-width: 100px; max-height: 100px;">
+                    <div class="comparison-cell-label">C (3)</div>
+                </div>
+                <div class="comparison-cell">
+                    <img src="logos/C (4).svg" alt="C (4)" style="max-width: 100px; max-height: 100px;">
+                    <div class="comparison-cell-label">C (4)</div>
+                </div>
+                <div class="comparison-cell">
+                    <img src="logos/C (5).svg" alt="C (5)" style="max-width: 100px; max-height: 100px;">
+                    <div class="comparison-cell-label">C (5)</div>
+                </div>
+                <div class="comparison-cell">
+                    <img src="logos/C (6).svg" alt="C (6)" style="max-width: 100px; max-height: 100px;">
+                    <div class="comparison-cell-label">C (6)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Small Size Comparison -->
+        <div class="comparison-section">
+            <div class="comparison-header">
+                <h2 class="comparison-title">Small Size Test (48px - Icon Size)</h2>
+            </div>
+            <div class="comparison-grid">
+                <div class="comparison-cell">
+                    <img src="logos/1 plain.svg" alt="1 plain" style="max-width: 48px; max-height: 48px;">
+                    <div class="comparison-cell-label">1 plain</div>
+                </div>
+                <div class="comparison-cell">
+                    <img src="logos/2.svg" alt="2" style="max-width: 48px; max-height: 48px;">
+                    <div class="comparison-cell-label">2</div>
+                </div>
+                <div class="comparison-cell">
+                    <img src="logos/3.svg" alt="3" style="max-width: 48px; max-height: 48px;">
+                    <div class="comparison-cell-label">3</div>
+                </div>
+                <div class="comparison-cell">
+                    <img src="logos/4.svg" alt="4" style="max-width: 48px; max-height: 48px;">
+                    <div class="comparison-cell-label">4</div>
+                </div>
+                <div class="comparison-cell">
+                    <img src="logos/C.svg" alt="C" style="max-width: 48px; max-height: 48px;">
+                    <div class="comparison-cell-label">C</div>
+                </div>
+                <div class="comparison-cell">
+                    <img src="logos/C (1).svg" alt="C (1)" style="max-width: 48px; max-height: 48px;">
+                    <div class="comparison-cell-label">C (1)</div>
+                </div>
+                <div class="comparison-cell">
+                    <img src="logos/C (2).svg" alt="C (2)" style="max-width: 48px; max-height: 48px;">
+                    <div class="comparison-cell-label">C (2)</div>
+                </div>
+                <div class="comparison-cell">
+                    <img src="logos/C (3).svg" alt="C (3)" style="max-width: 48px; max-height: 48px;">
+                    <div class="comparison-cell-label">C (3)</div>
+                </div>
+                <div class="comparison-cell">
+                    <img src="logos/C (4).svg" alt="C (4)" style="max-width: 48px; max-height: 48px;">
+                    <div class="comparison-cell-label">C (4)</div>
+                </div>
+                <div class="comparison-cell">
+                    <img src="logos/C (5).svg" alt="C (5)" style="max-width: 48px; max-height: 48px;">
+                    <div class="comparison-cell-label">C (5)</div>
+                </div>
+                <div class="comparison-cell">
+                    <img src="logos/C (6).svg" alt="C (6)" style="max-width: 48px; max-height: 48px;">
+                    <div class="comparison-cell-label">C (6)</div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>Computer Store KS - Logo Comparison Tool</p>
+        </footer>
+    </div>
+
+    <script>
+        // Size toggle functionality
+        document.querySelectorAll('.size-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                const size = this.dataset.size;
+                document.querySelectorAll('.logo-display').forEach(display => {
+                    display.className = display.className.replace(/size-\S+/g, '') + ' ' + size;
+                });
+            });
+        });
+
+        // Background toggle functionality
+        document.querySelectorAll('.bg-toggle').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const targetId = this.dataset.target;
+                const bgClass = this.dataset.bg;
+                const target = document.getElementById(targetId);
+
+                // Remove active from siblings
+                this.parentElement.querySelectorAll('.bg-toggle').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                // Update background
+                target.classList.remove('white-bg', 'dark-bg');
+                target.classList.add(bgClass);
+            });
+        });
+    </script>
+</body>
+</html>

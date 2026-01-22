@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Computer Store KS - Logo Selection Tool">
+    <title>Computer Store KS | Logo Selector</title>
+    <style>
+        /* ================================================
+           CSS Variables from actual CSK static-styles.css
+           ================================================ */
+        :root {
+            --background: #ffffff;
+            --background-light: #f8f9fb;
+            --background-dark: #f0f2f5;
+            --primary-blue: #2563eb;
+            --primary-blue-light: #3b82f6;
+            --primary-blue-dark: #1e40af;
+            --primary-blue-subtle: #dbeafe;
+            --accent: #6b7280;
+            --accent-light: #9ca3af;
+            --accent-dark: #4b5563;
+            --text-primary: #111827;
+            --text-secondary: #374151;
+            --text-muted: #6b7280;
+            --text-white: #ffffff;
+            --success: #10b981;
+            --border-radius-sm: 8px;
+            --border-radius-md: 12px;
+            --border-radius-lg: 16px;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+            --transition-fast: 0.15s ease;
+            --transition-normal: 0.3s ease;
+        }
+
+        /* Reset & Base */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            color: var(--text-secondary);
+            background-color: var(--background);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, h4 {
+            color: var(--text-primary);
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+        }
+
+        h2 { font-size: clamp(2rem, 4vw, 3rem); }
+        h3 { font-size: clamp(1.5rem, 3vw, 2rem); }
+
+        p {
+            margin-bottom: 1rem;
+            font-size: 1.05rem;
+            line-height: 1.7;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        /* ================================================
+           Header - Matching actual CSK header styling
+           ================================================ */
+        header {
+            background-color: var(--background);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-sm);
+            border-bottom: 1px solid var(--background-dark);
+            transition: var(--transition-normal);
+        }
+
+        header.scrolled {
+            box-shadow: var(--shadow-md);
+        }
+
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Logo area */
+        header .logo {
+            display: flex;
+            align-items: center;
+            transition: var(--transition-fast);
+            text-decoration: none;
+        }
+
+        header .logo:hover {
+            transform: scale(1.02);
+        }
+
+        header .logo-image {
+            height: 50px;
+            width: auto;
+        }
+
+        header .brand-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-left: 0.75rem;
+        }
+
+        /* Navigation menu */
+        header nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.35rem;
+            align-items: center;
+        }
+
+        header nav ul li {
+            margin-left: 0.25rem;
+        }
+
+        /* Logo selector buttons */
+        .logo-btn {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 0.5rem 0.75rem;
+            border-radius: var(--border-radius-sm);
+            transition: var(--transition-fast);
+            display: inline-block;
+            cursor: pointer;
+            border: none;
+            background: var(--background-light);
+            font-size: 0.95rem;
+            min-width: 38px;
+            text-align: center;
+        }
+
+        .logo-btn:hover {
+            color: var(--primary-blue);
+            background-color: var(--primary-blue-subtle);
+        }
+
+        .logo-btn.active {
+            color: var(--text-white);
+            background: var(--primary-blue);
+        }
+
+        /* Mobile hamburger menu */
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.75rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            width: 44px;
+            height: 44px;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--border-radius-sm);
+            transition: var(--transition-fast);
+        }
+
+        .hamburger::before {
+            content: "\2630";
+        }
+
+        .hamburger.active::before {
+            content: "\2715";
+        }
+
+        .hamburger:hover {
+            background-color: var(--background-light);
+        }
+
+        /* ================================================
+           Hero Section - Matching actual CSK
+           ================================================ */
+        .hero {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: var(--text-white);
+            padding: 4rem 0;
+            text-align: center;
+        }
+
+        .hero h2 {
+            color: var(--text-white);
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .hero-title img {
+            max-width: 100%;
+            height: auto;
+            max-height: 100px;
+            margin-bottom: 1rem;
+        }
+
+        /* ================================================
+           Stats Section - Matching actual CSK
+           ================================================ */
+        .stats-section {
+            background: var(--background-light);
+            padding: 3rem 0;
+            margin-top: -2rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            background: var(--background);
+            padding: 2rem;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            display: block;
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary-blue);
+        }
+
+        .stat-label {
+            display: block;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* ================================================
+           Logo Cards Grid
+           ================================================ */
+        .logo-section {
+            padding: 4rem 0;
+            background: var(--background);
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-bottom: 3rem;
+        }
+
+        .logo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .logo-card {
+            background: var(--background);
+            border-radius: var(--border-radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition-normal);
+            cursor: pointer;
+            border: 3px solid transparent;
+            text-align: center;
+        }
+
+        .logo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-blue-subtle);
+        }
+
+        .logo-card.selected {
+            border-color: var(--primary-blue);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .logo-card-number {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .logo-preview {
+            background: var(--background-light);
+            border-radius: var(--border-radius-md);
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 180px;
+        }
+
+        .logo-preview img {
+            max-width: 100%;
+            max-height: 160px;
+            width: auto;
+            height: auto;
+        }
+
+        /* ================================================
+           Footer - Matching actual CSK
+           ================================================ */
+        footer {
+            background: var(--text-primary);
+            color: var(--text-white);
+            padding: 2rem 0;
+            text-align: center;
+        }
+
+        footer p {
+            color: var(--accent-light);
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        /* ================================================
+           Responsive Styles
+           ================================================ */
+        @media (max-width: 768px) {
+            .hamburger {
+                display: flex;
+            }
+
+            header nav ul {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: var(--background);
+                flex-direction: row;
+                flex-wrap: wrap;
+                padding: 1rem;
+                box-shadow: var(--shadow-lg);
+                display: none;
+                justify-content: center;
+                gap: 0.5rem;
+            }
+
+            header nav ul.show {
+                display: flex;
+            }
+
+            header nav ul li {
+                margin: 0;
+            }
+
+            .logo-btn {
+                padding: 0.4rem 0.6rem;
+                font-size: 0.85rem;
+                min-width: 34px;
+            }
+
+            .hero {
+                padding: 3rem 0;
+            }
+
+            .logo-grid {
+                grid-template-columns: 1fr;
+            }
+
+            header .brand-name {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                width: 95%;
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            header .brand-name {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header - Matching actual CSK structure -->
+    <header>
+        <div class="container">
+            <a href="#" class="logo">
+                <img src="documents/logos/1.svg" alt="Computer Store Kansas" class="logo-image" id="header-logo">
+                <span class="brand-name">Computer Store KS</span>
+            </a>
+            <button type="button" class="hamburger" id="hamburger-button" aria-label="Toggle menu" onclick="toggleMenu()"></button>
+            <nav>
+                <ul id="nav-menu">
+                    <li><button class="logo-btn active" data-logo="1" onclick="selectLogo(1)">1</button></li>
+                    <li><button class="logo-btn" data-logo="2" onclick="selectLogo(2)">2</button></li>
+                    <li><button class="logo-btn" data-logo="3" onclick="selectLogo(3)">3</button></li>
+                    <li><button class="logo-btn" data-logo="4" onclick="selectLogo(4)">4</button></li>
+                    <li><button class="logo-btn" data-logo="5" onclick="selectLogo(5)">5</button></li>
+                    <li><button class="logo-btn" data-logo="6" onclick="selectLogo(6)">6</button></li>
+                    <li><button class="logo-btn" data-logo="7" onclick="selectLogo(7)">7</button></li>
+                    <li><button class="logo-btn" data-logo="8" onclick="selectLogo(8)">8</button></li>
+                    <li><button class="logo-btn" data-logo="9" onclick="selectLogo(9)">9</button></li>
+                    <li><button class="logo-btn" data-logo="10" onclick="selectLogo(10)">10</button></li>
+                    <li><button class="logo-btn" data-logo="11" onclick="selectLogo(11)">11</button></li>
+                    <li><button class="logo-btn" data-logo="12" onclick="selectLogo(12)">12</button></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section - Matching actual CSK -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-title">
+                <img src="assets/title.png" alt="Computer Store Kansas - Expert Computer Repair Since 2003">
+            </div>
+            <h2>Logo Selection Tool</h2>
+            <p>Click the numbered buttons in the header or click any logo card below to preview how it looks in the header.</p>
+        </div>
+    </section>
+
+    <!-- Stats Section - Matching actual CSK -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-number" id="current-logo">1</span>
+                    <span class="stat-label">Currently Selected</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">12</span>
+                    <span class="stat-label">Logo Options</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">2003</span>
+                    <span class="stat-label">Serving Since</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Logo Options Grid -->
+    <section class="logo-section">
+        <div class="container">
+            <h2 class="section-title">All Logo Options</h2>
+            <p class="section-subtitle">Click any logo to see it in the header above</p>
+
+            <div class="logo-grid">
+                <div class="logo-card selected" data-logo="1" onclick="selectLogo(1)">
+                    <div class="logo-card-number">Option 1</div>
+                    <div class="logo-preview">
+                        <img src="documents/logos/1.svg" alt="Logo Option 1">
+                    </div>
+                </div>
+
+                <div class="logo-card" data-logo="2" onclick="selectLogo(2)">
+                    <div class="logo-card-number">Option 2</div>
+                    <div class="logo-preview">
+                        <img src="documents/logos/2.svg" alt="Logo Option 2">
+                    </div>
+                </div>
+
+                <div class="logo-card" data-logo="3" onclick="selectLogo(3)">
+                    <div class="logo-card-number">Option 3</div>
+                    <div class="logo-preview">
+                        <img src="documents/logos/3.svg" alt="Logo Option 3">
+                    </div>
+                </div>
+
+                <div class="logo-card" data-logo="4" onclick="selectLogo(4)">
+                    <div class="logo-card-number">Option 4</div>
+                    <div class="logo-preview">
+                        <img src="documents/logos/4.svg" alt="Logo Option 4">
+                    </div>
+                </div>
+
+                <div class="logo-card" data-logo="5" onclick="selectLogo(5)">
+                    <div class="logo-card-number">Option 5</div>
+                    <div class="logo-preview">
+                        <img src="documents/logos/5.svg" alt="Logo Option 5">
+                    </div>
+                </div>
+
+                <div class="logo-card" data-logo="6" onclick="selectLogo(6)">
+                    <div class="logo-card-number">Option 6</div>
+                    <div class="logo-preview">
+                        <img src="documents/logos/6.svg" alt="Logo Option 6">
+                    </div>
+                </div>
+
+                <div class="logo-card" data-logo="7" onclick="selectLogo(7)">
+                    <div class="logo-card-number">Option 7</div>
+                    <div class="logo-preview">
+                        <img src="documents/logos/7.svg" alt="Logo Option 7">
+                    </div>
+                </div>
+
+                <div class="logo-card" data-logo="8" onclick="selectLogo(8)">
+                    <div class="logo-card-number">Option 8</div>
+                    <div class="logo-preview">
+                        <img src="documents/logos/8.svg" alt="Logo Option 8">
+                    </div>
+                </div>
+
+                <div class="logo-card" data-logo="9" onclick="selectLogo(9)">
+                    <div class="logo-card-number">Option 9</div>
+                    <div class="logo-preview">
+                        <img src="documents/logos/9.svg" alt="Logo Option 9">
+                    </div>
+                </div>
+
+                <div class="logo-card" data-logo="10" onclick="selectLogo(10)">
+                    <div class="logo-card-number">Option 10</div>
+                    <div class="logo-preview">
+                        <img src="documents/logos/10.svg" alt="Logo Option 10">
+                    </div>
+                </div>
+
+                <div class="logo-card" data-logo="11" onclick="selectLogo(11)">
+                    <div class="logo-card-number">Option 11</div>
+                    <div class="logo-preview">
+                        <img src="documents/logos/11.svg" alt="Logo Option 11">
+                    </div>
+                </div>
+
+                <div class="logo-card" data-logo="12" onclick="selectLogo(12)">
+                    <div class="logo-card-number">Option 12</div>
+                    <div class="logo-preview">
+                        <img src="documents/logos/12.svg" alt="Logo Option 12">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>Computer Store KS - Logo Selection Tool</p>
+        </div>
+    </footer>
+
+    <script>
+        let currentLogo = 1;
+
+        function selectLogo(num) {
+            currentLogo = num;
+
+            // Update header logo
+            document.getElementById('header-logo').src = `documents/logos/${num}.svg`;
+
+            // Update stats display
+            document.getElementById('current-logo').textContent = num;
+
+            // Update nav buttons
+            document.querySelectorAll('.logo-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (parseInt(btn.dataset.logo) === num) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // Update logo cards
+            document.querySelectorAll('.logo-card').forEach(card => {
+                card.classList.remove('selected');
+                if (parseInt(card.dataset.logo) === num) {
+                    card.classList.add('selected');
+                }
+            });
+
+            // Scroll to top smoothly
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleMenu() {
+            const menu = document.getElementById('nav-menu');
+            const hamburger = document.getElementById('hamburger-button');
+            menu.classList.toggle('show');
+            hamburger.classList.toggle('active');
+        }
+
+        // Close mobile menu when clicking a logo button
+        document.querySelectorAll('.logo-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    document.getElementById('nav-menu').classList.remove('show');
+                    document.getElementById('hamburger-button').classList.remove('active');
+                }
+            });
+        });
+
+        // Scroll effect for header
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+    </script>
+</body>
+</html>

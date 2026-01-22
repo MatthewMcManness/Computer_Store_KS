@@ -423,7 +423,7 @@ export default function AdminPhotoGalleryPage() {
                       <>
                         <Upload className="h-8 w-8 text-gray-400 dark:text-gray-500 mb-2" />
                         <p className="text-sm text-gray-500 dark:text-gray-400">Click to upload image</p>
-                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">JPEG, PNG, WebP up to 50MB</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">JPEG, PNG, WebP, RAW up to 100MB</p>
                       </>
                     )}
                   </div>

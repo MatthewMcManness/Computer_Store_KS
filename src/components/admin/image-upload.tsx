@@ -6,12 +6,12 @@ import { Upload, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 /**
- * Maximum allowed file size for image uploads (50MB).
+ * Maximum allowed file size for image uploads (100MB for RAW support).
  */
-const MAX_FILE_SIZE = 50 * 1024 * 1024;
+const MAX_FILE_SIZE = 100 * 1024 * 1024;
 
 /**
- * Allowed MIME types for image uploads.
+ * Allowed MIME types for image uploads (including RAW formats).
  */
 const ALLOWED_TYPES = [
   'image/jpeg',
@@ -21,6 +21,30 @@ const ALLOWED_TYPES = [
   'image/gif',
   'image/heic',
   'image/heif',
+  'image/tiff',
+  // RAW formats
+  'image/x-canon-cr2',
+  'image/x-canon-cr3',
+  'image/x-canon-crw',
+  'image/x-nikon-nef',
+  'image/x-sony-arw',
+  'image/x-fuji-raf',
+  'image/x-olympus-orf',
+  'image/x-panasonic-rw2',
+  'image/x-pentax-pef',
+  'image/x-adobe-dng',
+  'image/x-leica-rwl',
+  'image/x-samsung-srw',
+  'application/octet-stream', // RAW files often come as this
+];
+
+/**
+ * Allowed file extensions for RAW format fallback validation.
+ */
+const ALLOWED_EXTENSIONS = [
+  '.jpg', '.jpeg', '.png', '.webp', '.gif', '.heic', '.heif', '.tiff', '.tif',
+  '.cr2', '.cr3', '.crw', '.nef', '.nrw', '.arw', '.srf', '.sr2',
+  '.raf', '.orf', '.rw2', '.pef', '.ptx', '.dng', '.rwl', '.srw',
 ];
 
 /**
@@ -54,8 +78,8 @@ interface ImageUploadProps {
  * - Visual states: empty, uploading, preview, error
  *
  * Validates files client-side before upload:
- * - Accepts: JPG, PNG, WebP, GIF, HEIC, HEIF
- * - Maximum size: 50MB
+ * - Accepts: JPG, PNG, WebP, GIF, HEIC, HEIF, TIFF, and RAW formats (CR2, CR3, NEF, ARW, RAF, ORF, RW2, DNG, etc.)
+ * - Maximum size: 100MB
  *
  * @param props - Component properties
  * @param props.currentImage - URL of existing image (for edit mode)
@@ -97,19 +121,37 @@ export function ImageUpload({
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  /**
+   * Check if file is allowed based on MIME type or extension.
+   */
+  const isAllowedFile = (file: File): boolean => {
+    // Check MIME type first
+    if (ALLOWED_TYPES.includes(file.type)) {
+      // For octet-stream, also verify extension
+      if (file.type === 'application/octet-stream') {
+        const ext = '.' + file.name.split('.').pop()?.toLowerCase();
+        return ALLOWED_EXTENSIONS.includes(ext);
+      }
+      return true;
+    }
+    // Fallback: check extension (RAW files often have wrong MIME type)
+    const ext = '.' + file.name.split('.').pop()?.toLowerCase();
+    return ALLOWED_EXTENSIONS.includes(ext);
+  };
+
   const handleFileSelect = async (file: File) => {
     setError(null);
     setUploadProgress(0);
 
-    // Validate file type
-    if (!ALLOWED_TYPES.includes(file.type)) {
-      setError('Please select a JPG, PNG, WebP, or GIF image');
+    // Validate file type (MIME type or extension)
+    if (!isAllowedFile(file)) {
+      setError('Please select a JPG, PNG, WebP, GIF, or RAW image');
       return;
     }
 
-    // Validate file size (50MB max)
+    // Validate file size (100MB max for RAW support)
     if (file.size > MAX_FILE_SIZE) {
-      setError('Image must be less than 50MB');
+      setError('Image must be less than 100MB');
       return;
     }
 
@@ -285,7 +327,7 @@ export function ImageUpload({
                   Click to upload or drag and drop
                 </p>
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  JPG, PNG, WebP, or GIF up to 50MB
+                  JPG, PNG, WebP, GIF, or RAW up to 100MB
                 </p>
               </>
             )}
@@ -295,7 +337,7 @@ export function ImageUpload({
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/jpeg,image/jpg,image/png,image/webp,image/gif,image/heic,image/heif"
+          accept="image/*,.cr2,.cr3,.crw,.nef,.nrw,.arw,.srf,.sr2,.raf,.orf,.rw2,.pef,.ptx,.dng,.rwl,.srw"
           onChange={handleInputChange}
           className="hidden"
         />

@@ -57,13 +57,13 @@
             left: 50%;
             transform: translateX(-50%);
             z-index: 1000;
-            background: rgba(255, 255, 255, 0.85);
+            background: rgba(219, 234, 254, 0.85);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-radius: 50px;
             padding: 0.75rem 1.5rem;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(147, 197, 253, 0.4);
             display: flex;
             align-items: center;
             gap: 2rem;
@@ -88,18 +88,15 @@
         .logo {
             width: 40px;
             height: 40px;
-            border-radius: 50%;
-            overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: var(--white);
             flex-shrink: 0;
         }
 
         .logo img {
-            width: 36px;
-            height: 36px;
+            width: 40px;
+            height: 40px;
             object-fit: contain;
         }
 
@@ -367,7 +364,7 @@
                 top: calc(100% + 10px);
                 left: 0;
                 right: 0;
-                background: rgba(255, 255, 255, 0.95);
+                background: rgba(219, 234, 254, 0.95);
                 backdrop-filter: blur(20px);
                 -webkit-backdrop-filter: blur(20px);
                 flex-direction: row;
@@ -453,6 +450,8 @@
             <li><button class="nav-link" data-logo="10" onclick="selectLogo(10)">10</button></li>
             <li><button class="nav-link" data-logo="11" onclick="selectLogo(11)">11</button></li>
             <li><button class="nav-link" data-logo="12" onclick="selectLogo(12)">12</button></li>
+            <li><button class="nav-link" data-logo="13" onclick="selectLogo(13)">13</button></li>
+            <li><button class="nav-link" data-logo="14" onclick="selectLogo(14)">14</button></li>
         </ul>
     </nav>
 
@@ -474,7 +473,7 @@
                         <span class="stat-label">Currently Selected</span>
                     </div>
                     <div class="stat">
-                        <span class="stat-number">12</span>
+                        <span class="stat-number">14</span>
                         <span class="stat-label">Logo Options</span>
                     </div>
                     <div class="stat">
@@ -574,6 +573,20 @@
                     <div class="logo-card-number">Option 12</div>
                     <div class="logo-preview">
                         <img src="documents/logos/12.svg" alt="Logo Option 12">
+                    </div>
+                </div>
+
+                <div class="logo-card" data-logo="13" onclick="selectLogo(13)">
+                    <div class="logo-card-number">Option 13</div>
+                    <div class="logo-preview">
+                        <img src="documents/logos/13.svg" alt="Logo Option 13">
+                    </div>
+                </div>
+
+                <div class="logo-card" data-logo="14" onclick="selectLogo(14)">
+                    <div class="logo-card-number">Option 14</div>
+                    <div class="logo-preview">
+                        <img src="documents/logos/14.svg" alt="Logo Option 14">
                     </div>
                 </div>
             </div>

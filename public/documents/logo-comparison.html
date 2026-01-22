@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Logo Options Comparison | Computer Store KS</title>
     <style>
-        /* CSS Variables */
+        /* ============================================
+           CSS Variables - RWS Style
+           ============================================ */
         :root {
             --primary-color: #2563eb;
             --primary-dark: #1e40af;
@@ -20,136 +22,73 @@
             --white: #ffffff;
             --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
+            --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.2);
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             --border-radius: 8px;
             --border-radius-lg: 16px;
         }
 
+        /* Reset & Base Styles */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             line-height: 1.6;
             color: var(--dark);
-            background: var(--light);
-        }
-
-        /* Page Header */
-        .page-header {
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-            color: var(--white);
-            padding: 2rem;
-            text-align: center;
-        }
-
-        .page-header h1 {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .page-header p {
-            opacity: 0.9;
-        }
-
-        /* Main Container */
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-
-        /* Instructions */
-        .instructions {
             background: var(--white);
-            padding: 1.5rem;
-            border-radius: var(--border-radius-lg);
-            margin-bottom: 2rem;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* ============================================
+           Navigation - RWS Frosted Glass Style
+           ============================================ */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
             box-shadow: var(--shadow);
-            border-left: 4px solid var(--primary-color);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 1rem 0;
         }
 
-        .instructions h2 {
-            color: var(--primary-color);
-            margin-bottom: 0.5rem;
-            font-size: 1.2rem;
-        }
-
-        .instructions p {
-            color: var(--gray-dark);
-        }
-
-        /* Header Preview Container */
-        .header-preview-container {
-            margin-bottom: 3rem;
-        }
-
-        .preview-label {
-            background: var(--dark);
-            color: var(--white);
-            padding: 0.75rem 1.5rem;
-            border-radius: var(--border-radius) var(--border-radius) 0 0;
-            font-weight: 600;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .preview-label .file-name {
-            font-family: monospace;
-            background: rgba(255,255,255,0.1);
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.85rem;
-        }
-
-        /* Hero Background for Headers */
-        .hero-background {
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-            position: relative;
-            overflow: hidden;
-            border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
-            min-height: 200px;
-        }
-
-        .hero-background::before {
-            content: '';
+        /* Preview navbar overlays the hero for frosted glass effect */
+        .preview-navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            box-shadow: var(--shadow);
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
-            bottom: 0;
-            background:
-                radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.3) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.3) 0%, transparent 50%);
-            pointer-events: none;
-        }
-
-        /* Frosted Glass Navbar - RWS Style */
-        .navbar {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 1rem 0;
-            position: relative;
             z-index: 10;
+            padding: 1rem 0;
         }
 
-        .navbar-inner {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
+        .navbar .container,
+        .preview-navbar .container {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .nav-brand {
+        .nav-brand a {
             display: flex;
             align-items: center;
             gap: 0.75rem;
@@ -159,23 +98,24 @@
             text-decoration: none;
         }
 
-        .nav-brand .logo-img {
-            height: 40px;
-            width: auto;
-        }
-
-        .nav-brand .brand-name {
-            font-weight: 700;
-            color: var(--dark);
-        }
-
-        /* Text-based logo badge (fallback style) */
-        .nav-brand .logo-badge {
+        /* Logo badge - RWS text style */
+        .logo {
             background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
             color: var(--white);
             padding: 0.5rem 0.75rem;
             border-radius: var(--border-radius);
             font-weight: 800;
+        }
+
+        /* Logo image style */
+        .logo-img {
+            height: 40px;
+            width: auto;
+        }
+
+        .brand-name {
+            font-weight: 700;
+            color: var(--dark);
         }
 
         .nav-menu {
@@ -197,36 +137,101 @@
         .nav-link:hover,
         .nav-link.active {
             color: var(--primary-color);
-            background: rgba(37, 99, 235, 0.1);
+            background: var(--light);
         }
 
-        .nav-link.btn-primary {
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 2px solid transparent;
+            text-decoration: none;
+        }
+
+        .btn-primary {
             background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
             color: var(--white);
             box-shadow: var(--shadow);
         }
 
-        .nav-link.btn-primary:hover {
+        .btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: var(--shadow-lg);
-        }
-
-        /* Hero Content Below Header */
-        .hero-content {
-            padding: 3rem 2rem;
             color: var(--white);
-            text-align: center;
         }
 
-        .hero-content h2 {
-            font-size: 1.5rem;
+        /* ============================================
+           Hero Section
+           ============================================ */
+        .hero {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: var(--white);
+            padding: 4rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.3) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .hero .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-title {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            line-height: 1.1;
+        }
+
+        .hero-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* ============================================
+           Page Layout
+           ============================================ */
+        .page-content {
+            padding: 3rem 0;
+            background: var(--light);
+        }
+
+        /* Instructions Card */
+        .instructions {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: var(--border-radius-lg);
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .instructions h2 {
+            color: var(--primary-color);
             margin-bottom: 0.5rem;
-            opacity: 0.7;
+            font-size: 1.2rem;
         }
 
-        .hero-content p {
-            opacity: 0.5;
-            font-style: italic;
+        .instructions p {
+            color: var(--gray-dark);
+            margin: 0;
         }
 
         /* Size Controls */
@@ -261,7 +266,112 @@
             text-align: center;
         }
 
-        /* Comparison Grid */
+        /* ============================================
+           Header Preview Container
+           ============================================ */
+        .header-preview-container {
+            margin-bottom: 3rem;
+            border-radius: var(--border-radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .preview-label {
+            background: var(--dark);
+            color: var(--white);
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .preview-label .file-name {
+            font-family: monospace;
+            background: rgba(255,255,255,0.1);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        .preview-area {
+            background: var(--white);
+        }
+
+        /* Simulated browser chrome */
+        .browser-chrome {
+            background: #e5e7eb;
+            padding: 0.5rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .browser-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .browser-dot.red { background: #ef4444; }
+        .browser-dot.yellow { background: #f59e0b; }
+        .browser-dot.green { background: #10b981; }
+
+        .browser-url {
+            flex: 1;
+            background: var(--white);
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-left: 1rem;
+        }
+
+        /* Preview wrapper for frosted glass effect */
+        .preview-wrapper {
+            position: relative;
+        }
+
+        /* Hero content in preview - starts behind the navbar */
+        .preview-hero {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: var(--white);
+            padding: 5rem 2rem 3rem 2rem;
+            position: relative;
+            text-align: center;
+        }
+
+        .preview-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.3) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .preview-hero h2 {
+            position: relative;
+            z-index: 1;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .preview-hero p {
+            position: relative;
+            z-index: 1;
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        /* ============================================
+           Comparison Grid
+           ============================================ */
         .comparison-section {
             background: var(--white);
             border-radius: var(--border-radius-lg);
@@ -276,17 +386,26 @@
             padding: 1rem 1.5rem;
         }
 
+        .comparison-header h2 {
+            margin: 0;
+            font-size: 1.25rem;
+        }
+
         .comparison-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
             gap: 1px;
             background: var(--gray-light);
         }
 
         .comparison-cell {
             background: var(--white);
-            padding: 1.5rem;
+            padding: 1.5rem 1rem;
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
 
         .comparison-cell img {
@@ -296,16 +415,17 @@
 
         .comparison-cell-label {
             margin-top: 0.75rem;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--gray);
             font-family: monospace;
         }
 
         /* Footer */
-        .footer {
+        .page-footer {
             text-align: center;
             padding: 2rem;
             color: var(--gray);
+            background: var(--light);
         }
 
         /* Responsive */
@@ -314,411 +434,586 @@
                 display: none;
             }
 
-            .navbar-inner {
-                padding: 0 1rem;
+            .preview-hero {
+                padding: 4rem 1rem 2rem 1rem;
             }
 
-            .hero-background {
-                min-height: 150px;
+            .preview-hero h2 {
+                font-size: 1.2rem;
             }
         }
     </style>
 </head>
 <body>
-    <div class="page-header">
-        <h1>Logo Options - Header Preview</h1>
-        <p>See how each logo looks in the frosted glass navigation header</p>
+    <!-- Page Header -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="#">
+                    <span class="logo">CSKS</span>
+                    <span class="brand-name">Logo Comparison Tool</span>
+                </a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#previews" class="nav-link active">Header Previews</a></li>
+                <li><a href="#comparison" class="nav-link">Side by Side</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="container">
+            <h1 class="hero-title">Logo Options - Header Preview</h1>
+            <p class="hero-subtitle">See how each logo looks in the RWS frosted glass navigation header</p>
+        </div>
+    </section>
+
+    <div class="page-content">
+        <div class="container">
+            <div class="instructions">
+                <h2>How to Use This Page</h2>
+                <p>Each section below shows a complete header mockup with a different logo option, featuring the frosted glass effect from the Resilient Web Solutions website. Use the size slider to test different logo heights.</p>
+            </div>
+
+            <!-- Size Control -->
+            <div class="size-controls">
+                <label for="logoSize">Logo Height:</label>
+                <input type="range" id="logoSize" class="size-slider" min="24" max="60" value="40">
+                <span class="size-value" id="sizeValue">40px</span>
+            </div>
+
+            <div id="previews">
+                <!-- Logo Option 1 -->
+                <div class="header-preview-container">
+                    <div class="preview-label">
+                        <span>Option 1</span>
+                        <span class="file-name">1.svg</span>
+                    </div>
+                    <div class="preview-area">
+                        <div class="browser-chrome">
+                            <span class="browser-dot red"></span>
+                            <span class="browser-dot yellow"></span>
+                            <span class="browser-dot green"></span>
+                            <span class="browser-url">computerstoreks.com</span>
+                        </div>
+                        <div class="preview-wrapper">
+                            <div class="preview-hero">
+                                <h2>Your Computer Experts in Kansas</h2>
+                                <p>Sales, Service, and Support</p>
+                            </div>
+                            <nav class="preview-navbar">
+                                <div class="container">
+                                    <div class="nav-brand">
+                                        <a href="#">
+                                            <img src="logos/1.svg" alt="Logo" class="logo-img">
+                                            <span class="brand-name">Computer Store KS</span>
+                                        </a>
+                                    </div>
+                                    <ul class="nav-menu">
+                                        <li><a href="#" class="nav-link active">Home</a></li>
+                                        <li><a href="#" class="nav-link">Services</a></li>
+                                        <li><a href="#" class="nav-link">Gallery</a></li>
+                                        <li><a href="#" class="nav-link">About</a></li>
+                                        <li><a href="#" class="btn btn-primary">Contact</a></li>
+                                    </ul>
+                                </div>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Logo Option 2 -->
+                <div class="header-preview-container">
+                    <div class="preview-label">
+                        <span>Option 2</span>
+                        <span class="file-name">2.svg</span>
+                    </div>
+                    <div class="preview-area">
+                        <div class="browser-chrome">
+                            <span class="browser-dot red"></span>
+                            <span class="browser-dot yellow"></span>
+                            <span class="browser-dot green"></span>
+                            <span class="browser-url">computerstoreks.com</span>
+                        </div>
+                        <div class="preview-wrapper">
+                            <div class="preview-hero">
+                                <h2>Your Computer Experts in Kansas</h2>
+                                <p>Sales, Service, and Support</p>
+                            </div>
+                            <nav class="preview-navbar">
+                                <div class="container">
+                                    <div class="nav-brand">
+                                        <a href="#">
+                                            <img src="logos/2.svg" alt="Logo" class="logo-img">
+                                            <span class="brand-name">Computer Store KS</span>
+                                        </a>
+                                    </div>
+                                    <ul class="nav-menu">
+                                        <li><a href="#" class="nav-link active">Home</a></li>
+                                        <li><a href="#" class="nav-link">Services</a></li>
+                                        <li><a href="#" class="nav-link">Gallery</a></li>
+                                        <li><a href="#" class="nav-link">About</a></li>
+                                        <li><a href="#" class="btn btn-primary">Contact</a></li>
+                                    </ul>
+                                </div>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Logo Option 3 -->
+                <div class="header-preview-container">
+                    <div class="preview-label">
+                        <span>Option 3</span>
+                        <span class="file-name">3.svg</span>
+                    </div>
+                    <div class="preview-area">
+                        <div class="browser-chrome">
+                            <span class="browser-dot red"></span>
+                            <span class="browser-dot yellow"></span>
+                            <span class="browser-dot green"></span>
+                            <span class="browser-url">computerstoreks.com</span>
+                        </div>
+                        <div class="preview-wrapper">
+                            <div class="preview-hero">
+                                <h2>Your Computer Experts in Kansas</h2>
+                                <p>Sales, Service, and Support</p>
+                            </div>
+                            <nav class="preview-navbar">
+                                <div class="container">
+                                    <div class="nav-brand">
+                                        <a href="#">
+                                            <img src="logos/3.svg" alt="Logo" class="logo-img">
+                                            <span class="brand-name">Computer Store KS</span>
+                                        </a>
+                                    </div>
+                                    <ul class="nav-menu">
+                                        <li><a href="#" class="nav-link active">Home</a></li>
+                                        <li><a href="#" class="nav-link">Services</a></li>
+                                        <li><a href="#" class="nav-link">Gallery</a></li>
+                                        <li><a href="#" class="nav-link">About</a></li>
+                                        <li><a href="#" class="btn btn-primary">Contact</a></li>
+                                    </ul>
+                                </div>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Logo Option 4 -->
+                <div class="header-preview-container">
+                    <div class="preview-label">
+                        <span>Option 4</span>
+                        <span class="file-name">4.svg</span>
+                    </div>
+                    <div class="preview-area">
+                        <div class="browser-chrome">
+                            <span class="browser-dot red"></span>
+                            <span class="browser-dot yellow"></span>
+                            <span class="browser-dot green"></span>
+                            <span class="browser-url">computerstoreks.com</span>
+                        </div>
+                        <div class="preview-wrapper">
+                            <div class="preview-hero">
+                                <h2>Your Computer Experts in Kansas</h2>
+                                <p>Sales, Service, and Support</p>
+                            </div>
+                            <nav class="preview-navbar">
+                                <div class="container">
+                                    <div class="nav-brand">
+                                        <a href="#">
+                                            <img src="logos/4.svg" alt="Logo" class="logo-img">
+                                            <span class="brand-name">Computer Store KS</span>
+                                        </a>
+                                    </div>
+                                    <ul class="nav-menu">
+                                        <li><a href="#" class="nav-link active">Home</a></li>
+                                        <li><a href="#" class="nav-link">Services</a></li>
+                                        <li><a href="#" class="nav-link">Gallery</a></li>
+                                        <li><a href="#" class="nav-link">About</a></li>
+                                        <li><a href="#" class="btn btn-primary">Contact</a></li>
+                                    </ul>
+                                </div>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Logo Option 5 -->
+                <div class="header-preview-container">
+                    <div class="preview-label">
+                        <span>Option 5</span>
+                        <span class="file-name">5.svg</span>
+                    </div>
+                    <div class="preview-area">
+                        <div class="browser-chrome">
+                            <span class="browser-dot red"></span>
+                            <span class="browser-dot yellow"></span>
+                            <span class="browser-dot green"></span>
+                            <span class="browser-url">computerstoreks.com</span>
+                        </div>
+                        <div class="preview-wrapper">
+                            <div class="preview-hero">
+                                <h2>Your Computer Experts in Kansas</h2>
+                                <p>Sales, Service, and Support</p>
+                            </div>
+                            <nav class="preview-navbar">
+                                <div class="container">
+                                    <div class="nav-brand">
+                                        <a href="#">
+                                            <img src="logos/5.svg" alt="Logo" class="logo-img">
+                                            <span class="brand-name">Computer Store KS</span>
+                                        </a>
+                                    </div>
+                                    <ul class="nav-menu">
+                                        <li><a href="#" class="nav-link active">Home</a></li>
+                                        <li><a href="#" class="nav-link">Services</a></li>
+                                        <li><a href="#" class="nav-link">Gallery</a></li>
+                                        <li><a href="#" class="nav-link">About</a></li>
+                                        <li><a href="#" class="btn btn-primary">Contact</a></li>
+                                    </ul>
+                                </div>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Logo Option 6 -->
+                <div class="header-preview-container">
+                    <div class="preview-label">
+                        <span>Option 6</span>
+                        <span class="file-name">6.svg</span>
+                    </div>
+                    <div class="preview-area">
+                        <div class="browser-chrome">
+                            <span class="browser-dot red"></span>
+                            <span class="browser-dot yellow"></span>
+                            <span class="browser-dot green"></span>
+                            <span class="browser-url">computerstoreks.com</span>
+                        </div>
+                        <div class="preview-wrapper">
+                            <div class="preview-hero">
+                                <h2>Your Computer Experts in Kansas</h2>
+                                <p>Sales, Service, and Support</p>
+                            </div>
+                            <nav class="preview-navbar">
+                                <div class="container">
+                                    <div class="nav-brand">
+                                        <a href="#">
+                                            <img src="logos/6.svg" alt="Logo" class="logo-img">
+                                            <span class="brand-name">Computer Store KS</span>
+                                        </a>
+                                    </div>
+                                    <ul class="nav-menu">
+                                        <li><a href="#" class="nav-link active">Home</a></li>
+                                        <li><a href="#" class="nav-link">Services</a></li>
+                                        <li><a href="#" class="nav-link">Gallery</a></li>
+                                        <li><a href="#" class="nav-link">About</a></li>
+                                        <li><a href="#" class="btn btn-primary">Contact</a></li>
+                                    </ul>
+                                </div>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Logo Option 7 -->
+                <div class="header-preview-container">
+                    <div class="preview-label">
+                        <span>Option 7</span>
+                        <span class="file-name">7.svg</span>
+                    </div>
+                    <div class="preview-area">
+                        <div class="browser-chrome">
+                            <span class="browser-dot red"></span>
+                            <span class="browser-dot yellow"></span>
+                            <span class="browser-dot green"></span>
+                            <span class="browser-url">computerstoreks.com</span>
+                        </div>
+                        <div class="preview-wrapper">
+                            <div class="preview-hero">
+                                <h2>Your Computer Experts in Kansas</h2>
+                                <p>Sales, Service, and Support</p>
+                            </div>
+                            <nav class="preview-navbar">
+                                <div class="container">
+                                    <div class="nav-brand">
+                                        <a href="#">
+                                            <img src="logos/7.svg" alt="Logo" class="logo-img">
+                                            <span class="brand-name">Computer Store KS</span>
+                                        </a>
+                                    </div>
+                                    <ul class="nav-menu">
+                                        <li><a href="#" class="nav-link active">Home</a></li>
+                                        <li><a href="#" class="nav-link">Services</a></li>
+                                        <li><a href="#" class="nav-link">Gallery</a></li>
+                                        <li><a href="#" class="nav-link">About</a></li>
+                                        <li><a href="#" class="btn btn-primary">Contact</a></li>
+                                    </ul>
+                                </div>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Logo Option 8 -->
+                <div class="header-preview-container">
+                    <div class="preview-label">
+                        <span>Option 8</span>
+                        <span class="file-name">8.svg</span>
+                    </div>
+                    <div class="preview-area">
+                        <div class="browser-chrome">
+                            <span class="browser-dot red"></span>
+                            <span class="browser-dot yellow"></span>
+                            <span class="browser-dot green"></span>
+                            <span class="browser-url">computerstoreks.com</span>
+                        </div>
+                        <div class="preview-wrapper">
+                            <div class="preview-hero">
+                                <h2>Your Computer Experts in Kansas</h2>
+                                <p>Sales, Service, and Support</p>
+                            </div>
+                            <nav class="preview-navbar">
+                                <div class="container">
+                                    <div class="nav-brand">
+                                        <a href="#">
+                                            <img src="logos/8.svg" alt="Logo" class="logo-img">
+                                            <span class="brand-name">Computer Store KS</span>
+                                        </a>
+                                    </div>
+                                    <ul class="nav-menu">
+                                        <li><a href="#" class="nav-link active">Home</a></li>
+                                        <li><a href="#" class="nav-link">Services</a></li>
+                                        <li><a href="#" class="nav-link">Gallery</a></li>
+                                        <li><a href="#" class="nav-link">About</a></li>
+                                        <li><a href="#" class="btn btn-primary">Contact</a></li>
+                                    </ul>
+                                </div>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Logo Option 9 -->
+                <div class="header-preview-container">
+                    <div class="preview-label">
+                        <span>Option 9</span>
+                        <span class="file-name">9.svg</span>
+                    </div>
+                    <div class="preview-area">
+                        <div class="browser-chrome">
+                            <span class="browser-dot red"></span>
+                            <span class="browser-dot yellow"></span>
+                            <span class="browser-dot green"></span>
+                            <span class="browser-url">computerstoreks.com</span>
+                        </div>
+                        <div class="preview-wrapper">
+                            <div class="preview-hero">
+                                <h2>Your Computer Experts in Kansas</h2>
+                                <p>Sales, Service, and Support</p>
+                            </div>
+                            <nav class="preview-navbar">
+                                <div class="container">
+                                    <div class="nav-brand">
+                                        <a href="#">
+                                            <img src="logos/9.svg" alt="Logo" class="logo-img">
+                                            <span class="brand-name">Computer Store KS</span>
+                                        </a>
+                                    </div>
+                                    <ul class="nav-menu">
+                                        <li><a href="#" class="nav-link active">Home</a></li>
+                                        <li><a href="#" class="nav-link">Services</a></li>
+                                        <li><a href="#" class="nav-link">Gallery</a></li>
+                                        <li><a href="#" class="nav-link">About</a></li>
+                                        <li><a href="#" class="btn btn-primary">Contact</a></li>
+                                    </ul>
+                                </div>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Logo Option 10 -->
+                <div class="header-preview-container">
+                    <div class="preview-label">
+                        <span>Option 10</span>
+                        <span class="file-name">10.svg</span>
+                    </div>
+                    <div class="preview-area">
+                        <div class="browser-chrome">
+                            <span class="browser-dot red"></span>
+                            <span class="browser-dot yellow"></span>
+                            <span class="browser-dot green"></span>
+                            <span class="browser-url">computerstoreks.com</span>
+                        </div>
+                        <div class="preview-wrapper">
+                            <div class="preview-hero">
+                                <h2>Your Computer Experts in Kansas</h2>
+                                <p>Sales, Service, and Support</p>
+                            </div>
+                            <nav class="preview-navbar">
+                                <div class="container">
+                                    <div class="nav-brand">
+                                        <a href="#">
+                                            <img src="logos/10.svg" alt="Logo" class="logo-img">
+                                            <span class="brand-name">Computer Store KS</span>
+                                        </a>
+                                    </div>
+                                    <ul class="nav-menu">
+                                        <li><a href="#" class="nav-link active">Home</a></li>
+                                        <li><a href="#" class="nav-link">Services</a></li>
+                                        <li><a href="#" class="nav-link">Gallery</a></li>
+                                        <li><a href="#" class="nav-link">About</a></li>
+                                        <li><a href="#" class="btn btn-primary">Contact</a></li>
+                                    </ul>
+                                </div>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Logo Option 11 -->
+                <div class="header-preview-container">
+                    <div class="preview-label">
+                        <span>Option 11</span>
+                        <span class="file-name">11.svg</span>
+                    </div>
+                    <div class="preview-area">
+                        <div class="browser-chrome">
+                            <span class="browser-dot red"></span>
+                            <span class="browser-dot yellow"></span>
+                            <span class="browser-dot green"></span>
+                            <span class="browser-url">computerstoreks.com</span>
+                        </div>
+                        <div class="preview-wrapper">
+                            <div class="preview-hero">
+                                <h2>Your Computer Experts in Kansas</h2>
+                                <p>Sales, Service, and Support</p>
+                            </div>
+                            <nav class="preview-navbar">
+                                <div class="container">
+                                    <div class="nav-brand">
+                                        <a href="#">
+                                            <img src="logos/11.svg" alt="Logo" class="logo-img">
+                                            <span class="brand-name">Computer Store KS</span>
+                                        </a>
+                                    </div>
+                                    <ul class="nav-menu">
+                                        <li><a href="#" class="nav-link active">Home</a></li>
+                                        <li><a href="#" class="nav-link">Services</a></li>
+                                        <li><a href="#" class="nav-link">Gallery</a></li>
+                                        <li><a href="#" class="nav-link">About</a></li>
+                                        <li><a href="#" class="btn btn-primary">Contact</a></li>
+                                    </ul>
+                                </div>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Logo Option 12 -->
+                <div class="header-preview-container">
+                    <div class="preview-label">
+                        <span>Option 12</span>
+                        <span class="file-name">12.svg</span>
+                    </div>
+                    <div class="preview-area">
+                        <div class="browser-chrome">
+                            <span class="browser-dot red"></span>
+                            <span class="browser-dot yellow"></span>
+                            <span class="browser-dot green"></span>
+                            <span class="browser-url">computerstoreks.com</span>
+                        </div>
+                        <div class="preview-wrapper">
+                            <div class="preview-hero">
+                                <h2>Your Computer Experts in Kansas</h2>
+                                <p>Sales, Service, and Support</p>
+                            </div>
+                            <nav class="preview-navbar">
+                                <div class="container">
+                                    <div class="nav-brand">
+                                        <a href="#">
+                                            <img src="logos/12.svg" alt="Logo" class="logo-img">
+                                            <span class="brand-name">Computer Store KS</span>
+                                        </a>
+                                    </div>
+                                    <ul class="nav-menu">
+                                        <li><a href="#" class="nav-link active">Home</a></li>
+                                        <li><a href="#" class="nav-link">Services</a></li>
+                                        <li><a href="#" class="nav-link">Gallery</a></li>
+                                        <li><a href="#" class="nav-link">About</a></li>
+                                        <li><a href="#" class="btn btn-primary">Contact</a></li>
+                                    </ul>
+                                </div>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Comparison Grid -->
+            <div class="comparison-section" id="comparison">
+                <div class="comparison-header">
+                    <h2>Quick Side-by-Side Comparison</h2>
+                </div>
+                <div class="comparison-grid">
+                    <div class="comparison-cell">
+                        <img src="logos/1.svg" alt="1">
+                        <div class="comparison-cell-label">1</div>
+                    </div>
+                    <div class="comparison-cell">
+                        <img src="logos/2.svg" alt="2">
+                        <div class="comparison-cell-label">2</div>
+                    </div>
+                    <div class="comparison-cell">
+                        <img src="logos/3.svg" alt="3">
+                        <div class="comparison-cell-label">3</div>
+                    </div>
+                    <div class="comparison-cell">
+                        <img src="logos/4.svg" alt="4">
+                        <div class="comparison-cell-label">4</div>
+                    </div>
+                    <div class="comparison-cell">
+                        <img src="logos/5.svg" alt="5">
+                        <div class="comparison-cell-label">5</div>
+                    </div>
+                    <div class="comparison-cell">
+                        <img src="logos/6.svg" alt="6">
+                        <div class="comparison-cell-label">6</div>
+                    </div>
+                    <div class="comparison-cell">
+                        <img src="logos/7.svg" alt="7">
+                        <div class="comparison-cell-label">7</div>
+                    </div>
+                    <div class="comparison-cell">
+                        <img src="logos/8.svg" alt="8">
+                        <div class="comparison-cell-label">8</div>
+                    </div>
+                    <div class="comparison-cell">
+                        <img src="logos/9.svg" alt="9">
+                        <div class="comparison-cell-label">9</div>
+                    </div>
+                    <div class="comparison-cell">
+                        <img src="logos/10.svg" alt="10">
+                        <div class="comparison-cell-label">10</div>
+                    </div>
+                    <div class="comparison-cell">
+                        <img src="logos/11.svg" alt="11">
+                        <div class="comparison-cell-label">11</div>
+                    </div>
+                    <div class="comparison-cell">
+                        <img src="logos/12.svg" alt="12">
+                        <div class="comparison-cell-label">12</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="container">
-        <div class="instructions">
-            <h2>How to Use This Page</h2>
-            <p>Each section below shows a complete header mockup with a different logo option. This helps you visualize how each logo will look in the actual website navigation bar with the frosted glass effect.</p>
-        </div>
-
-        <!-- Size Control -->
-        <div class="size-controls">
-            <label for="logoSize">Logo Size:</label>
-            <input type="range" id="logoSize" class="size-slider" min="24" max="80" value="40">
-            <span class="size-value" id="sizeValue">40px</span>
-        </div>
-
-        <!-- Logo Option 1: 1 plain.svg -->
-        <div class="header-preview-container">
-            <div class="preview-label">
-                <span>Option 1: Plain K Logo</span>
-                <span class="file-name">1 plain.svg</span>
-            </div>
-            <div class="hero-background">
-                <nav class="navbar">
-                    <div class="navbar-inner">
-                        <a href="#" class="nav-brand">
-                            <img src="logos/1 plain.svg" alt="Logo" class="logo-img">
-                            <span class="brand-name">Computer Store KS</span>
-                        </a>
-                        <ul class="nav-menu">
-                            <li><a href="#" class="nav-link active">Home</a></li>
-                            <li><a href="#" class="nav-link">Services</a></li>
-                            <li><a href="#" class="nav-link">Gallery</a></li>
-                            <li><a href="#" class="nav-link">About</a></li>
-                            <li><a href="#" class="nav-link btn-primary">Contact</a></li>
-                        </ul>
-                    </div>
-                </nav>
-                <div class="hero-content">
-                    <h2>Hero Section Preview</h2>
-                    <p>This shows how the header appears over the hero background</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Logo Option 2: 2.svg -->
-        <div class="header-preview-container">
-            <div class="preview-label">
-                <span>Option 2: Detailed Logo</span>
-                <span class="file-name">2.svg</span>
-            </div>
-            <div class="hero-background">
-                <nav class="navbar">
-                    <div class="navbar-inner">
-                        <a href="#" class="nav-brand">
-                            <img src="logos/2.svg" alt="Logo" class="logo-img">
-                            <span class="brand-name">Computer Store KS</span>
-                        </a>
-                        <ul class="nav-menu">
-                            <li><a href="#" class="nav-link active">Home</a></li>
-                            <li><a href="#" class="nav-link">Services</a></li>
-                            <li><a href="#" class="nav-link">Gallery</a></li>
-                            <li><a href="#" class="nav-link">About</a></li>
-                            <li><a href="#" class="nav-link btn-primary">Contact</a></li>
-                        </ul>
-                    </div>
-                </nav>
-                <div class="hero-content">
-                    <h2>Hero Section Preview</h2>
-                    <p>This shows how the header appears over the hero background</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Logo Option 3: 3.svg -->
-        <div class="header-preview-container">
-            <div class="preview-label">
-                <span>Option 3</span>
-                <span class="file-name">3.svg</span>
-            </div>
-            <div class="hero-background">
-                <nav class="navbar">
-                    <div class="navbar-inner">
-                        <a href="#" class="nav-brand">
-                            <img src="logos/3.svg" alt="Logo" class="logo-img">
-                            <span class="brand-name">Computer Store KS</span>
-                        </a>
-                        <ul class="nav-menu">
-                            <li><a href="#" class="nav-link active">Home</a></li>
-                            <li><a href="#" class="nav-link">Services</a></li>
-                            <li><a href="#" class="nav-link">Gallery</a></li>
-                            <li><a href="#" class="nav-link">About</a></li>
-                            <li><a href="#" class="nav-link btn-primary">Contact</a></li>
-                        </ul>
-                    </div>
-                </nav>
-                <div class="hero-content">
-                    <h2>Hero Section Preview</h2>
-                    <p>This shows how the header appears over the hero background</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Logo Option 4: 4.svg -->
-        <div class="header-preview-container">
-            <div class="preview-label">
-                <span>Option 4</span>
-                <span class="file-name">4.svg</span>
-            </div>
-            <div class="hero-background">
-                <nav class="navbar">
-                    <div class="navbar-inner">
-                        <a href="#" class="nav-brand">
-                            <img src="logos/4.svg" alt="Logo" class="logo-img">
-                            <span class="brand-name">Computer Store KS</span>
-                        </a>
-                        <ul class="nav-menu">
-                            <li><a href="#" class="nav-link active">Home</a></li>
-                            <li><a href="#" class="nav-link">Services</a></li>
-                            <li><a href="#" class="nav-link">Gallery</a></li>
-                            <li><a href="#" class="nav-link">About</a></li>
-                            <li><a href="#" class="nav-link btn-primary">Contact</a></li>
-                        </ul>
-                    </div>
-                </nav>
-                <div class="hero-content">
-                    <h2>Hero Section Preview</h2>
-                    <p>This shows how the header appears over the hero background</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Logo Option C: C.svg -->
-        <div class="header-preview-container">
-            <div class="preview-label">
-                <span>Option C: Base C Logo</span>
-                <span class="file-name">C.svg</span>
-            </div>
-            <div class="hero-background">
-                <nav class="navbar">
-                    <div class="navbar-inner">
-                        <a href="#" class="nav-brand">
-                            <img src="logos/C.svg" alt="Logo" class="logo-img">
-                            <span class="brand-name">Computer Store KS</span>
-                        </a>
-                        <ul class="nav-menu">
-                            <li><a href="#" class="nav-link active">Home</a></li>
-                            <li><a href="#" class="nav-link">Services</a></li>
-                            <li><a href="#" class="nav-link">Gallery</a></li>
-                            <li><a href="#" class="nav-link">About</a></li>
-                            <li><a href="#" class="nav-link btn-primary">Contact</a></li>
-                        </ul>
-                    </div>
-                </nav>
-                <div class="hero-content">
-                    <h2>Hero Section Preview</h2>
-                    <p>This shows how the header appears over the hero background</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Logo Option C (1): C (1).svg -->
-        <div class="header-preview-container">
-            <div class="preview-label">
-                <span>Option C (1)</span>
-                <span class="file-name">C (1).svg</span>
-            </div>
-            <div class="hero-background">
-                <nav class="navbar">
-                    <div class="navbar-inner">
-                        <a href="#" class="nav-brand">
-                            <img src="logos/C (1).svg" alt="Logo" class="logo-img">
-                            <span class="brand-name">Computer Store KS</span>
-                        </a>
-                        <ul class="nav-menu">
-                            <li><a href="#" class="nav-link active">Home</a></li>
-                            <li><a href="#" class="nav-link">Services</a></li>
-                            <li><a href="#" class="nav-link">Gallery</a></li>
-                            <li><a href="#" class="nav-link">About</a></li>
-                            <li><a href="#" class="nav-link btn-primary">Contact</a></li>
-                        </ul>
-                    </div>
-                </nav>
-                <div class="hero-content">
-                    <h2>Hero Section Preview</h2>
-                    <p>This shows how the header appears over the hero background</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Logo Option C (2): C (2).svg -->
-        <div class="header-preview-container">
-            <div class="preview-label">
-                <span>Option C (2)</span>
-                <span class="file-name">C (2).svg</span>
-            </div>
-            <div class="hero-background">
-                <nav class="navbar">
-                    <div class="navbar-inner">
-                        <a href="#" class="nav-brand">
-                            <img src="logos/C (2).svg" alt="Logo" class="logo-img">
-                            <span class="brand-name">Computer Store KS</span>
-                        </a>
-                        <ul class="nav-menu">
-                            <li><a href="#" class="nav-link active">Home</a></li>
-                            <li><a href="#" class="nav-link">Services</a></li>
-                            <li><a href="#" class="nav-link">Gallery</a></li>
-                            <li><a href="#" class="nav-link">About</a></li>
-                            <li><a href="#" class="nav-link btn-primary">Contact</a></li>
-                        </ul>
-                    </div>
-                </nav>
-                <div class="hero-content">
-                    <h2>Hero Section Preview</h2>
-                    <p>This shows how the header appears over the hero background</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Logo Option C (3): C (3).svg -->
-        <div class="header-preview-container">
-            <div class="preview-label">
-                <span>Option C (3)</span>
-                <span class="file-name">C (3).svg</span>
-            </div>
-            <div class="hero-background">
-                <nav class="navbar">
-                    <div class="navbar-inner">
-                        <a href="#" class="nav-brand">
-                            <img src="logos/C (3).svg" alt="Logo" class="logo-img">
-                            <span class="brand-name">Computer Store KS</span>
-                        </a>
-                        <ul class="nav-menu">
-                            <li><a href="#" class="nav-link active">Home</a></li>
-                            <li><a href="#" class="nav-link">Services</a></li>
-                            <li><a href="#" class="nav-link">Gallery</a></li>
-                            <li><a href="#" class="nav-link">About</a></li>
-                            <li><a href="#" class="nav-link btn-primary">Contact</a></li>
-                        </ul>
-                    </div>
-                </nav>
-                <div class="hero-content">
-                    <h2>Hero Section Preview</h2>
-                    <p>This shows how the header appears over the hero background</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Logo Option C (4): C (4).svg -->
-        <div class="header-preview-container">
-            <div class="preview-label">
-                <span>Option C (4)</span>
-                <span class="file-name">C (4).svg</span>
-            </div>
-            <div class="hero-background">
-                <nav class="navbar">
-                    <div class="navbar-inner">
-                        <a href="#" class="nav-brand">
-                            <img src="logos/C (4).svg" alt="Logo" class="logo-img">
-                            <span class="brand-name">Computer Store KS</span>
-                        </a>
-                        <ul class="nav-menu">
-                            <li><a href="#" class="nav-link active">Home</a></li>
-                            <li><a href="#" class="nav-link">Services</a></li>
-                            <li><a href="#" class="nav-link">Gallery</a></li>
-                            <li><a href="#" class="nav-link">About</a></li>
-                            <li><a href="#" class="nav-link btn-primary">Contact</a></li>
-                        </ul>
-                    </div>
-                </nav>
-                <div class="hero-content">
-                    <h2>Hero Section Preview</h2>
-                    <p>This shows how the header appears over the hero background</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Logo Option C (5): C (5).svg -->
-        <div class="header-preview-container">
-            <div class="preview-label">
-                <span>Option C (5)</span>
-                <span class="file-name">C (5).svg</span>
-            </div>
-            <div class="hero-background">
-                <nav class="navbar">
-                    <div class="navbar-inner">
-                        <a href="#" class="nav-brand">
-                            <img src="logos/C (5).svg" alt="Logo" class="logo-img">
-                            <span class="brand-name">Computer Store KS</span>
-                        </a>
-                        <ul class="nav-menu">
-                            <li><a href="#" class="nav-link active">Home</a></li>
-                            <li><a href="#" class="nav-link">Services</a></li>
-                            <li><a href="#" class="nav-link">Gallery</a></li>
-                            <li><a href="#" class="nav-link">About</a></li>
-                            <li><a href="#" class="nav-link btn-primary">Contact</a></li>
-                        </ul>
-                    </div>
-                </nav>
-                <div class="hero-content">
-                    <h2>Hero Section Preview</h2>
-                    <p>This shows how the header appears over the hero background</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Logo Option C (6): C (6).svg -->
-        <div class="header-preview-container">
-            <div class="preview-label">
-                <span>Option C (6)</span>
-                <span class="file-name">C (6).svg</span>
-            </div>
-            <div class="hero-background">
-                <nav class="navbar">
-                    <div class="navbar-inner">
-                        <a href="#" class="nav-brand">
-                            <img src="logos/C (6).svg" alt="Logo" class="logo-img">
-                            <span class="brand-name">Computer Store KS</span>
-                        </a>
-                        <ul class="nav-menu">
-                            <li><a href="#" class="nav-link active">Home</a></li>
-                            <li><a href="#" class="nav-link">Services</a></li>
-                            <li><a href="#" class="nav-link">Gallery</a></li>
-                            <li><a href="#" class="nav-link">About</a></li>
-                            <li><a href="#" class="nav-link btn-primary">Contact</a></li>
-                        </ul>
-                    </div>
-                </nav>
-                <div class="hero-content">
-                    <h2>Hero Section Preview</h2>
-                    <p>This shows how the header appears over the hero background</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Quick Comparison Grid -->
-        <div class="comparison-section">
-            <div class="comparison-header">
-                <h2>Quick Side-by-Side Comparison</h2>
-            </div>
-            <div class="comparison-grid">
-                <div class="comparison-cell">
-                    <img src="logos/1 plain.svg" alt="1 plain">
-                    <div class="comparison-cell-label">1 plain</div>
-                </div>
-                <div class="comparison-cell">
-                    <img src="logos/2.svg" alt="2">
-                    <div class="comparison-cell-label">2</div>
-                </div>
-                <div class="comparison-cell">
-                    <img src="logos/3.svg" alt="3">
-                    <div class="comparison-cell-label">3</div>
-                </div>
-                <div class="comparison-cell">
-                    <img src="logos/4.svg" alt="4">
-                    <div class="comparison-cell-label">4</div>
-                </div>
-                <div class="comparison-cell">
-                    <img src="logos/C.svg" alt="C">
-                    <div class="comparison-cell-label">C</div>
-                </div>
-                <div class="comparison-cell">
-                    <img src="logos/C (1).svg" alt="C (1)">
-                    <div class="comparison-cell-label">C (1)</div>
-                </div>
-                <div class="comparison-cell">
-                    <img src="logos/C (2).svg" alt="C (2)">
-                    <div class="comparison-cell-label">C (2)</div>
-                </div>
-                <div class="comparison-cell">
-                    <img src="logos/C (3).svg" alt="C (3)">
-                    <div class="comparison-cell-label">C (3)</div>
-                </div>
-                <div class="comparison-cell">
-                    <img src="logos/C (4).svg" alt="C (4)">
-                    <div class="comparison-cell-label">C (4)</div>
-                </div>
-                <div class="comparison-cell">
-                    <img src="logos/C (5).svg" alt="C (5)">
-                    <div class="comparison-cell-label">C (5)</div>
-                </div>
-                <div class="comparison-cell">
-                    <img src="logos/C (6).svg" alt="C (6)">
-                    <div class="comparison-cell-label">C (6)</div>
-                </div>
-            </div>
-        </div>
-
-        <footer class="footer">
-            <p>Computer Store KS - Logo Comparison Tool</p>
-        </footer>
-    </div>
+    <footer class="page-footer">
+        <p>Computer Store KS - Logo Comparison Tool</p>
+    </footer>
 
     <script>
         // Logo size slider

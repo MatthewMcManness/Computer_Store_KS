@@ -58,7 +58,6 @@
 ### Not Started (○):
 - ○ Voicemail transcription display
 - ○ Website callback widget for customer acquisition
-- ○ Auto-ticket creation from voicemail
 - ○ Real-time call event streaming (WebSocket)
 - ○ Call recording playback
 
@@ -271,7 +270,6 @@ ESET Connect API provides device management, detection management, task automati
 ### Phase 2 (Cytracom) - Finish Up:
 1. ○ Add voicemail transcription display to missed calls widget
 2. ○ Website callback widget for customer leads
-3. ○ Auto-ticket creation from voicemails
 
 ### Phase 3 (RepairShopr) - Continue:
 1. ○ Kanban dashboard for ticket workflow

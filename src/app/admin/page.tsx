@@ -5,6 +5,7 @@ import NextImage from 'next/image';
 import { ClipboardList } from 'lucide-react';
 import { CallCustomerTickets } from '@/components/admin/call-customer-tickets';
 import { ReceptionPhoneWidgets } from '@/components/admin/reception-phone-widgets';
+import { getSelectedLocation } from '@/lib/location-helpers';
 
 export default async function AdminDashboardPage() {
   // Check authentication
@@ -12,6 +13,9 @@ export default async function AdminDashboardPage() {
   if (!authenticated) {
     redirect('/login');
   }
+
+  // Get selected location for location-specific features
+  const selectedLocation = await getSelectedLocation();
 
   return (
     <div>
@@ -42,9 +46,9 @@ export default async function AdminDashboardPage() {
         <CallCustomerTickets />
       </div>
 
-      {/* Phone System Widgets (Missed Calls, Voicemails) */}
+      {/* Phone System Widgets (Missed Calls, Voicemails) - Topeka only (Cytracom) */}
       <div className="mb-8">
-        <ReceptionPhoneWidgets />
+        <ReceptionPhoneWidgets selectedLocation={selectedLocation} />
       </div>
 
       {/* RWS Footer */}

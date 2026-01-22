@@ -4,6 +4,14 @@ import { useState } from 'react';
 import { MissedCallsWidget } from './missed-calls-widget';
 import { ClickToCallDialog } from './click-to-call-dialog';
 
+interface ReceptionPhoneWidgetsProps {
+  /**
+   * Currently selected location slug from the location selector.
+   * null means "All Locations" is selected.
+   */
+  selectedLocation: string | null;
+}
+
 interface CallDialogState {
   isOpen: boolean;
   phoneNumber: string;
@@ -19,12 +27,19 @@ interface CallDialogState {
  * - Missed calls widget
  * - Click-to-call dialog
  *
+ * NOTE: These widgets only display for the Topeka location since that's
+ * the only store using Cytracom phones currently. When selectedLocation
+ * is null (all locations) or 'topeka', widgets are shown. Otherwise hidden.
+ *
+ * @param selectedLocation - Currently selected location slug (null = all locations)
+ *
  * @functions_called MissedCallsWidget, ClickToCallDialog
  * @called_by AdminDashboardPage
  *
  * @version 1.0.0 - 2026-01-19T23:30:00Z - Initial implementation
+ * @version 1.1.0 - 2026-01-22T18:00:00Z - Added Topeka-only location filtering
  */
-export function ReceptionPhoneWidgets() {
+export function ReceptionPhoneWidgets({ selectedLocation }: ReceptionPhoneWidgetsProps) {
   const [callDialog, setCallDialog] = useState<CallDialogState>({
     isOpen: false,
     phoneNumber: '',
@@ -56,6 +71,14 @@ export function ReceptionPhoneWidgets() {
       phoneNumber: '',
     });
   };
+
+  // Only show Cytracom widgets for Topeka location (or when "All Locations" is selected)
+  // Holton doesn't use Cytracom phone system
+  const showCytracomWidgets = selectedLocation === null || selectedLocation === 'topeka';
+
+  if (!showCytracomWidgets) {
+    return null;
+  }
 
   return (
     <>

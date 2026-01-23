@@ -247,6 +247,13 @@ header .logo {
   align-items: center;
   font-size: 0;
   transition: var(--transition-fast);
+  margin: 0;
+  padding: 0;
+}
+
+header .logo a {
+  display: flex;
+  align-items: center;
 }
 
 header .logo:hover {
@@ -254,9 +261,9 @@ header .logo:hover {
 }
 
 header .logo img {
-  height: 52px !important;
+  height: 48px !important;
   width: auto !important;
-  max-height: 100%;
+  display: block;
 }
 
 /* Navigation menu */

@@ -215,24 +215,30 @@ p {
    Modern sticky header with clean design
    ================================================ */
 header {
-  background-color: var(--background);
-  padding: 1rem 0;
   position: sticky;
   top: 0;
   z-index: 1000;
-  box-shadow: var(--shadow-sm);
-  border-bottom: 1px solid var(--background-dark);
+  padding: 1rem;
   transition: var(--transition-normal);
-}
-
-header.scrolled {
-  box-shadow: var(--shadow-md);
 }
 
 header .container {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: 0.75rem 1.5rem;
+  border-radius: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  max-width: 1100px;
+  margin: 0 auto;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+header.scrolled .container {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
 }
 
 /* Logo styling */
@@ -1624,11 +1630,21 @@ footer p {
    Responsive design for tablets and mobile
    ================================================ */
 @media (max-width: 768px) {
-  /* Mobile header */
+  /* Mobile header - full width on mobile */
+  header {
+    padding: 0.5rem;
+  }
+
+  header .container {
+    border-radius: 16px;
+    padding: 0.5rem 1rem;
+    max-width: none;
+  }
+
   .hamburger {
     display: flex;
   }
-  
+
   header nav ul {
     display: none;
     flex-direction: column;

@@ -125,7 +125,7 @@ export function GalleryTable({ computers, onDelete, onStockChange, isLoading }: 
           <h3 className="text-lg font-medium text-gray-900 dark:text-white">No computers found</h3>
           <p className="mt-1 text-gray-500 dark:text-gray-400">Get started by adding your first computer.</p>
           <Link
-            href="/admin/gallery/new"
+            href="/admin/in-store/new"
             className="mt-4 inline-flex items-center rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-2 text-sm font-medium text-white hover:from-purple-700 hover:to-indigo-700"
           >
             Add Computer
@@ -293,7 +293,7 @@ export function GalleryTable({ computers, onDelete, onStockChange, isLoading }: 
                     <Printer className="h-4 w-4" />
                   </button>
                   <Link
-                    href={`/admin/gallery/${computer.id}`}
+                    href={`/admin/in-store/${computer.id}`}
                     className="rounded p-1 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-purple-600 dark:hover:text-purple-400"
                     onClick={(e) => e.stopPropagation()}
                   >

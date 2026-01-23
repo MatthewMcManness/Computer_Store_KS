@@ -23,9 +23,8 @@ export default function AboutPage() {
       </section>
 
       {/* Company Story Section */}
-      <section className="about horizontal-diamond texture-dots overlap-card-container">
-        <div className="diamond-accent diamond-accent-2"></div>
-        <div className="container overlap-card">
+      <section className="about texture-dots">
+        <div className="container">
           <h2>Our Story</h2>
           <p>The Computer Store has been proudly serving the Topeka community since 2003. We&apos;re passionate about helping our customers get the most out of their technology with fast, friendly and honest service.</p>
           <p>Our technicians are certified and experienced in working with all major brands and systems. From virus removal and data recovery to upgrades and custom PC builds, we provide a full range of computer services for homes and small businesses.</p>

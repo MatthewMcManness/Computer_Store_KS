@@ -23,9 +23,8 @@ export default function OSInstallationPage() {
       </section>
 
       {/* Windows Section */}
-      <section className="services horizontal-diamond texture-circuit overlap-card-container">
-        <div className="diamond-accent diamond-accent-3 rotating-element"></div>
-        <div className="container overlap-card">
+      <section className="services texture-circuit">
+        <div className="container">
           <h2>Windows Installation</h2>
 
           <div className="service-details">

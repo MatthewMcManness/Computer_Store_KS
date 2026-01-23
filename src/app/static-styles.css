@@ -590,6 +590,22 @@ header nav ul .nav-action.silver a:hover::before {
   opacity: 0.95;
 }
 
+/* Shape section top to match hero's pointed bottom */
+.hero + section {
+  margin-top: -5rem;
+  padding-top: 8rem;
+  position: relative;
+  z-index: 1;
+  clip-path: polygon(0 0, 50% 5rem, 100% 0, 100% 100%, 0 100%);
+}
+
+/* Home page stats section needs deeper V to match taller hero with silver plaque */
+.hero + .stats-section {
+  margin-top: -7rem;
+  padding-top: 10rem;
+  clip-path: polygon(0 0, 50% 7rem, 100% 0, 100% 100%, 0 100%);
+}
+
 /* ================================================
    7. STATS SECTION (NEW)
    Display key metrics and achievements

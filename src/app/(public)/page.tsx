@@ -27,10 +27,9 @@ export default function HomePage() {
       </section>
 
       {/* STATS SECTION */}
-      <section className="stats-section modern horizontal-diamond overlap-card-container">
-        <div className="diamond-accent diamond-accent-1"></div>
+      <section className="stats-section modern">
         <div className="container">
-          <div className="stats-grid overlap-card">
+          <div className="stats-grid">
             <div className="stat-item floating-element">
               <span className="stat-number">20+</span>
               <span className="stat-label">Years of Experience</span>

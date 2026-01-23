@@ -237,9 +237,8 @@ function GalleryContent() {
       `}</style>
 
       {/* Gallery Filters Section */}
-      <section className="gallery-filters-section horizontal-diamond texture-dots overlap-card-container">
-        <div className="diamond-accent diamond-accent-1"></div>
-        <div className="container overlap-card">
+      <section className="gallery-filters-section texture-dots">
+        <div className="container">
           <div className="gallery-filters">
             <button
               className={`filter-btn ${filter === 'all' ? 'active' : ''}`}

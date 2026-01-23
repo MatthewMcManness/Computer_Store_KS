@@ -23,9 +23,8 @@ export default function LaptopsPage() {
       </section>
 
       {/* New Laptops Section */}
-      <section className="services horizontal-diamond texture-circuit overlap-card-container">
-        <div className="diamond-accent diamond-accent-3 rotating-element"></div>
-        <div className="container overlap-card">
+      <section className="services texture-circuit">
+        <div className="container">
           <h2>New Laptops</h2>
           <p style={{ fontSize: '1.15rem', maxWidth: '800px', margin: '0 auto 2rem' }}>
             We recommend and stock laptops from <strong>Asus</strong> and <strong>Lenovo</strong>—brands known for

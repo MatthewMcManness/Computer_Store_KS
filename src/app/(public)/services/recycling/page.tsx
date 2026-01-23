@@ -23,9 +23,8 @@ export default function RecyclingPage() {
       </section>
 
       {/* Main Content */}
-      <section className="services horizontal-diamond texture-circuit overlap-card-container">
-        <div className="diamond-accent diamond-accent-3 rotating-element"></div>
-        <div className="container overlap-card">
+      <section className="services texture-circuit">
+        <div className="container">
           <h2>What We Accept</h2>
 
           <div className="cards">

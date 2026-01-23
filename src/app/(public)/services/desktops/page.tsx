@@ -23,9 +23,8 @@ export default function DesktopsPage() {
       </section>
 
       {/* Main Value Prop */}
-      <section className="services horizontal-diamond texture-circuit overlap-card-container">
-        <div className="diamond-accent diamond-accent-3 rotating-element"></div>
-        <div className="container overlap-card">
+      <section className="services texture-circuit">
+        <div className="container">
           <h2>Quality Without the Price Tag</h2>
           <p style={{ fontSize: '1.15rem', maxWidth: '800px', margin: '0 auto 2rem' }}>
             Not everyone needs a brand-new computer. Our refurbished desktops offer excellent performance

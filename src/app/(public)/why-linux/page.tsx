@@ -23,9 +23,8 @@ export default function WhyLinuxPage() {
       </section>
 
       {/* Windows 11 Problem */}
-      <section className="services horizontal-diamond texture-circuit overlap-card-container">
-        <div className="diamond-accent diamond-accent-3 rotating-element"></div>
-        <div className="container overlap-card">
+      <section className="services texture-circuit">
+        <div className="container">
           <h2>The Windows 11 Problem</h2>
           <p style={{ fontSize: '1.15rem', maxWidth: '800px', margin: '0 auto 2rem' }}>
             Microsoft&apos;s strict hardware requirements for Windows 11 have left millions of perfectly

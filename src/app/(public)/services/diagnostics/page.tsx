@@ -23,9 +23,8 @@ export default function DiagnosticsPage() {
       </section>
 
       {/* Main Pricing */}
-      <section className="services horizontal-diamond texture-circuit overlap-card-container">
-        <div className="diamond-accent diamond-accent-3 rotating-element"></div>
-        <div className="container overlap-card">
+      <section className="services texture-circuit">
+        <div className="container">
           <h2>Flat Fee Diagnostics</h2>
           <p style={{ fontSize: '1.15rem', maxWidth: '800px', margin: '0 auto 2rem' }}>
             No guessing games, no hourly charges adding up while we poke around. For a flat fee, we&apos;ll

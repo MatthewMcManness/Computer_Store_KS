@@ -14,7 +14,7 @@ import type { GallerySpec } from '@/types/gallery';
 // GET /api/in-store/[id] - Get single computer
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
     if (!isSupabaseConfigured()) {
@@ -24,7 +24,7 @@ export async function GET(
       );
     }
 
-    const { id } = await params;
+    const { id } = params;
 
     // Validate UUID format
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -76,7 +76,7 @@ export async function GET(
 // PUT /api/in-store/[id] - Update computer
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
     // Check authentication
@@ -95,7 +95,7 @@ export async function PUT(
       );
     }
 
-    const { id } = await params;
+    const { id } = params;
 
     // Validate UUID format
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -155,7 +155,7 @@ export async function PUT(
 // DELETE /api/in-store/[id] - Delete computer (soft delete)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
     // Check authentication
@@ -174,7 +174,7 @@ export async function DELETE(
       );
     }
 
-    const { id } = await params;
+    const { id } = params;
 
     // Validate UUID format
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;

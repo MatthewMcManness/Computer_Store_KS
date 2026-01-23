@@ -15,7 +15,7 @@ export default function OSInstallationPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="hero">
+      <section className="hero" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1629654297299-c8506221ca97?w=1920&q=80)' }}>
         <div className="container">
           <h2>Operating System Installation</h2>
           <p>A fresh start for your computer—Windows or Linux.</p>

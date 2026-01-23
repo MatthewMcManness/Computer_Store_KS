@@ -15,7 +15,7 @@ export default function DiagnosticsPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="hero">
+      <section className="hero" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1518770660439-4636190af475?w=1920&q=80)' }}>
         <div className="container">
           <h2>Computer Diagnostics</h2>
           <p>Something wrong? We&apos;ll figure it out.</p>

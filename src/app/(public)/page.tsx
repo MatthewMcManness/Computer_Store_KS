@@ -8,7 +8,7 @@ export default function HomePage() {
   return (
     <>
       {/* HOME PAGE HERO SECTION */}
-      <section className="hero">
+      <section className="hero" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=1920&q=80)' }}>
         <div className="container">
           <div className="hero-title">
             <div className="silver-plaque">

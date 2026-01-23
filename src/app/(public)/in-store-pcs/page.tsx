@@ -390,7 +390,7 @@ export default function InStorePCsPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="hero">
+      <section className="hero" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1587831990711-23ca6441447b?w=1920&q=80)' }}>
         <div className="container">
           <h2>In-Store PCs</h2>
           <p>Browse our collection of custom-built and refurbished computers ready for your home or business.</p>

@@ -15,7 +15,7 @@ export default function RecyclingPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="hero">
+      <section className="hero" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=1920&q=80)' }}>
         <div className="container">
           <h2>Free Electronics Recycling</h2>
           <p>Responsible disposal for all your old electronics—at no cost to you.</p>

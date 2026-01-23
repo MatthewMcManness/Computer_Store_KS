@@ -15,7 +15,7 @@ export default function VirusRemovalPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="hero">
+      <section className="hero" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1920&q=80)' }}>
         <div className="container">
           <h2>Virus &amp; Malware Removal</h2>
           <p>Get the junk out and get your computer back.</p>

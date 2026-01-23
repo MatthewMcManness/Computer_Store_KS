@@ -15,7 +15,7 @@ export default function LaptopsPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="hero">
+      <section className="hero" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=1920&q=80)' }}>
         <div className="container">
           <h2>Laptops</h2>
           <p>New and refurbished—quality computers for every budget.</p>

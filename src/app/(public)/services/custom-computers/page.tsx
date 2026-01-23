@@ -15,7 +15,7 @@ export default function CustomComputersPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="hero">
+      <section className="hero" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=1920&q=80)' }}>
         <div className="container">
           <h2>Custom-Built Computers</h2>
           <p>Your vision, expertly built. From gaming rigs to business servers.</p>

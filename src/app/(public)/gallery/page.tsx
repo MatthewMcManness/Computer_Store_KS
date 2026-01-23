@@ -149,7 +149,7 @@ export default function GalleryPage() {
   return (
     <>
       {/* Hero Section - Company Colors */}
-      <section className="hero">
+      <section className="hero" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=1920&q=80)' }}>
         <div className="container">
           <h2>Photo Gallery</h2>
           <p>Take a look at our store, custom builds, repairs, and more!</p>

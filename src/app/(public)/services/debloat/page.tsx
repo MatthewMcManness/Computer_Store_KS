@@ -15,7 +15,7 @@ export default function DebloatPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="hero">
+      <section className="hero" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1920&q=80)' }}>
         <div className="container">
           <h2>Windows Debloat</h2>
           <p>Strip out the junk. Keep what matters.</p>

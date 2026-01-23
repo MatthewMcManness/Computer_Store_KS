@@ -15,7 +15,7 @@ export default function DataServicesPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="hero">
+      <section className="hero" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1920&q=80)' }}>
         <div className="container">
           <h2>Data Transfer &amp; Drive Cloning</h2>
           <p>Your files, restored exactly where they belong.</p>

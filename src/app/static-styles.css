@@ -480,7 +480,6 @@ header nav ul .nav-action.silver a:hover::before {
    Large banner sections with modern design
    ================================================ */
 .hero {
-  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
   color: var(--text-white);
   padding: 8rem 0 12rem 0;  /* Extra top padding for fixed header */
   text-align: center;
@@ -488,10 +487,25 @@ header nav ul .nav-action.silver a:hover::before {
   overflow: visible;
   clip-path: polygon(0 0, 100% 0, 100% 85%, 50% 100%, 0 85%);
   z-index: 0;  /* Set to 0 so overlapping sections (z-index: 10) appear on top */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
-/* Subtle pattern overlay */
+/* Blue gradient overlay for hero background images */
 .hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.88) 0%, rgba(30, 64, 175, 0.92) 100%);
+  pointer-events: none;
+}
+
+/* Subtle pattern on top of overlay */
+.hero::after {
   content: '';
   position: absolute;
   top: 0;
@@ -505,7 +519,7 @@ header nav ul .nav-action.silver a:hover::before {
 
 .hero .container {
   position: relative;
-  z-index: 2;  /* Above hero background but below overlapping sections */
+  z-index: 3;  /* Above hero overlays */
 }
 
 .hero .hero-title {

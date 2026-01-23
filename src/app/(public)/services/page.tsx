@@ -92,7 +92,7 @@ export default function ServicesPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="hero">
+      <section className="hero" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1597673030062-0a0f1a801a31?w=1920&q=80)' }}>
         <div className="container">
           <h2>Our Services</h2>
           <p>Comprehensive support for your computers and devices.</p>

@@ -16,7 +16,7 @@ export default function ReviewsPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="hero">
+      <section className="hero" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1521791136064-7986c2920216?w=1920&q=80)' }}>
         <div className="container">
           <h2>Customer Reviews</h2>
           <p>See what our customers are saying about us.</p>

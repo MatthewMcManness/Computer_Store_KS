@@ -15,7 +15,7 @@ export default function DesktopsPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="hero">
+      <section className="hero" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1593640408182-31c70c8268f5?w=1920&q=80)' }}>
         <div className="container">
           <h2>Refurbished Desktops</h2>
           <p>Reliable computers at budget-friendly prices.</p>

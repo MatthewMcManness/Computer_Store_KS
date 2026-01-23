@@ -15,7 +15,7 @@ export default function WhyLinuxPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="hero">
+      <section className="hero" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1629654297299-c8506221ca97?w=1920&q=80)' }}>
         <div className="container">
           <h2>Why Linux?</h2>
           <p>Your computer deserves better. Linux delivers.</p>

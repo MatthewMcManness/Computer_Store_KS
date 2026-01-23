@@ -15,7 +15,7 @@ export default function AboutPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="hero">
+      <section className="hero" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1920&q=80)' }}>
         <div className="container">
           <h2>About Us</h2>
           <p>Who we are and why we love fixing computers.</p>

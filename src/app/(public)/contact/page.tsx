@@ -43,7 +43,7 @@ export default function ContactPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="hero">
+      <section className="hero" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1423666639041-f56000c27a9a?w=1920&q=80)' }}>
         <div className="container">
           <h2>Contact Us</h2>
           <p>Get in touch with Computer Store Kansas - we&apos;re here to help!</p>

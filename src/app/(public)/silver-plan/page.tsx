@@ -33,7 +33,7 @@ export default function ProtectionPlansPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="hero">
+      <section className="hero" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=1920&q=80)' }}>
         <div className="container">
           <h1 className="hero-title">Protection Plans</h1>
           <p className="hero-subtitle">Comprehensive computer care for home and business</p>

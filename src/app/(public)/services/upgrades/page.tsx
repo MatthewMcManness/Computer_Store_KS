@@ -15,7 +15,7 @@ export default function UpgradesPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="hero">
+      <section className="hero" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=1920&q=80)' }}>
         <div className="container">
           <h2>Hardware Upgrades</h2>
           <p>Breathe new life into your computer with the right upgrades.</p>

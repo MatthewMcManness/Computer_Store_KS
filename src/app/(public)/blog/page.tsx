@@ -96,7 +96,7 @@ export default async function BlogPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="hero">
+      <section className="hero" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1920&q=80)' }}>
         <div className="container">
           <h2>Blog</h2>
           <p>Tech tips, guides, and news from your local computer experts.</p>

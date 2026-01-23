@@ -15,7 +15,7 @@ export default function AntivirusPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="hero">
+      <section className="hero" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=1920&q=80)' }}>
         <div className="container">
           <h2>Antivirus &amp; Scam Protection</h2>
           <p>Stay protected. We handle the technical side.</p>

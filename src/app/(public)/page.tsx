@@ -11,14 +11,16 @@ export default function HomePage() {
       <section className="hero">
         <div className="container">
           <div className="hero-title">
-            <Image
-              src="/assets/Logo with Name.svg"
-              alt="Computer Store Kansas - Expert Computer Repair Since 2003"
-              width={400}
-              height={100}
-              priority
-            />
-            <span className="silver-badge">Serving Topeka Since 2003</span>
+            <div className="silver-plaque">
+              <Image
+                src="/assets/Logo with Name.svg"
+                alt="Computer Store Kansas - Expert Computer Repair Since 2003"
+                width={400}
+                height={100}
+                priority
+              />
+              <span className="plaque-text">Serving Topeka Since 2003</span>
+            </div>
           </div>
           <h2>Your Go-To Technology Center Since 2003</h2>
           <p>Count on The Computer Store for all your computer service needs. Fast, friendly, and reliable service you can trust.</p>

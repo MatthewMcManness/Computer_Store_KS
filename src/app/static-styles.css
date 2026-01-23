@@ -498,12 +498,33 @@ header nav ul .nav-action.silver a:hover::before {
   z-index: 2;  /* Above hero background but below overlapping sections */
 }
 
+.hero .hero-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .hero .hero-title img {
   display: block;
   max-width: 450px;
   width: 70%;
-  margin: 0 auto 2rem;
+  margin: 0 auto 1rem;
   filter: drop-shadow(0 4px 12px rgba(0,0,0,0.2));
+}
+
+.hero .silver-badge {
+  display: inline-block;
+  background: linear-gradient(145deg, #e8e8e8 0%, #c0c0c0 25%, #d8d8d8 50%, #a8a8a8 75%, #c8c8c8 100%);
+  color: #333;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 0.5rem 1.5rem;
+  border-radius: 50px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 1.5rem;
 }
 
 .hero h2 {

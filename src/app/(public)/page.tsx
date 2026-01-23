@@ -18,6 +18,7 @@ export default function HomePage() {
               height={100}
               priority
             />
+            <span className="silver-badge">Serving Topeka Since 2003</span>
           </div>
           <h2>Your Go-To Technology Center Since 2003</h2>
           <p>Count on The Computer Store for all your computer service needs. Fast, friendly, and reliable service you can trust.</p>

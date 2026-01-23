@@ -215,8 +215,10 @@ p {
    Modern sticky header with clean design
    ================================================ */
 header {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 1000;
   padding: 1rem;
   transition: var(--transition-normal);
@@ -480,7 +482,7 @@ header nav ul .nav-action.silver a:hover::before {
 .hero {
   background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
   color: var(--text-white);
-  padding: 6rem 0 12rem 0;
+  padding: 8rem 0 12rem 0;  /* Extra top padding for fixed header */
   text-align: center;
   position: relative;
   overflow: visible;

@@ -19,7 +19,6 @@ export default function HomePage() {
                 height={100}
                 priority
               />
-              <span className="plaque-text">Serving Topeka Since 2003</span>
             </div>
           </div>
           <h2>Your Go-To Technology Center Since 2003</h2>

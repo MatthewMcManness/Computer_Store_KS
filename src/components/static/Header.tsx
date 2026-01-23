@@ -79,7 +79,6 @@ export function Header() {
               width={512}
               height={236}
               priority
-              style={{ height: '40px', width: 'auto' }}
             />
           </Link>
         </h1>

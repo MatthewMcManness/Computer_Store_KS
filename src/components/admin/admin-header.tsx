@@ -150,7 +150,8 @@ export function AdminHeader({ onMenuToggle, onSidebarToggle, sidebarMode, isMobi
         case 'Enter':
           e.preventDefault();
           if (selectedIndex >= 0 && selectedIndex < searchResults.length) {
-            navigateToResult(searchResults[selectedIndex]);
+            const result = searchResults[selectedIndex];
+            if (result) navigateToResult(result);
           }
           break;
         case 'Escape':

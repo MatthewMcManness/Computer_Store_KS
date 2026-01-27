@@ -138,7 +138,7 @@ const desktopModels: Record<Brand, string[]> = {
 export default function CustomerDetailsPage() {
   const router = useRouter();
   const params = useParams();
-  const customerId = params.id as string;
+  const customerId = params?.id as string;
 
   const [customer, setCustomer] = useState<CustomerWithPlanStatus | null>(null);
   const [portalAccount, setPortalAccount] = useState<CustomerAccount | null>(null);
@@ -234,7 +234,7 @@ export default function CustomerDetailsPage() {
             };
             let highestTier: ProtectionPlanTier = null;
             for (const tier of summary.plan_tiers) {
-              if (tier && (!highestTier || tierHierarchy[tier] > tierHierarchy[highestTier])) {
+              if (tier && (!highestTier || (tierHierarchy[tier] ?? 0) > (tierHierarchy[highestTier] ?? 0))) {
                 highestTier = tier as ProtectionPlanTier;
               }
             }
@@ -362,7 +362,7 @@ export default function CustomerDetailsPage() {
 
           let highestTier: ProtectionPlanTier = null;
           for (const tier of summary.plan_tiers) {
-            if (tier && (!highestTier || tierHierarchy[tier] > tierHierarchy[highestTier])) {
+            if (tier && (!highestTier || (tierHierarchy[tier] ?? 0) > (tierHierarchy[highestTier] ?? 0))) {
               highestTier = tier as ProtectionPlanTier;
             }
           }

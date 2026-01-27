@@ -93,7 +93,7 @@ interface TicketData {
 export default function TicketDetailPage() {
   const router = useRouter();
   const params = useParams();
-  const ticketId = params.id as string;
+  const ticketId = params?.id as string;
 
   const [ticket, setTicket] = useState<TicketData | null>(null);
   const [customer, setCustomer] = useState<RepairShoprCustomer | null>(null);

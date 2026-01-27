@@ -14,6 +14,7 @@
  */
 
 import { createClient, SupabaseClient, User, Session } from '@supabase/supabase-js';
+import type { UserRole } from '@/types/roles';
 
 // =============================================================================
 // Configuration Constants

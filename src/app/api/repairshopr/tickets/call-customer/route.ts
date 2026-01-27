@@ -66,9 +66,9 @@ export async function GET(request: NextRequest) {
           subject: ticket.subject,
           customer_name: ticket.customer_business_then_name || 'Unknown Customer',
           customer_id: ticket.customer_id,
-          status_changed_at: ticket.updated_at || ticket.created_at,
+          status_changed_at: ticket.updated_at || ticket.created_at || '',
           customer_question: null,
-          created_at: ticket.created_at,
+          created_at: ticket.created_at ?? '',
           source: 'repairshopr',
         });
       }
@@ -109,7 +109,7 @@ export async function GET(request: NextRequest) {
                   customer_id: ticket.customer_id,
                   status_changed_at: override.updated_at,
                   customer_question: override.customer_question,
-                  created_at: ticket.created_at,
+                  created_at: ticket.created_at ?? '',
                   source: 'supabase',
                 });
               } catch (err) {
@@ -126,32 +126,27 @@ export async function GET(request: NextRequest) {
       (a, b) => new Date(a.status_changed_at).getTime() - new Date(b.status_changed_at).getTime()
     );
 
-    // Filter tickets by location if user doesn't have access to all locations
+    // Filter tickets by location using ticket's own location_id (not customer)
     if (effectiveLocationId && supabaseAdmin) {
-      // Get customer IDs from tickets
-      const customerIds = tickets.map((t) => t.customer_id);
+      const ticketIds = tickets.map((t) => t.id);
 
-      if (customerIds.length > 0) {
-        // Query rs_customers to find which customers belong to the effective location
-        const { data: allowedCustomers, error: locationError } = await supabaseAdmin
-          .from('rs_customers')
+      if (ticketIds.length > 0) {
+        const { data: allowedTickets, error: locationError } = await supabaseAdmin
+          .from('rs_tickets')
           .select('repairshopr_id')
           .eq('location_id', effectiveLocationId)
-          .in('repairshopr_id', customerIds);
+          .in('repairshopr_id', ticketIds);
 
         if (locationError) {
           console.error('[API] Failed to filter call-customer tickets by location:', locationError);
-          // On error, return no tickets rather than leaking data
           return NextResponse.json({ tickets: [] });
         }
 
-        // Create a set of allowed customer IDs for fast lookup
-        const allowedCustomerIds = new Set(
-          (allowedCustomers || []).map((c) => c.repairshopr_id)
+        const allowedTicketIds = new Set(
+          (allowedTickets || []).map((t) => t.repairshopr_id)
         );
 
-        // Filter tickets to only include those with customers in the allowed location
-        tickets = tickets.filter((t) => allowedCustomerIds.has(t.customer_id));
+        tickets = tickets.filter((t) => allowedTicketIds.has(t.id));
       }
     }
 

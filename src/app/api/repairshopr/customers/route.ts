@@ -51,10 +51,7 @@ export async function GET(request: NextRequest) {
         .from('rs_customers')
         .select('*', { count: 'exact', head: true });
 
-      // Apply location filter if user doesn't have access to all locations
-      if (effectiveLocationId) {
-        countQuery = countQuery.eq('location_id', effectiveLocationId);
-      }
+      // Customers are location-agnostic — no location filter applied
 
       // Get total count
       const { count: totalInDb } = await countQuery;
@@ -88,10 +85,7 @@ export async function GET(request: NextRequest) {
           .from('rs_customers')
           .select('repairshopr_id, firstname, lastname, email, phone, mobile, address, address_2, city, state, zip, business_name, created_at, updated_at');
 
-        // Apply location filter if user doesn't have access to all locations
-        if (effectiveLocationId) {
-          batchQuery = batchQuery.eq('location_id', effectiveLocationId);
-        }
+        // Customers are location-agnostic — no location filter applied
 
         const { data: batchCustomers, error: batchError } = await batchQuery
           .order('lastname', { ascending: true })
@@ -173,14 +167,15 @@ export async function GET(request: NextRequest) {
 
     // Debug: Log what RepairShopr returns for first customer
     if (customers.length > 0) {
+      const firstCustomer = customers[0]!;
       console.log(`[API] Customer search results (first customer):`, JSON.stringify({
-        id: customers[0].id,
-        fullname: customers[0].fullname,
-        properties: customers[0].properties,
-        custom_fields: customers[0].custom_fields,
-        customer_fields: customers[0].customer_fields,
-        tags: customers[0].tags,
-        tag_list: customers[0].tag_list,
+        id: firstCustomer.id,
+        fullname: firstCustomer.fullname,
+        properties: firstCustomer.properties,
+        custom_fields: firstCustomer.custom_fields,
+        customer_fields: firstCustomer.customer_fields,
+        tags: firstCustomer.tags,
+        tag_list: firstCustomer.tag_list,
       }, null, 2));
     }
 

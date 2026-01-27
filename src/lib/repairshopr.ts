@@ -125,7 +125,7 @@ export interface RepairShoprCustomer {
  * Protection plan tier type (matches Supabase type)
  * Valid tiers: eset, silver, silver-plus
  */
-export type ProtectionPlanTier = 'eset' | 'silver' | 'silver-plus' | null;
+export type ProtectionPlanTier = 'eset' | 'bronze' | 'silver' | 'silver-plus' | 'gold' | null;
 
 /**
  * Known answer IDs for protection plans in RepairShopr dropdown custom fields
@@ -237,9 +237,9 @@ export function isSilverPlanCustomer(customer: Partial<RepairShoprCustomer> | nu
 export function getProtectionPlanAnswerId(tier: ProtectionPlanTier): string {
   switch (tier) {
     case 'silver-plus':
-      return SILVER_PLUS_PLAN_ANSWER_IDS[0]; // Maps to RepairShopr's "gold" option
+      return SILVER_PLUS_PLAN_ANSWER_IDS[0] ?? ''; // Maps to RepairShopr's "gold" option
     case 'silver':
-      return SILVER_PLAN_ANSWER_IDS[0];
+      return SILVER_PLAN_ANSWER_IDS[0] ?? '';
     default:
       // eset and null are not in RepairShopr
       return '';
@@ -255,6 +255,7 @@ export interface RepairShoprAsset {
   asset_type_name?: string | null;
   customer_id: number;
   properties?: Record<string, unknown>;
+  location_id?: number;
   created_at?: string;
   updated_at?: string;
 }
@@ -312,6 +313,7 @@ export interface RepairShoprTicket {
   tag_list?: string[];
   priority?: string;
   asset_ids?: number[];
+  location_id?: number;
 }
 
 /**
@@ -353,6 +355,7 @@ export interface RepairShoprInvoice {
   po_number?: string;
   note?: string;
   is_paid?: boolean;
+  location_id?: number;
   line_items?: RepairShoprLineItem[];
 }
 
@@ -410,6 +413,7 @@ export interface RepairShoprPayment {
   payment_method?: string;
   reference?: string;
   applied_at?: string;
+  location_id?: number;
   created_at?: string;
   updated_at?: string;
 }

@@ -191,6 +191,10 @@ async function syncTicket(ticket: RepairShoprWebhookTicket): Promise<void> {
     throw new Error('Supabase not configured');
   }
 
+  // Resolve RepairShopr location ID to Supabase UUID
+  const { resolveLocationId } = await import('@/lib/location-helpers');
+  const locationId = await resolveLocationId(ticket.location_id ?? undefined);
+
   const record = {
     repairshopr_id: ticket.id,
     number: ticket.number || null,
@@ -203,6 +207,7 @@ async function syncTicket(ticket: RepairShoprWebhookTicket): Promise<void> {
     due_date: ticket.due_date || null,
     priority: ticket.priority || null,
     resolved_at: ticket.resolved_at || null,
+    location_id: locationId,
     created_at: ticket.created_at || null,
     updated_at: ticket.updated_at || null,
     synced_at: new Date().toISOString(),
@@ -258,7 +263,7 @@ async function syncInvoice(invoice: RepairShoprWebhookInvoice): Promise<void> {
     total: invoice.total || 0,
     balance_due: invoice.balance || 0,
     status: invoice.status || null,
-    is_paid: invoice.paid_at ? true : (invoice.balance === 0 && invoice.total > 0),
+    is_paid: invoice.paid_at ? true : ((invoice.balance ?? 0) === 0 && (invoice.total ?? 0) > 0),
     created_at: invoice.created_at || null,
     updated_at: invoice.updated_at || null,
     synced_at: new Date().toISOString(),

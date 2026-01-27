@@ -364,7 +364,7 @@ export async function logCustomerAction(
  */
 export async function logAssetAction(
   employee: EmployeeInfo,
-  actionType: 'asset_create' | 'asset_update' | 'asset_view',
+  actionType: 'asset_create' | 'asset_update' | 'asset_view' | 'asset_delete',
   assetId?: string | number,
   assetName?: string,
   changes?: Record<string, unknown>,

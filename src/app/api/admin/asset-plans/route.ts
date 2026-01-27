@@ -22,7 +22,7 @@ const PROTECTION_PLAN_FIELD = 'Protection Plan';
  * Validate that a value is a valid protection plan tier
  */
 function isValidPlanTier(value: unknown): value is ProtectionPlanTier {
-  return value === null || value === 'eset' || value === 'silver' || value === 'silver-plus';
+  return value === null || value === 'eset' || value === 'bronze' || value === 'silver' || value === 'silver-plus' || value === 'gold';
 }
 
 /**
@@ -168,7 +168,7 @@ export async function POST(request: NextRequest) {
       let highestTier: ProtectionPlanTier = null;
       if (customerSummary?.plan_tiers) {
         for (const tier of customerSummary.plan_tiers) {
-          if (tier && (!highestTier || tierHierarchy[tier] > tierHierarchy[highestTier])) {
+          if (tier && (!highestTier || (tierHierarchy[tier] ?? 0) > (tierHierarchy[highestTier] ?? 0))) {
             highestTier = tier;
           }
         }

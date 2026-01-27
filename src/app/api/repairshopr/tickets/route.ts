@@ -3,12 +3,13 @@ import { getEmployeeAuditInfo, getSessionToken, getCurrentUser } from '@/lib/aut
 import { createRepairShoprClient, RepairShoprAPIError, getApiToken } from '@/lib/repairshopr';
 import { logTicketAction } from '@/lib/audit';
 import { supabaseAdmin, TICKET_STATUS_DEFINITIONS } from '@/lib/supabase';
-import { getEffectiveLocationId } from '@/lib/location-helpers';
+import { getEffectiveLocationId, getRepairShoprLocationId } from '@/lib/location-helpers';
 
 export const dynamic = 'force-dynamic';
 
 /**
- * Filter tickets by location based on customer location_id.
+ * Filter tickets by location based on the ticket's own location_id in rs_tickets.
+ * Customers are location-agnostic; location is determined by the ticket itself.
  *
  * @param tickets - Array of tickets to filter
  * @param effectiveLocationId - Location ID to filter by (null means no filtering)
@@ -18,6 +19,7 @@ export const dynamic = 'force-dynamic';
  * @called_by GET /api/repairshopr/tickets
  *
  * @version 1.0.0 - 2026-01-14T00:00:00Z - Initial implementation
+ * @version 2.0.0 - 2026-01-27T18:06:47Z - Filter by ticket location_id instead of customer location
  */
 async function filterTicketsByLocation(
   tickets: Array<{ id: number; customer_id?: number; [key: string]: unknown }>,
@@ -28,21 +30,19 @@ async function filterTicketsByLocation(
     return tickets;
   }
 
-  // Get customer IDs from tickets
-  const customerIds = tickets
-    .map((t) => t.customer_id)
-    .filter((id): id is number => typeof id === 'number');
+  // Get ticket IDs
+  const ticketIds = tickets.map((t) => t.id);
 
-  if (customerIds.length === 0) {
+  if (ticketIds.length === 0) {
     return tickets;
   }
 
-  // Query rs_customers to find which customers belong to the effective location
-  const { data: allowedCustomers, error } = await supabaseAdmin
-    .from('rs_customers')
+  // Query rs_tickets to find which tickets belong to the effective location
+  const { data: allowedTickets, error } = await supabaseAdmin
+    .from('rs_tickets')
     .select('repairshopr_id')
     .eq('location_id', effectiveLocationId)
-    .in('repairshopr_id', customerIds);
+    .in('repairshopr_id', ticketIds);
 
   if (error) {
     console.error('[API] Failed to filter tickets by location:', error);
@@ -50,19 +50,13 @@ async function filterTicketsByLocation(
     return [];
   }
 
-  // Create a set of allowed customer IDs for fast lookup
-  const allowedCustomerIds = new Set(
-    (allowedCustomers || []).map((c) => c.repairshopr_id)
+  // Create a set of allowed ticket IDs for fast lookup
+  const allowedTicketIds = new Set(
+    (allowedTickets || []).map((t) => t.repairshopr_id)
   );
 
-  // Filter tickets to only include those with customers in the allowed location
-  return tickets.filter((t) => {
-    if (typeof t.customer_id !== 'number') {
-      // Tickets without customer_id are filtered out for safety
-      return false;
-    }
-    return allowedCustomerIds.has(t.customer_id);
-  });
+  // Filter tickets to only include those at the allowed location
+  return tickets.filter((t) => allowedTicketIds.has(t.id));
 }
 
 /**
@@ -256,6 +250,20 @@ export async function POST(request: NextRequest) {
 
   try {
     const client = createRepairShoprClient();
+
+    // Get the employee's effective location and map to RepairShopr location ID
+    const currentUser = await getCurrentUser();
+    const userRoles = currentUser?.roles || [];
+    const userLocationId = currentUser?.location_id || null;
+    const effectiveLocId = await getEffectiveLocationId(userRoles, userLocationId);
+
+    if (effectiveLocId && !body.location_id) {
+      const rsLocId = await getRepairShoprLocationId(effectiveLocId);
+      if (rsLocId) {
+        body.location_id = rsLocId;
+      }
+    }
+
     const ticket = await client.createTicket(apiToken, body);
 
     // Log the ticket creation for audit trail

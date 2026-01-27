@@ -65,6 +65,7 @@ function getLegacyAdminPassword(): string {
  */
 export interface UserSession {
   userId: number;
+  id: string; // Alias for supabaseUserId (used by cytracom routes)
   supabaseUserId: string; // Supabase auth.users UUID (for audit logging)
   email: string;
   name: string;
@@ -385,6 +386,7 @@ export async function authenticateWithSupabase(
       success: true,
       user: {
         userId: userData.userId,
+        id: userData.supabaseUserId,
         supabaseUserId: userData.supabaseUserId,
         email: userData.email,
         name: userData.name,
@@ -552,6 +554,7 @@ export async function getCurrentUser(): Promise<UserSession | null> {
     const safeSession = getSafeSession(session);
     return {
       userId: safeSession.userId,
+      id: safeSession.supabaseUserId || '',
       supabaseUserId: safeSession.supabaseUserId || '',
       email: safeSession.email,
       name: safeSession.name,
@@ -566,6 +569,7 @@ export async function getCurrentUser(): Promise<UserSession | null> {
   // Legacy mode: return a default admin user
   return {
     userId: 0,
+    id: '',
     supabaseUserId: '',
     email: 'admin@local',
     name: 'Administrator',

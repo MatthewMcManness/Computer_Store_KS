@@ -568,6 +568,10 @@ export interface GalleryComputer {
   image: string;
   specs: GallerySpec[];
   blackFriday?: BlackFridayData;
+  thumbnail?: string;
+  stockQuantity: number;
+  isActive?: boolean;
+  archivedAt?: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -588,8 +592,10 @@ export interface CreateComputerInput {
   category: 'refurbished' | 'custom' | 'new';
   price: number;
   image_url?: string;
+  thumbnail_url?: string;
   specs?: GallerySpec[];
   sort_order?: number;
+  stock_quantity?: number;
 }
 
 export interface UpdateComputerInput {
@@ -1465,7 +1471,7 @@ export function statusRequiresCustomerQuestion(
 // Customer Protection Plan Type Definitions
 // =============================================================================
 
-export type ProtectionPlanTier = 'eset' | 'silver' | 'silver-plus' | null;
+export type ProtectionPlanTier = 'eset' | 'bronze' | 'silver' | 'silver-plus' | 'gold' | null;
 
 export interface CustomerProtectionPlan {
   id: string;
@@ -1966,8 +1972,8 @@ export async function getEffectiveCustomerPlanTier(
   let highestRank = 0;
 
   for (const tier of summary.plan_tiers) {
-    if (tier && tierHierarchy[tier] > highestRank) {
-      highestRank = tierHierarchy[tier];
+    if (tier && tierHierarchy[tier] !== undefined && tierHierarchy[tier] > highestRank) {
+      highestRank = tierHierarchy[tier] ?? 0;
       highestTier = tier;
     }
   }

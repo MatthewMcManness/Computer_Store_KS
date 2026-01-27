@@ -80,11 +80,7 @@ const roleStyles: Record<EmployeeRole, { icon: React.ReactNode; className: strin
 /**
  * Extended UserProfile with roles array and default location.
  */
-interface ExtendedUserProfile extends UserProfile {
-  roles?: string[];
-  location_id?: string | null;
-  default_location_id?: string | null;
-}
+type ExtendedUserProfile = UserProfile;
 
 /**
  * Extract roles array from a profile, with backward compatibility.

@@ -37,7 +37,7 @@ interface EditFormData {
 export default function FamilyDetailsPage() {
   const router = useRouter();
   const params = useParams();
-  const familyId = params.id as string;
+  const familyId = params?.id as string;
 
   const [family, setFamily] = useState<Family | null>(null);
   const [familyCustomers, setFamilyCustomers] = useState<RepairShoprCustomer[]>([]);

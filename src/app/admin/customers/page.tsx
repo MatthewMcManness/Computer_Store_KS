@@ -216,7 +216,7 @@ export default function CustomersListPage() {
                   };
                   let highestTier: ProtectionPlanTier = null;
                   for (const tier of summary.plan_tiers) {
-                    if (tier && (!highestTier || tierHierarchy[tier] > tierHierarchy[highestTier])) {
+                    if (tier && (!highestTier || (tierHierarchy[tier] ?? 0) > (tierHierarchy[highestTier] ?? 0))) {
                       highestTier = tier as ProtectionPlanTier;
                     }
                   }

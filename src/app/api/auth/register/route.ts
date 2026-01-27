@@ -348,6 +348,7 @@ export async function POST(request: NextRequest) {
       name: fullName,
       email: formData.email,
       message: '', // No message field for registration
+      subject: '', // No subject field for registration
       pageLoadTime,
       submitTime,
       // Honeypot fields

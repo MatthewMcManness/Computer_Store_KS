@@ -88,7 +88,7 @@ export async function POST() {
     // Create override records for all tickets
     const overridesToUpsert = ticketsWithStatus.map((ticket) => ({
       repairshopr_ticket_id: ticket.repairshopr_id,
-      custom_status: getDefaultCustomStatusForRepairShoprStatus(ticket.status),
+      custom_status: getDefaultCustomStatusForRepairShoprStatus(ticket.status ?? ''),
       updated_by: 'sync_all',
       updated_at: new Date().toISOString(),
     }));

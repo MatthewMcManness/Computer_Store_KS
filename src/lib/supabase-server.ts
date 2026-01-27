@@ -285,7 +285,7 @@ export async function serverUserHasRole(
 ): Promise<boolean> {
   const profile = await getServerUserProfile();
   if (!profile) return false;
-  return allowedRoles.includes(profile.role);
+  return (allowedRoles as string[]).includes(profile.role);
 }
 
 /**

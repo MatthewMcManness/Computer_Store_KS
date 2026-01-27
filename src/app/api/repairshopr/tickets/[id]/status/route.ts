@@ -23,15 +23,14 @@ interface RouteParams {
  * Check if the user has access to a ticket based on its customer's location.
  *
  * @param ticketId - The ticket ID to check
- * @param apiToken - API token for RepairShopr
  * @param effectiveLocationId - Location ID to check against (null means no filtering)
  * @returns true if user has access, false otherwise
  *
  * @version 1.0.0 - 2026-01-14T00:00:00Z - Initial implementation
+ * @version 2.0.0 - 2026-01-27T18:06:47Z - Use ticket location_id instead of customer location
  */
 async function hasTicketLocationAccess(
   ticketId: number,
-  apiToken: string,
   effectiveLocationId: string | null
 ): Promise<boolean> {
   // No filtering needed if user has access to all locations
@@ -39,20 +38,11 @@ async function hasTicketLocationAccess(
     return true;
   }
 
-  // Fetch ticket from RepairShopr to get customer_id
-  const client = createRepairShoprClient();
-  const ticket = await client.getTicket(apiToken, ticketId);
-
-  if (!ticket.customer_id) {
-    // Tickets without customer_id are denied for safety
-    return false;
-  }
-
-  // Check if customer belongs to the effective location
-  const { data: customer, error } = await supabaseAdmin
-    .from('rs_customers')
+  // Check if ticket belongs to the effective location
+  const { data: ticket, error } = await supabaseAdmin
+    .from('rs_tickets')
     .select('location_id')
-    .eq('repairshopr_id', ticket.customer_id)
+    .eq('repairshopr_id', ticketId)
     .single();
 
   if (error) {
@@ -60,7 +50,7 @@ async function hasTicketLocationAccess(
     return false;
   }
 
-  return customer?.location_id === effectiveLocationId;
+  return ticket?.location_id === effectiveLocationId;
 }
 
 /**
@@ -145,7 +135,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
   // Check location access before allowing status update
   try {
-    if (!(await hasTicketLocationAccess(ticketId, apiToken, effectiveLocationId))) {
+    if (!(await hasTicketLocationAccess(ticketId, effectiveLocationId))) {
       return NextResponse.json(
         { error: 'Access denied - ticket belongs to a different location' },
         { status: 403 }

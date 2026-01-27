@@ -358,7 +358,7 @@ export function CustomerFormStep({
 
       // If a business is selected, use the first one as the primary business_name
       if (selectedBusinesses.length > 0) {
-        customerData.business_name = selectedBusinesses[0].name;
+        customerData.business_name = selectedBusinesses[0]?.name;
       }
 
       // Create customer

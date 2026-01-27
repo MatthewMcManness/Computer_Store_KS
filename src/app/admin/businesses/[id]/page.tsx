@@ -30,7 +30,7 @@ interface EditFormData {
 export default function BusinessDetailsPage() {
   const router = useRouter();
   const params = useParams();
-  const businessId = params.id as string;
+  const businessId = params?.id as string;
 
   const [business, setBusiness] = useState<Business | null>(null);
   const [businessCustomers, setBusinessCustomers] = useState<RepairShoprCustomer[]>([]);

@@ -69,8 +69,8 @@ export default function ResetPasswordConfirmPage() {
       }
 
       // Check for token_hash in URL (new flow - redirect to /auth/confirm)
-      const tokenHash = searchParams.get('token_hash');
-      const type = searchParams.get('type');
+      const tokenHash = searchParams?.get('token_hash');
+      const type = searchParams?.get('type');
       if (tokenHash && type === 'recovery') {
         console.log('Found token_hash, redirecting to /auth/confirm...');
         router.replace(`/auth/confirm?token_hash=${tokenHash}&type=recovery&next=/reset-password/confirm`);
@@ -78,7 +78,7 @@ export default function ResetPasswordConfirmPage() {
       }
 
       // Check for PKCE code in URL (legacy Supabase redirect flow)
-      const code = searchParams.get('code');
+      const code = searchParams?.get('code');
       if (code) {
         console.log('Found PKCE code, attempting exchange...');
         try {

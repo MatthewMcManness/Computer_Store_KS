@@ -349,6 +349,113 @@ export async function getLocationContext(
 }
 
 // ============================================================================
+// RepairShopr Location ID Mapping
+// ============================================================================
+
+/** Cached mapping of RepairShopr location ID → Supabase UUID */
+let rsLocationCache: Map<number, string> | null = null;
+
+/**
+ * Get the Supabase location UUID for a RepairShopr integer location ID.
+ * Caches the mapping since there are only 2 locations.
+ *
+ * @param rsLocationId - RepairShopr integer location ID (e.g., 3311 for Topeka)
+ * @returns Supabase UUID for the location, or null if not mapped
+ *
+ * @functions_called getLocations
+ * @called_by syncAllTickets, syncAllAssets, syncAllInvoices, syncAllPayments, syncAllProducts
+ *
+ * @version 1.0.0 - 2026-01-27T18:06:47Z - Initial implementation
+ */
+export async function getLocationByRepairShoprId(rsLocationId: number): Promise<string | null> {
+  if (!rsLocationCache) {
+    const locations = await getLocationsAdmin();
+    rsLocationCache = new Map();
+    for (const loc of locations) {
+      if (loc.repairshopr_location_id) {
+        rsLocationCache.set(loc.repairshopr_location_id, loc.id);
+      }
+    }
+  }
+  return rsLocationCache.get(rsLocationId) ?? null;
+}
+
+/**
+ * Clear the RepairShopr location cache. Call if locations are updated.
+ *
+ * @version 1.0.0 - 2026-01-27T18:06:47Z - Initial implementation
+ */
+export function clearRsLocationCache(): void {
+  rsLocationCache = null;
+}
+
+/**
+ * Fetch all locations using the admin client (no cookie dependency).
+ * Used by sync functions that run outside of request context.
+ *
+ * @returns Array of locations
+ *
+ * @functions_called supabaseAdmin
+ * @called_by getLocationByRepairShoprId, getLocationByRepairShoprIdForSync
+ *
+ * @version 1.0.0 - 2026-01-27T18:06:47Z - Initial implementation
+ */
+async function getLocationsAdmin(): Promise<Location[]> {
+  // Import supabaseAdmin here to avoid circular dependency
+  const { supabaseAdmin } = await import('./supabase');
+  if (!supabaseAdmin) return [];
+
+  const { data, error } = await supabaseAdmin
+    .from('locations')
+    .select('*')
+    .order('sort_order', { ascending: true });
+
+  if (error) {
+    console.error('[location-helpers] Failed to fetch locations (admin):', error);
+    return [];
+  }
+
+  return data || [];
+}
+
+/**
+ * Resolve a RepairShopr location ID to Supabase UUID, with fallback to Topeka.
+ *
+ * @param rsLocationId - RepairShopr integer location ID, or undefined/null
+ * @returns Supabase UUID (falls back to Topeka if unmapped)
+ *
+ * @functions_called getLocationByRepairShoprId, getDefaultLocationId
+ * @called_by sync upsert functions
+ *
+ * @version 1.0.0 - 2026-01-27T18:06:47Z - Initial implementation
+ */
+export async function resolveLocationId(rsLocationId: number | undefined | null): Promise<string | null> {
+  if (rsLocationId) {
+    const uuid = await getLocationByRepairShoprId(rsLocationId);
+    if (uuid) return uuid;
+  }
+  // Fall back to Topeka (default location)
+  return getDefaultLocationId();
+}
+
+/**
+ * Get the RepairShopr location ID for a Supabase location UUID.
+ *
+ * @param supabaseLocationId - Supabase UUID of the location
+ * @returns RepairShopr integer location ID, or null if not found
+ *
+ * @functions_called getLocationsAdmin
+ * @called_by POST /api/repairshopr/tickets
+ *
+ * @version 1.0.0 - 2026-01-27T18:06:47Z - Initial implementation
+ */
+export async function getRepairShoprLocationId(supabaseLocationId: string): Promise<number | null> {
+  const locations = await getLocationsAdmin();
+  const location = locations.find(l => l.id === supabaseLocationId);
+  return location?.repairshopr_location_id ?? null;
+}
+
+// ============================================================================
 // Default Location
 // ============================================================================
 

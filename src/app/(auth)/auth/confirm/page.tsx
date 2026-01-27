@@ -50,9 +50,9 @@ export default function AuthConfirmPage() {
   const [error, setError] = useState<string | null>(null);
 
   // Get parameters from URL
-  const tokenHash = searchParams.get('token_hash');
-  const type = searchParams.get('type') as EmailOtpType | null;
-  const next = searchParams.get('next') || '/';
+  const tokenHash = searchParams?.get('token_hash') ?? null;
+  const type = (searchParams?.get('type') as EmailOtpType | null) ?? null;
+  const next = searchParams?.get('next') || '/';
 
   // Create Supabase client
   const supabase = useMemo(() => createBrowserClient(

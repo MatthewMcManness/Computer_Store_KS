@@ -116,7 +116,7 @@ export async function GET(
       const planTierMap = await getEffectiveCustomerPlanTiers(customerIds);
       for (const customerId of customerIds) {
         const tier = planTierMap.get(customerId) ?? null;
-        if (tier && (!highestTier || tierHierarchy[tier] > (tierHierarchy[highestTier] || 0))) {
+        if (tier && (!highestTier || (tierHierarchy[tier] ?? 0) > (tierHierarchy[highestTier] ?? 0))) {
           highestTier = tier;
         }
       }

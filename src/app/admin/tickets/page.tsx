@@ -50,7 +50,7 @@ type ProtectionPlanTier = 'eset' | 'silver' | 'silver-plus' | null;
 export default function TicketsListPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const initialStatus = searchParams.get('status') || '';
+  const initialStatus = searchParams?.get('status') || '';
 
   const [statusFilter, setStatusFilter] = useState(initialStatus);
   const [tickets, setTickets] = useState<TicketData[]>([]);
@@ -226,7 +226,7 @@ export default function TicketsListPage() {
     setStatusFilter(status);
     setShowMobileFilters(false);
     // Update URL params
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParams?.toString() ?? '');
     if (status) {
       params.set('status', status);
     } else {

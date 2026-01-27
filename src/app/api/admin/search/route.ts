@@ -54,7 +54,7 @@ async function getCustomerHighestTier(client: SupabaseClient, customerId: number
   let highestTier: ProtectionPlanTier = null;
   for (const plan of plans) {
     const tier = plan.plan_tier as ProtectionPlanTier;
-    if (tier && (!highestTier || tierHierarchy[tier] > tierHierarchy[highestTier])) {
+    if (tier && (!highestTier || (tierHierarchy[tier] ?? 0) > (tierHierarchy[highestTier] ?? 0))) {
       highestTier = tier;
     }
   }
@@ -124,10 +124,7 @@ export async function GET(request: NextRequest) {
       .select('repairshopr_id, firstname, lastname, email, phone')
       .or(customerOrConditions.join(','));
 
-    // Apply location filter if user doesn't have access to all locations
-    if (effectiveLocationId) {
-      customerQuery = customerQuery.eq('location_id', effectiveLocationId);
-    }
+    // Customers are location-agnostic — no location filter applied
 
     const { data: customers } = await customerQuery.limit(5);
 
@@ -138,7 +135,7 @@ export async function GET(request: NextRequest) {
       );
 
       for (let i = 0; i < customers.length; i++) {
-        const customer = customers[i];
+        const customer = customers[i]!;
         results.push({
           id: customer.repairshopr_id,
           type: 'customer',
@@ -171,7 +168,7 @@ export async function GET(request: NextRequest) {
       );
 
       for (let i = 0; i < businesses.length; i++) {
-        const business = businesses[i];
+        const business = businesses[i]!;
         if (business.business_name) {
           results.push({
             id: business.repairshopr_id,
@@ -210,18 +207,18 @@ export async function GET(request: NextRequest) {
     const ticketIds = new Set(tickets?.map(t => t.repairshopr_id) || []);
     let allTickets = [...(tickets || []), ...(ticketsBySubject?.filter(t => !ticketIds.has(t.repairshopr_id)) || [])];
 
-    // Filter tickets by location if user doesn't have access to all locations
+    // Filter tickets by their own location_id (not customer location)
     if (effectiveLocationId && allTickets.length > 0) {
-      const ticketCustomerIds = allTickets.map(t => t.customer_id).filter(id => id);
-      if (ticketCustomerIds.length > 0) {
-        const { data: allowedCustomers } = await supabaseClient
-          .from('rs_customers')
+      const ticketRsIds = allTickets.map(t => t.repairshopr_id);
+      if (ticketRsIds.length > 0) {
+        const { data: allowedTickets } = await supabaseClient
+          .from('rs_tickets')
           .select('repairshopr_id')
           .eq('location_id', effectiveLocationId)
-          .in('repairshopr_id', ticketCustomerIds);
+          .in('repairshopr_id', ticketRsIds);
 
-        const allowedCustomerIds = new Set((allowedCustomers || []).map(c => c.repairshopr_id));
-        allTickets = allTickets.filter(t => t.customer_id && allowedCustomerIds.has(t.customer_id));
+        const allowedTicketIds = new Set((allowedTickets || []).map(t => t.repairshopr_id));
+        allTickets = allTickets.filter(t => allowedTicketIds.has(t.repairshopr_id));
       }
     }
 
@@ -249,19 +246,19 @@ export async function GET(request: NextRequest) {
     }
 
     if (invoices && invoices.length > 0) {
-      // Filter invoices by location if user doesn't have access to all locations
+      // Filter invoices by their own location_id
       let filteredInvoices = invoices;
       if (effectiveLocationId) {
-        const invoiceCustomerIds = invoices.map(i => i.customer_id).filter(id => id);
-        if (invoiceCustomerIds.length > 0) {
-          const { data: allowedCustomers } = await supabaseClient
-            .from('rs_customers')
+        const invoiceRsIds = invoices.map(i => i.repairshopr_id);
+        if (invoiceRsIds.length > 0) {
+          const { data: allowedInvoices } = await supabaseClient
+            .from('rs_invoices')
             .select('repairshopr_id')
             .eq('location_id', effectiveLocationId)
-            .in('repairshopr_id', invoiceCustomerIds);
+            .in('repairshopr_id', invoiceRsIds);
 
-          const allowedCustomerIds = new Set((allowedCustomers || []).map(c => c.repairshopr_id));
-          filteredInvoices = invoices.filter(i => i.customer_id && allowedCustomerIds.has(i.customer_id));
+          const allowedInvoiceIds = new Set((allowedInvoices || []).map(i => i.repairshopr_id));
+          filteredInvoices = invoices.filter(i => allowedInvoiceIds.has(i.repairshopr_id));
         }
       }
 

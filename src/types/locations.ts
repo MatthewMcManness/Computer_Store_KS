@@ -36,6 +36,7 @@ export interface Location {
   timezone: string;              // IANA timezone (e.g., 'America/Chicago')
   is_active: boolean;            // Whether location is operational
   sort_order: number;            // For display ordering
+  repairshopr_location_id: number | null; // RepairShopr integer location ID
   created_at: string;            // ISO timestamp
   updated_at: string;            // ISO timestamp
 }

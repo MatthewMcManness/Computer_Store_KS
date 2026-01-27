@@ -25,6 +25,7 @@ import {
   RepairShoprProduct,
 } from './repairshopr';
 import { supabaseAdmin, getDefaultCustomStatusForRepairShoprStatus } from './supabase';
+import { resolveLocationId, clearRsLocationCache } from './location-helpers';
 
 // =============================================================================
 // Types
@@ -211,7 +212,7 @@ export async function syncAllCustomers(): Promise<SyncResult> {
         synced_at: new Date().toISOString(),
       }));
 
-      const { error } = await supabaseAdmin.from('rs_customers').upsert(records, { onConflict: 'repairshopr_id' });
+      const { error } = await supabaseAdmin!.from('rs_customers').upsert(records, { onConflict: 'repairshopr_id' });
 
       if (error) {
         result.failed += customers.length;
@@ -391,7 +392,12 @@ export async function syncAllTickets(): Promise<SyncResult> {
     const upsertBatch = async (tickets: RepairShoprTicket[]) => {
       if (tickets.length === 0) return;
 
-      const records = tickets.map((ticket) => ({
+      // Resolve location IDs for all tickets in batch
+      const locationIds = await Promise.all(
+        tickets.map((t) => resolveLocationId(t.location_id))
+      );
+
+      const records = tickets.map((ticket, i) => ({
         repairshopr_id: ticket.id,
         number: ticket.number,
         subject: ticket.subject,
@@ -406,12 +412,13 @@ export async function syncAllTickets(): Promise<SyncResult> {
         properties: ticket.properties || {},
         tags: ticket.tag_list || [],
         asset_ids: ticket.asset_ids || [],
+        location_id: locationIds[i],
         created_at: ticket.created_at,
         updated_at: ticket.updated_at,
         synced_at: new Date().toISOString(),
       }));
 
-      const { error } = await supabaseAdmin.from('rs_tickets').upsert(records, { onConflict: 'repairshopr_id' });
+      const { error } = await supabaseAdmin!.from('rs_tickets').upsert(records, { onConflict: 'repairshopr_id' });
 
       if (error) {
         result.failed += tickets.length;
@@ -430,7 +437,7 @@ export async function syncAllTickets(): Promise<SyncResult> {
           }));
 
         if (statusOverrides.length > 0) {
-          const { error: overrideError } = await supabaseAdmin
+          const { error: overrideError } = await supabaseAdmin!
             .from('ticket_status_overrides')
             .upsert(statusOverrides, { onConflict: 'repairshopr_ticket_id' });
 
@@ -547,7 +554,7 @@ export async function syncAllTicketComments(): Promise<SyncResult> {
 
         if (ticketDetail?.comments) {
           for (const comment of ticketDetail.comments) {
-            const { error } = await supabaseAdmin.from('rs_ticket_comments').upsert(
+            const { error } = await supabaseAdmin!.from('rs_ticket_comments').upsert(
               {
                 repairshopr_id: comment.id,
                 ticket_id: comment.ticket_id,
@@ -728,7 +735,11 @@ export async function syncAllProducts(): Promise<SyncResult> {
     const upsertBatch = async (products: RepairShoprProduct[]) => {
       if (products.length === 0) return;
 
-      const records = products.map((product) => ({
+      const locationIds = await Promise.all(
+        products.map((p) => resolveLocationId(p.location_id))
+      );
+
+      const records = products.map((product, i) => ({
         repairshopr_id: product.id,
         name: product.name,
         description: product.description || null,
@@ -743,7 +754,7 @@ export async function syncAllProducts(): Promise<SyncResult> {
         disabled: product.disabled || false,
         notes: product.notes || null,
         location: product.location || null,
-        location_id: product.location_id || null,
+        location_id: locationIds[i],
         vendor: product.vendor || null,
         vendor_id: product.vendor_id || null,
         created_at: product.created_at,
@@ -751,7 +762,7 @@ export async function syncAllProducts(): Promise<SyncResult> {
         synced_at: new Date().toISOString(),
       }));
 
-      const { error } = await supabaseAdmin.from('rs_products').upsert(records, { onConflict: 'repairshopr_id' });
+      const { error } = await supabaseAdmin!.from('rs_products').upsert(records, { onConflict: 'repairshopr_id' });
 
       if (error) {
         result.failed += products.length;
@@ -865,7 +876,11 @@ export async function syncAllInvoices(): Promise<SyncResult> {
     const upsertBatch = async (invoices: RepairShoprInvoice[]) => {
       if (invoices.length === 0) return;
 
-      const records = invoices.map(invoice => ({
+      const locationIds = await Promise.all(
+        invoices.map((inv) => resolveLocationId(inv.location_id))
+      );
+
+      const records = invoices.map((invoice, i) => ({
         repairshopr_id: invoice.id,
         number: invoice.number,
         customer_id: invoice.customer_id,
@@ -879,12 +894,13 @@ export async function syncAllInvoices(): Promise<SyncResult> {
         po_number: invoice.po_number || null,
         note: invoice.note || null,
         is_paid: invoice.is_paid || false,
+        location_id: locationIds[i],
         created_at: invoice.created_at,
         updated_at: invoice.updated_at,
         synced_at: new Date().toISOString(),
       }));
 
-      const { error } = await supabaseAdmin.from('rs_invoices').upsert(records, { onConflict: 'repairshopr_id' });
+      const { error } = await supabaseAdmin!.from('rs_invoices').upsert(records, { onConflict: 'repairshopr_id' });
 
       if (error) {
         result.failed += invoices.length;
@@ -1043,7 +1059,11 @@ export async function syncAllPayments(): Promise<SyncResult> {
     const upsertBatch = async (payments: RepairShoprPayment[]) => {
       if (payments.length === 0) return;
 
-      const records = payments.map(payment => ({
+      const locationIds = await Promise.all(
+        payments.map((p) => resolveLocationId(p.location_id))
+      );
+
+      const records = payments.map((payment, i) => ({
         repairshopr_id: payment.id,
         invoice_id: payment.invoice_id,
         customer_id: payment.customer_id,
@@ -1052,12 +1072,13 @@ export async function syncAllPayments(): Promise<SyncResult> {
         payment_method: payment.payment_method || null,
         reference: payment.reference || null,
         applied_at: payment.applied_at || null,
+        location_id: locationIds[i],
         created_at: payment.created_at,
         updated_at: payment.updated_at,
         synced_at: new Date().toISOString(),
       }));
 
-      const { error } = await supabaseAdmin.from('rs_payments').upsert(records, { onConflict: 'repairshopr_id' });
+      const { error } = await supabaseAdmin!.from('rs_payments').upsert(records, { onConflict: 'repairshopr_id' });
 
       if (error) {
         result.failed += payments.length;
@@ -1217,18 +1238,23 @@ export async function syncAllAssets(): Promise<SyncResult> {
     const upsertBatch = async (assets: RepairShoprAsset[]) => {
       if (assets.length === 0) return;
 
-      const records = assets.map((asset) => ({
+      const locationIds = await Promise.all(
+        assets.map((a) => resolveLocationId(a.location_id))
+      );
+
+      const records = assets.map((asset, i) => ({
         repairshopr_id: asset.id,
         name: asset.name,
         asset_type_name: asset.asset_type_name || null,
         customer_id: asset.customer_id,
         properties: asset.properties || {},
+        location_id: locationIds[i],
         created_at: asset.created_at,
         updated_at: asset.updated_at,
         synced_at: new Date().toISOString(),
       }));
 
-      const { error } = await supabaseAdmin.from('rs_assets').upsert(records, { onConflict: 'repairshopr_id' });
+      const { error } = await supabaseAdmin!.from('rs_assets').upsert(records, { onConflict: 'repairshopr_id' });
 
       if (error) {
         result.failed += assets.length;
@@ -1319,6 +1345,9 @@ export async function runFullSync(): Promise<FullSyncResult> {
   const results: SyncResult[] = [];
 
   console.log('[Sync] Starting full RepairShopr data sync...');
+
+  // Clear location cache to ensure fresh RS→Supabase mappings
+  clearRsLocationCache();
 
   const logId = await createSyncLog('full');
 
@@ -1465,7 +1494,7 @@ export async function getLastSyncTime(): Promise<Date | null> {
     return null;
   }
 
-  return new Date(data[0].completed_at);
+  return new Date(data[0]!.completed_at);
 }
 
 /**

@@ -47,6 +47,7 @@ const SESSIONS_DIR = join(process.cwd(), '.sessions');
 
 const mockUser: UserSession = {
   userId: 12345,
+  id: 'test-uuid-123',
   supabaseUserId: 'test-uuid-123',
   email: 'test@example.com',
   name: 'Test User',

@@ -168,7 +168,8 @@ const schedules = [
 const tbody = document.getElementById('tbody');
 const KEY = 'recurring-location-checklist';
 let checkedIds = new Set();
-let savingUntil = 0;
+let dirty = false;
+let saving = false;
 
 function loadLocalState() {
   try {
@@ -184,21 +185,23 @@ function saveLocalState() {
 }
 
 async function loadState() {
-  if (Date.now() < savingUntil) return;
+  if (dirty || saving) return;
   try {
     const res = await fetch('/api/recurring-checklist');
+    if (dirty || saving) return;
     if (res.ok) {
       const data = await res.json();
+      if (dirty || saving) return;
       checkedIds = new Set(data.checked_ids || []);
       saveLocalState();
       return;
     }
   } catch {}
-  checkedIds = loadLocalState();
+  if (!dirty && !saving) checkedIds = loadLocalState();
 }
 
 async function persistState() {
-  savingUntil = Date.now() + 8000;
+  saving = true;
   saveLocalState();
   try {
     await fetch('/api/recurring-checklist', {
@@ -207,10 +210,12 @@ async function persistState() {
       body: JSON.stringify({ checked_ids: Array.from(checkedIds) }),
     });
   } catch {}
-  savingUntil = Date.now() + 3000;
+  saving = false;
+  dirty = false;
 }
 
 function saveState() {
+  dirty = true;
   checkedIds = new Set();
   schedules.forEach((s, i) => {
     const cb = document.getElementById('cb' + i);
@@ -236,6 +241,7 @@ function updateRows() {
 }
 
 function checkAll() {
+  dirty = true;
   schedules.forEach((s, i) => {
     checkedIds.add(s.id);
     const cb = document.getElementById('cb' + i);
@@ -248,6 +254,7 @@ function checkAll() {
 
 function resetAll() {
   if (!confirm('Reset all checkboxes?')) return;
+  dirty = true;
   checkedIds = new Set();
   schedules.forEach((s, i) => {
     const cb = document.getElementById('cb' + i);

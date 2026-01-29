@@ -55,7 +55,7 @@ export async function GET(_request: NextRequest): Promise<NextResponse> {
  *
  * @version 1.0.0 - 2026-01-29T16:04:43Z - Initial implementation
  */
-export async function PUT(request: NextRequest): Promise<NextResponse> {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   if (!supabaseAdmin) {
     return NextResponse.json({ error: 'Supabase not configured' }, { status: 500 });
   }

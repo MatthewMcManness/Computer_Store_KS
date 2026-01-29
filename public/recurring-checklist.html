@@ -167,77 +167,113 @@ const schedules = [
 
 const tbody = document.getElementById('tbody');
 const KEY = 'recurring-location-checklist';
+let checkedIds = new Set();
 
-function loadState() {
-  try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; }
+function loadLocalState() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(KEY)) || {};
+    return new Set(Object.keys(raw).map(Number));
+  } catch { return new Set(); }
+}
+
+function saveLocalState() {
+  const obj = {};
+  checkedIds.forEach(id => obj[id] = true);
+  localStorage.setItem(KEY, JSON.stringify(obj));
+}
+
+async function loadState() {
+  try {
+    const res = await fetch('/api/recurring-checklist');
+    if (res.ok) {
+      const data = await res.json();
+      checkedIds = new Set(data.checked_ids || []);
+      saveLocalState();
+      return;
+    }
+  } catch {}
+  checkedIds = loadLocalState();
+}
+
+async function persistState() {
+  saveLocalState();
+  try {
+    await fetch('/api/recurring-checklist', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ checked_ids: Array.from(checkedIds) }),
+    });
+  } catch {}
 }
 
 function saveState() {
-  const state = {};
+  checkedIds = new Set();
   schedules.forEach((s, i) => {
     const cb = document.getElementById('cb' + i);
-    if (cb && cb.checked) state[s.id] = true;
+    if (cb && cb.checked) checkedIds.add(s.id);
   });
-  localStorage.setItem(KEY, JSON.stringify(state));
   updateProgress();
   updateRows();
+  persistState();
 }
 
 function updateProgress() {
-  const state = loadState();
-  const done = Object.keys(state).length;
+  const done = checkedIds.size;
   const total = schedules.length;
   document.getElementById('progressFill').style.width = (done / total * 100) + '%';
   document.getElementById('progressText').textContent = done + '/' + total;
 }
 
 function updateRows() {
-  const state = loadState();
   schedules.forEach((s, i) => {
     const row = document.getElementById('row' + i);
-    if (row) row.className = state[s.id] ? 'done' : '';
+    if (row) row.className = checkedIds.has(s.id) ? 'done' : '';
   });
 }
 
 function checkAll() {
-  const state = {};
   schedules.forEach((s, i) => {
-    state[s.id] = true;
+    checkedIds.add(s.id);
     const cb = document.getElementById('cb' + i);
     if (cb) cb.checked = true;
   });
-  localStorage.setItem(KEY, JSON.stringify(state));
   updateProgress();
   updateRows();
+  persistState();
 }
 
 function resetAll() {
   if (!confirm('Reset all checkboxes?')) return;
-  localStorage.removeItem(KEY);
+  checkedIds = new Set();
   schedules.forEach((s, i) => {
     const cb = document.getElementById('cb' + i);
     if (cb) cb.checked = false;
   });
   updateProgress();
   updateRows();
+  persistState();
 }
 
-// Render table
-const state = loadState();
+// Render table then load remote state
 schedules.forEach((s, i) => {
   const url = 'https://thecomputerstore.repairshopr.com/schedules/' + s.id + '/edit';
-  const checked = state[s.id] ? 'checked' : '';
-  const cls = state[s.id] ? 'done' : '';
   const paused = s.paused ? ' <span style="color:#e74c3c">(PAUSED)</span>' : '';
-  tbody.innerHTML += '<tr id="row' + i + '" class="' + cls + '">' +
-    '<td><input type="checkbox" id="cb' + i + '" ' + checked + ' onchange="saveState()"></td>' +
+  tbody.innerHTML += '<tr id="row' + i + '">' +
+    '<td><input type="checkbox" id="cb' + i + '" onchange="saveState()"></td>' +
     '<td><a href="' + url + '" target="_blank">' + s.name + '</a>' + paused + '</td>' +
     '<td>' + s.freq + '</td>' +
     '<td>' + s.next + '</td>' +
     '</tr>';
 });
 
-updateProgress();
+loadState().then(() => {
+  schedules.forEach((s, i) => {
+    const cb = document.getElementById('cb' + i);
+    if (cb) cb.checked = checkedIds.has(s.id);
+  });
+  updateProgress();
+  updateRows();
+});
 </script>
 </body>
 </html>

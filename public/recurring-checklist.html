@@ -168,6 +168,7 @@ const schedules = [
 const tbody = document.getElementById('tbody');
 const KEY = 'recurring-location-checklist';
 let checkedIds = new Set();
+let savingUntil = 0;
 
 function loadLocalState() {
   try {
@@ -183,6 +184,7 @@ function saveLocalState() {
 }
 
 async function loadState() {
+  if (Date.now() < savingUntil) return;
   try {
     const res = await fetch('/api/recurring-checklist');
     if (res.ok) {
@@ -196,6 +198,7 @@ async function loadState() {
 }
 
 async function persistState() {
+  savingUntil = Date.now() + 8000;
   saveLocalState();
   try {
     await fetch('/api/recurring-checklist', {
@@ -204,6 +207,7 @@ async function persistState() {
       body: JSON.stringify({ checked_ids: Array.from(checkedIds) }),
     });
   } catch {}
+  savingUntil = Date.now() + 3000;
 }
 
 function saveState() {

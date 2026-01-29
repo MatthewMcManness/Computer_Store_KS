@@ -266,13 +266,21 @@ schedules.forEach((s, i) => {
     '</tr>';
 });
 
-loadState().then(() => {
+function applyState() {
   schedules.forEach((s, i) => {
     const cb = document.getElementById('cb' + i);
     if (cb) cb.checked = checkedIds.has(s.id);
   });
   updateProgress();
   updateRows();
+}
+
+loadState().then(() => {
+  applyState();
+  setInterval(async () => {
+    await loadState();
+    applyState();
+  }, 5000);
 });
 </script>
 </body>

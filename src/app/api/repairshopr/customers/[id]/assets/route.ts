@@ -43,11 +43,10 @@ export async function GET(
   }
 
   try {
-    // Supabase-first: try to get assets from our database
+    // Supabase is source of truth — serve from our database
     const cachedAssets = await getCustomerAssets(customerId);
 
     if (cachedAssets.length > 0) {
-      // Map Supabase rs_assets rows to RepairShopr-shaped response
       const assets = cachedAssets.map((a) => ({
         id: a.repairshopr_id,
         name: a.name,
@@ -61,11 +60,11 @@ export async function GET(
       return NextResponse.json({ assets });
     }
 
-    // Fallback: fetch from RepairShopr if no assets in Supabase
+    // No assets in Supabase yet — initial seed from RepairShopr
     const client = createRepairShoprClient();
     const assets = await client.getCustomerAssets(apiToken, customerId);
 
-    // Sync to Supabase for future requests
+    // Sync to Supabase so future requests serve from our database
     if (supabaseAdmin && assets.length > 0) {
       for (const asset of assets) {
         await supabaseAdmin

@@ -1168,21 +1168,20 @@ export class RepairShoprClient {
   }
 
   /**
-   * Delete an asset/device
+   * Update an asset/device via PUT.
    *
    * @param apiToken - API token for authentication
-   * @param assetId - Asset ID to delete
-   * @returns True if deleted successfully
+   * @param assetId - Asset ID to update
+   * @param data - Fields to update (e.g. name, properties)
+   * @returns Updated asset
    *
-   * @example
-   * ```typescript
-   * await client.deleteAsset(apiToken, 12345);
-   * ```
+   * @version 1.0.0 - 2026-02-02T00:00:00Z - Initial implementation
    */
-  async deleteAsset(
+  async updateAsset(
     apiToken: string,
-    assetId: number
-  ): Promise<boolean> {
+    assetId: number,
+    data: Record<string, unknown>
+  ): Promise<RepairShoprAsset> {
     if (!apiToken || !apiToken.trim()) {
       throw new RepairShoprAPIError(
         'API token is required',
@@ -1191,15 +1190,16 @@ export class RepairShoprClient {
       );
     }
 
-    await this.request(
-      `/customer_assets/${assetId}.json?api_key=${encodeURIComponent(apiToken.trim())}`,
+    const response = await this.request<{ asset?: RepairShoprAsset; customer_asset?: RepairShoprAsset }>(
+      `/customer_assets/${assetId}?api_key=${encodeURIComponent(apiToken.trim())}`,
       {
-        method: 'DELETE',
+        method: 'PUT',
+        body: JSON.stringify(data),
       }
     );
 
-    console.log(`[RepairShopr] Asset ${assetId} deleted successfully`);
-    return true;
+    const asset = response.customer_asset || response.asset;
+    return asset as RepairShoprAsset;
   }
 
   // =============================================================================

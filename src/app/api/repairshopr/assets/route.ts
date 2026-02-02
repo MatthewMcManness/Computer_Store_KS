@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
     if (supabaseAdmin) {
       const { error: syncError } = await supabaseAdmin
         .from('rs_assets')
-        .upsert({
+        .insert({
           repairshopr_id: asset.id,
           customer_id: asset.customer_id || body.customer_id,
           name: asset.name || body.name,
@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
           created_at: asset.created_at || new Date().toISOString(),
           updated_at: asset.updated_at || new Date().toISOString(),
           synced_at: new Date().toISOString(),
-        }, { onConflict: 'repairshopr_id' });
+        });
 
       if (syncError) {
         console.error('[API] Failed to sync new asset to Supabase:', syncError);

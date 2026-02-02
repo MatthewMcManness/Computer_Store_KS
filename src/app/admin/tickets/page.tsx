@@ -57,6 +57,7 @@ export default function TicketsListPage() {
   const [statusDefinitions, setStatusDefinitions] = useState<StatusDefinition[]>([]);
   const [ticketStatusOverrides, setTicketStatusOverrides] = useState<Record<number, StatusOverride>>({});
   const [assetPlanTiers, setAssetPlanTiers] = useState<Record<number, ProtectionPlanTier>>({});
+  const [assetNames, setAssetNames] = useState<Record<number, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
@@ -201,6 +202,9 @@ export default function TicketsListPage() {
             if (tiersRes.ok && tiersData.tiers) {
               setAssetPlanTiers(tiersData.tiers);
             }
+            if (tiersRes.ok && tiersData.names) {
+              setAssetNames(tiersData.names);
+            }
           } catch (tierErr) {
             console.error('Failed to fetch asset protection plan tiers:', tierErr);
           }
@@ -208,12 +212,14 @@ export default function TicketsListPage() {
       } else {
         setTicketStatusOverrides({});
         setAssetPlanTiers({});
+        setAssetNames({});
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch tickets');
       setTickets([]);
       setTicketStatusOverrides({});
       setAssetPlanTiers({});
+      setAssetNames({});
     } finally {
       setIsLoading(false);
     }
@@ -406,13 +412,39 @@ export default function TicketsListPage() {
               const statusColor = getStatusColorClass(ticket.status || '', override?.custom_status);
               const isRework = override?.custom_status === 'rework';
 
+              // Determine highest tier among ticket assets for left border
+              const assetIds = ticket.asset_ids || [];
+              const tierOrder: ProtectionPlanTier[] = ['silver-plus', 'silver', 'eset'];
+              const assetsWithTiers = assetIds.map(id => ({
+                id,
+                name: assetNames[id] || `Asset #${id}`,
+                tier: assetPlanTiers[id] || null,
+              })).sort((a, b) => {
+                const ai = tierOrder.indexOf(a.tier as ProtectionPlanTier);
+                const bi = tierOrder.indexOf(b.tier as ProtectionPlanTier);
+                return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+              });
+              const highestTier = assetsWithTiers.length > 0 ? assetsWithTiers[0]!.tier : null;
+
+              // Left border: rework takes priority, then tier
+              let borderClass = '';
+              if (isRework) {
+                borderClass = 'border-l-4 border-red-500';
+              } else if (highestTier === 'silver-plus') {
+                borderClass = 'border-l-4 border-amber-400';
+              } else if (highestTier === 'silver') {
+                borderClass = 'border-l-4 border-slate-400';
+              } else if (highestTier === 'eset') {
+                borderClass = 'border-l-4 border-blue-400';
+              }
+
               return (
                 <button
                   key={ticket.id}
                   onClick={() => router.push(`/admin/tickets/${ticket.id}`)}
-                  className={`flex w-full items-center justify-between p-4 text-left transition-colors ${
+                  className={`flex w-full items-center justify-between p-4 text-left transition-colors ${borderClass} ${
                     isRework
-                      ? 'bg-red-50 hover:bg-red-100 dark:bg-red-950/30 dark:hover:bg-red-950/50 border-l-4 border-red-500'
+                      ? 'bg-red-50 hover:bg-red-100 dark:bg-red-950/30 dark:hover:bg-red-950/50'
                       : 'hover:bg-gray-50 dark:hover:bg-gray-800'
                   }`}
                 >
@@ -444,6 +476,36 @@ export default function TicketsListPage() {
                       </div>
                     </div>
                   </div>
+                  {/* Asset badges */}
+                  {assetsWithTiers.length > 0 && (
+                    <div className="ml-2 hidden flex-shrink-0 flex-col gap-1 sm:flex">
+                      {assetsWithTiers.map((asset) => {
+                        let badgeClass = 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400';
+                        let tierLabel = '';
+                        if (asset.tier === 'silver-plus') {
+                          badgeClass = 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300';
+                          tierLabel = 'Silver+';
+                        } else if (asset.tier === 'silver') {
+                          badgeClass = 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300';
+                          tierLabel = 'Silver';
+                        } else if (asset.tier === 'eset') {
+                          badgeClass = 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300';
+                          tierLabel = 'ESET';
+                        }
+                        return (
+                          <span
+                            key={asset.id}
+                            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ${badgeClass}`}
+                          >
+                            <span className="max-w-[120px] truncate">{asset.name}</span>
+                            {tierLabel && (
+                              <span className="font-semibold">{tierLabel}</span>
+                            )}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
                 </button>
               );
             })}

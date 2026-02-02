@@ -9,16 +9,17 @@ export const dynamic = 'force-dynamic';
  * Get protection plan tiers for multiple assets
  *
  * Body: { asset_ids: number[] }
- * Returns: { tiers: Record<number, ProtectionPlanTier> }
+ * Returns: { tiers: Record<number, ProtectionPlanTier>, names: Record<number, string> }
  *
- * Used for batch fetching asset protection plan tiers when displaying ticket lists
- * with priority-based sorting. Returns the protection plan tier for each asset.
+ * Used for batch fetching asset protection plan tiers and names when displaying ticket lists
+ * with priority-based sorting. Returns the protection plan tier and name for each asset.
  *
  * @param request - Next.js request with JSON body containing asset_ids array
  * @returns NextResponse with map of asset ID to protection plan tier
  *
  * @sideEffects
  * - Reads from asset_protection_plans table
+ * - Reads from rs_assets table
  *
  * @functions_called getEmployeeAuditInfo
  * @called_by TicketsListPage
@@ -83,7 +84,25 @@ export async function POST(request: NextRequest) {
       tiers[plan.repairshopr_asset_id] = plan.plan_tier;
     }
 
-    return NextResponse.json({ tiers });
+    // Fetch asset names from rs_assets
+    const names: Record<number, string> = {};
+    const { data: assets, error: assetsError } = await supabaseAdmin
+      .from('rs_assets')
+      .select('repairshopr_id, name')
+      .in('repairshopr_id', validIds);
+
+    if (assetsError) {
+      console.error('[API] Asset names batch error:', assetsError);
+      // Non-fatal: return tiers without names
+    } else {
+      for (const asset of assets || []) {
+        if (asset.name) {
+          names[asset.repairshopr_id] = asset.name;
+        }
+      }
+    }
+
+    return NextResponse.json({ tiers, names });
   } catch (error) {
     console.error('[API] Asset protection plans batch error:', error);
     return NextResponse.json(

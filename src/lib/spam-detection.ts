@@ -571,6 +571,14 @@ export async function verifyTurnstile(token: string, ip: string): Promise<boolea
     });
 
     const data = await response.json();
+    if (!data.success) {
+      console.warn('Turnstile verification failed:', JSON.stringify({
+        success: data.success,
+        errorCodes: data['error-codes'],
+        hostname: data.hostname,
+        ip,
+      }));
+    }
     return data.success === true;
   } catch (error) {
     console.error('Turnstile verification error:', error);
@@ -639,19 +647,21 @@ export async function calculateSpamScore(
   // Browser fingerprint (0-10)
   const browserFingerprintScore = data._fingerprint?.spamScore || 0;
 
-  // Turnstile verification (0, 30, or 200 for instant block)
+  // Turnstile verification (0 or 30)
   let turnstileScore = 0;
   let turnstileFailed = false;
   if (data._turnstile) {
     const turnstileValid = await verifyTurnstile(data._turnstile, clientIP);
     if (!turnstileValid) {
-      // Turnstile failure = instant block (no legitimate user fails this)
-      turnstileScore = 200;
+      // Turnstile failure is one signal among many, not an instant kill.
+      // Legitimate users can fail Turnstile due to misconfigured keys,
+      // network issues, or Cloudflare outages.
+      turnstileScore = 30;
       turnstileFailed = true;
     }
   } else if (process.env.TURNSTILE_SECRET_KEY) {
-    // Token required but not provided = instant block
-    turnstileScore = 200;
+    // Token required but not provided — suspicious but not fatal
+    turnstileScore = 30;
     turnstileFailed = true;
   }
 

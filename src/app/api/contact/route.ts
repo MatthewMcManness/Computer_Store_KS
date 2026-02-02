@@ -268,12 +268,25 @@ export async function POST(request: NextRequest) {
       email: sanitizedData.email,
       subject: sanitizedData.subject,
       notificationSent: notificationResult.success,
+      notificationError: notificationResult.error || null,
       confirmationSent: confirmationResult.success,
+      confirmationError: confirmationResult.error || null,
       timestamp: new Date().toISOString(),
     });
 
-    // Return success even if emails partially failed
-    // (we don't want to lose the contact)
+    // If the notification email failed, the business won't see this message.
+    // Tell the user so they can call instead.
+    if (!notificationResult.success) {
+      console.error('CRITICAL: Contact notification email failed:', notificationResult.error);
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'We had trouble delivering your message. Please call us directly at (785) 267-3223 or email contact@computerstoreks.com.',
+        },
+        { status: 500, headers: corsHeaders }
+      );
+    }
+
     return NextResponse.json(
       {
         success: true,

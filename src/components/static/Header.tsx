@@ -74,7 +74,7 @@ export function Header() {
         <h1 className="logo">
           <Link href="/">
             <Image
-              src="/assets/Logo with Name.svg"
+              src="/assets/title.png"
               alt="Computer Store Kansas"
               width={512}
               height={236}

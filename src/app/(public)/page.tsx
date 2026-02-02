@@ -13,7 +13,7 @@ export default function HomePage() {
           <div className="hero-title">
             <div className="silver-plaque">
               <Image
-                src="/assets/Logo with Name.svg"
+                src="/assets/title.png"
                 alt="Computer Store Kansas - Expert Computer Repair Since 2003"
                 width={400}
                 height={100}

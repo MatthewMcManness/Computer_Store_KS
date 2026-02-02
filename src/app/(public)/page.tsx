@@ -11,15 +11,13 @@ export default function HomePage() {
       <section className="hero" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=1920&q=80)' }}>
         <div className="container">
           <div className="hero-title">
-            <div className="silver-plaque">
-              <Image
-                src="/assets/title.png"
-                alt="Computer Store Kansas - Expert Computer Repair Since 2003"
-                width={400}
-                height={100}
-                priority
-              />
-            </div>
+            <Image
+              src="/assets/title.png"
+              alt="Computer Store Kansas - Expert Computer Repair Since 2003"
+              width={400}
+              height={100}
+              priority
+            />
           </div>
           <h2>Your Go-To Technology Center Since 2003</h2>
           <p>Count on The Computer Store for all your computer service needs. Fast, friendly, and reliable service you can trust.</p>

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getEmployeeAuditInfo, getSessionToken } from '@/lib/auth';
-import { createRepairShoprClient, RepairShoprAPIError, getApiToken } from '@/lib/repairshopr';
+import { createRepairShoprClient, getApiToken } from '@/lib/repairshopr';
 import { logAssetAction } from '@/lib/audit';
 import { supabaseAdmin } from '@/lib/supabase';
 
@@ -8,19 +8,23 @@ export const dynamic = 'force-dynamic';
 
 /**
  * DELETE /api/repairshopr/assets/[id]
- * Delete an asset/device
+ * Delete an asset/device.
+ *
+ * Supabase is source of truth — deletes from Supabase first,
+ * then pushes delete to RepairShopr as backup.
+ *
+ * @version 1.0.0 - Initial implementation
+ * @version 2.0.0 - 2026-02-02T00:00:00Z - Supabase-first, RS as backup
  */
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  // Check employee authentication and get audit info
   const employee = await getEmployeeAuditInfo();
   if (!employee) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  // Get API token (shared key preferred, falls back to session token)
   const apiToken = getApiToken(await getSessionToken());
   if (!apiToken) {
     return NextResponse.json({ error: 'Session expired' }, { status: 401 });
@@ -37,47 +41,35 @@ export async function DELETE(
   }
 
   try {
-    const client = createRepairShoprClient();
-
-    // First, get the asset details for audit logging
+    // Get asset name from Supabase for audit logging
     let assetName = `Asset #${assetId}`;
-    try {
-      const asset = await client.getAsset(apiToken, assetId);
-      if (asset) {
-        assetName = asset.name || assetName;
-      }
-    } catch {
-      // Continue with deletion even if we can't get the asset name
+    if (supabaseAdmin) {
+      const { data } = await supabaseAdmin
+        .from('rs_assets')
+        .select('name')
+        .eq('repairshopr_id', assetId)
+        .single();
+      if (data?.name) assetName = data.name;
     }
 
-    // Delete the asset
-    await client.deleteAsset(apiToken, assetId);
-
-    // Remove from Supabase tables
+    // Delete from Supabase (source of truth)
     if (supabaseAdmin) {
       await supabaseAdmin.from('asset_protection_plans').delete().eq('repairshopr_asset_id', assetId);
       await supabaseAdmin.from('rs_assets').delete().eq('repairshopr_id', assetId);
     }
 
-    // Log the asset deletion for audit trail
-    await logAssetAction(
-      employee,
-      'asset_delete',
-      assetId,
-      assetName,
-      {},
-      request
-    );
+    // Push delete to RepairShopr as backup
+    try {
+      const client = createRepairShoprClient();
+      await client.deleteAsset(apiToken, assetId);
+    } catch (rsError) {
+      console.error('[API] Failed to delete asset from RepairShopr (backup):', rsError);
+    }
+
+    await logAssetAction(employee, 'asset_delete', assetId, assetName, {}, request);
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    if (error instanceof RepairShoprAPIError) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: error.status }
-      );
-    }
-
     console.error('[API] Asset deletion error:', error);
     return NextResponse.json(
       { error: 'Failed to delete asset' },
@@ -88,22 +80,20 @@ export async function DELETE(
 
 /**
  * GET /api/repairshopr/assets/[id]
- * Get a single asset by ID
+ * Get a single asset by ID.
+ *
+ * Supabase-only: never pulls from RepairShopr.
+ *
+ * @version 1.0.0 - Initial implementation (RepairShopr)
+ * @version 2.0.0 - 2026-02-02T00:00:00Z - Supabase-only
  */
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  // Check employee authentication
   const employee = await getEmployeeAuditInfo();
   if (!employee) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  // Get API token
-  const apiToken = getApiToken(await getSessionToken());
-  if (!apiToken) {
-    return NextResponse.json({ error: 'Session expired' }, { status: 401 });
   }
 
   const { id } = await params;
@@ -117,25 +107,32 @@ export async function GET(
   }
 
   try {
-    const client = createRepairShoprClient();
-    const asset = await client.getAsset(apiToken, assetId);
-
-    if (!asset) {
-      return NextResponse.json(
-        { error: 'Asset not found' },
-        { status: 404 }
-      );
+    if (!supabaseAdmin) {
+      return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
     }
 
-    return NextResponse.json({ asset });
+    const { data: asset, error } = await supabaseAdmin
+      .from('rs_assets')
+      .select('*')
+      .eq('repairshopr_id', assetId)
+      .single();
+
+    if (error || !asset) {
+      return NextResponse.json({ error: 'Asset not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({
+      asset: {
+        id: asset.repairshopr_id,
+        name: asset.name,
+        asset_type_name: asset.asset_type_name,
+        customer_id: asset.customer_id,
+        properties: asset.properties || {},
+        created_at: asset.created_at,
+        updated_at: asset.updated_at,
+      },
+    });
   } catch (error) {
-    if (error instanceof RepairShoprAPIError) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: error.status }
-      );
-    }
-
     console.error('[API] Asset fetch error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch asset' },

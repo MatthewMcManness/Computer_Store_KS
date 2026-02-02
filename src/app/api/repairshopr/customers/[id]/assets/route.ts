@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getEmployeeAuditInfo, getSessionToken } from '@/lib/auth';
-import { createRepairShoprClient, RepairShoprAPIError, getApiToken } from '@/lib/repairshopr';
-import { getCustomerAssets, supabaseAdmin } from '@/lib/supabase';
+import { getEmployeeAuditInfo } from '@/lib/auth';
+import { getCustomerAssets } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
@@ -9,11 +8,14 @@ export const dynamic = 'force-dynamic';
  * GET /api/repairshopr/customers/[id]/assets
  * Get all assets for a customer.
  *
- * Supabase-first: reads from rs_assets table. Falls back to RepairShopr API
- * if no assets found in Supabase, then syncs the results back.
+ * Supabase-only: reads exclusively from rs_assets table.
+ * RepairShopr asset data is unreliable (legacy employees did not maintain it)
+ * so we never pull assets from RepairShopr. Assets are only created through
+ * our intake flow, which pushes to RepairShopr as a backup.
  *
  * @version 1.0.0 - Initial implementation (RepairShopr-only)
  * @version 2.0.0 - 2026-02-02T00:00:00Z - Supabase-first pattern
+ * @version 3.0.0 - 2026-02-02T00:00:00Z - Supabase-only, never pull from RepairShopr
  */
 export async function GET(
   request: NextRequest,
@@ -23,12 +25,6 @@ export async function GET(
   const employee = await getEmployeeAuditInfo();
   if (!employee) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  // Get API token (shared key preferred, falls back to session token)
-  const apiToken = getApiToken(await getSessionToken());
-  if (!apiToken) {
-    return NextResponse.json({ error: 'Session expired' }, { status: 401 });
   }
 
   // Parse customer ID
@@ -43,57 +39,21 @@ export async function GET(
   }
 
   try {
-    // Supabase is source of truth — serve from our database
+    // Supabase is the sole source of truth for assets
     const cachedAssets = await getCustomerAssets(customerId);
 
-    if (cachedAssets.length > 0) {
-      const assets = cachedAssets.map((a) => ({
-        id: a.repairshopr_id,
-        name: a.name,
-        asset_type_name: a.asset_type_name,
-        customer_id: a.customer_id,
-        properties: a.properties || {},
-        created_at: a.created_at,
-        updated_at: a.updated_at,
-      }));
-
-      return NextResponse.json({ assets });
-    }
-
-    // No assets in Supabase yet — initial seed from RepairShopr
-    const client = createRepairShoprClient();
-    const assets = await client.getCustomerAssets(apiToken, customerId);
-
-    // Sync to Supabase so future requests serve from our database
-    if (supabaseAdmin && assets.length > 0) {
-      for (const asset of assets) {
-        await supabaseAdmin
-          .from('rs_assets')
-          .upsert({
-            repairshopr_id: asset.id,
-            customer_id: asset.customer_id || customerId,
-            name: asset.name,
-            asset_type_name: asset.asset_type_name || null,
-            properties: asset.properties || {},
-            created_at: asset.created_at || new Date().toISOString(),
-            updated_at: asset.updated_at || new Date().toISOString(),
-            synced_at: new Date().toISOString(),
-          }, { onConflict: 'repairshopr_id' })
-          .then(({ error }) => {
-            if (error) console.error(`[API] Failed to sync asset ${asset.id} to Supabase:`, error);
-          });
-      }
-    }
+    const assets = cachedAssets.map((a) => ({
+      id: a.repairshopr_id,
+      name: a.name,
+      asset_type_name: a.asset_type_name,
+      customer_id: a.customer_id,
+      properties: a.properties || {},
+      created_at: a.created_at,
+      updated_at: a.updated_at,
+    }));
 
     return NextResponse.json({ assets });
   } catch (error) {
-    if (error instanceof RepairShoprAPIError) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: error.status }
-      );
-    }
-
     console.error('[API] Customer assets fetch error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch customer assets' },

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getEmployeeAuditInfo, getSessionToken } from '@/lib/auth';
 import { createRepairShoprClient, RepairShoprAPIError, getApiToken } from '@/lib/repairshopr';
 import { logAssetAction } from '@/lib/audit';
+import { supabaseAdmin } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
@@ -54,6 +55,26 @@ export async function POST(request: NextRequest) {
     if (!asset) {
       console.error('[API] No asset returned from RepairShopr client');
       return NextResponse.json({ error: 'No asset created' }, { status: 500 });
+    }
+
+    // Sync new asset to Supabase rs_assets table
+    if (supabaseAdmin) {
+      const { error: syncError } = await supabaseAdmin
+        .from('rs_assets')
+        .upsert({
+          repairshopr_id: asset.id,
+          customer_id: asset.customer_id || body.customer_id,
+          name: asset.name || body.name,
+          asset_type_name: asset.asset_type_name || body.asset_type_name || null,
+          properties: asset.properties || {},
+          created_at: asset.created_at || new Date().toISOString(),
+          updated_at: asset.updated_at || new Date().toISOString(),
+          synced_at: new Date().toISOString(),
+        }, { onConflict: 'repairshopr_id' });
+
+      if (syncError) {
+        console.error('[API] Failed to sync new asset to Supabase:', syncError);
+      }
     }
 
     // Log the asset creation for audit trail

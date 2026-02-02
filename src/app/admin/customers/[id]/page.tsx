@@ -163,6 +163,7 @@ export default function CustomerDetailsPage() {
   const [newDeviceType, setNewDeviceType] = useState<'Desktop' | 'Laptop'>('Desktop');
   const [newBrand, setNewBrand] = useState<Brand | ''>('');
   const [newModel, setNewModel] = useState('');
+  const [newAssetPlan, setNewAssetPlan] = useState<ProtectionPlanTier>(null);
   const [addingAsset, setAddingAsset] = useState(false);
 
   // Edit modal state
@@ -480,11 +481,33 @@ export default function CustomerDetailsPage() {
 
       if (!response.ok) throw new Error('Failed to add asset');
 
+      // Assign protection plan if selected
+      if (newAssetPlan) {
+        const assetData = await response.json();
+        const assetId = assetData.asset?.id;
+        if (assetId) {
+          try {
+            await fetch('/api/admin/asset-plans', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                asset_id: assetId,
+                customer_id: customer.id,
+                plan_tier: newAssetPlan,
+              }),
+            });
+          } catch (planErr) {
+            console.error('Failed to assign protection plan:', planErr);
+          }
+        }
+      }
+
       await loadTabData(customer.id, 'assets');
       setShowAddAsset(false);
       setNewDeviceType('Desktop');
       setNewBrand('');
       setNewModel('');
+      setNewAssetPlan(null);
     } catch (err) {
       console.error('Failed to add asset:', err);
     } finally {
@@ -1102,6 +1125,38 @@ export default function CustomerDetailsPage() {
                                   </span>
                                 </div>
                               )}
+
+                              {/* Protection Plan Selection */}
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                  Protection Plan <span className="text-gray-400 font-normal">(optional)</span>
+                                </label>
+                                <div className="flex gap-2">
+                                  {([
+                                    { value: 'eset' as const, label: 'ESET', icon: Shield, color: 'green' },
+                                    { value: 'silver' as const, label: 'Silver', icon: ShieldCheck, color: 'gray' },
+                                    { value: 'silver-plus' as const, label: 'Silver+', icon: ShieldAlert, color: 'amber' },
+                                  ] as const).map((plan) => (
+                                    <button
+                                      key={plan.value}
+                                      type="button"
+                                      onClick={() => setNewAssetPlan(newAssetPlan === plan.value ? null : plan.value)}
+                                      className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-all ${
+                                        newAssetPlan === plan.value
+                                          ? plan.color === 'green'
+                                            ? 'border-green-500 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                                            : plan.color === 'gray'
+                                            ? 'border-gray-500 bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                                            : 'border-amber-500 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300'
+                                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                                      }`}
+                                    >
+                                      <plan.icon className="h-4 w-4" />
+                                      <span className="font-medium text-sm">{plan.label}</span>
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
                             </div>
                             <div className="flex gap-2 justify-end">
                               <button
@@ -1110,6 +1165,7 @@ export default function CustomerDetailsPage() {
                                   setNewDeviceType('Desktop');
                                   setNewBrand('');
                                   setNewModel('');
+                                  setNewAssetPlan(null);
                                 }}
                                 disabled={addingAsset}
                                 className="px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"

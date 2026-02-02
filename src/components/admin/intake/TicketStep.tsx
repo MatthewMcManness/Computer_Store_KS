@@ -157,17 +157,29 @@ export function TicketStep({ customer, device, onTicketCreated, onBack }: Ticket
   // Validation - require description and at least one service
   const isValid = description.trim().length >= 10 && selectedServices.length > 0;
 
+  // Protection plan service IDs are mutually exclusive
+  const PROTECTION_PLAN_IDS = ['eset', 'silver_plan', 'silver_plus'];
+
   /**
-   * Toggle a service selection.
+   * Toggle a service selection. Protection plan services (ESET, Silver, Silver+)
+   * are mutually exclusive — selecting one deselects the others.
    *
    * @param serviceId - The service ID to toggle
+   *
+   * @version 1.0.0 - 2026-01-13T00:00:00Z - Initial implementation
+   * @version 2.0.0 - 2026-02-02T00:00:00Z - Made protection plans mutually exclusive
    */
   const handleServiceToggle = (serviceId: string) => {
-    setSelectedServices((prev) =>
-      prev.includes(serviceId)
-        ? prev.filter((id) => id !== serviceId)
-        : [...prev, serviceId]
-    );
+    setSelectedServices((prev) => {
+      if (prev.includes(serviceId)) {
+        return prev.filter((id) => id !== serviceId);
+      }
+      // If selecting a protection plan, remove any other protection plan first
+      if (PROTECTION_PLAN_IDS.includes(serviceId)) {
+        return [...prev.filter((id) => !PROTECTION_PLAN_IDS.includes(id)), serviceId];
+      }
+      return [...prev, serviceId];
+    });
   };
 
   /**
@@ -235,6 +247,29 @@ export function TicketStep({ customer, device, onTicketCreated, onBack }: Ticket
 
       if (!data.ticket) {
         throw new Error('Invalid response from server');
+      }
+
+      // Auto-assign protection plan to asset if one was selected
+      const planMap: Record<string, string> = {
+        eset: 'eset',
+        silver_plan: 'silver',
+        silver_plus: 'silver-plus',
+      };
+      const selectedPlan = selectedServices.find((id) => PROTECTION_PLAN_IDS.includes(id));
+      if (selectedPlan && planMap[selectedPlan]) {
+        try {
+          await fetch('/api/admin/asset-plans', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              asset_id: device.id,
+              customer_id: customer.id,
+              plan_tier: planMap[selectedPlan],
+            }),
+          });
+        } catch (planErr) {
+          console.error('[TicketStep] Failed to assign protection plan:', planErr);
+        }
       }
 
       console.log('[TicketStep] Calling onTicketCreated with:', data.ticket?.id, customer?.id);

@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getEmployeeAuditInfo, getSessionToken, getCurrentUser } from '@/lib/auth';
 import { createRepairShoprClient, RepairShoprAPIError, getApiToken } from '@/lib/repairshopr';
 import { logTicketAction } from '@/lib/audit';
-import { supabaseAdmin } from '@/lib/supabase';
-import { getEffectiveLocationId } from '@/lib/location-helpers';
+import { supabaseAdmin, getDefaultCustomStatusForRepairShoprStatus } from '@/lib/supabase';
+import { getEffectiveLocationId, resolveLocationId } from '@/lib/location-helpers';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,28 +12,104 @@ interface RouteParams {
 }
 
 /**
- * Check if the user has access to view a ticket based on location.
+ * Ensure a single ticket is synced to rs_tickets. If it doesn't exist
+ * in Supabase yet, upsert it so location filtering works immediately.
  *
- * @param customerId - Customer ID from the ticket
+ * @param ticket - Ticket object from RepairShopr API
+ *
+ * @sideEffects
+ * - Upserts ticket into rs_tickets if missing
+ * - Upserts status override if missing
+ *
+ * @version 1.0.0 - 2026-02-02T00:00:00Z - Initial implementation
+ */
+async function ensureTicketSynced(
+  ticket: { id: number; [key: string]: unknown }
+): Promise<void> {
+  if (!supabaseAdmin) return;
+
+  const { data: existing } = await supabaseAdmin
+    .from('rs_tickets')
+    .select('repairshopr_id')
+    .eq('repairshopr_id', ticket.id)
+    .single();
+
+  if (existing) return;
+
+  const locationId = await resolveLocationId(ticket.location_id as number | undefined);
+
+  const { error } = await supabaseAdmin
+    .from('rs_tickets')
+    .upsert({
+      repairshopr_id: ticket.id,
+      number: (ticket.number as string) || null,
+      subject: (ticket.subject as string) || null,
+      status: (ticket.status as string) || null,
+      problem_type: (ticket.problem_type as string) || null,
+      customer_id: (ticket.customer_id as number) || null,
+      customer_business_then_name: (ticket.customer_business_then_name as string) || null,
+      user_id: (ticket.user_id as number) || null,
+      due_date: (ticket.due_date as string) || null,
+      priority: (ticket.priority as string) || null,
+      resolved_at: (ticket.resolved_at as string) || null,
+      asset_ids: (ticket.asset_ids as number[]) || [],
+      location_id: locationId,
+      created_at: (ticket.created_at as string) || null,
+      updated_at: (ticket.updated_at as string) || null,
+      synced_at: new Date().toISOString(),
+    }, { onConflict: 'repairshopr_id' });
+
+  if (error) {
+    console.error('[API] Auto-sync single ticket error:', error);
+    return;
+  }
+
+  if (ticket.status) {
+    await supabaseAdmin
+      .from('ticket_status_overrides')
+      .upsert({
+        repairshopr_ticket_id: ticket.id,
+        custom_status: getDefaultCustomStatusForRepairShoprStatus(ticket.status as string),
+        updated_by: 'auto_sync',
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'repairshopr_ticket_id' });
+  }
+
+  console.log(`[API] Auto-synced ticket ${ticket.id} to rs_tickets`);
+}
+
+/**
+ * Check if the user has access to view a ticket based on location.
+ * Auto-syncs the ticket first if it's not in rs_tickets.
+ *
+ * @param ticketId - RepairShopr ticket ID
  * @param effectiveLocationId - Location ID to check against (null means no filtering)
+ * @param ticket - Full ticket object from RepairShopr (used for auto-sync)
  * @returns true if user has access, false otherwise
  *
- * @functions_called supabaseAdmin
+ * @functions_called ensureTicketSynced, supabaseAdmin
  * @called_by GET /api/repairshopr/tickets/[id], PUT /api/repairshopr/tickets/[id]
  *
  * @version 1.0.0 - 2026-01-14T00:00:00Z - Initial implementation
+ * @version 2.0.0 - 2026-02-02T00:00:00Z - Auto-sync ticket before checking access
  */
 async function hasLocationAccess(
   ticketId: number,
-  effectiveLocationId: string | null
+  effectiveLocationId: string | null,
+  ticket?: { id: number; [key: string]: unknown }
 ): Promise<boolean> {
   // No filtering needed if user has access to all locations
   if (!effectiveLocationId || !supabaseAdmin) {
     return true;
   }
 
+  // Auto-sync the ticket if we have the full object
+  if (ticket) {
+    await ensureTicketSynced(ticket);
+  }
+
   // Check if ticket belongs to the effective location
-  const { data: ticket, error } = await supabaseAdmin
+  const { data: rsTicket, error } = await supabaseAdmin
     .from('rs_tickets')
     .select('location_id')
     .eq('repairshopr_id', ticketId)
@@ -44,7 +120,7 @@ async function hasLocationAccess(
     return false;
   }
 
-  return ticket?.location_id === effectiveLocationId;
+  return rsTicket?.location_id === effectiveLocationId;
 }
 
 /**
@@ -93,8 +169,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const client = createRepairShoprClient();
     const ticket = await client.getTicket(apiToken, ticketId);
 
-    // Check if user has access to this ticket based on customer location
-    if (!(await hasLocationAccess(ticket.id, effectiveLocationId))) {
+    // Check if user has access to this ticket based on location (auto-syncs if needed)
+    if (!(await hasLocationAccess(ticket.id, effectiveLocationId, ticket as unknown as { id: number; [key: string]: unknown }))) {
       return NextResponse.json(
         { error: 'Access denied - ticket belongs to a different location' },
         { status: 403 }
@@ -175,11 +251,10 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const client = createRepairShoprClient();
 
-    // First fetch the ticket to check location access
+    // First fetch the ticket to check location access (auto-syncs if needed)
     const existingTicket = await client.getTicket(apiToken, ticketId);
 
-    // Check if user has access to this ticket based on customer location
-    if (!(await hasLocationAccess(existingTicket.id, effectiveLocationId))) {
+    if (!(await hasLocationAccess(existingTicket.id, effectiveLocationId, existingTicket as unknown as { id: number; [key: string]: unknown }))) {
       return NextResponse.json(
         { error: 'Access denied - ticket belongs to a different location' },
         { status: 403 }

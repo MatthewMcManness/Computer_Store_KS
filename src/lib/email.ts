@@ -69,6 +69,7 @@ export async function sendContactNotification(data: {
   phone?: string;
   subject: string;
   message: string;
+  location?: string;
 }): Promise<EmailResult> {
   const NOTIFICATION_EMAIL = process.env.NOTIFICATION_EMAIL || 'contact@computerstoreks.com';
   const timestamp = new Date().toLocaleString('en-US', {
@@ -102,7 +103,7 @@ export async function sendContactNotification(data: {
     <body>
       <div class="container">
         <div class="header">
-          <h2 style="margin: 0;">New Contact Form Submission</h2>
+          <h2 style="margin: 0;">New Contact Form Submission${data.location ? ` (${data.location})` : ''}</h2>
           <p style="margin: 5px 0 0 0; opacity: 0.9;">${data.subject}</p>
         </div>
         <div class="content">
@@ -118,6 +119,12 @@ export async function sendContactNotification(data: {
           <div class="field">
             <span class="label">Phone:</span>
             <span class="value"><a href="tel:${data.phone.replace(/\D/g, '')}">${data.phone}</a></span>
+          </div>
+          ` : ''}
+          ${data.location ? `
+          <div class="field">
+            <span class="label">Location:</span>
+            <span class="value">${data.location}</span>
           </div>
           ` : ''}
           <div class="field">
@@ -138,9 +145,9 @@ export async function sendContactNotification(data: {
   `;
 
   const text = `
-New Contact Form Submission
+New Contact Form Submission${data.location ? ` (${data.location})` : ''}
 
-Subject: ${data.subject}
+${data.location ? `Location: ${data.location}\n` : ''}Subject: ${data.subject}
 
 Name: ${data.name}
 Email: ${data.email}
@@ -155,7 +162,7 @@ Submitted on ${timestamp} CST
 
   return sendEmail({
     to: NOTIFICATION_EMAIL,
-    subject: `New Contact Form: ${data.subject} from ${data.name}`,
+    subject: `New Contact Form (${data.location || 'Topeka'}): ${data.subject} from ${data.name}`,
     html,
     text,
     replyTo: data.email,

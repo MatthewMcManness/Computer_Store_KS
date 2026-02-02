@@ -61,6 +61,7 @@ const contactFormSchema = z.object({
     .min(10, 'Message must be at least 10 characters')
     .max(5000, 'Message must be less than 5000 characters')
     .transform((val) => val.trim()),
+  location: z.enum(['Topeka', 'Holton']).optional().default('Topeka'),
   // Honeypot field - should always be empty
   website: z.string().optional(),
   // Bot protection fields
@@ -215,6 +216,7 @@ export async function POST(request: NextRequest) {
       type: 'spam_score',
       timestamp: new Date().toISOString(),
       ip,
+      location: formData.location,
       score: spamResult.score,
       breakdown: spamResult.breakdown,
       action: spamResult.action,
@@ -249,6 +251,7 @@ export async function POST(request: NextRequest) {
       phone: formData.phone ? sanitize(formData.phone) : undefined,
       subject: formData.subject,
       message: sanitize(formData.message),
+      location: formData.location,
     };
 
     // Send emails in parallel

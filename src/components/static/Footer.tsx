@@ -1,15 +1,29 @@
-import Link from 'next/link';
 import Image from 'next/image';
+import { LOCATIONS } from '@/lib/constants';
+
+const locationKeys = Object.keys(LOCATIONS) as Array<keyof typeof LOCATIONS>;
 
 export function Footer() {
   return (
     <footer>
       <div className="container">
-        <div className="footer-contact">
-          <p><strong>Phone:</strong> <a href="tel:785-267-3223">785-267-3223</a></p>
-          <p><strong>Address:</strong> 2008 SW Gage Blvd, Topeka, KS 66604</p>
+        <div className="footer-locations">
+          {locationKeys.map((key, i) => {
+            const loc = LOCATIONS[key];
+            return (
+              <div key={loc.name} className="footer-location-wrapper">
+                {i > 0 && <div className="footer-location-divider" />}
+                <div className="footer-location">
+                  <h4 className="footer-location-label">{loc.name}</h4>
+                  <p><a href={`tel:${loc.phone}`}>{loc.phone}</a></p>
+                  <p>{loc.addressLine1}<br />{loc.city}, {loc.state} {loc.zip}</p>
+                  <p className="footer-hours">{loc.hours[0]}<br />{loc.hours[1]}<br />{loc.hours[2]}</p>
+                </div>
+              </div>
+            );
+          })}
         </div>
-        <p className="footer-copyright">&copy; 2025 Computer Store Kansas. All rights reserved.</p>
+        <p className="footer-copyright">&copy; {new Date().getFullYear()} Computer Store Kansas. All rights reserved.</p>
         <div className="footer-credit">
           <Image
             src="/assets/rws-logo.svg"

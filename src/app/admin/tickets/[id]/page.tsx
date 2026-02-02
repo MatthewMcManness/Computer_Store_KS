@@ -24,9 +24,9 @@ import {
   Loader2,
   Sparkles,
   MessageSquare,
+  Monitor,
 } from 'lucide-react';
 import type { RepairShoprCustomer } from '@/lib/repairshopr';
-import { isSilverPlanCustomer } from '@/lib/repairshopr';
 
 interface TicketComment {
   id: number;
@@ -88,6 +88,15 @@ interface TicketData {
   due_date?: string;
   priority?: string;
   comments?: TicketComment[];
+  asset_ids?: number[];
+}
+
+type ProtectionPlanTier = 'eset' | 'silver' | 'silver-plus' | null;
+
+interface TicketAsset {
+  id: number;
+  name: string;
+  tier: ProtectionPlanTier;
 }
 
 export default function TicketDetailPage() {
@@ -126,6 +135,10 @@ export default function TicketDetailPage() {
   // Portal account state
   const [portalAccount, setPortalAccount] = useState<{ id: string; created_at: string } | null>(null);
   const [loadingPortalAccount, setLoadingPortalAccount] = useState(false);
+
+  // Asset + protection plan state
+  const [ticketAssets, setTicketAssets] = useState<TicketAsset[]>([]);
+  const [customerPlanTier, setCustomerPlanTier] = useState<ProtectionPlanTier>(null);
 
   // Load status definitions on mount
   useEffect(() => {
@@ -177,10 +190,14 @@ export default function TicketDetailPage() {
         setCustomerQuestion('');
       }
 
-      // Fetch customer details
+      // Fetch customer details and asset protection plans
       if (ticketData.ticket?.customer_id) {
         try {
-          const customerRes = await fetch(`/api/repairshopr/customers/${ticketData.ticket.customer_id}`);
+          const [customerRes, summaryRes] = await Promise.all([
+            fetch(`/api/repairshopr/customers/${ticketData.ticket.customer_id}`),
+            fetch(`/api/admin/asset-plans?customer_id=${ticketData.ticket.customer_id}&summary=true`),
+          ]);
+
           if (customerRes.ok) {
             const customerData = await customerRes.json();
             setCustomer(customerData.customer);
@@ -200,8 +217,47 @@ export default function TicketDetailPage() {
               setLoadingPortalAccount(false);
             }
           }
+
+          // Set customer-level plan tier from summary
+          if (summaryRes.ok) {
+            const summaryData = await summaryRes.json();
+            const summary = summaryData.summary;
+            if (summary?.plan_tiers?.length > 0) {
+              const tierHierarchy: Record<string, number> = { 'silver-plus': 3, 'silver': 2, 'eset': 1 };
+              let highest: ProtectionPlanTier = null;
+              for (const t of summary.plan_tiers) {
+                if (t && (!highest || (tierHierarchy[t] ?? 0) > (tierHierarchy[highest] ?? 0))) {
+                  highest = t as ProtectionPlanTier;
+                }
+              }
+              setCustomerPlanTier(highest);
+            }
+          }
         } catch (customerErr) {
           console.error('Failed to load customer:', customerErr);
+        }
+      }
+
+      // Fetch asset names and protection plan tiers for this ticket's assets
+      const assetIds = ticketData.ticket?.asset_ids || [];
+      if (assetIds.length > 0) {
+        try {
+          const tiersRes = await fetch('/api/repairshopr/assets/protection-plans-batch', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ asset_ids: assetIds }),
+          });
+          if (tiersRes.ok) {
+            const tiersData = await tiersRes.json();
+            const assets: TicketAsset[] = assetIds.map((id: number) => ({
+              id,
+              name: tiersData.names?.[id] || `Asset #${id}`,
+              tier: tiersData.tiers?.[id] || null,
+            }));
+            setTicketAssets(assets);
+          }
+        } catch (assetErr) {
+          console.error('Failed to load asset protection plans:', assetErr);
         }
       }
     } catch (err) {
@@ -563,7 +619,7 @@ export default function TicketDetailPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Customer Info Panel */}
         <div className="lg:col-span-1 space-y-6">
-          <div className={`rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-900 ${customer && isSilverPlanCustomer(customer) ? 'silver-plan-card' : ''}`}>
+          <div className={`rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-900 ${customerPlanTier === 'silver-plus' ? 'silver-plus-plan-card' : customerPlanTier === 'silver' ? 'silver-plan-card' : customerPlanTier === 'eset' ? 'eset-plan-card' : ''}`}>
             {!customer ? (
               <div className="flex flex-col items-center justify-center py-8">
                 <User className="h-12 w-12 text-gray-300 dark:text-gray-600" />
@@ -583,10 +639,15 @@ export default function TicketDetailPage() {
                         <h3 className="truncate font-bold text-gray-900 dark:text-white">
                           {customer.fullname || `${customer.firstname} ${customer.lastname}`}
                         </h3>
-                        {isSilverPlanCustomer(customer) && (
-                          <span className="silver-plan-badge inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold">
+                        {customerPlanTier && (
+                          <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${
+                            customerPlanTier === 'silver-plus' ? 'silver-plus-plan-badge' :
+                            customerPlanTier === 'silver' ? 'silver-plan-badge' :
+                            'eset-plan-badge'
+                          }`}>
                             <Sparkles className="h-3 w-3" />
-                            Silver Plan
+                            {customerPlanTier === 'silver-plus' ? 'Silver Plus' :
+                             customerPlanTier === 'silver' ? 'Silver' : 'ESET'} Plan
                           </span>
                         )}
                       </div>
@@ -664,6 +725,44 @@ export default function TicketDetailPage() {
               </div>
             )}
           </div>
+
+          {/* Ticket Assets */}
+          {ticketAssets.length > 0 && (
+            <div className="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-900">
+              <h3 className="mb-3 flex items-center gap-2 font-semibold text-gray-900 dark:text-white">
+                <Monitor className="h-5 w-5" />
+                Devices on Ticket
+              </h3>
+              <div className="space-y-2">
+                {ticketAssets.map((asset) => {
+                  let badgeClass = '';
+                  let tierLabel = '';
+                  if (asset.tier === 'silver-plus') {
+                    badgeClass = 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300';
+                    tierLabel = 'Silver+';
+                  } else if (asset.tier === 'silver') {
+                    badgeClass = 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300';
+                    tierLabel = 'Silver';
+                  } else if (asset.tier === 'eset') {
+                    badgeClass = 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300';
+                    tierLabel = 'ESET';
+                  }
+                  return (
+                    <div key={asset.id} className="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50 p-2.5 dark:border-gray-700 dark:bg-gray-800">
+                      <span className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                        {asset.name}
+                      </span>
+                      {tierLabel && (
+                        <span className={`ml-2 flex-shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold ${badgeClass}`}>
+                          {tierLabel}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Ticket Status Control */}
           <div className="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-900">

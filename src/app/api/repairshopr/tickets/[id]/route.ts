@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getEmployeeAuditInfo, getSessionToken, getCurrentUser } from '@/lib/auth';
 import { createRepairShoprClient, RepairShoprAPIError, getApiToken } from '@/lib/repairshopr';
 import { logTicketAction } from '@/lib/audit';
-import { supabaseAdmin, getDefaultCustomStatusForRepairShoprStatus } from '@/lib/supabase';
+import { supabaseAdmin, getDefaultCustomStatusForRepairShoprStatus, getTicketComments, syncTicketComments } from '@/lib/supabase';
 import { getEffectiveLocationId, resolveLocationId } from '@/lib/location-helpers';
 
 export const dynamic = 'force-dynamic';
@@ -166,6 +166,58 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   }
 
   try {
+    // Supabase-first: try to get ticket metadata from our database
+    if (supabaseAdmin) {
+      const { data: cached } = await supabaseAdmin
+        .from('rs_tickets')
+        .select('*')
+        .eq('repairshopr_id', ticketId)
+        .single();
+
+      if (cached) {
+        // Check location access using cached data
+        if (effectiveLocationId && cached.location_id !== effectiveLocationId) {
+          return NextResponse.json(
+            { error: 'Access denied - ticket belongs to a different location' },
+            { status: 403 }
+          );
+        }
+
+        // Load comments from Supabase
+        const comments = await getTicketComments(ticketId);
+
+        // Build ticket response from Supabase data
+        const ticket = {
+          id: cached.repairshopr_id,
+          number: cached.number,
+          subject: cached.subject,
+          status: cached.status,
+          problem_type: cached.problem_type,
+          customer_id: cached.customer_id,
+          customer_business_then_name: cached.customer_business_then_name,
+          user_id: cached.user_id,
+          due_date: cached.due_date,
+          priority: cached.priority,
+          resolved_at: cached.resolved_at,
+          asset_ids: cached.asset_ids || [],
+          location_id: cached.location_id,
+          created_at: cached.created_at,
+          updated_at: cached.updated_at,
+          comments: comments.map((c) => ({
+            id: c.repairshopr_comment_id || c.id,
+            body: c.body,
+            subject: c.subject,
+            tech: c.tech,
+            hidden: c.hidden,
+            created_at: c.created_at,
+          })),
+        };
+
+        return NextResponse.json({ ticket });
+      }
+    }
+
+    // Fallback: fetch from RepairShopr if not in Supabase
     const client = createRepairShoprClient();
     const ticket = await client.getTicket(apiToken, ticketId);
 
@@ -175,6 +227,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         { error: 'Access denied - ticket belongs to a different location' },
         { status: 403 }
       );
+    }
+
+    // Sync comments from RepairShopr to Supabase for future requests
+    if (ticket.comments && ticket.comments.length > 0) {
+      syncTicketComments(ticketId, ticket.comments).catch((err) => {
+        console.error('[API] Failed to sync ticket comments to Supabase:', err);
+      });
     }
 
     return NextResponse.json({ ticket });

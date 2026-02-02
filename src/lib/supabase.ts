@@ -2131,3 +2131,318 @@ export async function getCustomerAssetCount(customerId: number): Promise<number>
 
   return count || 0;
 }
+
+// =============================================================================
+// Asset CRUD (Supabase-native)
+// =============================================================================
+
+/**
+ * Get an asset by its RepairShopr ID (for backward compat with ticket asset_ids).
+ *
+ * @param repairshoprId - The RepairShopr asset ID
+ * @returns The asset row or null
+ *
+ * @functions_called supabaseAdmin
+ * @called_by /api/assets routes
+ *
+ * @version 1.0.0 - 2026-02-02T21:17:48Z - Initial implementation
+ */
+export async function getAssetByRepairshoprId(repairshoprId: number) {
+  if (!supabaseAdmin) return null;
+
+  const { data, error } = await supabaseAdmin
+    .from('rs_assets')
+    .select('*')
+    .eq('repairshopr_id', repairshoprId)
+    .single();
+
+  if (error) {
+    console.error('Error fetching asset by repairshopr_id:', error);
+    return null;
+  }
+  return data;
+}
+
+/**
+ * Get all assets for a customer from Supabase.
+ *
+ * @param customerId - The RepairShopr customer ID
+ * @returns Array of asset rows
+ *
+ * @functions_called supabaseAdmin
+ * @called_by /api/customers/[id]/assets route
+ *
+ * @version 1.0.0 - 2026-02-02T21:17:48Z - Initial implementation
+ */
+export async function getCustomerAssets(customerId: number) {
+  if (!supabaseAdmin) return [];
+
+  const { data, error } = await supabaseAdmin
+    .from('rs_assets')
+    .select('*')
+    .eq('customer_id', customerId)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching customer assets:', error);
+    return [];
+  }
+  return data || [];
+}
+
+/**
+ * Create a new asset in Supabase.
+ *
+ * @param assetData - Object with name, customer_id, asset_type_name, and optional properties
+ * @returns The created asset row or null
+ *
+ * @sideEffects
+ * - Inserts a row into rs_assets
+ *
+ * @functions_called supabaseAdmin
+ * @called_by /api/assets POST route
+ *
+ * @version 1.0.0 - 2026-02-02T21:17:48Z - Initial implementation
+ */
+export async function createAsset(assetData: {
+  name: string;
+  customer_id: number;
+  asset_type_name?: string;
+  properties?: Record<string, unknown>;
+}) {
+  if (!supabaseAdmin) return null;
+
+  const now = new Date().toISOString();
+  const { data, error } = await supabaseAdmin
+    .from('rs_assets')
+    .insert({
+      name: assetData.name,
+      customer_id: assetData.customer_id,
+      asset_type_name: assetData.asset_type_name || null,
+      properties: assetData.properties || {},
+      created_at: now,
+      updated_at: now,
+      synced_at: now,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error creating asset:', error);
+    return null;
+  }
+  return data;
+}
+
+/**
+ * Update an asset in Supabase by its auto-increment ID.
+ *
+ * @param id - The rs_assets.id (auto-increment PK)
+ * @param updates - Fields to update
+ * @returns The updated asset row or null
+ *
+ * @sideEffects
+ * - Updates a row in rs_assets
+ *
+ * @functions_called supabaseAdmin
+ * @called_by /api/assets/[id] PUT route
+ *
+ * @version 1.0.0 - 2026-02-02T21:17:48Z - Initial implementation
+ */
+export async function updateAsset(
+  id: number,
+  updates: Partial<{
+    name: string;
+    asset_type_name: string;
+    customer_id: number;
+    properties: Record<string, unknown>;
+  }>
+) {
+  if (!supabaseAdmin) return null;
+
+  const { data, error } = await supabaseAdmin
+    .from('rs_assets')
+    .update({ ...updates, updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error updating asset:', error);
+    return null;
+  }
+  return data;
+}
+
+/**
+ * Delete an asset from Supabase by its auto-increment ID.
+ *
+ * @param id - The rs_assets.id (auto-increment PK)
+ * @returns true if deleted, false otherwise
+ *
+ * @sideEffects
+ * - Deletes a row from rs_assets
+ *
+ * @functions_called supabaseAdmin
+ * @called_by /api/assets/[id] DELETE route
+ *
+ * @version 1.0.0 - 2026-02-02T21:17:48Z - Initial implementation
+ */
+export async function deleteAsset(id: number): Promise<boolean> {
+  if (!supabaseAdmin) return false;
+
+  const { error } = await supabaseAdmin
+    .from('rs_assets')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error deleting asset:', error);
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Search assets by name.
+ *
+ * @param query - Search string to match against asset name
+ * @returns Array of matching asset rows
+ *
+ * @functions_called supabaseAdmin
+ * @called_by /api/assets GET route
+ *
+ * @version 1.0.0 - 2026-02-02T21:17:48Z - Initial implementation
+ */
+export async function searchAssets(query: string) {
+  if (!supabaseAdmin) return [];
+
+  const { data, error } = await supabaseAdmin
+    .from('rs_assets')
+    .select('*')
+    .ilike('name', `%${query}%`)
+    .order('created_at', { ascending: false })
+    .limit(50);
+
+  if (error) {
+    console.error('Error searching assets:', error);
+    return [];
+  }
+  return data || [];
+}
+
+// =============================================================================
+// Ticket Comments (Supabase-first storage)
+// =============================================================================
+
+/**
+ * Get all comments for a ticket from Supabase.
+ *
+ * @param ticketId - RepairShopr ticket ID
+ * @returns Array of comment objects ordered by created_at ascending
+ *
+ * @functions_called supabaseAdmin
+ * @called_by GET /api/repairshopr/tickets/[id] (for inline comments)
+ *
+ * @version 1.0.0 - 2026-02-02T00:00:00Z - Initial implementation
+ */
+export async function getTicketComments(ticketId: number) {
+  if (!supabaseAdmin) return [];
+
+  const { data, error } = await supabaseAdmin
+    .from('ticket_comments')
+    .select('*')
+    .eq('repairshopr_ticket_id', ticketId)
+    .order('created_at', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching ticket comments:', error);
+    return [];
+  }
+  return data || [];
+}
+
+/**
+ * Create a ticket comment in Supabase.
+ *
+ * @param comment - Object with repairshopr_ticket_id, body, subject, tech, hidden
+ * @returns The created comment row or null
+ *
+ * @sideEffects
+ * - Inserts a row into ticket_comments
+ *
+ * @functions_called supabaseAdmin
+ * @called_by POST /api/repairshopr/tickets/[id]/comment
+ *
+ * @version 1.0.0 - 2026-02-02T00:00:00Z - Initial implementation
+ */
+export async function createTicketComment(comment: {
+  repairshopr_ticket_id: number;
+  repairshopr_comment_id?: number;
+  body: string;
+  subject?: string;
+  tech?: string;
+  hidden?: boolean;
+}) {
+  if (!supabaseAdmin) return null;
+
+  const { data, error } = await supabaseAdmin
+    .from('ticket_comments')
+    .insert({
+      repairshopr_ticket_id: comment.repairshopr_ticket_id,
+      repairshopr_comment_id: comment.repairshopr_comment_id || null,
+      body: comment.body,
+      subject: comment.subject || null,
+      tech: comment.tech || null,
+      hidden: comment.hidden ?? true,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error creating ticket comment:', error);
+    return null;
+  }
+  return data;
+}
+
+/**
+ * Sync comments from RepairShopr to Supabase for a ticket.
+ * Upserts based on repairshopr_comment_id to avoid duplicates.
+ *
+ * @param ticketId - RepairShopr ticket ID
+ * @param comments - Array of RepairShopr comment objects
+ *
+ * @sideEffects
+ * - Upserts rows into ticket_comments
+ *
+ * @functions_called supabaseAdmin
+ * @called_by Sync operations, fallback fetches
+ *
+ * @version 1.0.0 - 2026-02-02T00:00:00Z - Initial implementation
+ */
+export async function syncTicketComments(
+  ticketId: number,
+  comments: Array<{ id: number; body: string; subject?: string; tech?: string; hidden: boolean; created_at: string }>
+) {
+  if (!supabaseAdmin || comments.length === 0) return;
+
+  for (const comment of comments) {
+    const { error } = await supabaseAdmin
+      .from('ticket_comments')
+      .upsert({
+        repairshopr_ticket_id: ticketId,
+        repairshopr_comment_id: comment.id,
+        body: comment.body,
+        subject: comment.subject || null,
+        tech: comment.tech || null,
+        hidden: comment.hidden,
+        created_at: comment.created_at,
+      }, { onConflict: 'repairshopr_comment_id' })
+      .select();
+
+    if (error) {
+      console.error(`Error syncing comment ${comment.id}:`, error);
+    }
+  }
+}

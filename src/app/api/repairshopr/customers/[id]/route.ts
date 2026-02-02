@@ -38,12 +38,65 @@ export async function GET(
   }
 
   try {
+    // Supabase-first: try to get customer from our database
+    if (supabaseAdmin) {
+      const { data: cached } = await supabaseAdmin
+        .from('rs_customers')
+        .select('*')
+        .eq('repairshopr_id', customerId)
+        .single();
+
+      if (cached) {
+        // Build a RepairShoprCustomer-shaped response from Supabase data
+        const customer = {
+          id: cached.repairshopr_id,
+          firstname: cached.firstname || '',
+          lastname: cached.lastname || '',
+          fullname: [cached.firstname, cached.lastname].filter(Boolean).join(' '),
+          business_name: cached.business_name || null,
+          email: cached.email || '',
+          phone: cached.phone || null,
+          mobile: cached.mobile || null,
+          address: cached.address || null,
+          address_2: cached.address_2 || null,
+          city: cached.city || null,
+          state: cached.state || null,
+          zip: cached.zip || null,
+          created_at: cached.created_at || null,
+          updated_at: cached.updated_at || null,
+        };
+
+        return NextResponse.json({ customer });
+      }
+    }
+
+    // Fallback: fetch from RepairShopr if not in Supabase
     const client = createRepairShoprClient();
     const customer = await client.getCustomer(apiToken, customerId);
 
-    // Debug: Log what properties/custom fields RepairShopr returns
-    console.log(`[API] Customer ${customerId} properties:`, JSON.stringify(customer.properties, null, 2));
-    console.log(`[API] Customer ${customerId} custom_fields:`, JSON.stringify(customer.custom_fields, null, 2));
+    // Sync to Supabase for future requests
+    if (supabaseAdmin) {
+      await supabaseAdmin
+        .from('rs_customers')
+        .upsert({
+          repairshopr_id: customer.id,
+          firstname: customer.firstname,
+          lastname: customer.lastname,
+          email: customer.email,
+          phone: customer.phone || null,
+          mobile: customer.mobile || null,
+          address: customer.address || null,
+          address_2: customer.address_2 || null,
+          city: customer.city || null,
+          state: customer.state || null,
+          zip: customer.zip || null,
+          business_name: customer.business_name || null,
+          updated_at: new Date().toISOString(),
+        }, { onConflict: 'repairshopr_id' })
+        .then(({ error: syncError }) => {
+          if (syncError) console.error('[API] Failed to sync customer to Supabase:', syncError);
+        });
+    }
 
     return NextResponse.json({ customer });
   } catch (error) {

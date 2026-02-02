@@ -215,6 +215,14 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       status: repairShoprStatus,
     });
 
+    // Sync status to rs_tickets in Supabase
+    if (supabaseAdmin) {
+      await supabaseAdmin
+        .from('rs_tickets')
+        .update({ status: repairShoprStatus, synced_at: new Date().toISOString() })
+        .eq('repairshopr_id', ticketId);
+    }
+
     // Log the status change for audit trail
     await logTicketAction(
       employee,

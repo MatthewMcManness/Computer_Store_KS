@@ -141,11 +141,9 @@ export default function TicketsListPage() {
     loadStatusDefinitions();
   }, []);
 
-  // Load initial tickets based on status filter
+  // Load initial tickets based on status filter (always fetch, even for "All")
   useEffect(() => {
-    if (initialStatus) {
-      fetchTickets(initialStatus);
-    }
+    fetchTickets(initialStatus);
   }, []);
 
   const fetchTickets = useCallback(async (status: string) => {

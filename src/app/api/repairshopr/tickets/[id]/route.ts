@@ -322,6 +322,34 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     const ticket = await client.updateTicket(apiToken, ticketId, body);
 
+    // Sync updated ticket to rs_tickets in Supabase
+    if (supabaseAdmin) {
+      const locationId = await resolveLocationId(ticket.location_id as number | undefined);
+      await supabaseAdmin
+        .from('rs_tickets')
+        .upsert({
+          repairshopr_id: ticket.id,
+          number: ticket.number || null,
+          subject: ticket.subject || null,
+          status: ticket.status || null,
+          problem_type: ticket.problem_type || null,
+          customer_id: ticket.customer_id || null,
+          customer_business_then_name: ticket.customer_business_then_name || null,
+          user_id: ticket.user_id || null,
+          due_date: ticket.due_date || null,
+          priority: ticket.priority || null,
+          resolved_at: ticket.resolved_at || null,
+          asset_ids: ticket.asset_ids || [],
+          location_id: locationId,
+          created_at: ticket.created_at || null,
+          updated_at: ticket.updated_at || null,
+          synced_at: new Date().toISOString(),
+        }, { onConflict: 'repairshopr_id' })
+        .then(({ error: syncErr }) => {
+          if (syncErr) console.error('[API] Failed to sync ticket update to Supabase:', syncErr);
+        });
+    }
+
     // Log the ticket update for audit trail
     await logTicketAction(
       employee,

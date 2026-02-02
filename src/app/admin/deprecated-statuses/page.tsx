@@ -130,8 +130,8 @@ export default function DeprecatedStatusesPage() {
   const updateTicketStatus = async (ticketId: number, newStatus: string) => {
     setUpdatingTickets((prev) => new Set(prev).add(ticketId));
     try {
-      const response = await fetch(`/api/repairshopr/tickets/status/${ticketId}`, {
-        method: 'POST',
+      const response = await fetch(`/api/repairshopr/tickets/${ticketId}/status`, {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           custom_status: newStatus,

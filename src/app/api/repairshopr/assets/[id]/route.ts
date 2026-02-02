@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getEmployeeAuditInfo, getSessionToken } from '@/lib/auth';
 import { createRepairShoprClient, RepairShoprAPIError, getApiToken } from '@/lib/repairshopr';
 import { logAssetAction } from '@/lib/audit';
+import { supabaseAdmin } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
@@ -51,6 +52,12 @@ export async function DELETE(
 
     // Delete the asset
     await client.deleteAsset(apiToken, assetId);
+
+    // Remove from Supabase tables
+    if (supabaseAdmin) {
+      await supabaseAdmin.from('asset_protection_plans').delete().eq('repairshopr_asset_id', assetId);
+      await supabaseAdmin.from('rs_assets').delete().eq('repairshopr_id', assetId);
+    }
 
     // Log the asset deletion for audit trail
     await logAssetAction(

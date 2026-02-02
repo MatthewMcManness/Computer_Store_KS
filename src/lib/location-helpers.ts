@@ -322,12 +322,8 @@ export async function getLocationContext(
   // Get user's default location (for global access users)
   const defaultLocation = defaultLocationId ? await getLocationById(defaultLocationId) : null;
 
-  // If user has global access but no selected location, use their default
-  if (hasGlobalAccess && !selectedLocation && defaultLocation) {
-    // Auto-select the user's default location
-    await setSelectedLocation(defaultLocation.slug);
-    selectedLocation = defaultLocation.slug;
-  }
+  // If user has global access but no selected location, leave as null
+  // (null = all locations visible). Users can manually select a location.
 
   // Get user's assigned location
   const userLocation = userLocationId ? await getLocationById(userLocationId) : null;

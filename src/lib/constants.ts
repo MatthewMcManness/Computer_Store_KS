@@ -92,6 +92,57 @@ export const BUSINESS_INFO = {
   },
 } as const;
 
+export type LocationKey = 'topeka' | 'holton';
+
+export const LOCATIONS: Record<LocationKey, {
+  name: string;
+  address: string;
+  addressLine1: string;
+  city: string;
+  state: string;
+  zip: string;
+  phone: string;
+  phoneFormatted: string;
+  hours: string[];
+  geo: { latitude: number; longitude: number };
+  mapsEmbed: string;
+}> = {
+  topeka: {
+    name: 'Topeka',
+    address: '2008 SW Gage Blvd, Topeka, KS 66604',
+    addressLine1: '2008 SW Gage Blvd',
+    city: 'Topeka',
+    state: 'KS',
+    zip: '66604',
+    phone: '785-267-3223',
+    phoneFormatted: '(785) 267-3223',
+    hours: [
+      'Monday – Friday: 10:00 am – 6:00 pm',
+      'Saturday: 10:00 am – 2:00 pm',
+      'Sunday: Closed',
+    ],
+    geo: { latitude: 39.0312, longitude: -95.7068 },
+    mapsEmbed: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3096.8876!2d-95.7028!3d39.0365!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x87bf02d8d9a9ed57%3A0x8a8a8a8a8a8a8a8a!2s2008%20SW%20Gage%20Blvd%2C%20Topeka%2C%20KS%2066604!5e0!3m2!1sen!2sus!4v1701417600000',
+  },
+  holton: {
+    name: 'Holton',
+    address: '321 Pennsylvania Ave, Holton, KS 66436',
+    addressLine1: '321 Pennsylvania Ave',
+    city: 'Holton',
+    state: 'KS',
+    zip: '66436',
+    phone: '785-362-2445',
+    phoneFormatted: '(785) 362-2445',
+    hours: [
+      'Monday – Friday: 10:00 am – 6:00 pm',
+      'Saturday: 10:00 am – 2:00 pm',
+      'Sunday: Closed',
+    ],
+    geo: { latitude: 39.4653, longitude: -95.7362 },
+    mapsEmbed: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3084.0!2d-95.7362!3d39.4653!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2s321%20Pennsylvania%20Ave%2C%20Holton%2C%20KS%2066436!5e0!3m2!1sen!2sus!4v1701417600000',
+  },
+} as const;
+
 /**
  * Site-wide configuration for metadata, SEO, and social sharing.
  *

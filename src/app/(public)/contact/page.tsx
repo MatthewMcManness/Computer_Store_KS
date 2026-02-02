@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
+import { LOCATIONS, LocationKey } from '@/lib/constants';
 
 export default function ContactPage() {
+  const [location, setLocation] = useState<LocationKey>('topeka');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -12,6 +14,8 @@ export default function ContactPage() {
   });
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [statusMessage, setStatusMessage] = useState('');
+
+  const loc = LOCATIONS[location];
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -23,7 +27,7 @@ export default function ContactPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, location: loc.name }),
       });
 
       if (response.ok) {
@@ -47,6 +51,22 @@ export default function ContactPage() {
         <div className="container">
           <h2>Contact Us</h2>
           <p>Get in touch with Computer Store Kansas - we&apos;re here to help!</p>
+          <div className="location-toggle">
+            <button
+              className={`location-toggle-btn ${location === 'topeka' ? 'active' : ''}`}
+              onClick={() => setLocation('topeka')}
+              type="button"
+            >
+              Topeka
+            </button>
+            <button
+              className={`location-toggle-btn ${location === 'holton' ? 'active' : ''}`}
+              onClick={() => setLocation('holton')}
+              type="button"
+            >
+              Holton
+            </button>
+          </div>
         </div>
       </section>
 
@@ -138,14 +158,14 @@ export default function ContactPage() {
 
             {/* Right: Business Info */}
             <div className="contact-info-section">
-              <h2>Visit Us</h2>
+              <h2>Visit Us — {loc.name}</h2>
               <div className="info-block">
                 <h3>Address</h3>
-                <p>2008 SW Gage Blvd<br />Topeka, KS 66604</p>
+                <p>{loc.addressLine1}<br />{loc.city}, {loc.state} {loc.zip}</p>
               </div>
               <div className="info-block">
                 <h3>Phone</h3>
-                <p><a href="tel:785-267-3223">785-267-3223</a></p>
+                <p><a href={`tel:${loc.phone}`}>{loc.phone}</a></p>
               </div>
               <div className="info-block">
                 <h3>Email</h3>
@@ -154,21 +174,21 @@ export default function ContactPage() {
               <div className="info-block">
                 <h3>Hours</h3>
                 <p>
-                  Monday – Friday: 10:00 am – 6:00 pm<br />
-                  Saturday: 10:00 am – 2:00 pm<br />
-                  Sunday: Closed
+                  {loc.hours.map((line, i) => (
+                    <span key={i}>{line}{i < loc.hours.length - 1 && <br />}</span>
+                  ))}
                 </p>
               </div>
               <div className="map-container">
                 <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3096.8876!2d-95.7028!3d39.0365!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x87bf02d8d9a9ed57%3A0x8a8a8a8a8a8a8a8a!2s2008%20SW%20Gage%20Blvd%2C%20Topeka%2C%20KS%2066604!5e0!3m2!1sen!2sus!4v1701417600000"
+                  src={loc.mapsEmbed}
                   width="100%"
                   height="300"
                   style={{ border: 0, borderRadius: '8px' }}
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
-                  title="Computer Store Kansas Location"
+                  title={`Computer Store Kansas ${loc.name} Location`}
                 />
               </div>
             </div>

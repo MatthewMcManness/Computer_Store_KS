@@ -590,6 +590,37 @@ header nav ul .nav-action.silver a:hover::before {
   opacity: 0.95;
 }
 
+.location-toggle {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 1.25rem;
+}
+
+.location-toggle-btn {
+  padding: 0.5rem 1.5rem;
+  border-radius: 9999px;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.location-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: #fff;
+  color: #fff;
+}
+
+.location-toggle-btn.active {
+  background: #fff;
+  color: #1e40af;
+  border-color: #fff;
+}
+
 /* Shape section top to match hero's pointed bottom */
 .hero + section {
   margin-top: -5rem;
@@ -1621,7 +1652,79 @@ footer p {
   transform: translateY(-1px);
 }
 
-/* Footer sections */
+/* Footer locations */
+.footer-locations {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.footer-location-wrapper {
+  display: flex;
+  align-items: stretch;
+}
+
+.footer-location-divider {
+  width: 1px;
+  background: rgba(255, 255, 255, 0.25);
+  margin: 0 2.5rem;
+  align-self: stretch;
+}
+
+.footer-location {
+  text-align: center;
+}
+
+.footer-location-label {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0 0 0.6rem;
+  opacity: 1;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.footer-location p {
+  margin: 0.25rem 0;
+  line-height: 1.5;
+}
+
+.footer-location a {
+  color: var(--primary-blue-light);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.footer-location a:hover {
+  color: var(--text-white);
+}
+
+.footer-hours {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+/* Mobile: stack locations vertically with horizontal divider */
+@media (max-width: 600px) {
+  .footer-locations {
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .footer-location-wrapper {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .footer-location-divider {
+    width: 60%;
+    height: 1px;
+    margin: 0 0 1.5rem 0;
+  }
+}
+
+/* Footer sections (legacy) */
 .footer-contact {
   display: flex;
   flex-direction: column;

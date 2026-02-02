@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getEmployeeAuditInfo, getCurrentUser } from '@/lib/auth';
+import { getEmployeeAuditInfo } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase';
-import { getEffectiveLocationId } from '@/lib/location-helpers';
 
 export const dynamic = 'force-dynamic';
 
@@ -97,25 +96,15 @@ export async function PUT(
       return NextResponse.json({ error: 'family_id is required' }, { status: 400 });
     }
 
-    // Get current user for location check
-    const currentUser = await getCurrentUser();
-    const userRoles = currentUser?.roles || [];
-    const userLocationId = currentUser?.location_id || null;
-    const effectiveLocationId = await getEffectiveLocationId(userRoles, userLocationId);
-
-    // Verify family exists and user has access
+    // Verify family exists (families are location-agnostic)
     const { data: family, error: familyError } = await supabaseAdmin
       .from('families')
-      .select('id, location_id')
+      .select('id')
       .eq('id', family_id)
       .single();
 
     if (familyError || !family) {
       return NextResponse.json({ error: 'Family not found' }, { status: 404 });
-    }
-
-    if (effectiveLocationId && family.location_id !== effectiveLocationId) {
-      return NextResponse.json({ error: 'Access denied to this family' }, { status: 403 });
     }
 
     // Update customer's family
@@ -172,25 +161,15 @@ export async function DELETE(
   }
 
   try {
-    // Get current user for location check
-    const currentUser = await getCurrentUser();
-    const userRoles = currentUser?.roles || [];
-    const userLocationId = currentUser?.location_id || null;
-    const effectiveLocationId = await getEffectiveLocationId(userRoles, userLocationId);
-
-    // Get the customer's current family to check access
+    // Get the customer's current family
     const { data: customer, error: checkError } = await supabaseAdmin
       .from('rs_customers')
-      .select('family_id, location_id')
+      .select('family_id')
       .eq('repairshopr_id', customerId)
       .single();
 
     if (checkError || !customer) {
       return NextResponse.json({ error: 'Customer not found' }, { status: 404 });
-    }
-
-    if (effectiveLocationId && customer.location_id !== effectiveLocationId) {
-      return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
     if (!customer.family_id) {

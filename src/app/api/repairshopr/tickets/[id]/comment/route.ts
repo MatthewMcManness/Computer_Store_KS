@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getEmployeeAuditInfo, getSessionToken } from '@/lib/auth';
 import { createRepairShoprClient, RepairShoprAPIError, getApiToken } from '@/lib/repairshopr';
+import { createTicketComment } from '@/lib/supabase';
 import { logTicketAction } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
@@ -11,8 +12,13 @@ interface RouteParams {
 
 /**
  * POST /api/repairshopr/tickets/[id]/comment
- * Add a comment to a ticket (private or internal)
- * Body: AddTicketCommentInput
+ * Add a comment to a ticket (private or internal).
+ *
+ * Supabase-first: stores comment in ticket_comments table, then pushes
+ * to RepairShopr for SMS/email delivery and backup.
+ *
+ * @version 1.0.0 - Initial implementation (RepairShopr-only)
+ * @version 2.0.0 - 2026-02-02T00:00:00Z - Supabase-first pattern
  */
 export async function POST(request: NextRequest, { params }: RouteParams) {
   // Check employee authentication and get audit info
@@ -57,17 +63,32 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   }
 
   try {
-    const client = createRepairShoprClient();
-
-    // Prefix internal/tech comments with employee name for visibility in RepairShopr
+    // Prefix internal/tech comments with employee name for visibility
     const commentBody = body.hidden
       ? `[${employee.name}] ${body.body}`
       : body.body;
 
-    const comment = await client.addTicketComment(apiToken, ticketId, {
-      ...body,
+    // 1. Store in Supabase first (source of truth)
+    const supabaseComment = await createTicketComment({
+      repairshopr_ticket_id: ticketId,
       body: commentBody,
+      subject: body.subject || undefined,
+      tech: employee.name || employee.email || 'Staff',
+      hidden: body.hidden ?? true,
     });
+
+    // 2. Push to RepairShopr for SMS/email delivery and backup
+    let rsComment = null;
+    try {
+      const client = createRepairShoprClient();
+      rsComment = await client.addTicketComment(apiToken, ticketId, {
+        ...body,
+        body: commentBody,
+      });
+    } catch (rsError) {
+      // Log but don't fail - Supabase has the comment, RS is backup
+      console.error('[API] Failed to push comment to RepairShopr:', rsError);
+    }
 
     // Log the comment for audit trail
     await logTicketAction(
@@ -79,6 +100,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       request
     );
 
+    // Return the Supabase comment (or RS comment as fallback shape)
+    const comment = rsComment || supabaseComment;
     return NextResponse.json({ comment }, { status: 201 });
   } catch (error) {
     if (error instanceof RepairShoprAPIError) {

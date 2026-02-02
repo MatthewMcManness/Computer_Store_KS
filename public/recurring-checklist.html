@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recurring Invoice Location Update Checklist</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #1a1a2e; color: #eee; padding: 20px; }
+  h1 { margin-bottom: 5px; color: #fff; }
+  .subtitle { color: #aaa; margin-bottom: 20px; }
+  .progress { background: #2a2a4a; border-radius: 8px; padding: 15px 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; }
+  .progress-bar { flex: 1; height: 20px; background: #333; border-radius: 10px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #4CAF50, #8BC34A); border-radius: 10px; transition: width 0.3s; }
+  .progress-text { font-size: 18px; font-weight: bold; min-width: 80px; text-align: right; }
+  table { width: 100%; border-collapse: collapse; background: #16213e; border-radius: 8px; overflow: hidden; }
+  th { background: #0f3460; padding: 12px 15px; text-align: left; font-weight: 600; }
+  td { padding: 10px 15px; border-bottom: 1px solid #1a1a3e; }
+  tr:hover { background: #1a2a4e; }
+  tr.done { opacity: 0.5; }
+  tr.done td:nth-child(2) { text-decoration: line-through; }
+  input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
+  a { color: #64b5f6; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .actions { margin-bottom: 15px; display: flex; gap: 10px; }
+  button { padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
+  .btn-reset { background: #e74c3c; color: #fff; }
+  .btn-all { background: #4CAF50; color: #fff; }
+  .instruction { background: #2a2a4a; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #f39c12; }
+  .instruction strong { color: #f39c12; }
+</style>
+</head>
+<body>
+
+<h1>Recurring Invoice Location Update</h1>
+<p class="subtitle">Set each recurring template's Location to <strong>Topeka</strong></p>
+
+<div class="instruction">
+  <strong>Instructions:</strong> Click each link to open the recurring invoice template in RepairShopr.
+  Set the <strong>Location</strong> dropdown to <strong>Topeka</strong>, then click <strong>Save</strong>.
+  Check the box when done.
+</div>
+
+<div class="progress">
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="progress-text" id="progressText">0/97</div>
+</div>
+
+<div class="actions">
+  <button class="btn-all" onclick="checkAll()">Mark All Done</button>
+  <button class="btn-reset" onclick="resetAll()">Reset All</button>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width:40px">Done</th>
+      <th>Template Name</th>
+      <th style="width:120px">Frequency</th>
+      <th style="width:120px">Next Run</th>
+    </tr>
+  </thead>
+  <tbody id="tbody">
+  </tbody>
+</table>
+
+<script>
+const schedules = [
+  {id:494134,name:"Alvin Crow SP",freq:"Annually",next:"2026-12-26",paused:false},
+  {id:494777,name:"Amy Keenan SP",freq:"Monthly",next:"2026-02-28",paused:false},
+  {id:493471,name:"Basilio Galvan SP",freq:"Monthly",next:"2026-02-24",paused:false},
+  {id:483471,name:"Becky Ross SP",freq:"Monthly",next:"2026-02-07",paused:false},
+  {id:483892,name:"Beth Bohnert SP",freq:"Monthly",next:"2026-02-12",paused:false},
+  {id:491361,name:"Betty Blazic SP",freq:"Monthly",next:"2026-02-28",paused:false},
+  {id:476574,name:"Bill Billen Recurring Template",freq:"Monthly",next:"2026-02-16",paused:false},
+  {id:494129,name:"Bobbi Francis SP",freq:"Monthly",next:"2026-02-28",paused:false},
+  {id:494108,name:"Cheryl Myers SP",freq:"Monthly",next:"2026-02-28",paused:false},
+  {id:486299,name:"Cheryl White SP",freq:"Monthly",next:"2026-02-28",paused:false},
+  {id:476975,name:"Christina Cooper SP",freq:"Monthly",next:"2026-02-17",paused:false},
+  {id:484819,name:"Cindy Thomas SP",freq:"Monthly",next:"2026-02-09",paused:false},
+  {id:482335,name:"Dan Woodland SP",freq:"Monthly",next:"2026-02-03",paused:false},
+  {id:486298,name:"Dana and Becky Thompson and Hutley SP",freq:"Monthly",next:"2026-02-28",paused:false},
+  {id:485037,name:"Darrin Plank SP",freq:"Monthly",next:"2026-02-08",paused:false},
+  {id:494112,name:"Dave Wenrich SP",freq:"Monthly",next:"2026-02-27",paused:false},
+  {id:474137,name:"Dawn Zabel Silver Plan",freq:"Monthly",next:"2026-02-13",paused:false},
+  {id:493510,name:"Dean Swanson SP",freq:"Monthly",next:"2026-02-22",paused:false},
+  {id:494107,name:"Deb Wellever SP",freq:"Monthly",next:"2026-02-28",paused:false},
+  {id:485038,name:"Diana Whitney SP",freq:"Monthly",next:"2026-02-08",paused:false},
+  {id:491363,name:"Diane Howland SP",freq:"Monthly",next:"2026-02-28",paused:false},
+  {id:474482,name:"Donald Bryce Peckham Silver Plan",freq:"Monthly",next:"2026-02-14",paused:false},
+  {id:469775,name:"Eleene Newton Recurring Template",freq:"Monthly",next:"2026-02-06",paused:false},
+  {id:485042,name:"Faye Schoenfeld SP",freq:"Monthly",next:"2026-02-08",paused:false},
+  {id:492140,name:"Floyd Bradley SP",freq:"Monthly",next:"2026-02-28",paused:false},
+  {id:493860,name:"Francis Kelsey SP",freq:"Monthly",next:"2026-02-26",paused:false},
+  {id:492136,name:"Gary Fike SP",freq:"Monthly",next:"2026-02-28",paused:false},
+  {id:491366,name:"Gerald Phifer SP",freq:"Monthly",next:"2026-02-28",paused:false},
+  {id:494103,name:"Gloria Williams SP",freq:"Monthly",next:"2026-02-28",paused:false},
+  {id:69045,name:"Gold Plan - Annual - Nancy Perih",freq:"Annually",next:"2026-04-05",paused:false},
+  {id:485040,name:"Janet McClanahan SP",freq:"Monthly",next:"2026-02-08",paused:false},
+  {id:494099,name:"Jean Barton SP",freq:"Annually",next:"2027-01-28",paused:false},
+  {id:485041,name:"Jill Burton SP",freq:"Monthly",next:"2026-02-08",paused:false},
+  {id:494109,name:"Jim Curtis SP",freq:"Monthly",next:"2026-02-28",paused:false},
+  {id:481922,name:"John & Debbie Cross Recurring Template",freq:"Monthly",next:"2026-02-01",paused:false},
+  {id:483470,name:"John Harter SP",freq:"Monthly",next:"2026-02-07",paused:false},
+  {id:485034,name:"John Moyer SP",freq:"Monthly",next:"2026-02-08",paused:false},
+  {id:494106,name:"John Stell SP",freq:"Monthly",next:"2026-02-28",paused:false},
+  {id:494100,name:"Karen Dove SP",freq:"Monthly",next:"2026-02-28",paused:false},
+  {id:485774,name:"Kenneth Howland SP",freq:"Monthly",next:"2026-02-10",paused:false},
+  {id:485039,name:"Kimberly Draeger SP",freq:"Monthly",next:"2026-02-08",paused:false},
+  {id:467845,name:"Lana Balka Recurring Template",freq:"Monthly",next:"2026-02-02",paused:false},
+  {id:485033,name:"Laura McLaughlin SP",freq:"Monthly",next:"2026-02-08",paused:false},
+  {id:474135,name:"Leonard Jasko Silver Plan",freq:"Monthly",next:"2026-02-13",paused:false},
+  {id:485043,name:"Leroy Rice SP",freq:"Monthly",next:"2026-02-08",paused:false},
+  {id:494130,name:"Linda Smith SP",freq:"Monthly",next:"2026-02-28",paused:false},
+  {id:485032,name:"Lisa Martin SP",freq:"Monthly",next:"2026-02-08",paused:false},
+  {id:494122,name:"Loa Gordon SP",freq:"Monthly",next:"2026-02-28",paused:false},
+  {id:485036,name:"Manuel Chavez SP",freq:"Monthly",next:"2026-02-08",paused:false},
+  {id:481695,name:"Margaret Cornett Recurring Template",freq:"Monthly",next:"2026-02-01",paused:false},
+  {id:473942,name:"Marilyn Lee Recurring Template",freq:"Monthly",next:"2026-02-12",paused:false},
+  {id:494133,name:"Mark Brewer SP",freq:"Annually",next:"2026-11-29",paused:false},
+  {id:470141,name:"Mark Morehouse Recurring Template",freq:"Monthly",next:"2026-02-06",paused:false},
+  {id:476884,name:"Max Foster Jr Silver Plan",freq:"Monthly",next:"2026-02-17",paused:false},
+  {id:484818,name:"Melinda Abitz SP",freq:"Monthly",next:"2026-02-09",paused:false},
+  {id:476206,name:"Mike Dalrymple Recurring Template",freq:"Monthly",next:"2026-02-15",paused:false},
+  {id:485035,name:"Mike Packer SP",freq:"Monthly",next:"2026-02-08",paused:false},
+  {id:486304,name:"Nancy Supple SP",freq:"Monthly",next:"2026-02-28",paused:false},
+  {id:487104,name:"Pamela Mullins SP",freq:"Monthly",next:"2026-02-28",paused:false},
+  {id:465481,name:"Patrice Thomsen Recurring Template",freq:"Monthly",next:"2026-02-01",paused:false},
+  {id:483180,name:"Phil Grecian SP",freq:"Monthly",next:"2026-02-05",paused:false},
+  {id:464825,name:"Randy Smith Recurring Template",freq:"Monthly",next:"2026-01-31",paused:false},
+  {id:485773,name:"Rich Drinon SP",freq:"Monthly",next:"2026-02-10",paused:false},
+  {id:486295,name:"Robin Dixon SP",freq:"Monthly",next:"2026-02-28",paused:false},
+  {id:491362,name:"Roy Zeikle SP",freq:"Monthly",next:"2026-02-28",paused:false},
+  {id:460208,name:"SP - Alexander, Rebecca",freq:"Monthly",next:"2026-01-30",paused:false},
+  {id:481316,name:"SP - Darla Rundell",freq:"Monthly",next:"2026-01-31",paused:false},
+  {id:455812,name:"SP - Jones, Kaaren",freq:"Monthly",next:"2026-02-24",paused:false},
+  {id:455750,name:"SP - Pessagno, Caroll",freq:"Monthly",next:"2026-02-23",paused:false},
+  {id:479280,name:"SP - Shelia Dalrymple",freq:"Monthly",next:"2026-01-31",paused:false},
+  {id:377255,name:"Silver Plan - Annual - Barbara Cripps",freq:"Annually",next:"2026-07-17",paused:false},
+  {id:26669,name:"Silver Plan - Annual - City of Harveyville",freq:"Annually",next:"2026-04-26",paused:false},
+  {id:212083,name:"Silver Plan - Annual - Dan Schmidt",freq:"Annually",next:"2026-10-18",paused:false},
+  {id:367984,name:"Silver Plan - Annual - Darrell Bledsoe",freq:"Annually",next:"2026-05-12",paused:false},
+  {id:15461,name:"Silver Plan - Annual - Delores Spagnuolo",freq:"Annually",next:"2026-02-15",paused:false},
+  {id:45862,name:"Silver Plan - Annual - Janie Kivett",freq:"Annually",next:"2026-06-19",paused:false},
+  {id:41027,name:"Silver Plan - Annual - Jim Frownfelter",freq:"Annually",next:"2026-06-10",paused:false},
+  {id:384219,name:"Silver Plan - Annual - Robert Cloud",freq:"Annually",next:"2026-09-23",paused:false},
+  {id:22492,name:"Silver Plan - Bill Lucero",freq:"Monthly",next:"2026-02-15",paused:false},
+  {id:482962,name:"Silver Plan - Carol Jolly",freq:"Monthly",next:"2026-02-04",paused:false},
+  {id:465609,name:"Silver Plan - Darrel Carr",freq:"Monthly",next:"2026-02-01",paused:false},
+  {id:21169,name:"Silver Plan - Deanna Roudybush",freq:"Monthly",next:"2026-02-15",paused:false},
+  {id:19834,name:"Silver Plan - Diane Dukat",freq:"Monthly",next:"2026-02-13",paused:false},
+  {id:21905,name:"Silver Plan - Diane Howland",freq:"Monthly",next:"2026-02-15",paused:false},
+  {id:14665,name:"Silver Plan - Donna Loomis",freq:"Monthly",next:"2026-02-07",paused:false},
+  {id:19837,name:"Silver Plan - Gerald Phifer",freq:"Monthly",next:"2026-02-13",paused:false},
+  {id:21141,name:"Silver Plan - Randy Debenham",freq:"Monthly",next:"2026-02-15",paused:false},
+  {id:26789,name:"Silver Plan - Roy Aaron Zeikle",freq:"Monthly",next:"2026-02-15",paused:false},
+  {id:18464,name:"Silver Plan - Sharri Black",freq:"Monthly",next:"2026-02-23",paused:false},
+  {id:19859,name:"Silver Plan - Steve Suchsland",freq:"Monthly",next:"2026-02-13",paused:false},
+  {id:19954,name:"Silver Plan - Thomas Lay",freq:"Monthly",next:"2026-02-13",paused:false},
+  {id:19866,name:"Silver Plan - W. Scott Marshall",freq:"Monthly",next:"2026-02-13",paused:false},
+  {id:478514,name:"Silver Plan Diane Rose",freq:"Monthly",next:"2026-02-19",paused:false},
+  {id:486297,name:"Steve Fargo SP",freq:"Monthly",next:"2026-02-28",paused:false},
+  {id:494126,name:"Sue Henke SP",freq:"Monthly",next:"2026-02-13",paused:false},
+  {id:484681,name:"Ursula Hewitt Recurring Template",freq:"Monthly",next:"2026-02-09",paused:false},
+  {id:494117,name:"Virginia Warren SP",freq:"Monthly",next:"2026-04-29",paused:false},
+];
+
+const tbody = document.getElementById('tbody');
+const KEY = 'recurring-location-checklist';
+let checkedIds = new Set();
+let dirty = false;
+let saving = false;
+
+function loadLocalState() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(KEY)) || {};
+    return new Set(Object.keys(raw).map(Number));
+  } catch { return new Set(); }
+}
+
+function saveLocalState() {
+  const obj = {};
+  checkedIds.forEach(id => obj[id] = true);
+  localStorage.setItem(KEY, JSON.stringify(obj));
+}
+
+async function loadState() {
+  if (dirty || saving) return;
+  try {
+    const res = await fetch('/api/recurring-checklist');
+    if (dirty || saving) return;
+    if (res.ok) {
+      const data = await res.json();
+      if (dirty || saving) return;
+      checkedIds = new Set(data.checked_ids || []);
+      saveLocalState();
+      return;
+    }
+  } catch {}
+  if (!dirty && !saving) checkedIds = loadLocalState();
+}
+
+async function persistState() {
+  saving = true;
+  saveLocalState();
+  try {
+    await fetch('/api/recurring-checklist', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ checked_ids: Array.from(checkedIds) }),
+    });
+  } catch {}
+  saving = false;
+  dirty = false;
+}
+
+function saveState() {
+  dirty = true;
+  checkedIds = new Set();
+  schedules.forEach((s, i) => {
+    const cb = document.getElementById('cb' + i);
+    if (cb && cb.checked) checkedIds.add(s.id);
+  });
+  updateProgress();
+  updateRows();
+  persistState();
+}
+
+function updateProgress() {
+  const done = checkedIds.size;
+  const total = schedules.length;
+  document.getElementById('progressFill').style.width = (done / total * 100) + '%';
+  document.getElementById('progressText').textContent = done + '/' + total;
+}
+
+function updateRows() {
+  schedules.forEach((s, i) => {
+    const row = document.getElementById('row' + i);
+    if (row) row.className = checkedIds.has(s.id) ? 'done' : '';
+  });
+}
+
+function checkAll() {
+  dirty = true;
+  schedules.forEach((s, i) => {
+    checkedIds.add(s.id);
+    const cb = document.getElementById('cb' + i);
+    if (cb) cb.checked = true;
+  });
+  updateProgress();
+  updateRows();
+  persistState();
+}
+
+function resetAll() {
+  if (!confirm('Reset all checkboxes?')) return;
+  dirty = true;
+  checkedIds = new Set();
+  schedules.forEach((s, i) => {
+    const cb = document.getElementById('cb' + i);
+    if (cb) cb.checked = false;
+  });
+  updateProgress();
+  updateRows();
+  persistState();
+}
+
+// Render table then load remote state
+schedules.forEach((s, i) => {
+  const url = 'https://thecomputerstore.repairshopr.com/schedules/' + s.id + '/edit';
+  const paused = s.paused ? ' <span style="color:#e74c3c">(PAUSED)</span>' : '';
+  tbody.innerHTML += '<tr id="row' + i + '">' +
+    '<td><input type="checkbox" id="cb' + i + '" onchange="saveState()"></td>' +
+    '<td><a href="' + url + '" target="_blank">' + s.name + '</a>' + paused + '</td>' +
+    '<td>' + s.freq + '</td>' +
+    '<td>' + s.next + '</td>' +
+    '</tr>';
+});
+
+function applyState() {
+  schedules.forEach((s, i) => {
+    const cb = document.getElementById('cb' + i);
+    if (cb) cb.checked = checkedIds.has(s.id);
+  });
+  updateProgress();
+  updateRows();
+}
+
+loadState().then(() => {
+  applyState();
+  setInterval(async () => {
+    await loadState();
+    applyState();
+  }, 5000);
+});
+</script>
+</body>
+</html>

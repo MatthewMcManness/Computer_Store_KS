@@ -1192,7 +1192,7 @@ export class RepairShoprClient {
     }
 
     await this.request(
-      `/customer_assets/${assetId}?api_key=${encodeURIComponent(apiToken.trim())}`,
+      `/customer_assets/${assetId}.json?api_key=${encodeURIComponent(apiToken.trim())}`,
       {
         method: 'DELETE',
       }

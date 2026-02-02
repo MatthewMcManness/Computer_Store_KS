@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getEmployeeAuditInfo, getSessionToken, getCurrentUser } from '@/lib/auth';
+import { getEmployeeAuditInfo, getSessionToken } from '@/lib/auth';
 import { supabaseAdmin, getEffectiveCustomerPlanTiers, type ProtectionPlanTier } from '@/lib/supabase';
-import { getEffectiveLocationId } from '@/lib/location-helpers';
 import { createRepairShoprClient, getApiToken, type RepairShoprCustomer } from '@/lib/repairshopr';
 
 export const dynamic = 'force-dynamic';
@@ -50,41 +49,22 @@ export async function GET(
   }
 
   try {
-    // Get current user for location filtering
-    const currentUser = await getCurrentUser();
-    const userRoles = currentUser?.roles || [];
-    const userLocationId = currentUser?.location_id || null;
-    const effectiveLocationId = await getEffectiveLocationId(userRoles, userLocationId);
-
-    // Get family from database
-    let familyQuery = supabaseAdmin
+    // Families are location-agnostic — no location filtering
+    const { data: family, error: familyError } = await supabaseAdmin
       .from('families')
-      .select('id, name, location_id')
+      .select('id, name')
       .eq('id', familyId)
       .single();
-
-    const { data: family, error: familyError } = await familyQuery;
 
     if (familyError || !family) {
       return NextResponse.json({ error: 'Family not found' }, { status: 404 });
     }
 
-    // Check location access
-    if (effectiveLocationId && family.location_id !== effectiveLocationId) {
-      return NextResponse.json({ error: 'Access denied to this family' }, { status: 403 });
-    }
-
     // Get customer IDs for this family
-    let customerQuery = supabaseAdmin
+    const { data: customerRecords, error: customerError } = await supabaseAdmin
       .from('rs_customers')
       .select('repairshopr_id')
       .eq('family_id', familyId);
-
-    if (effectiveLocationId) {
-      customerQuery = customerQuery.eq('location_id', effectiveLocationId);
-    }
-
-    const { data: customerRecords, error: customerError } = await customerQuery;
 
     if (customerError) {
       console.error('[API] Error fetching family customers:', customerError);
@@ -178,25 +158,15 @@ export async function PUT(
       return NextResponse.json({ error: 'Family name is required' }, { status: 400 });
     }
 
-    // Get current user for location check
-    const currentUser = await getCurrentUser();
-    const userRoles = currentUser?.roles || [];
-    const userLocationId = currentUser?.location_id || null;
-    const effectiveLocationId = await getEffectiveLocationId(userRoles, userLocationId);
-
-    // Check family exists and user has access
+    // Check family exists
     const { data: existingFamily, error: checkError } = await supabaseAdmin
       .from('families')
-      .select('id, location_id')
+      .select('id')
       .eq('id', familyId)
       .single();
 
     if (checkError || !existingFamily) {
       return NextResponse.json({ error: 'Family not found' }, { status: 404 });
-    }
-
-    if (effectiveLocationId && existingFamily.location_id !== effectiveLocationId) {
-      return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
     // Update family
@@ -253,25 +223,15 @@ export async function DELETE(
   }
 
   try {
-    // Get current user for location check
-    const currentUser = await getCurrentUser();
-    const userRoles = currentUser?.roles || [];
-    const userLocationId = currentUser?.location_id || null;
-    const effectiveLocationId = await getEffectiveLocationId(userRoles, userLocationId);
-
-    // Check family exists and user has access
+    // Check family exists
     const { data: existingFamily, error: checkError } = await supabaseAdmin
       .from('families')
-      .select('id, location_id')
+      .select('id')
       .eq('id', familyId)
       .single();
 
     if (checkError || !existingFamily) {
       return NextResponse.json({ error: 'Family not found' }, { status: 404 });
-    }
-
-    if (effectiveLocationId && existingFamily.location_id !== effectiveLocationId) {
-      return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
     // Check if family has customers

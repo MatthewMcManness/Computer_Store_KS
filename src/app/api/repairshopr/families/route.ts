@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getEmployeeAuditInfo, getCurrentUser } from '@/lib/auth';
+import { getEmployeeAuditInfo } from '@/lib/auth';
 import { supabaseAdmin, getEffectiveCustomerPlanTiers, type ProtectionPlanTier } from '@/lib/supabase';
-import { getEffectiveLocationId } from '@/lib/location-helpers';
 
 export const dynamic = 'force-dynamic';
 
@@ -41,24 +40,11 @@ export async function GET(request: NextRequest) {
   const planTierFilter = searchParams.get('plan_tier') as ProtectionPlanTier | null;
 
   try {
-    // Get current user for location filtering
-    const currentUser = await getCurrentUser();
-    const userRoles = currentUser?.roles || [];
-    const userLocationId = currentUser?.location_id || null;
-
-    // Get the effective location ID to filter by
-    const effectiveLocationId = await getEffectiveLocationId(userRoles, userLocationId);
-
-    // Get all families (we need to calculate tiers before we can filter/paginate)
+    // Families are location-agnostic — shared across all locations
     let familyQuery = supabaseAdmin
       .from('families')
       .select('id, name')
       .order('name', { ascending: true });
-
-    // Apply location filter if user doesn't have access to all locations
-    if (effectiveLocationId) {
-      familyQuery = familyQuery.eq('location_id', effectiveLocationId);
-    }
 
     // Add search filter if provided
     if (query) {
@@ -88,17 +74,10 @@ export async function GET(request: NextRequest) {
     // Fetch in batches to handle Supabase's 1000 row limit
     const familyIds = allFamilies.map(f => f.id);
 
-    // Build count query with location filter
-    let customerCountQuery = supabaseAdmin
+    const { count: customerCount } = await supabaseAdmin
       .from('rs_customers')
       .select('*', { count: 'exact', head: true })
       .in('family_id', familyIds);
-
-    if (effectiveLocationId) {
-      customerCountQuery = customerCountQuery.eq('location_id', effectiveLocationId);
-    }
-
-    const { count: customerCount } = await customerCountQuery;
 
     const BATCH_SIZE = 1000;
     const allCustomers: Array<{ family_id: number; repairshopr_id: number }> = [];
@@ -108,16 +87,11 @@ export async function GET(request: NextRequest) {
       const from = batch * BATCH_SIZE;
       const to = from + BATCH_SIZE - 1;
 
-      let batchQuery = supabaseAdmin
+      const { data: batchCustomers } = await supabaseAdmin
         .from('rs_customers')
         .select('family_id, repairshopr_id')
-        .in('family_id', familyIds);
-
-      if (effectiveLocationId) {
-        batchQuery = batchQuery.eq('location_id', effectiveLocationId);
-      }
-
-      const { data: batchCustomers } = await batchQuery.range(from, to);
+        .in('family_id', familyIds)
+        .range(from, to);
 
       if (batchCustomers) {
         allCustomers.push(...batchCustomers);
@@ -211,15 +185,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Family name is required' }, { status: 400 });
     }
 
-    // Get current user for location
-    const currentUser = await getCurrentUser();
-    const locationId = currentUser?.location_id || null;
-
+    // Families are location-agnostic — no location_id assigned
     const { data: family, error } = await supabaseAdmin
       .from('families')
       .insert({
         name: name.trim(),
-        location_id: locationId,
       })
       .select('id, name')
       .single();

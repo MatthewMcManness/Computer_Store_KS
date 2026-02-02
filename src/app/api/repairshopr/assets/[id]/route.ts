@@ -58,12 +58,14 @@ export async function DELETE(
       await supabaseAdmin.from('rs_assets').delete().eq('repairshopr_id', assetId);
     }
 
-    // Push delete to RepairShopr as backup
+    // Soft-delete in RepairShopr (no DELETE endpoint exists)
     try {
       const client = createRepairShoprClient();
-      await client.deleteAsset(apiToken, assetId);
+      await client.updateAsset(apiToken, assetId, {
+        name: `[DELETED] ${assetName}`,
+      });
     } catch (rsError) {
-      console.error('[API] Failed to delete asset from RepairShopr (backup):', rsError);
+      console.error('[API] Failed to soft-delete asset in RepairShopr:', rsError);
     }
 
     await logAssetAction(employee, 'asset_delete', assetId, assetName, {}, request);

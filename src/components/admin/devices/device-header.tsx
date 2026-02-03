@@ -10,10 +10,8 @@ import {
   Wifi,
   WifiOff,
   Circle,
-  ArrowLeft,
   Building2,
 } from 'lucide-react';
-import Link from 'next/link';
 import type { NinjaOneDevice } from '@/lib/ninjaone';
 import { formatDistanceToNow } from '@/lib/utils';
 
@@ -93,15 +91,6 @@ export function DeviceHeader({ device }: DeviceHeaderProps) {
 
   return (
     <div className="mb-6">
-      {/* Back link */}
-      <Link
-        href="/admin/devices"
-        className="mb-4 inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Back to Devices
-      </Link>
-
       {/* Device header card */}
       <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6">
         <div className="flex flex-col sm:flex-row sm:items-start gap-4">

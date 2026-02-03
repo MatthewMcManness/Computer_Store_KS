@@ -571,6 +571,120 @@ export async function syncDeviceHardwareFromNinjaOne(
 }
 
 // =============================================================================
+// ESET Integration Functions
+// =============================================================================
+
+/**
+ * Get a device by its ESET device UUID.
+ *
+ * @param esetDeviceUuid - The ESET device UUID
+ * @returns The device or null if not found
+ *
+ * @functions_called supabaseAdmin
+ * @called_by POST /api/devices/[id]/link-eset (duplicate check)
+ *
+ * @version 1.0.0 - 2026-02-03T22:58:18Z - Initial implementation
+ */
+export async function getDeviceByEsetId(esetDeviceUuid: string): Promise<Device | null> {
+  if (!supabaseAdmin) return null;
+
+  const { data, error } = await supabaseAdmin
+    .from('devices')
+    .select('*')
+    .eq('eset_device_id', esetDeviceUuid)
+    .single();
+
+  if (error) {
+    if (error.code !== 'PGRST116') {
+      console.error('Error fetching device by ESET ID:', error);
+    }
+    return null;
+  }
+
+  return data;
+}
+
+/**
+ * Link a device to an ESET managed device.
+ *
+ * @param deviceId - The local device ID
+ * @param esetDeviceUuid - The ESET device UUID
+ * @returns The updated device or null on error
+ *
+ * @sideEffects
+ * - Updates the device's eset_device_id field
+ *
+ * @functions_called updateDevice, getDeviceByEsetId
+ * @called_by POST /api/devices/[id]/link-eset
+ *
+ * @version 1.0.0 - 2026-02-03T22:58:18Z - Initial implementation
+ */
+export async function linkDeviceToEset(
+  deviceId: number,
+  esetDeviceUuid: string
+): Promise<Device | null> {
+  // Check if ESET device is already linked to another device
+  const existingDevice = await getDeviceByEsetId(esetDeviceUuid);
+  if (existingDevice && existingDevice.id !== deviceId) {
+    console.error('ESET device is already linked to another device');
+    return null;
+  }
+
+  return updateDevice(deviceId, {
+    eset_device_id: esetDeviceUuid,
+  });
+}
+
+/**
+ * Unlink a device from ESET.
+ *
+ * @param deviceId - The local device ID
+ * @returns The updated device or null on error
+ *
+ * @sideEffects
+ * - Clears the device's eset_device_id, eset_status, and eset_last_scan fields
+ *
+ * @functions_called updateDevice
+ * @called_by DELETE /api/devices/[id]/link-eset
+ *
+ * @version 1.0.0 - 2026-02-03T22:58:18Z - Initial implementation
+ */
+export async function unlinkDeviceFromEset(deviceId: number): Promise<Device | null> {
+  return updateDevice(deviceId, {
+    eset_device_id: null,
+    eset_status: null,
+    eset_last_scan: null,
+  });
+}
+
+/**
+ * Update a device's ESET status and last scan time.
+ *
+ * @param deviceId - The local device ID
+ * @param status - The ESET protection status
+ * @param lastScan - When the device was last scanned
+ * @returns The updated device or null on error
+ *
+ * @sideEffects
+ * - Updates the device's eset_status and eset_last_scan fields
+ *
+ * @functions_called updateDevice
+ * @called_by ESET sync operations
+ *
+ * @version 1.0.0 - 2026-02-03T22:58:18Z - Initial implementation
+ */
+export async function updateDeviceStatusFromEset(
+  deviceId: number,
+  status: EsetDeviceStatus,
+  lastScan: string | Date
+): Promise<Device | null> {
+  return updateDevice(deviceId, {
+    eset_status: status,
+    eset_last_scan: lastScan instanceof Date ? lastScan.toISOString() : lastScan,
+  });
+}
+
+// =============================================================================
 // Utility Functions
 // =============================================================================
 

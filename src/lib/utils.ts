@@ -197,3 +197,52 @@ export function truncate(str: string, length: number): string {
 export function absoluteUrl(path: string): string {
   return `${process.env.NEXT_PUBLIC_APP_URL || 'https://computerstoreks.com'}${path}`;
 }
+
+/**
+ * Formats a date as a human-readable time distance from now.
+ *
+ * Converts a Date object to a relative time string like "5 minutes ago"
+ * or "2 hours ago". Falls back to displaying the date if it's more than
+ * a day ago.
+ *
+ * @param date - The date to format
+ * @returns Human-readable time distance string
+ *
+ * @example
+ * formatDistanceToNow(new Date(Date.now() - 5 * 60 * 1000))  // "5 minutes ago"
+ * formatDistanceToNow(new Date(Date.now() - 2 * 60 * 60 * 1000))  // "2 hours ago"
+ *
+ * @functions_called Date.now, Math.floor
+ * @called_by DeviceCard, DeviceDetail, various admin components
+ *
+ * @version 1.0.0 - 2026-02-03T00:00:00Z - Initial implementation
+ */
+export function formatDistanceToNow(date: Date): string {
+  const now = Date.now();
+  const then = date.getTime();
+  const diffMs = now - then;
+  const diffSec = Math.floor(diffMs / 1000);
+  const diffMin = Math.floor(diffSec / 60);
+  const diffHour = Math.floor(diffMin / 60);
+  const diffDay = Math.floor(diffHour / 24);
+
+  if (diffSec < 60) {
+    return 'Just now';
+  }
+  if (diffMin < 60) {
+    return `${diffMin} minute${diffMin === 1 ? '' : 's'} ago`;
+  }
+  if (diffHour < 24) {
+    return `${diffHour} hour${diffHour === 1 ? '' : 's'} ago`;
+  }
+  if (diffDay < 7) {
+    return `${diffDay} day${diffDay === 1 ? '' : 's'} ago`;
+  }
+
+  // For older dates, show the date
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: date.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined,
+  });
+}

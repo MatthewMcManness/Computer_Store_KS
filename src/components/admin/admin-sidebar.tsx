@@ -32,6 +32,7 @@ import {
   FileText,
   Images,
   AlertTriangle,
+  Cpu,
 } from 'lucide-react';
 import type { SidebarMode } from './admin-shell';
 import type { SidebarSection, SidebarItem, IconName } from '@/types/roles';
@@ -78,6 +79,7 @@ function getIcon(iconName: IconName, className: string = 'h-5 w-5 flex-shrink-0'
     PenTool: <PenTool className={className} />,
     RefreshCw: <RefreshCw className={className} />,
     AlertTriangle: <AlertTriangle className={className} />,
+    Cpu: <Cpu className={className} />,
   };
 
   return iconMap[iconName] || <LayoutDashboard className={className} />;

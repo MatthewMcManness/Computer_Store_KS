@@ -69,7 +69,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       mapping: mapping
         ? {
             id: mapping.id,
-            repairshoprAssetId: mapping.repairshoprAssetId,
+            assetId: mapping.assetId,
             syncStatus: mapping.syncStatus,
             lastSyncAt: mapping.lastSyncAt.toISOString(),
           }

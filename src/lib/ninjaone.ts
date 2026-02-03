@@ -418,8 +418,10 @@ export class NinjaOneClient {
       return this.accessToken;
     }
 
-    // Request new token
-    const tokenUrl = `${this.apiUrl}/ws/oauth/token`;
+    // Request new token - use base URL (strip any /api/v2 path) since token
+    // endpoint is always at the domain root: https://app.ninjarmm.com/ws/oauth/token
+    const baseUrl = new URL(this.apiUrl).origin;
+    const tokenUrl = `${baseUrl}/ws/oauth/token`;
 
     const response = await fetch(tokenUrl, {
       method: 'POST',
@@ -435,9 +437,17 @@ export class NinjaOneClient {
     });
 
     if (!response.ok) {
-      const error = await this.parseErrorResponse(response);
+      const rawBody = await response.text();
+      console.error(`[NinjaOne Auth] Token request failed: HTTP ${response.status} ${response.statusText}`);
+      console.error(`[NinjaOne Auth] URL: ${tokenUrl}`);
+      console.error(`[NinjaOne Auth] Response body: ${rawBody}`);
+      let errorMessage = `HTTP ${response.status}`;
+      try {
+        const parsed = JSON.parse(rawBody);
+        errorMessage = parsed.error_description || parsed.errorMessage || parsed.error || errorMessage;
+      } catch { /* not JSON */ }
       throw new NinjaOneAPIError(
-        error.message || 'Failed to authenticate with NinjaOne',
+        errorMessage || 'Failed to authenticate with NinjaOne',
         response.status,
         'AUTH_ERROR'
       );

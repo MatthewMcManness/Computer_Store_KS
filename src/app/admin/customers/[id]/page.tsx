@@ -85,7 +85,7 @@ interface EditFormData {
   plan_tier: ProtectionPlanTier;
 }
 
-type TabType = 'assets' | 'devices' | 'tickets' | 'invoices' | 'payments';
+type TabType = 'devices' | 'tickets' | 'invoices' | 'payments';
 
 // =============================================================================
 // Brand and Model Data (shared with DeviceStep)
@@ -151,7 +151,7 @@ export default function CustomerDetailsPage() {
   const [error, setError] = useState<string | null>(null);
 
   // Tab state
-  const [activeTab, setActiveTab] = useState<TabType>('assets');
+  const [activeTab, setActiveTab] = useState<TabType>('devices');
   const [assets, setAssets] = useState<AssetWithPlan[]>([]);
   const [devices, setDevices] = useState<Device[]>([]);
   const [tickets, setTickets] = useState<RepairShoprTicket[]>([]);
@@ -271,29 +271,7 @@ export default function CustomerDetailsPage() {
   const loadTabData = useCallback(async (custId: number, tab: TabType, customerEmail?: string) => {
     setLoadingTabData(true);
     try {
-      if (tab === 'assets') {
-        const [assetsRes, plansRes] = await Promise.all([
-          fetch(`/api/repairshopr/customers/${custId}/assets`),
-          fetch(`/api/admin/asset-plans?customer_id=${custId}`)
-        ]);
-
-        if (!assetsRes.ok) throw new Error('Failed to load assets');
-
-        const assetsData = await assetsRes.json();
-        const plansData = plansRes.ok ? await plansRes.json() : { plans: [] };
-
-        const plansMap = new Map<number, AssetProtectionPlan>();
-        for (const plan of (plansData.plans || [])) {
-          plansMap.set(plan.repairshopr_asset_id, plan);
-        }
-
-        const assetsWithPlans: AssetWithPlan[] = (assetsData.assets || []).map((asset: RepairShoprAsset) => ({
-          ...asset,
-          protection_plan: plansMap.get(asset.id) || null
-        }));
-
-        setAssets(assetsWithPlans);
-      } else if (tab === 'devices') {
+      if (tab === 'devices') {
         // Fetch unified devices by customer ID
         const response = await fetch(`/api/devices?customer_id=${custId}`);
         if (response.ok) {
@@ -411,7 +389,7 @@ export default function CustomerDetailsPage() {
 
       if (!response.ok) throw new Error('Failed to save asset plan');
 
-      await loadTabData(customer.id, 'assets');
+      await loadTabData(customer.id, 'devices');
       await updatePlanTierFromAssets(customer.id);
       cancelEditingAsset();
     } catch (err) {
@@ -440,7 +418,7 @@ export default function CustomerDetailsPage() {
         method: 'DELETE',
       });
 
-      await loadTabData(customer.id, 'assets');
+      await loadTabData(customer.id, 'devices');
       await updatePlanTierFromAssets(customer.id);
     } catch (err) {
       console.error('Failed to delete asset:', err);
@@ -517,7 +495,7 @@ export default function CustomerDetailsPage() {
         }
       }
 
-      await loadTabData(customer.id, 'assets');
+      await loadTabData(customer.id, 'devices');
       setShowAddAsset(false);
       setNewDeviceType('Desktop');
       setNewBrand('');
@@ -674,8 +652,7 @@ export default function CustomerDetailsPage() {
   };
 
   const tabs: { id: TabType; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-    { id: 'assets', label: 'Assets', icon: Monitor },
-    { id: 'devices', label: 'Devices', icon: Cpu },
+    { id: 'devices', label: 'Devices', icon: Monitor },
     { id: 'tickets', label: 'Tickets', icon: Ticket },
     { id: 'invoices', label: 'Invoices', icon: Receipt },
     { id: 'payments', label: 'Payments', icon: CreditCard },
@@ -903,318 +880,7 @@ export default function CustomerDetailsPage() {
                   </div>
                 ) : (
                   <>
-                    {/* Assets Tab */}
-                    {activeTab === 'assets' && (
-                      <div className="space-y-3">
-                        {assets.length === 0 && !showAddAsset ? (
-                          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                            <Monitor className="mx-auto h-12 w-12 text-gray-300 dark:text-gray-600 mb-2" />
-                            No assets found for this customer
-                          </div>
-                        ) : (
-                          <div className="space-y-2">
-                            {assets.map((asset) => {
-                              const isEditing = editingAssetId === asset.id;
-                              const assetPlanDisplay = getPlanTierDisplay(asset.protection_plan?.plan_tier ?? null);
-                              const esetDisplay = getEsetDisplay(asset.protection_plan?.eset_status ?? null);
-
-                              return (
-                                <div
-                                  key={asset.id}
-                                  className={`rounded-lg border p-4 ${
-                                    isEditing
-                                      ? 'border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-900/20'
-                                      : 'border-gray-200 dark:border-gray-700'
-                                  }`}
-                                >
-                                  <div className="flex items-start justify-between gap-4">
-                                    <div className="flex items-start gap-3 flex-1 min-w-0">
-                                      <Monitor className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
-                                      <div className="min-w-0 flex-1">
-                                        <div className="flex items-center gap-2 flex-wrap">
-                                          <p className="font-medium text-gray-900 dark:text-white truncate">
-                                            {asset.name}
-                                          </p>
-                                          {assetPlanDisplay && (
-                                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${assetPlanDisplay.className}`}>
-                                              {assetPlanDisplay.label}
-                                            </span>
-                                          )}
-                                        </div>
-                                        <div className="flex items-center gap-3 mt-1 flex-wrap">
-                                          {asset.asset_type_name && (
-                                            <span className="text-sm text-gray-500 dark:text-gray-400">
-                                              {asset.asset_type_name}
-                                            </span>
-                                          )}
-                                          {esetDisplay && (
-                                            <span className={`inline-flex items-center gap-1 text-xs ${esetDisplay.className}`}>
-                                              <esetDisplay.icon className="h-3.5 w-3.5" />
-                                              {esetDisplay.label}
-                                            </span>
-                                          )}
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    {/* Action buttons */}
-                                    <div className="flex items-center gap-2 flex-shrink-0">
-                                      {isEditing ? (
-                                        <>
-                                          <button
-                                            onClick={() => saveAssetPlan(asset.id)}
-                                            disabled={savingAsset}
-                                            className="p-1.5 text-green-600 hover:bg-green-100 rounded dark:text-green-400 dark:hover:bg-green-900/30"
-                                            title="Save"
-                                          >
-                                            {savingAsset ? (
-                                              <Loader2 className="h-4 w-4 animate-spin" />
-                                            ) : (
-                                              <Save className="h-4 w-4" />
-                                            )}
-                                          </button>
-                                          <button
-                                            onClick={cancelEditingAsset}
-                                            disabled={savingAsset}
-                                            className="p-1.5 text-gray-500 hover:bg-gray-100 rounded dark:text-gray-400 dark:hover:bg-gray-700"
-                                            title="Cancel"
-                                          >
-                                            <X className="h-4 w-4" />
-                                          </button>
-                                        </>
-                                      ) : (
-                                        <>
-                                          <button
-                                            onClick={() => startEditingAsset(asset)}
-                                            className="p-1.5 text-gray-500 hover:bg-gray-100 rounded dark:text-gray-400 dark:hover:bg-gray-700"
-                                            title="Edit protection plan"
-                                          >
-                                            <Edit2 className="h-4 w-4" />
-                                          </button>
-                                          <button
-                                            onClick={() => deleteAsset(asset.id)}
-                                            className="p-1.5 text-red-500 hover:bg-red-100 rounded dark:text-red-400 dark:hover:bg-red-900/30"
-                                            title="Delete asset"
-                                          >
-                                            <Trash2 className="h-4 w-4" />
-                                          </button>
-                                        </>
-                                      )}
-                                    </div>
-                                  </div>
-
-                                  {/* Edit form */}
-                                  {isEditing && (
-                                    <div className="mt-4 pt-4 border-t border-blue-200 dark:border-blue-800 space-y-4">
-                                      <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                          Protection Plan
-                                        </label>
-                                        <div className="flex flex-wrap gap-2">
-                                          <button
-                                            type="button"
-                                            onClick={() => setEditingAssetPlan(null)}
-                                            className={`rounded-lg px-3 py-2 text-sm font-medium transition-all ${
-                                              editingAssetPlan === null
-                                                ? 'bg-gray-600 text-white ring-2 ring-gray-400 ring-offset-2 dark:ring-offset-gray-900'
-                                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
-                                            }`}
-                                          >
-                                            None
-                                          </button>
-                                          <button
-                                            type="button"
-                                            onClick={() => setEditingAssetPlan('eset' as ProtectionPlanTier)}
-                                            className={`rounded-lg px-3 py-2 text-sm font-medium transition-all ${
-                                              editingAssetPlan === 'eset'
-                                                ? 'bg-green-600 text-white ring-2 ring-green-400 ring-offset-2 dark:ring-offset-gray-900'
-                                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
-                                            }`}
-                                          >
-                                            ESET
-                                          </button>
-                                          <button
-                                            type="button"
-                                            onClick={() => setEditingAssetPlan('silver')}
-                                            className={`rounded-lg px-3 py-2 text-sm font-medium transition-all ${
-                                              editingAssetPlan === 'silver'
-                                                ? 'bg-slate-500 text-white ring-2 ring-slate-400 ring-offset-2 dark:ring-offset-gray-900'
-                                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
-                                            }`}
-                                          >
-                                            Silver
-                                          </button>
-                                          <button
-                                            type="button"
-                                            onClick={() => setEditingAssetPlan('silver-plus')}
-                                            className={`rounded-lg px-3 py-2 text-sm font-medium transition-all ${
-                                              editingAssetPlan === 'silver-plus'
-                                                ? 'bg-gradient-to-r from-slate-500 to-amber-500 text-white ring-2 ring-amber-400 ring-offset-2 dark:ring-offset-gray-900'
-                                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
-                                            }`}
-                                          >
-                                            Silver Plus
-                                          </button>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  )}
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
-
-                        {/* Add new asset section */}
-                        {showAddAsset ? (
-                          <div className="rounded-lg border border-dashed border-gray-300 dark:border-gray-600 p-4 bg-gray-50 dark:bg-gray-800/50">
-                            <div className="space-y-4 mb-4">
-                              {/* Device Type Selection */}
-                              <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                  Device Type *
-                                </label>
-                                <div className="flex gap-2">
-                                  {deviceTypes.map((type) => (
-                                    <button
-                                      key={type.value}
-                                      type="button"
-                                      onClick={() => handleDeviceTypeChange(type.value as 'Desktop' | 'Laptop')}
-                                      className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-all ${
-                                        newDeviceType === type.value
-                                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-                                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-                                      }`}
-                                    >
-                                      <span className="text-lg">{type.icon}</span>
-                                      <span className="font-medium">{type.label}</span>
-                                    </button>
-                                  ))}
-                                </div>
-                              </div>
-
-                              {/* Brand Selection */}
-                              <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                  Brand *
-                                </label>
-                                <select
-                                  value={newBrand}
-                                  onChange={(e) => handleBrandChange(e.target.value as Brand | '')}
-                                  className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                                >
-                                  <option value="">Select a brand...</option>
-                                  {brands.map((brand) => (
-                                    <option key={brand} value={brand}>
-                                      {brand}
-                                    </option>
-                                  ))}
-                                </select>
-                              </div>
-
-                              {/* Model Selection - Only show if brand is selected and not Custom Build */}
-                              {newBrand && newBrand !== 'Custom Build' && (
-                                <div>
-                                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Model *
-                                  </label>
-                                  <select
-                                    value={newModel}
-                                    onChange={(e) => setNewModel(e.target.value)}
-                                    className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                                  >
-                                    <option value="">Select a model...</option>
-                                    {getAvailableModels().map((model) => (
-                                      <option key={model} value={model}>
-                                        {model}
-                                      </option>
-                                    ))}
-                                  </select>
-                                </div>
-                              )}
-
-                              {/* Preview of asset name */}
-                              {newBrand && (newBrand === 'Custom Build' || newModel) && (
-                                <div className="text-sm text-gray-600 dark:text-gray-400">
-                                  Asset will be created as: <span className="font-medium text-gray-900 dark:text-white">
-                                    {newBrand === 'Custom Build' ? `Custom Build ${newDeviceType}` : `${newBrand} ${newModel}`}
-                                  </span>
-                                </div>
-                              )}
-
-                              {/* Protection Plan Selection */}
-                              <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                  Protection Plan <span className="text-gray-400 font-normal">(optional)</span>
-                                </label>
-                                <div className="flex gap-2">
-                                  {([
-                                    { value: 'eset' as const, label: 'ESET', icon: Shield, color: 'green' },
-                                    { value: 'silver' as const, label: 'Silver', icon: ShieldCheck, color: 'gray' },
-                                    { value: 'silver-plus' as const, label: 'Silver+', icon: ShieldAlert, color: 'amber' },
-                                  ] as const).map((plan) => (
-                                    <button
-                                      key={plan.value}
-                                      type="button"
-                                      onClick={() => setNewAssetPlan(newAssetPlan === plan.value ? null : plan.value)}
-                                      className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-all ${
-                                        newAssetPlan === plan.value
-                                          ? plan.color === 'green'
-                                            ? 'border-green-500 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300'
-                                            : plan.color === 'gray'
-                                            ? 'border-gray-500 bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
-                                            : 'border-amber-500 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300'
-                                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-                                      }`}
-                                    >
-                                      <plan.icon className="h-4 w-4" />
-                                      <span className="font-medium text-sm">{plan.label}</span>
-                                    </button>
-                                  ))}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex gap-2 justify-end">
-                              <button
-                                onClick={() => {
-                                  setShowAddAsset(false);
-                                  setNewDeviceType('Desktop');
-                                  setNewBrand('');
-                                  setNewModel('');
-                                  setNewAssetPlan(null);
-                                }}
-                                disabled={addingAsset}
-                                className="px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
-                              >
-                                Cancel
-                              </button>
-                              <button
-                                onClick={addAsset}
-                                disabled={addingAsset || !newBrand || (newBrand !== 'Custom Build' && !newModel)}
-                                className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
-                              >
-                                {addingAsset ? (
-                                  <Loader2 className="h-4 w-4 animate-spin" />
-                                ) : (
-                                  <Plus className="h-4 w-4" />
-                                )}
-                                Add Asset
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <button
-                            onClick={() => setShowAddAsset(true)}
-                            className="w-full flex items-center justify-center gap-2 py-3 rounded-lg border border-dashed border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-gray-400 dark:hover:border-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                          >
-                            <Plus className="h-5 w-5" />
-                            Add New Asset
-                          </button>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Devices Tab (Unified Devices) */}
+                    {/* Devices Tab */}
                     {activeTab === 'devices' && (
                       <div className="space-y-3">
                         {devices.length === 0 && !showAddDeviceModal ? (

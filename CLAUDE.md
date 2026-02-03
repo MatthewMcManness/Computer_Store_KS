@@ -289,31 +289,36 @@ Key fields in `ticket_status_overrides`:
 
 ## Git Branching Strategy
 
-This project uses a **Development/Production** branching model:
+This project uses a **direct Production workflow** with **local testing before push**:
 
-| Branch | Purpose | Render Deployment |
-|--------|---------|-------------------|
-| `Production` | Live customer site | computerstoreks.com |
-| `Development` | Internal testing/staging | dev site on Render |
+| Branch | Purpose | Deployment |
+|--------|---------|------------|
+| `Production` | Live site & active development | Render → computerstoreks.com |
 
 **Workflow:**
-1. Always work in `Development` or `Production` branch
-2. Make changes and test in `Development` first
-3. When ready for live site, merge to `Production` and push
-4. Render auto-deploys from both branches
+1. Work directly in the `Production` branch
+2. Run `npm run dev` and test changes locally at `http://localhost:3000`
+3. Share localhost link with user for review
+4. Once user approves, commit and push to `Production`
+5. Render auto-deploys from `Production`
 
 **Commands:**
 ```bash
-# Switch to Development for new work
-git checkout Development
-
-# After testing, deploy to Production
+# Ensure on Production branch
 git checkout Production
-git merge Development
+
+# Test locally
+npm run dev
+# Verify at http://localhost:3000
+# Share link with user for approval
+
+# After user approval, commit and push
+git add <files>
+git commit -m "feat: description"
 git push origin Production
 ```
 
-**Important:** Never push directly to `Production` without testing in `Development` first (unless hotfix).
+**Important:** Always test locally and get user approval before pushing to `Production`.
 
 ## Deployment
 

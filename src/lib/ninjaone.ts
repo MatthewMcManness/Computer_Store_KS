@@ -206,11 +206,12 @@ export interface NinjaOneOrganization {
 }
 
 /**
- * Device mapping record (links NinjaOne to RepairShopr)
+ * Device mapping record (links NinjaOne to Supabase rs_assets)
  */
 export interface DeviceMapping {
   id: string;
-  repairshoprAssetId: number;
+  /** References rs_assets.id (Supabase internal ID) */
+  assetId: number;
   ninjaoneDeviceId: number;
   deviceName?: string;
   serialNumber?: string;
@@ -940,10 +941,10 @@ export class NinjaOneClient {
 // =============================================================================
 
 /**
- * Get device mapping by RepairShopr asset ID
+ * Get device mapping by Supabase asset ID (rs_assets.id)
  */
 export async function getDeviceMappingByAssetId(
-  repairshoprAssetId: number
+  assetId: number
 ): Promise<DeviceMapping | null> {
   if (!isSupabaseAdminConfigured() || !supabaseAdmin) {
     console.warn('[NinjaOne] Supabase not configured, device mappings unavailable');
@@ -953,7 +954,7 @@ export async function getDeviceMappingByAssetId(
   const { data, error } = await supabaseAdmin
     .from('device_mappings')
     .select('*')
-    .eq('repairshopr_asset_id', repairshoprAssetId)
+    .eq('asset_id', assetId)
     .single();
 
   if (error && error.code !== 'PGRST116') {
@@ -965,7 +966,7 @@ export async function getDeviceMappingByAssetId(
 
   return {
     id: data.id,
-    repairshoprAssetId: data.repairshopr_asset_id,
+    assetId: data.asset_id,
     ninjaoneDeviceId: data.ninjaone_device_id,
     deviceName: data.device_name,
     serialNumber: data.serial_number,
@@ -1004,7 +1005,7 @@ export async function getDeviceMappingByNinjaId(
 
   return {
     id: data.id,
-    repairshoprAssetId: data.repairshopr_asset_id,
+    assetId: data.asset_id,
     ninjaoneDeviceId: data.ninjaone_device_id,
     deviceName: data.device_name,
     serialNumber: data.serial_number,
@@ -1019,10 +1020,14 @@ export async function getDeviceMappingByNinjaId(
 
 /**
  * Create or update a device mapping
+ *
+ * @param ninjaoneDeviceId - NinjaOne device ID
+ * @param assetId - Supabase rs_assets.id (internal ID)
+ * @param options - Additional mapping options
  */
 export async function mapDeviceToAsset(
   ninjaoneDeviceId: number,
-  repairshoprAssetId: number,
+  assetId: number,
   options?: {
     deviceName?: string;
     serialNumber?: string;
@@ -1039,7 +1044,7 @@ export async function mapDeviceToAsset(
     .upsert(
       {
         ninjaone_device_id: ninjaoneDeviceId,
-        repairshopr_asset_id: repairshoprAssetId,
+        asset_id: assetId,
         device_name: options?.deviceName,
         serial_number: options?.serialNumber,
         owner_user_id: options?.ownerUserId,
@@ -1048,7 +1053,7 @@ export async function mapDeviceToAsset(
         updated_at: new Date().toISOString(),
       },
       {
-        onConflict: 'repairshopr_asset_id',
+        onConflict: 'asset_id',
       }
     )
     .select()
@@ -1061,7 +1066,7 @@ export async function mapDeviceToAsset(
 
   return {
     id: data.id,
-    repairshoprAssetId: data.repairshopr_asset_id,
+    assetId: data.asset_id,
     ninjaoneDeviceId: data.ninjaone_device_id,
     deviceName: data.device_name,
     serialNumber: data.serial_number,
@@ -1097,7 +1102,7 @@ export async function getDeviceMappingsByOwner(
 
   return (data || []).map((row) => ({
     id: row.id,
-    repairshoprAssetId: row.repairshopr_asset_id,
+    assetId: row.asset_id,
     ninjaoneDeviceId: row.ninjaone_device_id,
     deviceName: row.device_name,
     serialNumber: row.serial_number,
@@ -1139,6 +1144,22 @@ export async function updateDeviceMappingSyncStatus(
   }
 
   return true;
+}
+
+/**
+ * Create a device mapping (alias for mapDeviceToAsset)
+ *
+ * @param ninjaoneDeviceId - NinjaOne device ID
+ * @param assetId - Supabase rs_assets.id (internal ID)
+ * @returns Created mapping or null on failure
+ *
+ * @version 1.0.0 - 2026-02-03T00:00:00Z - Initial implementation
+ */
+export async function createDeviceMapping(
+  ninjaoneDeviceId: number,
+  assetId: number
+): Promise<DeviceMapping | null> {
+  return mapDeviceToAsset(ninjaoneDeviceId, assetId);
 }
 
 /**

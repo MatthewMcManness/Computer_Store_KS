@@ -77,6 +77,8 @@ export type Permission =
   | 'manage_ticket_work'
   | 'view_gallery'
   | 'manage_gallery'
+  | 'view_devices'
+  | 'manage_devices'
   // Lead Tech Section
   | 'view_lead_tech_dashboard'
   | 'assign_tickets'
@@ -161,6 +163,8 @@ export const ROLE_PERMISSIONS: Record<EmployeeRole, Permission[]> = {
     'manage_ticket_work',
     'view_gallery',
     'manage_gallery',
+    'view_devices',
+    'manage_devices',
   ],
   lead_technician: [
     'view_lead_tech_dashboard',
@@ -208,6 +212,8 @@ export const ROLE_PERMISSIONS: Record<EmployeeRole, Permission[]> = {
     'manage_ticket_work',
     'view_gallery',
     'manage_gallery',
+    'view_devices',
+    'manage_devices',
     'view_lead_tech_dashboard',
     'assign_tickets',
     'view_blog',
@@ -249,7 +255,8 @@ export type IconName =
   | 'Images'
   | 'PenTool'
   | 'RefreshCw'
-  | 'AlertTriangle';
+  | 'AlertTriangle'
+  | 'Cpu';
 
 /**
  * Individual sidebar menu item.
@@ -355,6 +362,12 @@ export const SIDEBAR_CONFIG: SidebarSection[] = [
         icon: 'Ticket',
       },
       {
+        label: 'Devices',
+        href: '/admin/devices',
+        permissions: ['view_devices'],
+        icon: 'Cpu',
+      },
+      {
         label: 'In-Store Manager',
         href: '/admin/in-store',
         permissions: ['view_gallery'],
@@ -458,6 +471,7 @@ export const ROUTE_PERMISSIONS: Record<string, Permission[]> = {
   // Technician Section
   '/admin/tech': ['view_tech_dashboard'],
   '/admin/tickets/work': ['manage_ticket_work'],
+  '/admin/devices': ['view_devices'],
   '/admin/in-store': ['view_gallery'],
   // Lead Tech Section
   '/admin/lead-tech': ['view_lead_tech_dashboard'],

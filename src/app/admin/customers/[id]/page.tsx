@@ -28,7 +28,9 @@ import {
   Trash2,
   Save,
   ArrowLeft,
+  Cpu,
 } from 'lucide-react';
+import type { NinjaOneDevice } from '@/lib/ninjaone';
 import type { RepairShoprCustomer, RepairShoprAsset, RepairShoprTicket, RepairShoprInvoice, RepairShoprPayment } from '@/lib/repairshopr';
 
 // Protection plan tier type
@@ -81,7 +83,7 @@ interface EditFormData {
   plan_tier: ProtectionPlanTier;
 }
 
-type TabType = 'assets' | 'tickets' | 'invoices' | 'payments';
+type TabType = 'assets' | 'devices' | 'tickets' | 'invoices' | 'payments';
 
 // =============================================================================
 // Brand and Model Data (shared with DeviceStep)
@@ -149,6 +151,7 @@ export default function CustomerDetailsPage() {
   // Tab state
   const [activeTab, setActiveTab] = useState<TabType>('assets');
   const [assets, setAssets] = useState<AssetWithPlan[]>([]);
+  const [devices, setDevices] = useState<NinjaOneDevice[]>([]);
   const [tickets, setTickets] = useState<RepairShoprTicket[]>([]);
   const [invoices, setInvoices] = useState<RepairShoprInvoice[]>([]);
   const [payments, setPayments] = useState<RepairShoprPayment[]>([]);
@@ -262,7 +265,7 @@ export default function CustomerDetailsPage() {
   }, [loadCustomer]);
 
   // Load tab data for the customer
-  const loadTabData = useCallback(async (custId: number, tab: TabType) => {
+  const loadTabData = useCallback(async (custId: number, tab: TabType, customerEmail?: string) => {
     setLoadingTabData(true);
     try {
       if (tab === 'assets') {
@@ -287,6 +290,19 @@ export default function CustomerDetailsPage() {
         }));
 
         setAssets(assetsWithPlans);
+      } else if (tab === 'devices') {
+        // Fetch NinjaOne devices by customer email
+        if (customerEmail) {
+          const response = await fetch(`/api/ninjaone/devices/customer/${encodeURIComponent(customerEmail)}`);
+          if (response.ok) {
+            const data = await response.json();
+            setDevices(data.devices || []);
+          } else {
+            setDevices([]);
+          }
+        } else {
+          setDevices([]);
+        }
       } else {
         let endpoint = '';
         switch (tab) {
@@ -328,7 +344,7 @@ export default function CustomerDetailsPage() {
   // Load tab data when tab changes or customer loads
   useEffect(() => {
     if (customer) {
-      loadTabData(customer.id, activeTab);
+      loadTabData(customer.id, activeTab, customer.email);
     }
   }, [customer, activeTab, loadTabData]);
 
@@ -660,6 +676,7 @@ export default function CustomerDetailsPage() {
 
   const tabs: { id: TabType; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
     { id: 'assets', label: 'Assets', icon: Monitor },
+    { id: 'devices', label: 'Devices', icon: Cpu },
     { id: 'tickets', label: 'Tickets', icon: Ticket },
     { id: 'invoices', label: 'Invoices', icon: Receipt },
     { id: 'payments', label: 'Payments', icon: CreditCard },
@@ -1194,6 +1211,84 @@ export default function CustomerDetailsPage() {
                             <Plus className="h-5 w-5" />
                             Add New Asset
                           </button>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Devices Tab (NinjaOne RMM) */}
+                    {activeTab === 'devices' && (
+                      <div>
+                        {!customer?.email ? (
+                          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                            <Cpu className="mx-auto h-12 w-12 text-gray-300 dark:text-gray-600 mb-2" />
+                            Customer email required to look up devices
+                          </div>
+                        ) : devices.length === 0 ? (
+                          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                            <Cpu className="mx-auto h-12 w-12 text-gray-300 dark:text-gray-600 mb-2" />
+                            No managed devices found for this customer
+                            <p className="mt-2 text-sm">
+                              Devices are linked by customer email address in NinjaOne
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="space-y-3">
+                            {devices.map((device) => {
+                              const isOnline = device.status === 'online';
+                              const statusColor = isOnline
+                                ? 'bg-green-500'
+                                : device.status === 'offline'
+                                ? 'bg-gray-400'
+                                : 'bg-yellow-500';
+
+                              return (
+                                <div
+                                  key={device.id}
+                                  className="flex items-center justify-between rounded-lg border border-gray-200 p-4 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors"
+                                  onClick={() => router.push(`/admin/devices/${device.id}`)}
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <div className="relative">
+                                      <Cpu className="h-5 w-5 text-gray-400" />
+                                      <span
+                                        className={`absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full ${statusColor} ring-2 ring-white dark:ring-gray-900`}
+                                      />
+                                    </div>
+                                    <div>
+                                      <p className="font-medium text-gray-900 dark:text-white">
+                                        {device.displayName || device.systemName}
+                                      </p>
+                                      <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                                        <span>{device.os}</span>
+                                        {device.organizationName && (
+                                          <>
+                                            <span>•</span>
+                                            <span>{device.organizationName}</span>
+                                          </>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="text-right text-sm">
+                                    <span
+                                      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
+                                        isOnline
+                                          ? 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400'
+                                          : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+                                      }`}
+                                    >
+                                      {isOnline ? 'Online' : 'Offline'}
+                                    </span>
+                                    {device.lastSeen && (
+                                      <p className="mt-1 text-gray-400 dark:text-gray-500">
+                                        {new Date(device.lastSeen).toLocaleDateString()}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
                         )}
                       </div>
                     )}

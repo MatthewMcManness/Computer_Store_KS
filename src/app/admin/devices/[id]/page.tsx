@@ -2,62 +2,63 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { Loader2, Link as LinkIcon, Unlink, Package } from 'lucide-react';
+import {
+  Loader2,
+  Link as LinkIcon,
+  Unlink,
+  Edit2,
+  Trash2,
+  User,
+  AlertTriangle,
+} from 'lucide-react';
 import { DeviceHeader } from '@/components/admin/devices/device-header';
 import { HardwarePanel } from '@/components/admin/devices/hardware-panel';
 import { SystemPanel } from '@/components/admin/devices/system-panel';
 import { NetworkPanel } from '@/components/admin/devices/network-panel';
 import { DeviceActions } from '@/components/admin/devices/device-actions';
-import { LinkAssetDialog } from '@/components/admin/devices/link-asset-dialog';
+import { LinkNinjaOneDialog } from '@/components/admin/devices/link-ninjaone-dialog';
+import { DeviceFormModal } from '@/components/admin/devices/device-form';
+import { ProtectionTierBadgeWithUnmanaged } from '@/components/admin/devices/protection-tier-badge';
+import type { Device, isNinjaOneManaged, shouldShowNinjaOnePanels } from '@/lib/devices';
 import type { NinjaOneDevice } from '@/lib/ninjaone';
-
-/**
- * Device mapping information from API.
- */
-interface DeviceMapping {
-  id: string;
-  assetId: number;
-  syncStatus: string;
-  lastSyncAt: string;
-}
-
-/**
- * Asset information from rs_assets.
- */
-interface LinkedAsset {
-  id: number;
-  repairshoprId: number;
-  name: string;
-  assetTypeName?: string;
-  customerId?: number;
-}
 
 /**
  * Admin Device Detail Page
  *
- * Displays comprehensive information about a NinjaOne managed device
- * including hardware, system, network details, and quick actions.
+ * Displays comprehensive information about a device including:
+ * - Basic device info (always shown)
+ * - Protection tier management
+ * - NinjaOne panels (hardware, system, network, actions) for Silver/Silver+ with linked NinjaOne
+ * - Prompt to link NinjaOne for Silver/Silver+ without linked device
+ * - Customer link
  *
  * @returns JSX element
  *
  * @sideEffects
- * - Fetches device data from NinjaOne API
- * - Fetches linked asset information
+ * - Fetches device data from unified devices API
+ * - Fetches NinjaOne device data for managed devices
  * - Redirects to login if not authenticated
  *
+ * @functions_called DeviceHeader, HardwarePanel, SystemPanel, NetworkPanel, DeviceActions,
+ *                   LinkNinjaOneDialog, DeviceFormModal, ProtectionTierBadgeWithUnmanaged
+ * @called_by AdminLayout (via routing)
+ *
  * @version 1.0.0 - 2026-02-03T00:00:00Z - Initial implementation
+ * @version 2.0.0 - 2026-02-03T00:00:00Z - Updated for unified devices system
  */
 export default function DeviceDetailPage() {
   const router = useRouter();
   const params = useParams();
   const deviceId = params?.id as string;
 
-  const [device, setDevice] = useState<NinjaOneDevice | null>(null);
-  const [mapping, setMapping] = useState<DeviceMapping | null>(null);
-  const [linkedAsset, setLinkedAsset] = useState<LinkedAsset | null>(null);
+  const [device, setDevice] = useState<Device | null>(null);
+  const [ninjaDevice, setNinjaDevice] = useState<NinjaOneDevice | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showLinkDialog, setShowLinkDialog] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [unlinking, setUnlinking] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   // Check authentication
   useEffect(() => {
@@ -69,7 +70,7 @@ export default function DeviceDetailPage() {
   }, [router]);
 
   /**
-   * Fetches device details from the API.
+   * Fetches device details from the unified devices API.
    */
   const loadDevice = useCallback(async () => {
     if (!deviceId) return;
@@ -78,7 +79,7 @@ export default function DeviceDetailPage() {
     setError(null);
 
     try {
-      const response = await fetch(`/api/ninjaone/devices/${deviceId}`);
+      const response = await fetch(`/api/devices/${deviceId}`);
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
         throw new Error(data.error || 'Failed to load device');
@@ -86,19 +87,21 @@ export default function DeviceDetailPage() {
 
       const data = await response.json();
       setDevice(data.device);
-      setMapping(data.mapping);
 
-      // If there's a mapping, fetch the linked asset details
-      if (data.mapping?.assetId) {
+      // If device has NinjaOne linked, fetch NinjaOne data for hardware panels
+      if (data.device.ninjaone_device_id) {
         try {
-          const assetResponse = await fetch(`/api/repairshopr/assets/${data.mapping.assetId}`);
-          if (assetResponse.ok) {
-            const assetData = await assetResponse.json();
-            setLinkedAsset(assetData.asset);
+          const ninjaResponse = await fetch(`/api/ninjaone/devices/${data.device.ninjaone_device_id}`);
+          if (ninjaResponse.ok) {
+            const ninjaData = await ninjaResponse.json();
+            setNinjaDevice(ninjaData.device);
           }
-        } catch (assetErr) {
-          console.error('Failed to load linked asset:', assetErr);
+        } catch (ninjaErr) {
+          console.error('Failed to load NinjaOne device data:', ninjaErr);
+          // Don't fail the whole page if NinjaOne fails
         }
+      } else {
+        setNinjaDevice(null);
       }
     } catch (err) {
       console.error('Failed to load device:', err);
@@ -112,6 +115,76 @@ export default function DeviceDetailPage() {
   useEffect(() => {
     loadDevice();
   }, [loadDevice]);
+
+  /**
+   * Handles unlinking from NinjaOne.
+   */
+  const handleUnlink = async () => {
+    if (!device || !device.ninjaone_device_id) return;
+    if (!confirm('Unlink this device from NinjaOne? Hardware data will no longer sync.')) return;
+
+    setUnlinking(true);
+    try {
+      const response = await fetch(`/api/devices/${device.id}/link-ninjaone`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.error || 'Failed to unlink device');
+      }
+      // Reload to refresh state
+      await loadDevice();
+    } catch (err) {
+      console.error('Failed to unlink device:', err);
+      alert(err instanceof Error ? err.message : 'Failed to unlink device');
+    } finally {
+      setUnlinking(false);
+    }
+  };
+
+  /**
+   * Handles device deletion.
+   */
+  const handleDelete = async () => {
+    if (!device) return;
+    if (!confirm(`Delete "${device.name}"? This action cannot be undone.`)) return;
+
+    setDeleting(true);
+    try {
+      const response = await fetch(`/api/devices/${device.id}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.error || 'Failed to delete device');
+      }
+      router.push('/admin/devices');
+    } catch (err) {
+      console.error('Failed to delete device:', err);
+      alert(err instanceof Error ? err.message : 'Failed to delete device');
+      setDeleting(false);
+    }
+  };
+
+  /**
+   * Handles successful device update.
+   */
+  const handleDeviceUpdated = (updatedDevice: Device) => {
+    setDevice(updatedDevice);
+    setShowEditModal(false);
+  };
+
+  /**
+   * Handles successful NinjaOne link.
+   */
+  const handleLinked = async () => {
+    await loadDevice();
+  };
+
+  // Check if device should show NinjaOne panels
+  const isManaged = device && (device.protection_tier === 'silver' || device.protection_tier === 'silver-plus');
+  const hasNinjaOne = device && device.ninjaone_device_id;
+  const showNinjaPanels = isManaged && hasNinjaOne && ninjaDevice;
 
   if (loading) {
     return (
@@ -137,94 +210,135 @@ export default function DeviceDetailPage() {
 
   return (
     <div>
-      {/* Device Header */}
-      <DeviceHeader device={device} />
+      {/* Device Header - Show NinjaOne device header if available, otherwise custom header */}
+      {showNinjaPanels && ninjaDevice ? (
+        <DeviceHeader device={ninjaDevice} />
+      ) : (
+        <div className="mb-6">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+                {device.name}
+              </h1>
+              <div className="flex items-center gap-3 mt-2 flex-wrap">
+                <ProtectionTierBadgeWithUnmanaged tier={device.protection_tier} size="md" />
+                {device.device_type && (
+                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                    {device.device_type}
+                  </span>
+                )}
+                {device.os && (
+                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                    {device.os}
+                  </span>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowEditModal(true)}
+                className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
+              >
+                <Edit2 className="h-4 w-4" />
+                Edit
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50"
+              >
+                {deleting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Trash2 className="h-4 w-4" />
+                )}
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column - Hardware & System */}
+        {/* Left Column - Device Info & NinjaOne Panels */}
         <div className="lg:col-span-2 space-y-6">
-          <HardwarePanel hardware={device.hardware} />
-          <SystemPanel
-            osDetails={device.osDetails}
-            os={device.os}
-            createdAt={device.createdAt}
-            lastSeen={device.lastSeen}
-          />
-          <NetworkPanel adapters={device.networkAdapters} />
-        </div>
-
-        {/* Right Column - Actions & Linked Asset */}
-        <div className="space-y-6">
-          {/* Linked Asset Panel */}
+          {/* Device Info Panel - Always shown */}
           <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-              <Package className="h-5 w-5 text-indigo-500" />
-              Linked Asset
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              Device Information
             </h2>
-
-            {mapping && linkedAsset ? (
-              <div className="space-y-3">
-                <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
-                  <p className="font-medium text-gray-900 dark:text-white">
-                    {linkedAsset.name}
-                  </p>
-                  {linkedAsset.assetTypeName && (
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {linkedAsset.assetTypeName}
-                    </p>
-                  )}
-                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                    ID: {linkedAsset.id} • Synced: {mapping.syncStatus}
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => router.push(`/admin/customers/${linkedAsset.customerId}`)}
-                    disabled={!linkedAsset.customerId}
-                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50"
-                  >
-                    View Customer
-                  </button>
-                  <button
-                    onClick={async () => {
-                      if (!confirm('Unlink this device from the asset?')) return;
-                      try {
-                        await fetch(`/api/admin/device-mappings/${mapping.id}`, {
-                          method: 'DELETE',
-                        });
-                        setMapping(null);
-                        setLinkedAsset(null);
-                      } catch (err) {
-                        console.error('Failed to unlink:', err);
-                      }
-                    }}
-                    className="px-3 py-2 text-sm font-medium text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"
-                  >
-                    <Unlink className="h-4 w-4" />
-                  </button>
-                </div>
+            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Name</dt>
+                <dd className="text-sm text-gray-900 dark:text-white">{device.name}</dd>
               </div>
-            ) : (
-              <div className="text-center py-4">
-                <p className="text-gray-500 dark:text-gray-400 mb-3">
-                  No asset linked to this device
-                </p>
-                <button
-                  onClick={() => setShowLinkDialog(true)}
-                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
-                >
-                  <LinkIcon className="h-4 w-4" />
-                  Link to Asset
-                </button>
+              <div>
+                <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Type</dt>
+                <dd className="text-sm text-gray-900 dark:text-white">{device.device_type || 'Not specified'}</dd>
               </div>
-            )}
+              <div>
+                <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Manufacturer</dt>
+                <dd className="text-sm text-gray-900 dark:text-white">{device.manufacturer || 'Not specified'}</dd>
+              </div>
+              <div>
+                <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Model</dt>
+                <dd className="text-sm text-gray-900 dark:text-white">{device.model || 'Not specified'}</dd>
+              </div>
+              <div>
+                <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Serial Number</dt>
+                <dd className="text-sm text-gray-900 dark:text-white font-mono">{device.serial_number || 'Not specified'}</dd>
+              </div>
+              <div>
+                <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Operating System</dt>
+                <dd className="text-sm text-gray-900 dark:text-white">{device.os || 'Not specified'}</dd>
+              </div>
+            </dl>
           </div>
 
-          {/* Quick Actions */}
-          <DeviceActions device={device} onActionComplete={loadDevice} />
+          {/* NinjaOne Hardware Panel - Only for managed devices with linked NinjaOne */}
+          {showNinjaPanels && ninjaDevice && (
+            <>
+              <HardwarePanel hardware={ninjaDevice.hardware} />
+              <SystemPanel
+                osDetails={ninjaDevice.osDetails}
+                os={ninjaDevice.os}
+                createdAt={ninjaDevice.createdAt}
+                lastSeen={ninjaDevice.lastSeen}
+              />
+              <NetworkPanel adapters={ninjaDevice.networkAdapters} />
+            </>
+          )}
 
-          {/* Device Notes */}
+          {/* Prompt to link NinjaOne - For managed tiers without linked device */}
+          {isManaged && !hasNinjaOne && (
+            <div className="rounded-lg border-2 border-dashed border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 p-6">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 p-2 rounded-lg bg-amber-100 dark:bg-amber-800">
+                  <AlertTriangle className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-amber-800 dark:text-amber-300 mb-1">
+                    NinjaOne Not Linked
+                  </h3>
+                  <p className="text-sm text-amber-700 dark:text-amber-400 mb-4">
+                    This device has a {device.protection_tier === 'silver-plus' ? 'Silver+' : 'Silver'} protection plan
+                    but is not linked to a NinjaOne managed device. Link it to enable hardware monitoring,
+                    remote access, and quick actions.
+                  </p>
+                  <button
+                    onClick={() => setShowLinkDialog(true)}
+                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-amber-600 text-white rounded-lg hover:bg-amber-700"
+                  >
+                    <LinkIcon className="h-4 w-4" />
+                    Link to NinjaOne Device
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Notes */}
           {device.notes && (
             <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
@@ -235,37 +349,123 @@ export default function DeviceDetailPage() {
               </p>
             </div>
           )}
+        </div>
 
-          {/* Tags */}
-          {device.tags && device.tags.length > 0 && (
-            <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-                Tags
-              </h2>
-              <div className="flex flex-wrap gap-2">
-                {device.tags.map((tag, index) => (
-                  <span
-                    key={index}
-                    className="px-2 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
+        {/* Right Column - Actions & Info */}
+        <div className="space-y-6">
+          {/* Protection Tier Panel */}
+          <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              Protection Plan
+            </h2>
+            <div className="space-y-3">
+              <ProtectionTierBadgeWithUnmanaged tier={device.protection_tier} size="lg" />
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {device.protection_tier === 'silver-plus'
+                  ? 'NinjaOne RMM monitoring with priority support'
+                  : device.protection_tier === 'silver'
+                  ? 'NinjaOne RMM monitoring'
+                  : device.protection_tier === 'eset'
+                  ? 'ESET Protect antivirus monitoring'
+                  : 'Basic device record - no active monitoring'}
+              </p>
+              <button
+                onClick={() => setShowEditModal(true)}
+                className="w-full px-3 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20"
+              >
+                Change Protection Plan
+              </button>
             </div>
+          </div>
+
+          {/* NinjaOne Link Panel */}
+          {isManaged && (
+            <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                <LinkIcon className="h-5 w-5 text-blue-500" />
+                NinjaOne Link
+              </h2>
+
+              {hasNinjaOne ? (
+                <div className="space-y-3">
+                  <div className="p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+                    <p className="text-sm font-medium text-green-800 dark:text-green-300">
+                      Linked to NinjaOne
+                    </p>
+                    <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                      Device ID: {device.ninjaone_device_id}
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleUnlink}
+                    disabled={unlinking}
+                    className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50"
+                  >
+                    {unlinking ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Unlink className="h-4 w-4" />
+                    )}
+                    Unlink from NinjaOne
+                  </button>
+                </div>
+              ) : (
+                <div className="text-center py-4">
+                  <p className="text-gray-500 dark:text-gray-400 mb-3 text-sm">
+                    Not linked to NinjaOne
+                  </p>
+                  <button
+                    onClick={() => setShowLinkDialog(true)}
+                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  >
+                    <LinkIcon className="h-4 w-4" />
+                    Link Device
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Customer Link */}
+          {device.customer_id && (
+            <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                <User className="h-5 w-5 text-indigo-500" />
+                Customer
+              </h2>
+              <button
+                onClick={() => router.push(`/admin/customers/${device.customer_id}`)}
+                className="w-full px-4 py-2 text-sm font-medium text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
+              >
+                View Customer Details
+              </button>
+            </div>
+          )}
+
+          {/* Quick Actions - Only for managed devices with linked NinjaOne */}
+          {showNinjaPanels && ninjaDevice && (
+            <DeviceActions device={ninjaDevice} onActionComplete={loadDevice} />
           )}
         </div>
       </div>
 
-      {/* Link Asset Dialog */}
+      {/* Link NinjaOne Dialog */}
       {device && (
-        <LinkAssetDialog
+        <LinkNinjaOneDialog
           device={device}
           isOpen={showLinkDialog}
           onClose={() => setShowLinkDialog(false)}
-          onLinked={loadDevice}
+          onLinked={handleLinked}
         />
       )}
+
+      {/* Edit Device Modal */}
+      <DeviceFormModal
+        isOpen={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        device={device}
+        onSuccess={handleDeviceUpdated}
+      />
     </div>
   );
 }

@@ -362,12 +362,6 @@ export const SIDEBAR_CONFIG: SidebarSection[] = [
         icon: 'Ticket',
       },
       {
-        label: 'Devices',
-        href: '/admin/devices',
-        permissions: ['view_devices'],
-        icon: 'Cpu',
-      },
-      {
         label: 'In-Store Manager',
         href: '/admin/in-store',
         permissions: ['view_gallery'],

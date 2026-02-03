@@ -30,8 +30,10 @@ import {
   ArrowLeft,
   Cpu,
 } from 'lucide-react';
-import type { NinjaOneDevice } from '@/lib/ninjaone';
+import type { Device } from '@/lib/devices';
 import type { RepairShoprCustomer, RepairShoprAsset, RepairShoprTicket, RepairShoprInvoice, RepairShoprPayment } from '@/lib/repairshopr';
+import { ProtectionTierBadge } from '@/components/admin/devices/protection-tier-badge';
+import { DeviceFormModal } from '@/components/admin/devices/device-form';
 
 // Protection plan tier type
 type ProtectionPlanTier = 'eset' | 'silver' | 'silver-plus' | null;
@@ -151,7 +153,7 @@ export default function CustomerDetailsPage() {
   // Tab state
   const [activeTab, setActiveTab] = useState<TabType>('assets');
   const [assets, setAssets] = useState<AssetWithPlan[]>([]);
-  const [devices, setDevices] = useState<NinjaOneDevice[]>([]);
+  const [devices, setDevices] = useState<Device[]>([]);
   const [tickets, setTickets] = useState<RepairShoprTicket[]>([]);
   const [invoices, setInvoices] = useState<RepairShoprInvoice[]>([]);
   const [payments, setPayments] = useState<RepairShoprPayment[]>([]);
@@ -168,6 +170,7 @@ export default function CustomerDetailsPage() {
   const [newModel, setNewModel] = useState('');
   const [newAssetPlan, setNewAssetPlan] = useState<ProtectionPlanTier>(null);
   const [addingAsset, setAddingAsset] = useState(false);
+  const [showAddDeviceModal, setShowAddDeviceModal] = useState(false);
 
   // Edit modal state
   const [showEditModal, setShowEditModal] = useState(false);
@@ -291,15 +294,11 @@ export default function CustomerDetailsPage() {
 
         setAssets(assetsWithPlans);
       } else if (tab === 'devices') {
-        // Fetch NinjaOne devices by customer email
-        if (customerEmail) {
-          const response = await fetch(`/api/ninjaone/devices/customer/${encodeURIComponent(customerEmail)}`);
-          if (response.ok) {
-            const data = await response.json();
-            setDevices(data.devices || []);
-          } else {
-            setDevices([]);
-          }
+        // Fetch unified devices by customer ID
+        const response = await fetch(`/api/devices?customer_id=${custId}`);
+        if (response.ok) {
+          const data = await response.json();
+          setDevices(data.devices || []);
         } else {
           setDevices([]);
         }
@@ -1215,25 +1214,21 @@ export default function CustomerDetailsPage() {
                       </div>
                     )}
 
-                    {/* Devices Tab (NinjaOne RMM) */}
+                    {/* Devices Tab (Unified Devices) */}
                     {activeTab === 'devices' && (
-                      <div>
-                        {!customer?.email ? (
+                      <div className="space-y-3">
+                        {devices.length === 0 && !showAddDeviceModal ? (
                           <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                            <Cpu className="mx-auto h-12 w-12 text-gray-300 dark:text-gray-600 mb-2" />
-                            Customer email required to look up devices
-                          </div>
-                        ) : devices.length === 0 ? (
-                          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                            <Cpu className="mx-auto h-12 w-12 text-gray-300 dark:text-gray-600 mb-2" />
-                            No managed devices found for this customer
+                            <Monitor className="mx-auto h-12 w-12 text-gray-300 dark:text-gray-600 mb-2" />
+                            No devices found for this customer
                             <p className="mt-2 text-sm">
-                              Devices are linked by customer email address in NinjaOne
+                              Add a device to track hardware and protection plans
                             </p>
                           </div>
                         ) : (
-                          <div className="space-y-3">
+                          <div className="space-y-2">
                             {devices.map((device) => {
+                              const isManaged = device.protection_tier === 'silver' || device.protection_tier === 'silver-plus';
                               const isOnline = device.status === 'online';
                               const statusColor = isOnline
                                 ? 'bg-green-500'
@@ -1249,40 +1244,59 @@ export default function CustomerDetailsPage() {
                                 >
                                   <div className="flex items-center gap-3">
                                     <div className="relative">
-                                      <Cpu className="h-5 w-5 text-gray-400" />
-                                      <span
-                                        className={`absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full ${statusColor} ring-2 ring-white dark:ring-gray-900`}
-                                      />
+                                      <Monitor className="h-5 w-5 text-gray-400" />
+                                      {isManaged && device.ninjaone_device_id && (
+                                        <span
+                                          className={`absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full ${statusColor} ring-2 ring-white dark:ring-gray-900`}
+                                        />
+                                      )}
                                     </div>
                                     <div>
-                                      <p className="font-medium text-gray-900 dark:text-white">
-                                        {device.displayName || device.systemName}
-                                      </p>
+                                      <div className="flex items-center gap-2 flex-wrap">
+                                        <p className="font-medium text-gray-900 dark:text-white">
+                                          {device.name}
+                                        </p>
+                                        <ProtectionTierBadge tier={device.protection_tier} size="sm" />
+                                      </div>
                                       <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                                        <span>{device.os}</span>
-                                        {device.organizationName && (
+                                        {device.device_type && <span>{device.device_type}</span>}
+                                        {device.os && (
+                                          <>
+                                            {device.device_type && <span>•</span>}
+                                            <span>{device.os}</span>
+                                          </>
+                                        )}
+                                        {device.serial_number && (
                                           <>
                                             <span>•</span>
-                                            <span>{device.organizationName}</span>
+                                            <span className="font-mono text-xs">S/N: {device.serial_number}</span>
                                           </>
                                         )}
                                       </div>
                                     </div>
                                   </div>
                                   <div className="text-right text-sm">
-                                    <span
-                                      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
-                                        isOnline
-                                          ? 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400'
-                                          : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
-                                      }`}
-                                    >
-                                      {isOnline ? 'Online' : 'Offline'}
-                                    </span>
-                                    {device.lastSeen && (
-                                      <p className="mt-1 text-gray-400 dark:text-gray-500">
-                                        {new Date(device.lastSeen).toLocaleDateString()}
-                                      </p>
+                                    {isManaged && device.ninjaone_device_id ? (
+                                      <>
+                                        <span
+                                          className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
+                                            isOnline
+                                              ? 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400'
+                                              : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+                                          }`}
+                                        >
+                                          {isOnline ? 'Online' : 'Offline'}
+                                        </span>
+                                        {device.last_seen && (
+                                          <p className="mt-1 text-gray-400 dark:text-gray-500">
+                                            {new Date(device.last_seen).toLocaleDateString()}
+                                          </p>
+                                        )}
+                                      </>
+                                    ) : (
+                                      <span className="text-xs text-gray-400 dark:text-gray-500">
+                                        {device.device_type || 'Device'}
+                                      </span>
                                     )}
                                   </div>
                                 </div>
@@ -1290,6 +1304,26 @@ export default function CustomerDetailsPage() {
                             })}
                           </div>
                         )}
+
+                        {/* Add Device Button */}
+                        <button
+                          onClick={() => setShowAddDeviceModal(true)}
+                          className="w-full flex items-center justify-center gap-2 py-3 rounded-lg border border-dashed border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-gray-400 dark:hover:border-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                        >
+                          <Plus className="h-5 w-5" />
+                          Add New Device
+                        </button>
+
+                        {/* Add Device Modal */}
+                        <DeviceFormModal
+                          isOpen={showAddDeviceModal}
+                          onClose={() => setShowAddDeviceModal(false)}
+                          customerId={customer?.id}
+                          onSuccess={(newDevice) => {
+                            setDevices(prev => [newDevice, ...prev]);
+                            setShowAddDeviceModal(false);
+                          }}
+                        />
                       </div>
                     )}
 

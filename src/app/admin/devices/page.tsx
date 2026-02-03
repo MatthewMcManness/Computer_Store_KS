@@ -3,13 +3,14 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Monitor } from 'lucide-react';
-import { DeviceList } from '@/components/admin/devices/device-list';
+import { UnifiedDeviceList } from '@/components/admin/devices/unified-device-list';
 
 /**
  * Admin Devices Page
  *
- * Displays a list of all NinjaOne managed devices with search, filter,
- * and navigation capabilities.
+ * Displays a list of all devices with search, filter, and navigation capabilities.
+ * Uses the unified devices system which supports both managed (NinjaOne) and
+ * unmanaged devices with different protection tiers.
  *
  * @returns JSX element
  *
@@ -17,7 +18,11 @@ import { DeviceList } from '@/components/admin/devices/device-list';
  * - Fetches user authentication on mount
  * - Redirects to login if not authenticated
  *
+ * @functions_called UnifiedDeviceList
+ * @called_by AdminLayout (via routing)
+ *
  * @version 1.0.0 - 2026-02-03T00:00:00Z - Initial implementation
+ * @version 2.0.0 - 2026-02-03T00:00:00Z - Updated to use unified devices system
  */
 export default function DevicesPage() {
   const router = useRouter();
@@ -44,14 +49,14 @@ export default function DevicesPage() {
               Devices
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Monitor and manage NinjaOne devices
+              Manage all customer devices and protection plans
             </p>
           </div>
         </div>
       </div>
 
       {/* Device List */}
-      <DeviceList />
+      <UnifiedDeviceList />
     </div>
   );
 }

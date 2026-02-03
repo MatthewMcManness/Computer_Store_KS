@@ -437,17 +437,9 @@ export class NinjaOneClient {
     });
 
     if (!response.ok) {
-      const rawBody = await response.text();
-      console.error(`[NinjaOne Auth] Token request failed: HTTP ${response.status} ${response.statusText}`);
-      console.error(`[NinjaOne Auth] URL: ${tokenUrl}`);
-      console.error(`[NinjaOne Auth] Response body: ${rawBody}`);
-      let errorMessage = `HTTP ${response.status}`;
-      try {
-        const parsed = JSON.parse(rawBody);
-        errorMessage = parsed.error_description || parsed.errorMessage || parsed.error || errorMessage;
-      } catch { /* not JSON */ }
+      const error = await this.parseErrorResponse(response);
       throw new NinjaOneAPIError(
-        errorMessage || 'Failed to authenticate with NinjaOne',
+        error.message || 'Failed to authenticate with NinjaOne',
         response.status,
         'AUTH_ERROR'
       );

@@ -277,41 +277,51 @@ export async function getDeviceByNinjaOneId(ninjaoneDeviceId: number): Promise<D
  * @version 1.0.0 - 2026-02-03T00:00:00Z - Initial implementation
  */
 export async function createDevice(input: CreateDeviceInput): Promise<Device | null> {
-  if (!supabaseAdmin) return null;
+  console.log('[createDevice] Called with:', JSON.stringify(input));
+
+  if (!supabaseAdmin) {
+    console.error('[createDevice] supabaseAdmin is null');
+    return null;
+  }
 
   const now = new Date().toISOString();
 
+  const insertData = {
+    name: input.name,
+    device_type: input.device_type || null,
+    serial_number: input.serial_number || null,
+    customer_id: input.customer_id || null,
+    protection_tier: input.protection_tier || null,
+    ninjaone_device_id: input.ninjaone_device_id || null,
+    ninjaone_org_id: input.ninjaone_org_id || null,
+    eset_device_id: input.eset_device_id || null,
+    eset_status: input.eset_status || null,
+    os: input.os || null,
+    manufacturer: input.manufacturer || null,
+    model: input.model || null,
+    processor: input.processor || null,
+    ram_gb: input.ram_gb || null,
+    status: input.status || 'unknown',
+    notes: input.notes || null,
+    properties: input.properties || {},
+    created_at: now,
+    updated_at: now,
+  };
+
+  console.log('[createDevice] Insert data:', JSON.stringify(insertData));
+
   const { data, error } = await supabaseAdmin
     .from('devices')
-    .insert({
-      name: input.name,
-      device_type: input.device_type || null,
-      serial_number: input.serial_number || null,
-      customer_id: input.customer_id || null,
-      protection_tier: input.protection_tier || null,
-      ninjaone_device_id: input.ninjaone_device_id || null,
-      ninjaone_org_id: input.ninjaone_org_id || null,
-      eset_device_id: input.eset_device_id || null,
-      eset_status: input.eset_status || null,
-      os: input.os || null,
-      manufacturer: input.manufacturer || null,
-      model: input.model || null,
-      processor: input.processor || null,
-      ram_gb: input.ram_gb || null,
-      status: input.status || 'unknown',
-      notes: input.notes || null,
-      properties: input.properties || {},
-      created_at: now,
-      updated_at: now,
-    })
+    .insert(insertData)
     .select()
     .single();
 
   if (error) {
-    console.error('Error creating device:', error);
+    console.error('[createDevice] Supabase error:', JSON.stringify(error));
     return null;
   }
 
+  console.log('[createDevice] Success, device:', JSON.stringify(data));
   return data;
 }
 

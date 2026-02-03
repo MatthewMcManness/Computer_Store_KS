@@ -128,7 +128,10 @@ export async function GET(request: NextRequest) {
  * @version 1.0.0 - 2026-02-03T00:00:00Z - Initial implementation
  */
 export async function POST(request: NextRequest) {
+  console.log('[POST /api/devices] Request received');
+
   if (!isSupabaseAdminConfigured()) {
+    console.error('[POST /api/devices] Supabase admin not configured');
     return NextResponse.json(
       { error: 'Database not configured' },
       { status: 503 }
@@ -137,9 +140,11 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
+    console.log('[POST /api/devices] Body:', JSON.stringify(body));
 
     // Validate required fields
     if (!body.name || typeof body.name !== 'string' || body.name.trim() === '') {
+      console.log('[POST /api/devices] Validation failed: name required');
       return NextResponse.json(
         { error: 'Device name is required' },
         { status: 400 }
@@ -170,18 +175,21 @@ export async function POST(request: NextRequest) {
       properties: body.properties || undefined,
     };
 
+    console.log('[POST /api/devices] Calling createDevice with:', JSON.stringify(input));
     const device = await createDevice(input);
 
     if (!device) {
+      console.error('[POST /api/devices] createDevice returned null');
       return NextResponse.json(
         { error: 'Failed to create device' },
         { status: 500 }
       );
     }
 
+    console.log('[POST /api/devices] Device created:', JSON.stringify(device));
     return NextResponse.json({ device }, { status: 201 });
   } catch (error) {
-    console.error('Error in POST /api/devices:', error);
+    console.error('[POST /api/devices] Caught error:', error);
     return NextResponse.json(
       { error: 'Failed to create device' },
       { status: 500 }

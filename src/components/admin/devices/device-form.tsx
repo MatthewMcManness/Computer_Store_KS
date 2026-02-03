@@ -158,6 +158,8 @@ export function DeviceForm({
     e.preventDefault();
     setError(null);
 
+    console.log('[DeviceForm] handleSubmit called, customerId:', customerId);
+
     // Validate required fields
     if (!name.trim()) {
       setError('Device name is required');
@@ -186,20 +188,27 @@ export function DeviceForm({
         (body as CreateDeviceInput).customer_id = customerId;
       }
 
+      console.log('[DeviceForm] Submitting to', url, 'with body:', JSON.stringify(body));
+
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
 
+      console.log('[DeviceForm] Response status:', response.status);
+
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
+        console.error('[DeviceForm] Error response:', data);
         throw new Error(data.error || `Failed to ${isEdit ? 'update' : 'create'} device`);
       }
 
       const data = await response.json();
+      console.log('[DeviceForm] Success, device:', data.device);
       onSuccess?.(data.device);
     } catch (err) {
+      console.error('[DeviceForm] Caught error:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setSaving(false);

@@ -2,13 +2,14 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import Link from 'next/link';
 import {
   Loader2,
   Link as LinkIcon,
   Unlink,
   Edit2,
   Trash2,
-  User,
+  ArrowLeft,
   AlertTriangle,
 } from 'lucide-react';
 import { DeviceHeader } from '@/components/admin/devices/device-header';
@@ -19,7 +20,7 @@ import { DeviceActions } from '@/components/admin/devices/device-actions';
 import { LinkNinjaOneDialog } from '@/components/admin/devices/link-ninjaone-dialog';
 import { DeviceFormModal } from '@/components/admin/devices/device-form';
 import { ProtectionTierBadgeWithUnmanaged } from '@/components/admin/devices/protection-tier-badge';
-import type { Device, isNinjaOneManaged, shouldShowNinjaOnePanels } from '@/lib/devices';
+import type { Device } from '@/lib/devices';
 import type { NinjaOneDevice } from '@/lib/ninjaone';
 
 /**
@@ -211,6 +212,17 @@ export default function DeviceDetailPage() {
   return (
     <div>
       {/* Device Header - Show NinjaOne device header if available, otherwise custom header */}
+      {/* Back link */}
+      <div className="mb-4">
+        <Link
+          href={device.customer_id ? `/admin/customers/${device.customer_id}` : '/admin/devices'}
+          className="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          {device.customer_id ? 'Back to Customer' : 'Back to Devices'}
+        </Link>
+      </div>
+
       {showNinjaPanels && ninjaDevice ? (
         <DeviceHeader device={ninjaDevice} />
       ) : (
@@ -220,6 +232,14 @@ export default function DeviceDetailPage() {
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
                 {device.name}
               </h1>
+              {device.customer_name && device.customer_id && (
+                <Link
+                  href={`/admin/customers/${device.customer_id}`}
+                  className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 mt-1 inline-block"
+                >
+                  Customer: {device.customer_name}
+                </Link>
+              )}
               <div className="flex items-center gap-3 mt-2 flex-wrap">
                 <ProtectionTierBadgeWithUnmanaged tier={device.protection_tier} size="md" />
                 {device.device_type && (
@@ -423,22 +443,6 @@ export default function DeviceDetailPage() {
                   </button>
                 </div>
               )}
-            </div>
-          )}
-
-          {/* Customer Link */}
-          {device.customer_id && (
-            <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-5">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                <User className="h-5 w-5 text-indigo-500" />
-                Customer
-              </h2>
-              <button
-                onClick={() => router.push(`/admin/customers/${device.customer_id}`)}
-                className="w-full px-4 py-2 text-sm font-medium text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
-              >
-                View Customer Details
-              </button>
             </div>
           )}
 

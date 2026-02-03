@@ -43,6 +43,7 @@ export interface Device {
   device_type: string | null;
   serial_number: string | null;
   customer_id: number | null;
+  customer_name: string | null;
   protection_tier: DeviceProtectionTier;
   ninjaone_device_id: number | null;
   ninjaone_org_id: number | null;
@@ -218,7 +219,7 @@ export async function getDeviceById(id: number): Promise<Device | null> {
 
   const { data, error } = await supabaseAdmin
     .from('devices')
-    .select('*')
+    .select('*, rs_customers(firstname, lastname)')
     .eq('id', id)
     .single();
 
@@ -229,7 +230,17 @@ export async function getDeviceById(id: number): Promise<Device | null> {
     return null;
   }
 
-  return data;
+  if (!data) return null;
+
+  // Build customer_name from joined rs_customers data
+  const customer = data.rs_customers as { firstname: string; lastname: string } | null;
+  const customer_name = customer
+    ? `${customer.firstname || ''} ${customer.lastname || ''}`.trim() || null
+    : null;
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { rs_customers, ...deviceData } = data;
+  return { ...deviceData, customer_name };
 }
 
 /**

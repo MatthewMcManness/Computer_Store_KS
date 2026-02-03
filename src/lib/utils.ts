@@ -217,9 +217,10 @@ export function absoluteUrl(path: string): string {
  *
  * @version 1.0.0 - 2026-02-03T00:00:00Z - Initial implementation
  */
-export function formatDistanceToNow(date: Date): string {
+export function formatDistanceToNow(date: Date | string): string {
+  const d = typeof date === 'string' ? new Date(date) : date;
   const now = Date.now();
-  const then = date.getTime();
+  const then = d.getTime();
   const diffMs = now - then;
   const diffSec = Math.floor(diffMs / 1000);
   const diffMin = Math.floor(diffSec / 60);
@@ -240,9 +241,9 @@ export function formatDistanceToNow(date: Date): string {
   }
 
   // For older dates, show the date
-  return date.toLocaleDateString('en-US', {
+  return d.toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
-    year: date.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined,
+    year: d.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined,
   });
 }

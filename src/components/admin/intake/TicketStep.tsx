@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import type { RepairShoprCustomer, RepairShoprAsset, RepairShoprTicket } from '@/lib/repairshopr';
+import type { RepairShoprCustomer, RepairShoprTicket } from '@/lib/repairshopr';
+import type { Device } from '@/lib/devices';
 import { AlertCircle, Wrench, Cable, Check } from 'lucide-react';
 
 // =============================================================================
@@ -10,7 +11,7 @@ import { AlertCircle, Wrench, Cable, Check } from 'lucide-react';
 
 interface TicketStepProps {
   customer: RepairShoprCustomer;
-  device: RepairShoprAsset;
+  device: Device;
   onTicketCreated: (ticket: RepairShoprTicket, customer: RepairShoprCustomer) => void | Promise<void>;
   onBack: () => void;
 }
@@ -225,7 +226,6 @@ export function TicketStep({ customer, device, onTicketCreated, onBack }: Ticket
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           customer_id: customer.id,
-          asset_id: device.id,
           subject: `Customer states: ${description.substring(0, 50)}${description.length > 50 ? '...' : ''}`,
           problem_type: 'Repair',
           comment_subject: 'Initial Issue Description',
@@ -234,6 +234,8 @@ export function TicketStep({ customer, device, onTicketCreated, onBack }: Ticket
           properties: {
             selected_services: selectedServices,
             power_cord_left: powerCordLeft,
+            device_id: device.id,
+            device_name: device.name,
           },
         }),
       });
@@ -249,7 +251,7 @@ export function TicketStep({ customer, device, onTicketCreated, onBack }: Ticket
         throw new Error('Invalid response from server');
       }
 
-      // Auto-assign protection plan to asset if one was selected
+      // Auto-assign protection plan to device if one was selected
       const planMap: Record<string, string> = {
         eset: 'eset',
         silver_plan: 'silver',
@@ -258,13 +260,11 @@ export function TicketStep({ customer, device, onTicketCreated, onBack }: Ticket
       const selectedPlan = selectedServices.find((id) => PROTECTION_PLAN_IDS.includes(id));
       if (selectedPlan && planMap[selectedPlan]) {
         try {
-          await fetch('/api/admin/asset-plans', {
-            method: 'POST',
+          await fetch(`/api/devices/${device.id}`, {
+            method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              asset_id: device.id,
-              customer_id: customer.id,
-              plan_tier: planMap[selectedPlan],
+              protection_tier: planMap[selectedPlan],
             }),
           });
         } catch (planErr) {

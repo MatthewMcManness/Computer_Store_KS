@@ -1,12 +1,13 @@
 'use client';
 
-import type { RepairShoprCustomer, RepairShoprAsset, RepairShoprTicket } from '@/lib/repairshopr';
+import type { RepairShoprCustomer, RepairShoprTicket } from '@/lib/repairshopr';
+import type { Device } from '@/lib/devices';
 import { isSilverPlanCustomer } from '@/lib/repairshopr';
 import { CheckCircle2, User, Laptop, FileText, ShieldCheck, X, Plus, Sparkles } from 'lucide-react';
 
 interface SuccessStepProps {
   customer: RepairShoprCustomer;
-  device: RepairShoprAsset;
+  device: Device;
   ticket: RepairShoprTicket;
   portalAccountCreated: boolean;
   onNewIntake: () => void;
@@ -79,8 +80,8 @@ export function SuccessStep({
           <div className="flex-1">
             <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Device</p>
             <p className="text-lg font-semibold text-gray-900 dark:text-white">{device.name}</p>
-            {device.asset_type_name && (
-              <p className="text-sm text-gray-600 dark:text-gray-400">{device.asset_type_name}</p>
+            {device.device_type && (
+              <p className="text-sm text-gray-600 dark:text-gray-400">{device.device_type}</p>
             )}
           </div>
         </div>

@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { ChevronLeft } from 'lucide-react';
-import type { RepairShoprCustomer, RepairShoprAsset } from '@/lib/repairshopr';
+import type { RepairShoprCustomer } from '@/lib/repairshopr';
+import type { Device } from '@/lib/devices';
 
 // =============================================================================
 // Types
@@ -10,7 +11,7 @@ import type { RepairShoprCustomer, RepairShoprAsset } from '@/lib/repairshopr';
 
 interface DeviceStepProps {
   customer: RepairShoprCustomer;
-  onSelectDevice: (device: RepairShoprAsset) => void;
+  onSelectDevice: (device: Device) => void;
   onBack: () => void;
 }
 
@@ -183,7 +184,7 @@ const desktopModels: Record<Brand, string[]> = {
 // =============================================================================
 
 export function DeviceStep({ customer, onSelectDevice, onBack }: DeviceStepProps) {
-  const [devices, setDevices] = useState<RepairShoprAsset[]>([]);
+  const [devices, setDevices] = useState<Device[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [creating, setCreating] = useState(false);
@@ -220,12 +221,12 @@ export function DeviceStep({ customer, onSelectDevice, onBack }: DeviceStepProps
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`/api/repairshopr/customers/${customer.id}/assets`);
+        const response = await fetch(`/api/devices?customer_id=${customer.id}`);
         if (!response.ok) {
           throw new Error('Failed to fetch devices');
         }
         const data = await response.json();
-        setDevices(data.assets || []);
+        setDevices(data.devices || []);
       } catch (err) {
         console.error('Error fetching devices:', err);
         setError('Failed to load devices');
@@ -238,16 +239,16 @@ export function DeviceStep({ customer, onSelectDevice, onBack }: DeviceStepProps
   }, [customer.id]);
 
   // Get device type icon
-  const getDeviceIcon = (assetTypeName?: string | null): string => {
-    if (!assetTypeName) return '🔧';
-    const deviceType = deviceTypes.find(
-      (dt) => dt.value.toLowerCase() === assetTypeName.toLowerCase()
+  const getDeviceIcon = (deviceTypeName?: string | null): string => {
+    if (!deviceTypeName) return '🔧';
+    const dt = deviceTypes.find(
+      (t) => t.value.toLowerCase() === deviceTypeName.toLowerCase()
     );
-    return deviceType?.icon || '🔧';
+    return dt?.icon || '🔧';
   };
 
   // Handle device selection
-  const handleSelectDevice = (device: RepairShoprAsset) => {
+  const handleSelectDevice = (device: Device) => {
     onSelectDevice(device);
   };
 
@@ -266,13 +267,15 @@ export function DeviceStep({ customer, onSelectDevice, onBack }: DeviceStepProps
         deviceName = model ? `${brand} ${model}` : brand;
       }
 
-      const response = await fetch('/api/repairshopr/assets', {
+      const response = await fetch('/api/devices', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: deviceName,
           customer_id: customer.id,
-          asset_type_name: deviceType,
+          device_type: deviceType,
+          manufacturer: isCustomBuild ? 'Custom Build' : brand || undefined,
+          model: isCustomBuild ? undefined : model || undefined,
         }),
       });
 
@@ -282,12 +285,10 @@ export function DeviceStep({ customer, onSelectDevice, onBack }: DeviceStepProps
       }
 
       const data = await response.json();
-      console.log('[DeviceStep] API response:', JSON.stringify(data, null, 2));
-      console.log('[DeviceStep] Asset object:', data.asset);
-      if (!data.asset) {
-        throw new Error('No asset returned from API');
+      if (!data.device) {
+        throw new Error('No device returned from API');
       }
-      onSelectDevice(data.asset);
+      onSelectDevice(data.device);
     } catch (err) {
       console.error('Error creating device:', err);
       setError(err instanceof Error ? err.message : 'Failed to create device');
@@ -356,13 +357,13 @@ export function DeviceStep({ customer, onSelectDevice, onBack }: DeviceStepProps
                   >
                     <div className="flex items-center gap-3">
                       <span className="text-2xl">
-                        {getDeviceIcon(device.asset_type_name)}
+                        {getDeviceIcon(device.device_type)}
                       </span>
                       <div>
                         <p className="font-medium text-gray-900 dark:text-white">{device.name}</p>
-                        {device.asset_type_name && (
+                        {device.device_type && (
                           <p className="text-sm text-gray-600 dark:text-gray-400">
-                            {device.asset_type_name}
+                            {device.device_type}
                           </p>
                         )}
                       </div>

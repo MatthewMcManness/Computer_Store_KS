@@ -277,12 +277,7 @@ export async function getDeviceByNinjaOneId(ninjaoneDeviceId: number): Promise<D
  * @version 1.0.0 - 2026-02-03T00:00:00Z - Initial implementation
  */
 export async function createDevice(input: CreateDeviceInput): Promise<Device | null> {
-  console.log('[createDevice] Called with:', JSON.stringify(input));
-
-  if (!supabaseAdmin) {
-    console.error('[createDevice] supabaseAdmin is null');
-    return null;
-  }
+  if (!supabaseAdmin) return null;
 
   const now = new Date().toISOString();
 
@@ -308,8 +303,6 @@ export async function createDevice(input: CreateDeviceInput): Promise<Device | n
     updated_at: now,
   };
 
-  console.log('[createDevice] Insert data:', JSON.stringify(insertData));
-
   const { data, error } = await supabaseAdmin
     .from('devices')
     .insert(insertData)
@@ -317,11 +310,10 @@ export async function createDevice(input: CreateDeviceInput): Promise<Device | n
     .single();
 
   if (error) {
-    console.error('[createDevice] Supabase error:', JSON.stringify(error));
+    console.error('Error creating device:', error);
     return null;
   }
 
-  console.log('[createDevice] Success, device:', JSON.stringify(data));
   return data;
 }
 

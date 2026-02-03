@@ -16,6 +16,8 @@ import type { Device, DeviceProtectionTier, CreateDeviceInput, UpdateDeviceInput
 
 /**
  * Props for the DeviceForm component.
+ *
+ * @version 1.0.0 - 2026-02-03T00:00:00Z - Initial implementation
  */
 interface DeviceFormProps {
   /** Existing device for edit mode (null for create mode) */
@@ -47,40 +49,35 @@ const protectionTiers: {
   label: string;
   description: string;
   icon: typeof Shield;
-  color: string;
 }[] = [
   {
     value: null,
     label: 'None',
     description: 'No monitoring',
     icon: Shield,
-    color: 'gray',
   },
   {
     value: 'eset',
     label: 'ESET',
     description: 'Antivirus protection',
     icon: Shield,
-    color: 'green',
   },
   {
     value: 'silver',
     label: 'Silver',
     description: 'NinjaOne RMM',
     icon: ShieldCheck,
-    color: 'slate',
   },
   {
     value: 'silver-plus',
     label: 'Silver+',
     description: 'RMM + Priority',
     icon: Sparkles,
-    color: 'amber',
   },
 ];
 
 /**
- * Common device brands.
+ * Common device brands (matches intake form).
  */
 const brands = [
   'Dell',
@@ -97,20 +94,50 @@ const brands = [
   'Other',
 ] as const;
 
+type Brand = typeof brands[number];
+
+/**
+ * Laptop models by brand (matches intake form).
+ */
+const laptopModels: Record<string, string[]> = {
+  'Dell': ['Inspiron', 'XPS', 'Latitude', 'Vostro', 'Precision', 'Alienware', 'G Series'],
+  'HP': ['Pavilion', 'Envy', 'Spectre', 'EliteBook', 'ProBook', 'ZBook', 'OMEN', 'Victus', 'OmniBook'],
+  'Lenovo': ['ThinkPad', 'IdeaPad', 'Yoga', 'Legion', 'LOQ', 'ThinkBook'],
+  'ASUS': ['ZenBook', 'VivoBook', 'ROG', 'TUF Gaming', 'ExpertBook', 'ProArt StudioBook'],
+  'Acer': ['Aspire', 'Swift', 'Predator Helios', 'Nitro', 'TravelMate', 'Chromebook'],
+  'MSI': ['Stealth', 'Raider', 'Titan', 'Creator', 'Prestige', 'Modern', 'Crosshair', 'Vector', 'Katana', 'Thin'],
+  'Samsung': ['Galaxy Book', 'Galaxy Book Pro', 'Galaxy Book Pro 360', 'Galaxy Book Ultra', 'Galaxy Book Odyssey'],
+  'Microsoft': ['Surface Laptop', 'Surface Pro', 'Surface Go', 'Surface Laptop Go', 'Surface Laptop Studio'],
+  'Apple': ['MacBook Air', 'MacBook Pro'],
+  'Toshiba/Dynabook': ['Portege', 'Tecra', 'Satellite Pro'],
+};
+
+/**
+ * Desktop models by brand (matches intake form).
+ */
+const desktopModels: Record<string, string[]> = {
+  'Dell': ['OptiPlex', 'Precision', 'Inspiron Desktop', 'XPS Desktop', 'Alienware Aurora', 'Vostro Desktop', 'G Series Desktop'],
+  'HP': ['Pavilion Desktop', 'Envy Desktop', 'EliteDesk', 'ProDesk', 'OMEN Desktop', 'Victus Desktop', 'OmniDesk', 'Z Workstation'],
+  'Lenovo': ['ThinkCentre', 'IdeaCentre', 'Legion Tower', 'ThinkStation', 'LOQ Tower'],
+  'ASUS': ['ROG Desktop', 'TUF Gaming Desktop', 'ProArt Desktop', 'ExpertCenter'],
+  'Acer': ['Aspire Desktop', 'Predator Orion', 'Nitro Desktop', 'Veriton'],
+  'MSI': ['Trident', 'MEG Aegis', 'MAG Infinite', 'Codex'],
+  'Apple': ['iMac', 'Mac Mini', 'Mac Studio', 'Mac Pro'],
+  'Microsoft': ['Surface Studio'],
+};
+
 /**
  * Form for creating or editing a device.
+ *
+ * Uses brand/model dropdowns matching the intake form naming convention.
+ * Device name is auto-generated from brand + model selection.
+ * In edit mode, falls back to free-text for the device name.
  *
  * @param props - Component properties
  * @returns JSX element
  *
- * @example
- * // Create mode
- * <DeviceForm customerId={123} onSuccess={(device) => console.log(device)} />
- *
- * // Edit mode
- * <DeviceForm device={existingDevice} onSuccess={(device) => console.log(device)} />
- *
  * @version 1.0.0 - 2026-02-03T00:00:00Z - Initial implementation
+ * @version 2.0.0 - 2026-02-03T00:00:00Z - Replaced free-text name with brand/model dropdowns
  */
 export function DeviceForm({
   device,
@@ -122,34 +149,77 @@ export function DeviceForm({
   const isEdit = !!device;
 
   // Form state
-  const [name, setName] = useState(device?.name || '');
   const [deviceType, setDeviceType] = useState(device?.device_type || 'Desktop');
-  const [serialNumber, setSerialNumber] = useState(device?.serial_number || '');
-  const [manufacturer, setManufacturer] = useState(device?.manufacturer || '');
+  const [manufacturer, setManufacturer] = useState<Brand | ''>(
+    (device?.manufacturer as Brand) || ''
+  );
   const [model, setModel] = useState(device?.model || '');
+  const [serialNumber, setSerialNumber] = useState(device?.serial_number || '');
   const [os, setOs] = useState(device?.os || '');
   const [protectionTier, setProtectionTier] = useState<DeviceProtectionTier>(
     device?.protection_tier || null
   );
   const [notes, setNotes] = useState(device?.notes || '');
+  // For edit mode, allow editing the name directly
+  const [editName, setEditName] = useState(device?.name || '');
 
   // Form status
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Reset form when device changes
+  const isCustomBuild = manufacturer === 'Custom Build';
+  const isOtherBrand = manufacturer === 'Other';
+
+  // Get available models based on device type and brand
+  const getAvailableModels = (): string[] => {
+    if (!manufacturer || isCustomBuild || isOtherBrand) return [];
+    const models = deviceType === 'Laptop' ? laptopModels : desktopModels;
+    return models[manufacturer] || [];
+  };
+
+  const availableModels = getAvailableModels();
+
+  // Build the device name from brand + model
+  const buildDeviceName = (): string => {
+    if (isCustomBuild) return `Custom Build ${deviceType}`;
+    if (isOtherBrand) return model ? `Other ${model}` : 'Other';
+    if (!manufacturer) return '';
+    return model ? `${manufacturer} ${model}` : manufacturer;
+  };
+
+  // Reset model when brand or device type changes
+  const handleBrandChange = (newBrand: Brand | '') => {
+    setManufacturer(newBrand);
+    setModel('');
+  };
+
+  const handleDeviceTypeChange = (newType: string) => {
+    setDeviceType(newType);
+    setModel('');
+  };
+
+  // Reset form when device changes (edit mode)
   useEffect(() => {
     if (device) {
-      setName(device.name || '');
+      setEditName(device.name || '');
       setDeviceType(device.device_type || 'Desktop');
-      setSerialNumber(device.serial_number || '');
-      setManufacturer(device.manufacturer || '');
+      setManufacturer((device.manufacturer as Brand) || '');
       setModel(device.model || '');
+      setSerialNumber(device.serial_number || '');
       setOs(device.os || '');
       setProtectionTier(device.protection_tier || null);
       setNotes(device.notes || '');
     }
   }, [device]);
+
+  // Check if form is valid
+  const isFormValid = (): boolean => {
+    if (isEdit) return !!editName.trim();
+    if (!manufacturer) return false;
+    if (isCustomBuild || isOtherBrand) return true;
+    if (!model) return false;
+    return true;
+  };
 
   /**
    * Handle form submission.
@@ -158,10 +228,9 @@ export function DeviceForm({
     e.preventDefault();
     setError(null);
 
-    console.log('[DeviceForm] handleSubmit called, customerId:', customerId);
+    const deviceName = isEdit ? editName.trim() : buildDeviceName();
 
-    // Validate required fields
-    if (!name.trim()) {
+    if (!deviceName) {
       setError('Device name is required');
       return;
     }
@@ -173,11 +242,11 @@ export function DeviceForm({
       const method = isEdit ? 'PATCH' : 'POST';
 
       const body: CreateDeviceInput | UpdateDeviceInput = {
-        name: name.trim(),
+        name: deviceName,
         device_type: deviceType,
         serial_number: serialNumber.trim() || undefined,
-        manufacturer: manufacturer || undefined,
-        model: model.trim() || undefined,
+        manufacturer: isCustomBuild ? 'Custom Build' : manufacturer || undefined,
+        model: (isCustomBuild ? undefined : model.trim()) || undefined,
         os: os.trim() || undefined,
         protection_tier: protectionTier,
         notes: notes.trim() || undefined,
@@ -188,27 +257,20 @@ export function DeviceForm({
         (body as CreateDeviceInput).customer_id = customerId;
       }
 
-      console.log('[DeviceForm] Submitting to', url, 'with body:', JSON.stringify(body));
-
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
 
-      console.log('[DeviceForm] Response status:', response.status);
-
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
-        console.error('[DeviceForm] Error response:', data);
         throw new Error(data.error || `Failed to ${isEdit ? 'update' : 'create'} device`);
       }
 
       const data = await response.json();
-      console.log('[DeviceForm] Success, device:', data.device);
       onSuccess?.(data.device);
     } catch (err) {
-      console.error('[DeviceForm] Caught error:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setSaving(false);
@@ -256,7 +318,7 @@ export function DeviceForm({
               <button
                 key={type.value}
                 type="button"
-                onClick={() => setDeviceType(type.value)}
+                onClick={() => handleDeviceTypeChange(type.value)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-all ${
                   isSelected
                     ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
@@ -271,53 +333,107 @@ export function DeviceForm({
         </div>
       </div>
 
-      {/* Device Name */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          Device Name *
-        </label>
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="e.g., Dell Latitude 5520"
-          required
-          className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-gray-900 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-        />
-      </div>
-
-      {/* Manufacturer and Model */}
-      <div className="grid gap-4 sm:grid-cols-2">
+      {/* Brand and Model - Create mode uses dropdowns, Edit mode uses text input */}
+      {isEdit ? (
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Manufacturer
-          </label>
-          <select
-            value={manufacturer}
-            onChange={(e) => setManufacturer(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-gray-900 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-          >
-            <option value="">Select manufacturer...</option>
-            {brands.map((brand) => (
-              <option key={brand} value={brand}>
-                {brand}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Model
+            Device Name *
           </label>
           <input
             type="text"
-            value={model}
-            onChange={(e) => setModel(e.target.value)}
-            placeholder="e.g., Latitude 5520"
+            value={editName}
+            onChange={(e) => setEditName(e.target.value)}
+            placeholder="e.g., Dell Latitude 5520"
+            required
             className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-gray-900 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
           />
         </div>
-      </div>
+      ) : (
+        <>
+          {/* Brand Dropdown */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Brand *
+            </label>
+            <select
+              value={manufacturer}
+              onChange={(e) => handleBrandChange(e.target.value as Brand | '')}
+              required
+              className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-gray-900 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            >
+              <option value="">Select a brand...</option>
+              {brands.map((b) => (
+                <option key={b} value={b}>
+                  {b}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Model Dropdown (only for non-custom, non-other brands) */}
+          {manufacturer && !isCustomBuild && !isOtherBrand && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Model *
+              </label>
+              {availableModels.length > 0 ? (
+                <select
+                  value={model}
+                  onChange={(e) => setModel(e.target.value)}
+                  required
+                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-gray-900 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                >
+                  <option value="">Select a model...</option>
+                  {availableModels.map((m) => (
+                    <option key={m} value={m}>
+                      {m}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  type="text"
+                  value={model}
+                  onChange={(e) => setModel(e.target.value)}
+                  placeholder="Enter model name..."
+                  required
+                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-gray-900 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                />
+              )}
+            </div>
+          )}
+
+          {/* Model text input for "Other" brand */}
+          {isOtherBrand && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Device Name
+              </label>
+              <input
+                type="text"
+                value={model}
+                onChange={(e) => setModel(e.target.value)}
+                placeholder="Enter device name..."
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-gray-900 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              />
+            </div>
+          )}
+
+          {/* Custom Build notice */}
+          {isCustomBuild && (
+            <div className="rounded-lg border border-green-200 dark:border-green-700 bg-green-50 dark:bg-green-900/30 px-4 py-3 text-sm text-green-800 dark:text-green-300">
+              Custom Build selected - device will be named &quot;Custom Build {deviceType}&quot;
+            </div>
+          )}
+
+          {/* Preview of auto-generated name */}
+          {manufacturer && buildDeviceName() && (
+            <div className="rounded-lg bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm text-gray-600 dark:text-gray-400">
+              Device name: <span className="font-medium text-gray-900 dark:text-white">{buildDeviceName()}</span>
+            </div>
+          )}
+        </>
+      )}
 
       {/* Serial Number and OS */}
       <div className="grid gap-4 sm:grid-cols-2">
@@ -405,7 +521,7 @@ export function DeviceForm({
         )}
         <button
           type="submit"
-          disabled={saving || !name.trim()}
+          disabled={saving || !isFormValid()}
           className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
         >
           {saving ? (
@@ -427,6 +543,8 @@ export function DeviceForm({
 
 /**
  * Modal wrapper for the DeviceForm.
+ *
+ * @version 1.0.0 - 2026-02-03T00:00:00Z - Initial implementation
  */
 interface DeviceFormModalProps extends DeviceFormProps {
   isOpen: boolean;

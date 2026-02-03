@@ -2,7 +2,8 @@
 
 import { useReducer, useState } from 'react';
 import { ChevronLeft, ChevronRight, CheckCircle, Mail, Loader2 } from 'lucide-react';
-import type { RepairShoprCustomer, RepairShoprAsset, RepairShoprTicket } from '@/lib/repairshopr';
+import type { RepairShoprCustomer, RepairShoprTicket } from '@/lib/repairshopr';
+import type { Device } from '@/lib/devices';
 import { CustomerSearchStep } from './CustomerSearchStep';
 import { CustomerFormStep } from './CustomerFormStep';
 import { DeviceStep } from './DeviceStep';
@@ -21,7 +22,7 @@ interface IntakeState {
   customer: RepairShoprCustomer | null;
   isNewCustomer: boolean;
   customerType: 'individual' | 'business' | null;
-  device: RepairShoprAsset | null;
+  device: Device | null;
   isNewDevice: boolean;
   ticketDescription: string;
   createdTicket: RepairShoprTicket | null;
@@ -34,7 +35,7 @@ type IntakeAction =
   | { type: 'PREV_STEP' }
   | { type: 'JUMP_TO_STEP'; step: number }
   | { type: 'SET_CUSTOMER'; customer: RepairShoprCustomer; isNew: boolean; customerType?: 'individual' | 'business' }
-  | { type: 'SET_DEVICE'; device: RepairShoprAsset; isNew: boolean }
+  | { type: 'SET_DEVICE'; device: Device; isNew: boolean }
   | { type: 'SET_TICKET_DESCRIPTION'; description: string }
   | { type: 'SET_CREATED_TICKET'; ticket: RepairShoprTicket }
   | { type: 'SET_PORTAL_ACCOUNT'; hasAccount: boolean }
@@ -229,7 +230,7 @@ export function IntakeWizard() {
     dispatch({ type: 'NEXT_STEP' });
   };
 
-  const handleSelectDevice = (device: RepairShoprAsset) => {
+  const handleSelectDevice = (device: Device) => {
     dispatch({ type: 'SET_DEVICE', device, isNew: false });
     dispatch({ type: 'NEXT_STEP' });
   };

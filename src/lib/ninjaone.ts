@@ -399,7 +399,9 @@ export class NinjaOneClient {
   private lastApiCheck = 0;
 
   constructor(config: NinjaOneConfig) {
-    this.apiUrl = config.apiUrl.replace(/\/$/, '');
+    // Normalize API URL: strip trailing slash and any /api/v2 path suffix,
+    // since endpoints already include /v2/ prefix
+    this.apiUrl = config.apiUrl.replace(/\/$/, '').replace(/\/api\/v2$/, '').replace(/\/v2$/, '');
     this.clientId = config.clientId;
     this.clientSecret = config.clientSecret;
     this.accessToken = config.accessToken || null;

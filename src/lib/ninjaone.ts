@@ -399,9 +399,9 @@ export class NinjaOneClient {
   private lastApiCheck = 0;
 
   constructor(config: NinjaOneConfig) {
-    // Normalize API URL: strip trailing slash and any /api/v2 path suffix,
-    // since endpoints already include /v2/ prefix
-    this.apiUrl = config.apiUrl.replace(/\/$/, '').replace(/\/api\/v2$/, '').replace(/\/v2$/, '');
+    // Normalize API URL to just the origin (e.g. https://app.ninjarmm.com)
+    // regardless of what path was included in the env var
+    this.apiUrl = new URL(config.apiUrl).origin;
     this.clientId = config.clientId;
     this.clientSecret = config.clientSecret;
     this.accessToken = config.accessToken || null;
@@ -420,10 +420,8 @@ export class NinjaOneClient {
       return this.accessToken;
     }
 
-    // Request new token - use base URL (strip any /api/v2 path) since token
-    // endpoint is always at the domain root: https://app.ninjarmm.com/ws/oauth/token
-    const baseUrl = new URL(this.apiUrl).origin;
-    const tokenUrl = `${baseUrl}/ws/oauth/token`;
+    // Token endpoint: https://app.ninjarmm.com/ws/oauth/token
+    const tokenUrl = `${this.apiUrl}/ws/oauth/token`;
 
     const response = await fetch(tokenUrl, {
       method: 'POST',
@@ -491,7 +489,6 @@ export class NinjaOneClient {
   ): Promise<T> {
     const token = await this.getAccessToken();
     const url = `${this.apiUrl}${endpoint}`;
-    console.log(`[NinjaOne] Request URL: ${url} (apiUrl: ${this.apiUrl})`);
 
     try {
       const response = await fetch(url, {

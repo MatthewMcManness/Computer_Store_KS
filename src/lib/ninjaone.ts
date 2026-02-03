@@ -491,6 +491,7 @@ export class NinjaOneClient {
   ): Promise<T> {
     const token = await this.getAccessToken();
     const url = `${this.apiUrl}${endpoint}`;
+    console.log(`[NinjaOne] Request URL: ${url} (apiUrl: ${this.apiUrl})`);
 
     try {
       const response = await fetch(url, {

@@ -419,7 +419,7 @@ export class NinjaOneClient {
     }
 
     // Request new token
-    const tokenUrl = `${this.apiUrl}/oauth/token`;
+    const tokenUrl = `${this.apiUrl}/ws/oauth/token`;
 
     const response = await fetch(tokenUrl, {
       method: 'POST',

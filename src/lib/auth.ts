@@ -552,6 +552,13 @@ export async function getCurrentUser(): Promise<UserSession | null> {
 
     // Return safe session data (getSafeSession removes apiToken)
     const safeSession = getSafeSession(session);
+    const roles = safeSession.roles || (safeSession.role ? [safeSession.role] : []);
+
+    // Determine userType - fallback for sessions created before userType field existed
+    const employeeRoles = ['admin', 'owner', 'manager', 'lead_technician', 'technician', 'receptionist', 'lead_developer', 'social_media'];
+    const isEmployee = employeeRoles.some(r => roles.includes(r));
+    const userType = safeSession.userType || (isEmployee ? 'employee' : 'customer');
+
     return {
       userId: safeSession.userId,
       id: safeSession.supabaseUserId || '',
@@ -559,8 +566,8 @@ export async function getCurrentUser(): Promise<UserSession | null> {
       email: safeSession.email,
       name: safeSession.name,
       role: safeSession.role,
-      roles: safeSession.roles || (safeSession.role ? [safeSession.role] : []),
-      userType: safeSession.userType,
+      roles,
+      userType,
       location_id: safeSession.location_id || null,
       default_location_id: safeSession.default_location_id || null,
     };

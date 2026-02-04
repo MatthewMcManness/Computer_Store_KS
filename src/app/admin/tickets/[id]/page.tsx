@@ -46,7 +46,7 @@ interface PublicNote {
 
 interface UnifiedNote {
   id: string;
-  type: 'private' | 'customer' | 'staff' | 'public';
+  type: 'private' | 'customer' | 'staff' | 'public' | 'description';
   body: string;
   author: string;
   subject?: string;
@@ -467,6 +467,18 @@ export default function TicketDetailPage() {
     const notes: UnifiedNote[] = [];
     const publicNoteContents = new Set(publicNotes.map((n) => n.content.trim()));
 
+    // Add ticket subject as the first "Problem Description" note
+    if (ticket?.subject) {
+      notes.push({
+        id: 'initial-description',
+        type: 'description',
+        body: ticket.subject,
+        author: ticket.customer_business_then_name || 'Customer',
+        created_at: ticket.created_at || '',
+        canDelete: false,
+      });
+    }
+
     if (ticket?.comments) {
       for (const comment of ticket.comments) {
         const isOurOutgoingMessage =
@@ -549,6 +561,14 @@ export default function TicketDetailPage() {
           iconColor: 'text-green-600 dark:text-green-400',
           label: 'Public Note',
         };
+      case 'description':
+        return {
+          border: 'border-gray-400 dark:border-gray-600',
+          bg: 'bg-gray-50 dark:bg-gray-800/50',
+          icon: Ticket,
+          iconColor: 'text-gray-600 dark:text-gray-400',
+          label: 'Problem Description',
+        };
     }
   };
 
@@ -596,7 +616,9 @@ export default function TicketDetailPage() {
               </span>
             )}
           </div>
-          <p className="text-gray-600 dark:text-gray-400">{ticket.subject}</p>
+          {ticket.problem_type && (
+            <p className="text-sm text-gray-500 dark:text-gray-400">{ticket.problem_type}</p>
+          )}
         </div>
         <button
           onClick={openEditModal}

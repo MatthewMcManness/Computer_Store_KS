@@ -1955,9 +1955,19 @@ export async function getEffectiveCustomerPlanTier(
     return plan?.plan_tier ?? null;
   }
 
-  // Use asset-level tracking - get highest tier among assets
-  const summary = await getCustomerProtectionSummary(customerId);
-  if (!summary || summary.plan_tiers.length === 0) {
+  // Use device-level tracking - get highest tier from devices table
+  const { data: deviceTiers, error } = await supabaseAdmin
+    .from('devices')
+    .select('protection_tier')
+    .eq('customer_id', customerId)
+    .not('protection_tier', 'is', null);
+
+  if (error) {
+    console.error('Error fetching device protection tiers:', error);
+    return null;
+  }
+
+  if (!deviceTiers || deviceTiers.length === 0) {
     return null;
   }
 
@@ -1971,9 +1981,10 @@ export async function getEffectiveCustomerPlanTier(
   let highestTier: ProtectionPlanTier = null;
   let highestRank = 0;
 
-  for (const tier of summary.plan_tiers) {
+  for (const device of deviceTiers) {
+    const tier = device.protection_tier as ProtectionPlanTier;
     if (tier && tierHierarchy[tier] !== undefined && tierHierarchy[tier] > highestRank) {
-      highestRank = tierHierarchy[tier] ?? 0;
+      highestRank = tierHierarchy[tier];
       highestTier = tier;
     }
   }
@@ -2072,34 +2083,35 @@ export async function getEffectiveCustomerPlanTiers(
     }
   }
 
-  // Get asset-level plans for migrated customers
+  // Get device-level plans for migrated customers from devices table
   // Fetch in batches to handle Supabase's 1000 row limit
   if (migratedCustomers.length > 0) {
     const BATCH_SIZE = 500; // Use smaller batch for .in() queries
     const customerTiers = new Map<number, ProtectionPlanTier>();
 
-    // Fetch asset plans in batches
+    // Fetch device protection tiers in batches
     for (let i = 0; i < migratedCustomers.length; i += BATCH_SIZE) {
       const batchIds = migratedCustomers.slice(i, i + BATCH_SIZE);
 
-      const { data: assetPlans, error } = await supabaseAdmin
-        .from('asset_protection_plans')
-        .select('repairshopr_customer_id, plan_tier')
-        .in('repairshopr_customer_id', batchIds);
+      const { data: devices, error } = await supabaseAdmin
+        .from('devices')
+        .select('customer_id, protection_tier')
+        .in('customer_id', batchIds)
+        .not('protection_tier', 'is', null);
 
       if (error) {
-        console.error('Error fetching asset plans:', error);
+        console.error('Error fetching device protection tiers:', error);
         continue;
       }
 
       // Group by customer and find highest tier
-      for (const plan of assetPlans || []) {
-        const currentTier = customerTiers.get(plan.repairshopr_customer_id);
+      for (const device of devices || []) {
+        const currentTier = customerTiers.get(device.customer_id);
         const currentRank = currentTier ? (tierHierarchy[currentTier] || 0) : 0;
-        const newRank = plan.plan_tier ? (tierHierarchy[plan.plan_tier] || 0) : 0;
+        const newRank = device.protection_tier ? (tierHierarchy[device.protection_tier] || 0) : 0;
 
         if (newRank > currentRank) {
-          customerTiers.set(plan.repairshopr_customer_id, plan.plan_tier);
+          customerTiers.set(device.customer_id, device.protection_tier);
         }
       }
     }

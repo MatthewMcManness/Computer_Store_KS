@@ -196,6 +196,23 @@ export function TicketStep({ customer, device, onTicketCreated, onBack }: Ticket
   };
 
   /**
+   * Format service names as a proper English list for the ticket subject.
+   * 1 service: "Diagnostic"
+   * 2 services: "Diagnostic and Virus Removal"
+   * 3+ services: "Diagnostic, Virus Removal, and Data Transfer"
+   */
+  const formatServicesForSubject = (): string => {
+    const serviceNames = selectedServices
+      .map((id) => AVAILABLE_SERVICES.find((s) => s.id === id)?.name)
+      .filter((name): name is string => Boolean(name));
+
+    if (serviceNames.length === 0) return '';
+    if (serviceNames.length === 1) return serviceNames[0];
+    if (serviceNames.length === 2) return `${serviceNames[0]} and ${serviceNames[1]}`;
+    return `${serviceNames.slice(0, -1).join(', ')}, and ${serviceNames[serviceNames.length - 1]}`;
+  };
+
+  /**
    * Handle form submission and ticket creation.
    */
   const handleSubmit = async () => {
@@ -226,7 +243,7 @@ export function TicketStep({ customer, device, onTicketCreated, onBack }: Ticket
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           customer_id: customer.id,
-          subject: `Customer states: ${description.substring(0, 50)}${description.length > 50 ? '...' : ''}`,
+          subject: `${device.name} - ${formatServicesForSubject()}`,
           problem_type: 'Repair',
           comment_subject: 'Initial Issue Description',
           comment_body: commentParts.join('\n'),

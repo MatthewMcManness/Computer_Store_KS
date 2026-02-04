@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getEmployeeAuditInfo, getSessionToken, getCurrentUser } from '@/lib/auth';
 import { createRepairShoprClient, RepairShoprAPIError, getApiToken } from '@/lib/repairshopr';
 import { logTicketAction } from '@/lib/audit';
-import { supabaseAdmin, TICKET_STATUS_DEFINITIONS, getDefaultCustomStatusForRepairShoprStatus } from '@/lib/supabase';
+import { supabaseAdmin, TICKET_STATUS_DEFINITIONS, getDefaultCustomStatusForRepairShoprStatus, createTicketComment } from '@/lib/supabase';
 import { getEffectiveLocationId, getRepairShoprLocationId, resolveLocationId } from '@/lib/location-helpers';
 
 export const dynamic = 'force-dynamic';
@@ -358,6 +358,27 @@ export async function POST(request: NextRequest) {
 
     // Immediately sync the new ticket into rs_tickets so it's visible
     await ensureTicketsSynced([ticket as unknown as { id: number; [key: string]: unknown }]);
+
+    // Store initial comment in Supabase for Supabase-as-source-of-truth
+    if (body.comment_body && supabaseAdmin) {
+      try {
+        // Fetch ticket detail to get the comment's RepairShopr ID (prevents duplicates on bulk sync)
+        const detail = await client.getTicket(apiToken, ticket.id).catch(() => null);
+        if (detail?.comments?.length) {
+          const initialComment = detail.comments[0];
+          await createTicketComment({
+            repairshopr_ticket_id: ticket.id,
+            repairshopr_comment_id: initialComment.id,
+            body: initialComment.body,
+            subject: initialComment.subject || body.comment_subject || null,
+            tech: initialComment.tech || null,
+            hidden: initialComment.hidden ?? true,
+          });
+        }
+      } catch (err) {
+        console.error('[API] Failed to store initial comment in Supabase:', err);
+      }
+    }
 
     // Log the ticket creation for audit trail
     await logTicketAction(

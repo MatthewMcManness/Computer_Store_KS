@@ -2345,21 +2345,75 @@ export async function searchAssets(query: string) {
  * @called_by GET /api/repairshopr/tickets/[id] (for inline comments)
  *
  * @version 1.0.0 - 2026-02-02T00:00:00Z - Initial implementation
+ * @version 1.1.0 - 2026-02-04T00:00:00Z - Query both ticket_comments and rs_ticket_comments tables, merge and deduplicate
  */
 export async function getTicketComments(ticketId: number) {
   if (!supabaseAdmin) return [];
 
-  const { data, error } = await supabaseAdmin
-    .from('ticket_comments')
-    .select('*')
-    .eq('repairshopr_ticket_id', ticketId)
-    .order('created_at', { ascending: true });
+  // Query both tables in parallel
+  const [tcResult, rsResult] = await Promise.all([
+    supabaseAdmin
+      .from('ticket_comments')
+      .select('*')
+      .eq('repairshopr_ticket_id', ticketId)
+      .order('created_at', { ascending: true }),
+    supabaseAdmin
+      .from('rs_ticket_comments')
+      .select('*')
+      .eq('ticket_id', ticketId)
+      .order('created_at', { ascending: true }),
+  ]);
 
-  if (error) {
-    console.error('Error fetching ticket comments:', error);
-    return [];
+  if (tcResult.error) {
+    console.error('Error fetching ticket_comments:', tcResult.error);
   }
-  return data || [];
+  if (rsResult.error) {
+    console.error('Error fetching rs_ticket_comments:', rsResult.error);
+  }
+
+  const tcComments = tcResult.data || [];
+  const rsComments = rsResult.data || [];
+
+  // Normalize rs_ticket_comments to match the shape expected by the API route
+  const normalizedRs = rsComments.map((c) => ({
+    id: c.id,
+    repairshopr_ticket_id: c.ticket_id,
+    repairshopr_comment_id: c.repairshopr_id,
+    body: c.body,
+    subject: c.subject,
+    tech: c.tech,
+    hidden: c.hidden,
+    created_at: c.created_at,
+    updated_at: c.updated_at,
+  }));
+
+  // Deduplicate: if a comment exists in both tables (same repairshopr_comment_id),
+  // prefer the ticket_comments version (newer table, may have local edits)
+  const seenIds = new Set<number>();
+  const merged = [];
+
+  for (const c of tcComments) {
+    if (c.repairshopr_comment_id) {
+      seenIds.add(c.repairshopr_comment_id);
+    }
+    merged.push(c);
+  }
+
+  for (const c of normalizedRs) {
+    if (c.repairshopr_comment_id && seenIds.has(c.repairshopr_comment_id)) {
+      continue; // Already included from ticket_comments
+    }
+    merged.push(c);
+  }
+
+  // Sort by created_at ascending
+  merged.sort((a, b) => {
+    const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+    const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+    return dateA - dateB;
+  });
+
+  return merged;
 }
 
 /**

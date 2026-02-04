@@ -110,7 +110,15 @@ export default function TicketsListPage() {
   const sortedTickets = useMemo(() => {
     if (!tickets.length) return tickets;
 
-    return [...tickets].sort((a, b) => {
+    // When viewing "All", exclude completed tickets
+    const filtered = !statusFilter
+      ? tickets.filter((t) => {
+          const override = ticketStatusOverrides[t.id];
+          return override?.custom_status !== 'completed';
+        })
+      : tickets;
+
+    return [...filtered].sort((a, b) => {
       // First, compare by priority level (lower = higher priority)
       const priorityA = getTicketPriorityLevel(a);
       const priorityB = getTicketPriorityLevel(b);
@@ -124,7 +132,7 @@ export default function TicketsListPage() {
       const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
       return dateA - dateB;
     });
-  }, [tickets, getTicketPriorityLevel]);
+  }, [tickets, getTicketPriorityLevel, statusFilter, ticketStatusOverrides]);
 
   // Load status definitions on mount
   useEffect(() => {
@@ -346,6 +354,16 @@ export default function TicketsListPage() {
                 {def.display_name}
               </button>
             ))}
+            <button
+              onClick={() => handleStatusChange('completed')}
+              className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                statusFilter === 'completed'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+              }`}
+            >
+              Completed
+            </button>
           </div>
         </div>
 
@@ -375,6 +393,16 @@ export default function TicketsListPage() {
                 {def.display_name}
               </button>
             ))}
+            <button
+              onClick={() => handleStatusChange('completed')}
+              className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                statusFilter === 'completed'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
+              }`}
+            >
+              Completed
+            </button>
           </div>
         )}
       </div>

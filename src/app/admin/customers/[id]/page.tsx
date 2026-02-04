@@ -29,6 +29,8 @@ import {
   Save,
   ArrowLeft,
   Cpu,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import type { Device } from '@/lib/devices';
 import type { RepairShoprCustomer, RepairShoprAsset, RepairShoprTicket, RepairShoprInvoice, RepairShoprPayment } from '@/lib/repairshopr';
@@ -190,6 +192,11 @@ export default function CustomerDetailsPage() {
   });
   const [savingEdit, setSavingEdit] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
+  const [editPassword, setEditPassword] = useState('');
+  const [editConfirmPassword, setEditConfirmPassword] = useState('');
+  const [showEditPassword, setShowEditPassword] = useState(false);
+  const [showEditConfirmPassword, setShowEditConfirmPassword] = useState(false);
+  const [passwordSuccess, setPasswordSuccess] = useState(false);
   const [planTier, setPlanTier] = useState<ProtectionPlanTier>(null);
   const [loadingPlanTier, setLoadingPlanTier] = useState(false);
 
@@ -555,6 +562,11 @@ export default function CustomerDetailsPage() {
       plan_tier: planTier,
     });
     setEditError(null);
+    setEditPassword('');
+    setEditConfirmPassword('');
+    setShowEditPassword(false);
+    setShowEditConfirmPassword(false);
+    setPasswordSuccess(false);
     setShowEditModal(true);
   };
 
@@ -595,6 +607,41 @@ export default function CustomerDetailsPage() {
 
         const data = await response.json();
         setCustomer(data.customer);
+      }
+
+      // Handle portal password change if provided
+      if (editPassword) {
+        if (editPassword.length < 8) {
+          throw new Error('Password must be at least 8 characters');
+        }
+        if (editPassword !== editConfirmPassword) {
+          throw new Error('Passwords do not match');
+        }
+
+        const email = editFormData.email || customer.email;
+        if (!email) {
+          throw new Error('Customer must have an email to set a portal password');
+        }
+
+        const pwRes = await fetch('/api/admin/customer-accounts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email,
+            password: editPassword,
+            repairshopr_customer_id: customer.id,
+            first_name: editFormData.firstname || customer.firstname,
+          }),
+        });
+
+        if (!pwRes.ok) {
+          const pwData = await pwRes.json();
+          throw new Error(pwData.error || 'Failed to set portal password');
+        }
+
+        const pwData = await pwRes.json();
+        setPortalAccount(pwData.account);
+        setPasswordSuccess(true);
       }
 
       if (newPlanTier !== planTier) {
@@ -1317,6 +1364,79 @@ export default function CustomerDetailsPage() {
                   />
                 </div>
               </div>
+            </div>
+
+            {/* Portal Password Section */}
+            <div className="mt-6 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+              <div className="mb-3 flex items-center gap-2">
+                <Key className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                  {portalAccount ? 'Change Portal Password' : 'Set Up Portal Password'}
+                </span>
+                {portalAccount && (
+                  <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-900/50 dark:text-green-400">
+                    <Check className="h-3 w-3" />
+                    Has Account
+                  </span>
+                )}
+              </div>
+              {passwordSuccess && (
+                <div className="mb-3 rounded-lg bg-green-50 dark:bg-green-900/30 p-3 text-sm text-green-700 dark:text-green-400">
+                  Portal password {portalAccount ? 'updated' : 'created'} successfully!
+                </div>
+              )}
+              <p className="mb-3 text-xs text-gray-500 dark:text-gray-400">
+                {portalAccount
+                  ? 'Enter a new password to change it. Leave blank to keep current password.'
+                  : 'Create a password so this customer can log into the portal.'}
+              </p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    New Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showEditPassword ? 'text' : 'password'}
+                      value={editPassword}
+                      onChange={(e) => { setEditPassword(e.target.value); setPasswordSuccess(false); }}
+                      placeholder="Min 8 characters"
+                      className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 pr-10 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowEditPassword(!showEditPassword)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                    >
+                      {showEditPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Confirm Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showEditConfirmPassword ? 'text' : 'password'}
+                      value={editConfirmPassword}
+                      onChange={(e) => { setEditConfirmPassword(e.target.value); setPasswordSuccess(false); }}
+                      placeholder="Re-enter password"
+                      className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2 pr-10 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowEditConfirmPassword(!showEditConfirmPassword)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                    >
+                      {showEditConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+              </div>
+              {editPassword && editConfirmPassword && editPassword !== editConfirmPassword && (
+                <p className="mt-2 text-xs text-red-600 dark:text-red-400">Passwords do not match</p>
+              )}
             </div>
 
             {/* Modal Actions */}

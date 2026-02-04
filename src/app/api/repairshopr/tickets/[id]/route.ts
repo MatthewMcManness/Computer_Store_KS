@@ -183,14 +183,31 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
           );
         }
 
-        // Load comments from Supabase
-        const comments = await getTicketComments(ticketId);
+        // Load comments from Supabase AND fetch fresh ticket from RepairShopr in parallel.
+        // The list-API sync may store a truncated subject; the detail endpoint returns the full text.
+        const client = createRepairShoprClient();
+        const [comments, freshTicket] = await Promise.all([
+          getTicketComments(ticketId),
+          client.getTicket(apiToken, ticketId).catch(() => null),
+        ]);
+
+        // Prefer the fresh subject from RepairShopr (untruncated)
+        const fullSubject = freshTicket?.subject || cached.subject;
+
+        // Update the cached subject in the background if it differs
+        if (freshTicket?.subject && freshTicket.subject !== cached.subject) {
+          supabaseAdmin!.from('rs_tickets')
+            .update({ subject: freshTicket.subject })
+            .eq('repairshopr_id', ticketId)
+            .then(() => {})
+            .catch(() => {});
+        }
 
         // Build ticket response from Supabase data
         const ticket = {
           id: cached.repairshopr_id,
           number: cached.number,
-          subject: cached.subject,
+          subject: fullSubject,
           status: cached.status,
           problem_type: cached.problem_type,
           customer_id: cached.customer_id,

@@ -2482,9 +2482,18 @@ export async function syncTicketComments(
   if (!supabaseAdmin || comments.length === 0) return;
 
   for (const comment of comments) {
+    // Check if this comment already exists (by repairshopr_comment_id)
+    const { data: existing } = await supabaseAdmin
+      .from('ticket_comments')
+      .select('id')
+      .eq('repairshopr_comment_id', comment.id)
+      .maybeSingle();
+
+    if (existing) continue; // Already synced
+
     const { error } = await supabaseAdmin
       .from('ticket_comments')
-      .upsert({
+      .insert({
         repairshopr_ticket_id: ticketId,
         repairshopr_comment_id: comment.id,
         body: comment.body,
@@ -2492,8 +2501,7 @@ export async function syncTicketComments(
         tech: comment.tech || null,
         hidden: comment.hidden,
         created_at: comment.created_at,
-      }, { onConflict: 'repairshopr_comment_id' })
-      .select();
+      });
 
     if (error) {
       console.error(`Error syncing comment ${comment.id}:`, error);

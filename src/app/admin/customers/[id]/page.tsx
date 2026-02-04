@@ -232,10 +232,14 @@ export default function CustomerDetailsPage() {
         setLoadingAccount(true);
         setLoadingPlanTier(true);
 
-        // Fetch portal account and asset protection summary
-        const [accountRes, summaryRes] = await Promise.all([
+        // Fetch portal account and effective protection plan tier
+        const [accountRes, planRes] = await Promise.all([
           fetch(`/api/admin/customer-accounts?customer_id=${data.customer.id}`),
-          fetch(`/api/admin/asset-plans?customer_id=${data.customer.id}&summary=true`)
+          fetch('/api/repairshopr/customers/protection-plans-batch', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ customer_ids: [data.customer.id] }),
+          })
         ]);
 
         if (accountRes.ok) {
@@ -243,23 +247,10 @@ export default function CustomerDetailsPage() {
           setPortalAccount(accountData.account);
         }
 
-        if (summaryRes.ok) {
-          const summaryData = await summaryRes.json();
-          const summary = summaryData.summary;
-          if (summary?.plan_tiers && summary.plan_tiers.length > 0) {
-            const tierHierarchy: Record<string, number> = {
-              'silver-plus': 3,
-              'silver': 2,
-              'eset': 1,
-            };
-            let highestTier: ProtectionPlanTier = null;
-            for (const tier of summary.plan_tiers) {
-              if (tier && (!highestTier || (tierHierarchy[tier] ?? 0) > (tierHierarchy[highestTier] ?? 0))) {
-                highestTier = tier as ProtectionPlanTier;
-              }
-            }
-            setPlanTier(highestTier);
-          }
+        if (planRes.ok) {
+          const planData = await planRes.json();
+          const tier = planData.tiers?.[data.customer.id] ?? null;
+          setPlanTier(tier);
         }
 
         setLoadingAccount(false);
@@ -702,6 +693,8 @@ export default function CustomerDetailsPage() {
       }
 
       setShowEditModal(false);
+      // Refresh customer data and plan tier badge
+      loadCustomer();
     } catch (err) {
       setEditError(err instanceof Error ? err.message : 'Failed to update customer');
     } finally {

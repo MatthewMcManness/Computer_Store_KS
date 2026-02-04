@@ -1064,7 +1064,7 @@ export default function CustomerDetailsPage() {
                               <div
                                 key={ticket.id}
                                 className="flex items-center justify-between rounded-lg border border-gray-200 p-4 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
-                                onClick={() => router.push(`/admin/tickets?id=${ticket.id}`)}
+                                onClick={() => router.push(`/admin/tickets/${ticket.id}`)}
                               >
                                 <div className="flex items-center gap-3">
                                   <Ticket className="h-5 w-5 text-gray-400" />
@@ -1079,7 +1079,7 @@ export default function CustomerDetailsPage() {
                                         {ticket.status || 'Unknown'}
                                       </span>
                                     </div>
-                                    <p className="text-sm text-gray-600 dark:text-gray-400 truncate max-w-md">
+                                    <p className="text-sm text-gray-600 dark:text-gray-400">
                                       {ticket.subject}
                                     </p>
                                   </div>

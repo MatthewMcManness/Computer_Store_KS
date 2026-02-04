@@ -31,6 +31,7 @@ import {
   Cpu,
   Eye,
   EyeOff,
+  AlertCircle,
 } from 'lucide-react';
 import type { Device } from '@/lib/devices';
 import type { RepairShoprCustomer, RepairShoprAsset, RepairShoprTicket, RepairShoprInvoice, RepairShoprPayment } from '@/lib/repairshopr';
@@ -199,6 +200,9 @@ export default function CustomerDetailsPage() {
   const [showEditPassword, setShowEditPassword] = useState(false);
   const [showEditConfirmPassword, setShowEditConfirmPassword] = useState(false);
   const [passwordSuccess, setPasswordSuccess] = useState(false);
+  const [editAssetsUpdated, setEditAssetsUpdated] = useState(false);
+  const [editAssetCount, setEditAssetCount] = useState(0);
+  const [loadingAssetsStatus, setLoadingAssetsStatus] = useState(false);
   const [planTier, setPlanTier] = useState<ProtectionPlanTier>(null);
   const [loadingPlanTier, setLoadingPlanTier] = useState(false);
 
@@ -554,7 +558,7 @@ export default function CustomerDetailsPage() {
   };
 
   // Open edit modal with current customer data
-  const openEditModal = () => {
+  const openEditModal = async () => {
     if (!customer) return;
 
     setEditFormData({
@@ -578,6 +582,21 @@ export default function CustomerDetailsPage() {
     setShowEditConfirmPassword(false);
     setPasswordSuccess(false);
     setShowEditModal(true);
+
+    // Load assets_updated status and device count
+    setLoadingAssetsStatus(true);
+    try {
+      const response = await fetch(`/api/repairshopr/customers/${customer.id}/assets-updated`);
+      if (response.ok) {
+        const data = await response.json();
+        setEditAssetsUpdated(data.assets_updated);
+        setEditAssetCount(data.asset_count);
+      }
+    } catch (err) {
+      console.error('Failed to load assets status:', err);
+    } finally {
+      setLoadingAssetsStatus(false);
+    }
   };
 
   // Handle edit form input change
@@ -669,6 +688,17 @@ export default function CustomerDetailsPage() {
         }
 
         setPlanTier(newPlanTier);
+      }
+
+      // Update assets_updated flag
+      const assetsRes = await fetch(`/api/repairshopr/customers/${customer.id}/assets-updated`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ assets_updated: editAssetsUpdated }),
+      });
+      if (!assetsRes.ok) {
+        const data = await assetsRes.json();
+        throw new Error(data.error || 'Failed to update migration status');
       }
 
       setShowEditModal(false);
@@ -1447,6 +1477,49 @@ export default function CustomerDetailsPage() {
               {editPassword && editConfirmPassword && editPassword !== editConfirmPassword && (
                 <p className="mt-2 text-xs text-red-600 dark:text-red-400">Passwords do not match</p>
               )}
+            </div>
+
+            {/* Devices Migrated Checkbox */}
+            <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+              <div className="flex items-start gap-3">
+                <div className="flex h-5 items-center">
+                  {loadingAssetsStatus ? (
+                    <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+                  ) : (
+                    <input
+                      type="checkbox"
+                      id="detail-assets-updated-checkbox"
+                      checked={editAssetsUpdated}
+                      onChange={(e) => setEditAssetsUpdated(e.target.checked)}
+                      disabled={editAssetCount === 0}
+                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    />
+                  )}
+                </div>
+                <div className="flex-1">
+                  <label
+                    htmlFor="detail-assets-updated-checkbox"
+                    className={`text-sm font-medium ${editAssetCount === 0 ? 'text-gray-400 dark:text-gray-500' : 'text-gray-700 dark:text-gray-300'}`}
+                  >
+                    Assets Updated with Computer Type and Protection Plan Level?
+                  </label>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    {editAssetCount === 0 ? (
+                      <span className="text-amber-600 dark:text-amber-400">
+                        <AlertCircle className="h-3 w-3 inline mr-1" />
+                        No assets found. Add assets before marking as migrated.
+                      </span>
+                    ) : (
+                      <>
+                        {editAssetCount} asset{editAssetCount !== 1 ? 's' : ''} registered.
+                        {editAssetsUpdated
+                          ? ' Protection plans are tracked at the asset level.'
+                          : ' Protection plans are tracked at the customer level.'}
+                      </>
+                    )}
+                  </p>
+                </div>
+              </div>
             </div>
 
             {/* Modal Actions */}

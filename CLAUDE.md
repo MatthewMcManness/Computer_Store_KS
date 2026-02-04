@@ -287,6 +287,89 @@ Key fields in `ticket_status_overrides`:
 - `custom_status` - Current custom status
 - `customer_question` - Optional customer question text
 
+## Database Architecture & Data Strategy
+
+### Supabase Is the Primary Database
+
+**Supabase is the source of truth.** RepairShopr is kept as a mirror for employees still using it during the transition. All new features should read from and write to Supabase tables.
+
+Data flows **from RepairShopr into Supabase** via:
+1. **Webhooks** (`/api/webhooks/repairshopr`) - Real-time sync when events happen in RepairShopr
+2. **Full sync** (`/api/admin/sync`) - Batch sync triggered by admin for backfill/recovery
+3. **Live API passthrough** (`/api/repairshopr/*`) - Some endpoints still query RepairShopr API directly during transition
+
+### Table Architecture
+
+The `rs_` prefixed tables ARE the primary data tables (the name is historical). Everything references them:
+
+| Table | Role | Notes |
+|-------|------|-------|
+| `rs_customers` | **Primary customer data** | Referenced by `devices`, `businesses`, `families`, `customer_silver_plans` |
+| `rs_tickets` | **Primary ticket data** | Referenced by `ticket_status_overrides`, `ticket_public_notes` |
+| `rs_ticket_comments` | **Primary comments** | Linked to tickets via `ticket_id` (RepairShopr ID) |
+| `rs_invoices` | **Primary invoices** | Linked to customers via `customer_id` |
+| `rs_payments` | **Primary payments** | Linked to invoices and customers |
+| `rs_products` | **Primary product catalog** | Inventory data |
+
+Supabase-exclusive tables that extend the `rs_` data:
+
+| Table | Purpose | How It's Populated |
+|-------|---------|-------------------|
+| `ticket_status_overrides` | Custom status layer on top of RS statuses | Webhook auto-sync + employee UI |
+| `ticket_status_definitions` | Custom status definitions | Admin-configured |
+| `businesses` | Business entity grouping | Auto-linked via PostgreSQL trigger on `rs_customers.business_name` |
+| `families` | Family/household grouping | Manually assigned by employees |
+| `customer_accounts` | Customer portal logins | Created during intake or by admin |
+| `customer_silver_plans` | **Legacy** customer-level protection plans | See "Protection Plans" below |
+| `devices` | **Primary device tracking** (replaces `rs_assets`) | Supabase-native, NOT synced from RS |
+| `ticket_public_notes` | Customer-visible notes | Employee-created in Supabase |
+| `locations` | Multi-location support | Admin-configured |
+| `user_profiles` | Employee profiles & RBAC | Created on first login |
+
+### Devices & Assets Strategy
+
+**Critical rule: We do NOT pull asset data FROM RepairShopr.** The `devices` table in Supabase is the sole source of truth for device/asset tracking.
+
+- **Old system:** `rs_assets` table (synced from RepairShopr) + `device_mappings` + `asset_protection_plans`
+- **New system:** `devices` table (Supabase-native) with per-device `protection_tier` column
+- **RepairShopr direction:** We only **push** device data TO RepairShopr (as assets), never pull
+- The `rs_assets` table still exists for reference but is no longer actively synced
+
+### Protection Plans & Migration
+
+Protection plan tracking is transitioning from customer-level to device-level:
+
+| State | Flag | Plan Source | Table |
+|-------|------|-------------|-------|
+| **Legacy** (not migrated) | `rs_customers.assets_updated = false` | Customer-level plan from RepairShopr | `customer_silver_plans` |
+| **Migrated** | `rs_customers.assets_updated = true` | Per-device plan | `devices.protection_tier` |
+
+**The `assets_updated` boolean on `rs_customers` is the migration flag.** Employees toggle this in the customer edit modal after migrating a customer's devices to the Supabase `devices` table.
+
+**Rules for code that touches protection plans:**
+1. **Always check `assets_updated` first** before reading/writing protection plan data
+2. If `assets_updated = false` → use `customer_silver_plans` table (legacy, customer-level)
+3. If `assets_updated = true` → use `devices.protection_tier` column (per-device)
+4. **Webhook/sync from RepairShopr** should only write to `customer_silver_plans` if `assets_updated = false`
+5. **Never overwrite** device-level plans with RepairShopr customer-level data
+
+Plan tiers: `null` (no plan), `'eset'`, `'silver'`, `'silver-plus'`
+
+### Webhook Architecture
+
+RepairShopr Notification Center sends webhooks as `{text, html, link, attributes}`:
+- `link` URL path determines entity type (`/tickets/`, `/customers/`, `/invoices/`)
+- `attributes` contains complete entity data (including nested objects)
+- Comment events are differentiated by `ticket_id` + `body` in attributes
+- Ticket events include embedded `customer{}` and `comments[]`
+
+The webhook handler (`/api/webhooks/repairshopr`) syncs to:
+- `rs_customers` (+ triggers business auto-linking)
+- `rs_tickets` (+ auto-creates `ticket_status_overrides`)
+- `rs_ticket_comments`
+- `rs_invoices`
+- `customer_silver_plans` (only for legacy customers where `assets_updated = false`)
+
 ## Git Branching Strategy
 
 This project uses a **direct Production workflow** with **local testing before push**:

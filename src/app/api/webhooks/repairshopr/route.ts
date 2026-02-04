@@ -1,18 +1,34 @@
 /**
  * RepairShopr Webhook Handler
  *
- * Receives webhook events from RepairShopr for real-time data synchronization.
+ * Receives webhook events from RepairShopr Notification Center for real-time sync.
+ *
+ * RepairShopr sends webhooks in the format: { text, html, link, attributes }
+ * - `text`: Human-readable event description
+ * - `html`: HTML version of the notification
+ * - `link`: URL to the entity (e.g., https://subdomain.repairshopr.com/tickets/12345)
+ * - `attributes`: Complete entity data object
+ *
+ * Entity type is determined by parsing the `link` URL path:
+ * - /tickets/ → ticket or comment event
+ * - /customers/ → customer event
+ * - /invoices/ → invoice event
+ *
+ * Comment vs ticket is differentiated by checking `attributes.ticket_id`
+ * (comments have ticket_id referencing their parent ticket).
+ *
  * Supported events:
+ * - Ticket: created, updated, status changed (syncs ticket + embedded customer/comments)
+ * - Comment: added to ticket (syncs to rs_ticket_comments)
  * - Customer: created, updated
- * - Ticket: created, updated, status changed
  * - Invoice: created, updated, paid
- * - Asset: created, updated
+ * Note: Assets are NOT synced from RepairShopr. We only push assets TO RepairShopr.
  *
  * To set up in RepairShopr:
  * 1. Go to Admin > Notification Center
  * 2. Create a new Notification Set
  * 3. Enter webhook URL: https://yoursite.com/api/webhooks/repairshopr
- * 4. Enable webhook for desired events
+ * 4. Enable the Webhook checkbox for desired events
  *
  * Security:
  * - Optional: Set REPAIRSHOPR_WEBHOOK_SECRET env var for signature validation
@@ -20,10 +36,12 @@
  * - Rate limited by Render
  *
  * @version 1.0.0 - 2026-01-12T00:00:00Z - Initial implementation
+ * @version 2.0.0 - 2026-02-04T21:25:23Z - Rewrote to handle actual RepairShopr payload format {text, html, link, attributes}
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { supabaseAdmin, getDefaultCustomStatusForRepairShoprStatus } from '@/lib/supabase';
+import { supabaseAdmin, getDefaultCustomStatusForRepairShoprStatus, setCustomerProtectionPlan, getCustomerAssetsUpdated } from '@/lib/supabase';
+import { getProtectionPlanTier } from '@/lib/repairshopr';
 import { createHmac } from 'crypto';
 
 export const dynamic = 'force-dynamic';
@@ -32,21 +50,20 @@ export const dynamic = 'force-dynamic';
 // Types
 // =============================================================================
 
-interface WebhookEvent {
-  event_type: string;
-  webhook_type?: string;
-  customer?: RepairShoprWebhookCustomer;
-  ticket?: RepairShoprWebhookTicket;
-  invoice?: RepairShoprWebhookInvoice;
-  asset?: RepairShoprWebhookAsset;
-  // For backwards compatibility with different payload formats
-  data?: {
-    customer?: RepairShoprWebhookCustomer;
-    ticket?: RepairShoprWebhookTicket;
-    invoice?: RepairShoprWebhookInvoice;
-    asset?: RepairShoprWebhookAsset;
-  };
+/**
+ * Actual payload format sent by RepairShopr Notification Center webhooks
+ */
+interface RepairShoprWebhookPayload {
+  text: string;
+  html: string;
+  link: string;
+  attributes: Record<string, unknown>;
 }
+
+/**
+ * Entity type parsed from the webhook link URL
+ */
+type WebhookEntityType = 'ticket' | 'comment' | 'customer' | 'invoice' | 'unknown';
 
 interface RepairShoprWebhookCustomer {
   id: number;
@@ -66,23 +83,38 @@ interface RepairShoprWebhookCustomer {
   updated_at?: string;
   tags?: string[];
   properties?: Record<string, unknown>;
+  custom_fields?: Record<string, unknown>;
 }
 
 interface RepairShoprWebhookTicket {
   id: number;
-  number?: string;
+  number?: number | string;
   subject?: string;
   status?: string;
   problem_type?: string;
   customer_id?: number;
   customer_business_then_name?: string;
-  user_id?: number;
+  user_id?: number | null;
   created_at?: string;
   updated_at?: string;
   due_date?: string | null;
   priority?: string | null;
   resolved_at?: string | null;
   location_id?: number | null;
+  comments?: RepairShoprWebhookComment[];
+  customer?: RepairShoprWebhookCustomer;
+}
+
+interface RepairShoprWebhookComment {
+  id: number;
+  ticket_id: number;
+  subject?: string;
+  body: string;
+  tech?: string;
+  hidden?: boolean;
+  user_id?: number | null;
+  created_at?: string;
+  updated_at?: string;
 }
 
 interface RepairShoprWebhookInvoice {
@@ -97,15 +129,71 @@ interface RepairShoprWebhookInvoice {
   paid_at?: string | null;
 }
 
-interface RepairShoprWebhookAsset {
-  id: number;
-  name?: string;
-  asset_type?: string;
-  customer_id?: number;
-  serial?: string | null;
-  created_at?: string;
-  updated_at?: string;
-  properties?: Record<string, unknown>;
+// =============================================================================
+// Payload Parsing
+// =============================================================================
+
+/**
+ * Determine entity type from the webhook link URL and attributes.
+ *
+ * Link format: https://subdomain.repairshopr.com/{entity_type}/{id}
+ * Comment events also link to /tickets/ but their attributes contain ticket_id
+ * (referencing the parent ticket) rather than being the ticket itself.
+ *
+ * @param link - The RepairShopr URL from the webhook payload
+ * @param attributes - The attributes object from the webhook payload
+ * @param text - The text description from the webhook payload
+ * @returns The determined entity type
+ *
+ * @version 1.0.0 - 2026-02-04T21:25:23Z - Initial implementation
+ */
+function determineEntityType(
+  link: string,
+  attributes: Record<string, unknown>,
+  text: string
+): WebhookEntityType {
+  const textLower = text.toLowerCase();
+
+  // Comments: attributes have ticket_id (pointing to parent) and body field
+  if ('ticket_id' in attributes && 'body' in attributes) {
+    return 'comment';
+  }
+
+  // Also check text for comment indicators
+  if (textLower.includes('comment was added') || textLower.includes('comment added')) {
+    return 'comment';
+  }
+
+  // Parse link URL for entity type
+  try {
+    const url = new URL(link);
+    const pathParts = url.pathname.split('/').filter(Boolean);
+
+    const firstPart = pathParts[0];
+    if (firstPart) {
+      const entityPath = firstPart.toLowerCase();
+
+      if (entityPath === 'tickets') return 'ticket';
+      if (entityPath === 'customers') return 'customer';
+      if (entityPath === 'invoices') return 'invoice';
+      if (entityPath === 'estimates') return 'invoice'; // Estimates use invoice table
+    }
+  } catch {
+    // Link parsing failed, try to infer from attributes
+  }
+
+  // Fallback: infer from attributes structure
+  if ('subject' in attributes && 'status' in attributes && 'customer_id' in attributes) {
+    return 'ticket';
+  }
+  if ('firstname' in attributes || 'lastname' in attributes || 'email' in attributes) {
+    return 'customer';
+  }
+  if ('balance' in attributes && 'total' in attributes) {
+    return 'invoice';
+  }
+
+  return 'unknown';
 }
 
 // =============================================================================
@@ -113,14 +201,19 @@ interface RepairShoprWebhookAsset {
 // =============================================================================
 
 /**
- * Validate webhook signature if secret is configured
+ * Validate webhook signature if secret is configured.
+ *
+ * @param body - Raw request body string
+ * @param signature - Signature header value from the request
+ * @returns true if signature is valid or no secret configured
+ *
+ * @version 1.0.0 - 2026-01-12T00:00:00Z - Initial implementation
  */
 function validateSignature(body: string, signature: string | null): boolean {
   const secret = process.env.REPAIRSHOPR_WEBHOOK_SECRET;
 
   // If no secret configured, skip validation (allow all webhooks)
   if (!secret) {
-    console.log('[Webhook] No secret configured, skipping signature validation');
     return true;
   }
 
@@ -129,7 +222,6 @@ function validateSignature(body: string, signature: string | null): boolean {
     return false;
   }
 
-  // RepairShopr uses HMAC-SHA256 for webhook signatures
   const expectedSignature = createHmac('sha256', secret)
     .update(body)
     .digest('hex');
@@ -142,7 +234,21 @@ function validateSignature(body: string, signature: string | null): boolean {
 // =============================================================================
 
 /**
- * Sync a single customer to Supabase
+ * Sync a customer record to Supabase.
+ * Also syncs protection plan tier to customer_silver_plans table for legacy customers
+ * (assets_updated=false). Migrated customers use per-device plans in the devices table.
+ * The businesses table auto-links via PostgreSQL trigger when business_name changes.
+ *
+ * @param customer - Customer data from webhook attributes or embedded in ticket
+ *
+ * @sideEffects
+ * - Upserts record to rs_customers table (triggers business auto-linking)
+ * - For legacy customers only: upserts protection plan tier to customer_silver_plans
+ *
+ * @functions_called getProtectionPlanTier, setCustomerProtectionPlan, getCustomerAssetsUpdated
+ *
+ * @version 1.0.0 - 2026-01-12T00:00:00Z - Initial implementation
+ * @version 2.0.0 - 2026-02-04T21:25:23Z - Added custom_fields, protection plan sync, assets_updated check
  */
 async function syncCustomer(customer: RepairShoprWebhookCustomer): Promise<void> {
   if (!supabaseAdmin) {
@@ -165,6 +271,7 @@ async function syncCustomer(customer: RepairShoprWebhookCustomer): Promise<void>
     zip: customer.zip || null,
     tags: customer.tags || null,
     properties: customer.properties || null,
+    custom_fields: customer.custom_fields || null,
     created_at: customer.created_at || null,
     updated_at: customer.updated_at || null,
     synced_at: new Date().toISOString(),
@@ -180,16 +287,51 @@ async function syncCustomer(customer: RepairShoprWebhookCustomer): Promise<void>
   }
 
   console.log(`[Webhook] Synced customer ${customer.id}`);
+
+  // Sync protection plan tier to customer_silver_plans table
+  // Only for legacy customers who haven't been migrated to the devices system.
+  // Migrated customers (assets_updated=true) have per-device plans in the `devices` table.
+  const assetsUpdated = await getCustomerAssetsUpdated(customer.id);
+  if (!assetsUpdated) {
+    const planTier = getProtectionPlanTier(customer);
+    if (planTier) {
+      try {
+        await setCustomerProtectionPlan(customer.id, planTier);
+        console.log(`[Webhook] Synced legacy protection plan for customer ${customer.id}: ${planTier}`);
+      } catch (err) {
+        console.error(`[Webhook] Protection plan sync error for customer ${customer.id}:`, err);
+        // Non-critical, don't throw
+      }
+    }
+  } else {
+    console.log(`[Webhook] Skipping RS protection plan for customer ${customer.id} (migrated to devices)`);
+  }
 }
 
 /**
- * Sync a single ticket to Supabase
- * Also creates/updates the status override to map RepairShopr status to our custom status
+ * Sync a ticket record to Supabase.
+ * Also creates/updates the status override to map RepairShopr status to our custom status.
+ * If the webhook payload includes embedded customer or comments, syncs those too.
+ *
+ * @param ticket - Ticket data from webhook attributes
+ *
+ * @sideEffects
+ * - Upserts record to rs_tickets table
+ * - Upserts status override to ticket_status_overrides table
+ * - Optionally syncs embedded customer to rs_customers
+ * - Optionally syncs embedded comments to rs_ticket_comments
+ *
+ * @functions_called resolveLocationId, getDefaultCustomStatusForRepairShoprStatus, syncCustomer, syncComment
+ *
+ * @version 1.0.0 - 2026-01-12T00:00:00Z - Initial implementation
+ * @version 2.0.0 - 2026-02-04T21:25:23Z - Added embedded customer/comment sync from webhook attributes
  */
-async function syncTicket(ticket: RepairShoprWebhookTicket): Promise<void> {
+async function syncTicket(ticket: RepairShoprWebhookTicket): Promise<string[]> {
   if (!supabaseAdmin) {
     throw new Error('Supabase not configured');
   }
+
+  const results: string[] = [];
 
   // Resolve RepairShopr location ID to Supabase UUID
   const { resolveLocationId } = await import('@/lib/location-helpers');
@@ -197,7 +339,7 @@ async function syncTicket(ticket: RepairShoprWebhookTicket): Promise<void> {
 
   const record = {
     repairshopr_id: ticket.id,
-    number: ticket.number || null,
+    number: ticket.number ? String(ticket.number) : null,
     subject: ticket.subject || null,
     status: ticket.status || null,
     problem_type: ticket.problem_type || null,
@@ -222,12 +364,13 @@ async function syncTicket(ticket: RepairShoprWebhookTicket): Promise<void> {
     throw new Error(`Failed to sync ticket ${ticket.id}: ${error.message}`);
   }
 
+  results.push(`ticket:${ticket.id}`);
+  console.log(`[Webhook] Synced ticket ${ticket.id}`);
+
   // Auto-create/update status override based on RepairShopr status
   if (ticket.status) {
     const customStatus = getDefaultCustomStatusForRepairShoprStatus(ticket.status);
 
-    // Upsert the status override - this ensures the custom status stays in sync
-    // with RepairShopr's status when changed via RepairShopr directly
     const { error: overrideError } = await supabaseAdmin
       .from('ticket_status_overrides')
       .upsert({
@@ -239,17 +382,87 @@ async function syncTicket(ticket: RepairShoprWebhookTicket): Promise<void> {
 
     if (overrideError) {
       console.error('[Webhook] Status override upsert error:', overrideError);
-      // Don't throw - this is non-critical
     } else {
       console.log(`[Webhook] Updated status override for ticket ${ticket.id}: ${customStatus}`);
     }
   }
 
-  console.log(`[Webhook] Synced ticket ${ticket.id}`);
+  // Sync embedded customer if present
+  if (ticket.customer && ticket.customer.id) {
+    try {
+      await syncCustomer(ticket.customer);
+      results.push(`customer:${ticket.customer.id}`);
+    } catch (err) {
+      console.error('[Webhook] Embedded customer sync error:', err);
+      // Non-critical, don't throw
+    }
+  }
+
+  // Sync embedded comments if present
+  if (ticket.comments && Array.isArray(ticket.comments)) {
+    for (const comment of ticket.comments) {
+      try {
+        await syncComment(comment);
+        results.push(`comment:${comment.id}`);
+      } catch (err) {
+        console.error(`[Webhook] Embedded comment ${comment.id} sync error:`, err);
+        // Non-critical, don't throw
+      }
+    }
+  }
+
+  return results;
 }
 
 /**
- * Sync a single invoice to Supabase
+ * Sync a single comment to Supabase.
+ *
+ * @param comment - Comment data from webhook attributes or embedded in ticket
+ *
+ * @sideEffects
+ * - Upserts record to rs_ticket_comments table
+ *
+ * @version 1.0.0 - 2026-02-04T21:25:23Z - Initial implementation
+ */
+async function syncComment(comment: RepairShoprWebhookComment): Promise<void> {
+  if (!supabaseAdmin) {
+    throw new Error('Supabase not configured');
+  }
+
+  const record = {
+    repairshopr_id: comment.id,
+    ticket_id: comment.ticket_id,
+    subject: comment.subject || null,
+    body: comment.body,
+    tech: comment.tech || null,
+    hidden: comment.hidden || false,
+    user_id: comment.user_id || null,
+    created_at: comment.created_at || null,
+    updated_at: comment.updated_at || null,
+    synced_at: new Date().toISOString(),
+  };
+
+  const { error } = await supabaseAdmin
+    .from('rs_ticket_comments')
+    .upsert(record, { onConflict: 'repairshopr_id' });
+
+  if (error) {
+    console.error('[Webhook] Comment sync error:', error);
+    throw new Error(`Failed to sync comment ${comment.id}: ${error.message}`);
+  }
+
+  console.log(`[Webhook] Synced comment ${comment.id} for ticket ${comment.ticket_id}`);
+}
+
+/**
+ * Sync an invoice record to Supabase.
+ *
+ * @param invoice - Invoice data from webhook attributes
+ *
+ * @sideEffects
+ * - Upserts record to rs_invoices table
+ *
+ * @version 1.0.0 - 2026-01-12T00:00:00Z - Initial implementation
  */
 async function syncInvoice(invoice: RepairShoprWebhookInvoice): Promise<void> {
   if (!supabaseAdmin) {
@@ -281,53 +494,29 @@ async function syncInvoice(invoice: RepairShoprWebhookInvoice): Promise<void> {
   console.log(`[Webhook] Synced invoice ${invoice.id}`);
 }
 
-/**
- * Sync a single asset to Supabase
- */
-async function syncAsset(asset: RepairShoprWebhookAsset): Promise<void> {
-  if (!supabaseAdmin) {
-    throw new Error('Supabase not configured');
-  }
-
-  const record = {
-    repairshopr_id: asset.id,
-    name: asset.name || null,
-    asset_type_name: asset.asset_type || null,
-    customer_id: asset.customer_id || null,
-    properties: asset.properties || null,
-    created_at: asset.created_at || null,
-    updated_at: asset.updated_at || null,
-    synced_at: new Date().toISOString(),
-  };
-
-  const { error } = await supabaseAdmin
-    .from('rs_assets')
-    .upsert(record, { onConflict: 'repairshopr_id' });
-
-  if (error) {
-    console.error('[Webhook] Asset sync error:', error);
-    throw new Error(`Failed to sync asset ${asset.id}: ${error.message}`);
-  }
-
-  console.log(`[Webhook] Synced asset ${asset.id}`);
-}
-
 // =============================================================================
 // Main Handler
 // =============================================================================
 
 /**
  * POST /api/webhooks/repairshopr
- * Handle incoming webhook events from RepairShopr
+ * Handle incoming webhook events from RepairShopr Notification Center.
  *
- * @param request - Incoming webhook request with event payload
- * @returns Success/error response
+ * RepairShopr sends payload as: { text, html, link, attributes }
+ * The `link` URL path determines entity type, `attributes` contains the entity data.
+ *
+ * @param request - Incoming webhook request with RepairShopr notification payload
+ * @returns Success/error response with list of synced entities
  *
  * @sideEffects
- * - Upserts records to Supabase tables based on event type
+ * - Upserts records to Supabase tables based on entity type
  * - Logs webhook processing for debugging
  *
+ * @functions_called validateSignature, determineEntityType, syncTicket, syncComment, syncCustomer, syncInvoice
+ * @called_by RepairShopr Notification Center (external)
+ *
  * @version 1.0.0 - 2026-01-12T00:00:00Z - Initial implementation
+ * @version 2.0.0 - 2026-02-04T21:25:23Z - Rewrote to parse actual {text, html, link, attributes} format
  */
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
@@ -348,9 +537,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Parse payload
-    let event: WebhookEvent;
+    let payload: RepairShoprWebhookPayload;
     try {
-      event = JSON.parse(rawBody);
+      payload = JSON.parse(rawBody);
     } catch {
       console.error('[Webhook] Invalid JSON payload');
       return NextResponse.json(
@@ -359,57 +548,78 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Log incoming webhook
-    console.log(`[Webhook] Received event: ${event.event_type || event.webhook_type || 'unknown'}`);
-    console.log(`[Webhook] Payload keys: ${Object.keys(event).join(', ')}`);
+    // Validate payload has the expected RepairShopr structure
+    if (!payload.attributes || typeof payload.attributes !== 'object') {
+      console.log('[Webhook] Payload missing attributes field, keys:', Object.keys(payload).join(', '));
+      return NextResponse.json({
+        success: true,
+        message: 'No attributes to process',
+      });
+    }
 
-    // Extract data (RepairShopr can send in different formats)
-    const customer = event.customer || event.data?.customer;
-    const ticket = event.ticket || event.data?.ticket;
-    const invoice = event.invoice || event.data?.invoice;
-    const asset = event.asset || event.data?.asset;
+    const { text = '', link = '', attributes } = payload;
 
-    // Determine event type
-    const eventType = (event.event_type || event.webhook_type || '').toLowerCase();
+    // Determine entity type from link URL and attributes
+    const entityType = determineEntityType(link, attributes, text);
 
-    // Process based on event type and available data
-    let processed = false;
+    console.log(`[Webhook] Received: ${entityType} | ${text.substring(0, 80)}`);
+
     const results: string[] = [];
 
-    // Customer events
-    if (customer && (eventType.includes('customer') || !eventType)) {
-      await syncCustomer(customer);
-      results.push(`customer:${customer.id}`);
-      processed = true;
+    switch (entityType) {
+      case 'ticket': {
+        const ticket = attributes as unknown as RepairShoprWebhookTicket;
+        if (!ticket.id) {
+          console.log('[Webhook] Ticket attributes missing id');
+          break;
+        }
+        const ticketResults = await syncTicket(ticket);
+        results.push(...ticketResults);
+        break;
+      }
+
+      case 'comment': {
+        const comment = attributes as unknown as RepairShoprWebhookComment;
+        if (!comment.id || !comment.ticket_id) {
+          console.log('[Webhook] Comment attributes missing id or ticket_id');
+          break;
+        }
+        await syncComment(comment);
+        results.push(`comment:${comment.id}`);
+        break;
+      }
+
+      case 'customer': {
+        const customer = attributes as unknown as RepairShoprWebhookCustomer;
+        if (!customer.id) {
+          console.log('[Webhook] Customer attributes missing id');
+          break;
+        }
+        await syncCustomer(customer);
+        results.push(`customer:${customer.id}`);
+        break;
+      }
+
+      case 'invoice': {
+        const invoice = attributes as unknown as RepairShoprWebhookInvoice;
+        if (!invoice.id) {
+          console.log('[Webhook] Invoice attributes missing id');
+          break;
+        }
+        await syncInvoice(invoice);
+        results.push(`invoice:${invoice.id}`);
+        break;
+      }
+
+      default:
+        console.log(`[Webhook] Unknown entity type from link: ${link}`);
     }
 
-    // Ticket events
-    if (ticket && (eventType.includes('ticket') || !eventType)) {
-      await syncTicket(ticket);
-      results.push(`ticket:${ticket.id}`);
-      processed = true;
-    }
-
-    // Invoice events
-    if (invoice && (eventType.includes('invoice') || !eventType)) {
-      await syncInvoice(invoice);
-      results.push(`invoice:${invoice.id}`);
-      processed = true;
-    }
-
-    // Asset events
-    if (asset && (eventType.includes('asset') || !eventType)) {
-      await syncAsset(asset);
-      results.push(`asset:${asset.id}`);
-      processed = true;
-    }
-
-    if (!processed) {
-      console.log(`[Webhook] No processable data in event: ${eventType}`);
+    if (results.length === 0) {
       return NextResponse.json({
         success: true,
         message: 'No data to process',
-        event_type: eventType,
+        entity_type: entityType,
       });
     }
 
@@ -434,7 +644,11 @@ export async function POST(request: NextRequest) {
 
 /**
  * GET /api/webhooks/repairshopr
- * Health check endpoint for webhook configuration
+ * Health check endpoint for webhook configuration.
+ *
+ * @returns JSON with status and configuration info
+ *
+ * @version 1.0.0 - 2026-01-12T00:00:00Z - Initial implementation
  */
 export async function GET() {
   return NextResponse.json({

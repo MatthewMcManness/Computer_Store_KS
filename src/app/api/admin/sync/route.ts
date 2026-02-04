@@ -12,7 +12,6 @@ import {
   syncAllCustomers,
   syncAllTickets,
   syncAllTicketComments,
-  syncAllAssets,
   syncAllInvoices,
   syncAllProducts,
   syncAllPayments,
@@ -22,13 +21,12 @@ import {
   FullSyncResult,
 } from '@/lib/repairshopr-sync';
 
-// Valid sync types
+// Valid sync types (assets excluded - we only push assets TO RepairShopr, not pull)
 type SyncType =
   | 'full'
   | 'customers'
   | 'tickets'
   | 'ticket_comments'
-  | 'assets'
   | 'invoices'
   | 'products'
   | 'payments';
@@ -88,9 +86,6 @@ export async function POST(request: NextRequest) {
         break;
       case 'ticket_comments':
         result = await syncAllTicketComments();
-        break;
-      case 'assets':
-        result = await syncAllAssets();
         break;
       case 'invoices':
         result = await syncAllInvoices();

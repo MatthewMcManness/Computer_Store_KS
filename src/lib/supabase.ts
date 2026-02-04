@@ -2120,7 +2120,7 @@ export async function getCustomerAssetCount(customerId: number): Promise<number>
   if (!supabaseAdmin) return 0;
 
   const { count, error } = await supabaseAdmin
-    .from('rs_assets')
+    .from('devices')
     .select('*', { count: 'exact', head: true })
     .eq('customer_id', customerId);
 

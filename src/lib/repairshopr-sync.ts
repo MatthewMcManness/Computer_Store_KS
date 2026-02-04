@@ -20,7 +20,6 @@ import {
   RepairShoprTicketDetail,
   RepairShoprInvoice,
   RepairShoprPayment,
-  RepairShoprAsset,
   RepairShoprTicketComment,
   RepairShoprProduct,
 } from './repairshopr';
@@ -1156,189 +1155,13 @@ export async function syncAllPayments(): Promise<SyncResult> {
 }
 
 // =============================================================================
-// Asset Sync
-// =============================================================================
-
-/**
- * Fetch all assets from RepairShopr with pagination
- */
-async function fetchAllAssets(apiToken: string): Promise<RepairShoprAsset[]> {
-  const allAssets: RepairShoprAsset[] = [];
-  let page = 1;
-  const pageSize = 25;
-  let totalPages = 1;
-
-  while (page <= totalPages) {
-    const response = await fetch(
-      `https://${process.env.REPAIRSHOPR_SUBDOMAIN}.repairshopr.com/api/v1/customer_assets?api_key=${encodeURIComponent(apiToken)}&page=${page}&per_page=${pageSize}`
-    );
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch assets page ${page}: ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    // RepairShopr returns customer_assets for this endpoint, not assets
-    const assets = data.customer_assets || data.assets || [];
-    const meta = data.meta || {};
-
-    if (meta.total_pages) {
-      totalPages = meta.total_pages;
-    } else if (meta.total_entries && assets.length > 0) {
-      totalPages = Math.ceil(meta.total_entries / pageSize);
-    }
-
-    console.log(`[Sync] Assets page ${page}/${totalPages}: found ${assets.length} assets (total: ${meta.total_entries || 'unknown'})`);
-
-    allAssets.push(...assets);
-    page++;
-
-    if (page <= totalPages) {
-      await new Promise((resolve) => setTimeout(resolve, 100));
-    }
-  }
-
-  return allAssets;
-}
-
-/**
- * Sync all assets from RepairShopr to Supabase
- * Uses streaming batch processing to avoid timeouts and memory issues
- */
-export async function syncAllAssets(): Promise<SyncResult> {
-  const startTime = Date.now();
-  const result: SyncResult = {
-    success: false,
-    entity: 'assets',
-    synced: 0,
-    failed: 0,
-    errors: [],
-    duration: 0,
-  };
-
-  if (!supabaseAdmin) {
-    result.errors.push('Supabase admin client not configured');
-    result.duration = Date.now() - startTime;
-    return result;
-  }
-
-  const logId = await createSyncLog('entity', 'assets');
-
-  try {
-    const apiToken = getSharedApiKey();
-    console.log('[Sync] Starting asset sync with batch processing...');
-
-    let page = 1;
-    const pageSize = 25;
-    let totalPages = 1;
-    const BATCH_SIZE = 100;
-    let pendingAssets: RepairShoprAsset[] = [];
-
-    // Helper to upsert a batch
-    const upsertBatch = async (assets: RepairShoprAsset[]) => {
-      if (assets.length === 0) return;
-
-      const locationIds = await Promise.all(
-        assets.map((a) => resolveLocationId(a.location_id))
-      );
-
-      const records = assets.map((asset, i) => ({
-        repairshopr_id: asset.id,
-        name: asset.name,
-        asset_type_name: asset.asset_type_name || null,
-        customer_id: asset.customer_id,
-        properties: asset.properties || {},
-        location_id: locationIds[i],
-        created_at: asset.created_at,
-        updated_at: asset.updated_at,
-        synced_at: new Date().toISOString(),
-      }));
-
-      const { error } = await supabaseAdmin!.from('rs_assets').upsert(records, { onConflict: 'repairshopr_id' });
-
-      if (error) {
-        result.failed += assets.length;
-        result.errors.push(`Batch upsert failed: ${error.message}`);
-      } else {
-        result.synced += assets.length;
-      }
-    };
-
-    // Stream through pages, processing in batches
-    while (page <= totalPages) {
-      const response = await fetch(
-        `https://${process.env.REPAIRSHOPR_SUBDOMAIN}.repairshopr.com/api/v1/customer_assets?api_key=${encodeURIComponent(apiToken)}&page=${page}&per_page=${pageSize}`
-      );
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch assets page ${page}: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      // RepairShopr returns customer_assets for this endpoint, not assets
-      const assets = data.customer_assets || data.assets || [];
-      const meta = data.meta || {};
-
-      // Update total pages from meta if available
-      if (meta.total_pages) {
-        totalPages = meta.total_pages;
-      } else if (meta.total_entries && assets.length > 0) {
-        totalPages = Math.ceil(meta.total_entries / pageSize);
-      }
-
-      pendingAssets.push(...assets);
-
-      // Log progress every 20 pages
-      if (page % 20 === 0 || page === 1) {
-        console.log(`[Sync] Assets page ${page}/${totalPages}: ${result.synced + pendingAssets.length} processed`);
-      }
-
-      // Upsert when batch is full
-      if (pendingAssets.length >= BATCH_SIZE) {
-        await upsertBatch(pendingAssets);
-        pendingAssets = [];
-      }
-
-      page++;
-
-      // Rate limiting
-      if (page <= totalPages) {
-        await new Promise((resolve) => setTimeout(resolve, 50));
-      }
-    }
-
-    // Upsert any remaining assets
-    if (pendingAssets.length > 0) {
-      await upsertBatch(pendingAssets);
-    }
-
-    result.success = result.failed === 0;
-  } catch (err) {
-    result.errors.push(`Sync failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
-  }
-
-  result.duration = Date.now() - startTime;
-
-  if (logId) {
-    await updateSyncLog(logId, {
-      status: result.success ? 'completed' : 'failed',
-      records_synced: result.synced,
-      records_failed: result.failed,
-      errors: result.errors.length > 0 ? result.errors : null,
-    });
-  }
-
-  console.log(`[Sync] Assets sync complete: ${result.synced} synced, ${result.failed} failed in ${(result.duration / 1000).toFixed(1)}s`);
-  return result;
-}
-
-// =============================================================================
 // Full Sync
 // =============================================================================
 
 /**
  * Run a full sync of all RepairShopr data to Supabase
- * Order: Customers -> Tickets -> Comments -> Assets -> Invoices -> Line Items -> Payments
+ * Order: Customers -> Tickets -> Comments -> Invoices -> Products -> Payments
+ * Note: Assets are NOT synced from RepairShopr. We only push assets TO RepairShopr.
  */
 export async function runFullSync(): Promise<FullSyncResult> {
   const startTime = Date.now();
@@ -1352,32 +1175,29 @@ export async function runFullSync(): Promise<FullSyncResult> {
   const logId = await createSyncLog('full');
 
   // Sync in dependency order
+  // Note: Assets are NOT synced from RepairShopr. We only push assets TO RepairShopr.
   // 1. Customers first (no dependencies)
-  console.log('[Sync] 1/7 Syncing customers...');
+  console.log('[Sync] 1/6 Syncing customers...');
   results.push(await syncAllCustomers());
 
   // 2. Tickets (depends on customers)
-  console.log('[Sync] 2/7 Syncing tickets...');
+  console.log('[Sync] 2/6 Syncing tickets...');
   results.push(await syncAllTickets());
 
   // 3. Ticket comments (depends on tickets)
-  console.log('[Sync] 3/7 Syncing ticket comments...');
+  console.log('[Sync] 3/6 Syncing ticket comments...');
   results.push(await syncAllTicketComments());
 
-  // 4. Assets (depends on customers)
-  console.log('[Sync] 4/7 Syncing assets...');
-  results.push(await syncAllAssets());
-
-  // 5. Invoices (depends on customers, tickets)
-  console.log('[Sync] 5/7 Syncing invoices...');
+  // 4. Invoices (depends on customers, tickets)
+  console.log('[Sync] 4/6 Syncing invoices...');
   results.push(await syncAllInvoices());
 
-  // 6. Products/Inventory (no dependencies)
-  console.log('[Sync] 6/7 Syncing products...');
+  // 5. Products/Inventory (no dependencies)
+  console.log('[Sync] 5/6 Syncing products...');
   results.push(await syncAllProducts());
 
-  // 7. Payments (depends on invoices, customers)
-  console.log('[Sync] 7/7 Syncing payments...');
+  // 6. Payments (depends on invoices, customers)
+  console.log('[Sync] 6/6 Syncing payments...');
   results.push(await syncAllPayments());
 
   const totalSynced = results.reduce((sum, r) => sum + r.synced, 0);

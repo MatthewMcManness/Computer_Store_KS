@@ -285,6 +285,14 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    // Ensure phone numbers are set as mobile for SMS capability
+    // If phone provided but no mobile, copy phone to mobile
+    if (customerData.phone && !customerData.mobile) {
+      customerData.mobile = customerData.phone;
+    }
+    // Always enable SMS for new customers
+    customerData.get_sms = true;
+
     // Step 1: Create customer in RepairShopr
     const client = createRepairShoprClient();
     const customer = await client.createCustomer(apiToken, customerData);

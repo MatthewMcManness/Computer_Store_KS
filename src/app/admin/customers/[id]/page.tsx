@@ -96,6 +96,8 @@ type TabType = 'devices' | 'tickets' | 'invoices' | 'payments';
 const deviceTypes = [
   { value: 'Desktop', label: 'Desktop', icon: '🖥️' },
   { value: 'Laptop', label: 'Laptop', icon: '💻' },
+  { value: 'Server', label: 'Server', icon: '🖧' },
+  { value: 'Parts', label: 'Parts', icon: '📦' },
 ] as const;
 
 const brands = [
@@ -167,7 +169,7 @@ export default function CustomerDetailsPage() {
   const [editingAssetEset, setEditingAssetEset] = useState<EsetStatus>(null);
   const [savingAsset, setSavingAsset] = useState(false);
   const [showAddAsset, setShowAddAsset] = useState(false);
-  const [newDeviceType, setNewDeviceType] = useState<'Desktop' | 'Laptop'>('Desktop');
+  const [newDeviceType, setNewDeviceType] = useState<string>('Desktop');
   const [newBrand, setNewBrand] = useState<Brand | ''>('');
   const [newModel, setNewModel] = useState('');
   const [newAssetPlan, setNewAssetPlan] = useState<ProtectionPlanTier>(null);
@@ -447,23 +449,31 @@ export default function CustomerDetailsPage() {
   };
 
   // Handle device type change - reset model when type changes
-  const handleDeviceTypeChange = (type: 'Desktop' | 'Laptop') => {
+  const handleDeviceTypeChange = (type: string) => {
     setNewDeviceType(type);
     setNewModel('');
   };
 
   // Add a new asset
   const addAsset = async () => {
-    if (!customer || !newBrand) return;
+    if (!customer) return;
 
-    // Require model selection unless it's a custom build
-    if (newBrand !== 'Custom Build' && !newModel) return;
+    const isParts = newDeviceType === 'Parts';
+    // Parts only needs model (used as description), others need brand
+    if (isParts) {
+      if (!newModel.trim()) return;
+    } else {
+      if (!newBrand) return;
+      if (newBrand !== 'Custom Build' && !newModel) return;
+    }
 
     setAddingAsset(true);
     try {
-      // Build device name based on brand and model
+      // Build device name based on type, brand, and model
       let deviceName: string;
-      if (newBrand === 'Custom Build') {
+      if (isParts) {
+        deviceName = newModel.trim();
+      } else if (newBrand === 'Custom Build') {
         deviceName = `Custom Build ${newDeviceType}`;
       } else {
         deviceName = newModel ? `${newBrand} ${newModel}` : newBrand;

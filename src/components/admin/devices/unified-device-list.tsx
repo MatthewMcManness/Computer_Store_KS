@@ -42,7 +42,7 @@ interface UnifiedDeviceListProps {
 
 type StatusFilter = 'all' | 'online' | 'offline';
 type TierFilter = 'all' | 'eset' | 'silver' | 'silver-plus' | 'unmanaged';
-type DeviceTypeFilter = 'all' | 'Desktop' | 'Laptop' | 'Server';
+type DeviceTypeFilter = 'all' | 'Desktop' | 'Laptop' | 'Server' | 'Parts';
 
 /**
  * Displays a list of unified devices with search and filter capabilities.
@@ -337,6 +337,7 @@ export function UnifiedDeviceList({
                 { value: 'Desktop' as const, label: 'Desktop' },
                 { value: 'Laptop' as const, label: 'Laptop' },
                 { value: 'Server' as const, label: 'Server' },
+                { value: 'Parts' as const, label: 'Parts' },
               ].map((option) => (
                 <button
                   key={option.value}

@@ -24,6 +24,8 @@ interface DeviceType {
 const deviceTypes: DeviceType[] = [
   { value: 'Desktop', label: 'Desktop', icon: '🖥️' },
   { value: 'Laptop', label: 'Laptop', icon: '💻' },
+  { value: 'Server', label: 'Server', icon: '🖧' },
+  { value: 'Parts', label: 'Parts', icon: '📦' },
 ];
 
 // =============================================================================
@@ -191,9 +193,10 @@ export function DeviceStep({ customer, onSelectDevice, onBack }: DeviceStepProps
   const [error, setError] = useState<string | null>(null);
 
   // Form state
-  const [deviceType, setDeviceType] = useState<'Desktop' | 'Laptop'>('Desktop');
+  const [deviceType, setDeviceType] = useState<string>('Desktop');
   const [brand, setBrand] = useState<Brand | ''>('');
   const [model, setModel] = useState('');
+  const [partsDescription, setPartsDescription] = useState('');
 
   // Get available models based on device type and brand
   const getAvailableModels = (): string[] => {
@@ -208,9 +211,10 @@ export function DeviceStep({ customer, onSelectDevice, onBack }: DeviceStepProps
     setModel(''); // Reset model when brand changes
   };
 
-  const handleDeviceTypeChange = (newType: 'Desktop' | 'Laptop') => {
+  const handleDeviceTypeChange = (newType: string) => {
     setDeviceType(newType);
-    setModel(''); // Reset model when device type changes
+    setModel('');
+    setPartsDescription('');
   };
 
   const isCustomBuild = brand === 'Custom Build';
@@ -259,9 +263,12 @@ export function DeviceStep({ customer, onSelectDevice, onBack }: DeviceStepProps
     setCreating(true);
 
     try {
-      // Build device name based on brand and model
+      // Build device name based on type, brand, and model
+      const isParts = deviceType === 'Parts';
       let deviceName: string;
-      if (isCustomBuild) {
+      if (isParts) {
+        deviceName = partsDescription.trim() || 'Parts';
+      } else if (isCustomBuild) {
         deviceName = `Custom Build ${deviceType}`;
       } else {
         deviceName = model ? `${brand} ${model}` : brand;
@@ -274,8 +281,8 @@ export function DeviceStep({ customer, onSelectDevice, onBack }: DeviceStepProps
           name: deviceName,
           customer_id: customer.id,
           device_type: deviceType,
-          manufacturer: isCustomBuild ? 'Custom Build' : brand || undefined,
-          model: isCustomBuild ? undefined : model || undefined,
+          manufacturer: isParts ? undefined : isCustomBuild ? 'Custom Build' : brand || undefined,
+          model: (isParts || isCustomBuild) ? undefined : model || undefined,
         }),
       });
 
@@ -303,11 +310,13 @@ export function DeviceStep({ customer, onSelectDevice, onBack }: DeviceStepProps
     setDeviceType('Desktop');
     setBrand('');
     setModel('');
+    setPartsDescription('');
     setError(null);
   };
 
   // Check if form is valid for submission
   const isFormValid = (): boolean => {
+    if (deviceType === 'Parts') return !!partsDescription.trim();
     if (!brand) return false;
     if (isCustomBuild) return true; // Custom build doesn't need model
     if (!model) return false;
@@ -418,7 +427,7 @@ export function DeviceStep({ customer, onSelectDevice, onBack }: DeviceStepProps
             <select
               id="deviceType"
               value={deviceType}
-              onChange={(e) => handleDeviceTypeChange(e.target.value as 'Desktop' | 'Laptop')}
+              onChange={(e) => handleDeviceTypeChange(e.target.value)}
               required
               className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
@@ -430,62 +439,85 @@ export function DeviceStep({ customer, onSelectDevice, onBack }: DeviceStepProps
             </select>
           </div>
 
-          {/* Brand */}
-          <div>
-            <label htmlFor="brand" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Brand <span className="text-red-500">*</span>
-            </label>
-            <select
-              id="brand"
-              value={brand}
-              onChange={(e) => handleBrandChange(e.target.value as Brand | '')}
-              required
-              className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Select a brand...</option>
-              {brands.map((b) => (
-                <option key={b} value={b}>
-                  {b}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Model - only show if brand is selected and not Custom Build */}
-          {brand && !isCustomBuild && (
+          {/* Parts: description field instead of brand/model */}
+          {deviceType === 'Parts' ? (
             <div>
-              <label htmlFor="model" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Model <span className="text-red-500">*</span>
+              <label htmlFor="partsDescription" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Description <span className="text-red-500">*</span>
               </label>
-              {availableModels.length > 0 ? (
+              <input
+                type="text"
+                id="partsDescription"
+                value={partsDescription}
+                onChange={(e) => setPartsDescription(e.target.value)}
+                placeholder="e.g., CPU, GPU, and 2 RAM sticks"
+                required
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                Describe the parts being brought in for service
+              </p>
+            </div>
+          ) : (
+            <>
+              {/* Brand */}
+              <div>
+                <label htmlFor="brand" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Brand <span className="text-red-500">*</span>
+                </label>
                 <select
-                  id="model"
-                  value={model}
-                  onChange={(e) => setModel(e.target.value)}
+                  id="brand"
+                  value={brand}
+                  onChange={(e) => handleBrandChange(e.target.value as Brand | '')}
                   required
                   className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="">Select a model...</option>
-                  {availableModels.map((m) => (
-                    <option key={m} value={m}>
-                      {m}
+                  <option value="">Select a brand...</option>
+                  {brands.map((b) => (
+                    <option key={b} value={b}>
+                      {b}
                     </option>
                   ))}
                 </select>
-              ) : (
-                <p className="rounded-lg border border-amber-200 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/30 px-4 py-2 text-sm text-amber-800 dark:text-amber-300">
-                  No {deviceType.toLowerCase()} models available for {brand}.
-                  Please select a different brand or device type.
-                </p>
-              )}
-            </div>
-          )}
+              </div>
 
-          {/* Custom Build notice */}
-          {isCustomBuild && (
-            <div className="rounded-lg border border-green-200 dark:border-green-700 bg-green-50 dark:bg-green-900/30 px-4 py-3 text-sm text-green-800 dark:text-green-300">
-              Custom Build selected - no model needed.
-            </div>
+              {/* Model - only show if brand is selected and not Custom Build */}
+              {brand && !isCustomBuild && (
+                <div>
+                  <label htmlFor="model" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Model <span className="text-red-500">*</span>
+                  </label>
+                  {availableModels.length > 0 ? (
+                    <select
+                      id="model"
+                      value={model}
+                      onChange={(e) => setModel(e.target.value)}
+                      required
+                      className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">Select a model...</option>
+                      {availableModels.map((m) => (
+                        <option key={m} value={m}>
+                          {m}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <p className="rounded-lg border border-amber-200 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/30 px-4 py-2 text-sm text-amber-800 dark:text-amber-300">
+                      No {deviceType.toLowerCase()} models available for {brand}.
+                      Please select a different brand or device type.
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* Custom Build notice */}
+              {isCustomBuild && (
+                <div className="rounded-lg border border-green-200 dark:border-green-700 bg-green-50 dark:bg-green-900/30 px-4 py-3 text-sm text-green-800 dark:text-green-300">
+                  Custom Build selected - no model needed.
+                </div>
+              )}
+            </>
           )}
 
           {/* Form buttons */}

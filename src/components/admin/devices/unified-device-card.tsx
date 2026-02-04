@@ -5,6 +5,7 @@ import {
   Monitor,
   Laptop,
   Server,
+  Package,
   Wifi,
   WifiOff,
   Circle,
@@ -43,6 +44,8 @@ function getDeviceIcon(deviceType?: string) {
       return <Monitor className={iconClass} />;
     case 'server':
       return <Server className={iconClass} />;
+    case 'parts':
+      return <Package className={iconClass} />;
     case 'laptop':
     default:
       return <Laptop className={iconClass} />;

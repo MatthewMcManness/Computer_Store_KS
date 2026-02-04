@@ -5,6 +5,7 @@ import {
   Monitor,
   Laptop,
   Server,
+  Package,
   Loader2,
   Save,
   X,
@@ -39,6 +40,7 @@ const deviceTypes = [
   { value: 'Desktop', label: 'Desktop', icon: Monitor },
   { value: 'Laptop', label: 'Laptop', icon: Laptop },
   { value: 'Server', label: 'Server', icon: Server },
+  { value: 'Parts', label: 'Parts', icon: Package },
 ] as const;
 
 /**
@@ -160,6 +162,7 @@ export function DeviceForm({
     device?.protection_tier || null
   );
   const [notes, setNotes] = useState(device?.notes || '');
+  const [partsDescription, setPartsDescription] = useState('');
   // For edit mode, allow editing the name directly
   const [editName, setEditName] = useState(device?.name || '');
 
@@ -167,6 +170,7 @@ export function DeviceForm({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const isParts = deviceType === 'Parts';
   const isCustomBuild = manufacturer === 'Custom Build';
   const isOtherBrand = manufacturer === 'Other';
 
@@ -179,8 +183,9 @@ export function DeviceForm({
 
   const availableModels = getAvailableModels();
 
-  // Build the device name from brand + model
+  // Build the device name from brand + model (or description for Parts)
   const buildDeviceName = (): string => {
+    if (isParts) return partsDescription.trim() || 'Parts';
     if (isCustomBuild) return `Custom Build ${deviceType}`;
     if (isOtherBrand) return model ? `Other ${model}` : 'Other';
     if (!manufacturer) return '';
@@ -196,6 +201,7 @@ export function DeviceForm({
   const handleDeviceTypeChange = (newType: string) => {
     setDeviceType(newType);
     setModel('');
+    setPartsDescription('');
   };
 
   // Reset form when device changes (edit mode)
@@ -215,6 +221,7 @@ export function DeviceForm({
   // Check if form is valid
   const isFormValid = (): boolean => {
     if (isEdit) return !!editName.trim();
+    if (isParts) return !!partsDescription.trim();
     if (!manufacturer) return false;
     if (isCustomBuild || isOtherBrand) return true;
     if (!model) return false;
@@ -245,8 +252,8 @@ export function DeviceForm({
         name: deviceName,
         device_type: deviceType,
         serial_number: serialNumber.trim() || undefined,
-        manufacturer: isCustomBuild ? 'Custom Build' : manufacturer || undefined,
-        model: (isCustomBuild ? undefined : model.trim()) || undefined,
+        manufacturer: isParts ? undefined : isCustomBuild ? 'Custom Build' : manufacturer || undefined,
+        model: (isParts || isCustomBuild ? undefined : model.trim()) || undefined,
         os: os.trim() || undefined,
         protection_tier: protectionTier,
         notes: notes.trim() || undefined,
@@ -347,6 +354,24 @@ export function DeviceForm({
             required
             className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-gray-900 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
           />
+        </div>
+      ) : isParts ? (
+        /* Parts: free-text description instead of brand/model */
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Description *
+          </label>
+          <input
+            type="text"
+            value={partsDescription}
+            onChange={(e) => setPartsDescription(e.target.value)}
+            placeholder="e.g., CPU, GPU, and 2 RAM sticks"
+            required
+            className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-gray-900 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          />
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            Describe the parts being brought in for service
+          </p>
         </div>
       ) : (
         <>

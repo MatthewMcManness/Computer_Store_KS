@@ -534,7 +534,7 @@ header nav ul .nav-action.silver a:hover::before {
   flex-direction: column;
   align-items: center;
   background: linear-gradient(165deg, #f0f0f0 0%, #d8d8d8 20%, #e8e8e8 40%, #c0c0c0 60%, #d0d0d0 80%, #e0e0e0 100%);
-  padding: 2rem 3rem 1.5rem;
+  padding: 2rem 3rem;
   border-radius: 20px;
   box-shadow:
     0 8px 32px rgba(0, 0, 0, 0.3),
@@ -562,7 +562,6 @@ header nav ul .nav-action.silver a:hover::before {
   max-width: 350px;
   width: 100%;
   filter: drop-shadow(1px 1px 0 rgba(255,255,255,0.5)) drop-shadow(-1px -1px 0 rgba(0,0,0,0.15));
-  margin-bottom: 0.75rem;
 }
 
 .hero .plaque-text {

@@ -66,10 +66,11 @@ export default function CustomerPortalPage() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3">
             <Image
-              src="/assets/title.png"
+              src="/assets/csk-logo.svg"
               alt="Computer Store KS"
-              width={200}
-              height={45}
+              width={504}
+              height={227}
+              style={{ height: '45px', width: 'auto' }}
               className="brightness-0 invert"
             />
           </div>

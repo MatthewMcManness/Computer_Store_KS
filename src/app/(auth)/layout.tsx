@@ -24,11 +24,12 @@ export default function AuthLayout({
         <div className="mb-8 flex justify-center">
           <Link href="/" aria-label="Go to homepage">
             <Image
-              src="/assets/title.png"
+              src="/assets/csk-logo.svg"
               alt="Computer Store KS"
-              width={280}
-              height={60}
+              width={504}
+              height={227}
               priority
+              style={{ height: '60px', width: 'auto' }}
             />
           </Link>
         </div>

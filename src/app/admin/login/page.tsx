@@ -131,11 +131,12 @@ export default function AdminLoginPage() {
         {/* Header - Logo only */}
         <div className="mb-8 flex justify-center">
           <Image
-            src="/assets/title.png"
+            src="/assets/csk-logo.svg"
             alt="Computer Store KS"
-            width={280}
-            height={60}
+            width={504}
+            height={227}
             priority
+            style={{ height: '60px', width: 'auto' }}
           />
         </div>
 

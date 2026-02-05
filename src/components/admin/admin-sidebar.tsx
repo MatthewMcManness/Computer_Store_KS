@@ -445,7 +445,7 @@ export function AdminSidebar({
           >
             <div className={cn('flex items-center gap-3', isCollapsed && 'justify-center')}>
               <NextImage
-                src="/assets/logo.png"
+                src="/assets/csk-icon.svg"
                 alt="Computer Store KS logo"
                 width={32}
                 height={32}

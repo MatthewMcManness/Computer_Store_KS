@@ -78,8 +78,8 @@ export default function PublicLayout({
             ],
             priceRange: '$',
             paymentAccepted: ['Cash', 'Credit Card'],
-            image: 'https://computerstoreks.com/assets/title.png',
-            logo: 'https://computerstoreks.com/assets/logo.png',
+            image: 'https://computerstoreks.com/assets/csk-logo.svg',
+            logo: 'https://computerstoreks.com/assets/csk-icon.svg',
           }),
         }}
       />

@@ -225,7 +225,7 @@ export default function GalleryPage() {
                     className="masonry-image"
                     onLoad={() => handleImageLoad(photo.id)}
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/assets/logo.png';
+                      (e.target as HTMLImageElement).src = '/assets/csk-icon.svg';
                       handleImageLoad(photo.id);
                     }}
                   />

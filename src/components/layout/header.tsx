@@ -40,7 +40,7 @@ export function Header({ className }: HeaderProps) {
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
             <Image
-              src="/logo.png"
+              src="/assets/csk-icon.svg"
               alt={BUSINESS_INFO.name}
               width={40}
               height={40}

@@ -74,10 +74,10 @@ export function Header() {
         <h1 className="logo">
           <Link href="/">
             <Image
-              src="/assets/title.png"
+              src="/assets/csk-logo.svg"
               alt="Computer Store Kansas"
-              width={512}
-              height={236}
+              width={504}
+              height={227}
               priority
               style={{ height: '48px', width: 'auto' }}
             />

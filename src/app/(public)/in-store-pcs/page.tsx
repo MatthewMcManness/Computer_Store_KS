@@ -47,7 +47,7 @@ function transformComputer(computer: GalleryComputer): GalleryItem {
     type: computer.type,
     price,
     salePrice,
-    imageUrl: computer.image || '/assets/logo.png',
+    imageUrl: computer.image || '/assets/csk-icon.svg',
     thumbnailUrl: computer.thumbnail || undefined,
     specs: computer.specs || [],
     isBlackFridaySale: computer.blackFriday?.enabled || false,
@@ -335,7 +335,7 @@ function GalleryContent() {
                       className="gallery-row-img"
                       onLoad={() => handleImageLoad(item.id)}
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = '/assets/logo.png';
+                        (e.target as HTMLImageElement).src = '/assets/csk-icon.svg';
                         handleImageLoad(item.id);
                       }}
                     />

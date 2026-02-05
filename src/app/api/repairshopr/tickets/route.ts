@@ -207,8 +207,10 @@ export async function GET(request: NextRequest) {
     );
 
     if (isCustomStatus && supabaseAdmin) {
-      // Filter by custom status via Supabase ticket_status_overrides
-      // First, get all ticket IDs with this custom status
+      // Filter by custom status via Supabase - query rs_tickets directly
+      // This is more reliable than RepairShopr API which excludes resolved tickets
+
+      // Step 1: Get ticket IDs with the matching custom status
       const { data: overrides, error: overrideError } = await supabaseAdmin
         .from('ticket_status_overrides')
         .select('repairshopr_ticket_id')
@@ -227,47 +229,64 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ tickets: [] });
       }
 
-      // Get the ticket IDs
-      const ticketIds = new Set(overrides.map((o) => o.repairshopr_ticket_id));
+      const ticketIds = overrides.map((o) => o.repairshopr_ticket_id);
 
-      // Fetch tickets from RepairShopr (without status filter, we'll filter ourselves)
-      // Fetch multiple pages to ensure we get all matching tickets
-      const allTickets: unknown[] = [];
-      let currentPage = 1;
-      const maxPages = 5; // Limit to prevent infinite loops
+      // Step 2: Query rs_tickets for those ticket IDs
+      let ticketQuery = supabaseAdmin
+        .from('rs_tickets')
+        .select(`
+          repairshopr_id,
+          number,
+          subject,
+          status,
+          problem_type,
+          customer_id,
+          customer_business_then_name,
+          created_at,
+          updated_at,
+          asset_ids,
+          location_id
+        `)
+        .in('repairshopr_id', ticketIds);
 
-      while (currentPage <= maxPages) {
-        const pageTickets = await client.searchTickets(apiToken, {
-          query,
-          customer_id: customerId ? parseInt(customerId, 10) : undefined,
-          page: currentPage,
-        });
-
-        if (!pageTickets || pageTickets.length === 0) {
-          break;
-        }
-
-        // Filter to only tickets with matching custom status
-        const matchingTickets = pageTickets.filter(
-          (ticket: { id: number }) => ticketIds.has(ticket.id)
-        );
-        allTickets.push(...matchingTickets);
-
-        // If we have enough tickets or no more pages, stop
-        if (pageTickets.length < 25 || allTickets.length >= 50) {
-          break;
-        }
-
-        currentPage++;
+      // Apply location filter if needed
+      if (effectiveLocationId) {
+        ticketQuery = ticketQuery.eq('location_id', effectiveLocationId);
       }
 
-      // Filter tickets by location
-      const filteredTickets = await filterTicketsByLocation(
-        allTickets as Array<{ id: number; customer_id?: number; [key: string]: unknown }>,
-        effectiveLocationId
-      );
+      // Apply customer filter if provided
+      if (customerId) {
+        ticketQuery = ticketQuery.eq('customer_id', parseInt(customerId, 10));
+      }
 
-      return NextResponse.json({ tickets: filteredTickets });
+      // Order by created_at desc (most recent first)
+      ticketQuery = ticketQuery.order('created_at', { ascending: false }).limit(100);
+
+      const { data: tickets, error: ticketError } = await ticketQuery;
+
+      if (ticketError) {
+        console.error('[API] Failed to fetch tickets by custom status:', ticketError);
+        return NextResponse.json(
+          { error: 'Failed to filter by status' },
+          { status: 500 }
+        );
+      }
+
+      // Transform to match expected format (id instead of repairshopr_id)
+      const formattedTickets = (tickets || []).map((t) => ({
+        id: t.repairshopr_id,
+        number: t.number,
+        subject: t.subject,
+        status: t.status,
+        problem_type: t.problem_type,
+        customer_id: t.customer_id,
+        customer_business_then_name: t.customer_business_then_name,
+        created_at: t.created_at,
+        updated_at: t.updated_at,
+        asset_ids: t.asset_ids,
+      }));
+
+      return NextResponse.json({ tickets: formattedTickets });
     }
 
     // For RepairShopr statuses or no status filter, pass directly to API

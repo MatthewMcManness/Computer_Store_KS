@@ -463,6 +463,18 @@ export default function TicketDetailPage() {
     return new Date(dateString).toLocaleString();
   };
 
+  /**
+   * Strip HTML tags from text content.
+   * Used for customer SMS replies which often come wrapped in HTML from RepairShopr.
+   */
+  const stripHtml = (html: string): string => {
+    if (!html) return '';
+    // Create a temporary div to parse HTML and extract text content
+    // This handles entities like &nbsp; correctly
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    return doc.body.textContent || '';
+  };
+
   const getMergedNotes = (): UnifiedNote[] => {
     const notes: UnifiedNote[] = [];
     const publicNoteContents = new Set(publicNotes.map((n) => n.content.trim()));
@@ -900,7 +912,7 @@ export default function TicketDetailPage() {
                           </div>
                         </div>
                         <p className="whitespace-pre-wrap text-sm text-gray-700 dark:text-gray-300">
-                          {note.body}
+                          {note.type === 'customer' ? stripHtml(note.body) : note.body}
                         </p>
                       </div>
                     );

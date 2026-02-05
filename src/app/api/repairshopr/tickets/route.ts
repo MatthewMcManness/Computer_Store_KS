@@ -255,8 +255,8 @@ export async function GET(request: NextRequest) {
         `)
         .in('repairshopr_id', ticketIds);
 
-      // Apply location filter if needed
-      if (effectiveLocationId) {
+      // Apply location filter if needed (skip for completed tickets - they're historical)
+      if (effectiveLocationId && status !== 'completed') {
         ticketQuery = ticketQuery.eq('location_id', effectiveLocationId);
       }
 

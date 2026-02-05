@@ -18,8 +18,13 @@ export const dynamic = 'force-dynamic';
 /**
  * POST /api/admin/fix-ticket-locations
  *
- * Gets all tickets from ticket_status_overrides, fetches their location from
+ * Gets tickets from ticket_status_overrides, fetches their location from
  * RepairShopr, and updates rs_tickets with the correct location_id.
+ *
+ * Query params:
+ * - status: Filter to only fix tickets with this custom_status (e.g., 'completed')
+ *
+ * @version 3.0.0 - 2026-02-05T22:00:00Z - Added status filter for targeted fixes
  */
 export async function POST(request: NextRequest) {
   try {
@@ -57,12 +62,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get all ticket IDs from ticket_status_overrides
-    const { data: overrides, error: overrideError } = await supabaseAdmin
+    // Get optional status filter from query params
+    const searchParams = request.nextUrl.searchParams;
+    const statusFilter = searchParams.get('status');
+
+    // Build query for ticket_status_overrides
+    let query = supabaseAdmin
       .from('ticket_status_overrides')
       .select('repairshopr_ticket_id')
-      .order('updated_at', { ascending: false })
-      .limit(500);
+      .order('updated_at', { ascending: false });
+
+    // Apply status filter if provided (much faster for targeted fixes)
+    if (statusFilter) {
+      query = query.eq('custom_status', statusFilter);
+    }
+
+    const { data: overrides, error: overrideError } = await query.limit(500);
 
     if (overrideError) {
       return NextResponse.json(
@@ -72,7 +87,7 @@ export async function POST(request: NextRequest) {
     }
 
     const ticketIds = overrides?.map(o => o.repairshopr_ticket_id) || [];
-    console.log(`[FixLocations] Processing ${ticketIds.length} tickets from overrides`);
+    console.log(`[FixLocations] Processing ${ticketIds.length} tickets${statusFilter ? ` with status '${statusFilter}'` : ''} from overrides`);
 
     const results = {
       processed: 0,

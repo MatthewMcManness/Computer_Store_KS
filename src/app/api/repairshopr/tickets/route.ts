@@ -211,10 +211,14 @@ export async function GET(request: NextRequest) {
       // This is more reliable than RepairShopr API which excludes resolved tickets
 
       // Step 1: Get ticket IDs with the matching custom status
+      // Limit to 200 to avoid query size limits with .in()
+      // Order by updated_at desc to get most recently updated tickets first
       const { data: overrides, error: overrideError } = await supabaseAdmin
         .from('ticket_status_overrides')
         .select('repairshopr_ticket_id')
-        .eq('custom_status', status);
+        .eq('custom_status', status)
+        .order('updated_at', { ascending: false })
+        .limit(200);
 
       if (overrideError) {
         console.error('[API] Failed to fetch status overrides:', overrideError);
@@ -226,10 +230,12 @@ export async function GET(request: NextRequest) {
 
       if (!overrides || overrides.length === 0) {
         // No tickets with this custom status
+        console.log(`[API] No overrides found for custom_status=${status}`);
         return NextResponse.json({ tickets: [] });
       }
 
       const ticketIds = overrides.map((o) => o.repairshopr_ticket_id);
+      console.log(`[API] Found ${ticketIds.length} tickets with custom_status=${status}, effectiveLocationId=${effectiveLocationId}`);
 
       // Step 2: Query rs_tickets for those ticket IDs
       let ticketQuery = supabaseAdmin
@@ -271,6 +277,8 @@ export async function GET(request: NextRequest) {
           { status: 500 }
         );
       }
+
+      console.log(`[API] rs_tickets query returned ${tickets?.length || 0} tickets`);
 
       // Transform to match expected format (id instead of repairshopr_id)
       const formattedTickets = (tickets || []).map((t) => ({

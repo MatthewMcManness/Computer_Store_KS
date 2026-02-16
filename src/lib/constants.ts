@@ -126,8 +126,8 @@ export const LOCATIONS: Record<LocationKey, {
   },
   holton: {
     name: 'Holton',
-    address: '321 Pennsylvania Ave, Holton, KS 66436',
-    addressLine1: '321 Pennsylvania Ave',
+    address: '319 Pennsylvania Ave, Holton, KS 66436',
+    addressLine1: '319 Pennsylvania Ave',
     city: 'Holton',
     state: 'KS',
     zip: '66436',
@@ -139,7 +139,7 @@ export const LOCATIONS: Record<LocationKey, {
       'Sunday: Closed',
     ],
     geo: { latitude: 39.4653, longitude: -95.7362 },
-    mapsEmbed: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3084.0!2d-95.7362!3d39.4653!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2s321%20Pennsylvania%20Ave%2C%20Holton%2C%20KS%2066436!5e0!3m2!1sen!2sus!4v1701417600000',
+    mapsEmbed: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3084.0!2d-95.7362!3d39.4653!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2s319%20Pennsylvania%20Ave%2C%20Holton%2C%20KS%2066436!5e0!3m2!1sen!2sus!4v1701417600000',
   },
 } as const;
 

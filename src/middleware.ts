@@ -46,6 +46,7 @@ const PUBLIC_ROUTES = [
   '/reviews',
   '/silver-plan',
   '/why-linux',
+  '/store',
 ];
 
 /**
@@ -54,10 +55,18 @@ const PUBLIC_ROUTES = [
 const PUBLIC_PREFIXES = [
   '/services',
   '/blog',
+  '/store/products',
+  '/store/cart',
+  '/store/checkout',
+  '/store/orders',
   '/api/public',
   '/api/contact',
   '/api/health',
   '/api/recurring-checklist',
+  '/api/store/products',
+  '/api/store/categories',
+  '/api/store/cart/validate',
+  '/api/webhooks/stripe',
   '/auth/callback',
   '/_next',
   '/static',
@@ -609,6 +618,25 @@ export async function middleware(request: NextRequest) {
   if (isAuthRoute(pathname) && isAuthenticated) {
     const redirectUrl = getRoleRedirectUrl(userRoles);
     return NextResponse.redirect(new URL(redirectUrl, request.url));
+  }
+
+  // Store account pages and authenticated store API routes require customer login
+  if (
+    pathname.startsWith('/store/account') ||
+    (pathname.startsWith('/api/store/cart') && !pathname.startsWith('/api/store/cart/validate')) ||
+    pathname.startsWith('/api/store/wishlist') ||
+    pathname.startsWith('/api/store/addresses') ||
+    pathname.startsWith('/api/store/orders')
+  ) {
+    if (!isAuthenticated) {
+      if (pathname.startsWith('/api/')) {
+        return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+      }
+      const loginUrl = new URL('/login', request.url);
+      loginUrl.searchParams.set('returnTo', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+    return response;
   }
 
   // Check if route requires authentication using new multi-role permission system

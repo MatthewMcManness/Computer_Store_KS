@@ -3,6 +3,7 @@ import { Header } from '@/components/static/Header';
 import { Footer } from '@/components/static/Footer';
 import { MobileCallButton } from '@/components/ui/mobile-call-button';
 import { ChatWidget } from '@/components/ui/chat-widget';
+import { CartProvider } from '@/components/store/cart-provider';
 import Script from 'next/script';
 
 // Force dynamic rendering for all public pages (avoid prerendering issues with client hooks)
@@ -14,7 +15,7 @@ export default function PublicLayout({
   children: React.ReactNode;
 }) {
   return (
-    <>
+    <CartProvider>
       <Script
         src="https://www.googletagmanager.com/gtag/js?id=G-EQ3ML3VTCZ"
         strategy="afterInteractive"
@@ -83,6 +84,6 @@ export default function PublicLayout({
           }),
         }}
       />
-    </>
+    </CartProvider>
   );
 }

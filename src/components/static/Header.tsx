@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { CartIcon } from '@/components/store/cart-icon';
 
 const serviceLinks = [
   { href: '/services/custom-computers', label: 'Custom-Built PCs', className: 'featured' },
@@ -67,6 +68,7 @@ export function Header() {
 
   const isActive = (path: string) => pathname === path;
   const isServicesActive = pathname?.startsWith('/services') || pathname === '/why-linux' || pathname === '/silver-plan';
+  const isStoreActive = pathname?.startsWith('/store');
 
   return (
     <header className={isScrolled ? 'scrolled' : ''}>
@@ -79,7 +81,7 @@ export function Header() {
               width={504}
               height={227}
               priority
-              style={{ height: '48px', width: 'auto' }}
+              style={{ height: '40px', width: 'auto' }}
             />
           </Link>
         </h1>
@@ -157,6 +159,16 @@ export function Header() {
                 Contact
               </Link>
             </li>
+            <li>
+              <Link className={`nav-link ${isStoreActive ? 'active' : ''}`} href="/store">
+                Shop
+              </Link>
+            </li>
+            {isStoreActive && (
+              <li style={{ marginLeft: '0.25rem' }}>
+                <CartIcon />
+              </li>
+            )}
             <li className="nav-action primary">
               <Link className="nav-link" href="/login">
                 Login

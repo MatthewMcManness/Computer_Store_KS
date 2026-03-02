@@ -61,7 +61,7 @@ const contactFormSchema = z.object({
     .min(10, 'Message must be at least 10 characters')
     .max(5000, 'Message must be less than 5000 characters')
     .transform((val) => val.trim()),
-  location: z.enum(['Topeka', 'Holton']).optional().default('Topeka'),
+  location: z.enum(['Topeka']).optional().default('Topeka'),
   // Honeypot field - should always be empty
   website: z.string().optional(),
   // Bot protection fields

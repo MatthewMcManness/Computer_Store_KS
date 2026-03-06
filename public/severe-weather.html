@@ -152,8 +152,8 @@
 
   /* EMERGENCY ALERT BANNER */
   @keyframes scrollAlert {
-    0% { transform: translateX(100%); }
-    100% { transform: translateX(-100%); }
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
   }
   .alert-bar {
     position: fixed;
@@ -187,7 +187,7 @@
   .alert-text {
     display: inline-block;
     white-space: nowrap;
-    animation: scrollAlert 18s linear infinite;
+    animation: scrollAlert 55s linear infinite;
   }
 
   /* MAIN CONTENT */
@@ -426,13 +426,10 @@
 
 <!-- Alert Ticker -->
 <div class="alert-bar">
-  <div class="alert-label">⚡ NWS ALERT</div>
+  <div class="alert-label">⚡ NEWS ALERT</div>
   <div class="alert-scroll-wrap">
     <div class="alert-text">
-      TORNADO WATCH IN EFFECT FOR TOPEKA, KS AND SURROUNDING SHAWNEE COUNTY TONIGHT &nbsp;•&nbsp;
-      SEEK SHELTER IMMEDIATELY IF A WARNING IS ISSUED &nbsp;•&nbsp;
-      COMPUTER STORE KANSAS — 2008 SW GAGE BLVD, TOPEKA — CALL (785) 267-3223 &nbsp;•&nbsp;
-      PRICES THAT'LL BLOW YOU AWAY — DESKTOPS FROM $329.99 • LAPTOPS FROM $429.99 • MONITORS AS LOW AS $40 • SPEAKERS AS LOW AS $5 &nbsp;•&nbsp;
+      TORNADO WATCH IN EFFECT FOR TOPEKA, KS TONIGHT &nbsp;•&nbsp; SEEK SHELTER IF A WARNING IS ISSUED &nbsp;•&nbsp; COMPUTER STORE KANSAS — 2008 SW GAGE BLVD, TOPEKA — (785) 267-3223 &nbsp;•&nbsp; DESKTOPS FROM $329.99 &nbsp;•&nbsp; LAPTOPS FROM $429.99 &nbsp;•&nbsp; MONITORS FROM $40 &nbsp;•&nbsp; MON–FRI 10AM–6PM &nbsp;•&nbsp; SAT 10AM–2PM &nbsp;•&nbsp; TORNADO WATCH IN EFFECT FOR TOPEKA, KS TONIGHT &nbsp;•&nbsp; SEEK SHELTER IF A WARNING IS ISSUED &nbsp;•&nbsp; COMPUTER STORE KANSAS — 2008 SW GAGE BLVD, TOPEKA — (785) 267-3223 &nbsp;•&nbsp; DESKTOPS FROM $329.99 &nbsp;•&nbsp; LAPTOPS FROM $429.99 &nbsp;•&nbsp; MONITORS FROM $40 &nbsp;•&nbsp; MON–FRI 10AM–6PM &nbsp;•&nbsp; SAT 10AM–2PM &nbsp;•&nbsp;
     </div>
   </div>
 </div>
@@ -472,12 +469,7 @@
       <div class="deal-price">From $40</div>
       <div class="deal-save">&nbsp;</div>
     </div>
-    <div class="deal-card" style="grid-column: 2;">
-      <div class="deal-emoji">🔊</div>
-      <div class="deal-name">Speakers</div>
-      <div class="deal-price">From $5</div>
-      <div class="deal-save">&nbsp;</div>
-    </div>
+
   </div>
 
   <div class="weather-box">

@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Computer Store Kansas - Tornado Sale</title>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Bebas+Neue&family=Barlow+Condensed:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --storm: #0a0d14;
+    --cloud-dark: #1a1f2e;
+    --cloud-mid: #2c3347;
+    --green-warn: #39ff14;
+    --amber-warn: #ffb800;
+    --danger-red: #ff2d2d;
+    --white: #f0f4ff;
+    --teal: #00d4ff;
+  }
+
+  body {
+    background: var(--storm);
+    font-family: 'Barlow Condensed', sans-serif;
+    color: var(--white);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Animated sky background */
+  .sky {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at 30% 20%, #1a2a1a 0%, #0a0d14 40%, #050710 100%);
+    z-index: 0;
+  }
+
+  /* Lightning flashes */
+  @keyframes lightning1 {
+    0%, 89%, 91%, 93%, 100% { opacity: 0; }
+    90%, 92% { opacity: 0.15; }
+  }
+  @keyframes lightning2 {
+    0%, 70%, 72%, 100% { opacity: 0; }
+    71% { opacity: 0.1; }
+  }
+  .lightning {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(160deg, #c8e8ff 0%, transparent 60%);
+    animation: lightning1 6s infinite, lightning2 9s infinite 2s;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  /* Tornado spiral */
+  @keyframes spinTornado {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  @keyframes tornadoSway {
+    0%, 100% { left: 75%; }
+    50% { left: 72%; }
+  }
+  .tornado-wrap {
+    position: fixed;
+    bottom: 0;
+    left: 74%;
+    width: 180px;
+    height: 420px;
+    z-index: 2;
+    opacity: 0.35;
+    animation: tornadoSway 4s ease-in-out infinite;
+  }
+  .tornado-funnel {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 80px solid transparent;
+    border-right: 80px solid transparent;
+    border-top: 420px solid rgba(100,120,100,0.5);
+    filter: blur(3px);
+  }
+  .tornado-spin {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 3px solid rgba(150,200,150,0.4);
+    animation: spinTornado 0.8s linear infinite;
+  }
+  .tornado-spin::before {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border-radius: 50%;
+    border: 2px dashed rgba(200,230,200,0.3);
+    animation: spinTornado 0.5s linear infinite reverse;
+  }
+
+  /* Debris particles */
+  @keyframes debris {
+    0% { transform: translateY(0) rotate(0deg) translateX(0); opacity: 1; }
+    100% { transform: translateY(-300px) rotate(720deg) translateX(80px); opacity: 0; }
+  }
+  .debris {
+    position: fixed;
+    bottom: 60px;
+    right: 10%;
+    z-index: 3;
+    pointer-events: none;
+  }
+  .debris span {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: #8a9a80;
+    border-radius: 2px;
+    animation: debris 3s ease-out infinite;
+  }
+  .debris span:nth-child(1) { animation-delay: 0s; right: 0; }
+  .debris span:nth-child(2) { animation-delay: 0.7s; right: 20px; width: 4px; height: 4px; }
+  .debris span:nth-child(3) { animation-delay: 1.4s; right: 40px; width: 8px; height: 3px; }
+  .debris span:nth-child(4) { animation-delay: 2.1s; right: 10px; width: 5px; height: 5px; }
+
+  /* Rain */
+  @keyframes rain {
+    0% { transform: translateY(-100px) translateX(0); opacity: 0.7; }
+    100% { transform: translateY(100vh) translateX(-20px); opacity: 0; }
+  }
+  .rain-wrap {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .rain-drop {
+    position: absolute;
+    width: 1px;
+    height: 14px;
+    background: linear-gradient(to bottom, transparent, rgba(0, 212, 255, 0.4));
+    animation: rain linear infinite;
+  }
+
+  /* EMERGENCY ALERT BANNER */
+  @keyframes scrollAlert {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+  }
+  .alert-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: var(--danger-red);
+    color: #fff;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.15em;
+    padding: 6px 0;
+    z-index: 100;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+  }
+  .alert-label {
+    background: #fff;
+    color: var(--danger-red);
+    padding: 2px 14px;
+    font-weight: 900;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-right: 12px;
+  }
+  .alert-scroll-wrap {
+    overflow: hidden;
+    flex: 1;
+  }
+  .alert-text {
+    display: inline-block;
+    white-space: nowrap;
+    animation: scrollAlert 18s linear infinite;
+  }
+
+  /* MAIN CONTENT */
+  .container {
+    position: relative;
+    z-index: 10;
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 80px 28px 60px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  /* STORE BADGE */
+  .store-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(57,255,20,0.12);
+    border: 1px solid var(--green-warn);
+    border-radius: 4px;
+    padding: 6px 16px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: var(--green-warn);
+    text-transform: uppercase;
+    margin-bottom: 22px;
+    width: fit-content;
+  }
+  .store-badge::before {
+    content: '⚠';
+    font-size: 1rem;
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+  /* HEADLINE */
+  .headline {
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: clamp(3.5rem, 10vw, 7rem);
+    line-height: 0.92;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    margin-bottom: 10px;
+  }
+  .headline .line1 { color: var(--white); }
+  .headline .line2 {
+    color: var(--green-warn);
+    -webkit-text-stroke: 1px rgba(57,255,20,0.4);
+    text-shadow: 0 0 30px rgba(57,255,20,0.5), 0 0 60px rgba(57,255,20,0.2);
+  }
+  .headline .line3 { color: var(--amber-warn); }
+
+  /* SUBHEAD */
+  .subhead {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(1.2rem, 3.5vw, 1.8rem);
+    letter-spacing: 0.12em;
+    color: var(--teal);
+    margin: 18px 0 30px;
+    line-height: 1.4;
+    border-left: 3px solid var(--teal);
+    padding-left: 14px;
+  }
+
+  /* SALE CARDS */
+  .deals-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 28px 0;
+  }
+  .deal-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 18px 14px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s, transform 0.3s;
+  }
+  .deal-card:hover {
+    border-color: var(--green-warn);
+    transform: translateY(-3px);
+  }
+  .deal-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(57,255,20,0.05) 0%, transparent 60%);
+  }
+  .deal-emoji { font-size: 2rem; margin-bottom: 8px; }
+  .deal-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.1em;
+    color: var(--white);
+    margin-bottom: 6px;
+  }
+  .deal-price {
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: 1.6rem;
+    color: var(--green-warn);
+    text-shadow: 0 0 10px rgba(57,255,20,0.5);
+  }
+  .deal-save {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--amber-warn);
+    letter-spacing: 0.1em;
+    margin-top: 4px;
+  }
+
+  /* CTA */
+  .cta-block {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  .cta-btn {
+    background: var(--green-warn);
+    color: #000;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 0.15em;
+    padding: 14px 36px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 0 20px rgba(57,255,20,0.4);
+  }
+  .cta-btn:hover {
+    transform: scale(1.04);
+    box-shadow: 0 0 35px rgba(57,255,20,0.7);
+  }
+  .cta-note {
+    font-size: 0.88rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: rgba(240,244,255,0.55);
+    line-height: 1.5;
+  }
+  .cta-note strong { color: var(--amber-warn); }
+
+  /* STORE INFO */
+  .store-info {
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    font-size: 0.88rem;
+  }
+  .info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .info-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    color: var(--teal);
+    opacity: 0.7;
+  }
+  .info-val {
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: 0.05em;
+    line-height: 1.4;
+  }
+
+  /* WEATHER ALERT BOX */
+  .weather-box {
+    margin-top: 28px;
+    background: rgba(255,45,45,0.08);
+    border: 1px solid rgba(255,45,45,0.35);
+    border-radius: 8px;
+    padding: 16px 20px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .wx-icon { font-size: 2.2rem; flex-shrink: 0; }
+  .wx-text { }
+  .wx-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.15em;
+    color: var(--danger-red);
+    margin-bottom: 4px;
+  }
+  .wx-body {
+    font-size: 0.84rem;
+    color: rgba(240,244,255,0.65);
+    line-height: 1.6;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+  }
+
+  @media (max-width: 540px) {
+    .deals-grid { grid-template-columns: 1fr 1fr; }
+    .store-info { grid-template-columns: 1fr 1fr; }
+    .cta-block { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<div class="sky"></div>
+<div class="lightning"></div>
+
+<!-- Rain drops (generated inline) -->
+<div class="rain-wrap" id="rain"></div>
+
+<!-- Tornado -->
+<div class="tornado-wrap">
+  <div class="tornado-funnel"></div>
+  <div class="tornado-spin"></div>
+</div>
+
+<!-- Debris -->
+<div class="debris">
+  <span></span><span></span><span></span><span></span>
+</div>
+
+<!-- Alert Ticker -->
+<div class="alert-bar">
+  <div class="alert-label">⚡ NWS ALERT</div>
+  <div class="alert-scroll-wrap">
+    <div class="alert-text">
+      TORNADO WATCH IN EFFECT FOR TOPEKA, KS AND SURROUNDING SHAWNEE COUNTY TONIGHT &nbsp;•&nbsp;
+      SEEK SHELTER IMMEDIATELY IF A WARNING IS ISSUED &nbsp;•&nbsp;
+      COMPUTER STORE KANSAS — 2008 SW GAGE BLVD, TOPEKA — CALL (785) 267-3223 &nbsp;•&nbsp;
+      PRICES THAT'LL BLOW YOU AWAY — DESKTOPS FROM $329.99 • LAPTOPS FROM $429.99 • MONITORS AS LOW AS $40 • SPEAKERS AS LOW AS $5 &nbsp;•&nbsp;
+    </div>
+  </div>
+</div>
+
+<!-- MAIN AD CONTENT -->
+<div class="container">
+
+  <div class="store-badge">Computer Store Kansas — Topeka, KS</div>
+
+  <h1 class="headline">
+    <div class="line1">Sales That'll</div>
+    <div class="line2">Blow You</div>
+    <div class="line3">Away.</div>
+  </h1>
+
+  <p class="subhead">
+    Tornado season prices on every machine.<br>
+    Puny deals? Not here. This is the real storm.
+  </p>
+
+  <div class="deals-grid">
+    <div class="deal-card">
+      <div class="deal-emoji">💻</div>
+      <div class="deal-name">Laptops</div>
+      <div class="deal-price">From $429.99</div>
+      <div class="deal-save">VALUES OVER $500</div>
+    </div>
+    <div class="deal-card">
+      <div class="deal-emoji">🖥️</div>
+      <div class="deal-name">Desktops</div>
+      <div class="deal-price">From $329.99</div>
+      <div class="deal-save">VALUES OVER $400</div>
+    </div>
+    <div class="deal-card">
+      <div class="deal-emoji">🖥</div>
+      <div class="deal-name">Monitors</div>
+      <div class="deal-price">From $40</div>
+      <div class="deal-save">&nbsp;</div>
+    </div>
+    <div class="deal-card" style="grid-column: 2;">
+      <div class="deal-emoji">🔊</div>
+      <div class="deal-name">Speakers</div>
+      <div class="deal-price">From $5</div>
+      <div class="deal-save">&nbsp;</div>
+    </div>
+  </div>
+
+  <div class="weather-box">
+    <div class="wx-icon">🌪️</div>
+    <div class="wx-text">
+      <div class="wx-title">⚡ Severe Weather Notice — Topeka, KS — Tonight</div>
+      <div class="wx-body">
+        A Tornado Watch is in effect for the Topeka area tonight. Please stay weather-aware, monitor local alerts,
+        and have a safety plan ready. Our team is monitoring conditions.
+        Stay safe out there, Kansas — then come grab a deal once the skies clear.
+      </div>
+    </div>
+  </div>
+
+  <div class="store-info">
+    <div class="info-item">
+      <span class="info-label">📍 Location</span>
+      <span class="info-val">2008 SW Gage Blvd<br>Topeka, KS</span>
+    </div>
+    <div class="info-item">
+      <span class="info-label">📞 Phone</span>
+      <span class="info-val">(785) 267-3223</span>
+    </div>
+    <div class="info-item">
+      <span class="info-label">🕐 Hours</span>
+      <span class="info-val">Mon–Fri: 10 AM – 6 PM<br>Saturday: 10 AM – 2 PM</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // Generate rain drops
+  const rainWrap = document.getElementById('rain');
+  for (let i = 0; i < 60; i++) {
+    const drop = document.createElement('div');
+    drop.className = 'rain-drop';
+    drop.style.left = Math.random() * 100 + '%';
+    drop.style.animationDuration = (0.6 + Math.random() * 0.8) + 's';
+    drop.style.animationDelay = (Math.random() * 2) + 's';
+    drop.style.height = (10 + Math.random() * 12) + 'px';
+    drop.style.opacity = 0.3 + Math.random() * 0.4;
+    rainWrap.appendChild(drop);
+  }
+</script>
+</body>
+</html>

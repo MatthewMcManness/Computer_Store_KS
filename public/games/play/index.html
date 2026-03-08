@@ -321,8 +321,8 @@
     /* ── FULLSCREEN HINT ────────────────────── */
     #fs-hint {
       position: absolute;
-      top: 12px;
-      right: 12px;
+      bottom: 12px;
+      left: 12px;
       background: rgba(3,102,214,0.85);
       backdrop-filter: blur(6px);
       color: var(--white);
@@ -349,8 +349,8 @@
     /* ── EXIT FULLSCREEN BUTTON ─────────────── */
     #exit-fs-btn {
       position: absolute;
-      top: 12px;
-      right: 12px;
+      bottom: 12px;
+      left: 12px;
       background: rgba(13,27,46,0.85);
       backdrop-filter: blur(6px);
       color: rgba(255,255,255,0.7);
@@ -490,26 +490,33 @@
 
   // ── FULLSCREEN ────────────────────────────────────────────────────
   function goFullscreen() {
-    const el = document.getElementById('app');
+    const el = document.documentElement; // whole browser window
     if (el.requestFullscreen)            el.requestFullscreen();
     else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
     else if (el.mozRequestFullScreen)    el.mozRequestFullScreen();
-    document.body.classList.add('is-fullscreen');
+    else if (el.msRequestFullscreen)     el.msRequestFullscreen();
   }
 
   function exitFullscreen() {
-    if (document.exitFullscreen)            document.exitFullscreen();
-    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-    else if (document.mozCancelFullScreen)  document.mozCancelFullScreen();
-    document.body.classList.remove('is-fullscreen');
+    if (document.exitFullscreen)             document.exitFullscreen();
+    else if (document.webkitExitFullscreen)  document.webkitExitFullscreen();
+    else if (document.mozCancelFullScreen)   document.mozCancelFullScreen();
+    else if (document.msExitFullscreen)      document.msExitFullscreen();
   }
 
-  // Sync class if user presses Escape to exit fullscreen
-  document.addEventListener('fullscreenchange', () => {
-    if (!document.fullscreenElement) {
-      document.body.classList.remove('is-fullscreen');
-    }
-  });
+  // Sync the is-fullscreen class with actual browser fullscreen state
+  document.addEventListener('fullscreenchange',       syncFullscreenClass);
+  document.addEventListener('webkitfullscreenchange', syncFullscreenClass);
+  document.addEventListener('mozfullscreenchange',    syncFullscreenClass);
+
+  function syncFullscreenClass() {
+    const inFS = !!(
+      document.fullscreenElement ||
+      document.webkitFullscreenElement ||
+      document.mozFullScreenElement
+    );
+    document.body.classList.toggle('is-fullscreen', inFS);
+  }
 
   // ── RESTART GAME ─────────────────────────────────────────────────
   function reloadGame() {
@@ -518,14 +525,6 @@
     document.getElementById('loader').style.display = 'flex';
     document.getElementById('loader').classList.remove('fade-out');
   }
-
-  // ── AUTO FULLSCREEN ON LOAD ───────────────────────────────────────
-  // Attempt fullscreen automatically after a short delay
-  window.addEventListener('load', () => {
-    setTimeout(() => {
-      goFullscreen();
-    }, 800);
-  });
 </script>
 
 </body>

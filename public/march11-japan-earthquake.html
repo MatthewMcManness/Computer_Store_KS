@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Day the Earth Shook & the Tech World Froze — Computer Store Kansas</title>
+<meta property="og:title" content="March 11, 2011: The Earthquake That Broke the Global Tech Supply Chain 🌊" />
+<meta property="og:description" content="14 years ago, a 9.0 earthquake hit Japan and sent shockwaves through every computer on Earth. The story — from Computer Store Kansas, Topeka's local tech experts." />
+<meta property="og:url" content="https://computerstoreks.com/march11-japan-earthquake.html" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Computer Store Kansas" />
+<meta property="og:image" content="https://computerstoreks.com/march11-preview.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  html, body, .page { background: #ffffff !important; background-color: #ffffff !important; }
+  html::before, body::before { display: none !important; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    font-family: 'Instrument Sans', sans-serif;
+    color: #0e0e0e;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* TICKER */
+  @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+  .ticker-bar {
+    position: fixed; top: 0; left: 0; right: 0;
+    background: #0e0e0e; padding: 6px 0; z-index: 100;
+    overflow: hidden; display: flex; align-items: center;
+  }
+  .ticker-label {
+    background: #c0392b; color: #fff;
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.2em;
+    text-transform: uppercase; padding: 3px 14px;
+    white-space: nowrap; flex-shrink: 0; margin-right: 16px;
+  }
+  .ticker-scroll { overflow: hidden; flex: 1; }
+  .ticker-text {
+    display: inline-block; white-space: nowrap;
+    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.18em;
+    text-transform: uppercase; color: #d0d8e0;
+    animation: ticker 55s linear infinite;
+  }
+
+  /* PAGE */
+  .page { max-width: 740px; margin: 0 auto; padding: 56px 28px 60px; }
+
+  /* MASTHEAD */
+  .masthead { text-align: center; border-bottom: 3px double #0e0e0e; padding-bottom: 18px; margin-bottom: 24px; }
+  .masthead-store { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.3em; text-transform: uppercase; color: #6b7280; margin-bottom: 6px; }
+  .masthead-title { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 7vw, 3.6rem); font-weight: 900; line-height: 1.05; color: #0e0e0e; }
+  .masthead-title em { font-style: italic; color: #c0392b; }
+  .masthead-date { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: #6b7280; margin-top: 10px; }
+
+  /* ELEMENTS */
+  .rule { border: none; border-top: 1px solid rgba(14,14,14,0.12); margin: 20px 0; }
+  .rule-thick { border: none; border-top: 2px solid #0e0e0e; margin: 24px 0; }
+  .dateline { display: inline-block; background: #c0392b; color: #fff; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; padding: 4px 12px; margin-bottom: 18px; }
+  .lede { font-family: 'Playfair Display', serif; font-size: clamp(1.4rem, 4vw, 2rem); font-weight: 700; line-height: 1.3; color: #0e0e0e; margin-bottom: 16px; }
+  .lede em { font-style: italic; color: #c0392b; }
+  .body-copy { font-size: 1rem; line-height: 1.75; color: #1a1a1a; margin-bottom: 20px; }
+  .body-copy strong { font-weight: 700; color: #0e0e0e; }
+
+  /* PULL QUOTE */
+  .pull-quote { border-left: 4px solid #c0392b; margin: 28px 0; padding: 12px 20px; background: #f2f2f2; }
+  .pull-quote p { font-family: 'Playfair Display', serif; font-size: clamp(1.1rem, 3vw, 1.4rem); font-style: italic; line-height: 1.5; color: #0e0e0e; }
+  .pull-quote cite { display: block; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #6b7280; margin-top: 8px; font-style: normal; }
+
+  /* SECTION HEAD */
+  .section-head { display: flex; align-items: center; gap: 12px; margin: 28px 0 14px; }
+  .section-head-icon { font-size: 1.3rem; flex-shrink: 0; }
+  .section-head-text { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.25em; text-transform: uppercase; color: #0e0e0e; }
+  .section-head::after { content: ''; flex: 1; height: 1px; background: #0e0e0e; opacity: 0.2; }
+
+  /* STAT GRID */
+  .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 16px 0 24px; }
+  .stat-card { background: #0e0e0e; color: #f5f0e8; padding: 16px 14px; position: relative; overflow: hidden; }
+  .stat-card::before { content: ''; position: absolute; top: 0; right: 0; width: 40px; height: 40px; background: #c0392b; opacity: 0.3; }
+  .stat-num { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 900; color: #fff; line-height: 1; margin-bottom: 4px; }
+  .stat-label { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #d0d8e0; line-height: 1.4; }
+
+  /* TIMELINE */
+  .timeline { margin: 16px 0 24px; }
+  .tl-item { display: flex; gap: 14px; padding: 10px 0; border-bottom: 1px solid rgba(14,14,14,0.12); align-items: flex-start; }
+  .tl-item:last-child { border-bottom: none; }
+  .tl-year { font-family: 'Playfair Display', serif; font-size: 0.95rem; font-weight: 700; color: #c0392b; white-space: nowrap; min-width: 44px; padding-top: 1px; }
+  .tl-text { font-size: 0.9rem; line-height: 1.5; color: #1a1a1a; }
+
+  /* SEISMIC WAVE ANIMATION */
+  .quake-display {
+    background: #0e0e0e;
+    margin: 28px 0;
+    padding: 32px 20px;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+  }
+  .quake-display::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 50%, rgba(192,57,43,0.12) 0%, transparent 70%);
+  }
+  .quake-canvas-wrap {
+    position: relative;
+    height: 80px;
+    margin-bottom: 18px;
+    overflow: hidden;
+  }
+  canvas#seismic {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+  }
+  .quake-caption {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.1rem, 3.5vw, 1.6rem);
+    font-weight: 700; color: #fff; line-height: 1.3;
+    position: relative;
+  }
+  .quake-caption em { color: #c0392b; font-style: italic; }
+  .quake-sub { font-size: 0.78rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: #6b7280; margin-top: 8px; position: relative; }
+
+  /* RIPPLE RINGS */
+  @keyframes ripple {
+    0% { transform: scale(0.3); opacity: 0.8; }
+    100% { transform: scale(3); opacity: 0; }
+  }
+  .ripple-wrap {
+    display: flex; justify-content: center;
+    margin: 0 0 16px; position: relative;
+  }
+  .ripple-core {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: #c0392b;
+    position: relative;
+    z-index: 2;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem;
+  }
+  .ring {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 2px solid rgba(192,57,43,0.6);
+    animation: ripple 3s ease-out infinite;
+  }
+  .ring:nth-child(1) { width: 40px; height: 40px; animation-delay: 0s; }
+  .ring:nth-child(2) { width: 40px; height: 40px; animation-delay: 0.8s; }
+  .ring:nth-child(3) { width: 40px; height: 40px; animation-delay: 1.6s; }
+
+  /* CTA SECTION */
+  .store-cta { background: #0e0e0e; margin-top: 32px; border-radius: 4px; overflow: hidden; }
+  .cta-header { padding: 28px 28px 20px; display: flex; align-items: center; gap: 18px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .cta-icon-wrap { width: 60px; height: 60px; border-radius: 14px; background: #1a1a1a; border: 2px solid #333; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; flex-shrink: 0; }
+  .cta-store-name { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.25em; text-transform: uppercase; color: #c0392b; margin-bottom: 5px; }
+  .cta-tagline { font-family: 'Playfair Display', serif; font-size: clamp(1rem, 3vw, 1.35rem); font-weight: 700; color: #ffffff; line-height: 1.3; }
+  .cta-body-text { padding: 20px 28px; font-size: 0.9rem; line-height: 1.75; color: #cccccc; border-left: 3px solid #c0392b; margin: 0 28px; background: rgba(255,255,255,0.02); border-radius: 0 4px 4px 0; }
+  .cta-body-text strong { color: #ffffff; font-weight: 700; }
+  .cta-info-grid { display: grid; grid-template-columns: repeat(3, 1fr); margin: 20px 28px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; overflow: hidden; }
+  .cta-info-cell { padding: 18px 16px; background: #161616; border-right: 1px solid rgba(255,255,255,0.08); }
+  .cta-info-cell:last-child { border-right: none; }
+  .cta-info-cell-icon { font-size: 1.5rem; margin-bottom: 8px; display: block; }
+  .cta-info-cell-label { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #c0392b; margin-bottom: 5px; display: block; }
+  .cta-info-cell-val { font-size: 0.88rem; font-weight: 600; color: #ffffff; line-height: 1.6; }
+  .cta-pills { display: flex; gap: 8px; flex-wrap: wrap; padding: 16px 28px 28px; }
+  .cta-pill { background: rgba(192,57,43,0.15); border: 1px solid rgba(192,57,43,0.35); border-radius: 100px; padding: 6px 16px; font-size: 0.8rem; font-weight: 700; color: #ff9980; white-space: nowrap; }
+
+  @media (max-width: 540px) {
+    .page { padding: 52px 14px 40px; }
+    .stat-grid { grid-template-columns: 1fr 1fr; }
+    .cta-info-grid { grid-template-columns: 1fr; margin: 16px 14px; }
+    .cta-info-cell { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .cta-info-cell:last-child { border-bottom: none; }
+    .cta-header { padding: 20px 14px; }
+    .cta-body-text { margin: 0 14px; }
+    .cta-pills { padding: 14px 14px 24px; }
+  }
+</style>
+</head>
+<body style="background:#ffffff !important;">
+
+<div class="ticker-bar">
+  <div class="ticker-label">🌊 On This Day</div>
+  <div class="ticker-scroll">
+    <div class="ticker-text">
+      MARCH 11, 2011 — A 9.0 EARTHQUAKE STRUCK JAPAN AND SHOOK THE GLOBAL TECH SUPPLY CHAIN &nbsp;•&nbsp; COMPUTER STORE KANSAS — 2008 SW GAGE BLVD, TOPEKA — (785) 267-3223 &nbsp;•&nbsp; DESKTOPS FROM $329.99 &nbsp;•&nbsp; LAPTOPS FROM $429.99 &nbsp;•&nbsp; ALL WINDOWS 11 WITH WARRANTY &nbsp;•&nbsp; MON–FRI 10AM–6PM &nbsp;•&nbsp; SAT 10AM–2PM &nbsp;•&nbsp; MARCH 11, 2011 — A 9.0 EARTHQUAKE STRUCK JAPAN AND SHOOK THE GLOBAL TECH SUPPLY CHAIN &nbsp;•&nbsp; COMPUTER STORE KANSAS — 2008 SW GAGE BLVD, TOPEKA — (785) 267-3223 &nbsp;•&nbsp; DESKTOPS FROM $329.99 &nbsp;•&nbsp; LAPTOPS FROM $429.99 &nbsp;•&nbsp; ALL WINDOWS 11 WITH WARRANTY &nbsp;•&nbsp; MON–FRI 10AM–6PM &nbsp;•&nbsp; SAT 10AM–2PM &nbsp;•&nbsp;
+    </div>
+  </div>
+</div>
+
+<div class="page">
+
+  <div class="masthead">
+    <div class="masthead-store">Computer Store Kansas — Topeka, KS</div>
+    <h1 class="masthead-title">This Day in<br><em>Tech History</em></h1>
+    <div class="masthead-date">March 11, 2025 &nbsp;|&nbsp; Edition No. 3</div>
+  </div>
+
+  <div class="dateline">🌊 14 Years Ago Today</div>
+
+  <p class="lede">On March 11, 2011, a 9.0 magnitude earthquake struck Japan — and sent <em>shockwaves through every computer on Earth.</em></p>
+
+  <p class="body-copy">Most people remember March 11, 2011 as the day a catastrophic earthquake and tsunami devastated Japan's northeastern coast. Nearly 20,000 lives were lost. It was one of the worst natural disasters in modern history.</p>
+
+  <p class="body-copy">But there was another story unfolding simultaneously — one that would affect every tech company, every computer buyer, and every gadget on the planet for the next two years. Japan, it turned out, was not just a country. It was the backbone of the entire global technology supply chain.</p>
+
+  <hr class="rule">
+
+  <div class="section-head"><span class="section-head-icon">🏭</span><span class="section-head-text">What Japan Actually Makes</span></div>
+
+  <p class="body-copy">Japan manufactures components that almost no other country can replicate at scale. At the time of the 2011 disaster, Japan produced <strong>40% of the world's flash memory chips</strong>, used in everything from smartphones to solid-state drives. Toshiba and Elpida — both Japanese — were among the world's largest memory manufacturers.</p>
+
+  <p class="body-copy">Japan also dominated hard drive components. A single province, Ibaraki, supplied the majority of the world's specialty chemicals needed to coat hard drive platters. When the quake hit, those factories went dark — and the ripple effect was immediate.</p>
+
+  <div class="pull-quote">
+    <p>"The disaster in Japan is going to affect the entire technology industry. There's no other way to say it."</p>
+    <cite>— IHS iSuppli analyst, March 2011</cite>
+  </div>
+
+  <div class="section-head"><span class="section-head-icon">📊</span><span class="section-head-text">The Numbers</span></div>
+
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-num">9.0</div><div class="stat-label">Magnitude — one of the most powerful earthquakes ever recorded</div></div>
+    <div class="stat-card"><div class="stat-num">40%</div><div class="stat-label">Of world's flash memory chips made in Japan at the time</div></div>
+    <div class="stat-card"><div class="stat-num">3×</div><div class="stat-label">Hard drive prices tripled within months due to factory shutdowns</div></div>
+    <div class="stat-card"><div class="stat-num">$210B</div><div class="stat-label">Estimated total economic damage from the disaster</div></div>
+  </div>
+
+  <div class="section-head"><span class="section-head-icon">💾</span><span class="section-head-text">The Hard Drive Crisis Nobody Saw Coming</span></div>
+
+  <p class="body-copy">Six months after the quake, a second disaster compounded the damage: massive flooding in Thailand, where many Japanese manufacturers had relocated production. By late 2011, a hard drive that cost $50 in January was selling for <strong>$150 or more</strong> — if you could find one at all.</p>
+
+  <p class="body-copy">PC builders were furious. Gamers scrambled. Businesses couldn't get replacement drives. The shortage lasted well into 2013. It was a brutal lesson in just how fragile global supply chains really are — and how a single earthquake in one country could empty shelves in Topeka, Kansas.</p>
+
+  <!-- SEISMIC ANIMATION -->
+  <div class="quake-display">
+    <div class="ripple-wrap">
+      <div class="ring"></div>
+      <div class="ring"></div>
+      <div class="ring"></div>
+      <div class="ripple-core">🌊</div>
+    </div>
+    <div class="quake-canvas-wrap">
+      <canvas id="seismic"></canvas>
+    </div>
+    <div class="quake-caption">One earthquake. <em>Every computer on Earth felt it.</em></div>
+    <div class="quake-sub">Magnitude 9.0 · March 11, 2011 · Tōhoku, Japan</div>
+  </div>
+
+  <div class="section-head"><span class="section-head-icon">⏱️</span><span class="section-head-text">How It Unfolded</span></div>
+
+  <div class="timeline">
+    <div class="tl-item"><span class="tl-year">Mar 11</span><span class="tl-text">9.0 earthquake strikes at 2:46 PM Japan time. Tsunami waves up to 40 meters high hit the coast. Factories in Ibaraki, Miyagi, and Fukushima go dark.</span></div>
+    <div class="tl-item"><span class="tl-year">Mar 12</span><span class="tl-text">Toshiba, Renesas, and Sony announce factory shutdowns. Analysts begin warning of component shortages. Hard drive futures spike.</span></div>
+    <div class="tl-item"><span class="tl-year">Apr 2011</span><span class="tl-text">Apple quietly contacts suppliers about alternative sources. Nintendo delays product launches. PC makers warn of rising costs.</span></div>
+    <div class="tl-item"><span class="tl-year">Oct 2011</span><span class="tl-text">Floods in Thailand destroy hard drive plants that had relocated from Japan. A 1 TB drive goes from $50 to $150+. The double disaster becomes a full crisis.</span></div>
+    <div class="tl-item"><span class="tl-year">2012</span><span class="tl-text">Hard drive prices remain elevated. Tech companies begin rethinking supply chain geography. The "single source" model starts to crack.</span></div>
+    <div class="tl-item"><span class="tl-year">2013</span><span class="tl-text">Prices finally normalize. The industry emerges with a new obsession: supply chain resilience. Lessons Japan taught the world the hard way.</span></div>
+  </div>
+
+  <div class="section-head"><span class="section-head-icon">🌐</span><span class="section-head-text">The Lesson That Changed Tech Forever</span></div>
+
+  <p class="body-copy">March 11, 2011 didn't just devastate Japan — it rewrote how the technology industry thinks about risk. For decades, companies had pursued "just-in-time" manufacturing: order parts only when you need them, keep no inventory, trust the supply chain to deliver.</p>
+
+  <p class="body-copy">The earthquake exposed the flaw in that logic. When a single factory in a single prefecture made a chemical that coated 90% of the world's hard drive platters, there was no backup plan.</p>
+
+  <p class="body-copy">Today, semiconductor self-sufficiency is a national security priority for the United States, Europe, and China alike. The CHIPS Act, passed in 2022, was partly born from lessons learned on March 11, 2011. Your next laptop may be built with chips made in America — because of an earthquake that hit Japan 14 years ago.</p>
+
+  <div class="pull-quote">
+    <p>"We found out that our supply chain was a single thread — and it ran straight through Japan."</p>
+    <cite>— Anonymous PC Manufacturer Executive, 2012</cite>
+  </div>
+
+  <hr class="rule-thick">
+
+  <div class="store-cta">
+    <div class="cta-header">
+      <div class="cta-icon-wrap">🖥️</div>
+      <div>
+        <div class="cta-store-name">💻 Computer Store Kansas — Topeka, KS</div>
+        <div class="cta-tagline">Supply chains are complicated. Finding a great PC in Topeka doesn't have to be.</div>
+      </div>
+    </div>
+    <div class="cta-body-text">
+      Every machine we sell is in-stock, tested, and ready to go home with you today. No backorders, no supply chain drama. Just solid computers running <strong>Windows 11</strong> with a <strong>warranty included</strong>. Walk-ins always welcome.
+    </div>
+    <div class="cta-info-grid">
+      <div class="cta-info-cell">
+        <span class="cta-info-cell-icon">📍</span>
+        <span class="cta-info-cell-label">Visit Us</span>
+        <div class="cta-info-cell-val">2008 SW Gage Blvd<br>Topeka, KS</div>
+      </div>
+      <div class="cta-info-cell">
+        <span class="cta-info-cell-icon">📞</span>
+        <span class="cta-info-cell-label">Call Us</span>
+        <div class="cta-info-cell-val">(785) 267-3223</div>
+      </div>
+      <div class="cta-info-cell">
+        <span class="cta-info-cell-icon">🕐</span>
+        <span class="cta-info-cell-label">Hours</span>
+        <div class="cta-info-cell-val">Mon–Fri: 10AM–6PM<br>Sat: 10AM–2PM</div>
+      </div>
+    </div>
+    <div class="cta-pills">
+      <span class="cta-pill">✅ Windows 11</span>
+      <span class="cta-pill">🛡️ Warranty Included</span>
+      <span class="cta-pill">🚪 Walk-ins Welcome</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const canvas = document.getElementById('seismic');
+  const ctx = canvas.getContext('2d');
+  let w, h, t = 0;
+
+  function resize() {
+    w = canvas.offsetWidth; h = canvas.offsetHeight;
+    canvas.width = w; canvas.height = h;
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, w, h);
+    ctx.strokeStyle = '#c0392b';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let x = 0; x < w; x++) {
+      const progress = x / w;
+      let y = h / 2;
+      // calm before quake
+      if (progress < 0.3) {
+        y += Math.sin(x * 0.3 + t) * 2;
+      }
+      // quake onset
+      else if (progress < 0.5) {
+        const intensity = (progress - 0.3) / 0.2;
+        y += Math.sin(x * 0.5 + t * 2) * 30 * intensity + Math.sin(x * 1.2 + t * 3) * 15 * intensity;
+      }
+      // peak shaking
+      else if (progress < 0.7) {
+        y += Math.sin(x * 0.8 + t * 3) * 30 + Math.sin(x * 2 + t * 5) * 14 + Math.sin(x * 0.3 + t) * 8;
+      }
+      // aftershocks
+      else {
+        const decay = 1 - (progress - 0.7) / 0.3;
+        y += Math.sin(x * 0.6 + t * 2) * 18 * decay + Math.sin(x * 1.5 + t * 4) * 8 * decay;
+      }
+      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    t += 0.04;
+    requestAnimationFrame(draw);
+  }
+
+  resize();
+  draw();
+  window.addEventListener('resize', () => { resize(); });
+</script>
+</body>
+</html>

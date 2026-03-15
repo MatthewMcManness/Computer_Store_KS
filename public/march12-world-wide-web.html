@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Memo That Became the Internet — Computer Store Kansas</title>
+<meta property="og:title" content="March 12, 1989: The Day One Memo Changed Everything 🌐" />
+<meta property="og:description" content="36 years ago, a scientist handed his boss a two-page memo. His boss called it 'vague but exciting.' That memo became the World Wide Web. The story — from Computer Store Kansas." />
+<meta property="og:url" content="https://computerstoreks.com/march12-world-wide-web.html" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Computer Store Kansas" />
+<meta property="og:image" content="https://computerstoreks.com/march12-preview.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  html, body, .page { background: #ffffff !important; background-color: #ffffff !important; }
+  html::before, body::before { display: none !important; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    font-family: 'Instrument Sans', sans-serif;
+    color: #0e0e0e;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+  .ticker-bar { position: fixed; top: 0; left: 0; right: 0; background: #0e0e0e; padding: 6px 0; z-index: 100; overflow: hidden; display: flex; align-items: center; }
+  .ticker-label { background: #c0392b; color: #fff; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; padding: 3px 14px; white-space: nowrap; flex-shrink: 0; margin-right: 16px; }
+  .ticker-scroll { overflow: hidden; flex: 1; }
+  .ticker-text { display: inline-block; white-space: nowrap; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: #d0d8e0; animation: ticker 55s linear infinite; }
+
+  .page { max-width: 740px; margin: 0 auto; padding: 56px 28px 60px; }
+  .masthead { text-align: center; border-bottom: 3px double #0e0e0e; padding-bottom: 18px; margin-bottom: 24px; }
+  .masthead-store { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.3em; text-transform: uppercase; color: #6b7280; margin-bottom: 6px; }
+  .masthead-title { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 7vw, 3.6rem); font-weight: 900; line-height: 1.05; color: #0e0e0e; }
+  .masthead-title em { font-style: italic; color: #c0392b; }
+  .masthead-date { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: #6b7280; margin-top: 10px; }
+
+  .rule { border: none; border-top: 1px solid rgba(14,14,14,0.12); margin: 20px 0; }
+  .rule-thick { border: none; border-top: 2px solid #0e0e0e; margin: 24px 0; }
+  .dateline { display: inline-block; background: #c0392b; color: #fff; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; padding: 4px 12px; margin-bottom: 18px; }
+  .lede { font-family: 'Playfair Display', serif; font-size: clamp(1.4rem, 4vw, 2rem); font-weight: 700; line-height: 1.3; color: #0e0e0e; margin-bottom: 16px; }
+  .lede em { font-style: italic; color: #c0392b; }
+  .body-copy { font-size: 1rem; line-height: 1.75; color: #1a1a1a; margin-bottom: 20px; }
+  .body-copy strong { font-weight: 700; color: #0e0e0e; }
+
+  .pull-quote { border-left: 4px solid #c0392b; margin: 28px 0; padding: 12px 20px; background: #f2f2f2; }
+  .pull-quote p { font-family: 'Playfair Display', serif; font-size: clamp(1.1rem, 3vw, 1.4rem); font-style: italic; line-height: 1.5; color: #0e0e0e; }
+  .pull-quote cite { display: block; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #6b7280; margin-top: 8px; font-style: normal; }
+
+  .section-head { display: flex; align-items: center; gap: 12px; margin: 28px 0 14px; }
+  .section-head-icon { font-size: 1.3rem; flex-shrink: 0; }
+  .section-head-text { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.25em; text-transform: uppercase; color: #0e0e0e; }
+  .section-head::after { content: ''; flex: 1; height: 1px; background: #0e0e0e; opacity: 0.2; }
+
+  .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 16px 0 24px; }
+  .stat-card { background: #0e0e0e; color: #f5f0e8; padding: 16px 14px; position: relative; overflow: hidden; }
+  .stat-card::before { content: ''; position: absolute; top: 0; right: 0; width: 40px; height: 40px; background: #c0392b; opacity: 0.3; }
+  .stat-num { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 900; color: #fff; line-height: 1; margin-bottom: 4px; }
+  .stat-label { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #d0d8e0; line-height: 1.4; }
+
+  .timeline { margin: 16px 0 24px; }
+  .tl-item { display: flex; gap: 14px; padding: 10px 0; border-bottom: 1px solid rgba(14,14,14,0.12); align-items: flex-start; }
+  .tl-item:last-child { border-bottom: none; }
+  .tl-year { font-family: 'Playfair Display', serif; font-size: 0.95rem; font-weight: 700; color: #c0392b; white-space: nowrap; min-width: 44px; padding-top: 1px; }
+  .tl-text { font-size: 0.9rem; line-height: 1.5; color: #1a1a1a; }
+
+  /* NODE NETWORK ANIMATION */
+  .web-display {
+    background: #0e0e0e;
+    margin: 28px 0;
+    padding: 32px 20px 24px;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+  }
+  .web-display::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 40%, rgba(192,57,43,0.1) 0%, transparent 65%);
+  }
+  .web-canvas-wrap { position: relative; height: 120px; margin-bottom: 16px; }
+  canvas#webnet { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+  .web-caption { font-family: 'Playfair Display', serif; font-size: clamp(1.1rem, 3.5vw, 1.6rem); font-weight: 700; color: #fff; line-height: 1.3; position: relative; }
+  .web-caption em { color: #c0392b; font-style: italic; }
+  .web-sub { font-size: 0.78rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: #6b7280; margin-top: 8px; position: relative; }
+
+  /* CTA */
+  .store-cta { background: #0e0e0e; margin-top: 32px; border-radius: 4px; overflow: hidden; }
+  .cta-header { padding: 28px 28px 20px; display: flex; align-items: center; gap: 18px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .cta-icon-wrap { width: 60px; height: 60px; border-radius: 14px; background: #1a1a1a; border: 2px solid #333; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; flex-shrink: 0; }
+  .cta-store-name { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.25em; text-transform: uppercase; color: #c0392b; margin-bottom: 5px; }
+  .cta-tagline { font-family: 'Playfair Display', serif; font-size: clamp(1rem, 3vw, 1.35rem); font-weight: 700; color: #ffffff; line-height: 1.3; }
+  .cta-body-text { padding: 20px 28px; font-size: 0.9rem; line-height: 1.75; color: #cccccc; border-left: 3px solid #c0392b; margin: 0 28px; background: rgba(255,255,255,0.02); border-radius: 0 4px 4px 0; }
+  .cta-body-text strong { color: #ffffff; font-weight: 700; }
+  .cta-info-grid { display: grid; grid-template-columns: repeat(3, 1fr); margin: 20px 28px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; overflow: hidden; }
+  .cta-info-cell { padding: 18px 16px; background: #161616; border-right: 1px solid rgba(255,255,255,0.08); }
+  .cta-info-cell:last-child { border-right: none; }
+  .cta-info-cell-icon { font-size: 1.5rem; margin-bottom: 8px; display: block; }
+  .cta-info-cell-label { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #c0392b; margin-bottom: 5px; display: block; }
+  .cta-info-cell-val { font-size: 0.88rem; font-weight: 600; color: #ffffff; line-height: 1.6; }
+  .cta-pills { display: flex; gap: 8px; flex-wrap: wrap; padding: 16px 28px 28px; }
+  .cta-pill { background: rgba(192,57,43,0.15); border: 1px solid rgba(192,57,43,0.35); border-radius: 100px; padding: 6px 16px; font-size: 0.8rem; font-weight: 700; color: #ff9980; white-space: nowrap; }
+
+  @media (max-width: 540px) {
+    .page { padding: 52px 14px 40px; }
+    .stat-grid { grid-template-columns: 1fr 1fr; }
+    .cta-info-grid { grid-template-columns: 1fr; margin: 16px 14px; }
+    .cta-info-cell { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .cta-info-cell:last-child { border-bottom: none; }
+    .cta-header { padding: 20px 14px; }
+    .cta-body-text { margin: 0 14px; }
+    .cta-pills { padding: 14px 14px 24px; }
+  }
+</style>
+</head>
+<body style="background:#ffffff !important;">
+
+<div class="ticker-bar">
+  <div class="ticker-label">🌐 On This Day</div>
+  <div class="ticker-scroll">
+    <div class="ticker-text">
+      MARCH 12, 1989 — TIM BERNERS-LEE WROTE THE MEMO THAT BECAME THE WORLD WIDE WEB &nbsp;•&nbsp; COMPUTER STORE KANSAS — 2008 SW GAGE BLVD, TOPEKA — (785) 267-3223 &nbsp;•&nbsp; DESKTOPS FROM $329.99 &nbsp;•&nbsp; LAPTOPS FROM $429.99 &nbsp;•&nbsp; ALL WINDOWS 11 WITH WARRANTY &nbsp;•&nbsp; MON–FRI 10AM–6PM &nbsp;•&nbsp; SAT 10AM–2PM &nbsp;•&nbsp; MARCH 12, 1989 — TIM BERNERS-LEE WROTE THE MEMO THAT BECAME THE WORLD WIDE WEB &nbsp;•&nbsp; COMPUTER STORE KANSAS — 2008 SW GAGE BLVD, TOPEKA — (785) 267-3223 &nbsp;•&nbsp; DESKTOPS FROM $329.99 &nbsp;•&nbsp; LAPTOPS FROM $429.99 &nbsp;•&nbsp; ALL WINDOWS 11 WITH WARRANTY &nbsp;•&nbsp; MON–FRI 10AM–6PM &nbsp;•&nbsp; SAT 10AM–2PM &nbsp;•&nbsp;
+    </div>
+  </div>
+</div>
+
+<div class="page">
+
+  <div class="masthead">
+    <div class="masthead-store">Computer Store Kansas — Topeka, KS</div>
+    <h1 class="masthead-title">This Day in<br><em>Tech History</em></h1>
+    <div class="masthead-date">March 12, 2025 &nbsp;|&nbsp; Edition No. 4</div>
+  </div>
+
+  <div class="dateline">🌐 36 Years Ago Today</div>
+
+  <p class="lede">On March 12, 1989, a scientist handed his boss a two-page memo. His boss called it <em>"vague but exciting."</em></p>
+
+  <p class="body-copy">That memo became the World Wide Web. And with it, every computer on Earth — including the one you're reading this on right now — became something entirely different.</p>
+
+  <p class="body-copy">His name was Tim Berners-Lee. He was 33 years old, working at CERN — the particle physics laboratory in Geneva, Switzerland. His job was to figure out how to get researchers' computers to talk to each other better. What he ended up inventing changed the entire world.</p>
+
+  <hr class="rule">
+
+  <div class="section-head"><span class="section-head-icon">📄</span><span class="section-head-text">The Memo That Nobody Read</span></div>
+
+  <p class="body-copy">The title was modest almost to the point of invisibility: <strong>"Information Management: A Proposal."</strong> Berners-Lee circulated it among colleagues on March 12, 1989. His manager, Mike Sendall, scrawled "vague but exciting" across the cover page and filed it away. Nobody said yes. Nobody said no. Berners-Lee was simply told he could work on it on the side, between other projects.</p>
+
+  <p class="body-copy">He worked on it for two years. By Christmas 1990, he had written the first web browser, the first web server, and defined three technologies that still underpin every website you visit today: <strong>HTML</strong> (how pages are structured), <strong>HTTP</strong> (how they're requested), and the <strong>URL</strong> (how they're addressed).</p>
+
+  <div class="pull-quote">
+    <p>"I just had to take the hypertext idea and connect it to the TCP and DNS ideas and — ta-da! — the World Wide Web."</p>
+    <cite>— Tim Berners-Lee</cite>
+  </div>
+
+  <div class="section-head"><span class="section-head-icon">🎁</span><span class="section-head-text">The Gift He Gave the World for Free</span></div>
+
+  <p class="body-copy">In 1993, CERN made the decision that may be the single most consequential act of generosity in history: they released the World Wide Web software <strong>completely free</strong>, with no royalties, no patents, no licensing fees. Forever.</p>
+
+  <p class="body-copy">Berners-Lee himself refused to patent it or profit from it. He has said repeatedly that had the web been proprietary — owned by a corporation — it would likely have fragmented into competing systems, just as the early online world had with CompuServe, AOL, and Prodigy. Instead, it became the single open platform that connected humanity.</p>
+
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-num">1989</div><div class="stat-label">Year the memo was written — the same year the Berlin Wall fell</div></div>
+    <div class="stat-card"><div class="stat-num">5B+</div><div class="stat-label">People using the web today — more than half of all humanity</div></div>
+    <div class="stat-card"><div class="stat-num">$0</div><div class="stat-label">What Berners-Lee charged for the invention that changed the world</div></div>
+    <div class="stat-card"><div class="stat-num">1.1B</div><div class="stat-label">Websites in existence as of 2024</div></div>
+  </div>
+
+  <!-- NODE NETWORK ANIMATION -->
+  <div class="web-display">
+    <div class="web-canvas-wrap">
+      <canvas id="webnet"></canvas>
+    </div>
+    <div class="web-caption">From one memo, <em>the entire world connected.</em></div>
+    <div class="web-sub">World Wide Web · Proposed March 12, 1989 · CERN, Geneva</div>
+  </div>
+
+  <div class="section-head"><span class="section-head-icon">⏱️</span><span class="section-head-text">From Memo to World Wide Web</span></div>
+
+  <div class="timeline">
+    <div class="tl-item"><span class="tl-year">1989</span><span class="tl-text">March 12: Berners-Lee circulates "Information Management: A Proposal." Manager scrawls "vague but exciting" on the cover. Work begins quietly on the side.</span></div>
+    <div class="tl-item"><span class="tl-year">1990</span><span class="tl-text">By Christmas, Berners-Lee has written the first web browser, first web server, and defined HTML, HTTP, and URL. The web is live — for a handful of CERN researchers.</span></div>
+    <div class="tl-item"><span class="tl-year">1991</span><span class="tl-text">August 6: The web is opened to the public internet. People outside CERN can access it for the first time. There are exactly a few dozen websites.</span></div>
+    <div class="tl-item"><span class="tl-year">1993</span><span class="tl-text">CERN releases the web software royalty-free. The same year, Mosaic — the first graphical browser — launches and the web explodes in popularity.</span></div>
+    <div class="tl-item"><span class="tl-year">1994</span><span class="tl-text">Berners-Lee founds the World Wide Web Consortium (W3C) to oversee web standards. Amazon, Yahoo, and Netscape all launch within the next 12 months.</span></div>
+    <div class="tl-item"><span class="tl-year">Today</span><span class="tl-text">5 billion people use the web. It has generated tens of trillions of dollars in economic value. The memo that nobody read became the infrastructure of civilization.</span></div>
+  </div>
+
+  <div class="section-head"><span class="section-head-icon">🏆</span><span class="section-head-text">Why It Still Matters</span></div>
+
+  <p class="body-copy">Every email you've sent. Every photo you've posted. Every video you've streamed. Every order you've placed online. Every job listing you've browsed. Every article you've read. It all flows through the infrastructure that one quiet scientist sketched out in a two-page memo in 1989.</p>
+
+  <p class="body-copy">Berners-Lee was later knighted by the Queen of England. He received the Turing Award — computing's Nobel Prize — in 2016. And he still believes the web's best days are ahead of it, even as he warns about the ways it's been twisted away from his original vision of openness and freedom.</p>
+
+  <p class="body-copy">Today, 36 years later, you're reading this on a device connected to the web — probably over Wi-Fi, possibly on a computer from a store in Topeka, Kansas. Not bad for a memo nobody read.</p>
+
+  <div class="pull-quote">
+    <p>"The web does not just connect machines, it connects people."</p>
+    <cite>— Tim Berners-Lee</cite>
+  </div>
+
+  <hr class="rule-thick">
+
+  <div class="store-cta">
+    <div class="cta-header">
+      <div class="cta-icon-wrap">🌐</div>
+      <div>
+        <div class="cta-store-name">💻 Computer Store Kansas — Topeka, KS</div>
+        <div class="cta-tagline">The web changed everything. Your next computer should too.</div>
+      </div>
+    </div>
+    <div class="cta-body-text">
+      From that first web server in 1991 to today — computers have been the window to everything. We'll help you find the right one. Every machine runs <strong>Windows 11</strong> and comes with a <strong>warranty included</strong>. Walk-ins always welcome.
+    </div>
+    <div class="cta-info-grid">
+      <div class="cta-info-cell">
+        <span class="cta-info-cell-icon">📍</span>
+        <span class="cta-info-cell-label">Visit Us</span>
+        <div class="cta-info-cell-val">2008 SW Gage Blvd<br>Topeka, KS</div>
+      </div>
+      <div class="cta-info-cell">
+        <span class="cta-info-cell-icon">📞</span>
+        <span class="cta-info-cell-label">Call Us</span>
+        <div class="cta-info-cell-val">(785) 267-3223</div>
+      </div>
+      <div class="cta-info-cell">
+        <span class="cta-info-cell-icon">🕐</span>
+        <span class="cta-info-cell-label">Hours</span>
+        <div class="cta-info-cell-val">Mon–Fri: 10AM–6PM<br>Sat: 10AM–2PM</div>
+      </div>
+    </div>
+    <div class="cta-pills">
+      <span class="cta-pill">✅ Windows 11</span>
+      <span class="cta-pill">🛡️ Warranty Included</span>
+      <span class="cta-pill">🚪 Walk-ins Welcome</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const canvas = document.getElementById('webnet');
+  const ctx = canvas.getContext('2d');
+  let w, h, nodes = [], t = 0;
+
+  function resize() {
+    w = canvas.offsetWidth; h = canvas.offsetHeight;
+    canvas.width = w; canvas.height = h;
+    nodes = [];
+    const count = Math.floor(w / 60);
+    for (let i = 0; i < count; i++) {
+      nodes.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: (Math.random() - 0.5) * 0.4,
+        r: 2 + Math.random() * 2
+      });
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, w, h);
+    nodes.forEach(n => {
+      n.x += n.vx; n.y += n.vy;
+      if (n.x < 0 || n.x > w) n.vx *= -1;
+      if (n.y < 0 || n.y > h) n.vy *= -1;
+    });
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const dx = nodes[i].x - nodes[j].x;
+        const dy = nodes[i].y - nodes[j].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 120) {
+          ctx.beginPath();
+          ctx.strokeStyle = `rgba(192,57,43,${0.6 * (1 - dist / 120)})`;
+          ctx.lineWidth = 1;
+          ctx.moveTo(nodes[i].x, nodes[i].y);
+          ctx.lineTo(nodes[j].x, nodes[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+    nodes.forEach(n => {
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+      ctx.fillStyle = '#c0392b';
+      ctx.fill();
+    });
+    t++;
+    requestAnimationFrame(draw);
+  }
+
+  resize();
+  draw();
+  window.addEventListener('resize', resize);
+</script>
+</body>
+</html>

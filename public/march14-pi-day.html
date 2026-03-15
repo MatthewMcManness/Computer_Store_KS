@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Pi Day — The Number That Runs Your Computer — Computer Store Kansas</title>
+<meta property="og:title" content="March 14 — Pi Day 🥧 The Number That Runs Your Computer" />
+<meta property="og:description" content="3.14159... Pi is in your GPS, your processor, your screen. And today is its birthday. The story of the most important number in tech — from Computer Store Kansas." />
+<meta property="og:url" content="https://computerstoreks.com/march14-pi-day.html" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Computer Store Kansas" />
+<meta property="og:image" content="https://computerstoreks.com/march14-preview.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  html, body, .page { background: #ffffff !important; background-color: #ffffff !important; }
+  html::before, body::before { display: none !important; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    font-family: 'Instrument Sans', sans-serif;
+    color: #0e0e0e;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+  .ticker-bar { position: fixed; top: 0; left: 0; right: 0; background: #0e0e0e; padding: 6px 0; z-index: 100; overflow: hidden; display: flex; align-items: center; }
+  .ticker-label { background: #c0392b; color: #fff; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; padding: 3px 14px; white-space: nowrap; flex-shrink: 0; margin-right: 16px; }
+  .ticker-scroll { overflow: hidden; flex: 1; }
+  .ticker-text { display: inline-block; white-space: nowrap; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: #d0d8e0; animation: ticker 55s linear infinite; }
+
+  .page { max-width: 740px; margin: 0 auto; padding: 56px 28px 60px; }
+  .masthead { text-align: center; border-bottom: 3px double #0e0e0e; padding-bottom: 18px; margin-bottom: 24px; }
+  .masthead-store { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.3em; text-transform: uppercase; color: #6b7280; margin-bottom: 6px; }
+  .masthead-title { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 7vw, 3.6rem); font-weight: 900; line-height: 1.05; color: #0e0e0e; }
+  .masthead-title em { font-style: italic; color: #c0392b; }
+  .masthead-date { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: #6b7280; margin-top: 10px; }
+
+  .rule { border: none; border-top: 1px solid rgba(14,14,14,0.12); margin: 20px 0; }
+  .rule-thick { border: none; border-top: 2px solid #0e0e0e; margin: 24px 0; }
+  .dateline { display: inline-block; background: #c0392b; color: #fff; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; padding: 4px 12px; margin-bottom: 18px; }
+  .lede { font-family: 'Playfair Display', serif; font-size: clamp(1.4rem, 4vw, 2rem); font-weight: 700; line-height: 1.3; color: #0e0e0e; margin-bottom: 16px; }
+  .lede em { font-style: italic; color: #c0392b; }
+  .body-copy { font-size: 1rem; line-height: 1.75; color: #1a1a1a; margin-bottom: 20px; }
+  .body-copy strong { font-weight: 700; color: #0e0e0e; }
+
+  .pull-quote { border-left: 4px solid #c0392b; margin: 28px 0; padding: 12px 20px; background: #f2f2f2; }
+  .pull-quote p { font-family: 'Playfair Display', serif; font-size: clamp(1.1rem, 3vw, 1.4rem); font-style: italic; line-height: 1.5; color: #0e0e0e; }
+  .pull-quote cite { display: block; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #6b7280; margin-top: 8px; font-style: normal; }
+
+  .section-head { display: flex; align-items: center; gap: 12px; margin: 28px 0 14px; }
+  .section-head-icon { font-size: 1.3rem; flex-shrink: 0; }
+  .section-head-text { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.25em; text-transform: uppercase; color: #0e0e0e; }
+  .section-head::after { content: ''; flex: 1; height: 1px; background: #0e0e0e; opacity: 0.2; }
+
+  .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 16px 0 24px; }
+  .stat-card { background: #0e0e0e; color: #f5f0e8; padding: 16px 14px; position: relative; overflow: hidden; }
+  .stat-card::before { content: ''; position: absolute; top: 0; right: 0; width: 40px; height: 40px; background: #c0392b; opacity: 0.3; }
+  .stat-num { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 900; color: #fff; line-height: 1; margin-bottom: 4px; }
+  .stat-label { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #d0d8e0; line-height: 1.4; }
+
+  /* PI CIRCLE ANIMATION */
+  .pi-display {
+    background: #0e0e0e;
+    margin: 28px 0;
+    padding: 32px 20px 24px;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+  }
+  .pi-display::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 50%, rgba(192,57,43,0.1) 0%, transparent 65%);
+  }
+  .pi-canvas-wrap { position: relative; height: 130px; margin-bottom: 16px; }
+  canvas#picanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+  .pi-caption { font-family: 'Playfair Display', serif; font-size: clamp(1.1rem, 3.5vw, 1.6rem); font-weight: 700; color: #fff; line-height: 1.3; position: relative; }
+  .pi-caption em { color: #c0392b; font-style: italic; }
+  .pi-sub { font-size: 0.78rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: #6b7280; margin-top: 8px; position: relative; }
+
+  /* DIGITS SCROLL */
+  .pi-digits {
+    font-family: 'Instrument Sans', monospace;
+    font-size: clamp(0.75rem, 2vw, 0.95rem);
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: #c0392b;
+    background: #f2f2f2;
+    padding: 14px 16px;
+    border-radius: 4px;
+    word-break: break-all;
+    margin: 20px 0;
+    line-height: 1.8;
+    text-align: center;
+  }
+
+  /* FUN FACTS */
+  .fact-list { margin: 16px 0 24px; }
+  .fact-item { display: flex; gap: 14px; padding: 12px 0; border-bottom: 1px solid rgba(14,14,14,0.1); align-items: flex-start; }
+  .fact-item:last-child { border-bottom: none; }
+  .fact-emoji { font-size: 1.4rem; flex-shrink: 0; }
+  .fact-text { font-size: 0.95rem; line-height: 1.6; color: #1a1a1a; }
+  .fact-text strong { font-weight: 700; }
+
+  /* CTA */
+  .store-cta { background: #0e0e0e; margin-top: 32px; border-radius: 4px; overflow: hidden; }
+  .cta-header { padding: 28px 28px 20px; display: flex; align-items: center; gap: 18px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .cta-icon-wrap { width: 60px; height: 60px; border-radius: 14px; background: #1a1a1a; border: 2px solid #333; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; flex-shrink: 0; }
+  .cta-store-name { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.25em; text-transform: uppercase; color: #c0392b; margin-bottom: 5px; }
+  .cta-tagline { font-family: 'Playfair Display', serif; font-size: clamp(1rem, 3vw, 1.35rem); font-weight: 700; color: #ffffff; line-height: 1.3; }
+  .cta-body-text { padding: 20px 28px; font-size: 0.9rem; line-height: 1.75; color: #cccccc; border-left: 3px solid #c0392b; margin: 0 28px; background: rgba(255,255,255,0.02); border-radius: 0 4px 4px 0; }
+  .cta-body-text strong { color: #ffffff; font-weight: 700; }
+  .cta-info-grid { display: grid; grid-template-columns: repeat(3, 1fr); margin: 20px 28px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; overflow: hidden; }
+  .cta-info-cell { padding: 18px 16px; background: #161616; border-right: 1px solid rgba(255,255,255,0.08); }
+  .cta-info-cell:last-child { border-right: none; }
+  .cta-info-cell-icon { font-size: 1.5rem; margin-bottom: 8px; display: block; }
+  .cta-info-cell-label { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #c0392b; margin-bottom: 5px; display: block; }
+  .cta-info-cell-val { font-size: 0.88rem; font-weight: 600; color: #ffffff; line-height: 1.6; }
+  .cta-pills { display: flex; gap: 8px; flex-wrap: wrap; padding: 16px 28px 28px; }
+  .cta-pill { background: rgba(192,57,43,0.15); border: 1px solid rgba(192,57,43,0.35); border-radius: 100px; padding: 6px 16px; font-size: 0.8rem; font-weight: 700; color: #ff9980; white-space: nowrap; }
+
+  @media (max-width: 540px) {
+    .page { padding: 52px 14px 40px; }
+    .stat-grid { grid-template-columns: 1fr 1fr; }
+    .cta-info-grid { grid-template-columns: 1fr; margin: 16px 14px; }
+    .cta-info-cell { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .cta-info-cell:last-child { border-bottom: none; }
+    .cta-header { padding: 20px 14px; }
+    .cta-body-text { margin: 0 14px; }
+    .cta-pills { padding: 14px 14px 24px; }
+  }
+</style>
+</head>
+<body style="background:#ffffff !important;">
+
+<div class="ticker-bar">
+  <div class="ticker-label">🥧 Pi Day</div>
+  <div class="ticker-scroll">
+    <div class="ticker-text">
+      HAPPY PI DAY! 3.14159265358979... — THE NUMBER THAT RUNS YOUR COMPUTER &nbsp;•&nbsp; COMPUTER STORE KANSAS — 2008 SW GAGE BLVD, TOPEKA — (785) 267-3223 &nbsp;•&nbsp; DESKTOPS FROM $329.99 &nbsp;•&nbsp; LAPTOPS FROM $429.99 &nbsp;•&nbsp; ALL WINDOWS 11 WITH WARRANTY &nbsp;•&nbsp; MON–FRI 10AM–6PM &nbsp;•&nbsp; SAT 10AM–2PM &nbsp;•&nbsp; HAPPY PI DAY! 3.14159265358979... — THE NUMBER THAT RUNS YOUR COMPUTER &nbsp;•&nbsp; COMPUTER STORE KANSAS — 2008 SW GAGE BLVD, TOPEKA — (785) 267-3223 &nbsp;•&nbsp; DESKTOPS FROM $329.99 &nbsp;•&nbsp; LAPTOPS FROM $429.99 &nbsp;•&nbsp; ALL WINDOWS 11 WITH WARRANTY &nbsp;•&nbsp; MON–FRI 10AM–6PM &nbsp;•&nbsp; SAT 10AM–2PM &nbsp;•&nbsp;
+    </div>
+  </div>
+</div>
+
+<div class="page">
+
+  <div class="masthead">
+    <div class="masthead-store">Computer Store Kansas — Topeka, KS</div>
+    <h1 class="masthead-title">This Day in<br><em>Tech History</em></h1>
+    <div class="masthead-date">March 14, 2025 &nbsp;|&nbsp; Edition No. 6</div>
+  </div>
+
+  <div class="dateline">🥧 Happy Pi Day — March 14</div>
+
+  <p class="lede">Today is Pi Day. And π = 3.14159... is <em>hiding inside every computer ever built.</em></p>
+
+  <p class="body-copy">March 14th. 3/14. Get it? Every year on this day, mathematicians, engineers, and tech lovers celebrate the most famous irrational number in existence. Pi is the ratio of a circle's circumference to its diameter. It never ends, never repeats, and appears absolutely everywhere — including in the guts of the machine you're using right now.</p>
+
+  <p class="body-copy">Also: March 14, 1879, was the birthday of Albert Einstein. The man who rewrote our understanding of space, time, and gravity was born on Pi Day. The universe has a sense of humor.</p>
+
+  <hr class="rule">
+
+  <div class="section-head"><span class="section-head-icon">🎂</span><span class="section-head-text">Where Pi Day Came From</span></div>
+
+  <p class="body-copy">The first official Pi Day celebration happened on March 14, 1988, at the <strong>San Francisco Exploratorium</strong> — a hands-on science museum. A physicist named Larry Shaw organized it. Staff marched around in circles and ate fruit pies. It was delightfully nerdy.</p>
+
+  <p class="body-copy">In 2009, the U.S. House of Representatives officially designated March 14 as National Pi Day. The resolution passed 391 to 10. (Those 10 votes against will never be forgiven by mathematicians.)</p>
+
+  <div class="pi-digits">
+    π = 3.14159 26535 89793 23846 26433 83279 50288 41971 69399 37510 58209 74944 59230 78164 06286 20899 86280 34825 34211 70679...
+  </div>
+
+  <!-- PI ANIMATION -->
+  <div class="pi-display">
+    <div class="pi-canvas-wrap">
+      <canvas id="picanvas"></canvas>
+    </div>
+    <div class="pi-caption">π never ends. <em>Neither does what it can build.</em></div>
+    <div class="pi-sub">Pi Day · March 14 · First celebrated 1988 · Einstein's Birthday</div>
+  </div>
+
+  <div class="section-head"><span class="section-head-icon">💻</span><span class="section-head-text">Pi Is In Your Computer Right Now</span></div>
+
+  <p class="body-copy">This isn't abstract math trivia. Pi is baked into the hardware and software that powers modern computing in ways most people never think about. Every time your device does something round — renders a circle, calculates a signal, processes audio — it's reaching for Pi.</p>
+
+  <div class="fact-list">
+    <div class="fact-item">
+      <span class="fact-emoji">📡</span>
+      <span class="fact-text"><strong>GPS accuracy</strong> — Satellite triangulation uses spherical geometry. Without Pi calculated to many decimal places, your maps app would put you three blocks off.</span>
+    </div>
+    <div class="fact-item">
+      <span class="fact-emoji">🎵</span>
+      <span class="fact-text"><strong>Audio processing</strong> — MP3s, streaming music, Bluetooth audio — all use Fourier transforms, which are built on Pi. Every song you've ever played through a computer passed through π.</span>
+    </div>
+    <div class="fact-item">
+      <span class="fact-emoji">📺</span>
+      <span class="fact-text"><strong>Video & graphics</strong> — Round objects in games and video, anti-aliasing on curves, circular UI elements — all calculated using Pi. The circle on your screen is Pi made visible.</span>
+    </div>
+    <div class="fact-item">
+      <span class="fact-emoji">🔐</span>
+      <span class="fact-text"><strong>Encryption</strong> — The security that protects your passwords, banking, and messages relies on prime number mathematics that Pi underlies. Your data is safe partly because of a Greek letter.</span>
+    </div>
+    <div class="fact-item">
+      <span class="fact-emoji">📶</span>
+      <span class="fact-text"><strong>Wi-Fi & 5G signals</strong> — Radio waves are sinusoidal — they travel in the shape of π. Your wireless connection literally rides on Pi through the air to reach your device.</span>
+    </div>
+  </div>
+
+  <div class="section-head"><span class="section-head-icon">📊</span><span class="section-head-text">Pi by the Numbers</span></div>
+
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-num">105T</div><div class="stat-label">Digits of Pi calculated by 2024 — the current world record</div></div>
+    <div class="stat-card"><div class="stat-num">1988</div><div class="stat-label">Year the first official Pi Day was celebrated in San Francisco</div></div>
+    <div class="stat-card"><div class="stat-num">39</div><div class="stat-label">Digits of Pi needed to calculate the circumference of the observable universe to within one atom's width</div></div>
+    <div class="stat-card"><div class="stat-num">∞</div><div class="stat-label">Digits in Pi's decimal expansion — it never ends, never repeats</div></div>
+  </div>
+
+  <div class="section-head"><span class="section-head-icon">🧠</span><span class="section-head-text">The Computers That Chase Pi</span></div>
+
+  <p class="body-copy">Computing Pi to more and more decimal places has been a benchmark for computing power since the very beginning. In 1949, ENIAC — one of the first electronic computers — calculated 2,037 digits of Pi in 70 hours. It was a world record at the time and a genuine test of the machine's limits.</p>
+
+  <p class="body-copy">In 2024, a team calculated Pi to <strong>105 trillion decimal places</strong> — a feat that took 75 days of continuous computation. They needed 1.5 petabytes of storage just to hold the result. That's 1.5 million gigabytes. For a number.</p>
+
+  <p class="body-copy">Every major leap in computing power has been accompanied by a new Pi record. In a very real sense, Pi has been a measuring stick for the entire history of computing. The faster we can compute Pi, the better our machines have gotten. Pi isn't just a math problem. It's a benchmark.</p>
+
+  <div class="pull-quote">
+    <p>"Calculating Pi is the closest thing mathematicians have to a universal stress test for a computer."</p>
+    <cite>— Computing lore, paraphrased from generations of benchmarkers</cite>
+  </div>
+
+  <div class="section-head"><span class="section-head-icon">🎂</span><span class="section-head-text">Happy Birthday, Einstein</span></div>
+
+  <p class="body-copy">Albert Einstein was born on March 14, 1879 — Pi Day, 146 years ago today. Einstein's general theory of relativity, which describes how mass warps spacetime, relies on tensor calculus that includes π at a fundamental level. The GPS satellites that beam your location down to your phone include a tiny relativistic correction based on Einstein's equations. Every time you get directions, Einstein's math — and Pi — are both quietly at work.</p>
+
+  <p class="body-copy">He was also famously bad at remembering phone numbers. He reportedly said there was no point memorizing information you could look up. The man who rewrote physics preferred to keep his brain clear for ideas. We think he'd have appreciated a good search engine.</p>
+
+  <hr class="rule-thick">
+
+  <div class="store-cta">
+    <div class="cta-header">
+      <div class="cta-icon-wrap">🥧</div>
+      <div>
+        <div class="cta-store-name">💻 Computer Store Kansas — Topeka, KS</div>
+        <div class="cta-tagline">Pi is infinite. Our deals are just really, really good.</div>
+      </div>
+    </div>
+    <div class="cta-body-text">
+      Celebrate Pi Day with a machine that can actually calculate it. Every computer we sell runs <strong>Windows 11</strong> and comes with a <strong>warranty included</strong>. Desktops from $329.99, Laptops from $429.99. Walk-ins always welcome.
+    </div>
+    <div class="cta-info-grid">
+      <div class="cta-info-cell">
+        <span class="cta-info-cell-icon">📍</span>
+        <span class="cta-info-cell-label">Visit Us</span>
+        <div class="cta-info-cell-val">2008 SW Gage Blvd<br>Topeka, KS</div>
+      </div>
+      <div class="cta-info-cell">
+        <span class="cta-info-cell-icon">📞</span>
+        <span class="cta-info-cell-label">Call Us</span>
+        <div class="cta-info-cell-val">(785) 267-3223</div>
+      </div>
+      <div class="cta-info-cell">
+        <span class="cta-info-cell-icon">🕐</span>
+        <span class="cta-info-cell-label">Hours</span>
+        <div class="cta-info-cell-val">Mon–Fri: 10AM–6PM<br>Sat: 10AM–2PM</div>
+      </div>
+    </div>
+    <div class="cta-pills">
+      <span class="cta-pill">✅ Windows 11</span>
+      <span class="cta-pill">🛡️ Warranty Included</span>
+      <span class="cta-pill">🚪 Walk-ins Welcome</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const canvas = document.getElementById('picanvas');
+  const ctx = canvas.getContext('2d');
+  let w, h, t = 0;
+  const PI_DIGITS = [3,1,4,1,5,9,2,6,5,3,5,8,9,7,9,3,2,3,8,4,6];
+
+  function resize() {
+    w = canvas.offsetWidth; h = canvas.offsetHeight;
+    canvas.width = w; canvas.height = h;
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, w, h);
+
+    // Draw spiraling Pi circles
+    const cx = w / 2, cy = h / 2;
+    const maxR = Math.min(w, h) * 0.44;
+
+    for (let i = 0; i < 6; i++) {
+      const r = maxR * (1 - i * 0.14);
+      const alpha = 0.8 - i * 0.12;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + (t * 0.3 + i * 0.5) % (Math.PI * 2));
+      ctx.strokeStyle = `rgba(192,57,43,${alpha})`;
+      ctx.lineWidth = i === 0 ? 2.5 : 1.5;
+      ctx.stroke();
+    }
+
+    // Floating Pi digits
+    const count = Math.min(Math.floor(t / 8), PI_DIGITS.length);
+    for (let i = 0; i < count; i++) {
+      const angle = (i / PI_DIGITS.length) * Math.PI * 2 - Math.PI / 2;
+      const r = maxR * 0.55;
+      const x = cx + Math.cos(angle + t * 0.01) * r;
+      const y = cy + Math.sin(angle + t * 0.01) * r;
+      ctx.font = `bold ${i === 0 ? 22 : 13}px 'Instrument Sans', sans-serif`;
+      ctx.fillStyle = i === 0 ? '#c0392b' : `rgba(192,57,43,${0.4 + (i % 3) * 0.15})`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(i === 0 ? 'π' : PI_DIGITS[i], x, y);
+    }
+
+    // Center Pi symbol
+    ctx.font = `bold ${Math.floor(maxR * 0.5)}px 'Playfair Display', serif`;
+    ctx.fillStyle = 'rgba(192,57,43,0.08)';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('π', cx, cy);
+
+    t++;
+    requestAnimationFrame(draw);
+  }
+
+  resize();
+  draw();
+  window.addEventListener('resize', resize);
+</script>
+</body>
+</html>

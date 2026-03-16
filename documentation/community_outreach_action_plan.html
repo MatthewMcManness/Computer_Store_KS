@@ -1,0 +1,1775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Computer Store - Community Outreach Action Plan</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-light: #3b82f6;
+            --primary-dark: #1e40af;
+            --secondary: #10b981;
+            --secondary-dark: #059669;
+            --accent: #f59e0b;
+            --accent-dark: #d97706;
+            --purple: #8b5cf6;
+            --purple-dark: #7c3aed;
+            --rose: #f43f5e;
+            --dark: #111827;
+            --text-secondary: #374151;
+            --text-muted: #6b7280;
+            --light: #f8f9fb;
+            --background-dark: #f0f2f5;
+            --gradient-1: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --gradient-2: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background: var(--light);
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, #059669 0%, #10b981 40%, #2563eb 100%);
+            color: white;
+            padding: 60px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+            animation: pulse 15s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        header h1 { font-size: 2.5rem; font-weight: 800; position: relative; margin-bottom: 10px; }
+        header .subtitle { font-size: 1.2rem; opacity: 0.9; position: relative; }
+        header .date { font-size: 0.95rem; opacity: 0.75; position: relative; margin-top: 8px; }
+
+        /* Phase Banner */
+        .phase-banner {
+            padding: 50px 0 30px;
+            margin: 40px 0 0;
+            text-align: center;
+            position: relative;
+        }
+
+        .phase-banner h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+
+        .phase-banner .phase-meta {
+            font-size: 1.05rem;
+            color: var(--text-muted);
+        }
+
+        .phase-banner .phase-number {
+            display: inline-block;
+            width: 56px;
+            height: 56px;
+            line-height: 56px;
+            border-radius: 50%;
+            color: white;
+            font-weight: 800;
+            font-size: 1.4rem;
+            margin-bottom: 12px;
+        }
+
+        .phase-prep .phase-number { background: var(--dark); }
+        .phase-0 .phase-number { background: var(--rose); }
+        .phase-1 .phase-number { background: var(--secondary); }
+        .phase-2 .phase-number { background: var(--purple); }
+        .phase-3 .phase-number { background: var(--accent-dark); }
+        .phase-4 .phase-number { background: var(--primary); }
+
+        /* Step Card */
+        .step-card {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+            border-left: 5px solid var(--primary);
+            position: relative;
+        }
+
+        .step-card.priority-high { border-left-color: var(--secondary); }
+        .step-card.priority-critical { border-left-color: var(--rose); }
+        .step-card.priority-medium { border-left-color: var(--accent); }
+
+        .step-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 800;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .step-card.priority-high .step-number { background: var(--secondary); }
+        .step-card.priority-critical .step-number { background: var(--rose); }
+        .step-card.priority-medium .step-number { background: var(--accent); }
+        .step-card .step-number { background: var(--primary); }
+
+        .step-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--dark);
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .step-badges {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-time { background: #dbeafe; color: #1e40af; }
+        .badge-cost { background: #dcfce7; color: #166534; }
+        .badge-owner { background: #fef3c7; color: #92400e; }
+        .badge-critical { background: #fee2e2; color: #991b1b; }
+        .badge-blocker { background: #fce7f3; color: #9d174d; }
+
+        .step-body { color: var(--text-secondary); }
+        .step-body p { margin-bottom: 10px; }
+
+        /* Sub-sections within steps */
+        .substep-label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin: 18px 0 8px;
+            padding-top: 14px;
+            border-top: 1px solid #f3f4f6;
+        }
+
+        .substep-label.prep { color: var(--rose); }
+        .substep-label.action { color: var(--primary); }
+        .substep-label.contacts { color: var(--secondary-dark); }
+        .substep-label.script { color: var(--purple); }
+        .substep-label.success { color: var(--secondary); }
+        .substep-label.deliverables { color: var(--accent-dark); }
+        .substep-label.notes { color: var(--text-muted); }
+
+        /* Checklists */
+        .checklist {
+            list-style: none;
+            margin: 6px 0 4px;
+        }
+
+        .checklist li {
+            padding: 5px 0 5px 28px;
+            position: relative;
+            font-size: 0.93rem;
+        }
+
+        .checklist li::before {
+            content: '';
+            position: absolute;
+            left: 2px;
+            top: 9px;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #d1d5db;
+            border-radius: 4px;
+            background: white;
+        }
+
+        .checklist li.done::before {
+            background: var(--secondary);
+            border-color: var(--secondary);
+        }
+
+        .checklist li.done::after {
+            content: '\2713';
+            position: absolute;
+            left: 5px;
+            top: 6px;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 800;
+        }
+
+        /* Script box */
+        .script-box {
+            background: #f5f3ff;
+            border-left: 4px solid var(--purple);
+            border-radius: 0 10px 10px 0;
+            padding: 16px 20px;
+            margin: 8px 0;
+            font-style: italic;
+            font-size: 0.93rem;
+            color: var(--text-secondary);
+        }
+
+        .script-box .speaker {
+            font-style: normal;
+            font-weight: 700;
+            color: var(--purple-dark);
+            display: block;
+            margin-bottom: 4px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Contact reference */
+        .contact-ref {
+            background: #f0f9ff;
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin: 6px 0;
+            font-size: 0.9rem;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .contact-ref strong { color: var(--primary-dark); }
+        .contact-ref .detail { color: var(--text-secondary); }
+        .contact-ref a { color: var(--primary); text-decoration: none; }
+        .contact-ref a:hover { text-decoration: underline; }
+
+        /* Prep box */
+        .prep-box {
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin: 8px 0;
+        }
+
+        .prep-box .prep-title {
+            font-weight: 700;
+            color: #9a3412;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        /* Cost breakdown */
+        .cost-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 8px 0;
+            font-size: 0.9rem;
+        }
+
+        .cost-table th {
+            text-align: left;
+            padding: 8px 12px;
+            background: #f8fafc;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .cost-table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            color: var(--text-secondary);
+        }
+
+        .cost-table .total td {
+            font-weight: 700;
+            color: var(--dark);
+            border-top: 2px solid var(--primary);
+            background: #f0f9ff;
+        }
+
+        /* Timeline bar */
+        .timeline-bar {
+            display: flex;
+            gap: 0;
+            margin: 30px 0;
+            border-radius: 12px;
+            overflow: hidden;
+            height: 48px;
+            box-shadow: var(--shadow);
+        }
+
+        .timeline-segment {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-align: center;
+            padding: 0 8px;
+        }
+
+        /* Callout */
+        .callout {
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin: 20px 0;
+        }
+
+        .callout-warning {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            color: #92400e;
+        }
+
+        .callout-success {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+        }
+
+        .callout-info {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #1e40af;
+        }
+
+        .callout-danger {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+        }
+
+        .callout strong { display: block; margin-bottom: 4px; }
+
+        /* Milestone */
+        .milestone {
+            background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%);
+            border-radius: 16px;
+            padding: 30px 36px;
+            margin: 30px 0;
+            color: white;
+        }
+
+        .milestone h3 { font-size: 1.2rem; margin-bottom: 12px; }
+        .milestone ul { list-style: none; }
+        .milestone ul li { padding: 4px 0 4px 24px; position: relative; opacity: 0.9; }
+        .milestone ul li::before { content: '\2713'; position: absolute; left: 0; font-weight: 800; color: #fbbf24; }
+
+        /* Metrics grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 16px;
+            margin: 16px 0;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            border-top: 4px solid var(--primary);
+        }
+
+        .metric-card .metric-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .metric-card .metric-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Summary section */
+        .executive-summary {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            margin: -40px 20px 30px;
+            position: relative;
+            z-index: 2;
+            box-shadow: var(--shadow-lg);
+            border-left: 6px solid var(--secondary);
+        }
+
+        .executive-summary h2 { color: var(--primary); font-size: 1.5rem; margin-bottom: 16px; }
+        .executive-summary p { color: var(--text-secondary); margin-bottom: 12px; }
+
+        /* Two-column layout */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 30px 0;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        footer p { opacity: 0.7; font-size: 0.9rem; }
+
+        /* Print */
+        @media print {
+            header { padding: 30px 0; }
+            .executive-summary { margin-top: 0; box-shadow: none; border: 1px solid #ccc; }
+            .step-card { break-inside: avoid; box-shadow: none; border: 1px solid #ddd; page-break-inside: avoid; }
+            .milestone { background: #f3f4f6 !important; color: var(--dark) !important; -webkit-print-color-adjust: exact; }
+        }
+
+        @media (max-width: 768px) {
+            header h1 { font-size: 1.8rem; }
+            .executive-summary { margin: -20px 10px 20px; padding: 24px; }
+            .two-col { grid-template-columns: 1fr; }
+            .step-header { flex-direction: column; }
+            .timeline-bar { flex-direction: column; height: auto; }
+            .timeline-segment { padding: 8px; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="container">
+        <h1>Community Outreach Action Plan</h1>
+        <div class="subtitle">Pop-Up Repair Kiosk Launch &mdash; Step-by-Step Execution Guide</div>
+        <div class="subtitle">The Computer Store &mdash; Topeka, KS</div>
+        <div class="date">Based on Partner Research &bull; March 2026</div>
+    </div>
+</header>
+
+<div class="container">
+
+    <!-- Executive Summary -->
+    <div class="executive-summary">
+        <h2>Plan at a Glance</h2>
+        <p>This action plan translates the Community Outreach Partner Research (100+ identified venues) into a week-by-week execution roadmap. Every step includes <strong>what to prepare before you start</strong>, <strong>exactly who to contact</strong>, <strong>what to say</strong>, and <strong>how to know you succeeded</strong>.</p>
+        <p>The plan is structured in 5 phases over 12 months, starting with a 2-week preparation sprint before any outreach begins. Total upfront investment: <strong>~$275&ndash;$375</strong>. Expected break-even: <strong>Month 1&ndash;2</strong>.</p>
+
+        <div style="background: linear-gradient(135deg, #f0fdf4, #ecfdf5); border: 1px solid #bbf7d0; border-radius: 12px; padding: 16px 20px; margin: 16px 0;">
+            <p style="font-weight: 700; color: #065f46; margin-bottom: 6px;">Recommended Strategy: Hybrid Model</p>
+            <p style="font-size: 0.95rem; margin: 0;">Based on the <a href="community_outreach_cost_benefit_analysis.html" style="color: #2563eb;">Cost/Benefit Analysis</a>, this plan follows a <strong>Monthly Pop-Up Locations</strong> model as the primary revenue engine (2.2x more profitable, 31% lower costs), with <strong>premium house calls</strong> offered as an upsell for customers who can't wait for the next scheduled pop-up day ($25&ndash;$50 surcharge). All customer calls go to the main shop number. Jobs are tracked in RepairShopr like any other ticket.</p>
+        </div>
+
+        <!-- Timeline bar -->
+        <div class="timeline-bar">
+            <div class="timeline-segment" style="flex: 2; background: var(--dark);">Prep</div>
+            <div class="timeline-segment" style="flex: 1; background: var(--rose);">Week 1</div>
+            <div class="timeline-segment" style="flex: 4; background: var(--secondary);">Phase 1</div>
+            <div class="timeline-segment" style="flex: 8; background: var(--purple);">Phase 2</div>
+            <div class="timeline-segment" style="flex: 12; background: var(--accent-dark);">Phase 3</div>
+            <div class="timeline-segment" style="flex: 24; background: var(--primary);">Phase 4: Optimize</div>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-value">$275</div>
+                <div class="metric-label">Upfront Investment</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">12</div>
+                <div class="metric-label">Target Towns</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">100+</div>
+                <div class="metric-label">Identified Partners</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">$4K+</div>
+                <div class="metric-label">Monthly Net (Conservative)</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- PRE-LAUNCH PREPARATION -->
+    <!-- ================================================================== -->
+    <div class="phase-banner phase-prep">
+        <div class="phase-number">P</div>
+        <h2>Pre-Launch Preparation</h2>
+        <div class="phase-meta">Weeks &minus;2 to 0 &bull; Complete ALL items before making any outreach calls</div>
+    </div>
+
+    <div class="callout callout-danger">
+        <strong>Blocker: Do not skip this phase.</strong>
+        Every item below must be complete before you pick up the phone. First impressions with community partners are permanent. Showing up unprepared &mdash; without a flyer, without a clear pitch, without a booking URL &mdash; kills the opportunity. You only get one shot with each partner.
+    </div>
+
+    <!-- Step P1: Materials -->
+    <div class="step-card priority-critical">
+        <div class="step-header">
+            <div class="step-number">P1</div>
+            <div class="step-title">Design &amp; Print Marketing Materials</div>
+            <div class="step-badges">
+                <span class="badge badge-time">Days 1&ndash;5</span>
+                <span class="badge badge-cost">$125&ndash;$175</span>
+                <span class="badge badge-critical">Blocker</span>
+            </div>
+        </div>
+        <div class="step-body">
+            <p>Create all print materials. These will be used during partner pitches, left at venues, and distributed to customers.</p>
+
+            <div class="substep-label prep">What to Prepare First</div>
+            <ul class="checklist">
+                <li>Finalize service menu with pricing for on-site and take-back services</li>
+                <li>Confirm the 10% senior discount policy</li>
+                <li class="done">Phone number decided: use main shop number for all outreach. Add a dedicated outreach line later only if call volume becomes unmanageable.</li>
+                <li>Have the QR code ready (already generated: <code>qr-code-computerstoreks-poster.png</code>)</li>
+                <li>Decide on "The Computer Store &mdash; We Come to You" as the tagline (or choose another)</li>
+            </ul>
+
+            <div class="substep-label deliverables">Materials to Create</div>
+            <ul class="checklist">
+                <li><strong>Service Flyer (8.5&times;11, full color, double-sided)</strong> &mdash; Side A: headline, QR code, "We Come to You" messaging, top 6 services with prices. Side B: full service menu, senior discount callout, how to book. Print 500 copies.</li>
+                <li><strong>Partner One-Sheet (8.5&times;11, full color)</strong> &mdash; Tailored pitch for venue owners. "What's In It For You" section. Three partnership models (senior center, small business, library). No-risk/no-cost emphasis. Print 50 copies.</li>
+                <li><strong>Tabletop Sign (5&times;7 tent card)</strong> &mdash; "Free Tech Help Here Every [Day]" with QR code. For use at partner venues. Print 20 cards.</li>
+                <li class="done"><strong>Business Cards</strong> &mdash; Already have business cards on hand. Reorder with updated outreach info when current stock runs low.</li>
+                <li><strong>Poster (11&times;17)</strong> &mdash; For community bulletin boards, churches, post offices. Large QR code. "Computer Problems? We Come to [Town Name]." Print 30 posters (leave town name blank to hand-write or have town-specific batches).</li>
+                <li><strong>Vehicle Magnet Signs (12&times;24)</strong> &mdash; Logo, phone number, "Mobile Computer Repair" and website. Order 2.</li>
+            </ul>
+
+            <div class="substep-label action">Where to Print</div>
+            <ul class="checklist">
+                <li>Flyers, one-sheets, posters: Staples, Office Depot, or local Topeka print shop (compare pricing)</li>
+                <li>Business cards: Vistaprint or MOO (online, cheaper for bulk)</li>
+                <li>Vehicle magnets: Signs.com or Vistaprint (5&ndash;7 day lead time)</li>
+                <li>Tabletop tent cards: Staples or print on cardstock and fold</li>
+            </ul>
+
+            <div class="substep-label success">Done When</div>
+            <ul class="checklist">
+                <li>All materials printed and organized in a folder/box</li>
+                <li>Partner one-sheets reviewed by someone other than creator for clarity</li>
+                <li>QR code on every single piece scans correctly to ComputerStoreKS.com</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Step P2: Mobile Repair Kit -->
+    <div class="step-card priority-critical">
+        <div class="step-header">
+            <div class="step-number">P2</div>
+            <div class="step-title">Assemble Mobile Repair Kit &amp; Vehicle Prep</div>
+            <div class="step-badges">
+                <span class="badge badge-time">Days 1&ndash;5</span>
+                <span class="badge badge-cost">$50&ndash;$100</span>
+                <span class="badge badge-critical">Blocker</span>
+            </div>
+        </div>
+        <div class="step-body">
+            <div class="substep-label prep">What to Prepare First</div>
+            <ul class="checklist">
+                <li>Inventory existing tools and parts at the shop</li>
+                <li>Verify vehicle reliability for 45-minute radius drives (check tires, oil, registration)</li>
+                <li>Confirm mobile hotspot plan is active with sufficient data (minimum 10GB/month)</li>
+            </ul>
+
+            <div class="substep-label deliverables">Kit Contents Checklist</div>
+            <div class="two-col">
+                <div>
+                    <p style="font-weight: 700; font-size: 0.85rem; color: var(--primary-dark); margin-bottom: 6px;">Tools &amp; Hardware</p>
+                    <ul class="checklist">
+                        <li>Laptop (for diagnostics, running tools)</li>
+                        <li>USB boot drives (Windows 10/11, Linux Mint, Clonezilla)</li>
+                        <li>External hard drive (1TB+ for backups)</li>
+                        <li>Screwdriver set (Phillips #0, #1, #2; Torx T5&ndash;T10)</li>
+                        <li>Spudger/pry tools</li>
+                        <li>Compressed air cans (3)</li>
+                        <li>Thermal paste</li>
+                        <li>Common RAM sticks (DDR4 8GB, DDR4 16GB)</li>
+                        <li>Common SSDs (256GB, 500GB SATA + NVMe)</li>
+                        <li>USB-to-SATA adapter</li>
+                        <li>USB hub</li>
+                        <li>Ethernet cable (6ft)</li>
+                        <li>Power strip / surge protector</li>
+                        <li>Extension cord (25ft)</li>
+                    </ul>
+                </div>
+                <div>
+                    <p style="font-weight: 700; font-size: 0.85rem; color: var(--primary-dark); margin-bottom: 6px;">Business Supplies</p>
+                    <ul class="checklist">
+                        <li>Mobile hotspot device (charged)</li>
+                        <li>Intake forms (paper, 50 copies &mdash; see P4)</li>
+                        <li>Receipt book or mobile POS (Square, etc.)</li>
+                        <li>Card reader (Square or similar)</li>
+                        <li>Marketing folder with flyers + business cards</li>
+                        <li>Tabletop signs</li>
+                        <li>Clipboard and pens</li>
+                        <li>Silver Plan brochures</li>
+                        <li>Small folding table (if partner venue doesn't provide one)</li>
+                        <li>Tablecloth with logo (optional but professional)</li>
+                        <li>Laptop bag / rolling tool case for transport</li>
+                        <li>Vehicle magnet signs (applied)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="substep-label success">Done When</div>
+            <ul class="checklist">
+                <li>Complete kit fits in vehicle and can be set up in under 10 minutes</li>
+                <li>Card reader processes a test payment successfully</li>
+                <li>Mobile hotspot connects reliably</li>
+                <li>All USB boot drives tested and working</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Step P3: Website Updates -->
+    <div class="step-card priority-critical">
+        <div class="step-header">
+            <div class="step-number">P3</div>
+            <div class="step-title">Website Updates &mdash; Location Booking &amp; Outreach Page</div>
+            <div class="step-badges">
+                <span class="badge badge-time">Days 3&ndash;8</span>
+                <span class="badge badge-cost">$0</span>
+                <span class="badge badge-critical">Blocker</span>
+            </div>
+        </div>
+        <div class="step-body">
+            <p>Customers who scan the QR code need to land on a page that explains the outreach program and lets them book an appointment. This must be live before flyers go out.</p>
+
+            <div class="substep-label prep">What to Prepare First</div>
+            <ul class="checklist">
+                <li>Build or find a scheduling system that coordinates multi-location routing (needs to handle different towns on different days, appointment slots per location, and driving logistics). Evaluate: custom Supabase solution, Acuity Scheduling, or a route-aware booking tool. Simple Calendly won't cut it for multi-location coordination.</li>
+                <li>Integrate with RepairShopr for ticket tracking &mdash; all outreach jobs should create tickets in RepairShopr just like shop work (we already use it for inventory, invoicing, and ticket management)</li>
+                <li>Write service descriptions for the outreach page (reuse from plan document)</li>
+            </ul>
+
+            <div class="substep-label action">Website Changes Needed</div>
+            <ul class="checklist">
+                <li><strong>New page: <code>/services/mobile-repair</code></strong> &mdash; "We Come to You" page explaining the pop-up kiosk program, service menu with prices, senior discount mention, FAQ, and booking link. Show "coming soon" placeholders for towns until partnerships are confirmed.</li>
+                <li><strong>Update <code>/services</code> hub page</strong> &mdash; Add "Mobile Repair" as a new service card linking to the new page</li>
+                <li><strong>Booking form/widget</strong> &mdash; Fields: name, phone, email, town/location preference, device type, brief description of issue. Confirmation email via Resend. All bookings should also create a ticket in RepairShopr.</li>
+                <li><strong>QR code landing</strong> &mdash; Ensure the QR code on flyers directs to the right page (or to homepage if general)</li>
+            </ul>
+
+            <div class="callout callout-warning">
+                <strong>Important: Homepage &amp; schedule updates come AFTER partnerships are confirmed.</strong>
+                Do not add specific town names, locations, or schedules to the homepage or mobile repair page until you have a signed/confirmed partnership. Adding "Now serving Holton!" before you actually have a Holton venue locked down looks unprofessional if someone checks and you're not there yet. Use "coming soon" placeholders until then.
+            </div>
+
+            <div class="substep-label success">Done When</div>
+            <ul class="checklist">
+                <li>Mobile repair page is live at computerstoreks.com/services/mobile-repair (with "coming soon" placeholders for unconfirmed towns)</li>
+                <li>Multi-location scheduler is functional (or at minimum, a booking form that lets customers select a town)</li>
+                <li>Bookings create tickets in RepairShopr automatically</li>
+                <li>QR code scan on phone lands on the correct page</li>
+                <li>Page looks good on mobile (most users will come from QR scan on phone)</li>
+            </ul>
+
+            <div class="callout callout-info">
+                <strong>Post-Partnership Updates (do these AFTER Phase 1 partnerships are confirmed):</strong>
+                <ul style="margin-top: 8px; padding-left: 20px;">
+                    <li>Add confirmed town names, partner locations, and schedule to the mobile repair page</li>
+                    <li>Add a banner or card to the homepage: "Now serving [Town Names]! Book a visit."</li>
+                    <li>Remove "coming soon" placeholders as towns are confirmed</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step P4: Forms & Documents -->
+    <div class="step-card priority-high">
+        <div class="step-header">
+            <div class="step-number">P4</div>
+            <div class="step-title">Create Business Forms &amp; Templates</div>
+            <div class="step-badges">
+                <span class="badge badge-time">Days 3&ndash;7</span>
+                <span class="badge badge-cost">$0</span>
+            </div>
+        </div>
+        <div class="step-body">
+            <div class="substep-label deliverables">Documents to Create</div>
+            <ul class="checklist">
+                <li><strong>Customer Intake Form (paper)</strong> &mdash; Name, phone, email, device type, serial number, issue description, authorization to work on device, signature line. Include liability waiver ("not responsible for data loss" standard language). Print 50 copies.</li>
+                <li><strong>Partnership Agreement (1-page)</strong> &mdash; Simple, friendly. Covers: what CSK provides (tech, signage, marketing), what partner provides (table/space, promotion to members), commission structure if applicable (5&ndash;10% or free IT for partner), schedule, 30-day cancellation by either party. NOT a binding contract &mdash; a handshake formalized. Have 10 copies ready.</li>
+                <li><strong>Take-Back Receipt</strong> &mdash; For devices that need shop work. Device description, customer info, estimated turnaround, estimated cost range, pickup location preference (shop or next visit). Carbonless duplicate: one copy for customer, one for shop. Print 50.</li>
+                <li><strong>Outreach Tracking via RepairShopr</strong> &mdash; We already use RepairShopr for ticket tracking, inventory, and invoicing. Tag all outreach tickets with a "Mobile Outreach" tag or custom field so they can be filtered. Supplement with a simple spreadsheet (date, location, customers seen, notes) for per-location metrics that RepairShopr doesn't natively track.</li>
+                <li><strong>Partner Outreach Log</strong> &mdash; Track all outreach attempts: organization name, contact person, phone, email, date called, outcome, follow-up date, notes, status (prospect/contacted/interested/confirmed/declined).</li>
+            </ul>
+
+            <div class="substep-label success">Done When</div>
+            <ul class="checklist">
+                <li>All forms printed and in the mobile kit</li>
+                <li>Partnership agreement reviewed (consider having a lawyer glance at it, or use a standard template)</li>
+                <li>Tracking spreadsheet set up and accessible on mobile</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Step P5: Insurance & Legal -->
+    <div class="step-card priority-high">
+        <div class="step-header">
+            <div class="step-number">P5</div>
+            <div class="step-title">Verify Insurance &amp; Legal Coverage</div>
+            <div class="step-badges">
+                <span class="badge badge-time">Days 1&ndash;5</span>
+                <span class="badge badge-cost">$0&ndash;$50</span>
+            </div>
+        </div>
+        <div class="step-body">
+            <div class="substep-label action">Actions</div>
+            <ul class="checklist">
+                <li>Call your business insurance provider. Ask: "Does my general liability policy cover me performing computer repair services at third-party locations (libraries, senior centers, coffee shops)?" If not, ask about a rider/endorsement.</li>
+                <li>Verify vehicle insurance covers business use (commuting to work sites)</li>
+                <li>Confirm you have a valid Topeka business license (and check if any target counties require separate licensing)</li>
+                <li>Ensure intake forms include adequate liability language (not responsible for pre-existing hardware failure, data loss disclaimer)</li>
+            </ul>
+
+            <div class="callout callout-warning">
+                <strong>Important:</strong> Some partners (especially libraries and senior centers) may ask "Do you have insurance?" during the pitch. Being able to immediately say "Yes, we carry general liability" builds instant credibility. Have your policy number handy.
+            </div>
+        </div>
+    </div>
+
+    <!-- Step P6: Scripts -->
+    <div class="step-card priority-high">
+        <div class="step-header">
+            <div class="step-number">P6</div>
+            <div class="step-title">Write Phone Scripts &amp; Email Templates</div>
+            <div class="step-badges">
+                <span class="badge badge-time">Days 5&ndash;8</span>
+                <span class="badge badge-cost">$0</span>
+            </div>
+        </div>
+        <div class="step-body">
+            <p>Write these out word-for-word. Practice them. The goal is to sound natural, not read from a script &mdash; but having the script prevents fumbling on the first call.</p>
+
+            <div class="substep-label script">Phone Script &mdash; Senior Center / Library Director</div>
+            <div class="script-box">
+                <span class="speaker">Opening (15 seconds)</span>
+                "Hi, this is [Name] from The Computer Store in Topeka. I'm reaching out because we're starting a free program to bring computer repair and tech help directly to communities like yours, so folks don't have to drive all the way into Topeka. Do you have just two minutes?"
+            </div>
+            <div class="script-box">
+                <span class="speaker">Pitch (30 seconds)</span>
+                "Here's the idea: we'd send a professional technician to your [center/library] on a regular schedule &mdash; say, every Tuesday afternoon. Your [members/patrons] could walk in with their laptop, phone, or tablet and get help on the spot. Things like virus removal, slow computer tune-ups, setting up email, transferring photos &mdash; the stuff people struggle with. We offer a 10% senior discount on everything. There's zero cost or risk to you &mdash; all we need is a table and two chairs."
+            </div>
+            <div class="script-box">
+                <span class="speaker">Close</span>
+                "Would it make sense for me to stop by for 10 minutes to show you what we do? I could bring a flyer your members could look at. What day works best for you this week?"
+            </div>
+
+            <div class="substep-label script">Phone Script &mdash; Small Business Owner (Coffee Shop, Barbershop)</div>
+            <div class="script-box">
+                <span class="speaker">Opening</span>
+                "Hi, is this [Owner Name]? This is [Name] from The Computer Store in Topeka. I love what you've built at [business name] &mdash; I actually [have been there / heard great things]. Quick question: would you be open to a partnership that brings extra foot traffic to your shop at zero cost?"
+            </div>
+            <div class="script-box">
+                <span class="speaker">Pitch</span>
+                "We're bringing mobile computer repair to [town name]. The idea is simple: one day a month, we set up a small repair station at a local business. Your customers see a convenient new service, and our customers buy coffee while they wait. We can either pay you a small commission on services we perform, or we'll handle all your business IT needs for free &mdash; your call. Either way, there's no lease, no commitment, and we can try it once to see if it works."
+            </div>
+
+            <div class="substep-label script">Email Template &mdash; Initial Outreach</div>
+            <div class="script-box">
+                <span class="speaker">Subject: Free Computer Help for [Town Name] Residents &mdash; Partnership Inquiry</span>
+                Hi [Name],<br><br>
+                I'm [Name] from The Computer Store in Topeka (computerstoreks.com). We're launching a community outreach program to bring professional computer repair and tech help directly to [town name] so residents don't have to drive to Topeka for service.<br><br>
+                We're looking for a community partner to host us &mdash; all we need is a table and two chairs, one day per [week/month]. Your [members/patrons/customers] would get convenient, affordable tech help with a 10% senior discount on all services. There's no cost or obligation to you.<br><br>
+                I'd love to stop by for 10 minutes to show you what we do. Would [day] or [day] work for a quick visit?<br><br>
+                Thanks for your time,<br>
+                [Name]<br>
+                The Computer Store | (xxx) xxx-xxxx | computerstoreks.com
+            </div>
+
+            <div class="substep-label script">Follow-Up Email (Send 5 Days After No Response)</div>
+            <div class="script-box">
+                <span class="speaker">Subject: Quick Follow-Up &mdash; Computer Help for [Town Name]</span>
+                Hi [Name],<br><br>
+                Just circling back on my note last week about bringing free tech help to [venue name]. I know you're busy, so I'll keep this short: we've already had interest from [other venue type] in the area, and I wanted to make sure [venue name] had first chance to be our [town name] partner.<br><br>
+                Happy to answer any questions by phone if easier: (xxx) xxx-xxxx.<br><br>
+                Best,<br>[Name]
+            </div>
+
+            <div class="substep-label success">Done When</div>
+            <ul class="checklist">
+                <li>Phone scripts printed and taped near phone/desk for reference</li>
+                <li>Email templates saved as drafts in email client (ready to personalize and send)</li>
+                <li>Practiced phone script out loud at least 3 times</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="milestone">
+        <h3>Pre-Launch Milestone: Ready to Launch</h3>
+        <ul>
+            <li>All marketing materials printed and organized</li>
+            <li>Mobile repair kit assembled and tested</li>
+            <li>Website updated with mobile repair page and booking</li>
+            <li>Business forms created and printed</li>
+            <li>Insurance verified for off-site work</li>
+            <li>Phone scripts and email templates written and practiced</li>
+            <li>Tracking spreadsheet set up</li>
+            <li>Vehicle prepped with magnet signs</li>
+        </ul>
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- PHASE 0: STRATEGIC GROUNDWORK -->
+    <!-- ================================================================== -->
+    <div class="phase-banner phase-0">
+        <div class="phase-number">0</div>
+        <h2>Phase 0: Strategic Groundwork</h2>
+        <div class="phase-meta">Week 1 &bull; Contact the gatekeepers who unlock entire networks of partners</div>
+    </div>
+
+    <div class="callout callout-info">
+        <strong>Why Phase 0 exists:</strong> Three organizations &mdash; Jayhawk AAA, NEKAAA, and Osage County Senior Center &mdash; collectively control access to every senior center in your 12-town radius. One warm introduction from them is worth 10 cold calls. Invest this week in these relationships before calling individual venues.
+    </div>
+
+    <div class="step-card priority-critical">
+        <div class="step-header">
+            <div class="step-number">0.1</div>
+            <div class="step-title">Contact Jayhawk Area Agency on Aging</div>
+            <div class="step-badges">
+                <span class="badge badge-time">Day 1</span>
+                <span class="badge badge-owner">Owner</span>
+                <span class="badge badge-critical">Highest Priority</span>
+            </div>
+        </div>
+        <div class="step-body">
+            <p>This single organization serves all Shawnee County seniors and is already involved in the TSC Get Digital program. Susan Harris can introduce you to every senior center in Topeka, Silver Lake, and Rossville.</p>
+
+            <div class="substep-label prep">Before You Call</div>
+            <ul class="checklist">
+                <li>Research the TSC Get Digital program (topeka.org/tscgetdigital) so you can reference it intelligently</li>
+                <li>Have the Partner One-Sheet ready to email immediately after the call</li>
+                <li>Know your schedule availability for an in-person meeting this week</li>
+            </ul>
+
+            <div class="substep-label contacts">Contact Information</div>
+            <div class="contact-ref">
+                <div><strong>Jayhawk Area Agency on Aging</strong></div>
+                <div class="detail">Susan Harris, Executive Director</div>
+                <div class="detail">(785) 235-1367</div>
+                <div class="detail"><a href="mailto:info@jhawkaaa.org">info@jhawkaaa.org</a></div>
+                <div class="detail">2910 SW Topeka Blvd, Topeka, KS 66611</div>
+            </div>
+
+            <div class="substep-label script">Tailored Script</div>
+            <div class="script-box">
+                <span class="speaker">Opening</span>
+                "Hi, I'm trying to reach Susan Harris. This is [Name] from The Computer Store in Topeka. We're a local computer repair shop, and I'm calling because we're launching a program to bring free tech help and affordable computer repair directly to senior centers &mdash; and I think your agency would be the perfect partner to help us reach the seniors who need it most."
+            </div>
+            <div class="script-box">
+                <span class="speaker">Key Points to Hit</span>
+                &bull; "I know you're involved with the TSC Get Digital program &mdash; our service is a natural complement. People who get free computers still need repair and troubleshooting."<br>
+                &bull; "We offer a standing 10% senior discount on all services."<br>
+                &bull; "We're not asking for funding &mdash; we're offering a service. All we need is introductions to your senior center partners."<br>
+                &bull; "Could we meet for 15 minutes this week? I'd love to show you what we do."
+            </div>
+
+            <div class="substep-label action">Follow-Up Plan</div>
+            <ul class="checklist">
+                <li>If you reach Susan: schedule in-person meeting within 5 days. Email Partner One-Sheet within 1 hour of call.</li>
+                <li>If voicemail: leave a concise message (under 30 seconds). Send email template same day. Call back in 3 days if no response.</li>
+                <li>At the meeting: bring 5 Partner One-Sheets, 10 flyers, and business cards. Ask for introductions to East Topeka Senior Center, LULAC, Papan's Landing, and Shepherd's Center.</li>
+            </ul>
+
+            <div class="substep-label success">Done When</div>
+            <ul class="checklist">
+                <li>Meeting scheduled or call returned</li>
+                <li>Susan agrees to introduce you to at least 2 senior centers</li>
+                <li>Relationship logged in Partner Outreach Log</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="step-card priority-critical">
+        <div class="step-header">
+            <div class="step-number">0.2</div>
+            <div class="step-title">Contact Northeast Kansas Area Agency on Aging (NEKAAA)</div>
+            <div class="step-badges">
+                <span class="badge badge-time">Day 1</span>
+                <span class="badge badge-critical">Highest Priority</span>
+            </div>
+        </div>
+        <div class="step-body">
+            <p>NEKAAA covers Jackson County (Holton) and Jefferson County (Perry, Oskaloosa, Meriden) &mdash; three of your four Phase 1 towns.</p>
+
+            <div class="substep-label contacts">Contact Information</div>
+            <div class="contact-ref">
+                <div><strong>Northeast Kansas Area Agency on Aging</strong></div>
+                <div class="detail">1803 Oregon, Hiawatha, KS 66434</div>
+                <div class="detail">(785) 742-7152 / 1-800-883-2549</div>
+                <div class="detail"><a href="mailto:nekaaa@nekaaa.org">nekaaa@nekaaa.org</a></div>
+            </div>
+
+            <div class="substep-label action">Action Steps</div>
+            <ul class="checklist">
+                <li>Call (785) 742-7152 &mdash; ask to speak with the Executive Director or Community Programs Coordinator</li>
+                <li>Use the same script as 0.1, adapted: mention Holton, Perry, and Oskaloosa by name</li>
+                <li>Ask specifically for introductions to Jackson County Senior Citizens Services (Holton) and Oskaloosa Senior Citizens Center</li>
+                <li>Email Partner One-Sheet same day</li>
+                <li>Follow up in 3 days if no response</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="step-card priority-critical">
+        <div class="step-header">
+            <div class="step-number">0.3</div>
+            <div class="step-title">Contact Osage County Senior Center</div>
+            <div class="step-badges">
+                <span class="badge badge-time">Day 2</span>
+                <span class="badge badge-critical">High Priority</span>
+            </div>
+        </div>
+        <div class="step-body">
+            <p>Tammy Fager runs the senior center that serves ALL 5 Osage County towns in your Phase 3: Lyndon, Overbrook, Burlingame, Carbondale, and Scranton. One relationship = 5 towns.</p>
+
+            <div class="substep-label contacts">Contact Information</div>
+            <div class="contact-ref">
+                <div><strong>Osage County Senior Center</strong></div>
+                <div class="detail">Tammy Fager, Director</div>
+                <div class="detail">(785) 528-1170 / Cell: (785) 219-2440</div>
+                <div class="detail"><a href="mailto:osagecountyseniorcenter@gmail.com">osagecountyseniorcenter@gmail.com</a></div>
+                <div class="detail">604 Market St, Osage City, KS 66523</div>
+            </div>
+
+            <div class="substep-label action">Action Steps</div>
+            <ul class="checklist">
+                <li>Call Tammy directly. She's at a smaller organization &mdash; likely answers the phone herself.</li>
+                <li>Mention you plan to serve Carbondale, Lyndon, Overbrook, Burlingame, and Scranton</li>
+                <li>Ask if she knows of satellite meal sites or gathering days in each town where you could set up</li>
+                <li>Offer to do a free "Tech Help Day" at the Osage City center as a pilot/demo</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-header">
+            <div class="step-number">0.4</div>
+            <div class="step-title">Contact Topeka &amp; Shawnee County Public Library</div>
+            <div class="step-badges">
+                <span class="badge badge-time">Day 2&ndash;3</span>
+            </div>
+        </div>
+        <div class="step-body">
+            <p>TSCPL already runs the "Level Up Shawnee County" digital literacy program and has computer labs at community centers across Topeka. A system-wide partnership could give you a presence at every community center.</p>
+
+            <div class="substep-label contacts">Contact Information</div>
+            <div class="contact-ref">
+                <div><strong>Topeka &amp; Shawnee County Public Library</strong></div>
+                <div class="detail">(785) 580-4400 (ask for Community Partnerships or Outreach)</div>
+                <div class="detail">1515 SW 10th Ave, Topeka, KS 66604</div>
+                <div class="detail"><a href="https://tscpl.org" target="_blank">tscpl.org</a></div>
+            </div>
+
+            <div class="substep-label action">Action Steps</div>
+            <ul class="checklist">
+                <li>Call main number, ask for the person who manages community partnerships or the "Level Up" digital literacy program</li>
+                <li>Pitch: "We'd like to offer monthly computer repair clinics at your community center locations. Your patrons get free tech help, and we handle the repairs. It complements your existing digital literacy work."</li>
+                <li>Ask about their process for approving community partners to host events at branch locations and community centers</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-header">
+            <div class="step-number">0.5</div>
+            <div class="step-title">Contact TSC Get Digital Program &amp; IBSA</div>
+            <div class="step-badges">
+                <span class="badge badge-time">Day 3&ndash;4</span>
+            </div>
+        </div>
+        <div class="step-body">
+            <p>These organizations give free computers to low-income residents. Those computers still break, still get viruses, still need upgrades. Position yourself as the repair/support layer for their program.</p>
+
+            <div class="substep-label contacts">Contact Information</div>
+            <div class="contact-ref">
+                <div><strong>TSC Get Digital</strong></div>
+                <div class="detail">(785) 368-3098 &bull; <a href="mailto:manderson@topeka.org">manderson@topeka.org</a></div>
+                <div class="detail">Director: <a href="mailto:mglaude@topeka.org">mglaude@topeka.org</a> &bull; (785) 368-4470</div>
+            </div>
+            <div class="contact-ref">
+                <div><strong>IBSA, Inc.</strong></div>
+                <div class="detail">Lazone Grays &bull; (785) 422-0761</div>
+                <div class="detail"><a href="mailto:lazoneg@ibsa-inc.org">lazoneg@ibsa-inc.org</a></div>
+                <div class="detail">408 SW Jackson, Topeka, KS 66603</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="milestone">
+        <h3>Phase 0 Milestone: Gatekeepers Engaged</h3>
+        <ul>
+            <li>Jayhawk AAA &mdash; meeting scheduled or introductions received</li>
+            <li>NEKAAA &mdash; contacted, follow-up scheduled</li>
+            <li>Osage County Senior Center &mdash; Tammy Fager contacted</li>
+            <li>TSCPL &mdash; outreach contact identified</li>
+            <li>All contacts logged in Partner Outreach Log</li>
+        </ul>
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- PHASE 1: PILOT -->
+    <!-- ================================================================== -->
+    <div class="phase-banner phase-1">
+        <div class="phase-number">1</div>
+        <h2>Phase 1: Pilot Launch</h2>
+        <div class="phase-meta">Weeks 2&ndash;5 &bull; Secure 2&ndash;3 partner agreements, run first pop-ups in Holton, Silver Lake &amp; Oskaloosa</div>
+    </div>
+
+    <div class="callout callout-success">
+        <strong>Target:</strong> End Phase 1 with 2&ndash;3 confirmed weekly locations generating at least 4&ndash;6 customers per visit. You don't need every town on Day 1 &mdash; you need proof of concept in your strongest markets.
+    </div>
+
+    <div class="step-card priority-critical">
+        <div class="step-header">
+            <div class="step-number">1.1</div>
+            <div class="step-title">Holton Outreach Blitz (Priority #1 Town)</div>
+            <div class="step-badges">
+                <span class="badge badge-time">Week 2, Days 1&ndash;3</span>
+                <span class="badge badge-critical">First Pilot Town</span>
+            </div>
+        </div>
+        <div class="step-body">
+            <p>Holton is the strongest Phase 1 candidate: you already have an established relationship there, it's the Jackson County seat with a dedicated senior center, and the downtown square has walkable coffee shops, salons, and businesses.</p>
+
+            <div class="substep-label prep">Before You Start (Holton-Specific)</div>
+            <ul class="checklist">
+                <li>If NEKAAA provided an introduction to Jackson County Senior Citizens Services, reference it in your opening</li>
+                <li>Print 20 town-specific posters with "HOLTON" written/printed on them</li>
+                <li>Map out downtown Holton walking route: Senior Center (312 Pennsylvania) &rarr; HotSpot Coffee (316 Pennsylvania, right next door) &rarr; Mare's Coffee (413 New York) &rarr; New York Hair Affair (433 New York) &rarr; Bergsten Insurance (207 Arizona)</li>
+                <li>Plan a full day trip to Holton: morning calls, afternoon in-person walk-around</li>
+            </ul>
+
+            <div class="substep-label action">Day 1: Phone Calls (Morning)</div>
+
+            <p style="font-weight: 600; margin: 10px 0 6px;">Call #1 &mdash; Jackson County Senior Citizens Services</p>
+            <div class="contact-ref">
+                <div><strong>Jackson County Senior Citizens</strong></div>
+                <div class="detail">312 Pennsylvania Ave, Suite B, Holton, KS 66436</div>
+                <div class="detail">(785) 364-3571</div>
+                <div class="detail">Hours: Mon-Fri 8am-3pm</div>
+            </div>
+            <ul class="checklist">
+                <li>Use senior center phone script from P6</li>
+                <li>Ask for the director or manager by name (if NEKAAA provided one)</li>
+                <li>Propose: "Every Tuesday from 10am&ndash;2pm" (aligns with existing Holton route)</li>
+                <li>Offer a free first "Tech Help Day" as a trial &mdash; no commitment needed</li>
+            </ul>
+
+            <p style="font-weight: 600; margin: 10px 0 6px;">Call #2 &mdash; Beck-Bookman Library</p>
+            <div class="contact-ref">
+                <div><strong>Beck-Bookman Library</strong></div>
+                <div class="detail">Amy Austin, Director</div>
+                <div class="detail">(785) 364-3532 &bull; <a href="mailto:holtoncitylib@gmail.com">holtoncitylib@gmail.com</a></div>
+            </div>
+            <ul class="checklist">
+                <li>Use library script. Reference NEKLS membership if relevant.</li>
+                <li>Propose: monthly or biweekly "Computer Repair Clinic at the Library"</li>
+                <li>Ask if they have a meeting room or community space you could use</li>
+                <li>Libraries often need board approval &mdash; ask about their process and timeline</li>
+            </ul>
+
+            <div class="substep-label action">Day 1&ndash;2: In-Person Downtown Walk (Afternoon)</div>
+            <ul class="checklist">
+                <li>Drive to Holton with marketing materials in hand</li>
+                <li>Walk the downtown square with Partner One-Sheets, flyers, and business cards</li>
+                <li>Visit in this order (warm to cold):
+                    <ol style="margin: 6px 0 6px 20px; font-size: 0.9rem;">
+                        <li><strong>Jackson County Senior Center</strong> (if phone call was positive, drop off flyers)</li>
+                        <li><strong>HotSpot Coffee</strong> &mdash; 316 Pennsylvania Ave &mdash; (785) 364-7844 (right next to the Senior Center &mdash; walk there immediately after)</li>
+                        <li><strong>Mare's Coffee Shop</strong> &mdash; 413 New York Ave &mdash; (785) 362-6043</li>
+                        <li><strong>New York Hair Affair</strong> &mdash; 433 New York Ave &mdash; (785) 305-1973</li>
+                        <li><strong>Bergsten Insurance</strong> &mdash; 207 Arizona Ave &mdash; (785) 364-3771 (ask for Nils)</li>
+                        <li><strong>Tarwater Farm &amp; Home</strong> &mdash; 925 W 6th St &mdash; (785) 364-2162</li>
+                    </ol>
+                </li>
+                <li>At each stop: introduce yourself, leave a flyer and business card, gauge interest, log in outreach tracker</li>
+                <li>While there: post flyers at community bulletin boards, post office, Holton Recorder (local newspaper) office</li>
+            </ul>
+
+            <div class="substep-label action">Day 3: Follow-Up</div>
+            <ul class="checklist">
+                <li>Send thank-you emails to everyone you met in person</li>
+                <li>Email Partner One-Sheet to anyone who expressed interest but wanted to "think about it"</li>
+                <li>Update Partner Outreach Log with all outcomes</li>
+            </ul>
+
+            <div class="substep-label success">Holton Done When</div>
+            <ul class="checklist">
+                <li>At least 1 confirmed Holton partner (senior center or library preferred)</li>
+                <li>First pop-up date scheduled</li>
+                <li>Flyers posted in at least 5 locations around town</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="step-card priority-high">
+        <div class="step-header">
+            <div class="step-number">1.2</div>
+            <div class="step-title">Silver Lake Outreach (Closest Town &mdash; Easy Pilot)</div>
+            <div class="step-badges">
+                <span class="badge badge-time">Week 2, Days 3&ndash;5</span>
+            </div>
+        </div>
+        <div class="step-body">
+            <p>Silver Lake is only 10 minutes from Topeka &mdash; lowest commitment, lowest risk, easiest to reschedule if needed. Ideal second pilot location.</p>
+
+            <div class="substep-label action">Outreach Sequence</div>
+
+            <p style="font-weight: 600; margin: 10px 0 6px;">Call #1 &mdash; Silver Lake Public Library</p>
+            <div class="contact-ref">
+                <div><strong>Silver Lake Public Library</strong></div>
+                <div class="detail">203 Railroad St, Silver Lake, KS 66539</div>
+                <div class="detail">(785) 582-5141 &bull; <a href="mailto:library@silverlakelibrary.org">library@silverlakelibrary.org</a></div>
+            </div>
+
+            <p style="font-weight: 600; margin: 10px 0 6px;">Call #2 &mdash; Silver Lake Community Center</p>
+            <div class="contact-ref">
+                <div><strong>Silver Lake Community Center</strong></div>
+                <div class="detail">218 W Railroad St, Silver Lake, KS 66539</div>
+                <div class="detail">(785) 582-4280</div>
+            </div>
+
+            <p style="font-weight: 600; margin: 10px 0 6px;">Call #3 &mdash; American Legion Post 141</p>
+            <div class="contact-ref">
+                <div><strong>American Legion Post 141</strong></div>
+                <div class="detail">422 Aquarius St, Silver Lake, KS 66539</div>
+                <div class="detail"><a href="https://silverlakepost141.org" target="_blank">silverlakepost141.org</a></div>
+            </div>
+
+            <ul class="checklist">
+                <li>Propose: "Every Wednesday afternoon" (aligns with plan's proposed route)</li>
+                <li>In-person visit to Silver Lake is quick &mdash; drive there during lunch, walk Railroad St</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="step-card priority-high">
+        <div class="step-header">
+            <div class="step-number">1.3</div>
+            <div class="step-title">Oskaloosa &amp; Perry Outreach</div>
+            <div class="step-badges">
+                <span class="badge badge-time">Week 3</span>
+            </div>
+        </div>
+        <div class="step-body">
+
+            <p style="font-weight: 600; margin: 10px 0 6px;">Oskaloosa &mdash; 6 Potential Partners</p>
+            <div class="contact-ref">
+                <div><strong>Oskaloosa Senior Citizens Center</strong> &bull; (785) 863-2411 &bull; 515 Washington St</div>
+            </div>
+            <div class="contact-ref">
+                <div><strong>Oskaloosa Public Library</strong> &bull; (785) 863-2475 &bull; <a href="mailto:staff@oskielibrary.org">staff@oskielibrary.org</a></div>
+            </div>
+            <div class="contact-ref">
+                <div><strong>Walnut Street Coffee &amp; Deli</strong> &bull; (785) 551-1654 &bull; Owners: Lynwood &amp; Bill Yoder</div>
+            </div>
+            <div class="contact-ref">
+                <div><strong>Waters Hardware</strong> &bull; (785) 863-2229 &bull; 1007 Walnut St</div>
+            </div>
+
+            <p style="font-weight: 600; margin: 10px 0 6px;">Perry &mdash; 2 Key Partners</p>
+            <div class="contact-ref">
+                <div><strong>Perry-Lecompton Community Library</strong> &bull; (785) 597-5031 &bull; <a href="mailto:plibrary338@gmail.com">plibrary338@gmail.com</a></div>
+            </div>
+            <div class="contact-ref">
+                <div><strong>Perry American Legion Post 142</strong> &bull; (785) 597-5277 &bull; 410 Perry Place</div>
+            </div>
+
+            <ul class="checklist">
+                <li>Plan a combined trip: Perry &rarr; Oskaloosa (they're ~15 min apart on US-59)</li>
+                <li>Propose: "Every Monday" for Perry/Oskaloosa combined route</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="step-card priority-high">
+        <div class="step-header">
+            <div class="step-number">1.4</div>
+            <div class="step-title">Topeka Senior Center Direct Outreach</div>
+            <div class="step-badges">
+                <span class="badge badge-time">Week 2&ndash;3 (Parallel)</span>
+            </div>
+        </div>
+        <div class="step-body">
+            <p>While waiting for aging agency introductions, directly contact the Topeka senior centers. If Jayhawk AAA provides introductions, mention them. If not, cold-call.</p>
+
+            <div class="substep-label action">Call in This Order</div>
+            <div class="contact-ref">
+                <div><strong>1. East Topeka Senior Center</strong></div>
+                <div class="detail">Kelli Hough, Director &bull; (785) 232-7765 &bull; <a href="mailto:execdir@easttopekaseniors.org">execdir@easttopekaseniors.org</a></div>
+            </div>
+            <div class="contact-ref">
+                <div><strong>2. Topeka LULAC Senior Center</strong></div>
+                <div class="detail">(785) 234-5809 &bull; 1502 NE Seward Ave</div>
+            </div>
+            <div class="contact-ref">
+                <div><strong>3. Shepherd's Center of Topeka</strong></div>
+                <div class="detail">(785) 249-3258 &bull; <a href="mailto:shepherdstopeka@yahoo.com">shepherdstopeka@yahoo.com</a></div>
+            </div>
+            <div class="contact-ref">
+                <div><strong>4. Papan's Landing Senior Center</strong></div>
+                <div class="detail">(785) 232-1968 &bull; 619 NW Paramore St</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-header">
+            <div class="step-number">1.5</div>
+            <div class="step-title">Run First Pop-Up Events</div>
+            <div class="step-badges">
+                <span class="badge badge-time">Weeks 3&ndash;5</span>
+                <span class="badge badge-critical">Revenue Starts</span>
+            </div>
+        </div>
+        <div class="step-body">
+            <div class="substep-label prep">Before Each Pop-Up Day</div>
+            <ul class="checklist">
+                <li>Confirm with partner venue 2 days before ("Just confirming I'll see you Tuesday at 10am!")</li>
+                <li>Charge all devices (laptop, hotspot, phone)</li>
+                <li>Load mobile kit in vehicle the night before</li>
+                <li>Check weather &mdash; if severe, reschedule and notify partner + any booked customers</li>
+                <li>Review any pre-booked appointments for that location</li>
+                <li>Bring cash for making change (or go card-only with Square)</li>
+            </ul>
+
+            <div class="substep-label action">Day-Of Execution</div>
+            <ul class="checklist">
+                <li>Arrive 15 minutes early to set up</li>
+                <li>Set up table, signage, tabletop tent card, flyer stack, business cards</li>
+                <li>Greet everyone warmly &mdash; even if they don't need service today, give them a card</li>
+                <li>For each customer: fill out intake form, diagnose, fix on-site or create take-back receipt</li>
+                <li>Offer Silver Plan to every customer (upsell opportunity)</li>
+                <li>Collect customer email for follow-up (ask permission)</li>
+                <li>Before leaving: thank the partner venue contact by name, leave extra flyers, confirm next visit date</li>
+            </ul>
+
+            <div class="substep-label action">After Each Pop-Up Day</div>
+            <ul class="checklist">
+                <li>All service tickets should already be in RepairShopr (tagged "Mobile Outreach"). Log per-location summary data: location, customers seen, walk-ins vs appointments, Silver Plan signups, take-backs, partner feedback notes.</li>
+                <li>Send follow-up text/email to any customers with take-back devices ("Your laptop is at our Topeka shop, we'll have an update by Friday")</li>
+                <li>Note any feedback from the partner or observations (busy time vs. slow time, better location in venue, etc.)</li>
+            </ul>
+
+            <div class="substep-label success">Phase 1 Success Criteria</div>
+            <ul class="checklist">
+                <li>2&ndash;3 locations running on a weekly schedule</li>
+                <li>Average 4&ndash;6 customers per pop-up day</li>
+                <li>Average revenue $200&ndash;$400 per pop-up day</li>
+                <li>At least 1 Silver Plan signup per week</li>
+                <li>Partner satisfaction: "Yes, we want to continue"</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="milestone">
+        <h3>Phase 1 Milestone: Proof of Concept</h3>
+        <ul>
+            <li>2&ndash;3 confirmed partner locations running monthly</li>
+            <li>First month revenue tracked and positive</li>
+            <li>Customer feedback collected</li>
+            <li>Partner feedback collected</li>
+            <li>Route schedule published on website (only confirmed locations)</li>
+            <li>Homepage updated with confirmed partner towns</li>
+            <li>At least 1 take-back device returned at next visit</li>
+            <li>RepairShopr ticket tagging working for outreach jobs</li>
+        </ul>
+    </div>
+
+    <div class="callout callout-success">
+        <strong>Premium House Calls:</strong> Once pop-ups are running, customers who call the shop with urgent issues between scheduled pop-up days can be offered a premium house call ($25&ndash;$50 surcharge on top of service price). This is not the primary model &mdash; it's an upsell for customers who can't wait. Route these through the main shop number and schedule them on non-pop-up days.
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- PHASE 2: EXPAND -->
+    <!-- ================================================================== -->
+    <div class="phase-banner phase-2">
+        <div class="phase-number">2</div>
+        <h2>Phase 2: Expand</h2>
+        <div class="phase-meta">Months 2&ndash;3 &bull; Add 3&ndash;4 more locations, launch marketing, optimize schedule</div>
+    </div>
+
+    <div class="step-card priority-high">
+        <div class="step-header">
+            <div class="step-number">2.1</div>
+            <div class="step-title">Phase 2 Town Outreach: Rossville, St. Marys, Meriden, Carbondale</div>
+            <div class="step-badges">
+                <span class="badge badge-time">Month 2, Weeks 1&ndash;2</span>
+            </div>
+        </div>
+        <div class="step-body">
+            <div class="substep-label prep">Before Starting Phase 2 Outreach</div>
+            <ul class="checklist">
+                <li>Review Phase 1 metrics &mdash; which day/time performed best? Replicate that pattern.</li>
+                <li>Get a testimonial or quote from your Phase 1 partner ("The Computer Store has been great for our members" &mdash; use in Phase 2 pitches)</li>
+                <li>Print fresh batch of flyers if running low</li>
+                <li>Update website &amp; homepage with confirmed Phase 1 locations (they're confirmed now &mdash; show momentum)</li>
+            </ul>
+
+            <div class="substep-label action">Outreach Targets (Call in Order)</div>
+
+            <p style="font-weight: 600; margin: 10px 0 6px;">Rossville</p>
+            <div class="contact-ref">
+                <div><strong>Rossville Senior Center</strong> &bull; (785) 584-6364 &bull; 429 Pearl St</div>
+            </div>
+            <div class="contact-ref">
+                <div><strong>Rossville Community Library</strong> &bull; Christi McKenzie, Director &bull; (785) 584-6454 &bull; <a href="mailto:rossvillelibrary@gmail.com">rossvillelibrary@gmail.com</a></div>
+            </div>
+
+            <p style="font-weight: 600; margin: 10px 0 6px;">St. Marys</p>
+            <div class="contact-ref">
+                <div><strong>St. Marys Senior Center</strong> &bull; (785) 321-1225 &bull; 403 W Lasley St</div>
+            </div>
+            <div class="contact-ref">
+                <div><strong>Pottawatomie Wabaunsee Regional Library</strong> &bull; (785) 437-2778 &bull; 306 N 5th St</div>
+            </div>
+
+            <p style="font-weight: 600; margin: 10px 0 6px;">Meriden</p>
+            <div class="contact-ref">
+                <div><strong>Meriden Community Library</strong> &bull; (785) 484-3393 &bull; 7272 K4 Hwy</div>
+            </div>
+
+            <p style="font-weight: 600; margin: 10px 0 6px;">Carbondale</p>
+            <div class="contact-ref">
+                <div><strong>Carbondale City Library</strong> &bull; Traci Smith, Interim Director &bull; (785) 836-7638 &bull; <a href="mailto:director@carbondalecitylibrary.org">director@carbondalecitylibrary.org</a></div>
+            </div>
+            <div class="contact-ref">
+                <div><strong>ELM Community Center</strong> &bull; (785) 231-8036 &bull; 228 Main St</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-header">
+            <div class="step-number">2.2</div>
+            <div class="step-title">Launch Facebook Advertising (Town-Targeted)</div>
+            <div class="step-badges">
+                <span class="badge badge-time">Month 2, Week 2</span>
+                <span class="badge badge-cost">$50&ndash;$100/month</span>
+            </div>
+        </div>
+        <div class="step-body">
+            <div class="substep-label prep">Before Running Ads</div>
+            <ul class="checklist">
+                <li>Ensure Facebook business page is up to date with current info</li>
+                <li>Have at least 1 photo from an actual pop-up event (real &gt; stock)</li>
+                <li>Website booking page is live and tested</li>
+            </ul>
+
+            <div class="substep-label action">Ad Strategy</div>
+            <ul class="checklist">
+                <li>Create separate ad sets targeting each town by ZIP code (10-mile radius)</li>
+                <li>Target: age 40+, interests in "computer repair", "technology", living in target ZIP codes</li>
+                <li>Ad copy: "Computer problems? The Computer Store now comes to [Town Name]! Free tech help every [Day]. [Address]. No appointment needed."</li>
+                <li>Budget: $5/day per town, run Monday&ndash;Friday only</li>
+                <li>Include QR code image or link to booking page</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-header">
+            <div class="step-number">2.3</div>
+            <div class="step-title">Local Newspaper Features &amp; Community Boards</div>
+            <div class="step-badges">
+                <span class="badge badge-time">Month 2, Ongoing</span>
+                <span class="badge badge-cost">$0&ndash;$50</span>
+            </div>
+        </div>
+        <div class="step-body">
+            <div class="substep-label action">Free Publicity Actions</div>
+            <ul class="checklist">
+                <li><strong>Holton Recorder</strong> &mdash; Contact editor about a feature story: "Topeka computer repair shop brings free tech help to rural communities." Local papers love this kind of story.</li>
+                <li><strong>Oskaloosa Independent</strong> &mdash; Same pitch</li>
+                <li><strong>Topeka Capital-Journal</strong> &mdash; Pitch for community section or small business feature</li>
+                <li>Post flyers at every church bulletin board, post office, and laundromat in your active towns</li>
+                <li>Ask partner venues to share on their Facebook pages and newsletters</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-header">
+            <div class="step-number">2.4</div>
+            <div class="step-title">Optimize Schedule Based on Data</div>
+            <div class="step-badges">
+                <span class="badge badge-time">End of Month 3</span>
+            </div>
+        </div>
+        <div class="step-body">
+            <div class="substep-label action">Data Review Actions</div>
+            <ul class="checklist">
+                <li>Pull tracking spreadsheet data: revenue per location, customers per location, Silver Plan signups</li>
+                <li>Rank all locations by revenue per visit</li>
+                <li>Double up on high-performing locations (go weekly instead of biweekly)</li>
+                <li>Drop or reduce frequency at low-performing locations</li>
+                <li>Move day/time if data suggests a better slot (e.g., "Tuesdays are slow, try Thursdays")</li>
+                <li>Update website schedule to reflect changes</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="milestone">
+        <h3>Phase 2 Milestone: Scaled Operations</h3>
+        <ul>
+            <li>5&ndash;7 active locations across Phase 1 + Phase 2 towns</li>
+            <li>Weekly revenue from outreach: $800&ndash;$1,500</li>
+            <li>Facebook ads running with measurable click-throughs</li>
+            <li>At least 1 newspaper mention/feature</li>
+            <li>Silver Plan conversion rate tracked by location</li>
+            <li>Proposed weekly schedule optimized based on 6+ weeks of data</li>
+        </ul>
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- PHASE 3: SATURATE -->
+    <!-- ================================================================== -->
+    <div class="phase-banner phase-3">
+        <div class="phase-number">3</div>
+        <h2>Phase 3: Saturate</h2>
+        <div class="phase-meta">Months 4&ndash;6 &bull; Fill remaining route days, launch referral program, explore grants</div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-header">
+            <div class="step-number">3.1</div>
+            <div class="step-title">Phase 3 Town Outreach: Overbrook, Burlingame, Lyndon, Scranton</div>
+            <div class="step-badges">
+                <span class="badge badge-time">Month 4, Weeks 1&ndash;2</span>
+            </div>
+        </div>
+        <div class="step-body">
+            <div class="substep-label prep">Before Starting Phase 3</div>
+            <ul class="checklist">
+                <li>If Tammy Fager (Osage County Senior Center) was contacted in Phase 0, follow up &mdash; she covers all 5 towns</li>
+                <li>Gather 2&ndash;3 customer testimonials from Phase 1/2 to use in pitches</li>
+                <li>Print town-specific flyers for each Phase 3 town</li>
+            </ul>
+
+            <div class="substep-label action">Key Contacts</div>
+            <div class="contact-ref">
+                <div><strong>Overbrook Public Library</strong> &bull; (785) 862-9840 &bull; 317 Maple St</div>
+            </div>
+            <div class="contact-ref">
+                <div><strong>Burlingame Community Library</strong> &bull; Brandi Shaffer &bull; (785) 654-3400</div>
+            </div>
+            <div class="contact-ref">
+                <div><strong>Lyndon Carnegie Library</strong> &bull; (785) 828-4520 &bull; 127 E 6th St</div>
+            </div>
+            <div class="contact-ref">
+                <div><strong>True Brew Coffee House (Lyndon)</strong> &bull; (785) 756-4140 &bull; 804 Topeka Ave</div>
+            </div>
+            <div class="contact-ref">
+                <div><strong>American Legion Post 125 (Lyndon)</strong> &bull; (785) 640-6511 &bull; <a href="mailto:lyndonlegion@gmail.com">lyndonlegion@gmail.com</a></div>
+            </div>
+            <div class="contact-ref">
+                <div><strong>Scranton Community Center</strong> &bull; (785) 793-2414 &bull; 300 Boone St</div>
+            </div>
+
+            <div class="callout callout-info">
+                <strong>Efficiency note:</strong> Burlingame is an AARP Age-Friendly Community (since 2021) &mdash; mention this alignment in your pitch. The community center has a weekly farmers market &mdash; consider setting up there on market day for maximum visibility.
+            </div>
+        </div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-header">
+            <div class="step-number">3.2</div>
+            <div class="step-title">Launch Customer Referral Program</div>
+            <div class="step-badges">
+                <span class="badge badge-time">Month 4</span>
+                <span class="badge badge-cost">$0</span>
+            </div>
+        </div>
+        <div class="step-body">
+            <div class="substep-label action">Program Design</div>
+            <ul class="checklist">
+                <li>Create referral cards: "Refer a friend &mdash; you both get $10 off your next service"</li>
+                <li>Give 2 referral cards to every customer after service</li>
+                <li>Track referrals in spreadsheet (who referred whom)</li>
+                <li>Announce program on Facebook and website</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-header">
+            <div class="step-number">3.3</div>
+            <div class="step-title">Explore Grant Funding for Senior Digital Literacy</div>
+            <div class="step-badges">
+                <span class="badge badge-time">Month 5&ndash;6</span>
+            </div>
+        </div>
+        <div class="step-body">
+            <div class="substep-label prep">Research Before Applying</div>
+            <ul class="checklist">
+                <li>Contact KDADS at (785) 296-4986 &mdash; ask about grants for senior digital literacy programs</li>
+                <li>Ask Jayhawk AAA (Susan Harris) if she knows of any grant opportunities</li>
+                <li>Search grants.gov for "digital equity" and "senior technology" in Kansas</li>
+                <li>Check if the FCC Affordable Connectivity Program successor has community partner opportunities</li>
+            </ul>
+
+            <div class="substep-label action">Grant Positioning</div>
+            <ul class="checklist">
+                <li>Frame the pop-up kiosk program as a "Senior Digital Literacy &amp; Device Support" initiative</li>
+                <li>Gather data from tracking spreadsheet: seniors served, services provided, towns reached</li>
+                <li>Get letters of support from partner senior centers (ask Tammy Fager, Kelli Hough)</li>
+                <li>Partner with IBSA or TSC Get Digital as co-applicants for stronger applications</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-header">
+            <div class="step-number">3.4</div>
+            <div class="step-title">Topeka Community Center Expansion</div>
+            <div class="step-badges">
+                <span class="badge badge-time">Month 5</span>
+            </div>
+        </div>
+        <div class="step-body">
+            <p>Now that you have a track record and testimonials, approach the Shawnee County community centers that already have computer labs. You'd be adding repair services to their existing tech ecosystem.</p>
+
+            <div class="substep-label action">Priority Contacts</div>
+            <div class="contact-ref">
+                <div><strong>Shawnee North Community Center</strong> &bull; Devin Cooper, Director &bull; (785) 251-6900 &bull; <a href="mailto:devin.cooper@snco.us">devin.cooper@snco.us</a></div>
+            </div>
+            <div class="contact-ref">
+                <div><strong>Omni Circle Coworking</strong> &bull; Michael Odupitan &bull; (785) 430-3998 &bull; <a href="mailto:info@omnicirclegroup.org">info@omnicirclegroup.org</a></div>
+            </div>
+            <div class="contact-ref">
+                <div><strong>Topeka Housing Authority</strong> &bull; (785) 357-8842 &bull; <a href="mailto:info@tha.gov">info@tha.gov</a></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="milestone">
+        <h3>Phase 3 Milestone: Full Route Coverage</h3>
+        <ul>
+            <li>8&ndash;12 active locations filling all weekdays</li>
+            <li>Weekly revenue from outreach: $1,500&ndash;$2,500</li>
+            <li>Referral program generating 2+ new customers per week</li>
+            <li>At least 1 grant application submitted or in progress</li>
+            <li>Consideration started for second technician</li>
+        </ul>
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- PHASE 4: OPTIMIZE -->
+    <!-- ================================================================== -->
+    <div class="phase-banner phase-4">
+        <div class="phase-number">4</div>
+        <h2>Phase 4: Optimize &amp; Scale</h2>
+        <div class="phase-meta">Months 6&ndash;12 &bull; Drop underperformers, double down on winners, consider second tech</div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-header">
+            <div class="step-number">4.1</div>
+            <div class="step-title">Quarterly Performance Review</div>
+            <div class="step-badges">
+                <span class="badge badge-time">Month 6, then every 3 months</span>
+            </div>
+        </div>
+        <div class="step-body">
+            <div class="substep-label action">Review Process</div>
+            <ul class="checklist">
+                <li>Export full tracking spreadsheet data</li>
+                <li>Calculate per-location metrics: avg revenue/visit, avg customers/visit, Silver Plan conversion rate, take-back rate</li>
+                <li>Rank all locations by profitability (revenue minus drive time/fuel cost)</li>
+                <li>Identify: Top 3 locations (increase frequency), Bottom 3 (reduce or drop), Middle (maintain)</li>
+                <li>Calculate total program P&amp;L: revenue - (tech wages + fuel + materials + commissions + ads)</li>
+                <li>Survey partners: "How's it going? Anything we should change?"</li>
+                <li>Survey customers: collect 3&ndash;5 testimonials for marketing</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-header">
+            <div class="step-number">4.2</div>
+            <div class="step-title">Second Technician Evaluation</div>
+            <div class="step-badges">
+                <span class="badge badge-time">Month 8&ndash;10</span>
+            </div>
+        </div>
+        <div class="step-body">
+            <div class="substep-label action">Trigger Criteria for Hiring</div>
+            <ul class="checklist">
+                <li>Consistently turning away customers at pop-ups (demand exceeds capacity)</li>
+                <li>Waitlist forming at 3+ locations</li>
+                <li>Monthly outreach net profit consistently above $4,000</li>
+                <li>5+ partner venues requesting additional days</li>
+            </ul>
+
+            <ul class="checklist">
+                <li>If criteria met: hire part-time outreach tech (20 hrs/week), start with Phase 3 towns</li>
+                <li>If not met: continue single-tech operation, consider Saturday slots at top locations instead</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-header">
+            <div class="step-number">4.3</div>
+            <div class="step-title">Formalize Annual Partner Renewals</div>
+            <div class="step-badges">
+                <span class="badge badge-time">Month 11&ndash;12</span>
+            </div>
+        </div>
+        <div class="step-body">
+            <ul class="checklist">
+                <li>Contact each partner 30 days before the 1-year anniversary</li>
+                <li>Share their impact data: "In the past year, we served X customers at your location, performed $Y in services"</li>
+                <li>Ask for annual renewal (still informal, handshake agreement)</li>
+                <li>Update any terms that need adjusting (schedule, commission, etc.)</li>
+                <li>Ask for a testimonial for marketing if you haven't already</li>
+                <li>Consider branded "Year 1" thank-you gift (mug, small gift card)</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-header">
+            <div class="step-number">4.4</div>
+            <div class="step-title">Evaluate Radius Expansion &amp; Branded Vehicle</div>
+            <div class="step-badges">
+                <span class="badge badge-time">Month 12</span>
+            </div>
+        </div>
+        <div class="step-body">
+            <ul class="checklist">
+                <li>Review if Phase 3 towns are saturated (consistent demand, no growth plateau)</li>
+                <li>If yes: research towns in a 60-minute radius for Phase 5 expansion</li>
+                <li>Evaluate dedicated outreach vehicle with full CSK branding (wrap vs. magnets)</li>
+                <li>Create case studies from top 3 partner success stories for future pitches</li>
+                <li>Document the entire playbook for training a second tech to run routes independently</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="milestone">
+        <h3>Year 1 Milestone: Established Program</h3>
+        <ul>
+            <li>8&ndash;12 locations running on a sustainable weekly schedule</li>
+            <li>Annual outreach revenue: $50,000&ndash;$100,000</li>
+            <li>Silver Plan customer base grown by 20%+ from outreach</li>
+            <li>Partner retention rate above 80%</li>
+            <li>Brand recognition established in all 12 target towns</li>
+            <li>Decision made on second technician</li>
+            <li>Grant funding secured or in pipeline</li>
+            <li>Playbook documented for replication</li>
+        </ul>
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- FINANCIAL SUMMARY -->
+    <!-- ================================================================== -->
+    <div class="step-card" style="border-left-color: var(--secondary);">
+        <div class="step-header">
+            <div class="step-title" style="font-size: 1.4rem;">Financial Summary</div>
+        </div>
+        <div class="step-body">
+            <div class="two-col">
+                <div>
+                    <p style="font-weight: 700; margin-bottom: 8px;">Upfront Costs</p>
+                    <table class="cost-table">
+                        <tr><th>Item</th><th>Cost</th></tr>
+                        <tr><td>Flyers (500)</td><td>$80</td></tr>
+                        <tr><td>Business cards</td><td>$0 (already have)</td></tr>
+                        <tr><td>Posters (30)</td><td>$45</td></tr>
+                        <tr><td>Partner one-sheets (50)</td><td>$30</td></tr>
+                        <tr><td>Tabletop tent cards (20)</td><td>$15</td></tr>
+                        <tr><td>Vehicle magnets (2)</td><td>$60</td></tr>
+                        <tr><td>Intake forms &amp; receipts</td><td>$20</td></tr>
+                        <tr><td>Misc supplies (tablecloth, etc.)</td><td>$25</td></tr>
+                        <tr class="total"><td>Total Upfront</td><td>~$275&ndash;$375</td></tr>
+                    </table>
+                </div>
+                <div>
+                    <p style="font-weight: 700; margin-bottom: 8px;">Monthly Operating Costs</p>
+                    <table class="cost-table">
+                        <tr><th>Item</th><th>Cost</th></tr>
+                        <tr><td>Tech wages (outreach days)</td><td>$1,600&ndash;$2,400</td></tr>
+                        <tr><td>Fuel (~200 mi/week)</td><td>$250&ndash;$350</td></tr>
+                        <tr><td>Vehicle wear</td><td>$100&ndash;$150</td></tr>
+                        <tr><td>Mobile hotspot</td><td>$50</td></tr>
+                        <tr><td>Flyer reprints</td><td>$30</td></tr>
+                        <tr><td>Partner commissions (if applicable)</td><td>$50&ndash;$150</td></tr>
+                        <tr><td>Facebook ads</td><td>$50&ndash;$100</td></tr>
+                        <tr class="total"><td>Total Monthly</td><td>~$2,100&ndash;$3,150</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <p style="font-weight: 700; margin: 24px 0 8px;">Revenue Projections (Conservative)</p>
+            <table class="cost-table">
+                <tr><th>Metric</th><th>Phase 1</th><th>Phase 2</th><th>Phase 3</th><th>Phase 4</th></tr>
+                <tr><td>Pop-up days/week</td><td>2&ndash;3</td><td>4&ndash;5</td><td>5</td><td>5</td></tr>
+                <tr><td>Avg customers/day</td><td>3&ndash;5</td><td>5&ndash;7</td><td>6&ndash;8</td><td>7&ndash;10</td></tr>
+                <tr><td>Avg revenue/day</td><td>$200&ndash;$350</td><td>$350&ndash;$550</td><td>$450&ndash;$650</td><td>$550&ndash;$800</td></tr>
+                <tr><td>Monthly revenue</td><td>$2,000&ndash;$4,000</td><td>$6,000&ndash;$10,000</td><td>$8,000&ndash;$12,000</td><td>$10,000&ndash;$15,000</td></tr>
+                <tr class="total"><td>Monthly net</td><td>$0&ndash;$1,500</td><td>$3,000&ndash;$6,000</td><td>$5,000&ndash;$9,000</td><td>$7,000&ndash;$12,000</td></tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- Disclaimer -->
+    <div class="callout callout-warning">
+        <strong>Reminder:</strong> Contact information sourced from public records as of March 2026. Always verify details before calling. Directors and managers change &mdash; ask for the current person in charge when you call. Log every interaction in the Partner Outreach Log.
+    </div>
+
+</div>
+
+<footer>
+    <div class="container">
+        <p>The Computer Store &mdash; Community Outreach Action Plan &mdash; March 2026</p>
+        <p style="margin-top: 8px;">Prepared by Bast Project Management for Resilient Web Solutions</p>
+    </div>
+</footer>
+
+</body>
+</html>

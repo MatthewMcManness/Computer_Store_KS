@@ -5,7 +5,6 @@ import {
   verifyPassword,
   createSession,
 } from '@/lib/auth';
-import { triggerSyncIfNeeded } from '@/lib/repairshopr-sync';
 import { getDefaultDashboard } from '@/lib/role-helpers';
 
 export const dynamic = 'force-dynamic';
@@ -197,7 +196,6 @@ interface LoginRequest {
  * - Records login attempt for rate limiting (increments counter)
  * - May create or update user session (Supabase or legacy)
  * - Logs authentication attempts and results
- * - Triggers background RepairShopr sync for employee logins (non-blocking)
  *
  * @example
  * // POST /api/auth/login
@@ -216,7 +214,6 @@ interface LoginRequest {
  * - authenticateWithSupabase (from @/lib/auth)
  * - verifyPassword (from @/lib/auth)
  * - createSession (from @/lib/auth)
- * - triggerSyncIfNeeded (from @/lib/repairshopr-sync)
  *
  * @called_by Login form components via fetch
  *
@@ -288,16 +285,6 @@ export async function POST(request: NextRequest) {
       if (supabaseResult.success && supabaseResult.user) {
         // Audit log - never log passwords
         console.log(`[AUTH] Login successful: ${email}`);
-
-        // Trigger background sync for employees (non-blocking)
-        // This ensures fresh data is available immediately after login
-        if (supabaseResult.user.userType === 'employee') {
-          triggerSyncIfNeeded(24).then(({ triggered, reason }) => {
-            console.log(`[AUTH] Post-login sync check: triggered=${triggered}, reason=${reason}`);
-          }).catch(err => {
-            console.error('[AUTH] Post-login sync check failed:', err);
-          });
-        }
 
         // Get roles and compute redirect URL
         const roles = supabaseResult.user.roles ||

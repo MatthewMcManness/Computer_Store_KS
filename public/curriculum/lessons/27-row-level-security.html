@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 27: Row-Level Security (RLS) | Full-Stack Web Development Curriculum</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+
+<!-- ========== TOP NAV ========== -->
+<nav class="lesson-nav">
+  <a href="26-schema-design-migrations.html">&larr; Prev: Schema Design &amp; Migrations</a>
+  <span>Lesson 27 of 56</span>
+  <a href="28-database-triggers.html">Next: Database Triggers &amp; Automation &rarr;</a>
+</nav>
+
+<!-- ========== HEADER ========== -->
+<header class="lesson-header">
+  <div class="phase-badge" style="background:rgba(22,163,74,0.3);color:#bbf7d0;">Phase 6: Databases &amp; Supabase</div>
+  <h1>Row-Level Security (RLS)</h1>
+  <p class="lesson-subtitle">The database as the last line of defense &mdash; control who can see and modify every single row of data.</p>
+</header>
+
+<!-- ========== CONTENT ========== -->
+<div class="lesson-content">
+
+  <!-- ---- LEARNING OBJECTIVES ---- -->
+  <div class="learning-objectives">
+    <h2>What You Will Learn</h2>
+    <ul>
+      <li>What Row-Level Security is and why it is critical</li>
+      <li>Enabling RLS with ALTER TABLE</li>
+      <li>The default-deny behavior (no policies = no access)</li>
+      <li>Creating policies with CREATE POLICY syntax</li>
+      <li>Policy types: SELECT, INSERT, UPDATE, DELETE</li>
+      <li>USING clause vs WITH CHECK clause</li>
+      <li>auth.uid() &mdash; identifying the current user</li>
+      <li>Common RLS patterns for real applications</li>
+      <li>The service role key and when it bypasses RLS</li>
+      <li>Testing and debugging RLS policies</li>
+    </ul>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>What Is Row-Level Security?</h2>
+  <!-- ============================================================ -->
+
+  <p><strong>Row-Level Security (RLS)</strong> is a PostgreSQL feature that controls which rows a user can see or modify in a table. Instead of securing data only in your application code, RLS enforces access rules at the <strong>database level</strong> &mdash; the data itself decides who can access it.</p>
+
+  <div class="analogy">
+    <strong>Analogy:</strong> Imagine an apartment building. Application-level security is like a doorman at the front entrance &mdash; he checks IDs and lets people in. But what if someone sneaks past the doorman (a bug in your code, a misconfigured API)? Row-Level Security is like every individual apartment having its own lock. Even if someone gets past the doorman, they can only enter the apartments they have keys to. RLS is the lock on every single row of data.
+  </div>
+
+  <h3>Why RLS Is Critical</h3>
+
+  <p>Without RLS, your database trusts any request that reaches it. If there is a bug in your API, a misconfigured endpoint, or an attacker who bypasses your application layer, they get full access to all data. RLS prevents this:</p>
+
+  <table>
+    <thead>
+      <tr><th>Without RLS</th><th>With RLS</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Bug in API exposes all customer data</td><td>Bug in API still only shows data the user should see</td></tr>
+      <tr><td>Attacker who bypasses app code gets everything</td><td>Attacker is still limited by database policies</td></tr>
+      <tr><td>Developer mistake can leak sensitive data</td><td>Database enforces rules regardless of app code</td></tr>
+      <tr><td>Security depends entirely on application code</td><td>Defense in depth &mdash; multiple layers of protection</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ============================================================ -->
+  <h2>Enabling RLS</h2>
+  <!-- ============================================================ -->
+
+  <p>RLS is enabled per table with a single command:</p>
+
+<pre><code>-- Enable RLS on a table
+ALTER TABLE blog_posts ENABLE ROW LEVEL SECURITY;
+
+-- Enable on multiple tables
+ALTER TABLE blog_categories ENABLE ROW LEVEL SECURITY;
+ALTER TABLE blog_tags ENABLE ROW LEVEL SECURITY;
+ALTER TABLE blog_post_tags ENABLE ROW LEVEL SECURITY;</code></pre>
+
+  <div class="warning-box">
+    <strong>Default Deny!</strong>
+    Once RLS is enabled on a table, <strong>no one can access any rows</strong> unless you create explicit policies that grant access. This is "default deny" behavior and is intentional &mdash; it is better to accidentally block access than to accidentally expose data. If you enable RLS and your app suddenly returns empty results, it means you need to create policies.
+  </div>
+
+  <p>You can check if RLS is enabled in the Supabase Dashboard under Database &rarr; Tables, or with SQL:</p>
+
+<pre><code>SELECT tablename, rowsecurity
+FROM pg_tables
+WHERE schemaname = 'public';</code></pre>
+
+  <!-- ============================================================ -->
+  <h2>Creating Policies</h2>
+  <!-- ============================================================ -->
+
+  <p>Policies define the rules for who can do what. Each policy has:</p>
+
+  <ul>
+    <li>A <strong>name</strong> (descriptive, for documentation)</li>
+    <li>A <strong>table</strong> it applies to</li>
+    <li>An <strong>operation</strong> (SELECT, INSERT, UPDATE, DELETE, or ALL)</li>
+    <li>A <strong>condition</strong> that determines which rows are affected</li>
+  </ul>
+
+  <h3>Basic Syntax</h3>
+
+<pre><code>CREATE POLICY "policy_name"
+  ON table_name
+  FOR operation         -- SELECT, INSERT, UPDATE, DELETE, or ALL
+  TO role_name          -- Optional: which role (default: public)
+  USING (condition)     -- Which existing rows can be accessed
+  WITH CHECK (condition); -- Which new/modified rows are allowed</code></pre>
+
+  <h3>USING vs WITH CHECK</h3>
+
+  <p>This is the most important distinction in RLS:</p>
+
+  <table>
+    <thead>
+      <tr><th>Clause</th><th>Applies To</th><th>Question It Answers</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>USING</code></td><td>SELECT, UPDATE (existing rows), DELETE</td><td>"Can the user <strong>see</strong> this existing row?"</td></tr>
+      <tr><td><code>WITH CHECK</code></td><td>INSERT, UPDATE (new values)</td><td>"Can the user <strong>write</strong> this new/modified row?"</td></tr>
+    </tbody>
+  </table>
+
+  <ul>
+    <li><code>USING</code> filters which rows are <strong>visible</strong> &mdash; rows that do not match are invisible to the user</li>
+    <li><code>WITH CHECK</code> validates what can be <strong>written</strong> &mdash; writes that do not match are rejected with an error</li>
+  </ul>
+
+<pre><code>-- For SELECT: only USING matters
+CREATE POLICY "Anyone can read published posts"
+  ON blog_posts
+  FOR SELECT
+  USING (status = 'published');
+
+-- For INSERT: only WITH CHECK matters
+CREATE POLICY "Users can insert their own posts"
+  ON blog_posts
+  FOR INSERT
+  WITH CHECK (auth.uid() = author_id);
+
+-- For UPDATE: both matter
+-- USING: which existing rows can the user see/target?
+-- WITH CHECK: what values can the user set?
+CREATE POLICY "Users can update their own posts"
+  ON blog_posts
+  FOR UPDATE
+  USING (auth.uid() = author_id)         -- Can only target own posts
+  WITH CHECK (auth.uid() = author_id);   -- Cannot change author_id to someone else</code></pre>
+
+  <!-- ============================================================ -->
+  <h2>auth.uid() &mdash; Identifying the Current User</h2>
+  <!-- ============================================================ -->
+
+  <p>In Supabase, <code>auth.uid()</code> is a built-in function that returns the UUID of the currently authenticated user. It reads the user's identity from the JWT token in the request. If no user is authenticated, it returns <code>NULL</code>.</p>
+
+<pre><code>-- Only show rows belonging to the current user
+CREATE POLICY "Users see own data"
+  ON user_profiles
+  FOR SELECT
+  USING (id = auth.uid());
+
+-- Users can only update their own profile
+CREATE POLICY "Users update own profile"
+  ON user_profiles
+  FOR UPDATE
+  USING (id = auth.uid())
+  WITH CHECK (id = auth.uid());</code></pre>
+
+  <p><code>auth.uid()</code> is what makes RLS truly powerful &mdash; it lets you write policies that automatically adapt to whoever is making the request, without any application code.</p>
+
+  <h3>Other Useful Auth Functions</h3>
+
+  <table>
+    <thead>
+      <tr><th>Function</th><th>Returns</th><th>Use Case</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>auth.uid()</code></td><td>Current user's UUID</td><td>Row ownership checks</td></tr>
+      <tr><td><code>auth.role()</code></td><td>Current role (<code>'authenticated'</code>, <code>'anon'</code>, <code>'service_role'</code>)</td><td>Role-based access</td></tr>
+      <tr><td><code>auth.jwt()</code></td><td>Full JWT claims object</td><td>Custom claims, metadata</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ============================================================ -->
+  <h2>Common RLS Patterns</h2>
+  <!-- ============================================================ -->
+
+  <h3>Pattern 1: Public Read, Admin Write</h3>
+
+  <p>This is the most common pattern for content like blog posts &mdash; anyone can read published content, but only admins can create, edit, or delete.</p>
+
+<pre><code>-- Enable RLS
+ALTER TABLE blog_posts ENABLE ROW LEVEL SECURITY;
+
+-- Anyone can read published posts (even anonymous visitors)
+CREATE POLICY "Public can view published posts"
+  ON blog_posts
+  FOR SELECT
+  USING (status = 'published');
+
+-- Service role (admin) has full access
+-- Note: service_role already bypasses RLS by default in Supabase,
+-- but explicit policies make the intent clear
+CREATE POLICY "Service role full access"
+  ON blog_posts
+  FOR ALL
+  USING (auth.role() = 'service_role');</code></pre>
+
+  <h3>Pattern 2: Users Own Their Data</h3>
+
+  <p>Each user can only see and modify their own data.</p>
+
+<pre><code>-- Enable RLS
+ALTER TABLE user_settings ENABLE ROW LEVEL SECURITY;
+
+-- Users can only read their own settings
+CREATE POLICY "Users read own settings"
+  ON user_settings
+  FOR SELECT
+  USING (user_id = auth.uid());
+
+-- Users can only update their own settings
+CREATE POLICY "Users update own settings"
+  ON user_settings
+  FOR UPDATE
+  USING (user_id = auth.uid())
+  WITH CHECK (user_id = auth.uid());
+
+-- Users can only insert settings for themselves
+CREATE POLICY "Users insert own settings"
+  ON user_settings
+  FOR INSERT
+  WITH CHECK (user_id = auth.uid());
+
+-- Users can only delete their own settings
+CREATE POLICY "Users delete own settings"
+  ON user_settings
+  FOR DELETE
+  USING (user_id = auth.uid());</code></pre>
+
+  <h3>Pattern 3: Public Read for Published, Full Access for Authenticated</h3>
+
+  <p>A mixed pattern where some content is public and authenticated users have broader access.</p>
+
+<pre><code>-- Anyone can read public categories
+CREATE POLICY "Public can view categories"
+  ON blog_categories
+  FOR SELECT
+  USING (true);  -- true = always allow (no restriction)
+
+-- Authenticated users can manage categories
+CREATE POLICY "Authenticated users manage categories"
+  ON blog_categories
+  FOR ALL
+  USING (auth.role() = 'authenticated');</code></pre>
+
+  <h3>Pattern 4: Junction Table Following Parent Access</h3>
+
+  <p>For junction tables, policies often check the parent table:</p>
+
+<pre><code>-- Can see post-tag links only for published posts
+CREATE POLICY "Public can view tags for published posts"
+  ON blog_post_tags
+  FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM blog_posts
+      WHERE blog_posts.id = blog_post_tags.post_id
+      AND blog_posts.status = 'published'
+    )
+  );</code></pre>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    CSK uses all of these patterns. Blog posts have public SELECT for published content and service role full access for the admin. Blog categories and tags allow public SELECT with <code>USING (true)</code>. The <code>blog_post_tags</code> junction table uses a subquery to check that the linked post is published. Every single Supabase table in CSK has RLS enabled &mdash; it is a hard rule for the project.
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>The Service Role Key Bypasses RLS</h2>
+  <!-- ============================================================ -->
+
+  <p>When you use the <code>service_role</code> key to create a Supabase client, that client <strong>bypasses all RLS policies</strong>. It can read, write, and delete any row in any table, regardless of policies.</p>
+
+<pre><code>// This client respects RLS
+const supabase = createClient(url, anonKey);
+
+// This client bypasses RLS entirely
+const supabaseAdmin = createClient(url, serviceRoleKey);</code></pre>
+
+  <p>This is by design &mdash; your server-side code needs full access for admin operations, webhooks, data sync, and background tasks. But it means the service role key is extremely sensitive.</p>
+
+  <div class="warning-box">
+    <strong>Service Role Key Security Rules</strong>
+    <ul>
+      <li>Never use in client-side (browser) code</li>
+      <li>Never prefix with <code>NEXT_PUBLIC_</code></li>
+      <li>Never commit to git or share publicly</li>
+      <li>Only use in server-side code: API routes, server components, webhooks</li>
+      <li>Store in environment variables on the server only</li>
+    </ul>
+  </div>
+
+  <h3>When to Use Each Client</h3>
+
+  <table>
+    <thead>
+      <tr><th>Scenario</th><th>Client</th><th>Why</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Public blog page reading posts</td><td>Anon (public)</td><td>RLS policy allows public reads of published posts</td></tr>
+      <tr><td>User viewing their own profile</td><td>Anon (public) with user session</td><td>RLS policy allows users to read their own data</td></tr>
+      <tr><td>Admin creating a blog post</td><td>Service role (admin)</td><td>Needs to bypass RLS for write operations</td></tr>
+      <tr><td>Webhook syncing customer data</td><td>Service role (admin)</td><td>No user session; needs full access</td></tr>
+      <tr><td>Background job cleaning up old data</td><td>Service role (admin)</td><td>System process, not a user action</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ============================================================ -->
+  <h2>Multiple Policies: OR Behavior</h2>
+  <!-- ============================================================ -->
+
+  <p>When multiple policies exist for the same operation on the same table, they are combined with <strong>OR</strong> logic. A row is accessible if <strong>any</strong> matching policy allows it.</p>
+
+<pre><code>-- Policy 1: Anyone can see published posts
+CREATE POLICY "Public sees published"
+  ON blog_posts FOR SELECT
+  USING (status = 'published');
+
+-- Policy 2: Authors can see their own drafts
+CREATE POLICY "Authors see own drafts"
+  ON blog_posts FOR SELECT
+  USING (auth.uid() = author_id);
+
+-- Result: A row is visible if:
+--   status = 'published'  OR  auth.uid() = author_id
+-- Published posts visible to everyone
+-- Drafts visible only to their author</code></pre>
+
+  <p>This OR behavior is useful because you can build up access incrementally &mdash; each policy adds a new reason to allow access.</p>
+
+  <!-- ============================================================ -->
+  <h2>Testing RLS Policies</h2>
+  <!-- ============================================================ -->
+
+  <p>Testing RLS is crucial. Incorrect policies can either block legitimate access or expose sensitive data.</p>
+
+  <h3>Testing in the SQL Editor</h3>
+
+<pre><code>-- Test as an anonymous user (no auth)
+SET request.jwt.claim.role = 'anon';
+SELECT * FROM blog_posts;
+-- Should only see published posts
+
+-- Test as an authenticated user
+SET request.jwt.claim.sub = 'some-user-uuid';
+SET request.jwt.claim.role = 'authenticated';
+SELECT * FROM blog_posts;
+-- Should see published posts + own drafts
+
+-- Reset to service role (full access)
+RESET request.jwt.claim.role;
+RESET request.jwt.claim.sub;</code></pre>
+
+  <h3>What Happens with Wrong Policies</h3>
+
+  <table>
+    <thead>
+      <tr><th>Mistake</th><th>Symptom</th><th>Fix</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>RLS enabled but no policies</td><td>All queries return empty results</td><td>Create appropriate policies</td></tr>
+      <tr><td>Policy too restrictive</td><td>Users cannot see data they should</td><td>Broaden the USING condition</td></tr>
+      <tr><td>Policy too permissive</td><td>Users see data they should not</td><td>Tighten the USING condition</td></tr>
+      <tr><td>Missing WITH CHECK</td><td>Users cannot insert/update</td><td>Add WITH CHECK clause</td></tr>
+      <tr><td>Forgot to enable RLS</td><td>Everyone sees everything</td><td>ALTER TABLE ... ENABLE ROW LEVEL SECURITY</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Debugging Checklist</h3>
+
+  <ol>
+    <li>Is RLS enabled on the table? (<code>ALTER TABLE ... ENABLE ROW LEVEL SECURITY</code>)</li>
+    <li>Are there any policies for the operation you are trying? (Check in Dashboard &rarr; Authentication &rarr; Policies)</li>
+    <li>Does the USING condition match your test case?</li>
+    <li>For INSERT/UPDATE: is there a WITH CHECK policy?</li>
+    <li>Are you using the right client? (anon vs service role)</li>
+    <li>Is the user properly authenticated? (Check <code>auth.uid()</code> is not NULL)</li>
+  </ol>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    CSK went through multiple rounds of RLS policy fixes &mdash; <code>fix-rbac-policies.sql</code>, <code>fix-rbac-policies-v2.sql</code>, <code>fix-rls-policies.sql</code>, and <code>fix-security-errors.sql</code>. This is completely normal. Getting RLS right often takes several iterations, which is why each fix is a separate migration file rather than editing previous ones.
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>Complete RLS Example: Blog System</h2>
+  <!-- ============================================================ -->
+
+  <p>Here is a complete, production-ready RLS setup for a blog system:</p>
+
+<pre><code>-- =============================================
+-- Enable RLS on all blog tables
+-- =============================================
+ALTER TABLE blog_posts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE blog_categories ENABLE ROW LEVEL SECURITY;
+ALTER TABLE blog_tags ENABLE ROW LEVEL SECURITY;
+ALTER TABLE blog_post_tags ENABLE ROW LEVEL SECURITY;
+
+-- =============================================
+-- Blog Posts Policies
+-- =============================================
+
+-- Anyone can read published posts
+CREATE POLICY "Public can view published posts"
+  ON blog_posts
+  FOR SELECT
+  USING (status = 'published');
+
+-- Service role has full access (for admin operations)
+CREATE POLICY "Service role full access to posts"
+  ON blog_posts
+  FOR ALL
+  USING (auth.role() = 'service_role');
+
+-- =============================================
+-- Blog Categories Policies
+-- =============================================
+
+-- Anyone can read all categories
+CREATE POLICY "Public can view categories"
+  ON blog_categories
+  FOR SELECT
+  USING (true);
+
+-- Service role manages categories
+CREATE POLICY "Service role full access to categories"
+  ON blog_categories
+  FOR ALL
+  USING (auth.role() = 'service_role');
+
+-- =============================================
+-- Blog Tags Policies
+-- =============================================
+
+-- Anyone can read all tags
+CREATE POLICY "Public can view tags"
+  ON blog_tags
+  FOR SELECT
+  USING (true);
+
+-- Service role manages tags
+CREATE POLICY "Service role full access to tags"
+  ON blog_tags
+  FOR ALL
+  USING (auth.role() = 'service_role');
+
+-- =============================================
+-- Blog Post Tags Policies (Junction Table)
+-- =============================================
+
+-- Can see tag links for published posts only
+CREATE POLICY "Public can view post tags for published posts"
+  ON blog_post_tags
+  FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM blog_posts
+      WHERE blog_posts.id = blog_post_tags.post_id
+      AND blog_posts.status = 'published'
+    )
+  );
+
+-- Service role manages post-tag links
+CREATE POLICY "Service role full access to post_tags"
+  ON blog_post_tags
+  FOR ALL
+  USING (auth.role() = 'service_role');</code></pre>
+
+  <!-- ============================================================ -->
+  <!-- EXERCISES -->
+  <!-- ============================================================ -->
+  <div class="exercises">
+    <h2>Hands-On Exercises</h2>
+    <ol>
+      <li>
+        <strong>Enable and Test:</strong> Create a <code>notes</code> table with columns <code>id</code>, <code>user_id</code>, <code>content</code>, and <code>created_at</code>. Enable RLS. Before creating any policies, try to SELECT from the table using the anon key &mdash; what happens?
+      </li>
+      <li>
+        <strong>User Ownership:</strong> Write RLS policies for the <code>notes</code> table so that authenticated users can only see, create, update, and delete their own notes. Use <code>auth.uid()</code> for ownership checks.
+      </li>
+      <li>
+        <strong>Public + Private:</strong> Add an <code>is_public</code> boolean column to the <code>notes</code> table. Write policies so that: (a) anyone can read public notes, (b) authenticated users can read their own private notes, and (c) only the owner can write to their notes.
+      </li>
+      <li>
+        <strong>Policy Analysis:</strong> Given these two policies on the same table, describe exactly who can see what:
+        <pre><code>CREATE POLICY "Public reads" ON products
+  FOR SELECT USING (is_active = true);
+
+CREATE POLICY "Staff reads all" ON products
+  FOR SELECT USING (auth.role() = 'authenticated');</code></pre>
+      </li>
+      <li>
+        <strong>Junction Table Policy:</strong> Given tables <code>projects</code> (with <code>owner_id</code>) and <code>project_members</code> (junction: <code>project_id</code>, <code>user_id</code>), write an RLS policy on <code>project_members</code> so users can only see members of projects they belong to.
+      </li>
+      <li>
+        <strong>Debug Scenario:</strong> A developer reports that their INSERT into the <code>todos</code> table returns no error but the data does not appear. RLS is enabled. What are the possible causes, and what steps would you take to debug?
+      </li>
+    </ol>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- KEY TAKEAWAYS -->
+  <!-- ============================================================ -->
+  <div class="key-takeaways">
+    <h2>Key Takeaways</h2>
+    <ul>
+      <li><strong>RLS</strong> enforces data access rules at the database level &mdash; the last line of defense.</li>
+      <li>Enabling RLS defaults to <strong>deny all</strong> &mdash; you must create policies to grant access.</li>
+      <li><code>USING</code> controls which existing rows are <strong>visible</strong>; <code>WITH CHECK</code> controls what can be <strong>written</strong>.</li>
+      <li><code>auth.uid()</code> identifies the current user in Supabase policies.</li>
+      <li>Multiple policies on the same table/operation use <strong>OR</strong> logic.</li>
+      <li>The <strong>service role key</strong> bypasses all RLS &mdash; use it only on the server.</li>
+      <li>Common patterns: public read + admin write, user-owned data, junction table following parent access.</li>
+      <li>RLS policies often require <strong>multiple iterations</strong> to get right &mdash; test thoroughly.</li>
+      <li>Always enable RLS on every table in Supabase, even if the policy is permissive.</li>
+    </ul>
+  </div>
+
+</div> <!-- /lesson-content -->
+
+<!-- ========== BOTTOM NAV ========== -->
+<nav class="lesson-nav bottom">
+  <a href="26-schema-design-migrations.html">&larr; Prev: Schema Design &amp; Migrations</a>
+  <span>Lesson 27 of 56</span>
+  <a href="28-database-triggers.html">Next: Database Triggers &amp; Automation &rarr;</a>
+</nav>
+
+</body>
+</html>

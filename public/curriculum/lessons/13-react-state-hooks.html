@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 13: React State &amp; Hooks | Full-Stack Web Development Curriculum</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+
+<!-- ── TOP NAV ── -->
+<nav class="lesson-nav">
+  <a href="12-react-fundamentals.html">&larr; Previous: React Fundamentals</a>
+  <span>Lesson 13 of 56</span>
+  <a href="14-react-patterns.html">Next: React Patterns &amp; Advanced Hooks &rarr;</a>
+</nav>
+
+<!-- ── HEADER ── -->
+<header class="lesson-header">
+  <div class="phase-badge" style="background:rgba(14,165,233,0.35);color:#fff;">Phase 3: React</div>
+  <h1>React State &amp; Hooks</h1>
+  <p class="lesson-subtitle">Make your components interactive with state, side effects, DOM references, and controlled forms.</p>
+</header>
+
+<!-- ── CONTENT ── -->
+<main class="lesson-content">
+
+  <!-- Learning Objectives -->
+  <div class="learning-objectives">
+    <h2>What You Will Learn</h2>
+    <ul>
+      <li>Understand what state is and why it exists separately from props</li>
+      <li>Use <code>useState</code> to declare, read, and update state</li>
+      <li>Update objects and arrays in state without mutating them</li>
+      <li>Use <code>useEffect</code> for side effects like data fetching, timers, and event listeners</li>
+      <li>Understand the dependency array and cleanup functions</li>
+      <li>Use <code>useRef</code> for DOM references and mutable values</li>
+      <li>Build controlled forms with input state and onChange handlers</li>
+      <li>Implement loading, error, and success states</li>
+      <li>Lift state up when sibling components need the same data</li>
+      <li>Follow the rules of hooks</li>
+    </ul>
+  </div>
+
+  <!-- ============================== -->
+  <!-- SECTION: What Is State? -->
+  <!-- ============================== -->
+  <h2>What Is State?</h2>
+
+  <p>In the previous lesson, you learned that <strong>props</strong> are data passed <em>into</em> a component from its parent. Props are read-only &mdash; a child component cannot change its own props. But what about data that <em>changes over time</em> in response to user interaction?</p>
+
+  <ul>
+    <li>A search box needs to track what the user has typed</li>
+    <li>A filter needs to track which option is selected</li>
+    <li>A counter needs to track the current number</li>
+    <li>A form needs to track every field's value</li>
+    <li>A data-fetching component needs to track loading, error, and success conditions</li>
+  </ul>
+
+  <p>This is <strong>state</strong> &mdash; data that is owned and managed by a component, that can change over time, and whose changes cause the component to re-render with the new values.</p>
+
+  <div class="analogy">
+    <strong>Analogy:</strong> Think of a whiteboard in a meeting room. The <strong>props</strong> are like printed handouts given to attendees &mdash; fixed information provided from the outside. The <strong>state</strong> is what is written on the whiteboard &mdash; it changes during the meeting as people add and erase content. When the whiteboard changes, everyone in the room (the UI) sees the updated version.
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Characteristic</th>
+        <th>Props</th>
+        <th>State</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Owned by</td>
+        <td>Parent component</td>
+        <td>The component itself</td>
+      </tr>
+      <tr>
+        <td>Can be changed by component?</td>
+        <td>No (read-only)</td>
+        <td>Yes (via setter function)</td>
+      </tr>
+      <tr>
+        <td>Causes re-render on change?</td>
+        <td>Yes (when parent re-renders)</td>
+        <td>Yes (when setter is called)</td>
+      </tr>
+      <tr>
+        <td>Passed down to children?</td>
+        <td>Yes, as their props</td>
+        <td>Yes, as their props</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ============================== -->
+  <!-- SECTION: useState -->
+  <!-- ============================== -->
+  <h2>useState: Declaring and Updating State</h2>
+
+  <p><code>useState</code> is a <strong>hook</strong> &mdash; a special function provided by React that lets you "hook into" React features from function components. It is the most fundamental hook and the one you will use the most.</p>
+
+  <pre><span style="color:#cba6f7;">import</span> { <span style="color:#89b4fa;">useState</span> } <span style="color:#cba6f7;">from</span> <span style="color:#a6e3a1;">'react'</span>;
+
+<span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">Counter</span>() {
+  <span style="color:#6c7086;">//          current value   setter function     initial value</span>
+  <span style="color:#6c7086;">//               |                |                  |</span>
+  <span style="color:#cba6f7;">const</span> [<span style="color:#cdd6f4;">count</span>,         <span style="color:#cdd6f4;">setCount</span>]     = <span style="color:#89b4fa;">useState</span>(<span style="color:#fab387;">0</span>);
+
+  <span style="color:#cba6f7;">return</span> (
+    &lt;<span style="color:#89b4fa;">div</span>&gt;
+      &lt;<span style="color:#89b4fa;">p</span>&gt;Count: {<span style="color:#cdd6f4;">count</span>}&lt;/<span style="color:#89b4fa;">p</span>&gt;
+      &lt;<span style="color:#89b4fa;">button</span> <span style="color:#cdd6f4;">onClick</span>={() =&gt; <span style="color:#89b4fa;">setCount</span>(<span style="color:#cdd6f4;">count</span> + <span style="color:#fab387;">1</span>)}&gt;
+        Increment
+      &lt;/<span style="color:#89b4fa;">button</span>&gt;
+    &lt;/<span style="color:#89b4fa;">div</span>&gt;
+  );
+}</pre>
+
+  <p>Let us break down what is happening:</p>
+
+  <ol>
+    <li><code>useState(0)</code> tells React "I want a piece of state that starts at 0."</li>
+    <li>It returns an array with exactly two elements: the <strong>current value</strong> (<code>count</code>) and a <strong>setter function</strong> (<code>setCount</code>).</li>
+    <li>We use array destructuring to give them names. By convention, the setter is named <code>set</code> + the state variable name.</li>
+    <li>When the button is clicked, <code>setCount(count + 1)</code> tells React "the new value should be the old value plus 1."</li>
+    <li>React updates the state and <strong>re-renders the component</strong> with the new value. The function runs again, <code>count</code> is now 1, and the UI shows "Count: 1".</li>
+  </ol>
+
+  <h3>TypeScript with useState</h3>
+
+  <p>TypeScript usually infers the type from the initial value, but you can be explicit when needed:</p>
+
+  <pre><span style="color:#6c7086;">// Type is inferred as number</span>
+<span style="color:#cba6f7;">const</span> [<span style="color:#cdd6f4;">count</span>, <span style="color:#cdd6f4;">setCount</span>] = <span style="color:#89b4fa;">useState</span>(<span style="color:#fab387;">0</span>);
+
+<span style="color:#6c7086;">// Type is inferred as string</span>
+<span style="color:#cba6f7;">const</span> [<span style="color:#cdd6f4;">name</span>, <span style="color:#cdd6f4;">setName</span>] = <span style="color:#89b4fa;">useState</span>(<span style="color:#a6e3a1;">''</span>);
+
+<span style="color:#6c7086;">// Explicit type needed when initial value doesn't tell the whole story</span>
+<span style="color:#cba6f7;">const</span> [<span style="color:#cdd6f4;">user</span>, <span style="color:#cdd6f4;">setUser</span>] = <span style="color:#89b4fa;">useState</span>&lt;<span style="color:#89b4fa;">User</span> | <span style="color:#cba6f7;">null</span>&gt;(<span style="color:#cba6f7;">null</span>);
+<span style="color:#6c7086;">// null alone would be inferred as "always null" - we need to tell TS it can be User too</span>
+
+<span style="color:#cba6f7;">const</span> [<span style="color:#cdd6f4;">tickets</span>, <span style="color:#cdd6f4;">setTickets</span>] = <span style="color:#89b4fa;">useState</span>&lt;<span style="color:#89b4fa;">Ticket</span>[]&gt;([]);
+<span style="color:#6c7086;">// Empty array alone would be inferred as never[] - specify the element type</span>
+
+<span style="color:#cba6f7;">const</span> [<span style="color:#cdd6f4;">status</span>, <span style="color:#cdd6f4;">setStatus</span>] = <span style="color:#89b4fa;">useState</span>&lt;<span style="color:#a6e3a1;">'idle'</span> | <span style="color:#a6e3a1;">'loading'</span> | <span style="color:#a6e3a1;">'success'</span> | <span style="color:#a6e3a1;">'error'</span>&gt;(<span style="color:#a6e3a1;">'idle'</span>);
+<span style="color:#6c7086;">// Union type for a finite set of possible values</span></pre>
+
+  <h3>State Is Immutable (Why You Cannot Mutate Directly)</h3>
+
+  <p>This is one of the most critical concepts in React. You must <strong>never modify state directly</strong>. Always use the setter function to create a new value.</p>
+
+  <pre><span style="color:#cba6f7;">const</span> [<span style="color:#cdd6f4;">count</span>, <span style="color:#cdd6f4;">setCount</span>] = <span style="color:#89b4fa;">useState</span>(<span style="color:#fab387;">0</span>);
+
+<span style="color:#6c7086;">// WRONG - mutating state directly</span>
+<span style="color:#cdd6f4;">count</span> = <span style="color:#cdd6f4;">count</span> + <span style="color:#fab387;">1</span>;          <span style="color:#6c7086;">// This won't work (const can't be reassigned)</span>
+<span style="color:#cdd6f4;">count</span>++;                   <span style="color:#6c7086;">// This won't work either</span>
+
+<span style="color:#6c7086;">// CORRECT - using the setter</span>
+<span style="color:#89b4fa;">setCount</span>(<span style="color:#cdd6f4;">count</span> + <span style="color:#fab387;">1</span>);        <span style="color:#6c7086;">// Creates a new value, triggers re-render</span></pre>
+
+  <p>Why? Because React uses the setter call as a <strong>signal</strong> to re-render. If you mutate the value directly, React has no way of knowing something changed, so the UI will not update. The setter function is like pressing a doorbell &mdash; it tells React "something changed, please re-render."</p>
+
+  <h3>Updating Objects in State</h3>
+
+  <p>When state is an object, you must create a <strong>new object</strong> with the changes, not mutate the existing one. Use the spread operator (<code>...</code>) to copy existing properties and override specific ones:</p>
+
+  <pre><span style="color:#cba6f7;">interface</span> <span style="color:#89b4fa;">Customer</span> {
+  <span style="color:#cdd6f4;">name</span>: <span style="color:#cba6f7;">string</span>;
+  <span style="color:#cdd6f4;">email</span>: <span style="color:#cba6f7;">string</span>;
+  <span style="color:#cdd6f4;">phone</span>: <span style="color:#cba6f7;">string</span>;
+}
+
+<span style="color:#cba6f7;">const</span> [<span style="color:#cdd6f4;">customer</span>, <span style="color:#cdd6f4;">setCustomer</span>] = <span style="color:#89b4fa;">useState</span>&lt;<span style="color:#89b4fa;">Customer</span>&gt;({
+  <span style="color:#cdd6f4;">name</span>: <span style="color:#a6e3a1;">'John Smith'</span>,
+  <span style="color:#cdd6f4;">email</span>: <span style="color:#a6e3a1;">'john@example.com'</span>,
+  <span style="color:#cdd6f4;">phone</span>: <span style="color:#a6e3a1;">'555-0123'</span>,
+});
+
+<span style="color:#6c7086;">// WRONG - mutating the existing object</span>
+<span style="color:#cdd6f4;">customer</span>.<span style="color:#cdd6f4;">email</span> = <span style="color:#a6e3a1;">'newemail@example.com'</span>;  <span style="color:#6c7086;">// UI won't update!</span>
+
+<span style="color:#6c7086;">// CORRECT - creating a new object with the spread operator</span>
+<span style="color:#89b4fa;">setCustomer</span>({
+  ...<span style="color:#cdd6f4;">customer</span>,                            <span style="color:#6c7086;">// Copy all existing properties</span>
+  <span style="color:#cdd6f4;">email</span>: <span style="color:#a6e3a1;">'newemail@example.com'</span>,          <span style="color:#6c7086;">// Override just the email</span>
+});</pre>
+
+  <p>The spread operator <code>...customer</code> copies <code>name</code>, <code>email</code>, and <code>phone</code> from the old object. Then <code>email: 'newemail@example.com'</code> overrides just the email. The result is a brand new object. React sees a new object reference and re-renders.</p>
+
+  <h3>Updating Arrays in State</h3>
+
+  <p>The same principle applies to arrays. Never use mutating methods like <code>.push()</code>, <code>.pop()</code>, <code>.splice()</code>, or <code>.sort()</code> directly on state. Instead, create new arrays:</p>
+
+  <pre><span style="color:#cba6f7;">const</span> [<span style="color:#cdd6f4;">tickets</span>, <span style="color:#cdd6f4;">setTickets</span>] = <span style="color:#89b4fa;">useState</span>&lt;<span style="color:#cba6f7;">string</span>[]&gt;([<span style="color:#a6e3a1;">'Ticket A'</span>, <span style="color:#a6e3a1;">'Ticket B'</span>]);
+
+<span style="color:#6c7086;">// Adding an item (spread + new item)</span>
+<span style="color:#89b4fa;">setTickets</span>([...<span style="color:#cdd6f4;">tickets</span>, <span style="color:#a6e3a1;">'Ticket C'</span>]);
+<span style="color:#6c7086;">// Result: ['Ticket A', 'Ticket B', 'Ticket C']</span>
+
+<span style="color:#6c7086;">// Removing an item (filter creates a new array)</span>
+<span style="color:#89b4fa;">setTickets</span>(<span style="color:#cdd6f4;">tickets</span>.<span style="color:#89b4fa;">filter</span>(<span style="color:#cdd6f4;">t</span> =&gt; <span style="color:#cdd6f4;">t</span> !== <span style="color:#a6e3a1;">'Ticket A'</span>));
+<span style="color:#6c7086;">// Result: ['Ticket B']</span>
+
+<span style="color:#6c7086;">// Updating an item (map creates a new array)</span>
+<span style="color:#89b4fa;">setTickets</span>(<span style="color:#cdd6f4;">tickets</span>.<span style="color:#89b4fa;">map</span>(<span style="color:#cdd6f4;">t</span> =&gt;
+  <span style="color:#cdd6f4;">t</span> === <span style="color:#a6e3a1;">'Ticket A'</span> ? <span style="color:#a6e3a1;">'Ticket A (Updated)'</span> : <span style="color:#cdd6f4;">t</span>
+));
+<span style="color:#6c7086;">// Result: ['Ticket A (Updated)', 'Ticket B']</span>
+
+<span style="color:#6c7086;">// Sorting (copy first, then sort the copy)</span>
+<span style="color:#89b4fa;">setTickets</span>([...<span style="color:#cdd6f4;">tickets</span>].<span style="color:#89b4fa;">sort</span>());
+<span style="color:#6c7086;">// [...tickets] creates a copy, .sort() mutates the copy (not the original)</span></pre>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Operation</th>
+        <th>Mutating (avoid)</th>
+        <th>Non-Mutating (use this)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Add item</td>
+        <td><code>arr.push(item)</code></td>
+        <td><code>[...arr, item]</code></td>
+      </tr>
+      <tr>
+        <td>Remove item</td>
+        <td><code>arr.splice(i, 1)</code></td>
+        <td><code>arr.filter(x => x.id !== id)</code></td>
+      </tr>
+      <tr>
+        <td>Update item</td>
+        <td><code>arr[i] = newVal</code></td>
+        <td><code>arr.map(x => x.id === id ? newVal : x)</code></td>
+      </tr>
+      <tr>
+        <td>Sort</td>
+        <td><code>arr.sort()</code></td>
+        <td><code>[...arr].sort()</code></td>
+      </tr>
+      <tr>
+        <td>Reverse</td>
+        <td><code>arr.reverse()</code></td>
+        <td><code>[...arr].reverse()</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Functional Updates</h3>
+
+  <p>When your new state depends on the previous state, use the <strong>functional form</strong> of the setter. Instead of passing a value, pass a function that receives the previous state:</p>
+
+  <pre><span style="color:#6c7086;">// Simple form - fine for most cases</span>
+<span style="color:#89b4fa;">setCount</span>(<span style="color:#cdd6f4;">count</span> + <span style="color:#fab387;">1</span>);
+
+<span style="color:#6c7086;">// Functional form - safer when multiple updates could happen</span>
+<span style="color:#89b4fa;">setCount</span>(<span style="color:#cdd6f4;">prev</span> =&gt; <span style="color:#cdd6f4;">prev</span> + <span style="color:#fab387;">1</span>);
+
+<span style="color:#6c7086;">// Why does it matter? Imagine this:</span>
+<span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">handleTripleClick</span>() {
+  <span style="color:#89b4fa;">setCount</span>(<span style="color:#cdd6f4;">count</span> + <span style="color:#fab387;">1</span>);  <span style="color:#6c7086;">// count is 0, sets to 1</span>
+  <span style="color:#89b4fa;">setCount</span>(<span style="color:#cdd6f4;">count</span> + <span style="color:#fab387;">1</span>);  <span style="color:#6c7086;">// count is STILL 0 (stale closure), sets to 1</span>
+  <span style="color:#89b4fa;">setCount</span>(<span style="color:#cdd6f4;">count</span> + <span style="color:#fab387;">1</span>);  <span style="color:#6c7086;">// count is STILL 0, sets to 1</span>
+  <span style="color:#6c7086;">// Result: 1, not 3!</span>
+}
+
+<span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">handleTripleClickCorrect</span>() {
+  <span style="color:#89b4fa;">setCount</span>(<span style="color:#cdd6f4;">prev</span> =&gt; <span style="color:#cdd6f4;">prev</span> + <span style="color:#fab387;">1</span>);  <span style="color:#6c7086;">// prev is 0, returns 1</span>
+  <span style="color:#89b4fa;">setCount</span>(<span style="color:#cdd6f4;">prev</span> =&gt; <span style="color:#cdd6f4;">prev</span> + <span style="color:#fab387;">1</span>);  <span style="color:#6c7086;">// prev is 1, returns 2</span>
+  <span style="color:#89b4fa;">setCount</span>(<span style="color:#cdd6f4;">prev</span> =&gt; <span style="color:#cdd6f4;">prev</span> + <span style="color:#fab387;">1</span>);  <span style="color:#6c7086;">// prev is 2, returns 3</span>
+  <span style="color:#6c7086;">// Result: 3!</span>
+}</pre>
+
+  <p>The functional form always receives the most up-to-date value, avoiding stale closure problems. Use it whenever you are updating based on the previous state.</p>
+
+  <!-- ============================== -->
+  <!-- SECTION: useEffect -->
+  <!-- ============================== -->
+  <h2>useEffect: Side Effects</h2>
+
+  <p>Components in React should be "pure" when it comes to rendering &mdash; given the same props and state, they should produce the same JSX. But real applications need to do things <em>outside</em> of rendering:</p>
+
+  <ul>
+    <li>Fetch data from an API</li>
+    <li>Set up a timer or interval</li>
+    <li>Add event listeners to the window</li>
+    <li>Update the document title</li>
+    <li>Write to localStorage</li>
+  </ul>
+
+  <p>These are called <strong>side effects</strong>, and <code>useEffect</code> is the hook that lets you perform them.</p>
+
+  <pre><span style="color:#cba6f7;">import</span> { <span style="color:#89b4fa;">useState</span>, <span style="color:#89b4fa;">useEffect</span> } <span style="color:#cba6f7;">from</span> <span style="color:#a6e3a1;">'react'</span>;
+
+<span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">PageTitle</span>({ <span style="color:#cdd6f4;">title</span> }: { <span style="color:#cdd6f4;">title</span>: <span style="color:#cba6f7;">string</span> }) {
+  <span style="color:#89b4fa;">useEffect</span>(() =&gt; {
+    <span style="color:#cdd6f4;">document</span>.<span style="color:#cdd6f4;">title</span> = <span style="color:#cdd6f4;">title</span>;  <span style="color:#6c7086;">// Side effect: update the browser tab title</span>
+  }, [<span style="color:#cdd6f4;">title</span>]);               <span style="color:#6c7086;">// Only run when title changes</span>
+
+  <span style="color:#cba6f7;">return</span> &lt;<span style="color:#89b4fa;">h1</span>&gt;{<span style="color:#cdd6f4;">title</span>}&lt;/<span style="color:#89b4fa;">h1</span>&gt;;
+}</pre>
+
+  <p><code>useEffect</code> takes two arguments:</p>
+  <ol>
+    <li>A <strong>function</strong> containing the side effect code (called the "effect")</li>
+    <li>An optional <strong>dependency array</strong> that controls when the effect runs</li>
+  </ol>
+
+  <h3>The Dependency Array</h3>
+
+  <p>The dependency array is the most important (and most misunderstood) part of <code>useEffect</code>. It tells React <em>when</em> to re-run the effect:</p>
+
+  <pre><span style="color:#6c7086;">// 1. Empty array: Run ONCE after the first render (on "mount")</span>
+<span style="color:#89b4fa;">useEffect</span>(() =&gt; {
+  <span style="color:#cdd6f4;">console</span>.<span style="color:#89b4fa;">log</span>(<span style="color:#a6e3a1;">'Component mounted!'</span>);
+  <span style="color:#89b4fa;">fetchInitialData</span>();
+}, []);  <span style="color:#6c7086;">// &lt;-- empty array = run once</span>
+
+
+<span style="color:#6c7086;">// 2. With dependencies: Run on mount AND whenever listed values change</span>
+<span style="color:#89b4fa;">useEffect</span>(() =&gt; {
+  <span style="color:#cdd6f4;">console</span>.<span style="color:#89b4fa;">log</span>(<span style="color:#a6e3a1;">`Search changed to: </span>${<span style="color:#cdd6f4;">searchTerm</span>}<span style="color:#a6e3a1;">`</span>);
+  <span style="color:#89b4fa;">fetchResults</span>(<span style="color:#cdd6f4;">searchTerm</span>);
+}, [<span style="color:#cdd6f4;">searchTerm</span>]);  <span style="color:#6c7086;">// &lt;-- runs whenever searchTerm changes</span>
+
+
+<span style="color:#6c7086;">// 3. No array at all: Run after EVERY render (rarely wanted)</span>
+<span style="color:#89b4fa;">useEffect</span>(() =&gt; {
+  <span style="color:#cdd6f4;">console</span>.<span style="color:#89b4fa;">log</span>(<span style="color:#a6e3a1;">'This runs after every single render'</span>);
+});  <span style="color:#6c7086;">// &lt;-- no array = runs every time (usually a bug)</span></pre>
+
+  <div class="warning-box">
+    <strong>Common Mistake:</strong> Forgetting the dependency array causes the effect to run after every render. For data fetching, this creates an infinite loop: render -> effect fetches data -> state updates -> re-render -> effect fetches data -> repeat forever. Always include a dependency array.
+  </div>
+
+  <h3>Cleanup Functions</h3>
+
+  <p>Some side effects need to be "cleaned up" when the component is removed from the page or before the effect runs again. For example, if you set up a timer, you need to clear it. If you add an event listener, you need to remove it. The effect function can return a <strong>cleanup function</strong>:</p>
+
+  <pre><span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">WindowSize</span>() {
+  <span style="color:#cba6f7;">const</span> [<span style="color:#cdd6f4;">width</span>, <span style="color:#cdd6f4;">setWidth</span>] = <span style="color:#89b4fa;">useState</span>(<span style="color:#cdd6f4;">window</span>.<span style="color:#cdd6f4;">innerWidth</span>);
+
+  <span style="color:#89b4fa;">useEffect</span>(() =&gt; {
+    <span style="color:#6c7086;">// Setup: add event listener</span>
+    <span style="color:#cba6f7;">const</span> <span style="color:#89b4fa;">handleResize</span> = () =&gt; <span style="color:#89b4fa;">setWidth</span>(<span style="color:#cdd6f4;">window</span>.<span style="color:#cdd6f4;">innerWidth</span>);
+    <span style="color:#cdd6f4;">window</span>.<span style="color:#89b4fa;">addEventListener</span>(<span style="color:#a6e3a1;">'resize'</span>, <span style="color:#cdd6f4;">handleResize</span>);
+
+    <span style="color:#6c7086;">// Cleanup: remove event listener when component unmounts</span>
+    <span style="color:#cba6f7;">return</span> () =&gt; {
+      <span style="color:#cdd6f4;">window</span>.<span style="color:#89b4fa;">removeEventListener</span>(<span style="color:#a6e3a1;">'resize'</span>, <span style="color:#cdd6f4;">handleResize</span>);
+    };
+  }, []); <span style="color:#6c7086;">// Empty array: set up once, clean up on unmount</span>
+
+  <span style="color:#cba6f7;">return</span> &lt;<span style="color:#89b4fa;">p</span>&gt;Window width: {<span style="color:#cdd6f4;">width</span>}px&lt;/<span style="color:#89b4fa;">p</span>&gt;;
+}</pre>
+
+  <p>The cleanup function runs:</p>
+  <ul>
+    <li>Before the effect runs again (if dependencies changed)</li>
+    <li>When the component is removed from the DOM (unmounts)</li>
+  </ul>
+
+  <h3>Common useEffect Patterns</h3>
+
+  <h3>Pattern 1: Fetching Data</h3>
+
+  <pre><span style="color:#cba6f7;">interface</span> <span style="color:#89b4fa;">Ticket</span> {
+  <span style="color:#cdd6f4;">id</span>: <span style="color:#cba6f7;">number</span>;
+  <span style="color:#cdd6f4;">subject</span>: <span style="color:#cba6f7;">string</span>;
+  <span style="color:#cdd6f4;">status</span>: <span style="color:#cba6f7;">string</span>;
+}
+
+<span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">TicketList</span>() {
+  <span style="color:#cba6f7;">const</span> [<span style="color:#cdd6f4;">tickets</span>, <span style="color:#cdd6f4;">setTickets</span>] = <span style="color:#89b4fa;">useState</span>&lt;<span style="color:#89b4fa;">Ticket</span>[]&gt;([]);
+  <span style="color:#cba6f7;">const</span> [<span style="color:#cdd6f4;">isLoading</span>, <span style="color:#cdd6f4;">setIsLoading</span>] = <span style="color:#89b4fa;">useState</span>(<span style="color:#cba6f7;">true</span>);
+  <span style="color:#cba6f7;">const</span> [<span style="color:#cdd6f4;">error</span>, <span style="color:#cdd6f4;">setError</span>] = <span style="color:#89b4fa;">useState</span>&lt;<span style="color:#cba6f7;">string</span> | <span style="color:#cba6f7;">null</span>&gt;(<span style="color:#cba6f7;">null</span>);
+
+  <span style="color:#89b4fa;">useEffect</span>(() =&gt; {
+    <span style="color:#cba6f7;">async</span> <span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">fetchTickets</span>() {
+      <span style="color:#cba6f7;">try</span> {
+        <span style="color:#89b4fa;">setIsLoading</span>(<span style="color:#cba6f7;">true</span>);
+        <span style="color:#cba6f7;">const</span> <span style="color:#cdd6f4;">response</span> = <span style="color:#cba6f7;">await</span> <span style="color:#89b4fa;">fetch</span>(<span style="color:#a6e3a1;">'/api/tickets'</span>);
+        <span style="color:#cba6f7;">if</span> (!<span style="color:#cdd6f4;">response</span>.<span style="color:#cdd6f4;">ok</span>) <span style="color:#cba6f7;">throw</span> <span style="color:#cba6f7;">new</span> <span style="color:#89b4fa;">Error</span>(<span style="color:#a6e3a1;">'Failed to fetch tickets'</span>);
+        <span style="color:#cba6f7;">const</span> <span style="color:#cdd6f4;">data</span> = <span style="color:#cba6f7;">await</span> <span style="color:#cdd6f4;">response</span>.<span style="color:#89b4fa;">json</span>();
+        <span style="color:#89b4fa;">setTickets</span>(<span style="color:#cdd6f4;">data</span>);
+      } <span style="color:#cba6f7;">catch</span> (<span style="color:#cdd6f4;">err</span>) {
+        <span style="color:#89b4fa;">setError</span>(<span style="color:#cdd6f4;">err</span> <span style="color:#cba6f7;">instanceof</span> <span style="color:#89b4fa;">Error</span> ? <span style="color:#cdd6f4;">err</span>.<span style="color:#cdd6f4;">message</span> : <span style="color:#a6e3a1;">'Unknown error'</span>);
+      } <span style="color:#cba6f7;">finally</span> {
+        <span style="color:#89b4fa;">setIsLoading</span>(<span style="color:#cba6f7;">false</span>);
+      }
+    }
+
+    <span style="color:#89b4fa;">fetchTickets</span>();
+  }, []); <span style="color:#6c7086;">// Empty array: fetch once on mount</span>
+
+  <span style="color:#cba6f7;">if</span> (<span style="color:#cdd6f4;">isLoading</span>) <span style="color:#cba6f7;">return</span> &lt;<span style="color:#89b4fa;">p</span>&gt;Loading tickets...&lt;/<span style="color:#89b4fa;">p</span>&gt;;
+  <span style="color:#cba6f7;">if</span> (<span style="color:#cdd6f4;">error</span>) <span style="color:#cba6f7;">return</span> &lt;<span style="color:#89b4fa;">p</span> <span style="color:#cdd6f4;">className</span>=<span style="color:#a6e3a1;">"error"</span>&gt;Error: {<span style="color:#cdd6f4;">error</span>}&lt;/<span style="color:#89b4fa;">p</span>&gt;;
+
+  <span style="color:#cba6f7;">return</span> (
+    &lt;<span style="color:#89b4fa;">ul</span>&gt;
+      {<span style="color:#cdd6f4;">tickets</span>.<span style="color:#89b4fa;">map</span>(<span style="color:#cdd6f4;">ticket</span> =&gt; (
+        &lt;<span style="color:#89b4fa;">li</span> <span style="color:#cdd6f4;">key</span>={<span style="color:#cdd6f4;">ticket</span>.<span style="color:#cdd6f4;">id</span>}&gt;{<span style="color:#cdd6f4;">ticket</span>.<span style="color:#cdd6f4;">subject</span>} ({<span style="color:#cdd6f4;">ticket</span>.<span style="color:#cdd6f4;">status</span>})&lt;/<span style="color:#89b4fa;">li</span>&gt;
+      ))}
+    &lt;/<span style="color:#89b4fa;">ul</span>&gt;
+  );
+}</pre>
+
+  <div class="info-box">
+    <strong>Why is the async function inside useEffect?</strong> The effect callback itself cannot be async (React expects it to return either nothing or a cleanup function, not a Promise). So we define an async function inside and immediately call it. This is the standard pattern.
+  </div>
+
+  <h3>Pattern 2: Setting Up an Interval (Polling)</h3>
+
+  <pre><span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">CallCustomerWidget</span>() {
+  <span style="color:#cba6f7;">const</span> [<span style="color:#cdd6f4;">tickets</span>, <span style="color:#cdd6f4;">setTickets</span>] = <span style="color:#89b4fa;">useState</span>&lt;<span style="color:#89b4fa;">Ticket</span>[]&gt;([]);
+
+  <span style="color:#89b4fa;">useEffect</span>(() =&gt; {
+    <span style="color:#6c7086;">// Fetch immediately on mount</span>
+    <span style="color:#89b4fa;">fetchCallCustomerTickets</span>();
+
+    <span style="color:#6c7086;">// Then fetch every 30 seconds</span>
+    <span style="color:#cba6f7;">const</span> <span style="color:#cdd6f4;">intervalId</span> = <span style="color:#89b4fa;">setInterval</span>(() =&gt; {
+      <span style="color:#89b4fa;">fetchCallCustomerTickets</span>();
+    }, <span style="color:#fab387;">30000</span>); <span style="color:#6c7086;">// 30,000 ms = 30 seconds</span>
+
+    <span style="color:#6c7086;">// Cleanup: clear the interval when component unmounts</span>
+    <span style="color:#cba6f7;">return</span> () =&gt; <span style="color:#89b4fa;">clearInterval</span>(<span style="color:#cdd6f4;">intervalId</span>);
+  }, []);
+
+  <span style="color:#cba6f7;">async</span> <span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">fetchCallCustomerTickets</span>() {
+    <span style="color:#cba6f7;">try</span> {
+      <span style="color:#cba6f7;">const</span> <span style="color:#cdd6f4;">res</span> = <span style="color:#cba6f7;">await</span> <span style="color:#89b4fa;">fetch</span>(<span style="color:#a6e3a1;">'/api/tickets?status=call_customer'</span>);
+      <span style="color:#cba6f7;">const</span> <span style="color:#cdd6f4;">data</span> = <span style="color:#cba6f7;">await</span> <span style="color:#cdd6f4;">res</span>.<span style="color:#89b4fa;">json</span>();
+      <span style="color:#89b4fa;">setTickets</span>(<span style="color:#cdd6f4;">data</span>);
+    } <span style="color:#cba6f7;">catch</span> (<span style="color:#cdd6f4;">err</span>) {
+      <span style="color:#cdd6f4;">console</span>.<span style="color:#89b4fa;">error</span>(<span style="color:#a6e3a1;">'Failed to fetch call-customer tickets'</span>, <span style="color:#cdd6f4;">err</span>);
+    }
+  }
+
+  <span style="color:#cba6f7;">return</span> (
+    &lt;<span style="color:#89b4fa;">div</span> <span style="color:#cdd6f4;">className</span>=<span style="color:#a6e3a1;">"call-widget"</span>&gt;
+      &lt;<span style="color:#89b4fa;">h3</span>&gt;Customers to Call ({<span style="color:#cdd6f4;">tickets</span>.<span style="color:#cdd6f4;">length</span>})&lt;/<span style="color:#89b4fa;">h3</span>&gt;
+      {<span style="color:#cdd6f4;">tickets</span>.<span style="color:#89b4fa;">map</span>(<span style="color:#cdd6f4;">t</span> =&gt; &lt;<span style="color:#89b4fa;">p</span> <span style="color:#cdd6f4;">key</span>={<span style="color:#cdd6f4;">t</span>.<span style="color:#cdd6f4;">id</span>}&gt;{<span style="color:#cdd6f4;">t</span>.<span style="color:#cdd6f4;">subject</span>}&lt;/<span style="color:#89b4fa;">p</span>&gt;)}
+    &lt;/<span style="color:#89b4fa;">div</span>&gt;
+  );
+}</pre>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    The admin dashboard's "Call Customer" widget works exactly like this. It uses <code>useEffect</code> with <code>setInterval</code> to poll the tickets API every 30 seconds, showing employees which customers need a phone call. The cleanup function clears the interval when navigating away from the dashboard.
+  </div>
+
+  <h3>Pattern 3: Effect with Changing Dependencies</h3>
+
+  <pre><span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">SearchableTickets</span>() {
+  <span style="color:#cba6f7;">const</span> [<span style="color:#cdd6f4;">searchTerm</span>, <span style="color:#cdd6f4;">setSearchTerm</span>] = <span style="color:#89b4fa;">useState</span>(<span style="color:#a6e3a1;">''</span>);
+  <span style="color:#cba6f7;">const</span> [<span style="color:#cdd6f4;">results</span>, <span style="color:#cdd6f4;">setResults</span>] = <span style="color:#89b4fa;">useState</span>&lt;<span style="color:#89b4fa;">Ticket</span>[]&gt;([]);
+
+  <span style="color:#89b4fa;">useEffect</span>(() =&gt; {
+    <span style="color:#cba6f7;">if</span> (<span style="color:#cdd6f4;">searchTerm</span>.<span style="color:#cdd6f4;">length</span> &lt; <span style="color:#fab387;">2</span>) {
+      <span style="color:#89b4fa;">setResults</span>([]);
+      <span style="color:#cba6f7;">return</span>;  <span style="color:#6c7086;">// Don't search for very short strings</span>
+    }
+
+    <span style="color:#cba6f7;">async</span> <span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">search</span>() {
+      <span style="color:#cba6f7;">const</span> <span style="color:#cdd6f4;">res</span> = <span style="color:#cba6f7;">await</span> <span style="color:#89b4fa;">fetch</span>(<span style="color:#a6e3a1;">`/api/tickets?q=</span>${<span style="color:#89b4fa;">encodeURIComponent</span>(<span style="color:#cdd6f4;">searchTerm</span>)}<span style="color:#a6e3a1;">`</span>);
+      <span style="color:#cba6f7;">const</span> <span style="color:#cdd6f4;">data</span> = <span style="color:#cba6f7;">await</span> <span style="color:#cdd6f4;">res</span>.<span style="color:#89b4fa;">json</span>();
+      <span style="color:#89b4fa;">setResults</span>(<span style="color:#cdd6f4;">data</span>);
+    }
+
+    <span style="color:#89b4fa;">search</span>();
+  }, [<span style="color:#cdd6f4;">searchTerm</span>]);  <span style="color:#6c7086;">// Re-run whenever searchTerm changes</span>
+
+  <span style="color:#cba6f7;">return</span> (
+    &lt;<span style="color:#89b4fa;">div</span>&gt;
+      &lt;<span style="color:#89b4fa;">input</span>
+        <span style="color:#cdd6f4;">value</span>={<span style="color:#cdd6f4;">searchTerm</span>}
+        <span style="color:#cdd6f4;">onChange</span>={<span style="color:#cdd6f4;">e</span> =&gt; <span style="color:#89b4fa;">setSearchTerm</span>(<span style="color:#cdd6f4;">e</span>.<span style="color:#cdd6f4;">target</span>.<span style="color:#cdd6f4;">value</span>)}
+        <span style="color:#cdd6f4;">placeholder</span>=<span style="color:#a6e3a1;">"Search tickets..."</span>
+      /&gt;
+      {<span style="color:#cdd6f4;">results</span>.<span style="color:#89b4fa;">map</span>(<span style="color:#cdd6f4;">t</span> =&gt; &lt;<span style="color:#89b4fa;">div</span> <span style="color:#cdd6f4;">key</span>={<span style="color:#cdd6f4;">t</span>.<span style="color:#cdd6f4;">id</span>}&gt;{<span style="color:#cdd6f4;">t</span>.<span style="color:#cdd6f4;">subject</span>}&lt;/<span style="color:#89b4fa;">div</span>&gt;)}
+    &lt;/<span style="color:#89b4fa;">div</span>&gt;
+  );
+}</pre>
+
+  <!-- ============================== -->
+  <!-- SECTION: useRef -->
+  <!-- ============================== -->
+  <h2>useRef: DOM References and Mutable Values</h2>
+
+  <p><code>useRef</code> gives you a way to hold a mutable value that persists across re-renders <em>without</em> causing a re-render when it changes. It has two main uses:</p>
+
+  <h3>Use 1: Referencing DOM Elements</h3>
+
+  <pre><span style="color:#cba6f7;">import</span> { <span style="color:#89b4fa;">useRef</span>, <span style="color:#89b4fa;">useEffect</span> } <span style="color:#cba6f7;">from</span> <span style="color:#a6e3a1;">'react'</span>;
+
+<span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">SearchBar</span>() {
+  <span style="color:#cba6f7;">const</span> <span style="color:#cdd6f4;">inputRef</span> = <span style="color:#89b4fa;">useRef</span>&lt;<span style="color:#89b4fa;">HTMLInputElement</span>&gt;(<span style="color:#cba6f7;">null</span>);
+
+  <span style="color:#89b4fa;">useEffect</span>(() =&gt; {
+    <span style="color:#6c7086;">// Focus the input when the component mounts</span>
+    <span style="color:#cdd6f4;">inputRef</span>.<span style="color:#cdd6f4;">current</span>?.<span style="color:#89b4fa;">focus</span>();
+  }, []);
+
+  <span style="color:#cba6f7;">return</span> (
+    &lt;<span style="color:#89b4fa;">input</span>
+      <span style="color:#cdd6f4;">ref</span>={<span style="color:#cdd6f4;">inputRef</span>}
+      <span style="color:#cdd6f4;">type</span>=<span style="color:#a6e3a1;">"text"</span>
+      <span style="color:#cdd6f4;">placeholder</span>=<span style="color:#a6e3a1;">"Search..."</span>
+    /&gt;
+  );
+}</pre>
+
+  <p>The <code>ref</code> attribute connects the ref object to the actual DOM element. After rendering, <code>inputRef.current</code> points to the real <code>&lt;input&gt;</code> DOM node, and you can call methods like <code>.focus()</code> on it.</p>
+
+  <h3>Use 2: Storing Mutable Values Without Re-Rendering</h3>
+
+  <pre><span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">StopWatch</span>() {
+  <span style="color:#cba6f7;">const</span> [<span style="color:#cdd6f4;">seconds</span>, <span style="color:#cdd6f4;">setSeconds</span>] = <span style="color:#89b4fa;">useState</span>(<span style="color:#fab387;">0</span>);
+  <span style="color:#cba6f7;">const</span> <span style="color:#cdd6f4;">intervalRef</span> = <span style="color:#89b4fa;">useRef</span>&lt;<span style="color:#89b4fa;">ReturnType</span>&lt;<span style="color:#cba6f7;">typeof</span> <span style="color:#89b4fa;">setInterval</span>&gt; | <span style="color:#cba6f7;">null</span>&gt;(<span style="color:#cba6f7;">null</span>);
+
+  <span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">start</span>() {
+    <span style="color:#cdd6f4;">intervalRef</span>.<span style="color:#cdd6f4;">current</span> = <span style="color:#89b4fa;">setInterval</span>(() =&gt; {
+      <span style="color:#89b4fa;">setSeconds</span>(<span style="color:#cdd6f4;">prev</span> =&gt; <span style="color:#cdd6f4;">prev</span> + <span style="color:#fab387;">1</span>);
+    }, <span style="color:#fab387;">1000</span>);
+  }
+
+  <span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">stop</span>() {
+    <span style="color:#cba6f7;">if</span> (<span style="color:#cdd6f4;">intervalRef</span>.<span style="color:#cdd6f4;">current</span>) {
+      <span style="color:#89b4fa;">clearInterval</span>(<span style="color:#cdd6f4;">intervalRef</span>.<span style="color:#cdd6f4;">current</span>);
+    }
+  }
+
+  <span style="color:#cba6f7;">return</span> (
+    &lt;<span style="color:#89b4fa;">div</span>&gt;
+      &lt;<span style="color:#89b4fa;">p</span>&gt;{<span style="color:#cdd6f4;">seconds</span>} seconds&lt;/<span style="color:#89b4fa;">p</span>&gt;
+      &lt;<span style="color:#89b4fa;">button</span> <span style="color:#cdd6f4;">onClick</span>={<span style="color:#cdd6f4;">start</span>}&gt;Start&lt;/<span style="color:#89b4fa;">button</span>&gt;
+      &lt;<span style="color:#89b4fa;">button</span> <span style="color:#cdd6f4;">onClick</span>={<span style="color:#cdd6f4;">stop</span>}&gt;Stop&lt;/<span style="color:#89b4fa;">button</span>&gt;
+    &lt;/<span style="color:#89b4fa;">div</span>&gt;
+  );
+}</pre>
+
+  <p>We store the interval ID in a ref because we need to remember it (to clear it later) but changing it should NOT cause a re-render. If we used state for the interval ID, every time we set it, the component would re-render unnecessarily.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Feature</th>
+        <th>useState</th>
+        <th>useRef</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Persists across renders?</td>
+        <td>Yes</td>
+        <td>Yes</td>
+      </tr>
+      <tr>
+        <td>Triggers re-render on change?</td>
+        <td>Yes</td>
+        <td>No</td>
+      </tr>
+      <tr>
+        <td>Accessed via</td>
+        <td>The value directly</td>
+        <td><code>.current</code> property</td>
+      </tr>
+      <tr>
+        <td>Best for</td>
+        <td>Data displayed in UI</td>
+        <td>DOM refs, timer IDs, previous values</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ============================== -->
+  <!-- SECTION: Controlled Forms -->
+  <!-- ============================== -->
+  <h2>Controlled Forms</h2>
+
+  <p>In HTML, form inputs (<code>&lt;input&gt;</code>, <code>&lt;textarea&gt;</code>, <code>&lt;select&gt;</code>) maintain their own internal state. When a user types into an input, the input updates itself. In React, we prefer <strong>controlled components</strong>, where React state is the "single source of truth" for the input's value.</p>
+
+  <h3>Single Input</h3>
+
+  <pre><span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">SearchBox</span>() {
+  <span style="color:#cba6f7;">const</span> [<span style="color:#cdd6f4;">query</span>, <span style="color:#cdd6f4;">setQuery</span>] = <span style="color:#89b4fa;">useState</span>(<span style="color:#a6e3a1;">''</span>);
+
+  <span style="color:#cba6f7;">return</span> (
+    &lt;<span style="color:#89b4fa;">input</span>
+      <span style="color:#cdd6f4;">type</span>=<span style="color:#a6e3a1;">"text"</span>
+      <span style="color:#cdd6f4;">value</span>={<span style="color:#cdd6f4;">query</span>}                         <span style="color:#6c7086;">// Input displays the state value</span>
+      <span style="color:#cdd6f4;">onChange</span>={<span style="color:#cdd6f4;">e</span> =&gt; <span style="color:#89b4fa;">setQuery</span>(<span style="color:#cdd6f4;">e</span>.<span style="color:#cdd6f4;">target</span>.<span style="color:#cdd6f4;">value</span>)}  <span style="color:#6c7086;">// Every keystroke updates state</span>
+      <span style="color:#cdd6f4;">placeholder</span>=<span style="color:#a6e3a1;">"Search tickets..."</span>
+    /&gt;
+  );
+}</pre>
+
+  <p>The flow is: user types -> <code>onChange</code> fires -> <code>setQuery</code> updates state -> component re-renders -> input shows new value. React is always in control of what the input displays.</p>
+
+  <h3>Multiple Form Fields</h3>
+
+  <p>For forms with many fields, use an object for state instead of separate useState calls for each field:</p>
+
+  <pre><span style="color:#cba6f7;">interface</span> <span style="color:#89b4fa;">ContactFormData</span> {
+  <span style="color:#cdd6f4;">name</span>: <span style="color:#cba6f7;">string</span>;
+  <span style="color:#cdd6f4;">email</span>: <span style="color:#cba6f7;">string</span>;
+  <span style="color:#cdd6f4;">message</span>: <span style="color:#cba6f7;">string</span>;
+  <span style="color:#cdd6f4;">priority</span>: <span style="color:#a6e3a1;">'low'</span> | <span style="color:#a6e3a1;">'medium'</span> | <span style="color:#a6e3a1;">'high'</span>;
+}
+
+<span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">ContactForm</span>() {
+  <span style="color:#cba6f7;">const</span> [<span style="color:#cdd6f4;">formData</span>, <span style="color:#cdd6f4;">setFormData</span>] = <span style="color:#89b4fa;">useState</span>&lt;<span style="color:#89b4fa;">ContactFormData</span>&gt;({
+    <span style="color:#cdd6f4;">name</span>: <span style="color:#a6e3a1;">''</span>,
+    <span style="color:#cdd6f4;">email</span>: <span style="color:#a6e3a1;">''</span>,
+    <span style="color:#cdd6f4;">message</span>: <span style="color:#a6e3a1;">''</span>,
+    <span style="color:#cdd6f4;">priority</span>: <span style="color:#a6e3a1;">'medium'</span>,
+  });
+
+  <span style="color:#6c7086;">// Generic handler that works for any field</span>
+  <span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">handleChange</span>(<span style="color:#cdd6f4;">e</span>: <span style="color:#89b4fa;">React</span>.<span style="color:#89b4fa;">ChangeEvent</span>&lt;<span style="color:#89b4fa;">HTMLInputElement</span> | <span style="color:#89b4fa;">HTMLTextAreaElement</span> | <span style="color:#89b4fa;">HTMLSelectElement</span>&gt;) {
+    <span style="color:#cba6f7;">const</span> { <span style="color:#cdd6f4;">name</span>, <span style="color:#cdd6f4;">value</span> } = <span style="color:#cdd6f4;">e</span>.<span style="color:#cdd6f4;">target</span>;
+    <span style="color:#89b4fa;">setFormData</span>(<span style="color:#cdd6f4;">prev</span> =&gt; ({
+      ...<span style="color:#cdd6f4;">prev</span>,
+      [<span style="color:#cdd6f4;">name</span>]: <span style="color:#cdd6f4;">value</span>,  <span style="color:#6c7086;">// Computed property name: uses the input's name attribute</span>
+    }));
+  }
+
+  <span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">handleSubmit</span>(<span style="color:#cdd6f4;">e</span>: <span style="color:#89b4fa;">React</span>.<span style="color:#89b4fa;">FormEvent</span>) {
+    <span style="color:#cdd6f4;">e</span>.<span style="color:#89b4fa;">preventDefault</span>();  <span style="color:#6c7086;">// Prevent page reload</span>
+    <span style="color:#cdd6f4;">console</span>.<span style="color:#89b4fa;">log</span>(<span style="color:#a6e3a1;">'Submitting:'</span>, <span style="color:#cdd6f4;">formData</span>);
+    <span style="color:#6c7086;">// Send to API...</span>
+  }
+
+  <span style="color:#cba6f7;">return</span> (
+    &lt;<span style="color:#89b4fa;">form</span> <span style="color:#cdd6f4;">onSubmit</span>={<span style="color:#cdd6f4;">handleSubmit</span>}&gt;
+      &lt;<span style="color:#89b4fa;">input</span>
+        <span style="color:#cdd6f4;">name</span>=<span style="color:#a6e3a1;">"name"</span>
+        <span style="color:#cdd6f4;">value</span>={<span style="color:#cdd6f4;">formData</span>.<span style="color:#cdd6f4;">name</span>}
+        <span style="color:#cdd6f4;">onChange</span>={<span style="color:#cdd6f4;">handleChange</span>}
+        <span style="color:#cdd6f4;">placeholder</span>=<span style="color:#a6e3a1;">"Your name"</span>
+      /&gt;
+
+      &lt;<span style="color:#89b4fa;">input</span>
+        <span style="color:#cdd6f4;">name</span>=<span style="color:#a6e3a1;">"email"</span>
+        <span style="color:#cdd6f4;">type</span>=<span style="color:#a6e3a1;">"email"</span>
+        <span style="color:#cdd6f4;">value</span>={<span style="color:#cdd6f4;">formData</span>.<span style="color:#cdd6f4;">email</span>}
+        <span style="color:#cdd6f4;">onChange</span>={<span style="color:#cdd6f4;">handleChange</span>}
+        <span style="color:#cdd6f4;">placeholder</span>=<span style="color:#a6e3a1;">"Your email"</span>
+      /&gt;
+
+      &lt;<span style="color:#89b4fa;">select</span> <span style="color:#cdd6f4;">name</span>=<span style="color:#a6e3a1;">"priority"</span> <span style="color:#cdd6f4;">value</span>={<span style="color:#cdd6f4;">formData</span>.<span style="color:#cdd6f4;">priority</span>} <span style="color:#cdd6f4;">onChange</span>={<span style="color:#cdd6f4;">handleChange</span>}&gt;
+        &lt;<span style="color:#89b4fa;">option</span> <span style="color:#cdd6f4;">value</span>=<span style="color:#a6e3a1;">"low"</span>&gt;Low&lt;/<span style="color:#89b4fa;">option</span>&gt;
+        &lt;<span style="color:#89b4fa;">option</span> <span style="color:#cdd6f4;">value</span>=<span style="color:#a6e3a1;">"medium"</span>&gt;Medium&lt;/<span style="color:#89b4fa;">option</span>&gt;
+        &lt;<span style="color:#89b4fa;">option</span> <span style="color:#cdd6f4;">value</span>=<span style="color:#a6e3a1;">"high"</span>&gt;High&lt;/<span style="color:#89b4fa;">option</span>&gt;
+      &lt;/<span style="color:#89b4fa;">select</span>&gt;
+
+      &lt;<span style="color:#89b4fa;">textarea</span>
+        <span style="color:#cdd6f4;">name</span>=<span style="color:#a6e3a1;">"message"</span>
+        <span style="color:#cdd6f4;">value</span>={<span style="color:#cdd6f4;">formData</span>.<span style="color:#cdd6f4;">message</span>}
+        <span style="color:#cdd6f4;">onChange</span>={<span style="color:#cdd6f4;">handleChange</span>}
+        <span style="color:#cdd6f4;">placeholder</span>=<span style="color:#a6e3a1;">"Describe the issue..."</span>
+      /&gt;
+
+      &lt;<span style="color:#89b4fa;">button</span> <span style="color:#cdd6f4;">type</span>=<span style="color:#a6e3a1;">"submit"</span>&gt;Submit&lt;/<span style="color:#89b4fa;">button</span>&gt;
+    &lt;/<span style="color:#89b4fa;">form</span>&gt;
+  );
+}</pre>
+
+  <p>The key trick is using <code>[name]: value</code> in the state update, where <code>name</code> matches the HTML <code>name</code> attribute on each input. This lets one handler work for all fields.</p>
+
+  <!-- ============================== -->
+  <!-- SECTION: Loading/Error/Success States -->
+  <!-- ============================== -->
+  <h2>Loading, Error, and Success States</h2>
+
+  <p>Any component that fetches data or submits forms needs to handle three states beyond the "happy path." This is a pattern you will use constantly in production code:</p>
+
+  <pre><span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">ContactFormComplete</span>() {
+  <span style="color:#cba6f7;">const</span> [<span style="color:#cdd6f4;">formData</span>, <span style="color:#cdd6f4;">setFormData</span>] = <span style="color:#89b4fa;">useState</span>({ <span style="color:#cdd6f4;">name</span>: <span style="color:#a6e3a1;">''</span>, <span style="color:#cdd6f4;">email</span>: <span style="color:#a6e3a1;">''</span>, <span style="color:#cdd6f4;">message</span>: <span style="color:#a6e3a1;">''</span> });
+  <span style="color:#cba6f7;">const</span> [<span style="color:#cdd6f4;">status</span>, <span style="color:#cdd6f4;">setStatus</span>] = <span style="color:#89b4fa;">useState</span>&lt;<span style="color:#a6e3a1;">'idle'</span> | <span style="color:#a6e3a1;">'loading'</span> | <span style="color:#a6e3a1;">'success'</span> | <span style="color:#a6e3a1;">'error'</span>&gt;(<span style="color:#a6e3a1;">'idle'</span>);
+  <span style="color:#cba6f7;">const</span> [<span style="color:#cdd6f4;">errorMessage</span>, <span style="color:#cdd6f4;">setErrorMessage</span>] = <span style="color:#89b4fa;">useState</span>(<span style="color:#a6e3a1;">''</span>);
+
+  <span style="color:#cba6f7;">async</span> <span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">handleSubmit</span>(<span style="color:#cdd6f4;">e</span>: <span style="color:#89b4fa;">React</span>.<span style="color:#89b4fa;">FormEvent</span>) {
+    <span style="color:#cdd6f4;">e</span>.<span style="color:#89b4fa;">preventDefault</span>();
+    <span style="color:#89b4fa;">setStatus</span>(<span style="color:#a6e3a1;">'loading'</span>);
+
+    <span style="color:#cba6f7;">try</span> {
+      <span style="color:#cba6f7;">const</span> <span style="color:#cdd6f4;">res</span> = <span style="color:#cba6f7;">await</span> <span style="color:#89b4fa;">fetch</span>(<span style="color:#a6e3a1;">'/api/contact'</span>, {
+        <span style="color:#cdd6f4;">method</span>: <span style="color:#a6e3a1;">'POST'</span>,
+        <span style="color:#cdd6f4;">headers</span>: { <span style="color:#a6e3a1;">'Content-Type'</span>: <span style="color:#a6e3a1;">'application/json'</span> },
+        <span style="color:#cdd6f4;">body</span>: <span style="color:#cdd6f4;">JSON</span>.<span style="color:#89b4fa;">stringify</span>(<span style="color:#cdd6f4;">formData</span>),
+      });
+
+      <span style="color:#cba6f7;">if</span> (!<span style="color:#cdd6f4;">res</span>.<span style="color:#cdd6f4;">ok</span>) <span style="color:#cba6f7;">throw</span> <span style="color:#cba6f7;">new</span> <span style="color:#89b4fa;">Error</span>(<span style="color:#a6e3a1;">'Failed to send message'</span>);
+      <span style="color:#89b4fa;">setStatus</span>(<span style="color:#a6e3a1;">'success'</span>);
+    } <span style="color:#cba6f7;">catch</span> (<span style="color:#cdd6f4;">err</span>) {
+      <span style="color:#89b4fa;">setStatus</span>(<span style="color:#a6e3a1;">'error'</span>);
+      <span style="color:#89b4fa;">setErrorMessage</span>(<span style="color:#cdd6f4;">err</span> <span style="color:#cba6f7;">instanceof</span> <span style="color:#89b4fa;">Error</span> ? <span style="color:#cdd6f4;">err</span>.<span style="color:#cdd6f4;">message</span> : <span style="color:#a6e3a1;">'Something went wrong'</span>);
+    }
+  }
+
+  <span style="color:#6c7086;">// Show success message after submission</span>
+  <span style="color:#cba6f7;">if</span> (<span style="color:#cdd6f4;">status</span> === <span style="color:#a6e3a1;">'success'</span>) {
+    <span style="color:#cba6f7;">return</span> (
+      &lt;<span style="color:#89b4fa;">div</span> <span style="color:#cdd6f4;">className</span>=<span style="color:#a6e3a1;">"success-message"</span>&gt;
+        &lt;<span style="color:#89b4fa;">h3</span>&gt;Message Sent!&lt;/<span style="color:#89b4fa;">h3</span>&gt;
+        &lt;<span style="color:#89b4fa;">p</span>&gt;We will get back to you soon.&lt;/<span style="color:#89b4fa;">p</span>&gt;
+      &lt;/<span style="color:#89b4fa;">div</span>&gt;
+    );
+  }
+
+  <span style="color:#cba6f7;">return</span> (
+    &lt;<span style="color:#89b4fa;">form</span> <span style="color:#cdd6f4;">onSubmit</span>={<span style="color:#cdd6f4;">handleSubmit</span>}&gt;
+      {<span style="color:#cdd6f4;">status</span> === <span style="color:#a6e3a1;">'error'</span> &amp;&amp; (
+        &lt;<span style="color:#89b4fa;">div</span> <span style="color:#cdd6f4;">className</span>=<span style="color:#a6e3a1;">"error-banner"</span>&gt;{<span style="color:#cdd6f4;">errorMessage</span>}&lt;/<span style="color:#89b4fa;">div</span>&gt;
+      )}
+
+      {<span style="color:#6c7086;">/* ... form fields ... */</span>}
+
+      &lt;<span style="color:#89b4fa;">button</span> <span style="color:#cdd6f4;">type</span>=<span style="color:#a6e3a1;">"submit"</span> <span style="color:#cdd6f4;">disabled</span>={<span style="color:#cdd6f4;">status</span> === <span style="color:#a6e3a1;">'loading'</span>}&gt;
+        {<span style="color:#cdd6f4;">status</span> === <span style="color:#a6e3a1;">'loading'</span> ? <span style="color:#a6e3a1;">'Sending...'</span> : <span style="color:#a6e3a1;">'Send Message'</span>}
+      &lt;/<span style="color:#89b4fa;">button</span>&gt;
+    &lt;/<span style="color:#89b4fa;">form</span>&gt;
+  );
+}</pre>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    The CSK admin ticket page uses exactly these patterns: <code>useState</code> for search text and active status filter, <code>useEffect</code> for 30-second polling to keep the ticket list fresh, <code>useRef</code> for form input references in the note entry field. The contact form on the public site implements loading/error/success states when sending customer inquiries via Resend.
+  </div>
+
+  <!-- ============================== -->
+  <!-- SECTION: Lifting State Up -->
+  <!-- ============================== -->
+  <h2>Lifting State Up</h2>
+
+  <p>Sometimes two sibling components need to share the same data. Since props only flow downward (from parent to child), the solution is to "lift" the state up to the nearest common parent.</p>
+
+  <div class="diagram">Before (broken - siblings can't share state):
+
+  &lt;App&gt;
+    &lt;SearchBar /&gt;         &lt;TicketList /&gt;
+    [has searchTerm]       [needs searchTerm... but how?]
+
+
+After (working - state lifted to parent):
+
+  &lt;App&gt;
+  [searchTerm state lives here]
+     |                      |
+     v                      v
+  &lt;SearchBar               &lt;TicketList
+   searchTerm={...}         searchTerm={...}
+   onSearch={...} /&gt;        tickets={...} /&gt;</div>
+
+  <pre><span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">App</span>() {
+  <span style="color:#6c7086;">// State lives in the common parent</span>
+  <span style="color:#cba6f7;">const</span> [<span style="color:#cdd6f4;">searchTerm</span>, <span style="color:#cdd6f4;">setSearchTerm</span>] = <span style="color:#89b4fa;">useState</span>(<span style="color:#a6e3a1;">''</span>);
+  <span style="color:#cba6f7;">const</span> [<span style="color:#cdd6f4;">tickets</span>, <span style="color:#cdd6f4;">setTickets</span>] = <span style="color:#89b4fa;">useState</span>&lt;<span style="color:#89b4fa;">Ticket</span>[]&gt;([]);
+
+  <span style="color:#6c7086;">// Filter tickets based on search term</span>
+  <span style="color:#cba6f7;">const</span> <span style="color:#cdd6f4;">filteredTickets</span> = <span style="color:#cdd6f4;">tickets</span>.<span style="color:#89b4fa;">filter</span>(<span style="color:#cdd6f4;">t</span> =&gt;
+    <span style="color:#cdd6f4;">t</span>.<span style="color:#cdd6f4;">subject</span>.<span style="color:#89b4fa;">toLowerCase</span>().<span style="color:#89b4fa;">includes</span>(<span style="color:#cdd6f4;">searchTerm</span>.<span style="color:#89b4fa;">toLowerCase</span>())
+  );
+
+  <span style="color:#cba6f7;">return</span> (
+    &lt;<span style="color:#89b4fa;">div</span>&gt;
+      <span style="color:#6c7086;">{/* Pass state down as props */}</span>
+      &lt;<span style="color:#89b4fa;">SearchBar</span>
+        <span style="color:#cdd6f4;">value</span>={<span style="color:#cdd6f4;">searchTerm</span>}
+        <span style="color:#cdd6f4;">onChange</span>={<span style="color:#cdd6f4;">setSearchTerm</span>}
+      /&gt;
+      &lt;<span style="color:#89b4fa;">TicketList</span> <span style="color:#cdd6f4;">tickets</span>={<span style="color:#cdd6f4;">filteredTickets</span>} /&gt;
+    &lt;/<span style="color:#89b4fa;">div</span>&gt;
+  );
+}
+
+<span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">SearchBar</span>({ <span style="color:#cdd6f4;">value</span>, <span style="color:#cdd6f4;">onChange</span> }: { <span style="color:#cdd6f4;">value</span>: <span style="color:#cba6f7;">string</span>; <span style="color:#cdd6f4;">onChange</span>: (<span style="color:#cdd6f4;">v</span>: <span style="color:#cba6f7;">string</span>) =&gt; <span style="color:#cba6f7;">void</span> }) {
+  <span style="color:#cba6f7;">return</span> (
+    &lt;<span style="color:#89b4fa;">input</span>
+      <span style="color:#cdd6f4;">value</span>={<span style="color:#cdd6f4;">value</span>}
+      <span style="color:#cdd6f4;">onChange</span>={<span style="color:#cdd6f4;">e</span> =&gt; <span style="color:#89b4fa;">onChange</span>(<span style="color:#cdd6f4;">e</span>.<span style="color:#cdd6f4;">target</span>.<span style="color:#cdd6f4;">value</span>)}
+      <span style="color:#cdd6f4;">placeholder</span>=<span style="color:#a6e3a1;">"Search..."</span>
+    /&gt;
+  );
+}
+
+<span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">TicketList</span>({ <span style="color:#cdd6f4;">tickets</span> }: { <span style="color:#cdd6f4;">tickets</span>: <span style="color:#89b4fa;">Ticket</span>[] }) {
+  <span style="color:#cba6f7;">return</span> (
+    &lt;<span style="color:#89b4fa;">ul</span>&gt;
+      {<span style="color:#cdd6f4;">tickets</span>.<span style="color:#89b4fa;">map</span>(<span style="color:#cdd6f4;">t</span> =&gt; &lt;<span style="color:#89b4fa;">li</span> <span style="color:#cdd6f4;">key</span>={<span style="color:#cdd6f4;">t</span>.<span style="color:#cdd6f4;">id</span>}&gt;{<span style="color:#cdd6f4;">t</span>.<span style="color:#cdd6f4;">subject</span>}&lt;/<span style="color:#89b4fa;">li</span>&gt;)}
+    &lt;/<span style="color:#89b4fa;">ul</span>&gt;
+  );
+}</pre>
+
+  <p>The parent owns the state and passes it down as props. The <code>SearchBar</code> receives both the current value and a callback to change it. The <code>TicketList</code> receives the filtered results. Neither sibling knows about the other &mdash; they only know about their props.</p>
+
+  <!-- ============================== -->
+  <!-- SECTION: Rules of Hooks -->
+  <!-- ============================== -->
+  <h2>Rules of Hooks</h2>
+
+  <p>Hooks have two strict rules that must be followed. Breaking them causes bugs that are extremely difficult to track down.</p>
+
+  <h3>Rule 1: Only Call Hooks at the Top Level</h3>
+
+  <p>Never call hooks inside conditions, loops, or nested functions. Hooks must be called in the same order every time the component renders.</p>
+
+  <pre><span style="color:#6c7086;">// WRONG - hook inside a condition</span>
+<span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">BadComponent</span>({ <span style="color:#cdd6f4;">isAdmin</span> }: { <span style="color:#cdd6f4;">isAdmin</span>: <span style="color:#cba6f7;">boolean</span> }) {
+  <span style="color:#cba6f7;">if</span> (<span style="color:#cdd6f4;">isAdmin</span>) {
+    <span style="color:#cba6f7;">const</span> [<span style="color:#cdd6f4;">users</span>, <span style="color:#cdd6f4;">setUsers</span>] = <span style="color:#89b4fa;">useState</span>([]);  <span style="color:#6c7086;">// DON'T DO THIS</span>
+  }
+}
+
+<span style="color:#6c7086;">// CORRECT - hook at top level, condition in the JSX</span>
+<span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">GoodComponent</span>({ <span style="color:#cdd6f4;">isAdmin</span> }: { <span style="color:#cdd6f4;">isAdmin</span>: <span style="color:#cba6f7;">boolean</span> }) {
+  <span style="color:#cba6f7;">const</span> [<span style="color:#cdd6f4;">users</span>, <span style="color:#cdd6f4;">setUsers</span>] = <span style="color:#89b4fa;">useState</span>([]);  <span style="color:#6c7086;">// Always called</span>
+
+  <span style="color:#cba6f7;">if</span> (!<span style="color:#cdd6f4;">isAdmin</span>) <span style="color:#cba6f7;">return</span> <span style="color:#cba6f7;">null</span>;  <span style="color:#6c7086;">// Condition after all hooks</span>
+
+  <span style="color:#cba6f7;">return</span> &lt;<span style="color:#89b4fa;">UserList</span> <span style="color:#cdd6f4;">users</span>={<span style="color:#cdd6f4;">users</span>} /&gt;;
+}</pre>
+
+  <h3>Rule 2: Only Call Hooks in React Functions</h3>
+
+  <p>Hooks can only be called inside React function components or custom hooks (covered in Lesson 14). Never call them in regular JavaScript functions, class methods, or event handlers.</p>
+
+  <pre><span style="color:#6c7086;">// WRONG - hook in a regular function</span>
+<span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">calculateTotal</span>() {
+  <span style="color:#cba6f7;">const</span> [<span style="color:#cdd6f4;">total</span>, <span style="color:#cdd6f4;">setTotal</span>] = <span style="color:#89b4fa;">useState</span>(<span style="color:#fab387;">0</span>);  <span style="color:#6c7086;">// DON'T DO THIS</span>
+}
+
+<span style="color:#6c7086;">// CORRECT - hook in a component (starts with capital letter)</span>
+<span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">TotalDisplay</span>() {
+  <span style="color:#cba6f7;">const</span> [<span style="color:#cdd6f4;">total</span>, <span style="color:#cdd6f4;">setTotal</span>] = <span style="color:#89b4fa;">useState</span>(<span style="color:#fab387;">0</span>);  <span style="color:#6c7086;">// This is fine</span>
+  <span style="color:#cba6f7;">return</span> &lt;<span style="color:#89b4fa;">p</span>&gt;Total: ${<span style="color:#cdd6f4;">total</span>}&lt;/<span style="color:#89b4fa;">p</span>&gt;;
+}</pre>
+
+  <div class="info-box">
+    <strong>Why these rules?</strong> React tracks hooks by their call order. The first <code>useState</code> call is always hook #1, the second is hook #2, and so on. If a hook is inside a condition, the call order changes between renders, and React assigns the wrong state to the wrong hook. The ESLint plugin <code>eslint-plugin-react-hooks</code> catches these violations automatically.
+  </div>
+
+  <!-- ============================== -->
+  <!-- EXERCISES -->
+  <!-- ============================== -->
+  <div class="exercises">
+    <h2>Hands-On Exercises</h2>
+    <ol>
+      <li>
+        <strong>Build a counter with controls:</strong> Create a component with increment, decrement, and reset buttons. Display the count. Prevent the count from going below 0 (disable the decrement button or guard with a condition).
+      </li>
+      <li>
+        <strong>Build a to-do list:</strong> Create a component that lets users type a task and add it to a list. Each task should have a "Remove" button. Use an array of objects in state with unique IDs. Apply all the non-mutating array patterns (spread to add, filter to remove).
+      </li>
+      <li>
+        <strong>Data fetching with states:</strong> Create a component that fetches data from a free public API (like <code>https://jsonplaceholder.typicode.com/posts</code>) on mount. Implement loading, error, and empty states using the patterns from this lesson.
+      </li>
+      <li>
+        <strong>Polling timer:</strong> Create a component that displays the current time, updating every second using <code>useEffect</code> with <code>setInterval</code>. Include a cleanup function. Add a "Pause" and "Resume" button.
+      </li>
+      <li>
+        <strong>Contact form:</strong> Build a complete form with name, email, phone, and message fields. Use an object in state with a single <code>handleChange</code> function. Add a <code>handleSubmit</code> that prevents default and logs the form data. Implement a "loading" state on the submit button.
+      </li>
+      <li>
+        <strong>Search filter:</strong> Create a parent component that holds an array of items and a search term. Render a search input and a filtered list. Lift the state so both children use data from the parent. Highlight matching text in the results.
+      </li>
+    </ol>
+  </div>
+
+  <!-- ============================== -->
+  <!-- KEY TAKEAWAYS -->
+  <!-- ============================== -->
+  <div class="key-takeaways">
+    <h2>Key Takeaways</h2>
+    <ul>
+      <li><strong>State</strong> is data owned by a component that changes over time. Use <code>useState</code> to declare it. State changes trigger re-renders.</li>
+      <li>Never mutate state directly. Always use the setter function. For objects, use <code>{...obj, key: newValue}</code>. For arrays, use <code>.map()</code>, <code>.filter()</code>, and spread.</li>
+      <li>Use the <strong>functional updater</strong> <code>setState(prev =&gt; ...)</code> when the new value depends on the previous one.</li>
+      <li><strong>useEffect</strong> runs side effects. The dependency array controls when: <code>[]</code> = mount only, <code>[dep]</code> = when dep changes, no array = every render. Return a cleanup function for timers and event listeners.</li>
+      <li><strong>useRef</strong> holds a mutable value that persists across renders without triggering re-renders. Use it for DOM references and timer IDs.</li>
+      <li>In <strong>controlled forms</strong>, React state drives input values. The <code>onChange</code> handler updates state, state drives the <code>value</code> prop.</li>
+      <li>Always handle <strong>loading, error, and success states</strong> in components that fetch data or submit forms.</li>
+      <li><strong>Lift state up</strong> to the nearest common parent when sibling components need to share data.</li>
+      <li>Hooks must be called at the <strong>top level</strong> (not inside conditions/loops) and only inside React components or custom hooks.</li>
+    </ul>
+  </div>
+
+</main>
+
+<!-- ── BOTTOM NAV ── -->
+<nav class="lesson-nav bottom">
+  <a href="12-react-fundamentals.html">&larr; Previous: React Fundamentals</a>
+  <span>Lesson 13 of 56</span>
+  <a href="14-react-patterns.html">Next: React Patterns &amp; Advanced Hooks &rarr;</a>
+</nav>
+
+</body>
+</html>

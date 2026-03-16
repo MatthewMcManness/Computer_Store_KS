@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 36: Error Handling Patterns — Full-Stack Web Dev Curriculum</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <nav class="lesson-nav">
+    <a href="35-data-validation-zod.html">&larr; Previous Lesson</a>
+    <span>Lesson 36 of 56</span>
+    <a href="37-external-apis.html">Next Lesson &rarr;</a>
+  </nav>
+  <header class="lesson-header" style="background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 100%);">
+    <span class="phase-badge" style="background:rgba(124,58,237,0.3);">Phase 8: API Design &amp; Data Validation</span>
+    <h1>Lesson 36: Error Handling Patterns</h1>
+    <p class="lesson-subtitle">Build resilient applications that fail gracefully and communicate clearly when things go wrong</p>
+  </header>
+  <main class="lesson-content">
+
+    <section class="learning-objectives">
+      <h2>Learning Objectives</h2>
+      <ul>
+        <li>Explain why robust error handling is critical for both security and user experience</li>
+        <li>Use try/catch effectively in both synchronous and asynchronous code</li>
+        <li>Distinguish between user errors (4xx) and server errors (5xx) and handle each appropriately</li>
+        <li>Build a consistent error response format for API routes</li>
+        <li>Catch and format Zod validation errors, database errors, and external API errors</li>
+        <li>Implement React error boundaries and Next.js error.tsx for graceful UI failures</li>
+        <li>Apply the "fail fast" principle and implement retry patterns for transient failures</li>
+        <li>Log errors server-side without leaking sensitive information to clients</li>
+      </ul>
+    </section>
+
+    <!-- ===== SECTION: WHY ERRORS HAPPEN ===== -->
+    <h2>Why Errors Happen (and Why Handling Them Matters)</h2>
+
+    <p>Every piece of software encounters errors. This is not a sign of bad code &mdash; it is an inevitable reality of building systems that interact with unpredictable users, unreliable networks, and complex databases. The difference between amateur and professional code is not whether errors occur, but <strong>how they are handled when they do</strong>.</p>
+
+    <p>Here are the most common sources of errors in a web application:</p>
+
+    <ul>
+      <li><strong>User input</strong> &mdash; Invalid form data, wrong file types, missing required fields</li>
+      <li><strong>Network failures</strong> &mdash; Lost connections, timeouts, DNS failures</li>
+      <li><strong>Database problems</strong> &mdash; Connection drops, constraint violations, deadlocks</li>
+      <li><strong>External APIs</strong> &mdash; Third-party services go down, change their response format, or rate-limit you</li>
+      <li><strong>Programming bugs</strong> &mdash; Null references, type mismatches, logic errors</li>
+      <li><strong>Resource limits</strong> &mdash; Memory exhaustion, disk full, file handle limits</li>
+      <li><strong>Authentication issues</strong> &mdash; Expired sessions, revoked tokens, invalid credentials</li>
+    </ul>
+
+    <div class="analogy">
+      <strong>Analogy: The Safety Net</strong><br>
+      Think of error handling as a safety net for trapeze artists. The performers (your code) are skilled and usually perform flawlessly. But the safety net exists for when something unexpected happens &mdash; a slippery grip, a gust of wind, a momentary distraction. Without the net, a single mistake is catastrophic. With it, the show goes on. Error handling is your application's safety net. It catches failures, prevents crashes, and keeps the experience running for your users.
+    </div>
+
+    <h3>What Happens Without Error Handling</h3>
+
+    <p>Consider an API route with no error handling:</p>
+
+<pre><code>// DANGEROUS: No error handling at all
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const id = searchParams.get('id');
+
+  // What if id is null?
+  // What if the database is down?
+  // What if the post does not exist?
+  const { data } = await supabase
+    .from('blog_posts')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  // What if data is null?
+  return NextResponse.json({ title: data.title });
+}</code></pre>
+
+    <p>This code has at least five ways to crash:</p>
+    <ol>
+      <li><code>id</code> could be <code>null</code>, causing the database query to match nothing</li>
+      <li>The Supabase connection could fail (network error, service outage)</li>
+      <li>The query could fail (table does not exist, permission denied)</li>
+      <li><code>data</code> could be <code>null</code> (no post with that ID), causing <code>data.title</code> to throw</li>
+      <li>The entire response could fail to serialize</li>
+    </ol>
+
+    <p>When any of these happens, the user sees a cryptic <code>500 Internal Server Error</code> with no useful information. Worse, the error might leak internal details (database connection strings, file paths, stack traces) that could help an attacker.</p>
+
+    <!-- ===== SECTION: TRY/CATCH ===== -->
+    <h2>Try/Catch: Your Primary Error Handling Tool</h2>
+
+    <p>The <code>try/catch</code> statement is JavaScript's mechanism for catching and handling errors. When code inside the <code>try</code> block throws an error, execution immediately jumps to the <code>catch</code> block instead of crashing the application.</p>
+
+    <h3>Synchronous Try/Catch</h3>
+
+<pre><code>// Basic try/catch structure
+try {
+  // Code that might throw an error
+  const result = JSON.parse(someString);
+  console.log(result.name);
+} catch (error) {
+  // This runs if ANY error is thrown in the try block
+  console.error("Failed to parse JSON:", error);
+} finally {
+  // This ALWAYS runs, whether there was an error or not
+  // Useful for cleanup (closing connections, releasing resources)
+  console.log("Parsing attempt complete");
+}</code></pre>
+
+    <h3>Async/Await Try/Catch</h3>
+
+    <p>The same pattern works with <code>async/await</code>, which is how you will use it most often in Next.js API routes:</p>
+
+<pre><code>// Async try/catch
+async function fetchUser(id: string) {
+  try {
+    const response = await fetch(`https://api.example.com/users/${id}`);
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const user = await response.json();
+    return user;
+  } catch (error) {
+    console.error("Failed to fetch user:", error);
+    throw error; // Re-throw if you want the caller to handle it too
+  }
+}</code></pre>
+
+    <h3>The Error Object</h3>
+
+    <p>In the <code>catch</code> block, the <code>error</code> parameter contains information about what went wrong:</p>
+
+<pre><code>try {
+  throw new Error("Something went wrong");
+} catch (error) {
+  if (error instanceof Error) {
+    console.log(error.message);   // "Something went wrong"
+    console.log(error.name);      // "Error"
+    console.log(error.stack);     // Full stack trace (file names, line numbers)
+  }
+}</code></pre>
+
+    <div class="warning-box">
+      <strong>TypeScript and the Unknown Error Type</strong>
+      In TypeScript, the <code>catch</code> parameter is typed as <code>unknown</code> (not <code>Error</code>), because anything can be thrown in JavaScript &mdash; strings, numbers, objects, not just Error instances. Always check the type before accessing properties:
+<pre><code>catch (error) {
+  // Safe: check the type first
+  if (error instanceof Error) {
+    console.log(error.message);
+  } else {
+    console.log("An unknown error occurred:", error);
+  }
+}</code></pre>
+    </div>
+
+    <!-- ===== SECTION: USER ERRORS VS SERVER ERRORS ===== -->
+    <h2>User Errors vs. Server Errors</h2>
+
+    <p>A critical skill in error handling is distinguishing between errors caused by the user (4xx) and errors caused by your server (5xx). The distinction determines what you tell the user and how you respond.</p>
+
+    <h3>User Errors (4xx) &mdash; "You Did Something Wrong"</h3>
+
+    <p>These errors are caused by the client sending a bad request. The client can fix the problem by changing their request:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Error Type</th>
+          <th>Status</th>
+          <th>Example</th>
+          <th>What to Tell the User</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Invalid input</td>
+          <td>400 / 422</td>
+          <td>Empty name field, invalid email</td>
+          <td>Specific field errors: "Email must be valid"</td>
+        </tr>
+        <tr>
+          <td>Not authenticated</td>
+          <td>401</td>
+          <td>Missing or expired session</td>
+          <td>"Please log in to continue"</td>
+        </tr>
+        <tr>
+          <td>Not authorized</td>
+          <td>403</td>
+          <td>Regular user accessing admin page</td>
+          <td>"You do not have permission for this action"</td>
+        </tr>
+        <tr>
+          <td>Resource not found</td>
+          <td>404</td>
+          <td>Blog post with this ID does not exist</td>
+          <td>"The requested item was not found"</td>
+        </tr>
+        <tr>
+          <td>Conflict</td>
+          <td>409</td>
+          <td>Duplicate email during registration</td>
+          <td>"An account with this email already exists"</td>
+        </tr>
+        <tr>
+          <td>Rate limited</td>
+          <td>429</td>
+          <td>Too many requests in a short period</td>
+          <td>"Too many requests. Please wait and try again."</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>For user errors, you should provide <strong>helpful, specific error messages</strong> that tell the user exactly what went wrong and how to fix it.</p>
+
+    <h3>Server Errors (5xx) &mdash; "We Made a Mistake"</h3>
+
+    <p>These errors are caused by problems on the server. The client did nothing wrong, and retrying the same request might work later:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Error Type</th>
+          <th>Status</th>
+          <th>Example</th>
+          <th>What to Tell the User</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Unhandled exception</td>
+          <td>500</td>
+          <td>Null pointer, undefined variable</td>
+          <td>"Something went wrong. Please try again later."</td>
+        </tr>
+        <tr>
+          <td>Database failure</td>
+          <td>500</td>
+          <td>Connection pool exhausted, query timeout</td>
+          <td>"Something went wrong. Please try again later."</td>
+        </tr>
+        <tr>
+          <td>External service down</td>
+          <td>502</td>
+          <td>Third-party API returned an error</td>
+          <td>"A service we depend on is unavailable."</td>
+        </tr>
+        <tr>
+          <td>Overloaded</td>
+          <td>503</td>
+          <td>Server is too busy to handle requests</td>
+          <td>"The service is temporarily unavailable."</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>For server errors, you should provide a <strong>generic, vague message</strong> that does not reveal internal details. The specific error should be logged server-side for debugging.</p>
+
+    <div class="warning-box">
+      <strong>Never Expose Internal Errors to Clients</strong>
+      A server error response should never contain stack traces, database connection strings, file paths, SQL queries, or any other internal detail. These leak information that attackers can exploit. Always log the full error internally and return a generic message to the client:
+<pre><code>// BAD: Exposing internal details
+{ "error": "Connection to postgres://user:pass@db.supabase.co:5432 failed" }
+
+// GOOD: Generic message, details logged server-side
+{ "error": { "message": "An unexpected error occurred", "code": "INTERNAL_ERROR" } }</code></pre>
+    </div>
+
+    <!-- ===== SECTION: CONSISTENT ERROR FORMAT ===== -->
+    <h2>Building a Consistent Error Response Format</h2>
+
+    <p>As we learned in Lesson 34, consistency is king. Every API route should return errors in the same shape so the frontend can handle them generically. Here is a robust error response format:</p>
+
+<pre><code>// The standard error response shape
+{
+  "error": {
+    "message": "Human-readable description of what went wrong",
+    "code": "MACHINE_READABLE_ERROR_CODE",
+    "details": [                          // Optional: field-level errors
+      {
+        "field": "email",
+        "message": "Please enter a valid email address"
+      }
+    ]
+  }
+}</code></pre>
+
+    <h3>Error Codes</h3>
+
+    <p>Using consistent error codes lets the frontend handle specific errors programmatically:</p>
+
+<pre><code>// Common error codes for your API
+const ERROR_CODES = {
+  // Client errors
+  VALIDATION_ERROR: "VALIDATION_ERROR",       // 422
+  INVALID_JSON: "INVALID_JSON",               // 400
+  AUTH_REQUIRED: "AUTH_REQUIRED",              // 401
+  FORBIDDEN: "FORBIDDEN",                     // 403
+  NOT_FOUND: "NOT_FOUND",                     // 404
+  CONFLICT: "CONFLICT",                       // 409
+  RATE_LIMITED: "RATE_LIMITED",               // 429
+
+  // Server errors
+  INTERNAL_ERROR: "INTERNAL_ERROR",           // 500
+  DATABASE_ERROR: "DATABASE_ERROR",           // 500
+  EXTERNAL_SERVICE_ERROR: "EXTERNAL_SERVICE_ERROR", // 502
+  SERVICE_UNAVAILABLE: "SERVICE_UNAVAILABLE", // 503
+} as const;</code></pre>
+
+    <h3>Helper Functions for Error Responses</h3>
+
+    <p>To avoid repeating error response code in every route, create helper functions:</p>
+
+<pre><code>// src/lib/api-errors.ts
+import { NextResponse } from 'next/server';
+import { z } from 'zod';
+
+/**
+ * Returns a 422 response with formatted Zod validation errors.
+ */
+export function validationError(zodError: z.ZodError) {
+  return NextResponse.json(
+    {
+      error: {
+        message: "Validation failed",
+        code: "VALIDATION_ERROR",
+        details: zodError.errors.map((err) => ({
+          field: err.path.join('.'),
+          message: err.message,
+        })),
+      },
+    },
+    { status: 422 }
+  );
+}
+
+/**
+ * Returns a 401 response for unauthenticated requests.
+ */
+export function unauthorizedError(message = "Authentication required") {
+  return NextResponse.json(
+    { error: { message, code: "AUTH_REQUIRED" } },
+    { status: 401 }
+  );
+}
+
+/**
+ * Returns a 403 response for unauthorized requests.
+ */
+export function forbiddenError(message = "You do not have permission") {
+  return NextResponse.json(
+    { error: { message, code: "FORBIDDEN" } },
+    { status: 403 }
+  );
+}
+
+/**
+ * Returns a 404 response for missing resources.
+ */
+export function notFoundError(resource = "Resource") {
+  return NextResponse.json(
+    { error: { message: `${resource} not found`, code: "NOT_FOUND" } },
+    { status: 404 }
+  );
+}
+
+/**
+ * Returns a 500 response for unexpected server errors.
+ * NEVER includes internal details in the response.
+ */
+export function internalError() {
+  return NextResponse.json(
+    { error: { message: "An unexpected error occurred", code: "INTERNAL_ERROR" } },
+    { status: 500 }
+  );
+}</code></pre>
+
+    <p>Now your API routes become clean and consistent:</p>
+
+<pre><code>// src/app/api/blog/[id]/route.ts
+import { NextRequest } from 'next/server';
+import { notFoundError, internalError, unauthorizedError } from '@/lib/api-errors';
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select('*')
+      .eq('id', params.id)
+      .single();
+
+    if (error || !data) {
+      return notFoundError("Blog post");
+    }
+
+    return NextResponse.json({ data });
+  } catch (error) {
+    console.error("Error fetching blog post:", error);
+    return internalError();
+  }
+}</code></pre>
+
+    <!-- ===== SECTION: API ROUTE ERROR HANDLING PATTERN ===== -->
+    <h2>The API Route Error Handling Pattern</h2>
+
+    <p>Every API route handler should follow this pattern. It is the most important pattern in this entire lesson:</p>
+
+<pre><code>// The standard API route error handling pattern
+export async function POST(request: NextRequest) {
+  try {
+    // 1. Parse the request body
+    let body;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { error: { message: "Invalid JSON", code: "INVALID_JSON" } },
+        { status: 400 }
+      );
+    }
+
+    // 2. Validate the input (Zod)
+    const validation = schema.safeParse(body);
+    if (!validation.success) {
+      return validationError(validation.error);
+    }
+
+    // 3. Check authentication/authorization
+    const session = await getSession(request);
+    if (!session) {
+      return unauthorizedError();
+    }
+
+    // 4. Perform the business logic (database operations, etc.)
+    const { data, error } = await supabase
+      .from('table')
+      .insert(validation.data)
+      .select()
+      .single();
+
+    if (error) {
+      // Handle specific database errors
+      if (error.code === '23505') {
+        // Unique constraint violation
+        return NextResponse.json(
+          { error: { message: "A record with this value already exists", code: "CONFLICT" } },
+          { status: 409 }
+        );
+      }
+      // Unknown database error
+      console.error("Database error:", error);
+      return internalError();
+    }
+
+    // 5. Return success
+    return NextResponse.json({ data }, { status: 201 });
+
+  } catch (error) {
+    // 6. Catch-all for unexpected errors
+    console.error("Unexpected error:", error);
+    return internalError();
+  }
+}</code></pre>
+
+    <p>Notice the structure: each type of error is caught at the appropriate level, and the outer try/catch serves as a safety net for anything unexpected. This ensures your API <strong>never</strong> returns an unformatted error or leaks internal information.</p>
+
+    <div class="csk-connection">
+      <strong>CSK Connection</strong>
+      Every API route in Computer Store KS wraps its logic in try/catch. The blog API, gallery API, contact form, and authentication endpoints all follow this pattern. Authentication debug info is logged via middleware for troubleshooting, but no internal error details are ever sent to the client. If the Supabase database is unreachable, the health check at <code>/api/health</code> catches the error and returns a structured <code>503</code> response.
+    </div>
+
+    <!-- ===== SECTION: LOGGING ===== -->
+    <h2>Logging Errors Server-Side</h2>
+
+    <p>When a server error occurs, you need to know about it. But the information needs to stay on the server, not go to the client. This is what server-side logging is for.</p>
+
+    <h3>What to Log</h3>
+
+<pre><code>// Log enough detail to debug the problem
+console.error("Error in POST /api/blog:", {
+  error: error instanceof Error ? error.message : error,
+  stack: error instanceof Error ? error.stack : undefined,
+  requestBody: body,           // What the client sent
+  userId: session?.user?.id,   // Who made the request
+  timestamp: new Date().toISOString(),
+});</code></pre>
+
+    <h3>What NOT to Log</h3>
+
+    <ul>
+      <li><strong>Passwords</strong> &mdash; Never log raw passwords, even in error scenarios</li>
+      <li><strong>Full credit card numbers</strong> &mdash; Log at most the last four digits</li>
+      <li><strong>API keys or secrets</strong> &mdash; Mask them if you must log them (e.g., <code>re_***abc</code>)</li>
+      <li><strong>Personal data unnecessarily</strong> &mdash; Only log what you need for debugging</li>
+    </ul>
+
+    <h3>Structured Logging</h3>
+
+    <p>For production applications, structured logging (JSON-formatted logs) makes it much easier to search and analyze errors:</p>
+
+<pre><code>// Instead of console.error("Something went wrong")
+// Use structured logging:
+function logError(context: string, error: unknown, metadata?: Record&lt;string, unknown&gt;) {
+  const logEntry = {
+    level: "error",
+    context,                    // e.g., "POST /api/blog"
+    message: error instanceof Error ? error.message : String(error),
+    stack: error instanceof Error ? error.stack : undefined,
+    timestamp: new Date().toISOString(),
+    ...metadata,
+  };
+
+  // In development: pretty print
+  if (process.env.NODE_ENV === 'development') {
+    console.error(`[ERROR] ${context}:`, logEntry);
+  } else {
+    // In production: JSON for log aggregation tools
+    console.error(JSON.stringify(logEntry));
+  }
+}
+
+// Usage
+logError("POST /api/contact", error, {
+  requestBody: { name: body.name, email: body.email },
+  ip: request.headers.get('x-forwarded-for'),
+});</code></pre>
+
+    <div class="info-box">
+      <strong>Log Levels</strong>
+      Most logging systems use these severity levels: <strong>debug</strong> (detailed diagnostic info), <strong>info</strong> (normal operations), <strong>warn</strong> (something unexpected but not an error), <strong>error</strong> (something failed), and <strong>fatal</strong> (the application cannot continue). In development, log everything. In production, log warn and above to avoid excessive log volume.
+    </div>
+
+    <!-- ===== SECTION: SPECIFIC ERROR TYPES ===== -->
+    <h2>Handling Specific Error Types</h2>
+
+    <h3>Zod Validation Errors</h3>
+
+    <p>You learned about Zod errors in Lesson 35. Here is how they fit into the API error handling pattern:</p>
+
+<pre><code>import { z } from 'zod';
+
+const schema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email"),
+});
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const validation = schema.safeParse(body);
+
+    if (!validation.success) {
+      // Format Zod errors into our standard error shape
+      return NextResponse.json(
+        {
+          error: {
+            message: "Validation failed",
+            code: "VALIDATION_ERROR",
+            details: validation.error.errors.map((e) => ({
+              field: e.path.join('.'),
+              message: e.message,
+            })),
+          },
+        },
+        { status: 422 }
+      );
+    }
+
+    // Continue with validated data...
+  } catch (error) {
+    console.error("Unexpected error:", error);
+    return internalError();
+  }
+}</code></pre>
+
+    <h3>Database Errors</h3>
+
+    <p>Database errors come in many forms. Here are the most common ones and how to handle them:</p>
+
+<pre><code>// Supabase returns { data, error } instead of throwing
+const { data, error } = await supabase
+  .from('blog_posts')
+  .insert(postData)
+  .select()
+  .single();
+
+if (error) {
+  // Handle specific PostgreSQL error codes
+  switch (error.code) {
+    case '23505':
+      // Unique constraint violation (duplicate entry)
+      return NextResponse.json(
+        { error: { message: "A record with this value already exists", code: "CONFLICT" } },
+        { status: 409 }
+      );
+
+    case '23503':
+      // Foreign key constraint violation (referenced record does not exist)
+      return NextResponse.json(
+        { error: { message: "Referenced record not found", code: "NOT_FOUND" } },
+        { status: 422 }
+      );
+
+    case '23502':
+      // NOT NULL violation (required field is missing)
+      return NextResponse.json(
+        { error: { message: "A required field is missing", code: "VALIDATION_ERROR" } },
+        { status: 422 }
+      );
+
+    case 'PGRST116':
+      // Supabase: row not found (for .single() queries)
+      return notFoundError("Record");
+
+    default:
+      // Unknown database error &mdash; log it, return generic message
+      console.error("Database error:", {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+      });
+      return internalError();
+  }
+}</code></pre>
+
+    <h3>External API Errors</h3>
+
+    <p>When your server calls other APIs (like RepairShopr, Resend, or any third-party service), many things can go wrong:</p>
+
+<pre><code>async function callExternalAPI(url: string, options?: RequestInit) {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeout);
+
+    if (!response.ok) {
+      // The external API returned an error status
+      if (response.status === 401) {
+        console.error("External API: Authentication failed. Check API key.");
+        throw new ExternalAPIError("Authentication with external service failed", 502);
+      }
+
+      if (response.status === 429) {
+        console.error("External API: Rate limited.");
+        throw new ExternalAPIError("External service rate limit reached", 503);
+      }
+
+      console.error(`External API error: ${response.status} ${response.statusText}`);
+      throw new ExternalAPIError("External service returned an error", 502);
+    }
+
+    return await response.json();
+
+  } catch (error) {
+    if (error instanceof ExternalAPIError) {
+      throw error; // Re-throw our custom error
+    }
+
+    // Handle network-level errors
+    if (error instanceof TypeError && error.message === 'fetch failed') {
+      console.error("External API: Network connection failed");
+      throw new ExternalAPIError("Cannot reach external service", 503);
+    }
+
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      console.error("External API: Request timed out");
+      throw new ExternalAPIError("External service request timed out", 504);
+    }
+
+    throw error;
+  }
+}</code></pre>
+
+    <!-- ===== SECTION: CUSTOM ERROR CLASSES ===== -->
+    <h2>Custom Error Classes</h2>
+
+    <p>JavaScript's built-in <code>Error</code> class is generic. For better error handling, create custom error classes that carry additional information:</p>
+
+<pre><code>// src/lib/errors.ts
+
+/**
+ * Base class for all application errors.
+ * Includes an HTTP status code for API responses.
+ */
+export class AppError extends Error {
+  public readonly statusCode: number;
+  public readonly code: string;
+
+  constructor(message: string, statusCode: number, code: string) {
+    super(message);
+    this.name = 'AppError';
+    this.statusCode = statusCode;
+    this.code = code;
+  }
+}
+
+/**
+ * Thrown when validation fails.
+ */
+export class ValidationError extends AppError {
+  public readonly details: Array&lt;{ field: string; message: string }&gt;;
+
+  constructor(
+    details: Array&lt;{ field: string; message: string }&gt;,
+    message = "Validation failed"
+  ) {
+    super(message, 422, "VALIDATION_ERROR");
+    this.name = 'ValidationError';
+    this.details = details;
+  }
+}
+
+/**
+ * Thrown when a resource is not found.
+ */
+export class NotFoundError extends AppError {
+  constructor(resource: string) {
+    super(`${resource} not found`, 404, "NOT_FOUND");
+    this.name = 'NotFoundError';
+  }
+}
+
+/**
+ * Thrown when authentication is required.
+ */
+export class AuthError extends AppError {
+  constructor(message = "Authentication required") {
+    super(message, 401, "AUTH_REQUIRED");
+    this.name = 'AuthError';
+  }
+}
+
+/**
+ * Thrown when an external API fails.
+ */
+export class ExternalAPIError extends AppError {
+  constructor(message: string, statusCode = 502) {
+    super(message, statusCode, "EXTERNAL_SERVICE_ERROR");
+    this.name = 'ExternalAPIError';
+  }
+}</code></pre>
+
+    <p>Now your catch blocks can handle different error types differently:</p>
+
+<pre><code>export async function GET(request: NextRequest) {
+  try {
+    // Business logic that might throw custom errors
+    const post = await getPostById(params.id);
+    return NextResponse.json({ data: post });
+
+  } catch (error) {
+    // Handle our custom errors with appropriate responses
+    if (error instanceof AppError) {
+      const response: Record&lt;string, unknown&gt; = {
+        error: {
+          message: error.message,
+          code: error.code,
+        },
+      };
+
+      // Include validation details if present
+      if (error instanceof ValidationError) {
+        (response.error as Record&lt;string, unknown&gt;).details = error.details;
+      }
+
+      return NextResponse.json(response, { status: error.statusCode });
+    }
+
+    // Unknown error &mdash; log and return generic response
+    console.error("Unexpected error:", error);
+    return internalError();
+  }
+}</code></pre>
+
+    <!-- ===== SECTION: REACT ERROR BOUNDARIES ===== -->
+    <h2>React Error Boundaries</h2>
+
+    <p>Everything we have covered so far handles errors on the <strong>server side</strong> (API routes). But what about errors in the <strong>frontend</strong> (React components)? When a React component throws an error during rendering, the entire component tree crashes and the user sees a blank screen. Error boundaries prevent this.</p>
+
+    <h3>What Is an Error Boundary?</h3>
+
+    <p>An <strong>error boundary</strong> is a React component that catches JavaScript errors anywhere in its child component tree, logs the error, and displays a fallback UI instead of crashing the entire page.</p>
+
+<pre><code>// src/components/ErrorBoundary.tsx
+'use client';
+import React, { Component, ReactNode } from 'react';
+
+interface Props {
+  children: ReactNode;
+  fallback?: ReactNode;
+}
+
+interface State {
+  hasError: boolean;
+  error: Error | null;
+}
+
+export class ErrorBoundary extends Component&lt;Props, State&gt; {
+  constructor(props: Props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error): State {
+    // Update state so the next render shows the fallback UI
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    // Log the error for debugging
+    console.error("Error boundary caught an error:", error, errorInfo);
+
+    // In production, you might send this to an error tracking service
+    // like Sentry, LogRocket, or Datadog
+  }
+
+  render() {
+    if (this.state.hasError) {
+      // Render fallback UI
+      return this.props.fallback || (
+        &lt;div style={{ padding: '2rem', textAlign: 'center' }}&gt;
+          &lt;h2&gt;Something went wrong&lt;/h2&gt;
+          &lt;p&gt;We are sorry for the inconvenience. Please try refreshing the page.&lt;/p&gt;
+          &lt;button onClick={() => this.setState({ hasError: false, error: null })}&gt;
+            Try Again
+          &lt;/button&gt;
+        &lt;/div&gt;
+      );
+    }
+
+    return this.props.children;
+  }
+}</code></pre>
+
+    <p>Wrap your components with the error boundary:</p>
+
+<pre><code>// Usage in a layout or page
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+
+export default function DashboardPage() {
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;Dashboard&lt;/h1&gt;
+      &lt;ErrorBoundary fallback={&lt;p&gt;Failed to load tickets.&lt;/p&gt;}&gt;
+        &lt;TicketList /&gt;
+      &lt;/ErrorBoundary&gt;
+      &lt;ErrorBoundary fallback={&lt;p&gt;Failed to load stats.&lt;/p&gt;}&gt;
+        &lt;StatsPanel /&gt;
+      &lt;/ErrorBoundary&gt;
+    &lt;/div&gt;
+  );
+}
+
+// If TicketList crashes, only that section shows the fallback.
+// StatsPanel continues to work normally.</code></pre>
+
+    <div class="info-box">
+      <strong>Why Are Error Boundaries Class Components?</strong>
+      Error boundaries require the <code>componentDidCatch</code> lifecycle method, which is only available in class components. There is no hook equivalent (<code>useErrorBoundary</code>) in React yet. This is one of the very few cases where you still need a class component in modern React. Libraries like <code>react-error-boundary</code> provide a more modern API if you prefer.
+    </div>
+
+    <!-- ===== SECTION: NEXTJS ERROR.TSX ===== -->
+    <h2>error.tsx in Next.js</h2>
+
+    <p>Next.js provides built-in error handling through special file conventions. The <code>error.tsx</code> file acts as an error boundary for an entire route segment.</p>
+
+<pre><code>// src/app/admin/error.tsx
+'use client'; // Error components must be Client Components
+
+interface ErrorProps {
+  error: Error & { digest?: string };
+  reset: () => void;
+}
+
+export default function AdminError({ error, reset }: ErrorProps) {
+  return (
+    &lt;div className="flex flex-col items-center justify-center min-h-[400px]"&gt;
+      &lt;h2 className="text-2xl font-bold text-red-600 mb-4"&gt;
+        Something went wrong
+      &lt;/h2&gt;
+      &lt;p className="text-gray-600 mb-6"&gt;
+        An error occurred while loading this page.
+        Please try again or contact support if the problem persists.
+      &lt;/p&gt;
+      &lt;button
+        onClick={() => reset()}
+        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+      &gt;
+        Try Again
+      &lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+    <p>How it works:</p>
+    <ul>
+      <li><code>error.tsx</code> in a route folder catches errors from all pages and components within that route segment</li>
+      <li>The <code>error</code> prop contains the error object (message is sanitized in production for security)</li>
+      <li>The <code>reset</code> function attempts to re-render the route segment, which may succeed if the error was transient</li>
+      <li>The file must use <code>'use client'</code> because error handling requires client-side interactivity</li>
+    </ul>
+
+    <h3>Global Error Handling</h3>
+
+    <p>You can also create a <code>global-error.tsx</code> at the root of your app to catch errors in the root layout itself:</p>
+
+<pre><code>// src/app/global-error.tsx
+'use client';
+
+export default function GlobalError({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
+  return (
+    &lt;html&gt;
+      &lt;body&gt;
+        &lt;div style={{ padding: '2rem', textAlign: 'center' }}&gt;
+          &lt;h1&gt;Something went wrong&lt;/h1&gt;
+          &lt;p&gt;We apologize for the inconvenience.&lt;/p&gt;
+          &lt;button onClick={() => reset()}&gt;Try Again&lt;/button&gt;
+        &lt;/div&gt;
+      &lt;/body&gt;
+    &lt;/html&gt;
+  );
+}</code></pre>
+
+    <!-- ===== SECTION: LOADING AND ERROR STATES ===== -->
+    <h2>Loading States and Error States in UI Components</h2>
+
+    <p>Every component that fetches data should handle three states: loading, success, and error. Forgetting any one of these leads to a poor user experience.</p>
+
+<pre><code>// A component that handles all three states
+'use client';
+import { useState, useEffect } from 'react';
+
+interface Post {
+  id: number;
+  title: string;
+  content: string;
+}
+
+export function BlogPostList() {
+  const [posts, setPosts] = useState&lt;Post[]&gt;([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState&lt;string | null&gt;(null);
+
+  useEffect(() => {
+    async function fetchPosts() {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const response = await fetch('/api/blog');
+
+        if (!response.ok) {
+          throw new Error(`Failed to load posts (${response.status})`);
+        }
+
+        const json = await response.json();
+        setPosts(json.data);
+
+      } catch (err) {
+        setError(
+          err instanceof Error
+            ? err.message
+            : "An unexpected error occurred"
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchPosts();
+  }, []);
+
+  // Loading state
+  if (isLoading) {
+    return (
+      &lt;div className="animate-pulse"&gt;
+        &lt;div className="h-6 bg-gray-200 rounded mb-4"&gt;&lt;/div&gt;
+        &lt;div className="h-6 bg-gray-200 rounded mb-4 w-3/4"&gt;&lt;/div&gt;
+        &lt;div className="h-6 bg-gray-200 rounded mb-4 w-1/2"&gt;&lt;/div&gt;
+      &lt;/div&gt;
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      &lt;div className="p-4 bg-red-50 border border-red-200 rounded-lg"&gt;
+        &lt;p className="text-red-700"&gt;{error}&lt;/p&gt;
+        &lt;button
+          onClick={() => window.location.reload()}
+          className="mt-2 text-red-600 underline"
+        &gt;
+          Try again
+        &lt;/button&gt;
+      &lt;/div&gt;
+    );
+  }
+
+  // Empty state (success but no data)
+  if (posts.length === 0) {
+    return &lt;p className="text-gray-500"&gt;No blog posts found.&lt;/p&gt;;
+  }
+
+  // Success state
+  return (
+    &lt;ul&gt;
+      {posts.map((post) => (
+        &lt;li key={post.id}&gt;{post.title}&lt;/li&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+}</code></pre>
+
+    <div class="analogy">
+      <strong>Analogy: The Loading Dock</strong><br>
+      Imagine ordering a package online. There are four possible states: <strong>In transit</strong> (loading &mdash; you see a tracking progress animation), <strong>Delivered</strong> (success &mdash; you see the package), <strong>Failed to deliver</strong> (error &mdash; you see a "delivery failed" notice with a retry option), or <strong>Nothing ordered</strong> (empty state &mdash; you see "no orders yet"). A good delivery service communicates all four states clearly. Your UI should do the same.
+    </div>
+
+    <!-- ===== SECTION: GRACEFUL DEGRADATION ===== -->
+    <h2>Graceful Degradation</h2>
+
+    <p><strong>Graceful degradation</strong> means that when part of your application fails, the rest continues to work. Instead of showing a blank page when one component crashes, you show a helpful fallback message while keeping the rest of the page functional.</p>
+
+<pre><code>// Example: A dashboard with independent sections
+export default function AdminDashboard() {
+  return (
+    &lt;div className="grid grid-cols-2 gap-4"&gt;
+      &lt;ErrorBoundary fallback={&lt;FallbackCard title="Tickets" /&gt;}&gt;
+        &lt;TicketSummary /&gt;
+      &lt;/ErrorBoundary&gt;
+
+      &lt;ErrorBoundary fallback={&lt;FallbackCard title="Recent Activity" /&gt;}&gt;
+        &lt;RecentActivity /&gt;
+      &lt;/ErrorBoundary&gt;
+
+      &lt;ErrorBoundary fallback={&lt;FallbackCard title="Statistics" /&gt;}&gt;
+        &lt;Statistics /&gt;
+      &lt;/ErrorBoundary&gt;
+
+      &lt;ErrorBoundary fallback={&lt;FallbackCard title="Notifications" /&gt;}&gt;
+        &lt;NotificationFeed /&gt;
+      &lt;/ErrorBoundary&gt;
+    &lt;/div&gt;
+  );
+}
+
+function FallbackCard({ title }: { title: string }) {
+  return (
+    &lt;div className="p-4 bg-gray-50 rounded-lg border border-gray-200"&gt;
+      &lt;h3 className="font-bold text-gray-500"&gt;{title}&lt;/h3&gt;
+      &lt;p className="text-sm text-gray-400"&gt;Unable to load. Try refreshing the page.&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+    <p>If the Statistics component crashes, the rest of the dashboard (tickets, activity, notifications) continues working. The user sees a polite message where Statistics would be, and every other section is unaffected.</p>
+
+    <!-- ===== SECTION: FAIL FAST ===== -->
+    <h2>The "Fail Fast" Principle</h2>
+
+    <p>The <strong>fail fast</strong> principle says that when an error is detected, you should stop processing immediately rather than continuing with potentially corrupted data. Failing early and loudly is better than failing silently and causing cascading problems later.</p>
+
+<pre><code>// GOOD: Fail fast &mdash; validate inputs before doing anything
+export async function POST(request: NextRequest) {
+  const body = await request.json();
+
+  // Check EVERYTHING before doing any work
+  const validation = schema.safeParse(body);
+  if (!validation.success) return validationError(validation.error);
+
+  const session = await getSession(request);
+  if (!session) return unauthorizedError();
+
+  if (session.role !== 'admin') return forbiddenError();
+
+  // Only NOW do the actual work (database insert, email send, etc.)
+  const { data, error } = await supabase.from('posts').insert(validation.data);
+  // ...
+}
+
+// BAD: Not failing fast &mdash; doing work before checking everything
+export async function POST(request: NextRequest) {
+  const body = await request.json();
+
+  // Start doing work BEFORE validating
+  const slug = generateSlug(body.title);  // What if title is undefined?
+  const imageUrl = await uploadImage(body.image); // Wasted upload if auth fails
+  await supabase.from('posts').insert({ ...body, slug, imageUrl }); // No validation!
+
+  // Check auth AFTER the work is already done (too late!)
+  const session = await getSession(request);
+  if (!session) return unauthorizedError(); // Data already written!
+}</code></pre>
+
+    <p>In the bad example, the image is uploaded and the database record is created <em>before</em> checking if the user is authorized. If the auth check fails, you have wasted resources and potentially created orphaned data. The good example checks everything first, then does work only when all preconditions are met.</p>
+
+    <!-- ===== SECTION: RETRY PATTERNS ===== -->
+    <h2>Retry Patterns for Transient Failures</h2>
+
+    <p>Some errors are <strong>transient</strong> &mdash; they happen once and then go away. A momentary network glitch, a database connection that dropped, an external API that hiccupped. For these, retrying the operation often succeeds.</p>
+
+<pre><code>/**
+ * Retries a function up to maxRetries times with exponential backoff.
+ * Only retries on transient errors, not on validation or auth errors.
+ */
+async function withRetry&lt;T&gt;(
+  fn: () => Promise&lt;T&gt;,
+  options: {
+    maxRetries?: number;
+    baseDelay?: number;
+    shouldRetry?: (error: unknown) => boolean;
+  } = {}
+): Promise&lt;T&gt; {
+  const {
+    maxRetries = 3,
+    baseDelay = 1000,
+    shouldRetry = isTransientError,
+  } = options;
+
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt &lt;= maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error;
+
+      // Do not retry if the error is not transient
+      if (!shouldRetry(error)) {
+        throw error;
+      }
+
+      // Do not retry if we are out of attempts
+      if (attempt === maxRetries) {
+        break;
+      }
+
+      // Wait with exponential backoff: 1s, 2s, 4s, 8s, etc.
+      const delay = baseDelay * Math.pow(2, attempt);
+      console.warn(
+        `Attempt ${attempt + 1} failed, retrying in ${delay}ms:`,
+        error instanceof Error ? error.message : error
+      );
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
+  }
+
+  throw lastError;
+}
+
+/**
+ * Determines if an error is transient (worth retrying).
+ */
+function isTransientError(error: unknown): boolean {
+  // Network errors are transient
+  if (error instanceof TypeError && error.message === 'fetch failed') {
+    return true;
+  }
+
+  // Timeout errors are transient
+  if (error instanceof DOMException && error.name === 'AbortError') {
+    return true;
+  }
+
+  // HTTP 429 (rate limited) and 5xx (server errors) are transient
+  if (error instanceof AppError) {
+    return error.statusCode === 429 || error.statusCode >= 500;
+  }
+
+  return false;
+}
+
+// Usage:
+const data = await withRetry(
+  () => callExternalAPI('https://api.example.com/data'),
+  { maxRetries: 3, baseDelay: 1000 }
+);</code></pre>
+
+    <div class="warning-box">
+      <strong>When NOT to Retry</strong>
+      Never retry these types of errors:
+      <ul>
+        <li><strong>Validation errors (400, 422)</strong> &mdash; The input is wrong; retrying will not fix it</li>
+        <li><strong>Authentication errors (401)</strong> &mdash; The credentials are wrong or expired</li>
+        <li><strong>Authorization errors (403)</strong> &mdash; The user lacks permission</li>
+        <li><strong>Not found errors (404)</strong> &mdash; The resource does not exist</li>
+        <li><strong>Conflict errors (409)</strong> &mdash; The operation conflicts with existing data</li>
+      </ul>
+      Only retry <strong>transient failures</strong>: network errors, timeouts, rate limits (429), and server errors (5xx).
+    </div>
+
+    <!-- ===== SECTION: PUTTING IT ALL TOGETHER ===== -->
+    <h2>Putting It All Together: Complete Error Handling Strategy</h2>
+
+    <p>Here is a summary of the complete error handling strategy for a professional web application:</p>
+
+    <div class="diagram">
+    CLIENT REQUEST
+         |
+    +---------+
+    |  API    |  1. Parse JSON body (catch malformed JSON -> 400)
+    |  Route  |  2. Validate with Zod (catch invalid data -> 422)
+    |  Handler|  3. Check auth (catch unauthenticated -> 401)
+    |         |  4. Check permissions (catch unauthorized -> 403)
+    |         |  5. Business logic (database, external APIs)
+    |         |  6. Return success response (200/201/204)
+    +---------+
+         |
+    catch (error)
+         |
+    +----+----+
+    |         |
+  Known    Unknown
+  Errors   Errors
+    |         |
+  Return   Log full error
+  specific  server-side,
+  status    return generic
+  + message  500 response
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Layer</th>
+          <th>Error Type</th>
+          <th>Handling Strategy</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>API Routes</strong></td>
+          <td>All errors</td>
+          <td>Try/catch every handler, consistent error response format</td>
+        </tr>
+        <tr>
+          <td><strong>Validation</strong></td>
+          <td>Invalid input</td>
+          <td>Zod safeParse, return 422 with field-level details</td>
+        </tr>
+        <tr>
+          <td><strong>Authentication</strong></td>
+          <td>Missing/expired session</td>
+          <td>Return 401 with "please log in" message</td>
+        </tr>
+        <tr>
+          <td><strong>Database</strong></td>
+          <td>Constraints, connections</td>
+          <td>Handle specific error codes, generic fallback</td>
+        </tr>
+        <tr>
+          <td><strong>External APIs</strong></td>
+          <td>Timeouts, failures</td>
+          <td>Retry transient errors, return 502/503</td>
+        </tr>
+        <tr>
+          <td><strong>React Components</strong></td>
+          <td>Render errors</td>
+          <td>Error boundaries with fallback UI</td>
+        </tr>
+        <tr>
+          <td><strong>Next.js Routes</strong></td>
+          <td>Page-level errors</td>
+          <td>error.tsx with reset button</td>
+        </tr>
+        <tr>
+          <td><strong>Logging</strong></td>
+          <td>All server errors</td>
+          <td>Structured logging, never expose to clients</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="csk-connection">
+      <strong>CSK Connection</strong>
+      The Computer Store KS application uses all of these patterns. Every API route (<code>/api/blog</code>, <code>/api/gallery</code>, <code>/api/contact</code>, <code>/api/auth</code>) wraps logic in try/catch and returns consistent error shapes. The middleware logs authentication debug information for troubleshooting. API routes never expose internal error details to clients. The admin dashboard components handle loading and error states individually so that a failure in one section does not bring down the entire page.
+    </div>
+
+    <!-- ===== EXERCISES ===== -->
+    <section class="exercises">
+      <h2>Practice Exercises</h2>
+      <ol>
+        <li><strong>Error Classification:</strong> For each scenario below, identify whether it is a user error (4xx) or server error (5xx), choose the specific status code, and write the error response JSON:
+          <ul>
+            <li>A user submits a contact form with an empty email field</li>
+            <li>The Supabase database connection times out during a query</li>
+            <li>An admin user tries to delete a blog post that does not exist</li>
+            <li>A non-admin user tries to access <code>POST /api/blog</code></li>
+            <li>The Resend email API returns a 429 (rate limited) when sending a contact notification</li>
+            <li>A user sends a request body that is not valid JSON</li>
+          </ul>
+        </li>
+        <li><strong>Error Helper Library:</strong> Create a complete <code>api-errors.ts</code> file with helper functions for at least six different error types (validation, unauthorized, forbidden, not found, conflict, internal). Each function should return a properly formatted <code>NextResponse</code> with the correct status code and consistent error shape.</li>
+        <li><strong>Custom Error Classes:</strong> Create a custom error class hierarchy with a base <code>AppError</code> class and at least four subclasses. Each should include a status code, error code, and message. Then write a single catch block that handles all of them correctly, returning the appropriate API response for each type.</li>
+        <li><strong>Error Boundary Component:</strong> Build a React error boundary component that: catches errors, logs them to the console, displays a user-friendly fallback with the error message (in development) or a generic message (in production), and includes a "Try Again" button that calls the reset function. Test it by creating a component that deliberately throws an error.</li>
+        <li><strong>Retry Function:</strong> Implement a <code>withRetry</code> function that accepts any async function and retries it up to 3 times with exponential backoff (1s, 2s, 4s delays). It should only retry on transient errors (network failures and 5xx status codes) and give up immediately on client errors (4xx). Test it with a mock function that fails twice then succeeds.</li>
+        <li><strong>Complete API Route:</strong> Build a <code>POST /api/blog</code> route that handles every error type covered in this lesson: invalid JSON (400), validation failures (422), unauthenticated requests (401), unauthorized role (403), database constraint violations (409), database connection failures (500), and unexpected errors (500). Use consistent error response shapes and log appropriately.</li>
+      </ol>
+    </section>
+
+    <!-- ===== KEY TAKEAWAYS ===== -->
+    <section class="key-takeaways">
+      <h2>Key Takeaways</h2>
+      <ul>
+        <li>Every API route handler must be wrapped in try/catch. The outer catch block is your safety net for unexpected errors &mdash; it ensures your API always returns a formatted response, never an unhandled crash.</li>
+        <li>User errors (4xx) should include helpful, specific messages that tell the client how to fix the problem. Server errors (5xx) should return generic messages and log full details server-side.</li>
+        <li>Build a consistent error response format (<code>{ error: { message, code, details } }</code>) and use helper functions to construct error responses. This makes frontend error handling predictable and reliable.</li>
+        <li>Handle specific error types at the appropriate level: Zod errors become 422, database constraint violations become 409, auth failures become 401/403, and unknown errors become 500.</li>
+        <li>Never expose internal error details (stack traces, database URLs, file paths) to clients. Log them server-side for debugging.</li>
+        <li>React error boundaries catch render errors and display fallback UI instead of blank screens. In Next.js, error.tsx provides route-level error handling with a reset mechanism.</li>
+        <li>The "fail fast" principle says to validate all inputs and check all preconditions before doing any work. This prevents wasted resources and cascading failures.</li>
+        <li>Retry only transient errors (network failures, timeouts, 429, 5xx) with exponential backoff. Never retry client errors (400, 401, 403, 404).</li>
+      </ul>
+    </section>
+
+  </main>
+  <nav class="lesson-nav bottom">
+    <a href="35-data-validation-zod.html">&larr; Previous Lesson</a>
+    <a href="../index.html">Back to Curriculum</a>
+    <a href="37-external-apis.html">Next Lesson &rarr;</a>
+  </nav>
+</body>
+</html>

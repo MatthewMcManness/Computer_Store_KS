@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 15: Next.js App Router &amp; File-Based Routing | Full-Stack Curriculum</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+
+<!-- ============================================ TOP NAV -->
+<nav class="lesson-nav">
+  <a href="14-react-patterns.html">&larr; Previous: React Patterns</a>
+  <span>Lesson 15 of 56</span>
+  <a href="16-server-vs-client-components.html">Next: Server vs. Client Components &rarr;</a>
+</nav>
+
+<!-- ============================================ HEADER -->
+<header class="lesson-header" style="background: linear-gradient(135deg, #0a1481 0%, #0863fd 100%);">
+  <div class="phase-badge" style="background: rgba(255,255,255,0.2);">Phase 4: Next.js</div>
+  <h1>Next.js App Router &amp; File-Based Routing</h1>
+  <p class="lesson-subtitle">Turn your React skills into full-stack power with automatic routing, layouts, and the file system as your API.</p>
+</header>
+
+<!-- ============================================ CONTENT -->
+<div class="lesson-content">
+
+  <!-- LEARNING OBJECTIVES -->
+  <div class="learning-objectives">
+    <h2>What You Will Learn</h2>
+    <ul>
+      <li>Understand what Next.js adds on top of React and why it matters</li>
+      <li>Create a Next.js project from scratch with <code>create-next-app</code></li>
+      <li>Navigate the <code>src/app/</code> directory structure confidently</li>
+      <li>Build routes using <code>page.tsx</code> and shared layouts with <code>layout.tsx</code></li>
+      <li>Use route groups, dynamic routes, and special files like <code>loading.tsx</code> and <code>error.tsx</code></li>
+      <li>Handle client-side navigation with the <code>Link</code> component and router hooks</li>
+      <li>Build a complete multi-page website with nested layouts</li>
+    </ul>
+  </div>
+
+  <!-- ============================================ SECTION: WHY NEXT.JS -->
+  <h2>Why Next.js? What React Alone Cannot Do</h2>
+
+  <p>You have spent the last three lessons learning React -- components, hooks, state, and patterns. React is incredibly powerful at building user interfaces, but it is <strong>only a UI library</strong>. It does not have opinions about how to handle routing, server rendering, data fetching, or deployment. That is where Next.js enters the picture.</p>
+
+  <p>Next.js is a <strong>full-stack React framework</strong> built by Vercel. It takes React and wraps it with everything you need to build a production website:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Feature</th>
+        <th>React Alone</th>
+        <th>Next.js</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Routing</td>
+        <td>Install react-router, configure manually</td>
+        <td>Automatic from file system</td>
+      </tr>
+      <tr>
+        <td>Server Rendering</td>
+        <td>Complex setup with Express/Node</td>
+        <td>Built-in, on by default</td>
+      </tr>
+      <tr>
+        <td>API Endpoints</td>
+        <td>Separate backend server needed</td>
+        <td>Built-in via <code>route.ts</code> files</td>
+      </tr>
+      <tr>
+        <td>Image Optimization</td>
+        <td>Manual, or use third-party tools</td>
+        <td>Automatic with <code>&lt;Image&gt;</code></td>
+      </tr>
+      <tr>
+        <td>SEO / Metadata</td>
+        <td>Manual <code>&lt;head&gt;</code> management</td>
+        <td>Built-in metadata API</td>
+      </tr>
+      <tr>
+        <td>Code Splitting</td>
+        <td>Manual with React.lazy</td>
+        <td>Automatic per route</td>
+      </tr>
+      <tr>
+        <td>Deployment</td>
+        <td>Configure bundler, server, CDN</td>
+        <td>Single build command, deploy anywhere</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="analogy">
+    <strong>Analogy:</strong> If React is a powerful engine, Next.js is the entire car -- engine, transmission, steering, fuel system, and body all assembled and ready to drive.
+  </div>
+
+  <h3>The App Router vs. the Pages Router</h3>
+
+  <p>Next.js has two routing systems. The older <strong>Pages Router</strong> (<code>pages/</code> directory) has been around since 2016. The newer <strong>App Router</strong> (<code>app/</code> directory) was introduced in Next.js 13 and is now the recommended approach. This lesson teaches the App Router exclusively because:</p>
+
+  <ul>
+    <li>It supports React Server Components (a game-changer for performance)</li>
+    <li>It has a more intuitive nested layout system</li>
+    <li>It supports streaming and loading states natively</li>
+    <li>It is the future of Next.js -- all new features target the App Router</li>
+  </ul>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    Computer Store KS uses Next.js 14 with the App Router. Every page you see on computerstoreks.com -- the homepage, services pages, blog, admin dashboard -- is built with the patterns taught in this lesson.
+  </div>
+
+  <!-- ============================================ SECTION: INSTALLATION -->
+  <h2>Creating Your First Next.js Project</h2>
+
+  <p>Next.js provides a scaffolding tool called <code>create-next-app</code> that sets up everything for you. Open your terminal and run:</p>
+
+  <pre><code>npx create-next-app@latest my-website</code></pre>
+
+  <p>The installer will ask you a series of questions. Here are the recommended answers for this curriculum:</p>
+
+  <pre><code>Would you like to use TypeScript?             Yes
+Would you like to use ESLint?                  Yes
+Would you like to use Tailwind CSS?            Yes
+Would you like your code inside a `src/` directory?  Yes
+Would you like to use App Router?              Yes
+Would you like to use Turbopack for next dev?  Yes
+Would you like to customize the import alias?  No (keep @/*)</code></pre>
+
+  <p>Once finished, move into the project and start the development server:</p>
+
+  <pre><code>cd my-website
+npm run dev</code></pre>
+
+  <p>Open <code>http://localhost:3000</code> in your browser. You should see the default Next.js welcome page. Congratulations -- you have a running full-stack application.</p>
+
+  <!-- ============================================ SECTION: PROJECT STRUCTURE -->
+  <h2>Project Structure Tour</h2>
+
+  <p>Let us look at every important file and folder that <code>create-next-app</code> generated:</p>
+
+  <pre><code>my-website/
+├── src/
+│   └── app/
+│       ├── layout.tsx        # Root layout (wraps EVERY page)
+│       ├── page.tsx          # Homepage (the "/" route)
+│       ├── globals.css       # Global CSS imported by layout
+│       └── favicon.ico       # Browser tab icon
+├── public/                   # Static files served at "/"
+│   └── (images, fonts, etc.)
+├── package.json              # Dependencies and scripts
+├── tsconfig.json             # TypeScript configuration
+├── tailwind.config.ts        # Tailwind CSS configuration
+├── next.config.mjs           # Next.js configuration
+└── .gitignore                # Files excluded from Git</code></pre>
+
+  <h3>The <code>src/app/</code> Directory -- Your Application Lives Here</h3>
+
+  <p>The <code>src/app/</code> directory is the heart of the App Router. The folder structure inside <code>app/</code> directly maps to the URL structure of your website. This is called <strong>file-based routing</strong> -- instead of writing routing configuration, you create folders and files, and Next.js generates routes automatically.</p>
+
+  <p>Two file names have special meaning:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>File Name</th>
+        <th>Purpose</th>
+        <th>Required?</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>page.tsx</code></td>
+        <td>Makes a folder into a route (the page users see)</td>
+        <td>Yes, for any folder that should be a URL</td>
+      </tr>
+      <tr>
+        <td><code>layout.tsx</code></td>
+        <td>Shared wrapper UI (header, sidebar, footer)</td>
+        <td>Required at root; optional in nested folders</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="warning-box">
+    <strong>Key Rule:</strong> A folder only becomes a URL route if it contains a <code>page.tsx</code> file. If a folder has no <code>page.tsx</code>, it is just a grouping mechanism -- it will not match any URL.
+  </div>
+
+  <!-- ============================================ SECTION: PAGE.TSX AND LAYOUT.TSX -->
+  <h2>page.tsx -- Defining Routes</h2>
+
+  <p>Every <code>page.tsx</code> file exports a default React component that Next.js renders when a user visits that route. The URL is determined by the folder path relative to <code>src/app/</code>.</p>
+
+  <pre><code>// src/app/page.tsx
+// This renders at URL: /
+
+export default function HomePage() {
+  return (
+    &lt;main&gt;
+      &lt;h1&gt;Welcome to My Website&lt;/h1&gt;
+      &lt;p&gt;This is the homepage.&lt;/p&gt;
+    &lt;/main&gt;
+  );
+}</code></pre>
+
+  <p>To create an About page at <code>/about</code>, create a folder and add a <code>page.tsx</code>:</p>
+
+  <pre><code>// src/app/about/page.tsx
+// This renders at URL: /about
+
+export default function AboutPage() {
+  return (
+    &lt;main&gt;
+      &lt;h1&gt;About Us&lt;/h1&gt;
+      &lt;p&gt;We build websites for local businesses.&lt;/p&gt;
+    &lt;/main&gt;
+  );
+}</code></pre>
+
+  <p>The mapping is straightforward:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>File Path</th>
+        <th>URL</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><code>src/app/page.tsx</code></td><td><code>/</code></td></tr>
+      <tr><td><code>src/app/about/page.tsx</code></td><td><code>/about</code></td></tr>
+      <tr><td><code>src/app/contact/page.tsx</code></td><td><code>/contact</code></td></tr>
+      <tr><td><code>src/app/services/page.tsx</code></td><td><code>/services</code></td></tr>
+      <tr><td><code>src/app/services/web-design/page.tsx</code></td><td><code>/services/web-design</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>layout.tsx -- Shared Wrappers</h2>
+
+  <p>A <code>layout.tsx</code> file wraps the content of its folder and all child folders. The root layout (<code>src/app/layout.tsx</code>) wraps <strong>every page</strong> in your application. It is the only place where you define the <code>&lt;html&gt;</code> and <code>&lt;body&gt;</code> tags.</p>
+
+  <pre><code>// src/app/layout.tsx -- ROOT layout (required)
+import './globals.css';
+
+export const metadata = {
+  title: 'My Website',
+  description: 'A website built with Next.js',
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    &lt;html lang="en"&gt;
+      &lt;body&gt;
+        &lt;header&gt;
+          &lt;nav&gt;
+            &lt;a href="/"&gt;Home&lt;/a&gt;
+            &lt;a href="/about"&gt;About&lt;/a&gt;
+            &lt;a href="/contact"&gt;Contact&lt;/a&gt;
+          &lt;/nav&gt;
+        &lt;/header&gt;
+        &lt;main&gt;{children}&lt;/main&gt;
+        &lt;footer&gt;
+          &lt;p&gt;Copyright 2026 My Website&lt;/p&gt;
+        &lt;/footer&gt;
+      &lt;/body&gt;
+    &lt;/html&gt;
+  );
+}</code></pre>
+
+  <p>The <code>{children}</code> prop is where Next.js injects the current page content. When a user visits <code>/about</code>, the <code>AboutPage</code> component is rendered inside this layout where <code>{children}</code> appears.</p>
+
+  <h3>Nested Layouts</h3>
+
+  <p>You can create additional layouts inside any folder. They nest inside the parent layout, creating a hierarchy:</p>
+
+  <pre><code>// src/app/admin/layout.tsx -- Layout for ALL /admin/* pages
+
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    &lt;div className="admin-container"&gt;
+      &lt;aside className="sidebar"&gt;
+        &lt;h2&gt;Admin Panel&lt;/h2&gt;
+        &lt;nav&gt;
+          &lt;a href="/admin"&gt;Dashboard&lt;/a&gt;
+          &lt;a href="/admin/blog"&gt;Blog Posts&lt;/a&gt;
+          &lt;a href="/admin/gallery"&gt;Gallery&lt;/a&gt;
+        &lt;/nav&gt;
+      &lt;/aside&gt;
+      &lt;div className="admin-content"&gt;
+        {children}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+  <p>When visiting <code>/admin/blog</code>, the rendering nests like this:</p>
+
+  <div class="diagram">Root Layout (html, body, header, footer)
+  └── Admin Layout (sidebar + content area)
+       └── Blog Page (the actual page content)</div>
+
+  <div class="info-box">
+    <strong>Layout Persistence:</strong> Layouts do not re-render when navigating between pages within the same layout. If a user clicks from <code>/admin/blog</code> to <code>/admin/gallery</code>, only the page content changes -- the admin sidebar stays mounted, preserving any state (like scroll position or open menus).
+  </div>
+
+  <!-- ============================================ SECTION: ROUTE GROUPS -->
+  <h2>Route Groups with Parentheses</h2>
+
+  <p>Sometimes you want to organize files into folders without creating a new URL segment. Route groups solve this. Wrap a folder name in parentheses, and it is excluded from the URL.</p>
+
+  <pre><code>src/app/
+├── (public)/            # Route group -- does NOT appear in URL
+│   ├── page.tsx         # URL: /
+│   ├── about/
+│   │   └── page.tsx     # URL: /about
+│   ├── contact/
+│   │   └── page.tsx     # URL: /contact
+│   └── layout.tsx       # Layout for public pages only
+├── admin/               # Regular folder -- DOES appear in URL
+│   ├── page.tsx         # URL: /admin
+│   ├── blog/
+│   │   └── page.tsx     # URL: /admin/blog
+│   └── layout.tsx       # Admin layout with sidebar
+└── layout.tsx           # Root layout (wraps everything)</code></pre>
+
+  <p>Notice that <code>(public)</code> is in parentheses. The page at <code>src/app/(public)/about/page.tsx</code> is accessible at <code>/about</code> -- not <code>/public/about</code>. The parentheses tell Next.js "this folder is for organization only."</p>
+
+  <h3>Why Use Route Groups?</h3>
+
+  <ul>
+    <li><strong>Different layouts:</strong> Public pages might have a header and footer, while admin pages have a sidebar. Route groups let you assign different layouts to different sections.</li>
+    <li><strong>Code organization:</strong> Group related routes together without polluting the URL structure.</li>
+    <li><strong>Team separation:</strong> Different developers can work in different route groups without merge conflicts.</li>
+  </ul>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    Computer Store KS uses route groups extensively. The <code>(public)</code> group contains all customer-facing pages (homepage, about, services, blog, contact, gallery, reviews). The <code>admin</code> folder (no parentheses) is a regular route at <code>/admin</code> for the employee portal. This separation means public pages use a customer-friendly layout with a header and footer, while admin pages use a sidebar navigation layout.
+  </div>
+
+  <!-- ============================================ SECTION: DYNAMIC ROUTES -->
+  <h2>Dynamic Routes: [slug] and [id]</h2>
+
+  <p>Many pages share the same layout but display different data: individual blog posts, product pages, user profiles. Instead of creating a separate folder for every possible URL, you use <strong>dynamic route segments</strong> by wrapping the folder name in square brackets.</p>
+
+  <pre><code>src/app/blog/
+├── page.tsx              # URL: /blog       (blog listing)
+└── [slug]/
+    └── page.tsx          # URL: /blog/anything-here  (individual post)</code></pre>
+
+  <p>The <code>[slug]</code> folder matches any value in that URL position. When a user visits <code>/blog/how-to-build-a-pc</code>, Next.js renders the <code>page.tsx</code> inside <code>[slug]/</code> and passes the matched value as a parameter.</p>
+
+  <pre><code>// src/app/blog/[slug]/page.tsx
+
+interface BlogPostPageProps {
+  params: {
+    slug: string;
+  };
+}
+
+export default function BlogPostPage({ params }: BlogPostPageProps) {
+  // If URL is /blog/how-to-build-a-pc
+  // then params.slug === "how-to-build-a-pc"
+
+  return (
+    &lt;article&gt;
+      &lt;h1&gt;Blog Post: {params.slug}&lt;/h1&gt;
+      &lt;p&gt;In a real app, you would fetch the post data using this slug.&lt;/p&gt;
+    &lt;/article&gt;
+  );
+}</code></pre>
+
+  <h3>Multiple Dynamic Segments</h3>
+
+  <p>You can have multiple dynamic segments in a path:</p>
+
+  <pre><code>src/app/shop/[category]/[productId]/page.tsx
+// URL: /shop/laptops/dell-inspiron-15
+// params.category    === "laptops"
+// params.productId   === "dell-inspiron-15"</code></pre>
+
+  <h3>Catch-All Routes with [...slug]</h3>
+
+  <p>For routes that need to match an arbitrary number of segments, use the spread syntax:</p>
+
+  <pre><code>src/app/docs/[...slug]/page.tsx
+// URL: /docs/getting-started          → params.slug = ["getting-started"]
+// URL: /docs/api/authentication        → params.slug = ["api", "authentication"]
+// URL: /docs/api/auth/sessions/create  → params.slug = ["api", "auth", "sessions", "create"]</code></pre>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    CSK uses dynamic routes for blog posts at <code>/blog/[slug]</code> (e.g., <code>/blog/how-to-speed-up-your-pc</code>) and for ticket detail pages in the admin area at <code>/admin/tickets/[id]</code> (e.g., <code>/admin/tickets/12345</code>).
+  </div>
+
+  <!-- ============================================ SECTION: SPECIAL FILES -->
+  <h2>Special Files: loading, error, and not-found</h2>
+
+  <p>Next.js reserves several file names for handling common scenarios. These files are optional but extremely useful:</p>
+
+  <h3>loading.tsx -- Loading States</h3>
+
+  <p>Place a <code>loading.tsx</code> file in any folder, and Next.js will show it while the page is loading (during data fetching or code splitting). It works automatically with React Suspense under the hood.</p>
+
+  <pre><code>// src/app/blog/loading.tsx
+
+export default function BlogLoading() {
+  return (
+    &lt;div className="loading-container"&gt;
+      &lt;div className="spinner"&gt;&lt;/div&gt;
+      &lt;p&gt;Loading blog posts...&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+  <h3>error.tsx -- Error Boundaries</h3>
+
+  <p>An <code>error.tsx</code> file catches errors that happen in its folder's page or any child pages. It acts as a React Error Boundary and must be a Client Component.</p>
+
+  <pre><code>// src/app/blog/error.tsx
+'use client'; // Error components MUST be Client Components
+
+export default function BlogError({
+  error,
+  reset,
+}: {
+  error: Error &amp; { digest?: string };
+  reset: () =&gt; void;
+}) {
+  return (
+    &lt;div className="error-container"&gt;
+      &lt;h2&gt;Something went wrong!&lt;/h2&gt;
+      &lt;p&gt;{error.message}&lt;/p&gt;
+      &lt;button onClick={() =&gt; reset()}&gt;Try Again&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+  <h3>not-found.tsx -- 404 Pages</h3>
+
+  <p>A <code>not-found.tsx</code> file renders when a page is not found. You can place one at the root level for a global 404 page, or in specific folders for targeted not-found experiences.</p>
+
+  <pre><code>// src/app/not-found.tsx
+
+export default function NotFound() {
+  return (
+    &lt;div className="not-found"&gt;
+      &lt;h1&gt;404 - Page Not Found&lt;/h1&gt;
+      &lt;p&gt;The page you are looking for does not exist.&lt;/p&gt;
+      &lt;a href="/"&gt;Go back to the homepage&lt;/a&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+  <p>You can trigger the not-found page programmatically with the <code>notFound()</code> function:</p>
+
+  <pre><code>// src/app/blog/[slug]/page.tsx
+import { notFound } from 'next/navigation';
+
+export default async function BlogPostPage({ params }: { params: { slug: string } }) {
+  const post = await getPostBySlug(params.slug);
+
+  if (!post) {
+    notFound(); // Renders the nearest not-found.tsx
+  }
+
+  return &lt;article&gt;{/* render post */}&lt;/article&gt;;
+}</code></pre>
+
+  <h3>Summary of Special Files</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>File</th>
+        <th>Purpose</th>
+        <th>Must Be Client Component?</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><code>page.tsx</code></td><td>The page content for a route</td><td>No</td></tr>
+      <tr><td><code>layout.tsx</code></td><td>Shared UI wrapper</td><td>No</td></tr>
+      <tr><td><code>loading.tsx</code></td><td>Loading skeleton / spinner</td><td>No</td></tr>
+      <tr><td><code>error.tsx</code></td><td>Error boundary</td><td>Yes</td></tr>
+      <tr><td><code>not-found.tsx</code></td><td>404 fallback</td><td>No</td></tr>
+      <tr><td><code>template.tsx</code></td><td>Like layout but re-renders on navigation</td><td>No</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ============================================ SECTION: LINK AND NAVIGATION -->
+  <h2>Client-Side Navigation</h2>
+
+  <h3>The Link Component</h3>
+
+  <p>In React, navigating between pages with plain <code>&lt;a&gt;</code> tags causes a full page reload. Next.js provides the <code>Link</code> component for <strong>client-side navigation</strong> -- the browser swaps only the content that changed, without reloading the entire page. This makes navigation instant.</p>
+
+  <pre><code>import Link from 'next/link';
+
+export default function Navigation() {
+  return (
+    &lt;nav&gt;
+      &lt;Link href="/"&gt;Home&lt;/Link&gt;
+      &lt;Link href="/about"&gt;About&lt;/Link&gt;
+      &lt;Link href="/services"&gt;Services&lt;/Link&gt;
+      &lt;Link href="/blog"&gt;Blog&lt;/Link&gt;
+      &lt;Link href="/contact"&gt;Contact&lt;/Link&gt;
+    &lt;/nav&gt;
+  );
+}</code></pre>
+
+  <p><code>Link</code> also <strong>prefetches</strong> pages that are visible in the viewport. When a user hovers over a link (or it scrolls into view), Next.js starts loading that page in the background. By the time they click, the navigation is nearly instantaneous.</p>
+
+  <h3>Dynamic Link Targets</h3>
+
+  <pre><code>// Linking to a dynamic route
+&lt;Link href={`/blog/${post.slug}`}&gt;
+  {post.title}
+&lt;/Link&gt;
+
+// Linking to an admin route with a ticket ID
+&lt;Link href={`/admin/tickets/${ticket.id}`}&gt;
+  Ticket #{ticket.id}
+&lt;/Link&gt;</code></pre>
+
+  <h3>useRouter() Hook -- Programmatic Navigation</h3>
+
+  <p>Sometimes you need to navigate in response to an event (like a form submission or button click) rather than a link click. The <code>useRouter</code> hook from <code>next/navigation</code> lets you do this.</p>
+
+  <pre><code>'use client';
+
+import { useRouter } from 'next/navigation';
+
+export default function LoginForm() {
+  const router = useRouter();
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const success = await loginUser(/* ... */);
+
+    if (success) {
+      router.push('/admin');       // Navigate to /admin
+    }
+  }
+
+  return (
+    &lt;form onSubmit={handleSubmit}&gt;
+      {/* form fields */}
+      &lt;button type="submit"&gt;Log In&lt;/button&gt;
+    &lt;/form&gt;
+  );
+}</code></pre>
+
+  <p>Key <code>useRouter()</code> methods:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Method</th>
+        <th>What It Does</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><code>router.push('/path')</code></td><td>Navigate to a new page (adds to history)</td></tr>
+      <tr><td><code>router.replace('/path')</code></td><td>Navigate without adding to history (like redirect)</td></tr>
+      <tr><td><code>router.back()</code></td><td>Go back one page in browser history</td></tr>
+      <tr><td><code>router.refresh()</code></td><td>Re-fetch the current page data from the server</td></tr>
+    </tbody>
+  </table>
+
+  <div class="warning-box">
+    <strong>Important:</strong> <code>useRouter()</code> requires the <code>'use client'</code> directive because it uses browser-side state. You cannot use it in Server Components. We will cover this distinction thoroughly in Lesson 16.
+  </div>
+
+  <h3>usePathname() Hook -- Know Where You Are</h3>
+
+  <p>The <code>usePathname()</code> hook returns the current URL pathname. It is useful for highlighting the active navigation link:</p>
+
+  <pre><code>'use client';
+
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+
+export default function Navigation() {
+  const pathname = usePathname();
+
+  const links = [
+    { href: '/', label: 'Home' },
+    { href: '/about', label: 'About' },
+    { href: '/services', label: 'Services' },
+    { href: '/contact', label: 'Contact' },
+  ];
+
+  return (
+    &lt;nav&gt;
+      {links.map(link =&gt; (
+        &lt;Link
+          key={link.href}
+          href={link.href}
+          className={pathname === link.href ? 'active' : ''}
+        &gt;
+          {link.label}
+        &lt;/Link&gt;
+      ))}
+    &lt;/nav&gt;
+  );
+}</code></pre>
+
+  <!-- ============================================ SECTION: PARALLEL ROUTES -->
+  <h2>Parallel Routes (Advanced Concept)</h2>
+
+  <p>Parallel routes let you render multiple pages <strong>simultaneously</strong> in the same layout. They use the <code>@folder</code> naming convention (a folder name starting with <code>@</code>).</p>
+
+  <pre><code>src/app/admin/
+├── layout.tsx
+├── page.tsx
+├── @dashboard/
+│   └── page.tsx
+└── @notifications/
+    └── page.tsx</code></pre>
+
+  <p>In the layout, each parallel route becomes a named prop:</p>
+
+  <pre><code>// src/app/admin/layout.tsx
+export default function AdminLayout({
+  children,
+  dashboard,
+  notifications,
+}: {
+  children: React.ReactNode;
+  dashboard: React.ReactNode;
+  notifications: React.ReactNode;
+}) {
+  return (
+    &lt;div className="admin-grid"&gt;
+      &lt;main&gt;{children}&lt;/main&gt;
+      &lt;aside&gt;{dashboard}&lt;/aside&gt;
+      &lt;aside&gt;{notifications}&lt;/aside&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+  <p>Parallel routes are an advanced feature. They are useful for dashboard UIs where multiple sections load independently, but you will not need them for most websites. The important thing is to know they exist for when your requirements grow.</p>
+
+  <!-- ============================================ SECTION: COMPLETE WALKTHROUGH -->
+  <h2>Complete Walkthrough: Building a 5-Page Website</h2>
+
+  <p>Let us put everything together and build a complete website with a home page, about page, services page with sub-pages, a blog with dynamic posts, and a contact page -- all with nested layouts.</p>
+
+  <h3>Step 1: Plan the File Structure</h3>
+
+  <pre><code>src/app/
+├── layout.tsx              # Root layout: html, body, nav, footer
+├── page.tsx                # / (Homepage)
+├── about/
+│   └── page.tsx            # /about
+├── services/
+│   ├── layout.tsx          # Services sub-layout (breadcrumb)
+│   ├── page.tsx            # /services (services listing)
+│   └── [service]/
+│       └── page.tsx        # /services/web-design, /services/seo, etc.
+├── blog/
+│   ├── page.tsx            # /blog (blog listing)
+│   └── [slug]/
+│       └── page.tsx        # /blog/my-first-post, etc.
+├── contact/
+│   └── page.tsx            # /contact
+├── loading.tsx             # Global loading state
+└── not-found.tsx           # Global 404 page</code></pre>
+
+  <h3>Step 2: Create the Root Layout</h3>
+
+  <pre><code>// src/app/layout.tsx
+import Link from 'next/link';
+import './globals.css';
+
+export const metadata = {
+  title: {
+    template: '%s | My Business',
+    default: 'My Business - Web Solutions',
+  },
+  description: 'Professional web solutions for local businesses.',
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    &lt;html lang="en"&gt;
+      &lt;body&gt;
+        &lt;header className="site-header"&gt;
+          &lt;Link href="/" className="logo"&gt;My Business&lt;/Link&gt;
+          &lt;nav&gt;
+            &lt;Link href="/"&gt;Home&lt;/Link&gt;
+            &lt;Link href="/about"&gt;About&lt;/Link&gt;
+            &lt;Link href="/services"&gt;Services&lt;/Link&gt;
+            &lt;Link href="/blog"&gt;Blog&lt;/Link&gt;
+            &lt;Link href="/contact"&gt;Contact&lt;/Link&gt;
+          &lt;/nav&gt;
+        &lt;/header&gt;
+        {children}
+        &lt;footer className="site-footer"&gt;
+          &lt;p&gt;Copyright 2026 My Business. All rights reserved.&lt;/p&gt;
+        &lt;/footer&gt;
+      &lt;/body&gt;
+    &lt;/html&gt;
+  );
+}</code></pre>
+
+  <h3>Step 3: Create Pages</h3>
+
+  <pre><code>// src/app/page.tsx (Homepage)
+export default function HomePage() {
+  return (
+    &lt;main&gt;
+      &lt;section className="hero"&gt;
+        &lt;h1&gt;Welcome to My Business&lt;/h1&gt;
+        &lt;p&gt;We help local businesses succeed online.&lt;/p&gt;
+      &lt;/section&gt;
+    &lt;/main&gt;
+  );
+}
+
+// src/app/about/page.tsx
+export const metadata = { title: 'About Us' };
+
+export default function AboutPage() {
+  return (
+    &lt;main&gt;
+      &lt;h1&gt;About Us&lt;/h1&gt;
+      &lt;p&gt;Founded in 2024, we specialize in building websites
+         for small businesses in the Midwest.&lt;/p&gt;
+    &lt;/main&gt;
+  );
+}
+
+// src/app/contact/page.tsx
+export const metadata = { title: 'Contact' };
+
+export default function ContactPage() {
+  return (
+    &lt;main&gt;
+      &lt;h1&gt;Contact Us&lt;/h1&gt;
+      &lt;p&gt;Email: hello@mybusiness.com&lt;/p&gt;
+      &lt;p&gt;Phone: (555) 123-4567&lt;/p&gt;
+    &lt;/main&gt;
+  );
+}</code></pre>
+
+  <h3>Step 4: Services with Nested Layout and Dynamic Routes</h3>
+
+  <pre><code>// src/app/services/layout.tsx (sub-layout for all /services/* pages)
+import Link from 'next/link';
+
+export default function ServicesLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    &lt;div className="services-container"&gt;
+      &lt;nav className="breadcrumb"&gt;
+        &lt;Link href="/"&gt;Home&lt;/Link&gt; &amp;raquo; &lt;Link href="/services"&gt;Services&lt;/Link&gt;
+      &lt;/nav&gt;
+      {children}
+    &lt;/div&gt;
+  );
+}
+
+// src/app/services/page.tsx (Services listing)
+import Link from 'next/link';
+
+export const metadata = { title: 'Our Services' };
+
+const services = [
+  { slug: 'web-design', name: 'Web Design', desc: 'Beautiful, responsive websites.' },
+  { slug: 'seo', name: 'SEO', desc: 'Get found on Google.' },
+  { slug: 'maintenance', name: 'Maintenance', desc: 'Keep your site running smoothly.' },
+];
+
+export default function ServicesPage() {
+  return (
+    &lt;main&gt;
+      &lt;h1&gt;Our Services&lt;/h1&gt;
+      &lt;div className="service-grid"&gt;
+        {services.map(s =&gt; (
+          &lt;Link key={s.slug} href={`/services/${s.slug}`} className="service-card"&gt;
+            &lt;h2&gt;{s.name}&lt;/h2&gt;
+            &lt;p&gt;{s.desc}&lt;/p&gt;
+          &lt;/Link&gt;
+        ))}
+      &lt;/div&gt;
+    &lt;/main&gt;
+  );
+}
+
+// src/app/services/[service]/page.tsx (Individual service page)
+import { notFound } from 'next/navigation';
+
+const serviceData: Record&lt;string, { title: string; content: string }&gt; = {
+  'web-design': { title: 'Web Design', content: 'We build modern, responsive websites...' },
+  'seo': { title: 'SEO', content: 'We optimize your site for search engines...' },
+  'maintenance': { title: 'Maintenance', content: 'We keep your site updated and secure...' },
+};
+
+export default function ServicePage({ params }: { params: { service: string } }) {
+  const data = serviceData[params.service];
+
+  if (!data) {
+    notFound();
+  }
+
+  return (
+    &lt;main&gt;
+      &lt;h1&gt;{data.title}&lt;/h1&gt;
+      &lt;p&gt;{data.content}&lt;/p&gt;
+    &lt;/main&gt;
+  );
+}</code></pre>
+
+  <h3>Step 5: Blog with Dynamic Posts</h3>
+
+  <pre><code>// src/app/blog/page.tsx (Blog listing)
+import Link from 'next/link';
+
+export const metadata = { title: 'Blog' };
+
+const posts = [
+  { slug: 'getting-started-with-nextjs', title: 'Getting Started with Next.js', date: '2026-02-01' },
+  { slug: 'why-typescript-matters', title: 'Why TypeScript Matters', date: '2026-01-15' },
+];
+
+export default function BlogPage() {
+  return (
+    &lt;main&gt;
+      &lt;h1&gt;Blog&lt;/h1&gt;
+      {posts.map(post =&gt; (
+        &lt;article key={post.slug}&gt;
+          &lt;Link href={`/blog/${post.slug}`}&gt;
+            &lt;h2&gt;{post.title}&lt;/h2&gt;
+          &lt;/Link&gt;
+          &lt;time&gt;{post.date}&lt;/time&gt;
+        &lt;/article&gt;
+      ))}
+    &lt;/main&gt;
+  );
+}
+
+// src/app/blog/[slug]/page.tsx (Individual blog post)
+import { notFound } from 'next/navigation';
+
+export default function BlogPostPage({ params }: { params: { slug: string } }) {
+  // In a real app, you would fetch from a database here
+  const post = getPostBySlug(params.slug); // pretend this function exists
+
+  if (!post) {
+    notFound();
+  }
+
+  return (
+    &lt;article&gt;
+      &lt;h1&gt;{post.title}&lt;/h1&gt;
+      &lt;time&gt;{post.date}&lt;/time&gt;
+      &lt;div&gt;{post.content}&lt;/div&gt;
+    &lt;/article&gt;
+  );
+}</code></pre>
+
+  <h3>Step 6: Add the Special Files</h3>
+
+  <pre><code>// src/app/loading.tsx
+export default function Loading() {
+  return &lt;div className="loading"&gt;Loading...&lt;/div&gt;;
+}
+
+// src/app/not-found.tsx
+import Link from 'next/link';
+
+export default function NotFound() {
+  return (
+    &lt;main className="not-found"&gt;
+      &lt;h1&gt;404 - Page Not Found&lt;/h1&gt;
+      &lt;p&gt;Sorry, we could not find what you were looking for.&lt;/p&gt;
+      &lt;Link href="/"&gt;Return Home&lt;/Link&gt;
+    &lt;/main&gt;
+  );
+}</code></pre>
+
+  <h3>Final File Tree</h3>
+
+  <pre><code>src/app/
+├── layout.tsx           # Root: html, body, header nav, footer
+├── page.tsx             # /
+├── loading.tsx          # Global loading
+├── not-found.tsx        # Global 404
+├── about/
+│   └── page.tsx         # /about
+├── services/
+│   ├── layout.tsx       # Breadcrumb wrapper
+│   ├── page.tsx         # /services
+│   └── [service]/
+│       └── page.tsx     # /services/:service
+├── blog/
+│   ├── page.tsx         # /blog
+│   └── [slug]/
+│       └── page.tsx     # /blog/:slug
+└── contact/
+    └── page.tsx         # /contact</code></pre>
+
+  <p>Run <code>npm run dev</code> and you have a fully functional 5-page website with nested layouts, dynamic routes, loading states, and a 404 page -- all without installing any routing library.</p>
+
+  <!-- ============================================ EXERCISES -->
+  <div class="exercises">
+    <h2>Exercises</h2>
+    <ol>
+      <li><strong>Create a Next.js project:</strong> Run <code>npx create-next-app@latest practice-site</code> with TypeScript, Tailwind, and the App Router. Start the dev server and confirm it works at <code>localhost:3000</code>.</li>
+      <li><strong>Build three static pages:</strong> Create <code>/about</code>, <code>/services</code>, and <code>/contact</code> pages. Add a <code>Link</code>-based navigation in the root layout so you can click between all four pages (including home).</li>
+      <li><strong>Add a nested layout:</strong> Create a <code>/services</code> layout that displays a sidebar with links to three service sub-pages. Create those sub-pages as dynamic routes using <code>[service]/page.tsx</code>.</li>
+      <li><strong>Implement special files:</strong> Add a <code>loading.tsx</code> to the services folder and a <code>not-found.tsx</code> at the root. Test the 404 by visiting a URL that does not exist.</li>
+      <li><strong>Use usePathname for active nav:</strong> Convert your navigation into a Client Component that highlights the currently active link using <code>usePathname()</code>.</li>
+      <li><strong>Route groups challenge:</strong> Reorganize your pages so that all public pages live inside a <code>(public)</code> route group, and create a basic <code>admin/page.tsx</code> at <code>/admin</code>. Verify that the route group does not affect URLs.</li>
+    </ol>
+  </div>
+
+  <!-- ============================================ KEY TAKEAWAYS -->
+  <div class="key-takeaways">
+    <h2>Key Takeaways</h2>
+    <ul>
+      <li>Next.js turns React into a full-stack framework with routing, server rendering, API routes, and optimization built in.</li>
+      <li>The App Router uses <strong>file-based routing</strong>: the folder structure inside <code>src/app/</code> maps directly to your URL structure.</li>
+      <li><code>page.tsx</code> makes a folder a route; <code>layout.tsx</code> wraps pages in shared UI like headers and sidebars.</li>
+      <li>Route groups <code>(parentheses)</code> organize code without affecting URLs.</li>
+      <li>Dynamic routes <code>[slug]</code> match variable URL segments and pass them as props.</li>
+      <li>Special files (<code>loading.tsx</code>, <code>error.tsx</code>, <code>not-found.tsx</code>) handle common UI states automatically.</li>
+      <li>The <code>Link</code> component enables fast client-side navigation with automatic prefetching.</li>
+      <li><code>useRouter()</code> provides programmatic navigation, while <code>usePathname()</code> tells you the current URL.</li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- ============================================ BOTTOM NAV -->
+<nav class="lesson-nav bottom">
+  <a href="14-react-patterns.html">&larr; Previous: React Patterns</a>
+  <span>Lesson 15 of 56</span>
+  <a href="16-server-vs-client-components.html">Next: Server vs. Client Components &rarr;</a>
+</nav>
+
+</body>
+</html>

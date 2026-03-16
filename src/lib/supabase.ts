@@ -1,5 +1,112 @@
 import { createClient } from '@supabase/supabase-js';
-import { getProtectionPlanTier as extractPlanTierFromRepairShoprData } from './repairshopr';
+
+// =============================================================================
+// Protection Plan Tier Extraction (inlined from archived repairshopr.ts)
+// =============================================================================
+
+/**
+ * Known answer IDs for protection plans in RepairShopr dropdown custom fields.
+ * RepairShopr returns answer IDs instead of text values for dropdowns.
+ * RepairShopr's "gold" option (4028) is mapped to our "silver-plus" tier.
+ */
+const SILVER_PLAN_ANSWER_IDS = ['4027'];
+const SILVER_PLUS_PLAN_ANSWER_IDS = ['4028'];
+
+/**
+ * Protection plan tier type (matches Supabase type).
+ * Valid tiers: eset, silver, silver-plus
+ */
+type InternalProtectionPlanTier = 'eset' | 'bronze' | 'silver' | 'silver-plus' | 'gold' | null;
+
+/**
+ * Partial customer data shape used for protection plan extraction.
+ */
+interface PartialCustomerForPlanTier {
+  is_silver_plan?: boolean;
+  silver_plan?: boolean;
+  plan_name?: string | null;
+  tags?: string[] | null;
+  tag_list?: string | null;
+  customer_tags?: string[] | null;
+  custom_fields?: Record<string, unknown> | null;
+  customer_fields?: Record<string, unknown> | null;
+  properties?: Record<string, unknown> | null;
+}
+
+/**
+ * Get the protection plan tier from synced RepairShopr customer data.
+ * Returns 'silver', 'silver-plus', or null (no plan).
+ * RepairShopr's "gold" is mapped to our "silver-plus" tier.
+ *
+ * Inlined from the archived repairshopr.ts to avoid the dependency.
+ *
+ * @param customer - Partial customer object with plan-relevant fields
+ * @returns Protection plan tier or null
+ *
+ * @functions_called None
+ * @called_by getBatchProtectionPlans
+ *
+ * @version 1.0.0 - 2026-01-11T00:00:00Z - Inlined from repairshopr.ts
+ */
+function extractPlanTierFromRepairShoprData(customer: PartialCustomerForPlanTier | null | undefined): InternalProtectionPlanTier {
+  if (!customer) return null;
+
+  // Check explicit boolean flags first (these indicate silver)
+  if (customer.is_silver_plan || customer.silver_plan) return 'silver';
+
+  // Check plan_name field
+  if (customer.plan_name) {
+    const planName = customer.plan_name.toLowerCase();
+    if (planName.includes('gold')) return 'silver-plus';
+    if (planName.includes('silver')) return 'silver';
+  }
+
+  // Check tags for plan info
+  const tagSources: Array<string | string[] | null | undefined> = [
+    customer.tags,
+    customer.customer_tags,
+    customer.tag_list,
+  ];
+
+  for (const value of tagSources) {
+    if (!value) continue;
+
+    if (Array.isArray(value)) {
+      if (value.some((v) => v && v.toLowerCase().includes('gold'))) return 'silver-plus';
+      if (value.some((v) => v && v.toLowerCase().includes('silver'))) return 'silver';
+    } else if (typeof value === 'string') {
+      if (value.toLowerCase().includes('gold')) return 'silver-plus';
+      if (value.toLowerCase().includes('silver')) return 'silver';
+    }
+  }
+
+  // Check custom fields for "protection plan" entries
+  const customSources: Array<Record<string, unknown> | null | undefined> = [
+    customer.custom_fields,
+    customer.customer_fields,
+    customer.properties,
+  ];
+
+  for (const source of customSources) {
+    if (!source) continue;
+    for (const [key, value] of Object.entries(source)) {
+      if (key.toLowerCase().includes('protection plan')) {
+        if (typeof value === 'string') {
+          if (SILVER_PLUS_PLAN_ANSWER_IDS.includes(value)) return 'silver-plus';
+          if (SILVER_PLAN_ANSWER_IDS.includes(value)) return 'silver';
+          if (value.toLowerCase().includes('gold')) return 'silver-plus';
+          if (value.toLowerCase().includes('silver')) return 'silver';
+        }
+        if (Array.isArray(value)) {
+          if (value.some((v) => typeof v === 'string' && v.toLowerCase().includes('gold'))) return 'silver-plus';
+          if (value.some((v) => typeof v === 'string' && v.toLowerCase().includes('silver'))) return 'silver';
+        }
+      }
+    }
+  }
+
+  return null;
+}
 
 // Environment variables for Supabase connection
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;

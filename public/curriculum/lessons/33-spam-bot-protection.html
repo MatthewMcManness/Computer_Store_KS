@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 33: Spam &amp; Bot Protection | Full-Stack Web Development Curriculum</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="lesson-nav">
+  <a href="32-web-security.html">&larr; Previous: Web Security Best Practices</a>
+  <span>Lesson 33 of 56</span>
+  <a href="34-rest-api-design.html">Next: REST API Design Principles &rarr;</a>
+</nav>
+
+<!-- HEADER -->
+<header class="lesson-header" style="background: linear-gradient(135deg, #7f1d1d 0%, #dc2626 100%);">
+  <div class="phase-badge" style="background: rgba(255,255,255,0.2);">Phase 7: Authentication &amp; Security</div>
+  <h1>Spam &amp; Bot Protection</h1>
+  <p class="lesson-subtitle">Layered defenses that stop automated attacks without annoying real users</p>
+</header>
+
+<!-- MAIN CONTENT -->
+<div class="lesson-content">
+
+  <!-- LEARNING OBJECTIVES -->
+  <div class="learning-objectives">
+    <h2>What You Will Learn</h2>
+    <ul>
+      <li>Why bots attack web forms and the types of attacks to defend against</li>
+      <li>The layered defense strategy: multiple barriers instead of one</li>
+      <li>Honeypot fields: invisible inputs that trap bots</li>
+      <li>Timing analysis: detecting submissions that are too fast to be human</li>
+      <li>Interaction tracking: monitoring mouse/keyboard events to verify human behavior</li>
+      <li>Cloudflare Turnstile: invisible CAPTCHA with server-side verification</li>
+      <li>Browser fingerprinting with FingerprintJS for identifying repeat offenders</li>
+      <li>Disposable email detection: blocking throwaway email domains</li>
+      <li>Combining all defenses into a scoring system</li>
+    </ul>
+  </div>
+
+  <!-- SECTION 1: WHY BOTS ATTACK -->
+  <h2>Why Bots Attack Forms</h2>
+
+  <p>Every public-facing form on your website is a target for automated bots. Understanding why they attack helps you design effective defenses.</p>
+
+  <h3>Common Bot Objectives</h3>
+  <ul>
+    <li><strong>Spam:</strong> Flooding your contact form with advertisements, phishing links, or SEO spam. The goal is to waste your time or trick you into visiting malicious sites.</li>
+    <li><strong>Credential stuffing:</strong> Using stolen email/password combinations from data breaches to try logging into your site. Bots try millions of combinations automatically.</li>
+    <li><strong>Account creation:</strong> Creating fake accounts to abuse your service (e.g., free trials, promotions, or to impersonate real people).</li>
+    <li><strong>Scraping:</strong> Extracting data from your site by automating form submissions that reveal information.</li>
+    <li><strong>DDoS:</strong> Overwhelming your server with requests so legitimate users cannot access it.</li>
+  </ul>
+
+  <div class="analogy">
+    <strong>Analogy:</strong> Imagine your contact form is like a physical mailbox at a business. Most mail is from real customers, but some is junk. You could make everyone solve a puzzle before dropping in their letter (like a CAPTCHA), but that annoys real customers. Instead, you use multiple subtle indicators: Is the letter from a real address? Was it dropped off during business hours? Does it have normal handwriting or does it look mass-produced? Each indicator adds confidence.
+  </div>
+
+  <!-- SECTION 2: LAYERED DEFENSE -->
+  <h2>The Layered Defense Strategy</h2>
+
+  <p>No single technique is perfect. Honeypots catch simple bots but miss sophisticated ones. CAPTCHAs block bots but frustrate humans. The solution is <strong>layered defense</strong> -- multiple independent barriers, each catching different types of bots.</p>
+
+  <p>We use a <strong>scoring system</strong> where each defense layer contributes points to a spam score. If the total score exceeds a threshold, the submission is blocked:</p>
+
+  <div class="diagram">
+         LAYERED DEFENSE SCORING SYSTEM
+
+  Layer                        Max Points
+  ----------------------------------------
+  Honeypot fields              50 points
+  Timing analysis              20 points
+  Content analysis             35 points
+  Spam pattern detection       30 points
+  Request fingerprinting       15 points
+  Disposable email detection   25 points
+  Interaction tracking         20 points
+  Browser fingerprinting       10 points
+  Turnstile CAPTCHA            30 points
+  Gibberish detection          30 points
+  Name validation              25 points
+  ----------------------------------------
+
+  Score 0-49:   ALLOW (legitimate)
+  Score 50-79:  LOG (suspicious but allowed)
+  Score 80-119: BLOCK (likely spam)
+  Score 120+:   SILENT SUCCESS (definite spam)
+  </div>
+
+  <p>The "silent success" action is clever: instead of showing an error (which tells the bot to try different content), we pretend the submission succeeded. The bot thinks it worked and moves on, but we quietly discard the submission.</p>
+
+  <!-- SECTION 3: HONEYPOT FIELDS -->
+  <h2>Honeypot Fields</h2>
+
+  <p>A <strong>honeypot</strong> is an invisible form field that real users never see or fill in, but bots -- which read the HTML and fill every field -- will complete. If the honeypot field has a value, the submission is from a bot.</p>
+
+  <h3>How It Works</h3>
+  <ol class="steps">
+    <li>Add hidden input fields to your form with tempting names like <code>website</code>, <code>url</code>, or <code>phone2</code>.</li>
+    <li>Hide them with CSS so human users never see them.</li>
+    <li>On the server, check if any honeypot field has a value.</li>
+    <li>If a honeypot field is filled in, add a large penalty to the spam score.</li>
+  </ol>
+
+  <h3>Client-Side Implementation</h3>
+  <pre><code>// In your form component
+function ContactForm() {
+  return (
+    &lt;form onSubmit={handleSubmit}&gt;
+      {/* Real fields that users see */}
+      &lt;input type="text" name="name" placeholder="Your Name" /&gt;
+      &lt;input type="email" name="email" placeholder="Your Email" /&gt;
+      &lt;textarea name="message" placeholder="Your Message" /&gt;
+
+      {/* Honeypot fields -- hidden from humans, visible to bots */}
+      &lt;div style={{ position: 'absolute', left: '-9999px', opacity: 0 }}&gt;
+        &lt;input
+          type="text"
+          name="_hp_email2"
+          tabIndex={-1}
+          autoComplete="off"
+          aria-hidden="true"
+        /&gt;
+        &lt;input
+          type="text"
+          name="_hp_phone_confirm"
+          tabIndex={-1}
+          autoComplete="off"
+          aria-hidden="true"
+        /&gt;
+        &lt;input
+          type="text"
+          name="_hp_url"
+          tabIndex={-1}
+          autoComplete="off"
+          aria-hidden="true"
+        /&gt;
+      &lt;/div&gt;
+
+      &lt;button type="submit"&gt;Send Message&lt;/button&gt;
+    &lt;/form&gt;
+  );
+}</code></pre>
+
+  <p>Key details for effective honeypots:</p>
+  <ul>
+    <li>Use <code>position: absolute; left: -9999px</code> instead of <code>display: none</code> -- some bots skip fields with <code>display: none</code>.</li>
+    <li>Set <code>tabIndex={-1}</code> so keyboard users do not accidentally tab into the field.</li>
+    <li>Use <code>aria-hidden="true"</code> so screen readers skip the field.</li>
+    <li>Name the fields something a bot would want to fill: <code>url</code>, <code>website</code>, <code>phone2</code>, <code>email2</code>.</li>
+    <li>Set <code>autoComplete="off"</code> to prevent browsers from auto-filling the honeypot.</li>
+  </ul>
+
+  <h3>Server-Side Check</h3>
+  <pre><code>function checkHoneypots(fields: Record&lt;string, string | undefined&gt;): number {
+  const honeypotFields = [
+    'website', 'url', 'homepage',
+    '_hp_email2', '_hp_phone_confirm', '_hp_url',
+  ];
+
+  for (const field of honeypotFields) {
+    if (fields[field] && fields[field].trim().length > 0) {
+      return 50;  // Instant high spam score
+    }
+  }
+
+  return 0;  // All honeypots empty (good)
+}</code></pre>
+
+  <!-- SECTION 4: TIMING ANALYSIS -->
+  <h2>Timing Analysis</h2>
+
+  <p>Humans take time to read a page, think about their message, and type it out. A typical contact form submission takes at least 10-30 seconds. Bots, on the other hand, can fill and submit a form in milliseconds.</p>
+
+  <h3>Implementation</h3>
+  <pre><code>// Client: Record when the page loaded
+const pageLoadTime = Date.now();  // e.g., 1706000000000
+
+// Client: Include it when submitting the form
+const formData = {
+  name: 'Jane',
+  email: 'jane@example.com',
+  message: 'I need my laptop repaired...',
+  pageLoadTime: pageLoadTime,        // When the page loaded
+  submitTime: Date.now(),             // When they clicked submit
+};
+
+// Server: Validate the timing
+function validateTiming(pageLoadTime: number, submitTime: number): number {
+  const MIN_TIME_MS = 3000;  // 3 seconds minimum
+  const timeDiff = submitTime - pageLoadTime;
+
+  if (timeDiff < 0) {
+    return 20;  // Time travel? Definitely a bot.
+  }
+
+  if (timeDiff < MIN_TIME_MS) {
+    // Submitted too fast -- scale the penalty
+    const ratio = timeDiff / MIN_TIME_MS;
+    return Math.round(20 * (1 - ratio));
+    // 0ms = 20 points, 1500ms = 10 points, 3000ms = 0 points
+  }
+
+  return 0;  // Took a normal amount of time
+}</code></pre>
+
+  <div class="info-box">
+    <strong>Why 3 seconds?</strong> This threshold catches automated bots while allowing fast-typing humans. Even the fastest human needs a moment to read the form, move their cursor, type, and click submit. However, do not set this too high (like 30 seconds) because some users might have autocomplete fill the form quickly.
+  </div>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    CSK's <code>useBotProtection</code> hook records the page load time using a React ref (<code>useRef(Date.now())</code>) and includes it with every form submission. The server-side <code>validateTiming()</code> function in <code>spam-detection.ts</code> checks that at least 3 seconds elapsed, adding up to 20 spam points for submissions that are too fast.
+  </div>
+
+  <!-- SECTION 5: INTERACTION TRACKING -->
+  <h2>Interaction Tracking</h2>
+
+  <p>Humans interact with web pages in characteristic ways: they move their mouse, scroll, click on fields, and type with variable speeds. Bots typically skip all of this -- they just inject values directly into form fields via JavaScript.</p>
+
+  <h3>What to Track</h3>
+  <ul>
+    <li><strong>Mouse movements:</strong> Did the mouse move at all? How many distinct movements?</li>
+    <li><strong>Keyboard events:</strong> Were there keypress events? How many?</li>
+    <li><strong>Click events:</strong> Did the user click on form fields before typing?</li>
+    <li><strong>Scroll events:</strong> Did the user scroll the page?</li>
+    <li><strong>Focus events:</strong> Did form fields receive focus (user clicked or tabbed into them)?</li>
+  </ul>
+
+  <h3>Scoring Interactions</h3>
+  <pre><code>// hooks/useInteractionTracking.ts
+'use client';
+import { useEffect, useRef, useCallback } from 'react';
+
+export function useInteractionTracking() {
+  const interactions = useRef({
+    mouseMovements: 0,
+    keyPresses: 0,
+    clicks: 0,
+    scrolls: 0,
+    focusEvents: 0,
+  });
+
+  useEffect(() =&gt; {
+    const trackMouse = () =&gt; { interactions.current.mouseMovements++; };
+    const trackKey = () =&gt; { interactions.current.keyPresses++; };
+    const trackClick = () =&gt; { interactions.current.clicks++; };
+    const trackScroll = () =&gt; { interactions.current.scrolls++; };
+    const trackFocus = () =&gt; { interactions.current.focusEvents++; };
+
+    document.addEventListener('mousemove', trackMouse);
+    document.addEventListener('keydown', trackKey);
+    document.addEventListener('click', trackClick);
+    document.addEventListener('scroll', trackScroll);
+    document.addEventListener('focusin', trackFocus);
+
+    return () =&gt; {
+      document.removeEventListener('mousemove', trackMouse);
+      document.removeEventListener('keydown', trackKey);
+      document.removeEventListener('click', trackClick);
+      document.removeEventListener('scroll', trackScroll);
+      document.removeEventListener('focusin', trackFocus);
+    };
+  }, []);
+
+  const getInteractionScore = useCallback(() =&gt; {
+    const i = interactions.current;
+    let score = 0;
+    const maxScore = 5;  // 5 interaction types to check
+
+    if (i.mouseMovements > 2) score++;
+    if (i.keyPresses > 5) score++;
+    if (i.clicks > 0) score++;
+    if (i.scrolls > 0) score++;
+    if (i.focusEvents > 0) score++;
+
+    const isHumanLike = score >= 3;  // At least 3 of 5 interaction types
+    const spamScore = isHumanLike ? 0 : Math.round((1 - score / maxScore) * 20);
+
+    return { score, maxScore, isHumanLike, spamScore };
+  }, []);
+
+  return { getInteractionScore };
+}</code></pre>
+
+  <!-- SECTION 6: CLOUDFLARE TURNSTILE -->
+  <h2>Cloudflare Turnstile</h2>
+
+  <p><strong>Cloudflare Turnstile</strong> is a modern alternative to traditional CAPTCHAs like reCAPTCHA. Unlike reCAPTCHA (which often shows annoying image puzzles), Turnstile runs invisible challenges in the background. Most users never see any challenge at all -- they just see a brief checkmark animation.</p>
+
+  <h3>How Turnstile Works</h3>
+  <ol class="steps">
+    <li>You register your site with Cloudflare and get a <strong>site key</strong> (public) and <strong>secret key</strong> (private).</li>
+    <li>The Turnstile widget loads on your form page and runs invisible browser challenges in the background.</li>
+    <li>When the user submits the form, Turnstile provides a <strong>token</strong>.</li>
+    <li>Your server sends this token to Cloudflare's verification API with your secret key.</li>
+    <li>Cloudflare responds with whether the token is valid (human) or invalid (bot).</li>
+  </ol>
+
+  <h3>Client-Side: Adding the Widget</h3>
+  <pre><code>// 1. Add the Turnstile script to your layout or page
+&lt;Script
+  src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+  async
+  defer
+/&gt;
+
+// 2. Add the widget to your form
+&lt;form onSubmit={handleSubmit}&gt;
+  {/* Your form fields */}
+  &lt;input type="text" name="name" /&gt;
+  &lt;input type="email" name="email" /&gt;
+  &lt;textarea name="message" /&gt;
+
+  {/* Turnstile widget -- renders as a small checkbox/animation */}
+  &lt;div
+    className="cf-turnstile"
+    data-sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
+    data-callback="onTurnstileVerify"
+  /&gt;
+
+  &lt;button type="submit"&gt;Send&lt;/button&gt;
+&lt;/form&gt;
+
+// 3. Capture the token when verification completes
+&lt;script&gt;
+  function onTurnstileVerify(token) {
+    // Store the token to include in form submission
+    document.getElementById('turnstile-token').value = token;
+  }
+&lt;/script&gt;</code></pre>
+
+  <h3>Server-Side: Verifying the Token</h3>
+  <pre><code>async function verifyTurnstile(token: string, clientIP: string): Promise&lt;boolean&gt; {
+  const secretKey = process.env.TURNSTILE_SECRET_KEY;
+
+  // If no secret key configured, skip verification (for development)
+  if (!secretKey) {
+    console.log('Turnstile: No secret key, skipping verification');
+    return true;
+  }
+
+  if (!token) {
+    return false;  // No token provided
+  }
+
+  try {
+    const response = await fetch(
+      'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          secret: secretKey,
+          response: token,
+          remoteip: clientIP,
+        }),
+      }
+    );
+
+    const data = await response.json();
+    return data.success === true;
+  } catch (error) {
+    console.error('Turnstile verification error:', error);
+    return false;  // Fail closed: reject on error
+  }
+}</code></pre>
+
+  <div class="info-box">
+    <strong>Turnstile vs reCAPTCHA:</strong> Turnstile is free, privacy-focused (no tracking cookies), and usually invisible. reCAPTCHA often requires users to identify traffic lights in images, which is frustrating and slow. Turnstile is the better choice for modern applications.
+  </div>
+
+  <!-- SECTION 7: BROWSER FINGERPRINTING -->
+  <h2>Browser Fingerprinting with FingerprintJS</h2>
+
+  <p><strong>Browser fingerprinting</strong> generates a unique identifier for a visitor based on their browser and device characteristics. Unlike cookies, a fingerprint persists even if the user clears cookies or uses private browsing.</p>
+
+  <h3>What Gets Fingerprinted?</h3>
+  <p>FingerprintJS collects 40+ signals to build a unique identifier:</p>
+  <ul>
+    <li>Canvas rendering (how the browser draws graphics)</li>
+    <li>WebGL capabilities (GPU information)</li>
+    <li>Audio context properties</li>
+    <li>Installed system fonts</li>
+    <li>Hardware concurrency (CPU cores), device memory</li>
+    <li>Screen resolution and color depth</li>
+    <li>Timezone, language, platform</li>
+    <li>Browser plugins and features</li>
+  </ul>
+
+  <p>Headless browsers (commonly used by bots) have distinctive fingerprints that differ from real browsers, making fingerprinting useful for bot detection.</p>
+
+  <h3>Implementation</h3>
+  <pre><code>// hooks/useFingerprint.ts
+'use client';
+import { useEffect, useState, useCallback } from 'react';
+
+interface FingerprintData {
+  visitorId: string;
+  confidence: number;
+  success: boolean;
+}
+
+export function useFingerprint() {
+  const [fingerprint, setFingerprint] = useState&lt;FingerprintData&gt;({
+    visitorId: '',
+    confidence: 0,
+    success: false,
+  });
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() =&gt; {
+    async function loadFingerprint() {
+      try {
+        // Dynamically import FingerprintJS (code splitting)
+        const FingerprintJS = await import('@fingerprintjs/fingerprintjs');
+
+        // Initialize the agent
+        const fp = await FingerprintJS.load();
+
+        // Get the visitor identifier
+        const result = await fp.get();
+
+        setFingerprint({
+          visitorId: result.visitorId,
+          confidence: result.confidence.score,
+          success: true,
+        });
+      } catch (error) {
+        setFingerprint(prev =&gt; ({ ...prev, success: false }));
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadFingerprint();
+  }, []);
+
+  // Calculate spam score based on fingerprint quality
+  const getFingerprintSpamScore = useCallback(() =&gt; {
+    if (!fingerprint.success) return 5;           // Failed -- slightly suspicious
+    if (fingerprint.confidence < 0.3) return 8;   // Low confidence -- likely bot
+    if (fingerprint.confidence < 0.5) return 3;   // Medium confidence
+    return 0;                                      // High confidence -- likely real
+  }, [fingerprint]);
+
+  return { fingerprint, isLoading, getFingerprintSpamScore };
+}</code></pre>
+
+  <h3>Using Fingerprints to Track Repeat Offenders</h3>
+  <p>Once you have a visitor ID, you can track it across form submissions. If the same fingerprint submits the contact form 10 times in an hour, that is suspicious even if each individual submission looks normal:</p>
+
+  <pre><code>// On the server: Track submissions by fingerprint
+const submissionsByFingerprint = new Map&lt;string, number[]&gt;();
+
+function checkRepeatSubmissions(visitorId: string): number {
+  const now = Date.now();
+  const oneHour = 60 * 60 * 1000;
+
+  // Get existing submissions for this fingerprint
+  const submissions = submissionsByFingerprint.get(visitorId) || [];
+
+  // Remove submissions older than 1 hour
+  const recent = submissions.filter(time =&gt; now - time < oneHour);
+
+  // Add current submission
+  recent.push(now);
+  submissionsByFingerprint.set(visitorId, recent);
+
+  // Score based on frequency
+  if (recent.length > 10) return 30;  // Way too many
+  if (recent.length > 5) return 15;   // Suspicious
+  if (recent.length > 3) return 5;    // Mildly concerning
+  return 0;
+}</code></pre>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    CSK uses FingerprintJS in the <code>useFingerprint</code> hook. The fingerprint data (visitor ID and confidence score) is included in every contact form submission. The server uses the confidence score as one of many signals in the spam scoring system. Low-confidence fingerprints (typical of headless browsers) add spam points.
+  </div>
+
+  <!-- SECTION 8: DISPOSABLE EMAIL DETECTION -->
+  <h2>Disposable Email Detection</h2>
+
+  <p><strong>Disposable email services</strong> (like 10minutemail.com, tempmail.com, guerrillamail.com) provide temporary email addresses that expire after a short time. While some legitimate users use them for privacy, spammers use them extensively because they can create unlimited "unique" email addresses.</p>
+
+  <h3>Implementation</h3>
+  <pre><code>// lib/disposable-email.ts
+
+// Maintain a set of known disposable email domains
+const DISPOSABLE_DOMAINS = new Set([
+  '10minutemail.com', '10minutemail.net',
+  'tempmail.com', 'temp-mail.org', 'temp-mail.io',
+  'guerrillamail.com', 'guerrillamail.org',
+  'mailinator.com', 'mailinator.net',
+  'throwaway.email', 'throwawaymail.com',
+  'yopmail.com', 'yopmail.fr',
+  'trashmail.com', 'trashmail.net',
+  'maildrop.cc',
+  'sharklasers.com',
+  'dispostable.com',
+  'fakeinbox.com',
+  'getnada.com',
+  // ... hundreds more domains
+]);
+
+/**
+ * Check if an email uses a known disposable domain.
+ */
+export function isDisposableEmail(email: string): boolean {
+  if (!email || typeof email !== 'string') return false;
+
+  const domain = email.split('@')[1]?.toLowerCase();
+  if (!domain) return false;
+
+  return DISPOSABLE_DOMAINS.has(domain);
+}
+
+/**
+ * Get spam score for disposable email.
+ * Returns 25 points if disposable, 0 if legitimate.
+ */
+export function getDisposableEmailScore(email: string): number {
+  return isDisposableEmail(email) ? 25 : 0;
+}</code></pre>
+
+  <p>In practice, the list of disposable domains is much larger -- CSK's list contains several hundred domains sourced from community-maintained lists like the <code>disposable-email-domains</code> GitHub project.</p>
+
+  <!-- SECTION 9: COMBINING ALL DEFENSES -->
+  <h2>Combining All Defenses: The Multi-Layer Approach</h2>
+
+  <p>The real power comes from combining all these layers into a single scoring function. Each layer is independent -- a bot might bypass one or two layers but is unlikely to bypass all of them:</p>
+
+  <pre><code>async function calculateSpamScore(
+  formData: ExtendedFormData,
+  headers: Headers,
+  clientIP: string
+): Promise&lt;SpamScoreResult&gt; {
+  // Layer 1: Content analysis (0-35 points)
+  // Checks word validity, entropy, keyboard walk patterns
+  const contentScore = analyzeContent(formData.message).score;
+
+  // Layer 2: Spam pattern detection (0-30 points)
+  // Checks for spam keywords, excessive links, all caps
+  const patternScore = detectSpamPatterns(formData.message, formData.email).score;
+
+  // Layer 3: Timing validation (0-20 points)
+  // Was the form submitted suspiciously fast?
+  const timingScore = validateTiming(formData.pageLoadTime, formData.submitTime);
+
+  // Layer 4: Honeypot check (0 or 50 points)
+  // Were hidden fields filled in?
+  const honeypotScore = checkHoneypots({
+    website: formData.website,
+    _hp_email2: formData._hp_email2,
+    _hp_phone_confirm: formData._hp_phone_confirm,
+    _hp_url: formData._hp_url,
+  });
+
+  // Layer 5: Request fingerprinting (0-15 points)
+  // Missing user-agent? Bot-like headers?
+  const fingerprintScore = analyzeRequestHeaders(headers);
+
+  // Layer 6: Disposable email (0 or 25 points)
+  const disposableScore = getDisposableEmailScore(formData.email);
+
+  // Layer 7: Interaction tracking (0-20 points)
+  // Did the user move their mouse, type, scroll?
+  const interactionScore = formData._interaction?.spamScore || 0;
+
+  // Layer 8: Browser fingerprint (0-10 points)
+  const browserScore = formData._fingerprint?.spamScore || 0;
+
+  // Layer 9: Turnstile CAPTCHA (0 or 30 points)
+  let turnstileScore = 0;
+  if (formData._turnstile) {
+    const valid = await verifyTurnstile(formData._turnstile, clientIP);
+    if (!valid) turnstileScore = 30;
+  }
+
+  // Layer 10: Gibberish detection (0-30 points)
+  const gibberishScore = isGibberish(formData.message).score;
+
+  // Layer 11: Name validation (0-25 points)
+  const nameScore = validateName(formData.name).score;
+
+  // Calculate total
+  const totalScore = contentScore + patternScore + timingScore +
+    honeypotScore + fingerprintScore + disposableScore +
+    interactionScore + browserScore + turnstileScore +
+    gibberishScore + nameScore;
+
+  // Determine action
+  let action: 'allow' | 'log' | 'block' | 'silent_success';
+  if (totalScore >= 120) action = 'silent_success';
+  else if (totalScore >= 80) action = 'block';
+  else if (totalScore >= 50) action = 'log';
+  else action = 'allow';
+
+  return { score: totalScore, action, breakdown: { /* all individual scores */ } };
+}</code></pre>
+
+  <h3>Using the Score in the Contact API</h3>
+  <pre><code>// app/api/contact/route.ts
+export async function POST(request: NextRequest) {
+  const body = await request.json();
+  const clientIP = request.headers.get('x-forwarded-for') || 'unknown';
+
+  // Calculate spam score using all layers
+  const spamResult = await calculateSpamScore(body, request.headers, clientIP);
+
+  // Take action based on the score
+  switch (spamResult.action) {
+    case 'allow':
+      // Score 0-49: Send the email normally
+      await sendContactEmail(body);
+      return NextResponse.json({ success: true });
+
+    case 'log':
+      // Score 50-79: Send the email but log it for review
+      console.warn('Suspicious submission:', spamResult.breakdown);
+      await sendContactEmail(body);
+      return NextResponse.json({ success: true });
+
+    case 'block':
+      // Score 80-119: Reject the submission
+      return NextResponse.json(
+        { error: 'Your message could not be sent. Please try again.' },
+        { status: 400 }
+      );
+
+    case 'silent_success':
+      // Score 120+: Pretend it worked (fool the bot)
+      return NextResponse.json({ success: true });
+      // But we never actually send the email!
+  }
+}</code></pre>
+
+  <!-- SECTION 10: BALANCING SECURITY VS UX -->
+  <h2>Balancing Security vs. User Experience</h2>
+
+  <p>Every defense layer has the potential to annoy or block legitimate users. Here is how to balance security with usability:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Defense</th>
+        <th>User Impact</th>
+        <th>UX Strategy</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Honeypot fields</td>
+        <td>Zero -- invisible to humans</td>
+        <td>Use <code>aria-hidden</code> and <code>tabIndex={-1}</code></td>
+      </tr>
+      <tr>
+        <td>Timing analysis</td>
+        <td>Zero for normal users</td>
+        <td>Set minimum to 3 seconds (generous)</td>
+      </tr>
+      <tr>
+        <td>Interaction tracking</td>
+        <td>Zero -- passive monitoring</td>
+        <td>Do not block solely on interaction score</td>
+      </tr>
+      <tr>
+        <td>Turnstile</td>
+        <td>Minimal -- usually invisible</td>
+        <td>Show as last resort, invisible by default</td>
+      </tr>
+      <tr>
+        <td>Fingerprinting</td>
+        <td>Zero -- runs in background</td>
+        <td>Use for supplementary scoring only</td>
+      </tr>
+      <tr>
+        <td>Disposable email</td>
+        <td>Blocks privacy-conscious users</td>
+        <td>Adds points but does not auto-block alone</td>
+      </tr>
+      <tr>
+        <td>Content analysis</td>
+        <td>Could false-positive on unusual messages</td>
+        <td>Use as part of scoring, not sole decision</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>The scoring approach is key to good UX: no single layer blocks a user by itself (except the honeypot, which only triggers for bots). A legitimate user with a slightly unusual name and message might get 10-15 points -- well under the 80-point block threshold. A bot that bypasses 3 layers still accumulates enough points from the other 8 to get caught.</p>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    CSK layers ALL of these defenses in its production contact form. The <code>spam-detection.ts</code> module tracks content analysis, timing, honeypots, request fingerprinting, gibberish detection, and name validation. The <code>disposable-email.ts</code> module blocks throwaway addresses. Cloudflare Turnstile provides invisible CAPTCHA protection. The <code>useFingerprint</code> hook uses FingerprintJS to identify repeat visitors. The <code>useBotProtection</code> hook provides honeypot fields and timing data. All signals feed into a scoring system with thresholds at 50 (log), 80 (block), and 120 (silent success).
+  </div>
+
+  <!-- EXERCISES -->
+  <div class="exercises">
+    <h2>Exercises</h2>
+    <ol>
+      <li><strong>Honeypot Implementation:</strong> Create a contact form with three honeypot fields. Ensure they are:
+        <ul>
+          <li>Hidden from visual users (CSS)</li>
+          <li>Hidden from screen readers (<code>aria-hidden</code>)</li>
+          <li>Unreachable by keyboard (<code>tabIndex={-1}</code>)</li>
+          <li>Named enticingly for bots</li>
+        </ul>
+        Write the server-side check function.
+      </li>
+      <li><strong>Timing Analysis:</strong> Implement the full timing system: client-side timestamp capture, form inclusion, and server-side validation. What would you set as the minimum time for a login form (shorter than a contact form)?</li>
+      <li><strong>Spam Score Calculator:</strong> Build a simplified version of the spam scoring system with at least 4 layers. Test it with:
+        <ul>
+          <li>A normal human submission (should score under 50)</li>
+          <li>A bot that fills honeypots (should score 50+)</li>
+          <li>A bot with gibberish content and fast timing (should score 80+)</li>
+        </ul>
+      </li>
+      <li><strong>Disposable Email List:</strong> Write a function that checks if an email is from a disposable domain. Start with at least 20 domains. How would you keep this list updated in production?</li>
+      <li><strong>Defense Layering:</strong> A sophisticated bot bypasses your honeypots, passes timing checks, and even has realistic interaction scores. However, it uses a disposable email, has gibberish content, and fails Turnstile verification. Calculate the total spam score and determine the action. Why does layered defense work here when individual layers fail?</li>
+    </ol>
+  </div>
+
+  <!-- KEY TAKEAWAYS -->
+  <div class="key-takeaways">
+    <h2>Key Takeaways</h2>
+    <ul>
+      <li>Bots attack forms for spam, credential stuffing, fake accounts, and DDoS. Every public form needs protection.</li>
+      <li>Use layered defense -- no single technique catches all bots. Combine multiple independent layers.</li>
+      <li>Honeypot fields have zero user impact and catch most simple bots (50-point penalty).</li>
+      <li>Timing analysis catches bots that submit forms faster than humanly possible.</li>
+      <li>Interaction tracking detects bots that inject values without mouse/keyboard activity.</li>
+      <li>Cloudflare Turnstile is the modern CAPTCHA -- invisible to most users, effective against bots.</li>
+      <li>Browser fingerprinting with FingerprintJS identifies visitors even without cookies, useful for tracking repeat offenders.</li>
+      <li>Disposable email detection blocks throwaway addresses commonly used by spammers.</li>
+      <li>A scoring system (allow/log/block/silent_success) lets you tune thresholds without binary pass/fail decisions.</li>
+      <li>"Silent success" is a powerful anti-spam technique: pretend the submission worked so the bot does not adapt.</li>
+      <li>Balance security with UX: no single layer should block legitimate users. The combination catches bots.</li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="lesson-nav bottom">
+  <a href="32-web-security.html">&larr; Previous: Web Security Best Practices</a>
+  <span>Lesson 33 of 56</span>
+  <a href="34-rest-api-design.html">Next: REST API Design Principles &rarr;</a>
+</nav>
+
+</body>
+</html>

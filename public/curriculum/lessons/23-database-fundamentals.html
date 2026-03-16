@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 23: Database Fundamentals | Full-Stack Web Development Curriculum</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+
+<!-- ========== TOP NAV ========== -->
+<nav class="lesson-nav">
+  <a href="22-component-styling-patterns.html">&larr; Prev: Component Styling Patterns</a>
+  <span>Lesson 23 of 56</span>
+  <a href="24-sql-querying.html">Next: SQL &mdash; Querying Data &rarr;</a>
+</nav>
+
+<!-- ========== HEADER ========== -->
+<header class="lesson-header">
+  <div class="phase-badge" style="background:rgba(22,163,74,0.3);color:#bbf7d0;">Phase 6: Databases &amp; Supabase</div>
+  <h1>Database Fundamentals</h1>
+  <p class="lesson-subtitle">Understanding how data is organized, stored, and connected in relational databases.</p>
+</header>
+
+<!-- ========== CONTENT ========== -->
+<div class="lesson-content">
+
+  <!-- ---- LEARNING OBJECTIVES ---- -->
+  <div class="learning-objectives">
+    <h2>What You Will Learn</h2>
+    <ul>
+      <li>What a database is and why we need one</li>
+      <li>How relational databases organize data into tables, rows, and columns</li>
+      <li>Core data types: TEXT, INTEGER, BOOLEAN, TIMESTAMP, UUID, and JSONB</li>
+      <li>Primary keys &mdash; auto-increment IDs versus UUIDs</li>
+      <li>Constraints: UNIQUE, NOT NULL, CHECK, and DEFAULT</li>
+      <li>Foreign keys and how they link tables together</li>
+      <li>Relationship types: one-to-one, one-to-many, many-to-many</li>
+      <li>Indexes and why they make queries faster</li>
+      <li>Database normalization (1NF, 2NF, 3NF) in plain language</li>
+    </ul>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>What Is a Database?</h2>
+  <!-- ============================================================ -->
+
+  <p>At its simplest, a <strong>database</strong> is an organized collection of data that a computer program can quickly store, retrieve, and manipulate. Almost every application you use daily &mdash; social media, banking, online shopping &mdash; depends on a database behind the scenes.</p>
+
+  <p>You have probably already used something similar: a <strong>spreadsheet</strong>. A spreadsheet stores data in rows and columns, lets you sort and filter, and even do calculations. So why not just use spreadsheets for everything?</p>
+
+  <div class="analogy">
+    <strong>Analogy: Spreadsheet vs. Database</strong><br>
+    Imagine you run a small repair shop (sound familiar?). You start tracking customers in a single Excel sheet. At first it works. But as the business grows, problems appear: duplicate customer names, ticket data mixed with payment data, no way to enforce rules like "every ticket must have a customer." A database is like upgrading from a single messy notebook to a well-organized filing cabinet with labeled drawers, folders, and cross-references &mdash; plus a librarian who enforces the rules for you.
+  </div>
+
+  <h3>Spreadsheet vs. Database &mdash; Side by Side</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Feature</th>
+        <th>Spreadsheet</th>
+        <th>Database</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Data validation</td><td>Manual, easy to bypass</td><td>Enforced by the system (constraints)</td></tr>
+      <tr><td>Concurrent users</td><td>Risky &mdash; merge conflicts</td><td>Built-in &mdash; handles thousands simultaneously</td></tr>
+      <tr><td>Data relationships</td><td>Copy-paste between sheets</td><td>Foreign keys link data automatically</td></tr>
+      <tr><td>Query power</td><td>Filters, VLOOKUP</td><td>SQL &mdash; infinitely flexible</td></tr>
+      <tr><td>Data size</td><td>Slows down past ~100K rows</td><td>Handles millions or billions of rows</td></tr>
+      <tr><td>Security</td><td>File-level permissions</td><td>Row-level security, roles, encryption</td></tr>
+      <tr><td>Backup/Recovery</td><td>Save copies manually</td><td>Automated, point-in-time recovery</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ============================================================ -->
+  <h2>Relational Databases Explained</h2>
+  <!-- ============================================================ -->
+
+  <p>There are many kinds of databases (document stores, graph databases, key-value stores), but the most widely used type is the <strong>relational database</strong>. It stores data in <strong>tables</strong> (also called relations) that can be linked together through shared values.</p>
+
+  <p>The language you use to talk to a relational database is called <strong>SQL</strong> (Structured Query Language). The specific relational database system we use in this curriculum is <strong>PostgreSQL</strong> (often shortened to "Postgres") &mdash; one of the most powerful and popular open-source databases in the world. Supabase, which we will set up in Lesson 25, is built on top of PostgreSQL.</p>
+
+  <h3>Core Vocabulary</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Term</th>
+        <th>Everyday Equivalent</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Table</strong></td><td>A sheet in a spreadsheet</td><td>A named collection of related data. Example: <code>customers</code>, <code>tickets</code>.</td></tr>
+      <tr><td><strong>Row</strong> (Record)</td><td>One row in a spreadsheet</td><td>A single entry in a table. Example: one specific customer.</td></tr>
+      <tr><td><strong>Column</strong> (Field)</td><td>A column header</td><td>A named attribute with a defined data type. Example: <code>email</code>, <code>created_at</code>.</td></tr>
+      <tr><td><strong>Schema</strong></td><td>The blank template</td><td>The structure definition of your tables &mdash; what columns exist and what types they hold.</td></tr>
+    </tbody>
+  </table>
+
+  <p>Here is what a simple <code>customers</code> table might look like:</p>
+
+  <div class="diagram">
++--------------------------------------+------------------+------------------------+------------+
+|                  id                  |       name       |         email          | created_at |
++--------------------------------------+------------------+------------------------+------------+
+| a1b2c3d4-e5f6-7890-abcd-ef1234567890 | Jane Smith       | jane@example.com       | 2026-01-15 |
+| b2c3d4e5-f6a7-8901-bcde-f12345678901 | Bob Johnson      | bob@repair-me.com      | 2026-01-18 |
+| c3d4e5f6-a7b8-9012-cdef-123456789012 | Acme Corp (Main) | contact@acmecorp.com   | 2026-01-20 |
++--------------------------------------+------------------+------------------------+------------+
+  </div>
+
+  <p>Each row is one customer. Each column stores a specific piece of information about that customer. The <code>id</code> column uniquely identifies every row &mdash; more on that shortly.</p>
+
+  <!-- ============================================================ -->
+  <h2>Data Types</h2>
+  <!-- ============================================================ -->
+
+  <p>Every column in a table has a <strong>data type</strong> that defines what kind of value it can hold. Think of it like labeling a filing cabinet drawer: the "Names" drawer only holds text, the "Prices" drawer only holds numbers. Here are the data types you will encounter most often in PostgreSQL:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Data Type</th>
+        <th>What It Stores</th>
+        <th>Example Values</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>TEXT</code></td>
+        <td>Strings of any length</td>
+        <td><code>'Jane Smith'</code>, <code>'jane@example.com'</code></td>
+      </tr>
+      <tr>
+        <td><code>VARCHAR(n)</code></td>
+        <td>Text with a maximum length of <em>n</em> characters</td>
+        <td><code>'draft'</code> (max 20 chars)</td>
+      </tr>
+      <tr>
+        <td><code>INTEGER</code> / <code>BIGINT</code></td>
+        <td>Whole numbers</td>
+        <td><code>42</code>, <code>1000000</code>, <code>-7</code></td>
+      </tr>
+      <tr>
+        <td><code>NUMERIC</code> / <code>DECIMAL</code></td>
+        <td>Exact decimal numbers (money, measurements)</td>
+        <td><code>29.99</code>, <code>1234.56</code></td>
+      </tr>
+      <tr>
+        <td><code>BOOLEAN</code></td>
+        <td>True or false</td>
+        <td><code>true</code>, <code>false</code></td>
+      </tr>
+      <tr>
+        <td><code>TIMESTAMP WITH TIME ZONE</code></td>
+        <td>A date and time with timezone info</td>
+        <td><code>'2026-01-15T14:30:00Z'</code></td>
+      </tr>
+      <tr>
+        <td><code>UUID</code></td>
+        <td>A universally unique identifier (128-bit)</td>
+        <td><code>'a1b2c3d4-e5f6-7890-abcd-ef1234567890'</code></td>
+      </tr>
+      <tr>
+        <td><code>JSONB</code></td>
+        <td>Binary JSON &mdash; stores structured data inside a single column</td>
+        <td><code>'{"cpu": "i7", "ram": "16GB"}'</code></td>
+      </tr>
+      <tr>
+        <td><code>SERIAL</code> / <code>BIGSERIAL</code></td>
+        <td>Auto-incrementing integer (shortcut for ID columns)</td>
+        <td><code>1</code>, <code>2</code>, <code>3</code>, ...</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    The Computer Store KS database uses many of these types. Blog post titles are <code>VARCHAR(255)</code>, the <code>status</code> column uses a <code>CHECK</code> constraint to limit values to <code>'draft'</code>, <code>'published'</code>, or <code>'archived'</code>. The <code>assets_updated</code> flag on customers is a <code>BOOLEAN</code>. Timestamps like <code>created_at</code> appear on virtually every table. The gallery stores computer specs as <code>JSONB</code> arrays.
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>Primary Keys</h2>
+  <!-- ============================================================ -->
+
+  <p>Every table needs a way to uniquely identify each row. This is the job of the <strong>primary key</strong> (PK). A primary key is a column (or combination of columns) where:</p>
+
+  <ul>
+    <li>Every value is <strong>unique</strong> &mdash; no two rows can share the same PK value</li>
+    <li>The value is <strong>never null</strong> &mdash; every row must have a PK</li>
+  </ul>
+
+  <div class="analogy">
+    <strong>Analogy:</strong> Think of a primary key like a Social Security number or a driver's license number. No two people share the same one, and you cannot leave it blank on official forms. It is the one piece of data that definitively identifies a specific record.
+  </div>
+
+  <h3>Auto-Increment IDs vs. UUIDs</h3>
+
+  <p>There are two main strategies for generating primary keys:</p>
+
+  <h3>Strategy 1: Auto-Increment (SERIAL)</h3>
+
+  <p>The database assigns sequential integers: 1, 2, 3, 4, and so on. Simple and human-readable.</p>
+
+<pre><code>CREATE TABLE customers (
+  id SERIAL PRIMARY KEY,   -- 1, 2, 3, 4...
+  name TEXT NOT NULL,
+  email TEXT NOT NULL
+);</code></pre>
+
+  <table>
+    <thead>
+      <tr><th>Pros</th><th>Cons</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Easy to read and type</td><td>Predictable &mdash; users can guess other IDs</td></tr>
+      <tr><td>Small storage size</td><td>Problems with distributed systems</td></tr>
+      <tr><td>Natural ordering</td><td>Merging data from multiple sources causes conflicts</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Strategy 2: UUID (Universally Unique Identifier)</h3>
+
+  <p>A 128-bit randomly generated identifier. Looks like: <code>a1b2c3d4-e5f6-7890-abcd-ef1234567890</code>. Virtually impossible to duplicate, even across different databases on different continents.</p>
+
+<pre><code>CREATE TABLE customers (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  email TEXT NOT NULL
+);</code></pre>
+
+  <table>
+    <thead>
+      <tr><th>Pros</th><th>Cons</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Globally unique &mdash; safe to merge data</td><td>Harder for humans to read</td></tr>
+      <tr><td>Unpredictable &mdash; more secure in URLs</td><td>Larger storage size (16 bytes vs. 4)</td></tr>
+      <tr><td>Can be generated client-side before insert</td><td>Not naturally ordered (slightly slower inserts on large tables)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    The CSK database uses <strong>UUIDs as primary keys</strong> on most tables &mdash; <code>blog_posts</code>, <code>blog_categories</code>, <code>blog_tags</code>, <code>gallery_computers</code>, and more. Generated with <code>DEFAULT uuid_generate_v4()</code> or <code>DEFAULT gen_random_uuid()</code>. The <code>businesses</code> table, however, uses <code>SERIAL</code> (auto-increment) because it was designed as an internal lookup table.
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>Column Constraints</h2>
+  <!-- ============================================================ -->
+
+  <p>Constraints are rules the database enforces on your data. They are your safety net &mdash; they prevent bad data from ever entering the system.</p>
+
+  <h3>NOT NULL</h3>
+
+  <p>This column <strong>must</strong> have a value. You cannot leave it empty.</p>
+
+<pre><code>name TEXT NOT NULL,       -- Every customer must have a name
+email TEXT NOT NULL        -- Every customer must have an email</code></pre>
+
+  <h3>UNIQUE</h3>
+
+  <p>No two rows can have the same value in this column.</p>
+
+<pre><code>email TEXT NOT NULL UNIQUE,   -- No duplicate emails allowed
+slug VARCHAR(255) NOT NULL UNIQUE  -- No duplicate URL slugs</code></pre>
+
+  <h3>DEFAULT</h3>
+
+  <p>If no value is provided when inserting, use this default.</p>
+
+<pre><code>status VARCHAR(20) DEFAULT 'draft',       -- New posts start as drafts
+created_at TIMESTAMPTZ DEFAULT NOW(),     -- Auto-set to current time
+is_active BOOLEAN DEFAULT true            -- Items start as active</code></pre>
+
+  <h3>CHECK</h3>
+
+  <p>The value must satisfy a condition.</p>
+
+<pre><code>status VARCHAR(20) CHECK (status IN ('draft', 'published', 'archived')),
+price NUMERIC CHECK (price >= 0)     -- No negative prices</code></pre>
+
+  <h3>Combining Constraints</h3>
+
+  <p>Constraints stack together to form powerful rules:</p>
+
+<pre><code>CREATE TABLE blog_posts (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title VARCHAR(255) NOT NULL,                    -- Required, max 255 chars
+  slug VARCHAR(255) NOT NULL UNIQUE,              -- Required, must be unique
+  content TEXT NOT NULL,                           -- Required, unlimited length
+  status VARCHAR(20) DEFAULT 'draft'
+    CHECK (status IN ('draft', 'published', 'archived')),  -- Limited values
+  published_at TIMESTAMPTZ,                       -- Optional (nullable)
+  created_at TIMESTAMPTZ DEFAULT NOW(),           -- Auto-set
+  updated_at TIMESTAMPTZ DEFAULT NOW()            -- Auto-set
+);</code></pre>
+
+  <div class="warning-box">
+    <strong>Common Beginner Mistake</strong>
+    Forgetting <code>NOT NULL</code> on important columns. If you leave a column nullable by accident, your application may crash when it tries to use a <code>null</code> value it did not expect. Always think: "Can this field ever legitimately be empty?" If not, add <code>NOT NULL</code>.
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>Foreign Keys &mdash; Linking Tables Together</h2>
+  <!-- ============================================================ -->
+
+  <p>So far, each table stands alone. But real data is interconnected: a customer creates tickets, tickets generate invoices, invoices record payments. <strong>Foreign keys</strong> are how we express these connections.</p>
+
+  <p>A foreign key is a column in one table that <strong>references the primary key of another table</strong>. It says: "This value must exist as a primary key in that other table."</p>
+
+  <div class="analogy">
+    <strong>Analogy:</strong> Think of a foreign key like a cross-reference in a filing cabinet. In the "Tickets" folder, each ticket has a field called "Customer Number." That number must match an actual customer in the "Customers" folder. If someone tries to file a ticket with a nonexistent customer number, the system rejects it.
+  </div>
+
+  <p>Here is a concrete example with two tables:</p>
+
+<pre><code>-- The "parent" table
+CREATE TABLE customers (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  email TEXT NOT NULL UNIQUE
+);
+
+-- The "child" table
+CREATE TABLE tickets (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  subject TEXT NOT NULL,
+  description TEXT,
+  customer_id UUID NOT NULL REFERENCES customers(id),  -- Foreign key!
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);</code></pre>
+
+  <p>The line <code>customer_id UUID NOT NULL REFERENCES customers(id)</code> creates a foreign key. This means:</p>
+
+  <ul>
+    <li>Every ticket <strong>must</strong> have a <code>customer_id</code> (<code>NOT NULL</code>)</li>
+    <li>That <code>customer_id</code> <strong>must match</strong> an existing <code>id</code> in the <code>customers</code> table</li>
+    <li>You <strong>cannot delete</strong> a customer who still has tickets (unless you set up a cascade rule)</li>
+  </ul>
+
+  <div class="diagram">
+ CUSTOMERS TABLE                          TICKETS TABLE
++--------+-------------+              +--------+-----------------+-------------+
+|   id   |    name     |              |   id   |     subject     | customer_id |
++--------+-------------+              +--------+-----------------+-------------+
+| uuid-1 | Jane Smith  | &lt;----------- | uuid-A | Screen broken   |    uuid-1   |
+| uuid-2 | Bob Johnson | &lt;--+         | uuid-B | Virus removal   |    uuid-1   |
++--------+-------------+    +-------- | uuid-C | Slow computer   |    uuid-2   |
+                                      +--------+-----------------+-------------+
+
+    customer_id in tickets REFERENCES id in customers
+  </div>
+
+  <h3>ON DELETE Behavior</h3>
+
+  <p>What happens when you delete a parent row that has child rows pointing to it? PostgreSQL gives you options:</p>
+
+  <table>
+    <thead>
+      <tr><th>Behavior</th><th>What Happens</th><th>When to Use</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>RESTRICT</code> (default)</td><td>Block the delete. Error.</td><td>Prevent data loss (customers with tickets)</td></tr>
+      <tr><td><code>CASCADE</code></td><td>Delete child rows too</td><td>Tags on a deleted blog post</td></tr>
+      <tr><td><code>SET NULL</code></td><td>Set the FK column to NULL</td><td>Optional relationships (category deleted, post keeps existing)</td></tr>
+      <tr><td><code>SET DEFAULT</code></td><td>Set the FK to its default value</td><td>Rarely used</td></tr>
+    </tbody>
+  </table>
+
+<pre><code>-- When a category is deleted, posts keep existing but lose their category
+category_id UUID REFERENCES blog_categories(id) ON DELETE SET NULL
+
+-- When a post is deleted, its tag links are removed too
+post_id UUID REFERENCES blog_posts(id) ON DELETE CASCADE</code></pre>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    In CSK's blog schema, <code>blog_posts.category_id</code> uses <code>ON DELETE SET NULL</code> &mdash; if a category is removed, posts are not deleted; they just lose their category. The <code>blog_post_tags</code> junction table uses <code>ON DELETE CASCADE</code> on both foreign keys &mdash; if a post or tag is deleted, the link rows are automatically removed.
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>Relationship Types</h2>
+  <!-- ============================================================ -->
+
+  <p>Tables can be related in three fundamental ways. Understanding these is key to designing good database schemas.</p>
+
+  <h3>One-to-One (1:1)</h3>
+
+  <p>One row in Table A relates to exactly one row in Table B, and vice versa. This is the rarest type.</p>
+
+  <p><strong>Example:</strong> Each employee has exactly one user profile. Each user profile belongs to exactly one employee.</p>
+
+<pre><code>CREATE TABLE employees (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  hire_date DATE NOT NULL
+);
+
+CREATE TABLE user_profiles (
+  id UUID PRIMARY KEY REFERENCES employees(id),  -- Same ID as employee!
+  role TEXT NOT NULL DEFAULT 'technician',
+  avatar_url TEXT
+);</code></pre>
+
+  <p>Notice the <code>user_profiles</code> primary key directly references the <code>employees</code> primary key. This enforces the one-to-one relationship.</p>
+
+  <h3>One-to-Many (1:N)</h3>
+
+  <p>One row in Table A relates to many rows in Table B, but each row in B relates to only one in A. This is the <strong>most common</strong> relationship.</p>
+
+  <p><strong>Example:</strong> One customer can have many tickets, but each ticket belongs to one customer.</p>
+
+  <div class="diagram">
+  ONE-TO-MANY: Customer --&lt; Tickets
+
+  CUSTOMER: Jane Smith
+      |
+      +-- Ticket: "Screen cracked"
+      +-- Ticket: "Need data transfer"
+      +-- Ticket: "Install antivirus"
+
+  CUSTOMER: Bob Johnson
+      |
+      +-- Ticket: "Computer won't boot"
+  </div>
+
+<pre><code>-- One customer...
+CREATE TABLE customers (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL
+);
+
+-- ...has many tickets
+CREATE TABLE tickets (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  subject TEXT NOT NULL,
+  customer_id UUID NOT NULL REFERENCES customers(id)
+  -- The FK goes on the "many" side
+);</code></pre>
+
+  <p><strong>Rule of thumb:</strong> The foreign key always goes on the "many" side of the relationship.</p>
+
+  <h3>Many-to-Many (M:N)</h3>
+
+  <p>One row in Table A can relate to many rows in Table B, and one row in Table B can relate to many rows in Table A.</p>
+
+  <p><strong>Example:</strong> One blog post can have many tags, and one tag can be applied to many posts.</p>
+
+  <p>Relational databases cannot represent many-to-many directly with a single foreign key. Instead, we create a <strong>junction table</strong> (also called a "join table," "bridge table," or "linking table") that sits between the two tables.</p>
+
+  <div class="diagram">
+  MANY-TO-MANY: Posts &gt;--&lt; Tags  (via junction table)
+
+  blog_posts          blog_post_tags         blog_tags
+  +--------+         +----------+----------+  +---------+
+  |   id   |         | post_id  |  tag_id  |  |   id    |
+  +--------+         +----------+----------+  +---------+
+  | post-1 | &lt;------ |  post-1  |  tag-A   | ------&gt; | tag-A   | "Hardware"
+  | post-2 | &lt;--+--- |  post-1  |  tag-B   | --+---&gt; | tag-B   | "How-To"
+  +--------+   |     |  post-2  |  tag-A   | -/      | tag-C   | "Linux"
+               +---- |  post-2  |  tag-C   | --------+
+                      +----------+----------+
+
+  Post 1 has tags: Hardware, How-To
+  Post 2 has tags: Hardware, Linux
+  Tag "Hardware" applies to: Post 1, Post 2
+  </div>
+
+<pre><code>CREATE TABLE blog_posts (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE blog_tags (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name VARCHAR(50) NOT NULL UNIQUE
+);
+
+-- Junction table: connects posts to tags
+CREATE TABLE blog_post_tags (
+  post_id UUID REFERENCES blog_posts(id) ON DELETE CASCADE,
+  tag_id UUID REFERENCES blog_tags(id) ON DELETE CASCADE,
+  PRIMARY KEY (post_id, tag_id)  -- Composite primary key!
+);</code></pre>
+
+  <p>Notice the <strong>composite primary key</strong>: <code>PRIMARY KEY (post_id, tag_id)</code>. This means the combination of post and tag must be unique &mdash; you cannot tag the same post with the same tag twice.</p>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    CSK's blog uses exactly this pattern. The <code>blog_post_tags</code> junction table connects <code>blog_posts</code> to <code>blog_tags</code> with a composite primary key and <code>ON DELETE CASCADE</code> on both foreign keys. This is a textbook many-to-many implementation.
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>Indexes &mdash; Making Queries Fast</h2>
+  <!-- ============================================================ -->
+
+  <p>As your tables grow from hundreds to thousands to millions of rows, queries can become slow. An <strong>index</strong> is a separate data structure that the database maintains to speed up searches on specific columns.</p>
+
+  <div class="analogy">
+    <strong>Analogy:</strong> Think of a textbook index at the back of a book. Instead of reading every page to find where "PostgreSQL" is mentioned, you flip to the index, find "PostgreSQL" alphabetically, and it tells you the exact pages. A database index works the same way &mdash; it lets the database jump directly to matching rows instead of scanning the entire table.
+  </div>
+
+  <h3>How It Works (Simplified)</h3>
+
+  <p>The most common index type is a <strong>B-tree</strong> (balanced tree). Imagine the data sorted into a tree structure:</p>
+
+  <div class="diagram">
+                     [M]
+                    /   \
+                [D]      [R]
+               / \       / \
+            [A-C] [E-L] [N-Q] [S-Z]
+
+  Looking up "Jones"?
+  1. Start at [M] -- "J" comes before "M", go left
+  2. At [D] -- "J" comes after "D", go right
+  3. At [E-L] -- found the leaf containing "Jones"!
+
+  Only 3 steps instead of scanning all rows!
+  </div>
+
+  <p>Without an index, the database performs a <strong>sequential scan</strong> (reading every single row). With an index, it performs an <strong>index scan</strong> (jumping directly to matching rows). The difference can be dramatic: milliseconds vs. seconds on large tables.</p>
+
+  <h3>Creating an Index</h3>
+
+<pre><code>-- Speed up lookups by slug
+CREATE INDEX idx_blog_posts_slug ON blog_posts(slug);
+
+-- Speed up filtering by status
+CREATE INDEX idx_blog_posts_status ON blog_posts(status);
+
+-- Speed up sorting by date (descending)
+CREATE INDEX idx_blog_posts_published_at ON blog_posts(published_at DESC);</code></pre>
+
+  <h3>When to Create Indexes</h3>
+
+  <table>
+    <thead>
+      <tr><th>Create an Index When...</th><th>Skip the Index When...</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>A column is used frequently in <code>WHERE</code> clauses</td><td>The table has very few rows (under a few hundred)</td></tr>
+      <tr><td>A column is used in <code>JOIN</code> conditions</td><td>The column has very few distinct values (e.g., a boolean)</td></tr>
+      <tr><td>A column is used in <code>ORDER BY</code></td><td>The table is written to much more than read from</td></tr>
+      <tr><td>A column is used for unique lookups (slugs, emails)</td><td>You already have too many indexes slowing down writes</td></tr>
+    </tbody>
+  </table>
+
+  <div class="warning-box">
+    <strong>Index Trade-off</strong>
+    Indexes speed up <strong>reads</strong> but slow down <strong>writes</strong> (INSERT, UPDATE, DELETE), because the database must update the index every time data changes. Do not index every column &mdash; only the ones you actually query on.
+  </div>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    The CSK blog schema creates six targeted indexes: on <code>slug</code> (for URL lookups), <code>status</code> (for filtering published posts), <code>published_at</code> (for sorting by date), <code>category_id</code> (for category pages), and indexes on category and tag slugs. Each one targets a specific query pattern used by the application.
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>Database Normalization</h2>
+  <!-- ============================================================ -->
+
+  <p><strong>Normalization</strong> is the process of organizing your tables to reduce data duplication and prevent inconsistencies. There are several "normal forms" &mdash; think of them as levels of organization. For most applications, reaching Third Normal Form (3NF) is sufficient.</p>
+
+  <h3>First Normal Form (1NF)</h3>
+
+  <p><strong>Rule:</strong> Each column contains only atomic (indivisible) values. No lists, no repeated groups.</p>
+
+  <p><strong>Bad (violates 1NF):</strong></p>
+  <div class="diagram">
+| customer | phones                    |
+|----------|---------------------------|
+| Jane     | 555-0101, 555-0102        |  &lt;-- Multiple values in one cell!
+| Bob      | 555-0203                  |
+  </div>
+
+  <p><strong>Good (satisfies 1NF):</strong></p>
+  <div class="diagram">
+CUSTOMERS              PHONES
+| id | customer |      | id | customer_id | phone    |
+|----|----------|      |----|-------------|----------|
+| 1  | Jane     |      | 1  |      1      | 555-0101 |
+| 2  | Bob      |      | 2  |      1      | 555-0102 |
+                       | 3  |      2      | 555-0203 |
+  </div>
+
+  <h3>Second Normal Form (2NF)</h3>
+
+  <p><strong>Rule:</strong> Already in 1NF, plus every non-key column depends on the <em>entire</em> primary key (relevant when you have composite primary keys).</p>
+
+  <p><strong>Bad (violates 2NF):</strong></p>
+  <div class="diagram">
+ORDER_ITEMS (composite PK: order_id + product_id)
+| order_id | product_id | product_name | quantity |
+|----------|------------|--------------|----------|
+| 1        | 100        | Keyboard     | 2        |
+| 1        | 200        | Mouse        | 1        |
+| 2        | 100        | Keyboard     | 5        |
+
+"product_name" depends only on product_id, NOT on the full key (order_id + product_id)
+  </div>
+
+  <p><strong>Good (satisfies 2NF):</strong> Move product_name to its own table.</p>
+  <div class="diagram">
+PRODUCTS                    ORDER_ITEMS
+| product_id | product_name | | order_id | product_id | quantity |
+|------------|------------- | |----------|------------|----------|
+| 100        | Keyboard     | | 1        | 100        | 2        |
+| 200        | Mouse        | | 1        | 200        | 1        |
+                              | 2        | 100        | 5        |
+  </div>
+
+  <h3>Third Normal Form (3NF)</h3>
+
+  <p><strong>Rule:</strong> Already in 2NF, plus no non-key column depends on another non-key column (no transitive dependencies).</p>
+
+  <p><strong>Bad (violates 3NF):</strong></p>
+  <div class="diagram">
+EMPLOYEES
+| id | name | department_id | department_name |
+|----|------|---------------|-----------------|
+| 1  | Jane | 10            | Engineering     |
+| 2  | Bob  | 10            | Engineering     |  &lt;-- "Engineering" is duplicated!
+| 3  | Sue  | 20            | Marketing       |
+
+"department_name" depends on "department_id", NOT directly on the PK "id"
+  </div>
+
+  <p><strong>Good (satisfies 3NF):</strong> Create a departments table.</p>
+  <div class="diagram">
+DEPARTMENTS                   EMPLOYEES
+| department_id | name       | | id | name | department_id |
+|---------------|----------- | |----|------|---------------|
+| 10            | Engineering| | 1  | Jane | 10            |
+| 20            | Marketing  | | 2  | Bob  | 10            |
+                               | 3  | Sue  | 20            |
+  </div>
+
+  <p>Now "Engineering" is stored once. If the department name changes, you update one row instead of hundreds.</p>
+
+  <h3>When Not to Normalize</h3>
+
+  <p>Sometimes a little intentional duplication is acceptable for performance or simplicity. For example, storing a customer's <code>name</code> directly on a ticket (alongside the foreign key) can avoid an expensive JOIN when you just need to display a list. This is called <strong>denormalization</strong> and should be a deliberate choice, not an accident.</p>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    The CSK database is well-normalized. Categories are in their own <code>blog_categories</code> table rather than being strings repeated on every post. Tags are in <code>blog_tags</code> with a junction table. Businesses are extracted from customer <code>business_name</code> into a separate <code>businesses</code> table with a trigger that auto-links. The <code>blog_posts</code> table stores <code>author_name</code> directly (a small denormalization) because the blog does not have a separate authors table &mdash; a practical choice for a small team.
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>Putting It All Together &mdash; A Complete Example</h2>
+  <!-- ============================================================ -->
+
+  <p>Let us design a small schema for a computer repair shop. Notice how all the concepts we learned work together:</p>
+
+<pre><code>-- Customers table
+CREATE TABLE customers (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),  -- UUID primary key
+  name TEXT NOT NULL,                              -- Required
+  email TEXT NOT NULL UNIQUE,                      -- Required, unique
+  phone TEXT,                                      -- Optional
+  is_active BOOLEAN DEFAULT true,                  -- Default value
+  created_at TIMESTAMPTZ DEFAULT NOW()             -- Auto-timestamp
+);
+
+-- Tickets (one-to-many with customers)
+CREATE TABLE tickets (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  subject TEXT NOT NULL,
+  description TEXT,
+  status VARCHAR(20) DEFAULT 'new'
+    CHECK (status IN ('new', 'in_progress', 'resolved')),  -- CHECK constraint
+  customer_id UUID NOT NULL REFERENCES customers(id),       -- Foreign key
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Invoices (one-to-many with customers AND tickets)
+CREATE TABLE invoices (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  amount NUMERIC NOT NULL CHECK (amount >= 0),              -- No negative amounts
+  customer_id UUID NOT NULL REFERENCES customers(id),
+  ticket_id UUID REFERENCES tickets(id) ON DELETE SET NULL, -- Optional link
+  paid_at TIMESTAMPTZ,                                       -- NULL means unpaid
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Indexes for common queries
+CREATE INDEX idx_tickets_customer ON tickets(customer_id);
+CREATE INDEX idx_tickets_status ON tickets(status);
+CREATE INDEX idx_invoices_customer ON invoices(customer_id);</code></pre>
+
+  <p>This schema demonstrates:</p>
+  <ul>
+    <li><strong>UUID primary keys</strong> on all three tables</li>
+    <li><strong>NOT NULL</strong> constraints on required fields</li>
+    <li><strong>UNIQUE</strong> constraint on email</li>
+    <li><strong>DEFAULT</strong> values for status, is_active, and timestamps</li>
+    <li><strong>CHECK</strong> constraints limiting status values and preventing negative amounts</li>
+    <li><strong>Foreign keys</strong> linking tickets to customers and invoices to both</li>
+    <li><strong>Indexes</strong> on columns used for filtering and joining</li>
+    <li><strong>Normalization</strong> &mdash; each entity in its own table, no duplicated data</li>
+  </ul>
+
+  <!-- ============================================================ -->
+  <!-- EXERCISES -->
+  <!-- ============================================================ -->
+  <div class="exercises">
+    <h2>Hands-On Exercises</h2>
+    <ol>
+      <li>
+        <strong>Identify the Data Type:</strong> For each piece of data, choose the most appropriate PostgreSQL data type: (a) a user's full name, (b) the number of items in stock, (c) whether an account is active, (d) the exact date and time a ticket was created, (e) a unique identifier for a blog post, (f) a computer's hardware specifications stored as structured data.
+      </li>
+      <li>
+        <strong>Spot the Constraint:</strong> Given this table definition, list every constraint and explain what each one does:
+        <pre><code>CREATE TABLE products (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name VARCHAR(200) NOT NULL,
+  sku VARCHAR(50) NOT NULL UNIQUE,
+  price NUMERIC NOT NULL CHECK (price > 0),
+  category_id UUID REFERENCES categories(id) ON DELETE SET NULL,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);</code></pre>
+      </li>
+      <li>
+        <strong>Design a Relationship:</strong> A school has students and courses. Each student can enroll in many courses, and each course has many students. Draw out (on paper or in a text editor) the three tables you would need, including column names, data types, primary keys, and foreign keys.
+      </li>
+      <li>
+        <strong>Fix the Normalization:</strong> This table violates 1NF and 3NF. Redesign it into properly normalized tables:
+        <pre><code>| order_id | customer_name | customer_email     | items              |
+|----------|--------------|--------------------|--------------------|
+| 1        | Jane Smith   | jane@example.com   | Keyboard, Mouse    |
+| 2        | Jane Smith   | jane@example.com   | Monitor            |
+| 3        | Bob Johnson  | bob@example.com    | Keyboard           |</code></pre>
+      </li>
+      <li>
+        <strong>Index Decision:</strong> You have a <code>tickets</code> table with 500,000 rows. Employees frequently search by <code>status</code> and sort by <code>created_at</code>. Customers look up their tickets by <code>customer_id</code>. No one ever searches by <code>description</code>. Which columns should you index and why? Which should you not index?
+      </li>
+    </ol>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- KEY TAKEAWAYS -->
+  <!-- ============================================================ -->
+  <div class="key-takeaways">
+    <h2>Key Takeaways</h2>
+    <ul>
+      <li>A <strong>database</strong> is organized, rule-enforced data storage &mdash; far more powerful than a spreadsheet for applications.</li>
+      <li><strong>Tables</strong> hold data in rows (records) and columns (fields), each column with a defined data type.</li>
+      <li>Every table needs a <strong>primary key</strong> &mdash; UUIDs are preferred for web apps (globally unique, unpredictable).</li>
+      <li><strong>Constraints</strong> (NOT NULL, UNIQUE, CHECK, DEFAULT) enforce data integrity at the database level.</li>
+      <li><strong>Foreign keys</strong> link tables together and enforce referential integrity &mdash; the referenced row must exist.</li>
+      <li>Relationships come in three flavors: <strong>one-to-one</strong>, <strong>one-to-many</strong> (most common), and <strong>many-to-many</strong> (requires a junction table).</li>
+      <li><strong>Indexes</strong> dramatically speed up reads but add overhead to writes &mdash; create them on columns you query frequently.</li>
+      <li><strong>Normalization</strong> (1NF, 2NF, 3NF) eliminates duplication and keeps your data consistent.</li>
+    </ul>
+  </div>
+
+</div> <!-- /lesson-content -->
+
+<!-- ========== BOTTOM NAV ========== -->
+<nav class="lesson-nav bottom">
+  <a href="22-component-styling-patterns.html">&larr; Prev: Component Styling Patterns</a>
+  <span>Lesson 23 of 56</span>
+  <a href="24-sql-querying.html">Next: SQL &mdash; Querying Data &rarr;</a>
+</nav>
+
+</body>
+</html>

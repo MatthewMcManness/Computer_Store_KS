@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 30: Supabase Auth &amp; Custom Sessions | Full-Stack Web Development Curriculum</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="lesson-nav">
+  <a href="29-authentication-concepts.html">&larr; Previous: Authentication Concepts</a>
+  <span>Lesson 30 of 56</span>
+  <a href="31-rbac.html">Next: Role-Based Access Control &rarr;</a>
+</nav>
+
+<!-- HEADER -->
+<header class="lesson-header" style="background: linear-gradient(135deg, #7f1d1d 0%, #dc2626 100%);">
+  <div class="phase-badge" style="background: rgba(255,255,255,0.2);">Phase 7: Authentication &amp; Security</div>
+  <h1>Supabase Auth &amp; Custom Sessions</h1>
+  <p class="lesson-subtitle">Building real authentication with Supabase, bcrypt, and encrypted cookie sessions</p>
+</header>
+
+<!-- MAIN CONTENT -->
+<div class="lesson-content">
+
+  <!-- LEARNING OBJECTIVES -->
+  <div class="learning-objectives">
+    <h2>What You Will Learn</h2>
+    <ul>
+      <li>How to set up Supabase Auth for email/password authentication</li>
+      <li>The complete auth flow: signup, email verification, signin, signout</li>
+      <li>Using @supabase/ssr for server-side auth with cookies in Next.js</li>
+      <li>Password hashing with bcryptjs: hash() and compare()</li>
+      <li>AES-256-GCM encryption for building custom session cookies</li>
+      <li>How to build encrypt/decrypt session functions using Node.js crypto</li>
+      <li>Building complete login/logout API routes</li>
+      <li>The protected page pattern: checking auth and redirecting</li>
+    </ul>
+  </div>
+
+  <!-- SECTION 1: SUPABASE AUTH -->
+  <h2>Supabase Auth: Built-In Authentication</h2>
+
+  <p>Supabase provides a complete authentication system out of the box. Instead of building login, signup, password reset, and email verification from scratch, Supabase handles all of this for you. You just need to configure it and call the right functions.</p>
+
+  <h3>What Supabase Auth Provides</h3>
+  <ul>
+    <li><strong>Email/password signup and signin</strong> -- with automatic password hashing</li>
+    <li><strong>Email verification</strong> -- confirmation emails sent automatically</li>
+    <li><strong>Password reset</strong> -- "forgot password" flow built in</li>
+    <li><strong>OAuth providers</strong> -- Google, GitHub, Facebook, etc.</li>
+    <li><strong>Magic links</strong> -- passwordless login via email</li>
+    <li><strong>Session management</strong> -- JWT-based sessions with automatic refresh</li>
+    <li><strong>Row-Level Security integration</strong> -- <code>auth.uid()</code> in RLS policies</li>
+  </ul>
+
+  <h3>Setting Up Auth in the Supabase Dashboard</h3>
+  <p>Before writing any code, you need to configure auth settings in your Supabase project dashboard:</p>
+
+  <ol class="steps">
+    <li>Go to your Supabase project dashboard and click <strong>Authentication</strong> in the sidebar.</li>
+    <li>Under <strong>Providers</strong>, enable <strong>Email</strong> (it is usually on by default).</li>
+    <li>Configure email settings:
+      <ul>
+        <li>Enable or disable "Confirm email" (recommended: enable for production)</li>
+        <li>Set minimum password length (recommended: 12 characters)</li>
+        <li>Customize email templates for confirmation, password reset, and magic links</li>
+      </ul>
+    </li>
+    <li>Under <strong>URL Configuration</strong>, set your site URL and redirect URLs:
+      <ul>
+        <li>Site URL: <code>https://yourdomain.com</code></li>
+        <li>Redirect URLs: <code>https://yourdomain.com/auth/callback</code></li>
+      </ul>
+    </li>
+    <li>For OAuth (e.g., Google): click the provider, enter your Client ID and Client Secret from Google Cloud Console, and add your redirect URI.</li>
+  </ol>
+
+  <h3>Installing the Supabase Client Libraries</h3>
+
+  <pre><code># Install Supabase JS client and SSR helper for Next.js
+npm install @supabase/supabase-js @supabase/ssr</code></pre>
+
+  <p>You need two packages:</p>
+  <ul>
+    <li><strong><code>@supabase/supabase-js</code></strong> -- the core Supabase client (database, auth, storage)</li>
+    <li><strong><code>@supabase/ssr</code></strong> -- handles cookie management for server-side rendering in Next.js (replaces the older <code>@supabase/auth-helpers-nextjs</code>)</li>
+  </ul>
+
+  <!-- SECTION 2: AUTH FLOW -->
+  <h2>The Auth Flow: Signup to Session</h2>
+
+  <h3>1. Signup</h3>
+  <p>Creating a new user account with Supabase Auth:</p>
+
+  <pre><code>import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+// Sign up a new user
+const { data, error } = await supabase.auth.signUp({
+  email: 'user@example.com',
+  password: 'securePassword123!',
+  options: {
+    data: {
+      full_name: 'Jane Smith',  // Custom metadata stored with the user
+    },
+    emailRedirectTo: 'https://yourdomain.com/auth/callback',
+  },
+});
+
+if (error) {
+  console.error('Signup failed:', error.message);
+} else {
+  console.log('Check your email for verification link!');
+  // data.user contains the new user object
+  // data.session may be null until email is verified
+}</code></pre>
+
+  <p>After calling <code>signUp()</code>, Supabase sends a confirmation email. The user clicks the link, which redirects them to your <code>emailRedirectTo</code> URL with a verification token.</p>
+
+  <h3>2. Email Verification</h3>
+  <p>When the user clicks the verification link in their email, Supabase handles the verification automatically. Your <code>/auth/callback</code> route just needs to exchange the token for a session:</p>
+
+  <pre><code>// app/auth/callback/route.ts
+import { NextResponse } from 'next/server';
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const code = searchParams.get('code');
+
+  if (code) {
+    const cookieStore = await cookies();
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() { return cookieStore.getAll(); },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set(name, value, options);
+            });
+          },
+        },
+      }
+    );
+
+    // Exchange the code for a session
+    await supabase.auth.exchangeCodeForSession(code);
+  }
+
+  return NextResponse.redirect(new URL('/dashboard', request.url));
+}</code></pre>
+
+  <h3>3. Sign In</h3>
+  <pre><code>// Sign in an existing user
+const { data, error } = await supabase.auth.signInWithPassword({
+  email: 'user@example.com',
+  password: 'securePassword123!',
+});
+
+if (error) {
+  console.error('Login failed:', error.message);
+  // Common errors:
+  // "Invalid login credentials" - wrong email or password
+  // "Email not confirmed" - user hasn't verified their email
+} else {
+  console.log('Logged in as:', data.user.email);
+  // data.session contains the JWT access token and refresh token
+}</code></pre>
+
+  <h3>4. Getting the Current User</h3>
+  <pre><code>// Get the currently authenticated user (server-side)
+const { data: { user }, error } = await supabase.auth.getUser();
+
+if (user) {
+  console.log('Current user:', user.id, user.email);
+  console.log('Metadata:', user.user_metadata);  // { full_name: 'Jane Smith' }
+} else {
+  console.log('No user logged in');
+}</code></pre>
+
+  <div class="warning-box">
+    <strong>getUser() vs getSession():</strong> Always use <code>getUser()</code> on the server side. It verifies the JWT with Supabase's servers. <code>getSession()</code> reads the JWT from the cookie without verification, which means a tampered token could pass. For security, trust <code>getUser()</code>.
+  </div>
+
+  <h3>5. Sign Out</h3>
+  <pre><code>// Sign out the current user
+const { error } = await supabase.auth.signOut();
+// This clears the session cookies</code></pre>
+
+  <!-- SECTION 3: SSR AUTH -->
+  <h2>Server-Side Auth with @supabase/ssr</h2>
+
+  <p>In a Next.js App Router application, authentication needs to work on the server -- in Server Components, API routes, and middleware. The <code>@supabase/ssr</code> library manages Supabase sessions using cookies, which are accessible on both the client and server.</p>
+
+  <h3>Creating a Server-Side Supabase Client</h3>
+
+  <pre><code>// lib/supabase-server.ts
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
+
+export async function createSupabaseServerClient() {
+  const cookieStore = await cookies();
+
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set(name, value, options);
+            });
+          } catch {
+            // Ignore errors in Server Components (read-only context)
+          }
+        },
+      },
+    }
+  );
+}</code></pre>
+
+  <p>This client reads and writes Supabase session cookies. The <code>@supabase/ssr</code> library handles cookie splitting for large JWTs (Supabase tokens can exceed the 4KB cookie size limit, so the library splits them across multiple cookies).</p>
+
+  <div class="info-box">
+    <strong>Why cookies instead of localStorage?</strong>
+    localStorage is only accessible from JavaScript in the browser. Server Components and middleware cannot read localStorage. Cookies, on the other hand, are automatically sent with every HTTP request, making them accessible everywhere -- browser, server components, API routes, and middleware.
+  </div>
+
+  <!-- SECTION 4: PASSWORD HASHING -->
+  <h2>Password Hashing with bcryptjs</h2>
+
+  <p>While Supabase Auth handles password hashing internally for users in its auth system, you sometimes need to hash passwords yourself -- for example, when building a custom authentication system alongside Supabase, or when migrating users from a legacy system.</p>
+
+  <h3>Installing bcryptjs</h3>
+  <pre><code>npm install bcryptjs
+npm install --save-dev @types/bcryptjs  # TypeScript types</code></pre>
+
+  <p>We use <code>bcryptjs</code> (a pure JavaScript implementation) rather than <code>bcrypt</code> (a native C++ addon) because it works in all environments without compilation, including serverless platforms like Render.</p>
+
+  <h3>Hashing a Password</h3>
+  <pre><code>import bcrypt from 'bcryptjs';
+
+// When user creates an account or changes their password:
+const plainPassword = 'mySecurePassword123';
+const saltRounds = 12;  // 2^12 = 4096 iterations (good balance of speed/security)
+
+const hashedPassword = await bcrypt.hash(plainPassword, saltRounds);
+// Result: "$2a$12$LJ3m5ZWcXY9bN7v1wKsL2.ABC123XYZ..."
+// Format: $algorithm$cost$salt+hash
+
+// Store hashedPassword in your database (NEVER the plain password)</code></pre>
+
+  <h3>Verifying a Password</h3>
+  <pre><code>// When user tries to log in:
+const inputPassword = 'mySecurePassword123';  // What user typed
+const storedHash = '$2a$12$LJ3m5ZWcXY9bN7v1wKsL2.ABC123XYZ...';  // From database
+
+const isValid = await bcrypt.compare(inputPassword, storedHash);
+// Returns true if password matches, false otherwise
+
+if (isValid) {
+  // Create session, redirect to dashboard
+} else {
+  // Show "Invalid credentials" error
+}</code></pre>
+
+  <p>Notice that <code>bcrypt.compare()</code> extracts the salt from the stored hash automatically. You do not need to store the salt separately -- it is embedded in the hash string itself.</p>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    CSK uses <code>bcryptjs</code> for hashing passwords when creating customer portal accounts. The <code>auth.ts</code> file contains legacy password handling alongside the newer Supabase Auth integration. This dual system exists because CSK migrated from RepairShopr authentication to Supabase Auth, and some legacy code paths still use bcrypt directly.
+  </div>
+
+  <!-- SECTION 5: AES-256-GCM ENCRYPTION -->
+  <h2>AES-256-GCM: Encrypting Session Data</h2>
+
+  <p>Sometimes you need more than what Supabase Auth provides. You might need to store additional session data (roles, user type, location) in a cookie, and you want that data to be encrypted so that users cannot read or tamper with it.</p>
+
+  <h3>What is AES-256-GCM?</h3>
+  <p><strong>AES</strong> (Advanced Encryption Standard) is a <strong>symmetric encryption</strong> algorithm, meaning the same key is used for both encryption and decryption. It is the most widely used encryption algorithm in the world -- your HTTPS connections, your phone's disk encryption, and government classified communications all use AES.</p>
+
+  <ul>
+    <li><strong>256</strong> -- the key size in bits (32 bytes). Larger keys are more secure.</li>
+    <li><strong>GCM</strong> (Galois/Counter Mode) -- a mode that provides both encryption AND authentication. It ensures the data was not tampered with.</li>
+  </ul>
+
+  <div class="analogy">
+    <strong>Analogy:</strong> AES-256-GCM is like a sealed envelope with a tamper-evident seal. The encryption (AES) is the envelope -- only someone with the key can read the contents. The authentication (GCM) is the tamper-evident seal -- if anyone opens and modifies the contents, you will know because the seal will be broken.
+  </div>
+
+  <h3>Key Concepts</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Concept</th>
+        <th>What It Is</th>
+        <th>Size</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Key</td>
+        <td>The secret used to encrypt and decrypt</td>
+        <td>32 bytes (256 bits)</td>
+      </tr>
+      <tr>
+        <td>IV (Initialization Vector)</td>
+        <td>A random value that ensures the same data encrypts differently each time</td>
+        <td>12 bytes for GCM</td>
+      </tr>
+      <tr>
+        <td>Auth Tag</td>
+        <td>A checksum that proves the data was not tampered with</td>
+        <td>16 bytes</td>
+      </tr>
+      <tr>
+        <td>Ciphertext</td>
+        <td>The encrypted data</td>
+        <td>Same size as input</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Node.js crypto Module</h3>
+  <p>Node.js includes a built-in <code>crypto</code> module for encryption. No external packages needed.</p>
+
+  <pre><code>import { randomBytes, createCipheriv, createDecipheriv } from 'crypto';
+
+const ALGORITHM = 'aes-256-gcm';
+const IV_LENGTH = 12;        // 12 bytes for GCM mode
+const AUTH_TAG_LENGTH = 16;  // 16 bytes authentication tag</code></pre>
+
+  <h3>Encrypt Function</h3>
+  <pre><code>function encryptSession(sessionData: SessionData): string {
+  // 1. Get the 32-byte secret key from environment variable
+  const secret = Buffer.from(process.env.SESSION_SECRET!, 'hex');
+  // SESSION_SECRET must be exactly 64 hex characters (= 32 bytes)
+
+  // 2. Generate a random Initialization Vector (unique per encryption)
+  const iv = randomBytes(IV_LENGTH);  // 12 random bytes
+
+  // 3. Create the cipher (encryption tool)
+  const cipher = createCipheriv(ALGORITHM, secret, iv, {
+    authTagLength: AUTH_TAG_LENGTH,
+  });
+
+  // 4. Encrypt the session data
+  const sessionJson = JSON.stringify(sessionData);
+  const encrypted = Buffer.concat([
+    cipher.update(sessionJson, 'utf-8'),
+    cipher.final(),
+  ]);
+
+  // 5. Get the authentication tag (tamper-detection checksum)
+  const authTag = cipher.getAuthTag();
+
+  // 6. Combine: IV + Auth Tag + Encrypted Data
+  const combined = Buffer.concat([iv, authTag, encrypted]);
+
+  // 7. Return as base64 string (safe for cookies)
+  return combined.toString('base64');
+}</code></pre>
+
+  <p>The result is a base64 string that you can safely store in a cookie. It contains the IV, auth tag, and encrypted data packed together.</p>
+
+  <h3>Decrypt Function</h3>
+  <pre><code>function decryptSession(encryptedString: string): SessionData | null {
+  try {
+    // 1. Decode from base64 back to a Buffer
+    const combined = Buffer.from(encryptedString, 'base64');
+
+    // 2. Extract the three parts
+    const iv = combined.subarray(0, IV_LENGTH);                         // First 12 bytes
+    const authTag = combined.subarray(IV_LENGTH, IV_LENGTH + AUTH_TAG_LENGTH);  // Next 16 bytes
+    const encrypted = combined.subarray(IV_LENGTH + AUTH_TAG_LENGTH);   // The rest
+
+    // 3. Get the same secret key
+    const secret = Buffer.from(process.env.SESSION_SECRET!, 'hex');
+
+    // 4. Create the decipher (decryption tool)
+    const decipher = createDecipheriv(ALGORITHM, secret, iv, {
+      authTagLength: AUTH_TAG_LENGTH,
+    });
+    decipher.setAuthTag(authTag);  // Set the expected auth tag
+
+    // 5. Decrypt
+    const decrypted = Buffer.concat([
+      decipher.update(encrypted),
+      decipher.final(),  // This THROWS if auth tag doesn't match (tampered!)
+    ]);
+
+    // 6. Parse JSON back to session data
+    const session = JSON.parse(decrypted.toString('utf-8'));
+
+    // 7. Check expiration
+    if (session.expiresAt < Date.now()) {
+      return null;  // Session expired
+    }
+
+    return session;
+  } catch {
+    // Decryption failed -- cookie was tampered with or corrupted
+    return null;
+  }
+}</code></pre>
+
+  <div class="warning-box">
+    <strong>The IV must be unique for every encryption.</strong> Never reuse an IV with the same key. That is why we call <code>randomBytes(12)</code> every time we encrypt. Reusing an IV breaks the security of GCM mode and can leak your key.
+  </div>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    This is exactly how CSK's <code>session-cookie.ts</code> works. The session data includes <code>userId</code>, <code>supabaseUserId</code>, <code>email</code>, <code>name</code>, <code>role</code>, <code>roles[]</code>, <code>userType</code>, <code>location_id</code>, and timestamps. The <code>SESSION_SECRET</code> environment variable must be a 64-character hex string (32 bytes). Sessions expire after 8 hours for employees and 30 days for customers.
+  </div>
+
+  <!-- SECTION 6: SETTING ENCRYPTED COOKIES -->
+  <h2>Setting Encrypted Session Cookies</h2>
+
+  <p>Now let us combine encryption with cookie management. After a user authenticates successfully, we create session data, encrypt it, and store it in a cookie:</p>
+
+  <pre><code>import { cookies } from 'next/headers';
+
+const SESSION_COOKIE_NAME = 'admin_session';
+const SESSION_MAX_AGE = 8 * 60 * 60;  // 8 hours in seconds
+
+async function createUserSession(user: AuthenticatedUser): Promise&lt;void&gt; {
+  // 1. Build the session data object
+  const sessionData: SessionData = {
+    userId: user.id,
+    supabaseUserId: user.supabaseId,
+    email: user.email,
+    name: user.name,
+    role: user.role,
+    roles: user.roles,          // ['technician', 'social_media']
+    userType: user.userType,    // 'employee' or 'customer'
+    apiToken: '',               // Deprecated field, kept for compatibility
+    createdAt: Date.now(),
+    expiresAt: Date.now() + (SESSION_MAX_AGE * 1000),
+  };
+
+  // 2. Encrypt the entire session object
+  const encryptedSession = encryptSession(sessionData);
+
+  // 3. Store in an httpOnly cookie
+  const cookieStore = await cookies();
+  cookieStore.set(SESSION_COOKIE_NAME, encryptedSession, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: SESSION_MAX_AGE,
+    path: '/',
+  });
+}</code></pre>
+
+  <p>The encrypted session is a single string stored in one cookie. When the middleware needs to check who the user is, it reads the cookie, decrypts it, and has access to the full session data without any database query.</p>
+
+  <!-- SECTION 7: MIDDLEWARE AUTH -->
+  <h2>Reading Sessions in Middleware</h2>
+
+  <p>Next.js middleware runs before every request. It is the perfect place to check authentication and authorization:</p>
+
+  <pre><code>// middleware.ts
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // 1. Skip auth check for public routes
+  if (isPublicRoute(pathname)) {
+    return NextResponse.next();
+  }
+
+  // 2. Read the session cookie
+  const sessionCookie = request.cookies.get('admin_session');
+  if (!sessionCookie?.value) {
+    // No session -- redirect to login
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('returnTo', pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  // 3. Decrypt and validate the session
+  const session = decryptSession(sessionCookie.value);
+  if (!session) {
+    // Invalid or expired session -- redirect to login
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+
+  // 4. Check authorization (does this user have permission?)
+  if (!canAccessRoute(session.roles, pathname)) {
+    // Authenticated but not authorized -- redirect to their dashboard
+    return NextResponse.redirect(new URL('/unauthorized', request.url));
+  }
+
+  // 5. User is authenticated and authorized -- let the request through
+  return NextResponse.next();
+}</code></pre>
+
+  <div class="info-box">
+    <strong>Why check auth in middleware?</strong>
+    Middleware runs at the edge (before your page code). This means unauthorized users are redirected before any page data is fetched or rendered. It is the most efficient and secure place to enforce authentication because the protected page code never executes for unauthorized users.
+  </div>
+
+  <!-- SECTION 8: LOGIN/LOGOUT ROUTES -->
+  <h2>Login and Logout API Routes</h2>
+
+  <h3>Login Route</h3>
+  <pre><code>// app/api/auth/login/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+
+export async function POST(request: NextRequest) {
+  try {
+    const { email, password } = await request.json();
+
+    // 1. Validate input
+    if (!email || !password) {
+      return NextResponse.json(
+        { error: 'Email and password are required' },
+        { status: 400 }
+      );
+    }
+
+    // 2. Authenticate with Supabase
+    const supabase = createFreshClient();
+    const { data: authData, error: authError } =
+      await supabase.auth.signInWithPassword({
+        email: email.toLowerCase(),
+        password,
+      });
+
+    if (authError || !authData.user) {
+      return NextResponse.json(
+        { error: 'Invalid email or password' },
+        { status: 401 }
+      );
+    }
+
+    // 3. Get user profile (roles, location, etc.)
+    const { data: profile } = await supabase
+      .from('user_profiles')
+      .select('*')
+      .eq('id', authData.user.id)
+      .single();
+
+    // 4. Build session data
+    const roles = profile?.roles || ['customer'];
+    const sessionData = createSessionData({
+      userId: profile?.repairshopr_user_id || 0,
+      supabaseUserId: authData.user.id,
+      email: authData.user.email || email,
+      name: profile?.full_name || email.split('@')[0],
+      role: mapRolesToSessionRole(roles),
+      roles: roles,
+      userType: isEmployeeRole(roles) ? 'employee' : 'customer',
+    });
+
+    // 5. Encrypt and set cookie
+    const encrypted = encryptSession(sessionData);
+    const cookieStore = await cookies();
+    cookieStore.set('admin_session', encrypted, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 8 * 60 * 60,
+      path: '/',
+    });
+
+    // 6. Return success
+    return NextResponse.json({
+      success: true,
+      user: { email: sessionData.email, name: sessionData.name, roles },
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    return NextResponse.json(
+      { error: 'Authentication failed' },
+      { status: 500 }
+    );
+  }
+}</code></pre>
+
+  <h3>Logout Route</h3>
+  <pre><code>// app/api/auth/logout/route.ts
+import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+
+export async function POST() {
+  const cookieStore = await cookies();
+
+  // 1. Delete all session cookies
+  cookieStore.delete('admin_session');
+  cookieStore.delete('user_role');
+  cookieStore.delete('user_roles');
+
+  // 2. Sign out of Supabase (clears Supabase session cookies too)
+  try {
+    const supabase = createFreshClient();
+    await supabase.auth.signOut();
+  } catch {
+    // Continue even if Supabase signout fails
+  }
+
+  // 3. Return success
+  return NextResponse.json({ success: true });
+}</code></pre>
+
+  <!-- SECTION 9: PROTECTED PAGE PATTERN -->
+  <h2>Protected Page Pattern</h2>
+
+  <p>For server-rendered pages that require authentication, you check the session and redirect if the user is not logged in:</p>
+
+  <pre><code>// app/admin/dashboard/page.tsx
+import { redirect } from 'next/navigation';
+import { getCurrentUser } from '@/lib/auth';
+
+export default async function AdminDashboard() {
+  // 1. Get the current user from the session cookie
+  const user = await getCurrentUser();
+
+  // 2. If no user, redirect to login
+  if (!user) {
+    redirect('/login?returnTo=/admin/dashboard');
+  }
+
+  // 3. User is authenticated -- render the page
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;Welcome, {user.name}&lt;/h1&gt;
+      &lt;p&gt;Role: {user.roles.join(', ')}&lt;/p&gt;
+      {/* Dashboard content */}
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+  <p>This pattern provides defense in depth: the middleware checks auth first (blocking the request before the page loads), and the page checks auth again as a safety net in case the middleware is bypassed or misconfigured.</p>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    CSK implements all of these patterns. <code>supabase-auth.ts</code> handles Supabase Auth operations (signup, signin, signout, password reset, Google OAuth, magic links). <code>session-cookie.ts</code> uses AES-256-GCM via Node.js crypto for custom session encryption. <code>auth.ts</code> uses bcryptjs for legacy password verification. Login routes in <code>/api/auth/login</code> authenticate via Supabase, create encrypted session cookies, and set separate role cookies for the middleware. The middleware at <code>middleware.ts</code> reads these cookies and enforces permission-based access control.
+  </div>
+
+  <!-- EXERCISES -->
+  <div class="exercises">
+    <h2>Exercises</h2>
+    <ol>
+      <li><strong>Supabase Auth Flow:</strong> Draw a sequence diagram showing what happens when a user signs up, verifies their email, and then signs in. Label each HTTP request and the cookies that are set.</li>
+      <li><strong>bcrypt Practice:</strong> Write a function that takes a password string, hashes it with bcrypt (salt rounds 12), and then verifies a second password against the hash. Test it with matching and non-matching passwords.</li>
+      <li><strong>Encryption Understanding:</strong> Explain in your own words why the IV (Initialization Vector) must be different for every encryption operation. What would happen if you reused the same IV?</li>
+      <li><strong>Session Cookie Design:</strong> Design a session data structure for an e-commerce site. What fields would you include? Why? Consider what the middleware needs to check on every request.</li>
+      <li><strong>Security Audit:</strong> Review this login route and find at least three security improvements:
+        <pre><code>app.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+  const user = await db.query(
+    `SELECT * FROM users WHERE email = '${email}'`
+  );
+  if (user.password === password) {
+    res.cookie('session', user.id);
+    res.json({ success: true });
+  }
+});</code></pre>
+      </li>
+    </ol>
+  </div>
+
+  <!-- KEY TAKEAWAYS -->
+  <div class="key-takeaways">
+    <h2>Key Takeaways</h2>
+    <ul>
+      <li>Supabase Auth provides signup, signin, signout, email verification, password reset, and OAuth out of the box.</li>
+      <li>Use <code>@supabase/ssr</code> for server-side auth in Next.js -- it manages sessions via cookies.</li>
+      <li>Always use <code>getUser()</code> (not <code>getSession()</code>) on the server for security -- it verifies the JWT.</li>
+      <li>Use <code>bcryptjs</code> with salt rounds of 12 for password hashing. The salt is stored inside the hash string automatically.</li>
+      <li>AES-256-GCM provides both encryption (confidentiality) and authentication (tamper detection) for session data.</li>
+      <li>Never reuse an IV -- generate a new random IV for every encryption operation.</li>
+      <li>The <code>SESSION_SECRET</code> must be a 32-byte (64 hex character) cryptographically random key.</li>
+      <li>Login routes: validate input, authenticate, create session, set encrypted cookie. Logout routes: delete cookies, sign out of Supabase.</li>
+      <li>Check auth in middleware (first line of defense) AND in page components (defense in depth).</li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="lesson-nav bottom">
+  <a href="29-authentication-concepts.html">&larr; Previous: Authentication Concepts</a>
+  <span>Lesson 30 of 56</span>
+  <a href="31-rbac.html">Next: Role-Based Access Control &rarr;</a>
+</nav>
+
+</body>
+</html>

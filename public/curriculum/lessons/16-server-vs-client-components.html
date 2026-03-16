@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 16: Server Components vs. Client Components | Full-Stack Curriculum</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+
+<!-- ============================================ TOP NAV -->
+<nav class="lesson-nav">
+  <a href="15-nextjs-app-router.html">&larr; Previous: Next.js App Router</a>
+  <span>Lesson 16 of 56</span>
+  <a href="17-api-route-handlers.html">Next: API Route Handlers &rarr;</a>
+</nav>
+
+<!-- ============================================ HEADER -->
+<header class="lesson-header" style="background: linear-gradient(135deg, #0a1481 0%, #0863fd 100%);">
+  <div class="phase-badge" style="background: rgba(255,255,255,0.2);">Phase 4: Next.js</div>
+  <h1>Server Components vs. Client Components</h1>
+  <p class="lesson-subtitle">The single most important concept in modern Next.js -- understanding where your code runs changes everything.</p>
+</header>
+
+<!-- ============================================ CONTENT -->
+<div class="lesson-content">
+
+  <!-- LEARNING OBJECTIVES -->
+  <div class="learning-objectives">
+    <h2>What You Will Learn</h2>
+    <ul>
+      <li>Understand the fundamental difference between Server and Client Components</li>
+      <li>Know that Server Components are the default in the App Router</li>
+      <li>Learn when and why to use the <code>'use client'</code> directive</li>
+      <li>Fetch data directly in Server Components without useEffect</li>
+      <li>Build a decision framework for choosing the right component type</li>
+      <li>Compose Server and Client Components together effectively</li>
+      <li>Avoid the most common mistakes developers make</li>
+    </ul>
+  </div>
+
+  <!-- ============================================ SECTION: THE BIG PICTURE -->
+  <h2>Why This Is THE Most Important Concept</h2>
+
+  <p>In the previous lesson, you learned how Next.js routes work with the App Router. Now we need to understand something that fundamentally changes how you write React code: <strong>not all components run in the browser anymore</strong>.</p>
+
+  <p>In traditional React (the kind you learned in Lessons 12-14), every component runs in the browser. The server sends a JavaScript bundle to the browser, and React renders everything client-side. This means:</p>
+
+  <ul>
+    <li>Every component's code is downloaded by the user's browser</li>
+    <li>Data fetching requires <code>useEffect</code> + <code>useState</code> + loading states</li>
+    <li>Sensitive logic (database queries, API keys) cannot live in components</li>
+    <li>Large libraries inflate the JavaScript bundle size</li>
+  </ul>
+
+  <p>Next.js App Router introduces a new model: <strong>Server Components</strong>. These components run <em>only on the server</em>. The browser never sees their code. This single change solves all four problems above.</p>
+
+  <div class="analogy">
+    <strong>Analogy:</strong> Think of a restaurant kitchen. The <strong>Server Component</strong> is the chef in the kitchen -- they have access to all the ingredients (database, file system, API keys), do the heavy work (data processing, formatting), and send the finished dish out. The <strong>Client Component</strong> is the waiter at the table -- they handle the interactive part (taking orders, refilling drinks). The customer (browser) sees the finished meal, not the kitchen.
+  </div>
+
+  <!-- ============================================ SECTION: SERVER COMPONENTS -->
+  <h2>Server Components: The Default</h2>
+
+  <p>In the Next.js App Router, <strong>every component is a Server Component by default</strong>. You do not need to add any special annotation. Just write a normal component:</p>
+
+  <pre><code>// src/app/blog/page.tsx
+// This is a Server Component -- no directive needed
+
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY! // Secret! Safe here because it never reaches the browser
+);
+
+export default async function BlogPage() {
+  // Fetch data directly -- no useEffect, no useState, no loading state
+  const { data: posts } = await supabase
+    .from('blog_posts')
+    .select('id, title, slug, excerpt, published_at')
+    .eq('status', 'published')
+    .order('published_at', { ascending: false });
+
+  return (
+    &lt;main&gt;
+      &lt;h1&gt;Our Blog&lt;/h1&gt;
+      {posts?.map(post =&gt; (
+        &lt;article key={post.id}&gt;
+          &lt;h2&gt;{post.title}&lt;/h2&gt;
+          &lt;p&gt;{post.excerpt}&lt;/p&gt;
+          &lt;time&gt;{new Date(post.published_at).toLocaleDateString()}&lt;/time&gt;
+        &lt;/article&gt;
+      ))}
+    &lt;/main&gt;
+  );
+}</code></pre>
+
+  <p>Notice what is different from traditional React:</p>
+
+  <ul>
+    <li>The component is <code>async</code> -- you can use <code>await</code> directly</li>
+    <li>No <code>useEffect</code> or <code>useState</code> needed for data fetching</li>
+    <li>The database service key (<code>SUPABASE_SERVICE_ROLE_KEY</code>) is used safely -- this code never ships to the browser</li>
+    <li>The Supabase library code is not included in the client JavaScript bundle</li>
+  </ul>
+
+  <h3>What Server Components Can Do</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Capability</th>
+        <th>Example</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Access databases directly</td>
+        <td>Query Supabase, PostgreSQL, MongoDB</td>
+      </tr>
+      <tr>
+        <td>Use secret environment variables</td>
+        <td><code>process.env.API_SECRET_KEY</code></td>
+      </tr>
+      <tr>
+        <td>Read the file system</td>
+        <td><code>fs.readFile('./data/config.json')</code></td>
+      </tr>
+      <tr>
+        <td>Use server-only libraries</td>
+        <td>Heavy parsing, image processing, AI models</td>
+      </tr>
+      <tr>
+        <td>Render to HTML on the server</td>
+        <td>Zero JavaScript sent for static content</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>What Server Components CANNOT Do</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Cannot Do</th>
+        <th>Why</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Use <code>useState</code> or <code>useReducer</code></td>
+        <td>No client-side state exists on the server</td>
+      </tr>
+      <tr>
+        <td>Use <code>useEffect</code> or <code>useLayoutEffect</code></td>
+        <td>No browser lifecycle on the server</td>
+      </tr>
+      <tr>
+        <td>Add event handlers (<code>onClick</code>, <code>onChange</code>)</td>
+        <td>No user interaction on the server</td>
+      </tr>
+      <tr>
+        <td>Use browser APIs (<code>window</code>, <code>localStorage</code>)</td>
+        <td>No browser environment on the server</td>
+      </tr>
+      <tr>
+        <td>Use <code>useRouter()</code> or <code>usePathname()</code></td>
+        <td>These are client-side hooks</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ============================================ SECTION: CLIENT COMPONENTS -->
+  <h2>Client Components: The Interactive Parts</h2>
+
+  <p>When you need interactivity -- buttons that respond to clicks, forms that manage state, animations, or anything that requires the browser -- you use a <strong>Client Component</strong>. You opt into this by adding the <code>'use client'</code> directive at the very top of the file:</p>
+
+  <pre><code>// src/components/features/ContactForm.tsx
+'use client'; // This line makes it a Client Component
+
+import { useState } from 'react';
+
+export default function ContactForm() {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
+  const [status, setStatus] = useState&lt;'idle' | 'sending' | 'sent' | 'error'&gt;('idle');
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setStatus('sending');
+
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, message }),
+      });
+
+      if (res.ok) {
+        setStatus('sent');
+        setName('');
+        setEmail('');
+        setMessage('');
+      } else {
+        setStatus('error');
+      }
+    } catch {
+      setStatus('error');
+    }
+  }
+
+  return (
+    &lt;form onSubmit={handleSubmit}&gt;
+      &lt;input
+        type="text"
+        value={name}
+        onChange={(e) =&gt; setName(e.target.value)}
+        placeholder="Your name"
+        required
+      /&gt;
+      &lt;input
+        type="email"
+        value={email}
+        onChange={(e) =&gt; setEmail(e.target.value)}
+        placeholder="Your email"
+        required
+      /&gt;
+      &lt;textarea
+        value={message}
+        onChange={(e) =&gt; setMessage(e.target.value)}
+        placeholder="Your message"
+        required
+      /&gt;
+      &lt;button type="submit" disabled={status === 'sending'}&gt;
+        {status === 'sending' ? 'Sending...' : 'Send Message'}
+      &lt;/button&gt;
+      {status === 'sent' &amp;&amp; &lt;p&gt;Message sent! We will get back to you soon.&lt;/p&gt;}
+      {status === 'error' &amp;&amp; &lt;p&gt;Something went wrong. Please try again.&lt;/p&gt;}
+    &lt;/form&gt;
+  );
+}</code></pre>
+
+  <div class="warning-box">
+    <strong>The 'use client' Directive</strong>
+    <ul>
+      <li>Must be the <strong>very first line</strong> in the file (before any imports)</li>
+      <li>Tells Next.js: "This component and everything it imports should be included in the browser JavaScript bundle"</li>
+      <li>Is <strong>not</strong> the same as saying "this only runs in the browser" -- Client Components still render on the server for the initial HTML, then "hydrate" in the browser</li>
+    </ul>
+  </div>
+
+  <!-- ============================================ SECTION: DECISION FRAMEWORK -->
+  <h2>Decision Framework: Which Should I Use?</h2>
+
+  <p>This is the question you will ask yourself dozens of times per project. Here is a comprehensive decision table:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Scenario</th>
+        <th>Component Type</th>
+        <th>Why</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Display a list of blog posts from database</td>
+        <td><strong>Server</strong></td>
+        <td>Data fetching, no interactivity needed</td>
+      </tr>
+      <tr>
+        <td>Contact form with validation</td>
+        <td><strong>Client</strong></td>
+        <td>Needs useState, onChange, onSubmit</td>
+      </tr>
+      <tr>
+        <td>Navigation bar with active link highlighting</td>
+        <td><strong>Client</strong></td>
+        <td>Needs usePathname() hook</td>
+      </tr>
+      <tr>
+        <td>Footer with copyright year</td>
+        <td><strong>Server</strong></td>
+        <td>Static content, no interactivity</td>
+      </tr>
+      <tr>
+        <td>Image gallery with lightbox</td>
+        <td><strong>Client</strong></td>
+        <td>Needs onClick handlers for modal</td>
+      </tr>
+      <tr>
+        <td>Product detail page</td>
+        <td><strong>Server</strong></td>
+        <td>Fetch product data, render HTML</td>
+      </tr>
+      <tr>
+        <td>"Add to Cart" button on product page</td>
+        <td><strong>Client</strong></td>
+        <td>Needs onClick, updates cart state</td>
+      </tr>
+      <tr>
+        <td>Admin sidebar navigation</td>
+        <td><strong>Client</strong></td>
+        <td>Needs usePathname for active state, mobile toggle</td>
+      </tr>
+      <tr>
+        <td>Blog post content (rendered markdown)</td>
+        <td><strong>Server</strong></td>
+        <td>Rendering markdown is a server task</td>
+      </tr>
+      <tr>
+        <td>Search input with live filtering</td>
+        <td><strong>Client</strong></td>
+        <td>Needs useState, onChange, real-time updates</td>
+      </tr>
+      <tr>
+        <td>Testimonials carousel</td>
+        <td><strong>Client</strong></td>
+        <td>Needs state for current slide, click handlers</td>
+      </tr>
+      <tr>
+        <td>Services listing page</td>
+        <td><strong>Server</strong></td>
+        <td>Static data display</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>The Golden Rule</h3>
+
+  <div class="info-box">
+    <strong>Default to Server Components.</strong> Only add <code>'use client'</code> when you need interactivity (state, effects, event handlers, or browser APIs). Keep Client Components as <strong>small and focused</strong> as possible -- push them down to the leaves of your component tree.
+  </div>
+
+  <!-- ============================================ SECTION: DATA FETCHING -->
+  <h2>Data Fetching in Server Components</h2>
+
+  <p>One of the biggest advantages of Server Components is how dramatically they simplify data fetching. Compare the old way with the new way:</p>
+
+  <h3>The Old Way: Client Component with useEffect</h3>
+
+  <pre><code>'use client';
+import { useState, useEffect } from 'react';
+
+export default function BlogPage() {
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() =&gt; {
+    async function fetchPosts() {
+      try {
+        const res = await fetch('/api/blog');
+        if (!res.ok) throw new Error('Failed to fetch');
+        const data = await res.json();
+        setPosts(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchPosts();
+  }, []);
+
+  if (loading) return &lt;p&gt;Loading...&lt;/p&gt;;
+  if (error) return &lt;p&gt;Error: {error}&lt;/p&gt;;
+
+  return (
+    &lt;div&gt;
+      {posts.map(post =&gt; &lt;h2 key={post.id}&gt;{post.title}&lt;/h2&gt;)}
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+  <h3>The New Way: Server Component (async)</h3>
+
+  <pre><code>// No 'use client' -- this is a Server Component
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+export default async function BlogPage() {
+  const { data: posts, error } = await supabase
+    .from('blog_posts')
+    .select('*')
+    .eq('status', 'published')
+    .order('published_at', { ascending: false });
+
+  if (error) {
+    throw new Error('Failed to load blog posts');
+  }
+
+  return (
+    &lt;div&gt;
+      {posts.map(post =&gt; &lt;h2 key={post.id}&gt;{post.title}&lt;/h2&gt;)}
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+  <p>The Server Component version is:</p>
+  <ul>
+    <li><strong>Simpler:</strong> No useState, no useEffect, no loading state management</li>
+    <li><strong>Faster:</strong> Data is fetched on the server (close to the database), HTML is sent already rendered</li>
+    <li><strong>Safer:</strong> The service role key never leaves the server</li>
+    <li><strong>Lighter:</strong> The Supabase library code is not sent to the browser</li>
+  </ul>
+
+  <h3>Parallel Data Fetching</h3>
+
+  <p>When a page needs multiple pieces of data, fetch them in parallel with <code>Promise.all</code>:</p>
+
+  <pre><code>export default async function DashboardPage() {
+  // Both fetches happen simultaneously -- much faster than sequential
+  const [customers, tickets] = await Promise.all([
+    supabase.from('rs_customers').select('id, name, email').limit(10),
+    supabase.from('rs_tickets').select('id, subject, status').limit(10),
+  ]);
+
+  return (
+    &lt;div&gt;
+      &lt;section&gt;
+        &lt;h2&gt;Recent Customers&lt;/h2&gt;
+        {customers.data?.map(c =&gt; &lt;p key={c.id}&gt;{c.name}&lt;/p&gt;)}
+      &lt;/section&gt;
+      &lt;section&gt;
+        &lt;h2&gt;Recent Tickets&lt;/h2&gt;
+        {tickets.data?.map(t =&gt; &lt;p key={t.id}&gt;{t.subject}&lt;/p&gt;)}
+      &lt;/section&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    The CSK blog listing page is a Server Component that fetches posts directly from Supabase. There is no <code>useEffect</code> or client-side loading spinner -- the HTML arrives fully rendered with all blog post data already embedded. The admin reception dashboard similarly uses parallel fetching to load ticket data and customer information simultaneously.
+  </div>
+
+  <!-- ============================================ SECTION: PASSING DATA TO CLIENT -->
+  <h2>Passing Server Data to Client Components via Props</h2>
+
+  <p>The most common pattern is a Server Component that fetches data and passes it to a small Client Component for interactivity:</p>
+
+  <pre><code>// src/app/blog/page.tsx -- Server Component (fetches data)
+import BlogSearch from '@/components/features/BlogSearch';
+
+export default async function BlogPage() {
+  const { data: posts } = await supabase
+    .from('blog_posts')
+    .select('id, title, slug, excerpt, category')
+    .eq('status', 'published');
+
+  // Pass server-fetched data to a Client Component as props
+  return (
+    &lt;main&gt;
+      &lt;h1&gt;Blog&lt;/h1&gt;
+      &lt;BlogSearch posts={posts ?? []} /&gt;
+    &lt;/main&gt;
+  );
+}
+
+// src/components/features/BlogSearch.tsx -- Client Component (handles interactivity)
+'use client';
+
+import { useState } from 'react';
+import Link from 'next/link';
+
+interface Post {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  category: string;
+}
+
+export default function BlogSearch({ posts }: { posts: Post[] }) {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+
+  const categories = ['all', ...new Set(posts.map(p =&gt; p.category))];
+
+  const filtered = posts.filter(post =&gt; {
+    const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || post.category === selectedCategory;
+    return matchesSearch &amp;&amp; matchesCategory;
+  });
+
+  return (
+    &lt;div&gt;
+      &lt;input
+        type="text"
+        placeholder="Search posts..."
+        value={searchTerm}
+        onChange={(e) =&gt; setSearchTerm(e.target.value)}
+      /&gt;
+      &lt;select value={selectedCategory} onChange={(e) =&gt; setSelectedCategory(e.target.value)}&gt;
+        {categories.map(cat =&gt; (
+          &lt;option key={cat} value={cat}&gt;{cat}&lt;/option&gt;
+        ))}
+      &lt;/select&gt;
+      {filtered.map(post =&gt; (
+        &lt;article key={post.id}&gt;
+          &lt;Link href={`/blog/${post.slug}`}&gt;
+            &lt;h2&gt;{post.title}&lt;/h2&gt;
+          &lt;/Link&gt;
+          &lt;p&gt;{post.excerpt}&lt;/p&gt;
+        &lt;/article&gt;
+      ))}
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+  <div class="info-box">
+    <strong>Data Serialization Rule:</strong> Props passed from Server to Client Components must be <strong>serializable</strong> -- they can only be plain objects, arrays, strings, numbers, booleans, null, or Date objects. You cannot pass functions, class instances, or Symbols. Think of it as: "Could this be converted to JSON?"
+  </div>
+
+  <!-- ============================================ SECTION: PERFORMANCE -->
+  <h2>Performance Implications</h2>
+
+  <p>The split between Server and Client Components has a massive impact on performance:</p>
+
+  <h3>Less JavaScript = Faster Pages</h3>
+
+  <p>Every Client Component's code gets included in the JavaScript bundle that the browser downloads. Server Components send <strong>zero JavaScript</strong> -- only the rendered HTML.</p>
+
+  <div class="diagram">Traditional React App (everything is client):
+  Bundle: React + ReactDOM + Router + Supabase + date-fns + all components
+  Size: ~250KB+ JavaScript
+
+Next.js with Server Components:
+  Bundle: React + ReactDOM + only 'use client' components
+  Size: ~80KB JavaScript (server-heavy libraries excluded)</div>
+
+  <p>For a blog listing page that uses a date formatting library like <code>date-fns</code>, using a Server Component means <code>date-fns</code> (47KB) never gets sent to the browser. The dates are formatted on the server and sent as plain text in the HTML.</p>
+
+  <h3>Faster Time to Content</h3>
+
+  <p>With Server Components, the user sees content faster because:</p>
+
+  <ol>
+    <li>The server fetches data (typically fast -- server is close to the database)</li>
+    <li>The server renders HTML with that data</li>
+    <li>The browser receives and displays the HTML immediately</li>
+    <li>No "loading spinner while fetching" step for the user</li>
+  </ol>
+
+  <!-- ============================================ SECTION: COMPOSING COMPONENTS -->
+  <h2>Composing Server and Client Components</h2>
+
+  <p>The key to effective Next.js architecture is composing both types of components together. Here are the rules:</p>
+
+  <h3>Rule 1: Server Components Can Render Client Components</h3>
+
+  <pre><code>// Server Component (page.tsx)
+import InteractiveButton from '@/components/ui/InteractiveButton'; // Client Component
+
+export default async function ProductPage() {
+  const product = await getProduct();
+
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;{product.name}&lt;/h1&gt;
+      &lt;p&gt;{product.description}&lt;/p&gt;
+      &lt;InteractiveButton productId={product.id} /&gt;  {/* Client in Server: OK */}
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+  <h3>Rule 2: Client Components CANNOT Import Server Components</h3>
+
+  <pre><code>// This does NOT work!
+'use client';
+
+import ServerOnlyWidget from './ServerOnlyWidget'; // ERROR: Cannot import Server Component
+
+export default function ClientPage() {
+  return &lt;ServerOnlyWidget /&gt;; // Will not work
+}</code></pre>
+
+  <h3>Rule 3: Client Components CAN Receive Server Components as Children</h3>
+
+  <p>This is the escape hatch. Instead of importing a Server Component inside a Client Component, pass it as <code>children</code>:</p>
+
+  <pre><code>// Server Component -- parent orchestrates the composition
+import ClientWrapper from '@/components/ui/ClientWrapper';
+import ServerContent from '@/components/ServerContent';
+
+export default function Page() {
+  return (
+    &lt;ClientWrapper&gt;
+      &lt;ServerContent /&gt;  {/* Server Component passed as children */}
+    &lt;/ClientWrapper&gt;
+  );
+}
+
+// Client Component -- accepts children without knowing their type
+'use client';
+
+export default function ClientWrapper({ children }: { children: React.ReactNode }) {
+  const [isOpen, setIsOpen] = useState(true);
+
+  return (
+    &lt;div&gt;
+      &lt;button onClick={() =&gt; setIsOpen(!isOpen)}&gt;Toggle&lt;/button&gt;
+      {isOpen &amp;&amp; children}
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+  <div class="analogy">
+    <strong>Analogy:</strong> Think of Server Components as pre-made dishes and Client Components as interactive serving stations. A serving station (Client Component) can display any pre-made dish (Server Component children) -- it just needs to receive them, not make them itself.
+  </div>
+
+  <!-- ============================================ SECTION: COMMON MISTAKES -->
+  <h2>Common Mistakes and How to Avoid Them</h2>
+
+  <h3>Mistake 1: Adding 'use client' to Everything</h3>
+
+  <p>Developers coming from traditional React often add <code>'use client'</code> to every file out of habit. This defeats the purpose of Server Components and inflates your JavaScript bundle.</p>
+
+  <pre><code>// BAD: Unnecessary 'use client'
+'use client'; // Why? This component has no interactivity!
+
+export default function Footer() {
+  return (
+    &lt;footer&gt;
+      &lt;p&gt;Copyright 2026&lt;/p&gt;
+    &lt;/footer&gt;
+  );
+}
+
+// GOOD: No directive needed -- Server Component by default
+export default function Footer() {
+  return (
+    &lt;footer&gt;
+      &lt;p&gt;Copyright 2026&lt;/p&gt;
+    &lt;/footer&gt;
+  );
+}</code></pre>
+
+  <h3>Mistake 2: Huge Client Component Boundaries</h3>
+
+  <p>Marking a whole page as <code>'use client'</code> because one small part needs interactivity.</p>
+
+  <pre><code>// BAD: The entire page is a Client Component because of one button
+'use client';
+
+export default function ServicesPage() {
+  return (
+    &lt;main&gt;
+      &lt;h1&gt;Our Services&lt;/h1&gt;
+      {/* 50 lines of static content... */}
+      &lt;button onClick={() =&gt; alert('Contact us!')}&gt;Get Started&lt;/button&gt;
+    &lt;/main&gt;
+  );
+}
+
+// GOOD: Only the interactive part is a Client Component
+// ServicesPage stays as a Server Component
+import GetStartedButton from '@/components/ui/GetStartedButton';
+
+export default function ServicesPage() {
+  return (
+    &lt;main&gt;
+      &lt;h1&gt;Our Services&lt;/h1&gt;
+      {/* 50 lines of static content -- no JS sent */}
+      &lt;GetStartedButton /&gt;  {/* Only this sends JS to the browser */}
+    &lt;/main&gt;
+  );
+}</code></pre>
+
+  <h3>Mistake 3: Using useEffect for Data Fetching in Server Components</h3>
+
+  <pre><code>// BAD: Don't do this in a Server Component
+'use client'; // Forced to add this because of useEffect
+
+import { useState, useEffect } from 'react';
+
+export default function UsersPage() {
+  const [users, setUsers] = useState([]);
+  useEffect(() =&gt; {
+    fetch('/api/users').then(r =&gt; r.json()).then(setUsers);
+  }, []);
+  return &lt;div&gt;{users.map(u =&gt; &lt;p key={u.id}&gt;{u.name}&lt;/p&gt;)}&lt;/div&gt;;
+}
+
+// GOOD: Async Server Component -- much simpler and faster
+export default async function UsersPage() {
+  const users = await getUsers(); // Direct database/API call
+  return &lt;div&gt;{users.map(u =&gt; &lt;p key={u.id}&gt;{u.name}&lt;/p&gt;)}&lt;/div&gt;;
+}</code></pre>
+
+  <h3>Mistake 4: Trying to Use Hooks in Server Components</h3>
+
+  <pre><code>// BAD: useState does not work in Server Components
+export default function Counter() {
+  const [count, setCount] = useState(0); // ERROR!
+  return &lt;button onClick={() =&gt; setCount(count + 1)}&gt;{count}&lt;/button&gt;;
+}
+
+// GOOD: Extract the interactive part into a Client Component
+// Counter.tsx
+'use client';
+import { useState } from 'react';
+
+export default function Counter() {
+  const [count, setCount] = useState(0);
+  return &lt;button onClick={() =&gt; setCount(count + 1)}&gt;{count}&lt;/button&gt;;
+}</code></pre>
+
+  <h3>Mistake 5: Passing Non-Serializable Props</h3>
+
+  <pre><code>// BAD: Functions cannot be passed from Server to Client
+export default function Page() {
+  function handleClick() { console.log('clicked'); }
+
+  return &lt;ClientButton onClick={handleClick} /&gt;; // ERROR: functions are not serializable
+}
+
+// GOOD: Define the handler inside the Client Component
+// ClientButton.tsx
+'use client';
+
+export default function ClientButton() {
+  function handleClick() { console.log('clicked'); }
+  return &lt;button onClick={handleClick}&gt;Click me&lt;/button&gt;;
+}</code></pre>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    In Computer Store KS, the architecture follows these patterns precisely. Public pages like the blog listing, services hub, and about page are Server Components that fetch data directly from Supabase. Interactive elements are isolated into small Client Components: the contact form uses <code>'use client'</code> for form state and submission, the testimonials carousel uses it for slide navigation, the admin ticket filter buttons use it for status filtering, and the gallery editor uses it for image upload and management. The admin sidebar is also a Client Component because it needs <code>usePathname()</code> to highlight the current page.
+  </div>
+
+  <!-- ============================================ SECTION: MENTAL MODEL -->
+  <h2>The Mental Model: A Visual Summary</h2>
+
+  <div class="diagram">Your Page Component Tree:
+
+    ServerPage (async, fetches data)          -- Runs on Server
+    ├── ServerHeader                          -- Runs on Server
+    │   ├── Logo                              -- Runs on Server
+    │   └── ClientNav ('use client')          -- Runs on Client
+    │       └── usePathname() for active link
+    ├── ServerContent (renders markdown)      -- Runs on Server
+    │   └── ClientShareButton ('use client')  -- Runs on Client
+    │       └── onClick to copy URL
+    └── ServerFooter                          -- Runs on Server
+
+JavaScript sent to browser: ClientNav + ClientShareButton only
+Everything else: rendered to HTML on the server, zero JS cost</div>
+
+  <!-- ============================================ EXERCISES -->
+  <div class="exercises">
+    <h2>Exercises</h2>
+    <ol>
+      <li><strong>Identify component types:</strong> Look at the services listing page from Lesson 15's walkthrough. Which parts should be Server Components? Which should be Client Components? Write out your reasoning.</li>
+      <li><strong>Convert a Client Component to Server:</strong> Take the blog listing from the "Old Way" example in this lesson. Rewrite it as a Server Component that fetches data directly (use a simple array of fake data if you do not have a database).</li>
+      <li><strong>Build the composition pattern:</strong> Create a Server Component page that displays a list of products. Add a Client Component <code>ProductFilter</code> that accepts the products as props and lets the user search and filter them.</li>
+      <li><strong>Children pattern:</strong> Create a Client Component <code>Accordion</code> that toggles visibility. Pass a Server Component as its <code>children</code>. Verify that clicking the toggle shows/hides the server-rendered content.</li>
+      <li><strong>Audit your Lesson 15 project:</strong> Review every component from the 5-page website exercise. For each one, decide if it should be a Server or Client Component. Add <code>'use client'</code> only where truly necessary.</li>
+      <li><strong>Performance comparison:</strong> Create two versions of a page that displays 100 items with formatted dates: one using a Client Component with <code>date-fns</code>, and one using a Server Component with <code>date-fns</code>. Open browser DevTools Network tab and compare the JavaScript bundle sizes.</li>
+    </ol>
+  </div>
+
+  <!-- ============================================ KEY TAKEAWAYS -->
+  <div class="key-takeaways">
+    <h2>Key Takeaways</h2>
+    <ul>
+      <li>In the App Router, <strong>every component is a Server Component by default</strong>. No directive needed.</li>
+      <li>Server Components run only on the server: they can access databases, secrets, and the file system. They send zero JavaScript to the browser.</li>
+      <li>Client Components are activated with <code>'use client'</code> and are needed for interactivity: state, effects, event handlers, and browser APIs.</li>
+      <li>Server Components can be <code>async</code> -- use <code>await</code> directly for data fetching instead of <code>useEffect</code>.</li>
+      <li>Push <code>'use client'</code> boundaries as far down the component tree as possible. Keep interactive parts small and isolated.</li>
+      <li>Server Components can render Client Components. Client Components cannot import Server Components, but can accept them as <code>children</code>.</li>
+      <li>Props passed from Server to Client must be serializable (no functions, no class instances).</li>
+      <li>Less JavaScript shipped to the browser means faster pages and better user experience.</li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- ============================================ BOTTOM NAV -->
+<nav class="lesson-nav bottom">
+  <a href="15-nextjs-app-router.html">&larr; Previous: Next.js App Router</a>
+  <span>Lesson 16 of 56</span>
+  <a href="17-api-route-handlers.html">Next: API Route Handlers &rarr;</a>
+</nav>
+
+</body>
+</html>

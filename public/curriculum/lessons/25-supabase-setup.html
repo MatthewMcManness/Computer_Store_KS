@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 25: Supabase &mdash; Setup &amp; Client | Full-Stack Web Development Curriculum</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+
+<!-- ========== TOP NAV ========== -->
+<nav class="lesson-nav">
+  <a href="24-sql-querying.html">&larr; Prev: SQL &mdash; Querying Data</a>
+  <span>Lesson 25 of 56</span>
+  <a href="26-schema-design-migrations.html">Next: Schema Design &amp; Migrations &rarr;</a>
+</nav>
+
+<!-- ========== HEADER ========== -->
+<header class="lesson-header">
+  <div class="phase-badge" style="background:rgba(22,163,74,0.3);color:#bbf7d0;">Phase 6: Databases &amp; Supabase</div>
+  <h1>Supabase &mdash; Setup &amp; Client</h1>
+  <p class="lesson-subtitle">Connect your Next.js application to a real PostgreSQL database with Supabase &mdash; the open-source Firebase alternative.</p>
+</header>
+
+<!-- ========== CONTENT ========== -->
+<div class="lesson-content">
+
+  <!-- ---- LEARNING OBJECTIVES ---- -->
+  <div class="learning-objectives">
+    <h2>What You Will Learn</h2>
+    <ul>
+      <li>What Supabase is and why it is popular</li>
+      <li>Creating a free-tier Supabase project</li>
+      <li>Navigating the Supabase Dashboard</li>
+      <li>Installing the Supabase JavaScript client library</li>
+      <li>Creating public (anon) and admin (service role) clients</li>
+      <li>Server-side clients with @supabase/ssr for cookie-based auth</li>
+      <li>Environment variables for Supabase configuration</li>
+      <li>CRUD operations: select, insert, update, delete</li>
+      <li>Filtering, ordering, and pagination with the JS client</li>
+      <li>Joining related data and error handling patterns</li>
+    </ul>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>What Is Supabase?</h2>
+  <!-- ============================================================ -->
+
+  <p><strong>Supabase</strong> is an open-source backend-as-a-service built on top of PostgreSQL. It provides a full PostgreSQL database with a generous free tier, plus additional services:</p>
+
+  <ul>
+    <li><strong>Database</strong> &mdash; A full PostgreSQL instance you can query with SQL or the JavaScript client</li>
+    <li><strong>Authentication</strong> &mdash; Email/password, OAuth, magic links, and more</li>
+    <li><strong>Storage</strong> &mdash; File uploads (images, documents) with access control</li>
+    <li><strong>Realtime</strong> &mdash; Live subscriptions to database changes</li>
+    <li><strong>Edge Functions</strong> &mdash; Serverless functions written in TypeScript</li>
+  </ul>
+
+  <div class="analogy">
+    <strong>Analogy:</strong> If PostgreSQL is a powerful engine, Supabase is the complete car built around it. You get the engine (database), but also a dashboard (admin UI), API layer (REST endpoints), key ignition (authentication), trunk (file storage), and a radio (realtime updates) &mdash; all pre-wired and ready to go.
+  </div>
+
+  <p>Supabase is often described as an "open-source Firebase alternative." Unlike Firebase (which uses a proprietary NoSQL database), Supabase gives you a standard PostgreSQL database that you fully own and can migrate away from at any time.</p>
+
+  <h3>Why Supabase?</h3>
+
+  <table>
+    <thead>
+      <tr><th>Feature</th><th>Benefit</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Real PostgreSQL</td><td>Use standard SQL, no proprietary query language</td></tr>
+      <tr><td>Generous free tier</td><td>500 MB database, 1 GB file storage, 50K monthly active users</td></tr>
+      <tr><td>Auto-generated REST API</td><td>Every table automatically gets REST endpoints</td></tr>
+      <tr><td>JavaScript client library</td><td>Type-safe CRUD operations without writing SQL in your app</td></tr>
+      <tr><td>Row-Level Security</td><td>Database-enforced access control (covered in Lesson 27)</td></tr>
+      <tr><td>Dashboard UI</td><td>Visual table editor, SQL editor, logs, and settings</td></tr>
+      <tr><td>Open source</td><td>No vendor lock-in; self-host if you want</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ============================================================ -->
+  <h2>Creating a Supabase Project</h2>
+  <!-- ============================================================ -->
+
+  <p>Follow these steps to create your free Supabase project:</p>
+
+  <ol class="steps">
+    <li>
+      <strong>Sign up at <a href="https://supabase.com" target="_blank">supabase.com</a></strong><br>
+      Create an account using GitHub or email. The free tier allows up to 2 projects.
+    </li>
+    <li>
+      <strong>Create a new project</strong><br>
+      Click "New Project." Choose your organization, give the project a name (e.g., "computer-store-ks"), set a strong database password (save it somewhere safe), and pick a region close to your users (e.g., "East US").
+    </li>
+    <li>
+      <strong>Wait for provisioning</strong><br>
+      Supabase will take 1-2 minutes to create your PostgreSQL database and generate API keys.
+    </li>
+    <li>
+      <strong>Copy your credentials</strong><br>
+      Go to <strong>Settings &rarr; API</strong>. You will need three values:
+      <ul>
+        <li><strong>Project URL</strong> &mdash; looks like <code>https://xxxxx.supabase.co</code></li>
+        <li><strong>anon (public) key</strong> &mdash; safe for client-side code</li>
+        <li><strong>service_role (secret) key</strong> &mdash; server-side only, bypasses RLS</li>
+      </ul>
+    </li>
+  </ol>
+
+  <div class="warning-box">
+    <strong>Never expose the service_role key!</strong>
+    The <code>service_role</code> key bypasses all Row-Level Security policies and has full access to your database. Never put it in client-side code, never prefix it with <code>NEXT_PUBLIC_</code>, and never commit it to git. It belongs in environment variables on your server only.
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>Dashboard Tour</h2>
+  <!-- ============================================================ -->
+
+  <p>The Supabase Dashboard is your visual interface for managing your database. Here are the key sections:</p>
+
+  <table>
+    <thead>
+      <tr><th>Section</th><th>What It Does</th><th>When You Use It</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Table Editor</strong></td><td>Visual spreadsheet-like view of your tables</td><td>Quick data inspection, manual edits</td></tr>
+      <tr><td><strong>SQL Editor</strong></td><td>Write and run SQL queries directly</td><td>Running migrations, complex queries, debugging</td></tr>
+      <tr><td><strong>Authentication</strong></td><td>Manage users, providers, and settings</td><td>Setting up login systems</td></tr>
+      <tr><td><strong>Storage</strong></td><td>Manage file buckets and uploads</td><td>Image uploads for blog/gallery</td></tr>
+      <tr><td><strong>Database</strong></td><td>View tables, columns, indexes, triggers, RLS policies</td><td>Schema management and inspection</td></tr>
+      <tr><td><strong>API Docs</strong></td><td>Auto-generated API documentation for your tables</td><td>Seeing available endpoints and types</td></tr>
+      <tr><td><strong>Settings &rarr; API</strong></td><td>API keys and project URL</td><td>Getting credentials for your app</td></tr>
+      <tr><td><strong>Logs</strong></td><td>Database logs, API logs, auth logs</td><td>Debugging production issues</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ============================================================ -->
+  <h2>Installing the Supabase Client</h2>
+  <!-- ============================================================ -->
+
+  <p>Supabase provides two main JavaScript libraries:</p>
+
+<pre><code># Core JavaScript client (for general use)
+npm install @supabase/supabase-js
+
+# SSR helper (for Next.js server-side with cookies)
+npm install @supabase/ssr</code></pre>
+
+  <table>
+    <thead>
+      <tr><th>Package</th><th>Purpose</th><th>Where Used</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>@supabase/supabase-js</code></td><td>Core client for database operations</td><td>Both client and server</td></tr>
+      <tr><td><code>@supabase/ssr</code></td><td>Cookie-based auth for server components</td><td>Server components, middleware, API routes</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ============================================================ -->
+  <h2>Environment Variables</h2>
+  <!-- ============================================================ -->
+
+  <p>Store your Supabase credentials in environment variables. In Next.js, create a <code>.env.local</code> file at your project root:</p>
+
+<pre><code># .env.local
+
+# Public - safe for client-side (browser) code
+NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOi...your-anon-key
+
+# Secret - server-side ONLY (never prefix with NEXT_PUBLIC_!)
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOi...your-service-role-key</code></pre>
+
+  <p>In Next.js, the <code>NEXT_PUBLIC_</code> prefix means the variable is available in browser code. Variables without this prefix are only available on the server. This is a critical security boundary.</p>
+
+  <table>
+    <thead>
+      <tr><th>Variable</th><th>Prefix</th><th>Available In</th><th>Purpose</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>NEXT_PUBLIC_SUPABASE_URL</code></td><td>NEXT_PUBLIC_</td><td>Client + Server</td><td>Your project's URL</td></tr>
+      <tr><td><code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code></td><td>NEXT_PUBLIC_</td><td>Client + Server</td><td>Public API key (respects RLS)</td></tr>
+      <tr><td><code>SUPABASE_SERVICE_ROLE_KEY</code></td><td>None</td><td>Server Only</td><td>Admin key (bypasses RLS)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="warning-box">
+    <strong>Never commit .env.local to git!</strong>
+    Add <code>.env.local</code> to your <code>.gitignore</code> file. Create a <code>.env.example</code> file with placeholder values to help other developers set up their environment.
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>Creating Supabase Clients</h2>
+  <!-- ============================================================ -->
+
+  <h3>The Public Client (Anon Key)</h3>
+
+  <p>The public client uses the <code>anon</code> key and respects Row-Level Security policies. Use this for operations that should be restricted by your RLS rules &mdash; typically public reads.</p>
+
+<pre><code>// src/lib/supabase.ts
+
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+// Public client - respects Row-Level Security
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);</code></pre>
+
+  <h3>The Admin Client (Service Role Key)</h3>
+
+  <p>The admin client uses the <code>service_role</code> key and <strong>bypasses all RLS policies</strong>. Use this for server-side operations that need full access &mdash; admin panels, webhooks, data sync.</p>
+
+<pre><code>// src/lib/supabase.ts (continued)
+
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+// Admin client - bypasses RLS, server-side ONLY!
+export const supabaseAdmin = supabaseServiceKey
+  ? createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,   // Not needed for server-side
+        persistSession: false,     // No session persistence on server
+      },
+    })
+  : null;</code></pre>
+
+  <p>Notice the conditional creation: if the service role key is not set (e.g., in client-side code), <code>supabaseAdmin</code> will be <code>null</code>. This is a safety measure.</p>
+
+  <h3>Server-Side Client with Cookies</h3>
+
+  <p>For server components and API routes that need to know which user is logged in, use <code>@supabase/ssr</code>. This client reads authentication cookies from the request.</p>
+
+<pre><code>// src/lib/supabase-server.ts
+
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
+
+export async function createSupabaseServerClient() {
+  const cookieStore = await cookies();
+
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            );
+          } catch {
+            // Ignore errors in read-only contexts (Server Components)
+          }
+        },
+      },
+    }
+  );
+}</code></pre>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    CSK has exactly this pattern. <code>src/lib/supabase.ts</code> creates both <code>supabase</code> (public) and <code>supabaseAdmin</code> (admin) clients. <code>src/lib/supabase-server.ts</code> creates cookie-based SSR clients for server components and middleware. Every feature &mdash; blog, gallery, tickets, customers &mdash; reads and writes through these clients.
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>CRUD Operations</h2>
+  <!-- ============================================================ -->
+
+  <p>CRUD stands for Create, Read, Update, Delete &mdash; the four fundamental database operations. Here is how each one works with the Supabase JavaScript client.</p>
+
+  <h3>Read: .select()</h3>
+
+<pre><code>// Select all columns from all rows
+const { data, error } = await supabase
+  .from('blog_posts')
+  .select('*');
+
+// Select specific columns
+const { data, error } = await supabase
+  .from('blog_posts')
+  .select('id, title, slug, status');
+
+// Select with a filter
+const { data, error } = await supabase
+  .from('blog_posts')
+  .select('*')
+  .eq('status', 'published');
+
+// Select a single row
+const { data, error } = await supabase
+  .from('blog_posts')
+  .select('*')
+  .eq('slug', 'my-first-post')
+  .single();  // Returns one object instead of an array</code></pre>
+
+  <h3>Create: .insert()</h3>
+
+<pre><code>// Insert a single row
+const { data, error } = await supabaseAdmin
+  .from('blog_posts')
+  .insert({
+    title: 'My New Post',
+    slug: 'my-new-post',
+    content: 'Hello, world!',
+    author_name: 'Matthew',
+    status: 'draft'
+  })
+  .select()     // Return the created row
+  .single();    // As a single object
+
+// Insert multiple rows
+const { data, error } = await supabaseAdmin
+  .from('blog_tags')
+  .insert([
+    { name: 'React', slug: 'react' },
+    { name: 'Next.js', slug: 'nextjs' },
+    { name: 'TypeScript', slug: 'typescript' }
+  ])
+  .select();</code></pre>
+
+  <h3>Update: .update()</h3>
+
+<pre><code>// Update a specific row
+const { data, error } = await supabaseAdmin
+  .from('blog_posts')
+  .update({
+    status: 'published',
+    published_at: new Date().toISOString()
+  })
+  .eq('id', postId)    // ALWAYS filter! Never update without .eq()
+  .select()
+  .single();
+
+// Update multiple rows
+const { data, error } = await supabaseAdmin
+  .from('tickets')
+  .update({ status: 'archived' })
+  .eq('status', 'resolved')
+  .lt('updated_at', '2025-01-01');</code></pre>
+
+  <h3>Delete: .delete()</h3>
+
+<pre><code>// Delete specific rows
+const { error } = await supabaseAdmin
+  .from('blog_post_tags')
+  .delete()
+  .eq('post_id', postId);  // ALWAYS filter!
+
+// Delete returns no data by default
+// Add .select() if you need the deleted rows back
+const { data, error } = await supabaseAdmin
+  .from('sessions')
+  .delete()
+  .lt('expires_at', new Date().toISOString())
+  .select();</code></pre>
+
+  <div class="warning-box">
+    <strong>Always filter your updates and deletes!</strong>
+    Calling <code>.update()</code> or <code>.delete()</code> without a filter (like <code>.eq()</code>) will affect <strong>every row</strong> in the table. The Supabase client will even warn you about this. Always chain a filter method.
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>Filtering Methods</h2>
+  <!-- ============================================================ -->
+
+  <p>The Supabase client provides methods that mirror SQL WHERE clauses:</p>
+
+  <table>
+    <thead>
+      <tr><th>Method</th><th>SQL Equivalent</th><th>Example</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>.eq(col, val)</code></td><td><code>WHERE col = val</code></td><td><code>.eq('status', 'published')</code></td></tr>
+      <tr><td><code>.neq(col, val)</code></td><td><code>WHERE col != val</code></td><td><code>.neq('status', 'draft')</code></td></tr>
+      <tr><td><code>.gt(col, val)</code></td><td><code>WHERE col &gt; val</code></td><td><code>.gt('price', 500)</code></td></tr>
+      <tr><td><code>.gte(col, val)</code></td><td><code>WHERE col &gt;= val</code></td><td><code>.gte('stock', 1)</code></td></tr>
+      <tr><td><code>.lt(col, val)</code></td><td><code>WHERE col &lt; val</code></td><td><code>.lt('price', 1000)</code></td></tr>
+      <tr><td><code>.lte(col, val)</code></td><td><code>WHERE col &lt;= val</code></td><td><code>.lte('quantity', 0)</code></td></tr>
+      <tr><td><code>.like(col, pat)</code></td><td><code>WHERE col LIKE pat</code></td><td><code>.like('name', '%Smith%')</code></td></tr>
+      <tr><td><code>.ilike(col, pat)</code></td><td><code>WHERE col ILIKE pat</code></td><td><code>.ilike('name', '%smith%')</code></td></tr>
+      <tr><td><code>.in(col, arr)</code></td><td><code>WHERE col IN (...)</code></td><td><code>.in('status', ['new', 'open'])</code></td></tr>
+      <tr><td><code>.is(col, val)</code></td><td><code>WHERE col IS val</code></td><td><code>.is('archived_at', null)</code></td></tr>
+      <tr><td><code>.not(col, op, val)</code></td><td><code>WHERE NOT ...</code></td><td><code>.not('status', 'eq', 'draft')</code></td></tr>
+      <tr><td><code>.or(filters)</code></td><td><code>WHERE ... OR ...</code></td><td><code>.or('status.eq.new,status.eq.open')</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Chaining Filters</h3>
+
+  <p>Filters chain together like AND conditions:</p>
+
+<pre><code>// WHERE status = 'published' AND category_id IS NOT NULL
+const { data } = await supabase
+  .from('blog_posts')
+  .select('*')
+  .eq('status', 'published')
+  .not('category_id', 'is', null)
+  .order('published_at', { ascending: false })
+  .limit(10);</code></pre>
+
+  <!-- ============================================================ -->
+  <h2>Ordering and Pagination</h2>
+  <!-- ============================================================ -->
+
+<pre><code>// Sort by published_at descending (newest first)
+const { data } = await supabase
+  .from('blog_posts')
+  .select('*')
+  .order('published_at', { ascending: false });
+
+// Sort by multiple columns
+const { data } = await supabase
+  .from('gallery_computers')
+  .select('*')
+  .eq('is_active', true)
+  .order('sort_order')                              // First by sort_order ASC
+  .order('created_at', { ascending: false });       // Then by newest
+
+// Pagination with limit and range
+const { data } = await supabase
+  .from('blog_posts')
+  .select('*')
+  .eq('status', 'published')
+  .order('published_at', { ascending: false })
+  .range(0, 9);   // First 10 items (0-indexed, inclusive)
+
+// Page 2: items 10-19
+  .range(10, 19);
+
+// Page 3: items 20-29
+  .range(20, 29);</code></pre>
+
+  <p>The <code>.range(from, to)</code> method is more flexible than <code>.limit()</code> alone. Both <code>from</code> and <code>to</code> are inclusive and zero-indexed.</p>
+
+  <!-- ============================================================ -->
+  <h2>Joining Related Data</h2>
+  <!-- ============================================================ -->
+
+  <p>One of Supabase's most powerful features is the ability to fetch related data from multiple tables in a single query, using the <code>.select()</code> syntax with embedded table references.</p>
+
+<pre><code>// Fetch blog posts WITH their category data
+const { data } = await supabase
+  .from('blog_posts')
+  .select(`
+    *,
+    category:blog_categories(*)
+  `)
+  .eq('status', 'published');
+
+// Result shape:
+// {
+//   id: 'uuid...',
+//   title: 'My Post',
+//   category: {
+//     id: 'uuid...',
+//     name: 'Tech Tips',
+//     slug: 'tech-tips'
+//   }
+// }</code></pre>
+
+  <p>The syntax <code>category:blog_categories(*)</code> means: "Join the <code>blog_categories</code> table and name the result <code>category</code>." Supabase automatically detects the foreign key relationship.</p>
+
+<pre><code>// Fetch specific columns from related tables
+const { data } = await supabase
+  .from('blog_posts')
+  .select(`
+    title,
+    slug,
+    published_at,
+    category:blog_categories(name, slug)
+  `)
+  .eq('status', 'published');
+
+// Fetch through a junction table (many-to-many)
+const { data } = await supabase
+  .from('blog_post_tags')
+  .select(`
+    tag_id,
+    blog_tags(name, slug)
+  `)
+  .eq('post_id', postId);</code></pre>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    The <code>getPublishedPosts()</code> function in <code>src/lib/supabase.ts</code> uses exactly this pattern: <code>.select('*, category:blog_categories(*)')</code> to get posts with their category in one query. Tags are fetched in a second query through the <code>blog_post_tags</code> junction table because the many-to-many relationship requires a separate call.
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>Error Handling: The { data, error } Pattern</h2>
+  <!-- ============================================================ -->
+
+  <p>Every Supabase operation returns an object with <code>data</code> and <code>error</code>. This is different from the try/catch pattern &mdash; Supabase does not throw exceptions on query failures.</p>
+
+<pre><code>const { data, error } = await supabase
+  .from('blog_posts')
+  .select('*')
+  .eq('slug', 'nonexistent-post')
+  .single();
+
+if (error) {
+  console.error('Database error:', error.message);
+  // error.code contains the PostgreSQL error code
+  // error.details provides more context
+  return null;
+}
+
+// data is guaranteed to exist here
+console.log('Found post:', data.title);</code></pre>
+
+  <h3>Common Error Codes</h3>
+
+  <table>
+    <thead>
+      <tr><th>Error Code</th><th>Meaning</th><th>How to Handle</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>PGRST116</code></td><td>.single() found zero or multiple rows</td><td>Use <code>.maybeSingle()</code> for optional results</td></tr>
+      <tr><td><code>23505</code></td><td>Unique constraint violation</td><td>The slug/email already exists</td></tr>
+      <tr><td><code>23503</code></td><td>Foreign key violation</td><td>Referenced row does not exist</td></tr>
+      <tr><td><code>42501</code></td><td>RLS policy violation</td><td>User does not have access</td></tr>
+    </tbody>
+  </table>
+
+  <h3>.single() vs .maybeSingle()</h3>
+
+<pre><code>// .single() - ERRORS if zero or multiple rows found
+const { data, error } = await supabase
+  .from('customers')
+  .select('*')
+  .eq('email', 'jane@example.com')
+  .single();
+// error if no customer with that email exists!
+
+// .maybeSingle() - Returns null if not found, no error
+const { data, error } = await supabase
+  .from('customers')
+  .select('*')
+  .eq('email', 'jane@example.com')
+  .maybeSingle();
+// data is null if not found (no error)</code></pre>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    CSK consistently uses this pattern. Every database function checks <code>if (error)</code> before using the data. The <code>getPublishedPostBySlug()</code> function uses <code>.maybeSingle()</code> because a missing post is expected (not an error) &mdash; the user may have typed a wrong URL.
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>Putting It All Together &mdash; A Complete Module</h2>
+  <!-- ============================================================ -->
+
+  <p>Here is what a complete Supabase data access module looks like for a blog:</p>
+
+<pre><code>// src/lib/supabase.ts
+
+import { createClient } from '@supabase/supabase-js';
+
+// Environment variables
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+// Public client (reads, respects RLS)
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+// Admin client (full access, server-side only)
+export const supabaseAdmin = supabaseServiceKey
+  ? createClient(supabaseUrl, supabaseServiceKey, {
+      auth: { autoRefreshToken: false, persistSession: false }
+    })
+  : null;
+
+// ---- Public functions ----
+
+export async function getPublishedPosts() {
+  const { data, error } = await supabase
+    .from('blog_posts')
+    .select('*, category:blog_categories(*)')
+    .eq('status', 'published')
+    .order('published_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching posts:', error);
+    return [];
+  }
+  return data || [];
+}
+
+export async function getPostBySlug(slug: string) {
+  const { data, error } = await supabase
+    .from('blog_posts')
+    .select('*, category:blog_categories(*)')
+    .eq('slug', slug)
+    .eq('status', 'published')
+    .maybeSingle();
+
+  if (error) {
+    console.error('Error fetching post:', error);
+    return null;
+  }
+  return data;
+}
+
+// ---- Admin functions ----
+
+export async function createPost(input: {
+  title: string;
+  slug: string;
+  content: string;
+  author_name: string;
+  status?: string;
+}) {
+  if (!supabaseAdmin) return null;
+
+  const { data, error } = await supabaseAdmin
+    .from('blog_posts')
+    .insert(input)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error creating post:', error);
+    return null;
+  }
+  return data;
+}
+
+export async function updatePost(id: string, updates: object) {
+  if (!supabaseAdmin) return null;
+
+  const { data, error } = await supabaseAdmin
+    .from('blog_posts')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error updating post:', error);
+    return null;
+  }
+  return data;
+}
+
+export async function deletePost(id: string) {
+  if (!supabaseAdmin) return false;
+
+  const { error } = await supabaseAdmin
+    .from('blog_posts')
+    .delete()
+    .eq('id', id);
+
+  return !error;
+}</code></pre>
+
+  <!-- ============================================================ -->
+  <!-- EXERCISES -->
+  <!-- ============================================================ -->
+  <div class="exercises">
+    <h2>Hands-On Exercises</h2>
+    <ol>
+      <li>
+        <strong>Set Up a Project:</strong> Create a free Supabase project. Navigate to Settings &rarr; API and find your project URL, anon key, and service role key. Create a <code>.env.local</code> file with these values.
+      </li>
+      <li>
+        <strong>Create a Table:</strong> In the Supabase SQL Editor, create a <code>todos</code> table with columns: <code>id</code> (UUID, primary key, auto-generated), <code>title</code> (text, not null), <code>completed</code> (boolean, default false), <code>created_at</code> (timestamptz, default now()).
+      </li>
+      <li>
+        <strong>Client Setup:</strong> Install <code>@supabase/supabase-js</code> in a Next.js project and create a <code>src/lib/supabase.ts</code> file with both public and admin clients.
+      </li>
+      <li>
+        <strong>CRUD Functions:</strong> Write four functions: <code>getTodos()</code>, <code>createTodo(title)</code>, <code>toggleTodo(id)</code>, and <code>deleteTodo(id)</code>. Use proper error handling with the <code>{ data, error }</code> pattern.
+      </li>
+      <li>
+        <strong>Filtering Challenge:</strong> Write a function <code>searchTodos(query, showCompleted)</code> that uses <code>.ilike()</code> to search by title and optionally filters by completion status.
+      </li>
+      <li>
+        <strong>Pagination:</strong> Write a function <code>getPaginatedTodos(page, pageSize)</code> that returns a specific page of todos, ordered by <code>created_at</code> descending.
+      </li>
+    </ol>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- KEY TAKEAWAYS -->
+  <!-- ============================================================ -->
+  <div class="key-takeaways">
+    <h2>Key Takeaways</h2>
+    <ul>
+      <li><strong>Supabase</strong> is an open-source backend built on PostgreSQL with a generous free tier.</li>
+      <li>Create <strong>two clients</strong>: a public client (anon key, respects RLS) and an admin client (service role key, bypasses RLS).</li>
+      <li>Use <code>@supabase/ssr</code> for server-side clients that handle cookies and authentication.</li>
+      <li>Store credentials in environment variables; <strong>never expose the service role key</strong> to the browser.</li>
+      <li>CRUD with the JS client: <code>.select()</code>, <code>.insert()</code>, <code>.update()</code>, <code>.delete()</code>.</li>
+      <li>Filter with <code>.eq()</code>, <code>.neq()</code>, <code>.gt()</code>, <code>.lt()</code>, <code>.ilike()</code>, <code>.in()</code>, and more.</li>
+      <li>Join related tables using <code>.select('*, related_table(*)')</code> syntax.</li>
+      <li>Every operation returns <code>{ data, error }</code> &mdash; always check for errors before using data.</li>
+      <li>Use <code>.maybeSingle()</code> instead of <code>.single()</code> when a missing row is expected.</li>
+    </ul>
+  </div>
+
+</div> <!-- /lesson-content -->
+
+<!-- ========== BOTTOM NAV ========== -->
+<nav class="lesson-nav bottom">
+  <a href="24-sql-querying.html">&larr; Prev: SQL &mdash; Querying Data</a>
+  <span>Lesson 25 of 56</span>
+  <a href="26-schema-design-migrations.html">Next: Schema Design &amp; Migrations &rarr;</a>
+</nav>
+
+</body>
+</html>

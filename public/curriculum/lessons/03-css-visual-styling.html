@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 03: CSS — Visual Styling — Full-Stack Web Dev Curriculum</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <nav class="lesson-nav">
+    <a href="02-html-structuring-content.html">&larr; Previous Lesson</a>
+    <span>Lesson 03 of 56</span>
+    <a href="04-responsive-design.html">Next Lesson &rarr;</a>
+  </nav>
+  <header class="lesson-header">
+    <span class="phase-badge" style="background:rgba(245,158,11,0.3);">Phase 1: Web Fundamentals</span>
+    <h1>Lesson 03: CSS &mdash; Visual Styling</h1>
+    <p class="lesson-subtitle">Transforming plain HTML into beautiful, polished web pages</p>
+  </header>
+  <main class="lesson-content">
+
+    <section class="learning-objectives">
+      <h2>Learning Objectives</h2>
+      <ul>
+        <li>By the end of this lesson, you will be able to write CSS selectors to target specific HTML elements</li>
+        <li>By the end of this lesson, you will be able to explain the cascade, specificity, and inheritance</li>
+        <li>By the end of this lesson, you will be able to use the box model to control spacing and sizing</li>
+        <li>By the end of this lesson, you will be able to apply colors, backgrounds, gradients, and typography</li>
+        <li>By the end of this lesson, you will be able to build layouts using Flexbox and CSS Grid</li>
+        <li>By the end of this lesson, you will be able to add polish with transitions, transforms, and shadows</li>
+        <li>By the end of this lesson, you will be able to use CSS custom properties (variables) for maintainable styles</li>
+      </ul>
+    </section>
+
+    <!-- ===== SECTION: WHAT IS CSS ===== -->
+    <h2>What Is CSS?</h2>
+
+    <p><strong>CSS (Cascading Style Sheets)</strong> is the language that controls the visual presentation of HTML elements. If HTML is the skeleton of a web page, CSS is the skin, clothing, and cosmetics. CSS determines colors, fonts, spacing, layout, animations, and virtually every visual aspect of what you see in a browser.</p>
+
+    <p>Without CSS, every web page would look like a plain text document with default browser styles &mdash; Times New Roman font, blue underlined links, and no layout whatsoever. CSS transforms that raw structure into the polished, professional designs you see across the web.</p>
+
+    <h3>Three Ways to Add CSS</h3>
+
+    <p>There are three methods for applying CSS to HTML, listed from least to most recommended:</p>
+
+<pre><code>&lt;!-- 1. Inline styles (avoid — hard to maintain) --&gt;
+&lt;p style="color: blue; font-size: 18px;"&gt;Blue text&lt;/p&gt;
+
+&lt;!-- 2. Internal stylesheet (okay for single pages) --&gt;
+&lt;head&gt;
+  &lt;style&gt;
+    p { color: blue; font-size: 18px; }
+  &lt;/style&gt;
+&lt;/head&gt;
+
+&lt;!-- 3. External stylesheet (best — reusable, cached) --&gt;
+&lt;head&gt;
+  &lt;link rel="stylesheet" href="styles.css"&gt;
+&lt;/head&gt;</code></pre>
+
+    <p>The external stylesheet approach is almost always the right choice. It keeps your styles separate from your HTML, allows multiple pages to share the same styles, and lets the browser cache the CSS file so it does not need to re-download it on every page visit.</p>
+
+    <h3>CSS Syntax</h3>
+
+    <p>A CSS rule consists of a <strong>selector</strong> (which elements to style) and a <strong>declaration block</strong> (how to style them):</p>
+
+<pre><code>selector {
+  property: value;
+  property: value;
+}
+
+/* Example: */
+h1 {
+  color: #0a1481;
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+}</code></pre>
+
+    <p>Each <strong>declaration</strong> is a property-value pair separated by a colon and ending with a semicolon. The curly braces contain one or more declarations that apply to everything matched by the selector.</p>
+
+    <!-- ===== SECTION: SELECTORS ===== -->
+    <h2>CSS Selectors</h2>
+
+    <p>Selectors are the "targeting system" of CSS. They determine which HTML elements receive the styles you define. Mastering selectors is one of the most important CSS skills.</p>
+
+    <h3>Element Selector</h3>
+    <p>Targets all instances of a specific HTML element:</p>
+<pre><code>p {
+  line-height: 1.7;
+  margin-bottom: 1rem;
+}
+
+h2 {
+  color: #0a1481;
+  border-bottom: 2px solid #e0e0e0;
+}</code></pre>
+
+    <h3>Class Selector</h3>
+    <p>Targets elements with a specific <code>class</code> attribute. Classes are reusable &mdash; multiple elements can share the same class. This is the most commonly used selector in professional CSS:</p>
+<pre><code>/* CSS */
+.warning { color: #dc2626; font-weight: bold; }
+.card { background: white; border-radius: 12px; padding: 1.5rem; }
+
+/* HTML */
+&lt;p class="warning"&gt;Caution: This action cannot be undone.&lt;/p&gt;
+&lt;div class="card"&gt;...&lt;/div&gt;
+&lt;div class="card"&gt;...&lt;/div&gt;</code></pre>
+
+    <h3>ID Selector</h3>
+    <p>Targets the element with a specific <code>id</code>. IDs must be unique &mdash; only one element per page can have a given ID:</p>
+<pre><code>/* CSS */
+#main-header { background: #0a1481; }
+
+/* HTML */
+&lt;header id="main-header"&gt;...&lt;/header&gt;</code></pre>
+
+    <div class="warning-box">
+      <strong>Prefer Classes Over IDs</strong>
+      In modern CSS, classes are preferred over IDs for styling because classes are reusable and have lower specificity (making them easier to override). Reserve IDs for JavaScript targeting and anchor links. This is a best practice followed by virtually all professional front-end developers.
+    </div>
+
+    <h3>Attribute Selector</h3>
+    <p>Targets elements based on their attributes:</p>
+<pre><code>/* Any input with type="email" */
+input[type="email"] {
+  border: 2px solid #0863fd;
+}
+
+/* Any link that starts with "https" */
+a[href^="https"] {
+  color: green;
+}
+
+/* Any link ending in ".pdf" */
+a[href$=".pdf"] {
+  color: #dc2626;
+}</code></pre>
+
+    <h3>Pseudo-class Selectors</h3>
+    <p>Pseudo-classes target elements in a specific <strong>state</strong>:</p>
+<pre><code>/* When the user hovers over a link */
+a:hover {
+  color: #0a1481;
+  text-decoration: underline;
+}
+
+/* When an input is focused (clicked into) */
+input:focus {
+  outline: 2px solid #0863fd;
+  border-color: #0863fd;
+}
+
+/* The first child element inside a container */
+li:first-child {
+  font-weight: bold;
+}
+
+/* The last child */
+li:last-child {
+  border-bottom: none;
+}
+
+/* Every other row (for table striping) */
+tr:nth-child(even) {
+  background: #f8fafc;
+}</code></pre>
+
+    <h3>Pseudo-element Selectors</h3>
+    <p>Pseudo-elements let you style a specific <strong>part</strong> of an element or insert content:</p>
+<pre><code>/* Add content before an element */
+.required-field::before {
+  content: "* ";
+  color: #dc2626;
+}
+
+/* Add content after an element */
+a[href^="https"]::after {
+  content: " ↗";
+  font-size: 0.8em;
+}
+
+/* Style the first line of a paragraph */
+p::first-line {
+  font-weight: bold;
+}
+
+/* Style selected (highlighted) text */
+::selection {
+  background: #0863fd;
+  color: white;
+}</code></pre>
+
+    <h3>Combining Selectors</h3>
+<pre><code>/* Descendant: any p inside a .card */
+.card p { color: #555; }
+
+/* Direct child: only p that is a direct child of .card */
+.card > p { margin-top: 0; }
+
+/* Adjacent sibling: p immediately after h2 */
+h2 + p { font-size: 1.1rem; }
+
+/* General sibling: any p after h2 at the same level */
+h2 ~ p { color: #333; }
+
+/* Multiple selectors: same styles for h1, h2, and h3 */
+h1, h2, h3 { font-family: 'Segoe UI', sans-serif; }</code></pre>
+
+    <!-- ===== SECTION: CASCADE AND SPECIFICITY ===== -->
+    <h2>The Cascade and Specificity</h2>
+
+    <p>The "C" in CSS stands for "Cascading." When multiple CSS rules target the same element and set the same property, the browser needs a system to decide which rule wins. This system is called the <strong>cascade</strong>, and it uses three factors (in order of priority):</p>
+
+    <h3>1. Importance</h3>
+    <p>Rules marked with <code>!important</code> override everything else. However, using <code>!important</code> is considered bad practice because it makes styles very difficult to debug and override later. Avoid it except in rare circumstances.</p>
+
+    <h3>2. Specificity</h3>
+    <p>Every selector has a <strong>specificity score</strong> that determines its priority. Higher specificity wins. The scoring works like a three-column number:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Selector Type</th>
+          <th>Score</th>
+          <th>Example</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Inline styles</td>
+          <td>1,0,0,0</td>
+          <td><code>style="color:red"</code></td>
+        </tr>
+        <tr>
+          <td>ID selectors</td>
+          <td>0,1,0,0</td>
+          <td><code>#header</code></td>
+        </tr>
+        <tr>
+          <td>Class, pseudo-class, attribute</td>
+          <td>0,0,1,0</td>
+          <td><code>.card</code>, <code>:hover</code>, <code>[type="text"]</code></td>
+        </tr>
+        <tr>
+          <td>Element, pseudo-element</td>
+          <td>0,0,0,1</td>
+          <td><code>p</code>, <code>h1</code>, <code>::before</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>Let us see specificity in action:</p>
+
+<pre><code>/* Specificity: 0,0,0,1 — just an element selector */
+p { color: black; }
+
+/* Specificity: 0,0,1,0 — a class selector (wins over element) */
+.intro { color: blue; }
+
+/* Specificity: 0,0,1,1 — element + class */
+p.intro { color: green; }
+
+/* Specificity: 0,1,0,0 — an ID selector (wins over class) */
+#welcome { color: red; }
+
+/* Given: &lt;p id="welcome" class="intro"&gt;Hello&lt;/p&gt; */
+/* The text will be RED because #welcome has the highest specificity */</code></pre>
+
+    <h3>3. Source Order</h3>
+    <p>When two rules have equal specificity, the one that appears <strong>later</strong> in the CSS file wins:</p>
+
+<pre><code>.card { background: white; }   /* Appears first */
+.card { background: #f8f9fa; } /* Appears later — THIS WINS */</code></pre>
+
+    <div class="analogy">
+      <strong>Analogy: The Court System</strong><br>
+      Think of specificity like a court system. An element selector is like a local ordinance. A class selector is like a state law. An ID selector is like a federal law. And <code>!important</code> is like a constitutional amendment. Higher authority always overrides lower authority, regardless of which was written first.
+    </div>
+
+    <!-- ===== SECTION: BOX MODEL ===== -->
+    <h2>The Box Model</h2>
+
+    <p>Every HTML element is rendered as a rectangular box. The <strong>CSS Box Model</strong> defines the four layers of that box, from the inside out:</p>
+
+    <div class="diagram">
++------------------------------------------+
+|              MARGIN                       |
+|  +------------------------------------+  |
+|  |           BORDER                   |  |
+|  |  +------------------------------+  |  |
+|  |  |         PADDING              |  |  |
+|  |  |  +------------------------+  |  |  |
+|  |  |  |                        |  |  |  |
+|  |  |  |       CONTENT          |  |  |  |
+|  |  |  |    (text, images)      |  |  |  |
+|  |  |  |                        |  |  |  |
+|  |  |  +------------------------+  |  |  |
+|  |  |                              |  |  |
+|  |  +------------------------------+  |  |
+|  |                                    |  |
+|  +------------------------------------+  |
+|                                          |
++------------------------------------------+</div>
+
+    <ul>
+      <li><strong>Content</strong> &mdash; The actual content (text, images, child elements).</li>
+      <li><strong>Padding</strong> &mdash; Space between the content and the border. Padding is inside the element and shares its background color.</li>
+      <li><strong>Border</strong> &mdash; A line around the padding. Can be solid, dashed, dotted, etc.</li>
+      <li><strong>Margin</strong> &mdash; Space outside the border. Margins are transparent and create distance between elements.</li>
+    </ul>
+
+<pre><code>.card {
+  /* Content dimensions */
+  width: 300px;
+
+  /* Padding: space inside the box */
+  padding: 20px;           /* All four sides */
+  padding: 20px 30px;      /* top/bottom, left/right */
+  padding: 10px 20px 30px; /* top, left/right, bottom */
+  padding: 10px 20px 30px 40px; /* top, right, bottom, left (clockwise) */
+
+  /* Border */
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;     /* Rounded corners */
+
+  /* Margin: space outside the box */
+  margin: 20px;
+  margin-bottom: 1.5rem;
+}</code></pre>
+
+    <h3>The box-sizing Property</h3>
+
+    <p>By default, CSS calculates an element's total width as <code>width + padding + border</code>. This means if you set <code>width: 300px</code> and add <code>padding: 20px</code> and <code>border: 1px</code>, the total rendered width is actually <code>342px</code> (300 + 20 + 20 + 1 + 1). This is confusing and leads to layout bugs.</p>
+
+    <p>The fix is <code>box-sizing: border-box</code>, which makes the width include padding and border. If you set <code>width: 300px</code>, the element will be exactly 300px wide, regardless of padding and border. This is so universally useful that it should be applied globally:</p>
+
+<pre><code>/* Apply to ALL elements — standard reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+}</code></pre>
+
+    <div class="csk-connection">
+      <strong>CSK Connection</strong>
+      The curriculum's own <code>styles.css</code> file (the one styling this very page) begins with exactly this reset: <code>*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }</code>. This is industry standard and used in virtually every modern project, including CSK's <code>static-styles.css</code>.
+    </div>
+
+    <!-- ===== SECTION: COLORS AND BACKGROUNDS ===== -->
+    <h2>Colors and Backgrounds</h2>
+
+    <h3>Color Formats</h3>
+
+    <p>CSS supports several color formats. Here are the most common:</p>
+
+<pre><code>/* Named colors (140+ predefined) */
+color: red;
+color: cornflowerblue;
+color: darkslategray;
+
+/* Hexadecimal (#RRGGBB) — most common in codebases */
+color: #0863fd;       /* Bright blue */
+color: #0a1481;       /* Dark blue */
+color: #f59e0b;       /* Amber/gold */
+color: #1a1a2e;       /* Near-black */
+
+/* Hex with alpha (transparency) */
+color: #0863fd80;     /* 50% transparent blue */
+
+/* RGB (Red, Green, Blue: 0-255 each) */
+color: rgb(8, 99, 253);
+
+/* RGBA (with alpha/transparency: 0-1) */
+color: rgba(8, 99, 253, 0.5);  /* 50% transparent */
+
+/* HSL (Hue 0-360, Saturation 0-100%, Lightness 0-100%) */
+color: hsl(220, 98%, 51%);
+color: hsla(220, 98%, 51%, 0.5); /* With transparency */</code></pre>
+
+    <div class="info-box">
+      <strong>When to Use Which Color Format</strong>
+      <ul>
+        <li><strong>Hex</strong> is the most common in codebases and design tools. Use it as your default.</li>
+        <li><strong>RGB/RGBA</strong> is useful when you need programmatic control (JavaScript can easily manipulate individual channels).</li>
+        <li><strong>HSL</strong> is the most intuitive for humans &mdash; you can easily create lighter/darker shades by adjusting the lightness value, or create color harmonies by adjusting the hue.</li>
+      </ul>
+    </div>
+
+    <h3>Backgrounds and Gradients</h3>
+
+<pre><code>/* Solid background color */
+.hero {
+  background-color: #0a1481;
+}
+
+/* Background image */
+.banner {
+  background-image: url('/images/banner.jpg');
+  background-size: cover;      /* Fill the entire area */
+  background-position: center; /* Center the image */
+  background-repeat: no-repeat;
+}
+
+/* Linear gradient */
+.header {
+  background: linear-gradient(135deg, #0a1481 0%, #0863fd 100%);
+}
+
+/* More complex gradient */
+.premium-card {
+  background: linear-gradient(
+    180deg,
+    #f8f9fa 0%,
+    #e8e8e8 50%,
+    #d0d0d0 100%
+  );
+}</code></pre>
+
+    <div class="csk-connection">
+      <strong>CSK Connection</strong>
+      CSK's <code>static-styles.css</code> makes heavy use of gradients to create the "silver plaque" effect on cards. These gradients use multiple color stops to simulate a metallic, polished surface. The lesson header on this very page also uses a diagonal gradient: <code>linear-gradient(135deg, #0a1481 0%, #0863fd 100%)</code>.
+    </div>
+
+    <!-- ===== SECTION: TYPOGRAPHY ===== -->
+    <h2>Typography</h2>
+
+    <p>Typography controls how text looks on your page. Good typography dramatically improves readability and the overall feel of a website.</p>
+
+<pre><code>body {
+  /* Font family with fallback chain */
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+
+  /* Base font size (typically 16px by default) */
+  font-size: 16px;
+
+  /* Line height — space between lines (1.5-1.8 for body text) */
+  line-height: 1.7;
+
+  /* Text color */
+  color: #1a1a2e;
+}
+
+h1 {
+  /* Font size in rem (relative to root element) */
+  font-size: 2.5rem;  /* 2.5 × 16px = 40px */
+
+  /* Font weight (100-900, or keywords) */
+  font-weight: 800;
+
+  /* Letter spacing */
+  letter-spacing: -0.02em;
+
+  /* Line height for headings (tighter than body text) */
+  line-height: 1.2;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}</code></pre>
+
+    <h3>Font Units: px, em, and rem</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Unit</th>
+          <th>Relative To</th>
+          <th>Example</th>
+          <th>Best For</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>px</code></td>
+          <td>Nothing (absolute)</td>
+          <td><code>font-size: 16px</code></td>
+          <td>Borders, shadows</td>
+        </tr>
+        <tr>
+          <td><code>em</code></td>
+          <td>Parent element's font size</td>
+          <td><code>padding: 1.5em</code></td>
+          <td>Component-relative spacing</td>
+        </tr>
+        <tr>
+          <td><code>rem</code></td>
+          <td>Root element's font size</td>
+          <td><code>font-size: 2rem</code></td>
+          <td>Font sizes, global spacing</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>Use <code>rem</code> for font sizes and major spacing. It provides consistency across the page and makes it easy to scale everything by changing the root font size. Use <code>px</code> for small details like borders and shadows where you want exact pixel control.</p>
+
+    <h3>Google Fonts</h3>
+
+    <p>Google Fonts provides thousands of free, high-quality fonts. To use one, add a link in your HTML head:</p>
+
+<pre><code>&lt;!-- In your HTML &lt;head&gt; --&gt;
+&lt;link rel="preconnect" href="https://fonts.googleapis.com"&gt;
+&lt;link rel="preconnect" href="https://fonts.gstatic.com" crossorigin&gt;
+&lt;link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&amp;display=swap"
+      rel="stylesheet"&gt;
+
+/* Then in your CSS */
+body {
+  font-family: 'Inter', sans-serif;
+}</code></pre>
+
+    <!-- ===== SECTION: FLEXBOX ===== -->
+    <h2>Flexbox</h2>
+
+    <p><strong>Flexbox</strong> (Flexible Box Layout) is a CSS layout system designed for arranging items in a single dimension &mdash; either a row or a column. It is incredibly powerful for building navigation bars, card layouts, centering content, and distributing space between items.</p>
+
+    <h3>The Flex Container and Flex Items</h3>
+
+    <p>To use Flexbox, you set <code>display: flex</code> on a parent container. All direct children of that container become <strong>flex items</strong>:</p>
+
+<pre><code>/* The parent becomes a flex container */
+.nav {
+  display: flex;
+  gap: 1rem;              /* Space between items */
+  align-items: center;     /* Vertically center items */
+  justify-content: space-between; /* Distribute horizontal space */
+}
+
+/* HTML */
+&lt;nav class="nav"&gt;
+  &lt;a href="/"&gt;Home&lt;/a&gt;          &lt;!-- flex item --&gt;
+  &lt;a href="/services"&gt;Services&lt;/a&gt; &lt;!-- flex item --&gt;
+  &lt;a href="/contact"&gt;Contact&lt;/a&gt;  &lt;!-- flex item --&gt;
+&lt;/nav&gt;</code></pre>
+
+    <h3>Flex Container Properties</h3>
+
+<pre><code>.container {
+  display: flex;
+
+  /* Direction of flex items */
+  flex-direction: row;           /* Default: left to right */
+  flex-direction: column;        /* Top to bottom */
+  flex-direction: row-reverse;   /* Right to left */
+
+  /* Whether items wrap to the next line */
+  flex-wrap: nowrap;             /* Default: everything on one line */
+  flex-wrap: wrap;               /* Wrap to next line when needed */
+
+  /* Horizontal alignment (main axis) */
+  justify-content: flex-start;   /* Pack to the left */
+  justify-content: flex-end;     /* Pack to the right */
+  justify-content: center;       /* Center horizontally */
+  justify-content: space-between;/* Even space between items */
+  justify-content: space-around; /* Even space around items */
+  justify-content: space-evenly; /* Truly even spacing */
+
+  /* Vertical alignment (cross axis) */
+  align-items: stretch;          /* Default: fill full height */
+  align-items: flex-start;       /* Align to top */
+  align-items: flex-end;         /* Align to bottom */
+  align-items: center;           /* Center vertically */
+
+  /* Gap between items */
+  gap: 1rem;                     /* Same gap in both directions */
+  gap: 1rem 2rem;                /* row-gap, column-gap */
+}</code></pre>
+
+    <h3>Flex Item Properties</h3>
+
+<pre><code>.item {
+  /* How much the item should grow to fill available space */
+  flex-grow: 1;    /* 1 = take equal share of available space */
+
+  /* How much the item should shrink if needed */
+  flex-shrink: 0;  /* 0 = don't shrink */
+
+  /* Starting size before growing/shrinking */
+  flex-basis: 200px;
+
+  /* Shorthand: grow shrink basis */
+  flex: 1 0 200px;
+
+  /* Override alignment for just this item */
+  align-self: flex-end;
+}
+
+/* Common pattern: push one item to the right */
+.spacer { margin-left: auto; }</code></pre>
+
+    <h3>Common Flexbox Patterns</h3>
+
+<pre><code>/* Center something perfectly (horizontally and vertically) */
+.center-everything {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;   /* Full viewport height */
+}
+
+/* Navigation bar with logo left, links right */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 2rem;
+}
+
+/* Card grid that wraps */
+.card-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+.card-grid .card {
+  flex: 1 1 300px;  /* Grow, shrink, min-width 300px */
+}</code></pre>
+
+    <!-- ===== SECTION: CSS GRID ===== -->
+    <h2>CSS Grid</h2>
+
+    <p><strong>CSS Grid</strong> is a two-dimensional layout system that handles both rows and columns simultaneously. While Flexbox excels at one-dimensional layouts (a row of items or a column of items), Grid is ideal for overall page layouts and complex arrangements.</p>
+
+<pre><code>/* Define a grid with 3 equal columns */
+.page-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;  /* 3 equal fractions */
+  gap: 1.5rem;
+}
+
+/* Or use repeat() */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);  /* 3 equal columns */
+  gap: 1.5rem;
+}
+
+/* Auto-fit: create as many columns as will fit */
+.responsive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Full page layout */
+.app-layout {
+  display: grid;
+  grid-template-columns: 250px 1fr;     /* Sidebar + main area */
+  grid-template-rows: auto 1fr auto;     /* Header + content + footer */
+  min-height: 100vh;
+}</code></pre>
+
+    <div class="info-box">
+      <strong>Flexbox vs. Grid: When to Use Each</strong>
+      <ul>
+        <li><strong>Flexbox</strong>: Use for one-dimensional layouts (a row of navigation links, a row of cards, vertically centering content). Think: "I have items that need to be in a line."</li>
+        <li><strong>Grid</strong>: Use for two-dimensional layouts (page structure with sidebars, complex card arrangements, dashboard layouts). Think: "I need to control both rows and columns."</li>
+        <li><strong>Both together</strong>: It is very common to use Grid for the overall page layout and Flexbox for the components within each grid area.</li>
+      </ul>
+    </div>
+
+    <!-- ===== SECTION: POSITIONING ===== -->
+    <h2>Positioning</h2>
+
+    <p>The <code>position</code> property controls how an element is placed in the document flow:</p>
+
+<pre><code>/* static: Default. Element flows normally. */
+.normal { position: static; }
+
+/* relative: Positioned relative to its normal position.
+   Still takes up space in the document flow. */
+.nudged {
+  position: relative;
+  top: 10px;    /* Move down 10px from normal position */
+  left: 20px;   /* Move right 20px from normal position */
+}
+
+/* absolute: Positioned relative to its nearest positioned ancestor.
+   Removed from the normal document flow. */
+.badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+/* The parent needs position: relative for this to work */
+.parent {
+  position: relative;
+}
+
+/* fixed: Positioned relative to the viewport (browser window).
+   Stays in place when scrolling. */
+.sticky-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
+
+/* sticky: A hybrid of relative and fixed.
+   Behaves like relative until you scroll past it,
+   then it "sticks" like fixed. */
+.sticky-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}</code></pre>
+
+    <div class="csk-connection">
+      <strong>CSK Connection</strong>
+      The lesson navigation bar at the top of this page uses <code>position: sticky</code> to stay visible as you scroll. CSK's admin sidebar uses <code>position: fixed</code> to remain visible while the main content scrolls. Notification badges (like the ticket count) use <code>position: absolute</code> inside a <code>position: relative</code> parent.
+    </div>
+
+    <!-- ===== SECTION: TRANSITIONS AND TRANSFORMS ===== -->
+    <h2>Transitions, Transforms, and Visual Effects</h2>
+
+    <h3>Transitions</h3>
+    <p>Transitions create smooth animations when a CSS property changes (like on hover):</p>
+
+<pre><code>.button {
+  background: #0863fd;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;     /* Animate ALL properties over 0.2 seconds */
+}
+
+.button:hover {
+  background: #0a1481;
+  transform: translateY(-2px);   /* Move up 2px */
+  box-shadow: 0 4px 12px rgba(8, 99, 253, 0.3);
+}
+
+/* You can be specific about which properties to transition */
+.link {
+  color: #0863fd;
+  transition: color 0.2s ease, transform 0.15s ease;
+}</code></pre>
+
+    <h3>Transforms</h3>
+    <p>Transforms modify the visual rendering of an element without affecting the document flow:</p>
+
+<pre><code>/* Move an element */
+.moved { transform: translate(10px, 20px); }
+.moved-x { transform: translateX(10px); }
+.moved-y { transform: translateY(-5px); }
+
+/* Scale an element */
+.bigger { transform: scale(1.1); }   /* 110% size */
+.smaller { transform: scale(0.9); }  /* 90% size */
+
+/* Rotate an element */
+.tilted { transform: rotate(5deg); }
+.flipped { transform: rotate(180deg); }
+
+/* Combine transforms */
+.fancy { transform: translateY(-3px) scale(1.02) rotate(-1deg); }</code></pre>
+
+    <h3>Box Shadows</h3>
+
+<pre><code>/* Basic shadow: offset-x, offset-y, blur, color */
+.card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Elevated shadow (like floating above the page) */
+.elevated {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* Inset shadow (inside the element) */
+.inset-example {
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Multiple shadows */
+.layered {
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.05),
+    0 10px 30px rgba(0, 0, 0, 0.1);
+}</code></pre>
+
+    <h3>Filters</h3>
+
+<pre><code>/* Blur an image */
+.blurred { filter: blur(4px); }
+
+/* Drop shadow (works better than box-shadow on transparent images) */
+.logo { filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.3)); }
+
+/* Grayscale */
+.grayscale { filter: grayscale(100%); }
+.grayscale:hover { filter: grayscale(0%); } /* Color on hover */
+
+/* Brightness */
+.dim { filter: brightness(0.7); }</code></pre>
+
+    <div class="csk-connection">
+      <strong>CSK Connection</strong>
+      CSK's <code>static-styles.css</code> uses box-shadows extensively &mdash; including inset shadows for the silver plaque embossed effect on cards. It uses <code>filter: drop-shadow()</code> for the logo and decorative elements. Transitions are applied to buttons, links, and interactive elements throughout the site for smooth hover effects.
+    </div>
+
+    <!-- ===== SECTION: CSS VARIABLES ===== -->
+    <h2>CSS Custom Properties (Variables)</h2>
+
+    <p>CSS Custom Properties (commonly called "CSS variables") let you define reusable values that can be referenced throughout your stylesheet. They dramatically improve maintainability &mdash; change a color in one place and it updates everywhere:</p>
+
+<pre><code>/* Define variables on the root element (available everywhere) */
+:root {
+  --blue: #0863fd;
+  --dark-blue: #0a1481;
+  --text: #1a1a2e;
+  --text-muted: #555;
+  --border: #e0e0e0;
+  --card-bg: #ffffff;
+  --border-radius: 12px;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Use variables with var() */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+}
+
+h2 {
+  color: var(--dark-blue);
+}
+
+a {
+  color: var(--blue);
+}
+
+/* Fallback value if variable is not defined */
+.element {
+  color: var(--accent, #ff6600);  /* Uses #ff6600 if --accent is undefined */
+}</code></pre>
+
+    <p>CSS variables are especially powerful because they can be overridden in specific contexts:</p>
+
+<pre><code>/* Default theme */
+:root {
+  --bg: #ffffff;
+  --text: #1a1a2e;
+}
+
+/* Dark theme override */
+.dark-theme {
+  --bg: #1a1a2e;
+  --text: #e0e0e0;
+}
+
+/* The same CSS works for both themes! */
+body {
+  background: var(--bg);
+  color: var(--text);
+}</code></pre>
+
+    <div class="csk-connection">
+      <strong>CSK Connection</strong>
+      This curriculum's <code>styles.css</code> defines all its colors, spacing values, and themed variants as CSS custom properties. Variables like <code>--blue</code>, <code>--dark-blue</code>, <code>--code-bg</code>, and <code>--warning-bg</code> are defined once in <code>:root</code> and used consistently throughout the file. This is the same pattern used in professional design systems.
+    </div>
+
+    <!-- ===== EXERCISES ===== -->
+    <section class="exercises">
+      <h2>Practice Exercises</h2>
+      <ol>
+        <li><strong>Selector Challenge:</strong> Write CSS selectors for each of these targets:
+          <ul>
+            <li>All paragraphs inside an element with class <code>article</code></li>
+            <li>The first list item in any unordered list</li>
+            <li>Any link that is being hovered over</li>
+            <li>An input element with type <code>email</code></li>
+            <li>The element with ID <code>hero</code></li>
+          </ul>
+        </li>
+        <li><strong>Specificity Battle:</strong> For the element <code>&lt;p id="intro" class="highlight"&gt;Text&lt;/p&gt;</code>, which color will it be given these rules? Explain why.
+<pre><code>p { color: black; }
+.highlight { color: blue; }
+#intro { color: red; }
+p.highlight { color: green; }</code></pre>
+        </li>
+        <li><strong>Card Component:</strong> Create a "service card" using the box model, border-radius, box-shadow, and padding. Include a heading, a paragraph description, and a price. Apply a hover effect that slightly elevates the card (using transform and box-shadow transition).</li>
+        <li><strong>Flexbox Navigation:</strong> Build a horizontal navigation bar with a logo on the left and four links on the right. Use Flexbox with <code>justify-content: space-between</code>. The links should have a hover effect that changes their color.</li>
+        <li><strong>Color Theme with Variables:</strong> Define a color palette using CSS custom properties in <code>:root</code> (at least 5 colors: primary, secondary, background, text, and accent). Create a small page that uses all five variables. Then create a <code>.dark-mode</code> class that overrides those variables for a dark theme.</li>
+        <li><strong>Grid Gallery:</strong> Build a 3-column image gallery using CSS Grid with <code>gap</code>. Each gallery item should be a card with an image placeholder, title, and description. Use <code>repeat(auto-fit, minmax(250px, 1fr))</code> to make it responsive.</li>
+      </ol>
+    </section>
+
+    <!-- ===== KEY TAKEAWAYS ===== -->
+    <section class="key-takeaways">
+      <h2>Key Takeaways</h2>
+      <ul>
+        <li>CSS controls the visual presentation of HTML elements. Always use external stylesheets for maintainability.</li>
+        <li>Selectors target elements for styling: element selectors, class selectors (most common), ID selectors, attribute selectors, pseudo-classes (:hover, :focus), and pseudo-elements (::before, ::after).</li>
+        <li>The cascade resolves conflicts using importance, specificity (inline > ID > class > element), and source order (later rules win).</li>
+        <li>The box model defines four layers: content, padding, border, and margin. Always use <code>box-sizing: border-box</code> for predictable sizing.</li>
+        <li>Flexbox handles one-dimensional layouts (rows or columns). CSS Grid handles two-dimensional layouts (rows and columns simultaneously).</li>
+        <li>Transitions create smooth animations between states. Transforms modify visual rendering (translate, scale, rotate). Box-shadow and filters add depth and polish.</li>
+        <li>CSS custom properties (variables) enable reusable, maintainable style values. Define them in <code>:root</code> and use them with <code>var()</code>.</li>
+      </ul>
+    </section>
+
+  </main>
+  <nav class="lesson-nav bottom">
+    <a href="02-html-structuring-content.html">&larr; Previous Lesson</a>
+    <a href="../index.html">Back to Curriculum</a>
+    <a href="04-responsive-design.html">Next Lesson &rarr;</a>
+  </nav>
+</body>
+</html>

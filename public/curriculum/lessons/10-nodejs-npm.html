@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 10: Node.js &amp; npm | Full-Stack Web Development Curriculum</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+
+<!-- ── TOP NAV ── -->
+<nav class="lesson-nav">
+  <a href="09-git-version-control.html">&larr; Previous</a>
+  <span>Lesson 10 of 56</span>
+  <a href="11-typescript.html">Next &rarr;</a>
+</nav>
+
+<!-- ── HEADER ── -->
+<header class="lesson-header" style="background: linear-gradient(135deg, #0a5c2f 0%, #16a34a 100%);">
+  <span class="phase-badge">Phase 2: Development Environment &amp; Tooling</span>
+  <h1>Node.js &amp; npm</h1>
+  <p class="lesson-subtitle">Run JavaScript outside the browser, manage thousands of packages, and build your project's foundation with scripts and dependencies.</p>
+</header>
+
+<!-- ── MAIN CONTENT ── -->
+<main class="lesson-content">
+
+  <!-- Learning Objectives -->
+  <section class="learning-objectives">
+    <h2>What You Will Learn</h2>
+    <ul>
+      <li>What Node.js is and why it changed web development</li>
+      <li>How to install Node.js using nvm and pin versions with <code>.nvmrc</code></li>
+      <li>Every field in <code>package.json</code> explained</li>
+      <li>How <code>npm install</code> works, what <code>node_modules/</code> is, and what <code>package-lock.json</code> does</li>
+      <li>The critical difference between <code>npm install</code> and <code>npm ci</code></li>
+      <li>Dependencies vs. devDependencies and when to use each</li>
+      <li>Defining and running npm scripts</li>
+      <li>Semantic versioning: major.minor.patch, <code>^</code>, <code>~</code>, and exact versions</li>
+      <li>Using <code>npx</code> to run packages without installing them</li>
+    </ul>
+  </section>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>What Is Node.js?</h2>
+
+  <p>In the early days of the web, JavaScript could only run inside a web browser. If you wanted to write server-side code (the backend), you had to use a completely different language like PHP, Python, Ruby, or Java. This meant web developers often needed to know two very different languages: one for the frontend (JavaScript) and one for the backend.</p>
+
+  <p>In 2009, <strong>Ryan Dahl</strong> created <strong>Node.js</strong>, which took the V8 JavaScript engine from Google Chrome and made it possible to run JavaScript outside the browser&mdash;on servers, on your laptop, anywhere. This was revolutionary. Suddenly, the same language you used to build interactive web pages could also power web servers, command-line tools, APIs, and anything else you could imagine.</p>
+
+  <p>Node.js is a <strong>JavaScript runtime environment</strong>. A runtime is the software that actually executes your code. Chrome's runtime runs JavaScript in the browser. Node.js's runtime runs JavaScript on your operating system directly, with access to the file system, network, and other system resources that browsers intentionally block for security.</p>
+
+  <div class="analogy">
+    <strong>Analogy:</strong> Think of JavaScript as a language you speak. The <em>browser</em> is like a phone call&mdash;you can speak the language, but you are limited to what the phone allows (no touching physical objects, no accessing files). <em>Node.js</em> is like speaking the same language in person&mdash;you can do everything: open doors, read papers, talk to multiple people. Same language, vastly more capabilities.
+  </div>
+
+  <h3>Why Node.js Matters</h3>
+  <ul>
+    <li><strong>One language everywhere:</strong> JavaScript for frontend, backend, scripts, tools&mdash;everything. This drastically simplifies development.</li>
+    <li><strong>Massive ecosystem:</strong> Over 2 million packages available through npm, the Node.js package manager.</li>
+    <li><strong>Non-blocking I/O:</strong> Node.js handles many concurrent connections efficiently, making it excellent for web servers and APIs.</li>
+    <li><strong>Industry standard:</strong> Used by Netflix, LinkedIn, Uber, NASA, and millions of other applications.</li>
+  </ul>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>Installing Node.js with nvm</h2>
+
+  <p>While you can download Node.js directly from <a href="https://nodejs.org">nodejs.org</a>, professional developers use <strong>nvm</strong> (Node Version Manager) to install and manage Node.js. The reason is simple: different projects may require different Node.js versions. One project might need Node 18, another Node 20, and another Node 22. nvm lets you switch between versions instantly.</p>
+
+  <h3>Installing nvm</h3>
+  <pre><code># On Mac/Linux, run this single command:
+$ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+
+# Close and reopen your terminal, then verify:
+$ nvm --version
+0.39.7</code></pre>
+  <p>On Windows, use <a href="https://github.com/coreybutler/nvm-windows">nvm-windows</a>, a separate project with similar functionality.</p>
+
+  <h3>Installing Node.js with nvm</h3>
+  <pre><code># Install a specific version
+$ nvm install 22
+
+# Use a specific version
+$ nvm use 22
+
+# Verify the installation
+$ node --version
+v22.16.0
+
+$ npm --version
+10.9.2</code></pre>
+  <p>When you install Node.js, <strong>npm</strong> (Node Package Manager) is automatically included. npm is the tool you use to install libraries, manage dependencies, and run scripts. They come as a pair.</p>
+
+  <h3>The <code>.nvmrc</code> File</h3>
+  <p>A <code>.nvmrc</code> file in your project's root directory specifies which Node.js version the project requires. When anyone opens the project, they can simply run <code>nvm use</code> and nvm will automatically switch to the correct version.</p>
+  <pre><code># Create the .nvmrc file
+$ echo "22" > .nvmrc
+
+# Now anyone can use it:
+$ nvm use
+Found '.nvmrc' with version &lt;22&gt;
+Now using node v22.16.0 (npm v10.9.2)</code></pre>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    The CSK project pins Node.js version 22 using both an <code>.nvmrc</code> file and the <code>engines</code> field in <code>package.json</code>. This ensures that every developer and the Render deployment platform all use the exact same Node.js version. Render's default Node.js version is 22.16.0, so we match it locally to avoid "works on my machine" bugs.
+  </div>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2><code>package.json</code>: The Heart of Every Node.js Project</h2>
+
+  <p>Every Node.js project has a <code>package.json</code> file in its root directory. This file is the project's identity card and instruction manual combined. It tells npm (and the world) everything about your project: its name, version, what libraries it depends on, and what scripts it can run.</p>
+
+  <p>Let us examine every important field:</p>
+
+  <pre><code>{
+  "name": "computer-store-ks",
+  "version": "1.0.0",
+  "description": "Website for Computer Store KS - a computer repair shop in Topeka, Kansas",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "next": "^14.2.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0",
+    "@supabase/supabase-js": "^2.45.0",
+    "resend": "^3.2.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0",
+    "@types/react": "^18.3.0",
+    "@types/node": "^22.0.0",
+    "tailwindcss": "^3.4.0",
+    "eslint": "^8.57.0"
+  },
+  "engines": {
+    "node": ">=22.0.0 <23.0.0"
+  }
+}</code></pre>
+
+  <h3>Field-by-Field Breakdown</h3>
+  <table>
+    <thead>
+      <tr><th>Field</th><th>Purpose</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>name</code></td><td>The project's identifier. Must be lowercase, no spaces. Used if you publish to npm.</td></tr>
+      <tr><td><code>version</code></td><td>Current version of your project following semantic versioning (more on this below).</td></tr>
+      <tr><td><code>description</code></td><td>A brief summary of what the project is. Shows up in npm search results.</td></tr>
+      <tr><td><code>private</code></td><td>If <code>true</code>, npm refuses to publish the package. Set this for applications (not libraries).</td></tr>
+      <tr><td><code>scripts</code></td><td>Custom commands you can run with <code>npm run &lt;name&gt;</code>. This is where you define your development workflow.</td></tr>
+      <tr><td><code>dependencies</code></td><td>Packages required to run the application in production.</td></tr>
+      <tr><td><code>devDependencies</code></td><td>Packages needed only during development (not in production).</td></tr>
+      <tr><td><code>engines</code></td><td>Specifies which Node.js versions the project supports. Some platforms enforce this.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Creating <code>package.json</code></h3>
+  <p>You can create a <code>package.json</code> interactively or with defaults:</p>
+  <pre><code># Interactive creation (asks questions)
+$ npm init
+
+# Create with all defaults (no questions)
+$ npm init -y</code></pre>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>Installing Packages: <code>npm install</code></h2>
+
+  <p>The primary job of npm is installing packages (libraries) that your project needs. When you run <code>npm install</code>, three things happen:</p>
+
+  <ol>
+    <li>npm reads <code>package.json</code> to find which packages are listed under <code>dependencies</code> and <code>devDependencies</code>.</li>
+    <li>npm downloads those packages (and all their dependencies, and all <em>their</em> dependencies) into a folder called <code>node_modules/</code>.</li>
+    <li>npm creates or updates <code>package-lock.json</code> to record the exact version of every package installed.</li>
+  </ol>
+
+  <h3>Installing a New Package</h3>
+  <pre><code># Add a package to dependencies
+$ npm install axios
+# This adds "axios": "^1.7.0" to package.json under "dependencies"
+
+# Add a package to devDependencies
+$ npm install --save-dev prettier
+# This adds "prettier": "^3.3.0" under "devDependencies"
+
+# Install all packages listed in package.json (what you run after cloning)
+$ npm install</code></pre>
+
+  <h3>The <code>node_modules/</code> Folder</h3>
+  <p>When you install packages, they all go into the <code>node_modules/</code> directory. This folder can be enormous&mdash;hundreds of megabytes for a typical project, containing thousands of sub-folders. Each package may have its own dependencies, which have their own dependencies, creating a deep tree.</p>
+
+  <div class="warning-box">
+    <strong>Never commit <code>node_modules/</code> to Git!</strong>
+    This folder is always listed in <code>.gitignore</code>. It is generated content&mdash;anyone can recreate it by running <code>npm install</code>. Committing it would bloat your repository by hundreds of megabytes and make every Git operation painfully slow.
+  </div>
+
+  <h3><code>package-lock.json</code></h3>
+  <p>The lock file records the <strong>exact version</strong> of every installed package and all its sub-dependencies. While <code>package.json</code> might say <code>"react": "^18.3.0"</code> (meaning any version 18.x), <code>package-lock.json</code> records that you specifically installed version <code>18.3.1</code>. This ensures that every developer and every server installs the exact same versions.</p>
+
+  <p><strong>Always commit <code>package-lock.json</code> to Git.</strong> It is the guarantee of reproducible builds.</p>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2><code>npm install</code> vs. <code>npm ci</code></h2>
+
+  <p>This distinction is critically important for professional development and deployment.</p>
+
+  <table>
+    <thead>
+      <tr><th>Feature</th><th><code>npm install</code></th><th><code>npm ci</code></th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>When to use</strong></td><td>During development, when adding packages</td><td>In CI/CD pipelines, automated builds, fresh setups</td></tr>
+      <tr><td><strong>Reads</strong></td><td><code>package.json</code> (primary), updates lock file</td><td><code>package-lock.json</code> (primary), ignores package.json ranges</td></tr>
+      <tr><td><strong>node_modules/</strong></td><td>Merges with existing folder</td><td>Deletes it first, then does a clean install</td></tr>
+      <tr><td><strong>Lock file</strong></td><td>May update <code>package-lock.json</code></td><td>Never modifies <code>package-lock.json</code></td></tr>
+      <tr><td><strong>Speed</strong></td><td>Slower (resolves versions, diffs existing)</td><td>Faster (skips resolution, clean install)</td></tr>
+      <tr><td><strong>Reproducibility</strong></td><td>May produce slightly different results</td><td>Guarantees exact same versions every time</td></tr>
+    </tbody>
+  </table>
+
+  <p><code>npm ci</code> stands for "clean install." It is the command you should use when you want to be absolutely sure that the installed packages match exactly what is in <code>package-lock.json</code>. This is critical for deployment: you want your production server to install the exact same package versions that you tested with, not slightly newer ones.</p>
+
+  <pre><code># Development: adding and updating packages
+$ npm install
+$ npm install new-package
+
+# CI/CD and deployment: exact reproduction
+$ npm ci</code></pre>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    Render's build command for CSK is <code>npm ci &amp;&amp; npm run build</code>. The <code>npm ci</code> ensures that every deployment installs the exact same package versions that were tested locally. This eliminates an entire category of bugs where "it works on my machine but not in production."
+  </div>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>Dependencies vs. devDependencies</h2>
+
+  <p>Packages in your project fall into two categories, and it matters which one you choose:</p>
+
+  <h3>Dependencies (<code>dependencies</code>)</h3>
+  <p>These are packages that your application needs to run in production. Without them, the deployed website would break. Examples:</p>
+  <ul>
+    <li><strong>next</strong> &mdash; The web framework (the application literally will not start without it)</li>
+    <li><strong>react</strong> &mdash; The UI library</li>
+    <li><strong>@supabase/supabase-js</strong> &mdash; Database client</li>
+    <li><strong>resend</strong> &mdash; Email sending</li>
+    <li><strong>zod</strong> &mdash; Data validation (used at runtime)</li>
+  </ul>
+
+  <h3>devDependencies (<code>devDependencies</code>)</h3>
+  <p>These are packages needed only during development or the build process. They are not included in the final production bundle. Examples:</p>
+  <ul>
+    <li><strong>typescript</strong> &mdash; Compiles TypeScript to JavaScript (only needed during build)</li>
+    <li><strong>@types/react</strong> &mdash; TypeScript type definitions (only needed during development)</li>
+    <li><strong>eslint</strong> &mdash; Code quality checker (only needed during development)</li>
+    <li><strong>prettier</strong> &mdash; Code formatter (only needed during development)</li>
+    <li><strong>tailwindcss</strong> &mdash; CSS framework (generates CSS at build time)</li>
+  </ul>
+
+  <pre><code># Install as a dependency (needed in production)
+$ npm install axios
+
+# Install as a devDependency (needed only in development)
+$ npm install --save-dev eslint</code></pre>
+
+  <div class="analogy">
+    <strong>Analogy:</strong> Building a house. <em>Dependencies</em> are the bricks, wood, and pipes&mdash;they become part of the house and must be there for people to live in it. <em>devDependencies</em> are the scaffolding, cranes, and power tools&mdash;essential during construction, but removed once the house is complete.
+  </div>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>npm Scripts</h2>
+
+  <p>The <code>"scripts"</code> section in <code>package.json</code> is where you define custom commands for your project. Instead of remembering long, complex commands, you give them short, memorable names.</p>
+
+  <pre><code>"scripts": {
+  "dev": "next dev",
+  "build": "next build",
+  "start": "next start",
+  "lint": "next lint",
+  "type-check": "tsc --noEmit",
+  "format": "prettier --write src/",
+  "clean": "rm -rf .next node_modules",
+  "preinstall": "echo 'Installing dependencies...'"
+}</code></pre>
+
+  <h3>Running Scripts</h3>
+  <pre><code># Run a script defined in package.json
+$ npm run dev
+$ npm run build
+$ npm run lint
+
+# Special scripts: "start" and "test" do not need "run"
+$ npm start     # same as npm run start
+$ npm test      # same as npm run test</code></pre>
+
+  <p>Scripts can be anything: shell commands, tool executions, sequences of operations. They are the standard way to define your project's development workflow. When a new developer joins the team, they look at the <code>scripts</code> section to understand how to work with the project.</p>
+
+  <h3>Common Script Names</h3>
+  <table>
+    <thead>
+      <tr><th>Script</th><th>Convention</th><th>What It Usually Does</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>dev</code></td><td>Development server</td><td>Starts a local server with hot reloading</td></tr>
+      <tr><td><code>build</code></td><td>Production build</td><td>Compiles/bundles for deployment</td></tr>
+      <tr><td><code>start</code></td><td>Start production</td><td>Runs the built application</td></tr>
+      <tr><td><code>test</code></td><td>Run tests</td><td>Executes the test suite</td></tr>
+      <tr><td><code>lint</code></td><td>Check code quality</td><td>Runs ESLint or similar tools</td></tr>
+      <tr><td><code>format</code></td><td>Auto-format code</td><td>Runs Prettier or similar tools</td></tr>
+      <tr><td><code>type-check</code></td><td>Verify types</td><td>Runs TypeScript compiler in check mode</td></tr>
+    </tbody>
+  </table>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    The CSK project defines scripts for <code>dev</code> (local development server), <code>build</code> (production build), <code>start</code> (production server), <code>lint</code> (code quality), and <code>type-check</code> (TypeScript verification). The deployment pipeline runs <code>npm ci &amp;&amp; npm run build</code>, and the production server starts with <code>npm run start</code>. Every developer uses <code>npm run dev</code> daily.
+  </div>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>Semantic Versioning</h2>
+
+  <p>Every npm package follows <strong>semantic versioning</strong> (semver), a system that communicates what kind of changes each version contains. Understanding semver is essential because it determines which package updates are safe and which might break your code.</p>
+
+  <p>A version number has three parts: <code>MAJOR.MINOR.PATCH</code></p>
+
+  <pre><code>  18.3.1
+   |  | |
+   |  | └── PATCH: Bug fixes, no new features, nothing breaks
+   |  └──── MINOR: New features added, nothing breaks
+   └─────── MAJOR: Breaking changes, things might not work the same</code></pre>
+
+  <table>
+    <thead>
+      <tr><th>Change Type</th><th>Version Bump</th><th>Example</th><th>Safe to Update?</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Bug fix</td><td>PATCH: 1.2.3 &rarr; 1.2.4</td><td>Fixed a crash on login</td><td>Yes, always</td></tr>
+      <tr><td>New feature</td><td>MINOR: 1.2.3 &rarr; 1.3.0</td><td>Added a new component</td><td>Yes, usually</td></tr>
+      <tr><td>Breaking change</td><td>MAJOR: 1.2.3 &rarr; 2.0.0</td><td>Changed the API completely</td><td>No, read migration guide</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Version Ranges in <code>package.json</code></h3>
+  <p>In <code>package.json</code>, you rarely specify an exact version. Instead, you use symbols that define a range of acceptable versions:</p>
+
+  <table>
+    <thead>
+      <tr><th>Symbol</th><th>Meaning</th><th>Example</th><th>Matches</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>^</code> (caret)</td><td>Same major version</td><td><code>^18.3.0</code></td><td>18.3.0, 18.4.2, 18.9.1 (not 19.0.0)</td></tr>
+      <tr><td><code>~</code> (tilde)</td><td>Same major.minor</td><td><code>~18.3.0</code></td><td>18.3.0, 18.3.5 (not 18.4.0)</td></tr>
+      <tr><td>(none)</td><td>Exact version</td><td><code>18.3.1</code></td><td>Only 18.3.1, nothing else</td></tr>
+      <tr><td><code>*</code></td><td>Any version</td><td><code>*</code></td><td>Any version (dangerous!)</td></tr>
+    </tbody>
+  </table>
+
+  <p>The caret (<code>^</code>) is the default and most common. When you run <code>npm install react</code>, npm adds <code>"react": "^18.3.1"</code> to your <code>package.json</code>. This means "install any version that is compatible with 18.3.1"&mdash;which in practice means any 18.x version.</p>
+
+  <div class="info-box">
+    <strong>Why not always use exact versions?</strong>
+    Exact versions give you maximum control but prevent you from automatically receiving bug fixes and security patches. The caret (<code>^</code>) is a good balance: you get patches and minor features, but you are protected from breaking changes. The lock file (<code>package-lock.json</code>) ensures everyone gets the exact same resolved version anyway.
+  </div>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2><code>npx</code>: Running Packages Without Installing</h2>
+
+  <p><code>npx</code> is a companion tool that comes with npm. It lets you run a package's command without permanently installing it. This is useful for one-off operations and scaffolding tools.</p>
+
+  <pre><code># Create a new Next.js project (without installing create-next-app globally)
+$ npx create-next-app@latest my-project
+
+# Run a local project binary
+$ npx eslint src/
+
+# Run a specific version of a tool
+$ npx prettier@3.3.0 --write .</code></pre>
+
+  <p>When you use <code>npx</code>, it first checks if the package is installed locally in <code>node_modules/.bin/</code>. If not, it temporarily downloads the package, runs it, and removes it. This keeps your system clean and ensures you always use the latest version of scaffolding tools.</p>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>Common npm Commands Cheatsheet</h2>
+
+  <table>
+    <thead>
+      <tr><th>Command</th><th>Purpose</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>npm init -y</code></td><td>Create a new <code>package.json</code> with defaults</td></tr>
+      <tr><td><code>npm install</code></td><td>Install all packages from <code>package.json</code></td></tr>
+      <tr><td><code>npm ci</code></td><td>Clean install from <code>package-lock.json</code> (CI/CD)</td></tr>
+      <tr><td><code>npm install &lt;pkg&gt;</code></td><td>Add a package to dependencies</td></tr>
+      <tr><td><code>npm install -D &lt;pkg&gt;</code></td><td>Add a package to devDependencies</td></tr>
+      <tr><td><code>npm uninstall &lt;pkg&gt;</code></td><td>Remove a package</td></tr>
+      <tr><td><code>npm run &lt;script&gt;</code></td><td>Run a script from <code>package.json</code></td></tr>
+      <tr><td><code>npm start</code></td><td>Run the <code>start</code> script (shorthand)</td></tr>
+      <tr><td><code>npm test</code></td><td>Run the <code>test</code> script (shorthand)</td></tr>
+      <tr><td><code>npm outdated</code></td><td>Show packages with newer versions available</td></tr>
+      <tr><td><code>npm update</code></td><td>Update packages within version ranges</td></tr>
+      <tr><td><code>npm ls</code></td><td>List installed packages</td></tr>
+      <tr><td><code>npm ls --depth=0</code></td><td>List only top-level packages</td></tr>
+      <tr><td><code>npx &lt;command&gt;</code></td><td>Run a package command without installing</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>Putting It All Together: Starting a Project from Scratch</h2>
+
+  <pre><code># Step 1: Create the project directory
+$ mkdir my-node-project && cd my-node-project
+
+# Step 2: Create .nvmrc to pin Node version
+$ echo "22" > .nvmrc
+$ nvm use
+
+# Step 3: Initialize the project
+$ npm init -y
+
+# Step 4: Add the engines field to package.json
+# (Open package.json in your editor and add:)
+# "engines": { "node": ">=22.0.0 <23.0.0" }
+
+# Step 5: Install dependencies
+$ npm install next react react-dom
+$ npm install --save-dev typescript @types/react @types/node
+
+# Step 6: Add scripts to package.json
+# "scripts": {
+#   "dev": "next dev",
+#   "build": "next build",
+#   "start": "next start"
+# }
+
+# Step 7: Create .gitignore
+$ echo "node_modules/" > .gitignore
+$ echo ".next/" >> .gitignore
+$ echo ".env*" >> .gitignore
+
+# Step 8: Verify everything works
+$ npm run dev
+
+# Step 9: Test the CI/CD install
+$ rm -rf node_modules
+$ npm ci
+# If this succeeds, Render will be able to build your project!</code></pre>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    The CSK project has over 25 dependencies including Next.js, React, Supabase, Resend, Zod, and more. Its <code>package.json</code> specifies Node 22 in the <code>engines</code> field, and its <code>.nvmrc</code> ensures developers use the correct version. The development workflow is: <code>nvm use</code> to set the correct Node version, <code>npm install</code> to install packages, and <code>npm run dev</code> to start the local server at <code>http://localhost:3000</code>.
+  </div>
+
+  <!-- ── Exercises ── -->
+  <section class="exercises">
+    <h2>Exercises</h2>
+    <ol>
+      <li><strong>Create a project:</strong> Create a new directory, run <code>npm init -y</code>, and examine the generated <code>package.json</code>. Identify each field and what it means.</li>
+      <li><strong>Install packages:</strong> Install <code>lodash</code> as a dependency and <code>prettier</code> as a devDependency. Open <code>package.json</code> and verify they appear in the correct sections. Look at the <code>node_modules/</code> folder and count how many sub-folders were created.</li>
+      <li><strong>npm ci vs install:</strong> Delete your <code>node_modules/</code> folder. Run <code>npm ci</code>. Then delete it again and run <code>npm install</code>. Compare the behavior. Try deleting <code>package-lock.json</code> and running <code>npm ci</code>&mdash;what happens?</li>
+      <li><strong>Write scripts:</strong> Add a script called <code>"hello"</code> that runs <code>echo "Hello from npm!"</code>. Add another called <code>"info"</code> that runs <code>node -e "console.log(process.version)"</code>. Run both with <code>npm run hello</code> and <code>npm run info</code>.</li>
+      <li><strong>Version ranges:</strong> Look at the <code>dependencies</code> in your <code>package.json</code>. For each package, explain what the <code>^</code> symbol means. What is the highest version that <code>^18.3.0</code> would accept? What about <code>~18.3.0</code>?</li>
+      <li><strong>npx practice:</strong> Use <code>npx</code> to run <code>cowsay "Hello World"</code> (a fun text tool). Then use <code>npx create-next-app@latest test-app</code> to scaffold a Next.js project. Examine the generated files.</li>
+      <li><strong>.nvmrc and engines:</strong> Create a <code>.nvmrc</code> file with the content <code>22</code>. Add an <code>"engines"</code> field to your <code>package.json</code> requiring Node 22. Run <code>nvm use</code> and verify the correct version is active with <code>node --version</code>.</li>
+    </ol>
+  </section>
+
+  <!-- ── Key Takeaways ── -->
+  <section class="key-takeaways">
+    <h2>Key Takeaways</h2>
+    <ul>
+      <li>Node.js lets you run JavaScript outside the browser, enabling full-stack development in one language.</li>
+      <li>Use <strong>nvm</strong> to manage Node.js versions and <strong><code>.nvmrc</code></strong> to pin the version per project.</li>
+      <li><code>package.json</code> is the project manifest&mdash;it defines dependencies, scripts, and metadata.</li>
+      <li><code>node_modules/</code> contains installed packages. Never commit it. Recreate it with <code>npm install</code>.</li>
+      <li><code>package-lock.json</code> locks exact versions. Always commit it. Use <code>npm ci</code> in CI/CD to respect it exactly.</li>
+      <li><strong>dependencies</strong> are needed in production; <strong>devDependencies</strong> are only needed during development/build.</li>
+      <li>npm scripts define your project workflow: <code>dev</code>, <code>build</code>, <code>start</code>, <code>lint</code>, <code>test</code>.</li>
+      <li>Semantic versioning (<code>MAJOR.MINOR.PATCH</code>) communicates what kind of changes a version contains.</li>
+      <li><code>npx</code> runs packages without permanent installation&mdash;ideal for scaffolding and one-off tools.</li>
+    </ul>
+  </section>
+
+</main>
+
+<!-- ── BOTTOM NAV ── -->
+<nav class="lesson-nav bottom">
+  <a href="09-git-version-control.html">&larr; Previous: Git &amp; Version Control</a>
+  <a href="../index.html">Curriculum Index</a>
+  <a href="11-typescript.html">Next: TypeScript &rarr;</a>
+</nav>
+
+</body>
+</html>

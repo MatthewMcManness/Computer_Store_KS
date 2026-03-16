@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 18: Middleware &amp; the Request Pipeline | Full-Stack Curriculum</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+
+<!-- ============================================ TOP NAV -->
+<nav class="lesson-nav">
+  <a href="17-api-route-handlers.html">&larr; Previous: API Route Handlers</a>
+  <span>Lesson 18 of 56</span>
+  <a href="19-image-optimization.html">Next: Image Optimization &amp; Static Assets &rarr;</a>
+</nav>
+
+<!-- ============================================ HEADER -->
+<header class="lesson-header" style="background: linear-gradient(135deg, #0a1481 0%, #0863fd 100%);">
+  <div class="phase-badge" style="background: rgba(255,255,255,0.2);">Phase 4: Next.js</div>
+  <h1>Middleware &amp; the Request Pipeline</h1>
+  <p class="lesson-subtitle">Intercept every request before it reaches your pages or API routes -- the gatekeeper of your application.</p>
+</header>
+
+<!-- ============================================ CONTENT -->
+<div class="lesson-content">
+
+  <!-- LEARNING OBJECTIVES -->
+  <div class="learning-objectives">
+    <h2>What You Will Learn</h2>
+    <ul>
+      <li>Understand what middleware is and why it runs before every request</li>
+      <li>Create and configure the <code>middleware.ts</code> file</li>
+      <li>Use the matcher config to target specific routes</li>
+      <li>Add security headers to every response</li>
+      <li>Redirect unauthenticated users to the login page</li>
+      <li>Implement role-based route protection</li>
+      <li>Read and set cookies in middleware</li>
+      <li>Visualize the complete request pipeline from browser to response</li>
+    </ul>
+  </div>
+
+  <!-- ============================================ SECTION: WHAT IS MIDDLEWARE -->
+  <h2>What Is Middleware?</h2>
+
+  <p>Middleware is code that runs <strong>before</strong> a request reaches your page or API route handler. Every incoming request to your application passes through middleware first, giving you the chance to inspect, modify, redirect, or reject it.</p>
+
+  <div class="analogy">
+    <strong>Analogy:</strong> Middleware is like a security checkpoint at a building entrance. Before anyone reaches their destination floor (your page or API route), they must pass through the checkpoint. The guard can check their ID (authentication), verify they have clearance for that floor (authorization), attach a visitor badge (set headers), redirect them to the right entrance (URL rewriting), or turn them away entirely (block the request).
+  </div>
+
+  <h3>Common Use Cases for Middleware</h3>
+
+  <ul>
+    <li><strong>Authentication:</strong> Check if the user is logged in before allowing access to protected pages</li>
+    <li><strong>Authorization:</strong> Verify the user has the right role for the requested route</li>
+    <li><strong>Security headers:</strong> Add protective HTTP headers to every response</li>
+    <li><strong>Redirects:</strong> Send users to different URLs based on conditions</li>
+    <li><strong>Logging:</strong> Record information about every request for monitoring</li>
+    <li><strong>URL rewriting:</strong> Modify the request URL before it reaches the handler</li>
+    <li><strong>Rate limiting:</strong> Block excessive requests from a single source</li>
+  </ul>
+
+  <!-- ============================================ SECTION: THE FILE -->
+  <h2>The middleware.ts File</h2>
+
+  <p>Next.js middleware lives in a single file at the root of your project (or inside <code>src/</code> if you use the <code>src</code> directory). The file must be named exactly <code>middleware.ts</code> (or <code>middleware.js</code>):</p>
+
+  <pre><code>project-root/
+├── src/
+│   ├── app/
+│   │   └── ...
+│   └── middleware.ts       # Middleware file (inside src/)
+├── package.json
+└── next.config.mjs</code></pre>
+
+  <p>The file exports a single default function (named <code>middleware</code>) that receives the incoming request and returns a response:</p>
+
+  <pre><code>// src/middleware.ts
+import { NextRequest, NextResponse } from 'next/server';
+
+export function middleware(request: NextRequest) {
+  // This runs before EVERY matched request
+  console.log('Request to:', request.nextUrl.pathname);
+
+  // Continue to the actual page/API route
+  return NextResponse.next();
+}</code></pre>
+
+  <p><code>NextResponse.next()</code> tells Next.js "let this request continue to its destination." If you do not call this, the request is effectively blocked.</p>
+
+  <!-- ============================================ SECTION: MATCHER -->
+  <h2>The Matcher Config: Targeting Specific Routes</h2>
+
+  <p>By default, middleware runs on every request -- including requests for images, fonts, and static files. This is wasteful. The <code>config.matcher</code> export lets you specify exactly which routes should trigger your middleware:</p>
+
+  <pre><code>// src/middleware.ts
+
+export function middleware(request: NextRequest) {
+  // ... your logic
+  return NextResponse.next();
+}
+
+// Only run middleware on these routes
+export const config = {
+  matcher: [
+    // Match all routes EXCEPT static files, images, and favicon
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)',
+  ],
+};</code></pre>
+
+  <p>The matcher above is a regular expression that excludes:</p>
+  <ul>
+    <li><code>_next/static</code> -- Next.js static file chunks</li>
+    <li><code>_next/image</code> -- Next.js optimized images</li>
+    <li><code>favicon.ico</code> -- The browser tab icon</li>
+    <li>Any file ending in common image extensions</li>
+  </ul>
+
+  <h3>Multiple Specific Matchers</h3>
+
+  <p>You can also list specific route patterns:</p>
+
+  <pre><code>export const config = {
+  matcher: [
+    '/admin/:path*',     // All admin routes
+    '/api/:path*',       // All API routes
+    '/portal/:path*',    // Customer portal routes
+  ],
+};</code></pre>
+
+  <div class="info-box">
+    <strong>The <code>:path*</code> Syntax:</strong> In matcher patterns, <code>:path*</code> matches zero or more path segments. So <code>/admin/:path*</code> matches <code>/admin</code>, <code>/admin/blog</code>, <code>/admin/blog/new</code>, and so on.
+  </div>
+
+  <!-- ============================================ SECTION: SECURITY HEADERS -->
+  <h2>Adding Security Headers</h2>
+
+  <p>One of the most common and important uses of middleware is adding security headers to every response. These headers instruct the browser to enable various security protections:</p>
+
+  <pre><code>// src/middleware.ts
+import { NextRequest, NextResponse } from 'next/server';
+
+function addSecurityHeaders(response: NextResponse): void {
+  // Prevent the page from being loaded in an iframe (clickjacking protection)
+  response.headers.set('X-Frame-Options', 'DENY');
+
+  // Prevent the browser from guessing the MIME type (MIME sniffing attacks)
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+
+  // Control how much referrer information is sent with requests
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+
+  // Disable browser features you do not use
+  response.headers.set(
+    'Permissions-Policy',
+    'geolocation=(), microphone=(), camera=(), payment=()'
+  );
+
+  // Legacy XSS protection for older browsers
+  response.headers.set('X-XSS-Protection', '1; mode=block');
+}
+
+export function middleware(request: NextRequest) {
+  const response = NextResponse.next();
+
+  // Add security headers to every response
+  addSecurityHeaders(response);
+
+  return response;
+}
+
+export const config = {
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)'],
+};</code></pre>
+
+  <h3>What Each Header Does</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Header</th>
+        <th>Value</th>
+        <th>Protection Against</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>X-Frame-Options</code></td>
+        <td><code>DENY</code></td>
+        <td>Clickjacking (embedding your site in a malicious iframe)</td>
+      </tr>
+      <tr>
+        <td><code>X-Content-Type-Options</code></td>
+        <td><code>nosniff</code></td>
+        <td>MIME type confusion attacks</td>
+      </tr>
+      <tr>
+        <td><code>Referrer-Policy</code></td>
+        <td><code>strict-origin-when-cross-origin</code></td>
+        <td>Leaking sensitive URL data to third parties</td>
+      </tr>
+      <tr>
+        <td><code>Permissions-Policy</code></td>
+        <td><code>geolocation=(), ...</code></td>
+        <td>Malicious scripts using device features</td>
+      </tr>
+      <tr>
+        <td><code>X-XSS-Protection</code></td>
+        <td><code>1; mode=block</code></td>
+        <td>Reflected XSS attacks (older browsers)</td>
+      </tr>
+      <tr>
+        <td><code>Strict-Transport-Security</code></td>
+        <td><code>max-age=63072000; includeSubDomains</code></td>
+        <td>HTTP downgrade attacks (forces HTTPS)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    CSK's <code>middleware.ts</code> calls an <code>addSecurityHeaders()</code> function on every request. It sets X-Frame-Options to DENY, X-Content-Type-Options to nosniff, Referrer-Policy, Permissions-Policy (disabling geolocation, microphone, camera, and payment APIs), and X-XSS-Protection. Additionally, <code>next.config.mjs</code> adds HSTS (Strict-Transport-Security) and X-DNS-Prefetch-Control headers via the <code>headers()</code> configuration -- a total of 7 security headers protecting every response.
+  </div>
+
+  <!-- ============================================ SECTION: AUTHENTICATION -->
+  <h2>Authentication: Redirecting Unauthenticated Users</h2>
+
+  <p>The most impactful use of middleware is protecting routes that require authentication. Instead of checking auth in every page component, middleware handles it centrally:</p>
+
+  <pre><code>import { NextRequest, NextResponse } from 'next/server';
+
+// Routes that anyone can access without logging in
+const PUBLIC_ROUTES = ['/', '/about', '/contact', '/blog', '/services'];
+const PUBLIC_PREFIXES = ['/blog/', '/services/', '/api/public', '/_next'];
+
+function isPublicRoute(pathname: string): boolean {
+  if (PUBLIC_ROUTES.includes(pathname)) return true;
+  return PUBLIC_PREFIXES.some(prefix =&gt; pathname.startsWith(prefix));
+}
+
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  const response = NextResponse.next();
+
+  // Add security headers to all responses
+  addSecurityHeaders(response);
+
+  // Public routes -- allow without auth
+  if (isPublicRoute(pathname)) {
+    return response;
+  }
+
+  // Check for authentication cookie
+  const sessionCookie = request.cookies.get('session_token');
+
+  if (!sessionCookie) {
+    // Not authenticated -- redirect to login
+    const loginUrl = new URL('/login', request.url);
+
+    // Save where they were trying to go so we can redirect back after login
+    loginUrl.searchParams.set('returnTo', pathname);
+
+    return NextResponse.redirect(loginUrl);
+  }
+
+  // Authenticated -- allow through
+  return response;
+}</code></pre>
+
+  <p>This pattern ensures:</p>
+  <ul>
+    <li>Public pages (homepage, blog, services) are always accessible</li>
+    <li>Protected pages (admin, portal) require authentication</li>
+    <li>Unauthenticated users are redirected to login with a <code>returnTo</code> URL</li>
+    <li>After logging in, users are sent back to where they originally wanted to go</li>
+  </ul>
+
+  <div class="info-box">
+    <strong>Why Check Auth in Middleware?</strong> Without middleware, you would need to check authentication in every protected page and API route. That means duplicated code, easy-to-forget spots, and inconsistent behavior. Middleware centralizes the check in one place -- if middleware says "not allowed," the page component never even runs.
+  </div>
+
+  <!-- ============================================ SECTION: ROLE-BASED ACCESS -->
+  <h2>Role-Based Route Protection</h2>
+
+  <p>Authentication asks "are you logged in?" Authorization asks "are you allowed to do this?" Many applications have different user roles with different permissions:</p>
+
+  <pre><code>// Define which roles can access which routes
+const ROUTE_PERMISSIONS: Record&lt;string, string[]&gt; = {
+  '/admin':           ['admin', 'technician', 'receptionist'],
+  '/admin/settings':  ['admin'],
+  '/admin/users':     ['admin'],
+  '/admin/tickets':   ['admin', 'technician', 'receptionist'],
+  '/admin/blog':      ['admin', 'technician'],
+  '/portal':          ['customer', 'admin', 'technician', 'receptionist'],
+};
+
+function canAccessRoute(userRoles: string[], pathname: string): boolean {
+  // Check from most specific to least specific
+  const routes = Object.keys(ROUTE_PERMISSIONS).sort((a, b) =&gt; b.length - a.length);
+
+  for (const route of routes) {
+    if (pathname.startsWith(route)) {
+      const allowedRoles = ROUTE_PERMISSIONS[route];
+      return userRoles.some(role =&gt; allowedRoles.includes(role));
+    }
+  }
+
+  // No specific permission defined -- allow authenticated users
+  return true;
+}
+
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  const response = NextResponse.next();
+
+  addSecurityHeaders(response);
+
+  // Skip public routes
+  if (isPublicRoute(pathname)) return response;
+
+  // Check authentication
+  const sessionCookie = request.cookies.get('session_token');
+  if (!sessionCookie) {
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('returnTo', pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  // Get user roles (from cookie or database)
+  const userRoles = getUserRolesFromSession(sessionCookie.value);
+
+  // Check authorization
+  if (!canAccessRoute(userRoles, pathname)) {
+    console.log(`[AUTH] Unauthorized: ${pathname} by roles ${JSON.stringify(userRoles)}`);
+
+    // Redirect to appropriate page with error
+    const redirectUrl = new URL('/admin', request.url);
+    redirectUrl.searchParams.set('error', 'unauthorized');
+    return NextResponse.redirect(redirectUrl);
+  }
+
+  return response;
+}</code></pre>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    CSK's middleware implements a multi-role permission system. All <code>/admin/*</code> routes require authentication and use a <code>canAccessRoute()</code> function from a role-helpers library that checks the user's roles array against route-specific permissions. Unauthenticated users hitting <code>/admin</code> are redirected to <code>/login?returnTo=/admin</code>. Users with insufficient roles are redirected to their appropriate dashboard with an <code>?error=unauthorized</code> parameter. The system supports roles like owner, lead_developer, technician, receptionist, and customer.
+  </div>
+
+  <!-- ============================================ SECTION: COOKIES -->
+  <h2>Reading and Setting Cookies</h2>
+
+  <p>Middleware has full access to cookies on both the request (reading) and response (setting):</p>
+
+  <h3>Reading Cookies</h3>
+
+  <pre><code>export function middleware(request: NextRequest) {
+  // Read a specific cookie
+  const session = request.cookies.get('session_token');
+  console.log(session?.value); // The cookie value
+
+  // Check if a cookie exists
+  const hasSession = request.cookies.has('session_token');
+
+  // Read all cookies
+  const allCookies = request.cookies.getAll();
+  // Returns: [{ name: 'session_token', value: '...' }, { name: 'theme', value: 'dark' }]
+
+  return NextResponse.next();
+}</code></pre>
+
+  <h3>Setting Cookies</h3>
+
+  <pre><code>export function middleware(request: NextRequest) {
+  const response = NextResponse.next();
+
+  // Set a cookie on the response
+  response.cookies.set('visited', 'true', {
+    httpOnly: true,       // Cannot be read by JavaScript (XSS protection)
+    secure: true,         // Only sent over HTTPS
+    sameSite: 'strict',   // Only sent to your domain (CSRF protection)
+    maxAge: 60 * 60 * 24, // Expires in 24 hours (in seconds)
+    path: '/',            // Available on all routes
+  });
+
+  // Delete a cookie
+  response.cookies.delete('old_cookie');
+
+  return response;
+}</code></pre>
+
+  <!-- ============================================ SECTION: REQUEST PIPELINE -->
+  <h2>The Complete Request Pipeline</h2>
+
+  <p>Understanding the full lifecycle of a request helps you know exactly when and where things happen:</p>
+
+  <div class="diagram">Browser sends request
+       |
+       v
+  [1] MIDDLEWARE (middleware.ts)
+       - Check authentication
+       - Add security headers
+       - Redirect if needed
+       - Rewrite URLs
+       |
+       v
+  [2] LAYOUT RENDERING (layout.tsx)
+       - Root layout wraps everything
+       - Nested layouts render in order
+       |
+       v
+  [3] ROUTE HANDLER
+       |
+       +--- Page Route (page.tsx)
+       |    - Server Component renders
+       |    - Data fetched
+       |    - HTML generated
+       |
+       +--- API Route (route.ts)
+            - Handler function executes
+            - JSON response built
+       |
+       v
+  [4] RESPONSE sent back to browser
+       - Security headers included
+       - Cookies set
+       - HTML or JSON body</div>
+
+  <h3>What Happens at Each Step</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Step</th>
+        <th>What Happens</th>
+        <th>Can Be Modified?</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1. Middleware</td>
+        <td>Runs first, can redirect, rewrite, or add headers</td>
+        <td>Yes -- full control over request and response</td>
+      </tr>
+      <tr>
+        <td>2. Layout</td>
+        <td>Wraps the page content, renders shared UI</td>
+        <td>Yes -- can add context providers, fetch data</td>
+      </tr>
+      <tr>
+        <td>3. Route Handler</td>
+        <td>Renders the page or processes the API request</td>
+        <td>Yes -- your main application logic</td>
+      </tr>
+      <tr>
+        <td>4. Response</td>
+        <td>Sent to the browser with all modifications applied</td>
+        <td>No -- already sent</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ============================================ SECTION: CHAINING CONCERNS -->
+  <h2>Chaining Multiple Middleware Concerns</h2>
+
+  <p>Since Next.js only supports one <code>middleware.ts</code> file, you need to handle all concerns within that single function. The best approach is to break each concern into a helper function and call them sequentially:</p>
+
+  <pre><code>// src/middleware.ts
+import { NextRequest, NextResponse } from 'next/server';
+
+// --- Concern 1: Security Headers ---
+function addSecurityHeaders(response: NextResponse): void {
+  response.headers.set('X-Frame-Options', 'DENY');
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  response.headers.set('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+  response.headers.set('X-XSS-Protection', '1; mode=block');
+}
+
+// --- Concern 2: Route Classification ---
+function isPublicRoute(pathname: string): boolean {
+  const publicRoutes = ['/', '/about', '/contact', '/login', '/register'];
+  const publicPrefixes = ['/blog', '/services', '/api/public', '/api/health', '/_next'];
+
+  if (publicRoutes.includes(pathname)) return true;
+  return publicPrefixes.some(p =&gt; pathname.startsWith(p));
+}
+
+function isAuthRoute(pathname: string): boolean {
+  return ['/login', '/register', '/reset-password'].includes(pathname);
+}
+
+// --- Concern 3: Authentication ---
+function checkAuth(request: NextRequest): { isAuth: boolean; roles: string[] } {
+  const session = request.cookies.get('session_token');
+  if (!session?.value) return { isAuth: false, roles: [] };
+
+  // In production, you would validate the session here
+  const rolesCookie = request.cookies.get('user_roles');
+  let roles: string[] = [];
+  if (rolesCookie?.value) {
+    try { roles = JSON.parse(rolesCookie.value); } catch { /* ignore */ }
+  }
+
+  return { isAuth: true, roles };
+}
+
+// --- Concern 4: Authorization ---
+function canAccessRoute(roles: string[], pathname: string): boolean {
+  if (pathname.startsWith('/admin/settings')) {
+    return roles.includes('admin') || roles.includes('owner');
+  }
+  if (pathname.startsWith('/admin')) {
+    return roles.some(r =&gt; ['admin', 'owner', 'technician', 'receptionist'].includes(r));
+  }
+  return true;
+}
+
+// --- Main Middleware: Chain All Concerns ---
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  const response = NextResponse.next();
+
+  // 1. Always add security headers
+  addSecurityHeaders(response);
+
+  // 2. Public routes -- no further checks needed
+  if (isPublicRoute(pathname)) {
+    return response;
+  }
+
+  // 3. Check authentication
+  const { isAuth, roles } = checkAuth(request);
+
+  // 4. Auth routes -- redirect away if already logged in
+  if (isAuthRoute(pathname) &amp;&amp; isAuth) {
+    return NextResponse.redirect(new URL('/admin', request.url));
+  }
+
+  // 5. Protected routes -- redirect to login if not authenticated
+  if (!isAuth) {
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('returnTo', pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  // 6. Authorization -- check role permissions
+  if (!canAccessRoute(roles, pathname)) {
+    const errorUrl = new URL('/admin', request.url);
+    errorUrl.searchParams.set('error', 'unauthorized');
+    return NextResponse.redirect(errorUrl);
+  }
+
+  // 7. All checks passed -- continue
+  return response;
+}
+
+export const config = {
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)'],
+};</code></pre>
+
+  <p>This pattern keeps each concern isolated in its own function while maintaining a clear, readable flow in the main middleware function.</p>
+
+  <!-- ============================================ SECTION: URL REWRITING -->
+  <h2>URL Rewriting and Redirects</h2>
+
+  <p>Middleware can also rewrite URLs (change the destination without the user seeing it) or redirect (send the user to a different URL):</p>
+
+  <h3>Redirect (URL Changes in Browser)</h3>
+
+  <pre><code>// Permanently redirect old URLs to new ones
+if (pathname === '/old-page') {
+  return NextResponse.redirect(new URL('/new-page', request.url));
+}
+
+// Redirect with a specific status code
+if (pathname === '/moved-page') {
+  return NextResponse.redirect(new URL('/new-location', request.url), 301); // Permanent
+}</code></pre>
+
+  <h3>Rewrite (URL Stays the Same in Browser)</h3>
+
+  <pre><code>// User visits /blog/my-post, but we serve content from /posts/my-post
+if (pathname.startsWith('/blog/')) {
+  return NextResponse.rewrite(new URL(pathname.replace('/blog/', '/posts/'), request.url));
+}</code></pre>
+
+  <div class="warning-box">
+    <strong>Performance Note:</strong> Middleware runs on <em>every matched request</em>. Keep it fast. Avoid heavy computations, large database queries, or long-running operations in middleware. If you need to do something complex (like fetching a user profile from a database), cache the result or keep the query minimal.
+  </div>
+
+  <!-- ============================================ SECTION: LOGGING -->
+  <h2>Request Logging</h2>
+
+  <p>Middleware is a natural place to add request logging for monitoring and debugging:</p>
+
+  <pre><code>export function middleware(request: NextRequest) {
+  const start = Date.now();
+  const { pathname, search } = request.nextUrl;
+  const method = request.method;
+
+  // Log the incoming request
+  console.log(`[${method}] ${pathname}${search}`);
+
+  const response = NextResponse.next();
+
+  // Log the response time
+  const duration = Date.now() - start;
+  console.log(`[${method}] ${pathname} - ${duration}ms`);
+
+  return response;
+}</code></pre>
+
+  <!-- ============================================ EXERCISES -->
+  <div class="exercises">
+    <h2>Exercises</h2>
+    <ol>
+      <li><strong>Create basic middleware:</strong> Create a <code>middleware.ts</code> file that logs every request's pathname and method to the console. Add the standard matcher config to exclude static files. Visit several pages and observe the logs in your terminal.</li>
+      <li><strong>Add security headers:</strong> Write an <code>addSecurityHeaders</code> function that sets all five security headers from this lesson. Verify they appear in browser DevTools (Network tab, click a request, look at Response Headers).</li>
+      <li><strong>Protect admin routes:</strong> Create a simple authentication check that looks for a <code>session_token</code> cookie. If a user visits any <code>/admin/*</code> route without the cookie, redirect them to <code>/login?returnTo=...</code>. Test by visiting <code>/admin</code> directly.</li>
+      <li><strong>Redirect authenticated users:</strong> If a logged-in user visits <code>/login</code>, redirect them to <code>/admin</code> instead of showing the login page.</li>
+      <li><strong>Role-based protection:</strong> Extend your middleware to read a <code>user_role</code> cookie. Allow only "admin" users to access <code>/admin/settings</code>, while all employees can access <code>/admin</code>. Test with different cookie values.</li>
+      <li><strong>Request logging:</strong> Add timing information to your middleware. Log the HTTP method, pathname, and response time (in milliseconds) for every request. Visit several pages and review the timing data.</li>
+    </ol>
+  </div>
+
+  <!-- ============================================ KEY TAKEAWAYS -->
+  <div class="key-takeaways">
+    <h2>Key Takeaways</h2>
+    <ul>
+      <li>Middleware is a single <code>middleware.ts</code> file that runs <strong>before</strong> every matched request -- it is your application's gatekeeper.</li>
+      <li>The <code>config.matcher</code> export controls which routes trigger middleware. Always exclude static files.</li>
+      <li><code>NextResponse.next()</code> continues to the destination; <code>NextResponse.redirect()</code> sends the user elsewhere.</li>
+      <li>Security headers should be added to <strong>every response</strong> in middleware -- it is the one place you cannot forget.</li>
+      <li>Centralize authentication checks in middleware instead of duplicating them across pages and API routes.</li>
+      <li>Role-based authorization compares the user's roles against route-specific permission rules.</li>
+      <li>Break middleware concerns into separate helper functions for readability and maintainability.</li>
+      <li>The request pipeline flows: Browser --> Middleware --> Layout --> Route Handler --> Response.</li>
+      <li>Keep middleware fast -- it runs on every request and heavy operations will slow down your entire application.</li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- ============================================ BOTTOM NAV -->
+<nav class="lesson-nav bottom">
+  <a href="17-api-route-handlers.html">&larr; Previous: API Route Handlers</a>
+  <span>Lesson 18 of 56</span>
+  <a href="19-image-optimization.html">Next: Image Optimization &amp; Static Assets &rarr;</a>
+</nav>
+
+</body>
+</html>

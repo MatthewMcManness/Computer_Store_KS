@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 38: Transactional Email with Resend — Full-Stack Web Dev Curriculum</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <nav class="lesson-nav">
+    <a href="37-external-apis.html">&larr; Previous Lesson</a>
+    <span>Lesson 38 of 56</span>
+    <a href="39-webhooks.html">Next Lesson &rarr;</a>
+  </nav>
+  <header class="lesson-header" style="background: linear-gradient(135deg, #7c2d12 0%, #ea580c 100%);">
+    <span class="phase-badge" style="background:rgba(234,88,12,0.3);">Phase 9: Third-Party Integrations</span>
+    <h1>Lesson 38: Transactional Email with Resend</h1>
+    <p class="lesson-subtitle">Sending automated, reliable emails from your application using a modern email service provider</p>
+  </header>
+  <main class="lesson-content">
+
+    <section class="learning-objectives">
+      <h2>Learning Objectives</h2>
+      <ul>
+        <li>Distinguish between transactional email and marketing email</li>
+        <li>Explain why applications use email service providers instead of sending email directly from their servers</li>
+        <li>Set up Resend: create an account, generate an API key, and verify a domain with DNS records</li>
+        <li>Send emails through the Resend API using fetch() with proper headers and JSON body</li>
+        <li>Build HTML email templates using inline CSS and table-based layouts</li>
+        <li>Implement the complete contact form pattern: form submission, validation, email send, response</li>
+        <li>Handle email sending failures gracefully with fallback messaging</li>
+        <li>Understand email deliverability basics: SPF, DKIM, and DMARC</li>
+      </ul>
+    </section>
+
+    <!-- ===== SECTION: TRANSACTIONAL VS MARKETING ===== -->
+    <h2>Transactional vs. Marketing Email</h2>
+
+    <p>Applications send two fundamentally different types of email, and they are governed by different rules and best practices:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Aspect</th>
+          <th>Transactional Email</th>
+          <th>Marketing Email</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Purpose</strong></td>
+          <td>Triggered by a user action</td>
+          <td>Sent to promote products or services</td>
+        </tr>
+        <tr>
+          <td><strong>Examples</strong></td>
+          <td>Password resets, order confirmations, contact form notifications</td>
+          <td>Newsletters, promotional offers, product announcements</td>
+        </tr>
+        <tr>
+          <td><strong>Recipient</strong></td>
+          <td>One person who triggered the action</td>
+          <td>A list of subscribers</td>
+        </tr>
+        <tr>
+          <td><strong>Timing</strong></td>
+          <td>Sent immediately when the event occurs</td>
+          <td>Scheduled or sent in bulk</td>
+        </tr>
+        <tr>
+          <td><strong>Unsubscribe</strong></td>
+          <td>Not required (user expects the email)</td>
+          <td>Required by law (CAN-SPAM, GDPR)</td>
+        </tr>
+        <tr>
+          <td><strong>Volume</strong></td>
+          <td>Low to medium (per-event)</td>
+          <td>High (bulk sends)</td>
+        </tr>
+        <tr>
+          <td><strong>Tools</strong></td>
+          <td>Resend, SendGrid, Postmark, Amazon SES</td>
+          <td>Mailchimp, ConvertKit, Brevo</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>In this lesson, we focus entirely on <strong>transactional email</strong> &mdash; the kind of email your application sends automatically in response to user actions. When someone submits a contact form on Computer Store KS, the application sends two transactional emails: one to the business owner (notification) and one to the customer (confirmation).</p>
+
+    <!-- ===== SECTION: WHY NOT SEND DIRECTLY ===== -->
+    <h2>Why Not Send Email Directly from Your Server?</h2>
+
+    <p>You might wonder: why use a service like Resend at all? Your server can technically send email using SMTP (Simple Mail Transfer Protocol). The answer comes down to one word: <strong>deliverability</strong>.</p>
+
+    <p>Deliverability is the percentage of your emails that actually reach the recipient's inbox (as opposed to the spam folder or being rejected entirely). Sending email from your own server almost guarantees poor deliverability because:</p>
+
+    <ul>
+      <li><strong>No reputation</strong> &mdash; Email providers (Gmail, Outlook, Yahoo) track the reputation of every server that sends email. A new server has zero reputation and is immediately suspicious.</li>
+      <li><strong>No infrastructure</strong> &mdash; Email requires dedicated IP addresses, proper DNS records, feedback loop processing, and bounce handling. Setting this up correctly takes weeks of expertise.</li>
+      <li><strong>Spam filters are aggressive</strong> &mdash; Major email providers reject or spam-folder emails from servers that lack proper authentication (SPF, DKIM, DMARC). Without these, your emails look identical to spam.</li>
+      <li><strong>Blacklists</strong> &mdash; If a single spammer shares your server's IP range, your legitimate emails get blocked too. Shared hosting environments are notorious for this.</li>
+      <li><strong>Maintenance burden</strong> &mdash; Email is surprisingly complex. Handling bounces, retries, format compatibility across 50+ email clients, and compliance with anti-spam laws is a full-time job.</li>
+    </ul>
+
+    <div class="analogy">
+      <strong>Analogy: Postal Service vs. Hand-Delivering Mail</strong><br>
+      You could technically walk to every house in town and deliver letters yourself. But the postal service has trucks, sorting facilities, trained carriers, and established trust with every household. People accept mail from the postal carrier without question. But if a stranger walks up and puts a letter in their mailbox, they are suspicious. Email service providers are the postal service of the internet &mdash; they have the infrastructure, reputation, and trust to ensure your messages arrive.
+    </div>
+
+    <!-- ===== SECTION: SETTING UP RESEND ===== -->
+    <h2>Setting Up Resend</h2>
+
+    <p><strong>Resend</strong> is a modern email API built specifically for developers. It has a clean API, excellent documentation, a generous free tier (100 emails per day), and great deliverability out of the box.</p>
+
+    <h3>Step 1: Create an Account</h3>
+
+    <p>Sign up at <code>resend.com</code>. You will receive a default API key immediately. However, for production use, you need to verify your own domain.</p>
+
+    <h3>Step 2: Verify Your Domain</h3>
+
+    <p>To send emails from your own domain (like <code>contact@computerstoreks.com</code> instead of <code>onboarding@resend.dev</code>), you need to verify that you own the domain by adding DNS records.</p>
+
+    <p>Resend will provide you with three types of DNS records to add:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Record Type</th>
+          <th>Purpose</th>
+          <th>What It Proves</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>SPF</strong> (TXT record)</td>
+          <td>Sender Policy Framework</td>
+          <td>"These servers are authorized to send email for my domain"</td>
+        </tr>
+        <tr>
+          <td><strong>DKIM</strong> (TXT record)</td>
+          <td>DomainKeys Identified Mail</td>
+          <td>"This email was not tampered with in transit"</td>
+        </tr>
+        <tr>
+          <td><strong>DMARC</strong> (TXT record)</td>
+          <td>Domain-based Message Authentication</td>
+          <td>"Here is what to do with emails that fail SPF or DKIM checks"</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>You add these records in your domain registrar's DNS settings (where you bought your domain). After adding them, click "Verify" in Resend's dashboard. DNS changes can take a few minutes to a few hours to propagate.</p>
+
+    <h3>Step 3: Generate an API Key</h3>
+
+    <p>In the Resend dashboard, go to API Keys and create a new key. Store it in your environment variables:</p>
+
+<pre><code># .env.local
+RESEND_API_KEY=re_abc123def456ghij789</code></pre>
+
+    <div class="warning-box">
+      <strong>Protect Your API Key</strong>
+      Your Resend API key allows anyone who has it to send email as your domain. If it is compromised, attackers could send spam from your domain, which would destroy your reputation and get your domain blacklisted. Treat it like a password: environment variables only, never in source code.
+    </div>
+
+    <!-- ===== SECTION: EMAIL DELIVERABILITY ===== -->
+    <h2>Email Deliverability: SPF, DKIM, and DMARC</h2>
+
+    <p>These three technologies work together to prove that your emails are legitimate. Think of them as three forms of ID that email providers check:</p>
+
+    <h3>SPF (Sender Policy Framework)</h3>
+
+    <p>SPF tells the world which servers are allowed to send email for your domain. It is a TXT record in your DNS that lists authorized IP addresses and services.</p>
+
+<pre><code>// DNS TXT record for SPF
+v=spf1 include:_spf.resend.com ~all
+
+// Translation:
+// v=spf1        - "This is an SPF record, version 1"
+// include:...   - "Trust servers listed by Resend"
+// ~all          - "Soft-fail emails from any other server"</code></pre>
+
+    <p>When Gmail receives an email claiming to be from <code>@computerstoreks.com</code>, it checks the SPF record. If the sending server is not in the list, the email is flagged as suspicious.</p>
+
+    <h3>DKIM (DomainKeys Identified Mail)</h3>
+
+    <p>DKIM adds a cryptographic signature to every email you send. The receiving server can verify this signature using a public key published in your DNS records, proving the email was not modified in transit.</p>
+
+<pre><code>// DNS TXT record for DKIM (simplified)
+resend._domainkey.computerstoreks.com  TXT  "v=DKIM1; k=rsa; p=MIIBIj..."
+
+// The "p=" value is a public key
+// Resend signs every email with the corresponding private key
+// The recipient's email server verifies the signature matches</code></pre>
+
+    <h3>DMARC (Domain-based Message Authentication)</h3>
+
+    <p>DMARC ties SPF and DKIM together and tells receiving servers what to do when authentication fails:</p>
+
+<pre><code>// DNS TXT record for DMARC
+_dmarc.computerstoreks.com  TXT  "v=DMARC1; p=quarantine; rua=mailto:dmarc@computerstoreks.com"
+
+// Translation:
+// v=DMARC1      - "This is a DMARC record"
+// p=quarantine  - "If SPF and DKIM both fail, put the email in spam"
+// rua=mailto:...  - "Send me reports about authentication failures"</code></pre>
+
+    <div class="info-box">
+      <strong>The Good News</strong>
+      When you verify your domain with Resend, they tell you exactly which DNS records to add. You do not need to generate SPF, DKIM, or DMARC records yourself. Resend handles the cryptographic key generation and provides copy-paste DNS records. Your job is simply to add them to your DNS settings.
+    </div>
+
+    <!-- ===== SECTION: THE RESEND API ===== -->
+    <h2>The Resend API</h2>
+
+    <p>Resend's API is beautifully simple. To send an email, you make a single POST request:</p>
+
+<pre><code>POST https://api.resend.com/emails
+Authorization: Bearer re_your_api_key
+Content-Type: application/json
+
+{
+  "from": "Computer Store Kansas &lt;contact@computerstoreks.com&gt;",
+  "to": ["customer@example.com"],
+  "subject": "Thank you for contacting us!",
+  "html": "&lt;h1&gt;Thank you!&lt;/h1&gt;&lt;p&gt;We received your message.&lt;/p&gt;",
+  "text": "Thank you! We received your message.",
+  "reply_to": "contact@computerstoreks.com"
+}
+
+// Success response (200 OK):
+{
+  "id": "email_abc123"
+}</code></pre>
+
+    <h3>Email Fields Explained</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Field</th>
+          <th>Required</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>from</code></td>
+          <td>Yes</td>
+          <td>Sender address. Must use your verified domain. Format: <code>"Name &lt;email@domain.com&gt;"</code></td>
+        </tr>
+        <tr>
+          <td><code>to</code></td>
+          <td>Yes</td>
+          <td>Array of recipient email addresses</td>
+        </tr>
+        <tr>
+          <td><code>subject</code></td>
+          <td>Yes</td>
+          <td>Email subject line</td>
+        </tr>
+        <tr>
+          <td><code>html</code></td>
+          <td>Yes*</td>
+          <td>HTML body of the email (most email clients render this)</td>
+        </tr>
+        <tr>
+          <td><code>text</code></td>
+          <td>No*</td>
+          <td>Plain text fallback (for email clients that do not support HTML)</td>
+        </tr>
+        <tr>
+          <td><code>reply_to</code></td>
+          <td>No</td>
+          <td>Address that receives replies (can differ from <code>from</code>)</td>
+        </tr>
+        <tr>
+          <td><code>cc</code></td>
+          <td>No</td>
+          <td>Array of CC recipients</td>
+        </tr>
+        <tr>
+          <td><code>bcc</code></td>
+          <td>No</td>
+          <td>Array of BCC recipients</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p><em>* You must provide at least one of <code>html</code> or <code>text</code>. Best practice is to provide both.</em></p>
+
+    <h3>Building the Email Wrapper Function</h3>
+
+    <p>Following the API client pattern from Lesson 37, we create a reusable email function:</p>
+
+<pre><code>// lib/email.ts
+
+interface EmailOptions {
+  to: string | string[];
+  subject: string;
+  html: string;
+  text?: string;
+  replyTo?: string;
+}
+
+interface EmailResult {
+  success: boolean;
+  id?: string;
+  error?: string;
+}
+
+const RESEND_API_URL = 'https://api.resend.com/emails';
+
+export async function sendEmail(options: EmailOptions): Promise&lt;EmailResult&gt; {
+  const RESEND_API_KEY = process.env.RESEND_API_KEY;
+
+  // Graceful degradation: if not configured, log and return
+  if (!RESEND_API_KEY) {
+    console.warn('RESEND_API_KEY not configured, skipping email');
+    return { success: false, error: 'Email service not configured' };
+  }
+
+  try {
+    const response = await fetch(RESEND_API_URL, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'Computer Store Kansas &lt;contact@computerstoreks.com&gt;',
+        to: Array.isArray(options.to) ? options.to : [options.to],
+        subject: options.subject,
+        html: options.html,
+        text: options.text,
+        reply_to: options.replyTo,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error('Resend API error:', errorData);
+      return { success: false, error: errorData };
+    }
+
+    const data = await response.json();
+    return { success: true, id: data.id };
+  } catch (error) {
+    console.error('Email send error:', error);
+    return { success: false, error: String(error) };
+  }
+}</code></pre>
+
+    <div class="csk-connection">
+      <strong>CSK Connection</strong>
+      This is essentially the exact code in CSK's <code>src/lib/email.ts</code>. The <code>sendEmail()</code> function sends emails via <code>POST https://api.resend.com/emails</code> with a Bearer token for authentication. It uses the "from" address <code>Computer Store Kansas &lt;contact@computerstoreks.com&gt;</code>. The function returns a result object with <code>success</code>, <code>id</code>, and <code>error</code> fields, making it easy for callers to handle both success and failure.
+    </div>
+
+    <!-- ===== SECTION: HTML EMAIL TEMPLATES ===== -->
+    <h2>Building HTML Email Templates</h2>
+
+    <p>HTML email is one of the most frustrating areas of web development. Email clients (Gmail, Outlook, Apple Mail, Yahoo) have wildly inconsistent CSS support. Modern CSS features like Flexbox, Grid, CSS variables, and even some basic selectors simply do not work in many email clients.</p>
+
+    <h3>The Rules of HTML Email</h3>
+
+    <ul>
+      <li><strong>Inline CSS only</strong> &mdash; Many email clients strip <code>&lt;style&gt;</code> tags. Put all styles directly on elements using the <code>style</code> attribute.</li>
+      <li><strong>Table-based layout</strong> &mdash; Use <code>&lt;table&gt;</code> elements for layout (yes, like it is 1999). Tables render consistently across all email clients.</li>
+      <li><strong>No external stylesheets</strong> &mdash; You cannot link to CSS files. Everything must be self-contained in the email HTML.</li>
+      <li><strong>Simple CSS only</strong> &mdash; Stick to basic properties: <code>color</code>, <code>background</code>, <code>font-family</code>, <code>font-size</code>, <code>padding</code>, <code>margin</code>, <code>border</code>, <code>text-align</code>, <code>width</code>.</li>
+      <li><strong>Max width 600px</strong> &mdash; Most email clients display emails in a narrow column. Design for 600px maximum width.</li>
+      <li><strong>Always include plain text</strong> &mdash; Some email clients and accessibility tools only show plain text. Always provide a <code>text</code> version alongside <code>html</code>.</li>
+    </ul>
+
+    <h3>A Production Email Template</h3>
+
+<pre><code>// Building an HTML email template with inline CSS
+function buildContactNotificationEmail(data: {
+  name: string;
+  email: string;
+  phone?: string;
+  subject: string;
+  message: string;
+}) {
+  // HTML version (inline CSS, table layout)
+  const html = `
+    &lt;!DOCTYPE html&gt;
+    &lt;html&gt;
+    &lt;head&gt;
+      &lt;meta charset="utf-8"&gt;
+    &lt;/head&gt;
+    &lt;body style="font-family: -apple-system, sans-serif;
+                  line-height: 1.6; color: #333; margin: 0; padding: 0;"&gt;
+      &lt;table width="100%" cellpadding="0" cellspacing="0"&gt;
+        &lt;tr&gt;
+          &lt;td align="center" style="padding: 20px;"&gt;
+            &lt;table width="600" cellpadding="0" cellspacing="0"&gt;
+
+              &lt;!-- Header --&gt;
+              &lt;tr&gt;
+                &lt;td style="background: #1e40af; color: white;
+                           padding: 20px; border-radius: 8px 8px 0 0;"&gt;
+                  &lt;h2 style="margin: 0;"&gt;New Contact Form Submission&lt;/h2&gt;
+                  &lt;p style="margin: 5px 0 0; opacity: 0.9;"&gt;${data.subject}&lt;/p&gt;
+                &lt;/td&gt;
+              &lt;/tr&gt;
+
+              &lt;!-- Content --&gt;
+              &lt;tr&gt;
+                &lt;td style="background: #f9fafb; padding: 20px;
+                           border: 1px solid #e5e7eb;"&gt;
+                  &lt;p&gt;&lt;strong style="color: #374151;"&gt;Name:&lt;/strong&gt;
+                     ${data.name}&lt;/p&gt;
+                  &lt;p&gt;&lt;strong style="color: #374151;"&gt;Email:&lt;/strong&gt;
+                     &lt;a href="mailto:${data.email}"&gt;${data.email}&lt;/a&gt;&lt;/p&gt;
+                  ${data.phone ? `
+                  &lt;p&gt;&lt;strong style="color: #374151;"&gt;Phone:&lt;/strong&gt;
+                     ${data.phone}&lt;/p&gt;` : ''}
+                  &lt;p&gt;&lt;strong style="color: #374151;"&gt;Message:&lt;/strong&gt;&lt;/p&gt;
+                  &lt;div style="background: white; padding: 15px;
+                              border-radius: 6px; border: 1px solid #d1d5db;"&gt;
+                    ${data.message.replace(/\\n/g, '&lt;br&gt;')}
+                  &lt;/div&gt;
+                &lt;/td&gt;
+              &lt;/tr&gt;
+
+            &lt;/table&gt;
+          &lt;/td&gt;
+        &lt;/tr&gt;
+      &lt;/table&gt;
+    &lt;/body&gt;
+    &lt;/html&gt;
+  `;
+
+  // Plain text version (always provide this!)
+  const text = `
+New Contact Form Submission
+
+Subject: ${data.subject}
+Name: ${data.name}
+Email: ${data.email}
+${data.phone ? `Phone: ${data.phone}` : ''}
+
+Message:
+${data.message}
+  `.trim();
+
+  return { html, text };
+}</code></pre>
+
+    <div class="info-box">
+      <strong>Why Tables for Email Layout?</strong>
+      It feels wrong to use tables for layout in 2026 &mdash; on the web, we would never do this. But email clients are stuck in the past. Microsoft Outlook uses the Word rendering engine (not a browser engine) to display HTML emails, which means it has terrible CSS support. Tables are the only layout mechanism that works reliably across Gmail, Outlook, Apple Mail, Yahoo Mail, and dozens of other clients. This is a case where pragmatism wins over idealism.
+    </div>
+
+    <!-- ===== SECTION: CONTACT FORM PATTERN ===== -->
+    <h2>The Contact Form Pattern End-to-End</h2>
+
+    <p>One of the most common features in any business website is a contact form. Let us walk through the complete flow from form submission to email delivery:</p>
+
+    <div class="diagram">
+CUSTOMER'S BROWSER              YOUR SERVER                 RESEND API
+==================              ===========                 ==========
+
+1. User fills out form
+   and clicks "Submit"
+        |
+2. POST /api/contact
+   { name, email,       ------&gt;
+     subject, message }
+                                3. Validate with Zod
+                                   - Name: 1-100 chars
+                                   - Email: valid format
+                                   - Message: 10-5000 chars
+                                   |
+                                4. Check spam score
+                                   - Honeypot fields
+                                   - Timing analysis
+                                   - Rate limiting
+                                   |
+                                5. If spam: return          (silently or with error)
+                                   fake success
+                                   |
+                                6. Sanitize inputs
+                                   (strip HTML tags)
+                                   |
+                                7. Send notification      ------&gt;  8. Deliver to
+                                   email to business                   business inbox
+                                   |
+                                9. Send confirmation      ------&gt; 10. Deliver to
+                                   email to customer                   customer inbox
+                                   |
+                               11. Return JSON response
+   { success: true,    &lt;------     to browser
+     message: "..." }
+        |
+12. Show success message
+    to user
+    </div>
+
+    <h3>The API Route Implementation</h3>
+
+<pre><code>// src/app/api/contact/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+import { sendContactNotification, sendContactConfirmation } from '@/lib/email';
+
+// Step 1: Define validation schema with Zod
+const contactFormSchema = z.object({
+  name: z.string()
+    .min(1, 'Name is required')
+    .max(100, 'Name must be less than 100 characters')
+    .transform(val =&gt; val.trim()),
+  email: z.string()
+    .email('Invalid email address')
+    .max(254)
+    .transform(val =&gt; val.trim().toLowerCase()),
+  phone: z.string().max(20).optional(),
+  subject: z.enum(['General', 'Repair', 'Custom Build', 'Other']),
+  message: z.string()
+    .min(10, 'Message must be at least 10 characters')
+    .max(5000)
+    .transform(val =&gt; val.trim()),
+  // Honeypot: bots fill this in, humans leave it empty
+  website: z.string().optional(),
+});
+
+export async function POST(request: NextRequest) {
+  try {
+    // Step 2: Parse and validate
+    const body = await request.json();
+    const result = contactFormSchema.safeParse(body);
+
+    if (!result.success) {
+      return NextResponse.json(
+        { success: false, error: 'Validation failed', errors: result.error.issues },
+        { status: 400 }
+      );
+    }
+
+    const formData = result.data;
+
+    // Step 3: Check honeypot (spam bots fill hidden fields)
+    if (formData.website) {
+      // Return fake success so bot thinks it worked
+      return NextResponse.json({ success: true, message: 'Thank you!' });
+    }
+
+    // Step 4: Sanitize inputs
+    const sanitized = {
+      name: formData.name.replace(/[&lt;&gt;]/g, ''),
+      email: formData.email,
+      subject: formData.subject,
+      message: formData.message.replace(/[&lt;&gt;]/g, ''),
+    };
+
+    // Step 5: Send both emails in parallel
+    const [notification, confirmation] = await Promise.all([
+      sendContactNotification(sanitized),
+      sendContactConfirmation({
+        name: sanitized.name,
+        email: sanitized.email,
+        subject: sanitized.subject,
+      }),
+    ]);
+
+    // Step 6: Handle email failures
+    if (!notification.success) {
+      console.error('Notification email failed:', notification.error);
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'We had trouble delivering your message. ' +
+                 'Please call us at (785) 267-3223.',
+        },
+        { status: 500 }
+      );
+    }
+
+    // Step 7: Return success
+    return NextResponse.json({
+      success: true,
+      message: 'Thank you! We will get back to you within 24 hours.',
+    });
+  } catch (error) {
+    console.error('Contact form error:', error);
+    return NextResponse.json(
+      { success: false, error: 'An error occurred. Please try again.' },
+      { status: 500 }
+    );
+  }
+}</code></pre>
+
+    <h3>Key Design Decisions</h3>
+
+    <ul>
+      <li><strong>Validate before anything else</strong> &mdash; Zod validation catches bad data before you waste an API call.</li>
+      <li><strong>Honeypot spam detection</strong> &mdash; A hidden field that real users never see. Bots fill it in automatically, revealing themselves.</li>
+      <li><strong>Sanitize after validation</strong> &mdash; Strip HTML tags to prevent XSS in email content.</li>
+      <li><strong>Parallel email sending</strong> &mdash; <code>Promise.all()</code> sends both emails simultaneously, cutting response time in half.</li>
+      <li><strong>Graceful failure with fallback</strong> &mdash; If email fails, tell the user to call instead. Never leave them without a way to reach you.</li>
+      <li><strong>Silent spam success</strong> &mdash; Return a fake success to spam bots so they do not try different approaches.</li>
+    </ul>
+
+    <div class="csk-connection">
+      <strong>CSK Connection</strong>
+      CSK's contact form at <code>/api/contact/route.ts</code> follows this exact pattern but with even more sophisticated spam detection. Beyond honeypots, it uses: timing analysis (submissions faster than 3 seconds are likely bots), interaction tracking (checking if the user actually moved their mouse and typed), browser fingerprinting, rate limiting (10 requests per minute per IP), and a multi-factor spam scoring system. The spam score is calculated by <code>calculateSpamScore()</code> from <code>src/lib/spam-detection.ts</code>. High scores get silent success; moderate scores get blocked with a phone number fallback.
+    </div>
+
+    <!-- ===== SECTION: ERROR HANDLING ===== -->
+    <h2>Error Handling for Email Sends</h2>
+
+    <p>Email sending can fail for many reasons. Your error handling should differentiate between them:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Error Type</th>
+          <th>Cause</th>
+          <th>How to Handle</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Configuration error</strong></td>
+          <td>API key missing or invalid</td>
+          <td>Log error, return graceful failure to user</td>
+        </tr>
+        <tr>
+          <td><strong>Validation error (422)</strong></td>
+          <td>Invalid email address format</td>
+          <td>Return specific field errors to user</td>
+        </tr>
+        <tr>
+          <td><strong>Rate limit (429)</strong></td>
+          <td>Too many emails sent</td>
+          <td>Log warning, tell user to try later</td>
+        </tr>
+        <tr>
+          <td><strong>Service down (5xx)</strong></td>
+          <td>Resend servers are having issues</td>
+          <td>Log error, provide phone number fallback</td>
+        </tr>
+        <tr>
+          <td><strong>Network error</strong></td>
+          <td>Cannot reach Resend API</td>
+          <td>Log error, provide alternative contact method</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>The key principle: <strong>never leave the user without a way to contact you</strong>. If email fails, always provide a phone number or alternative method.</p>
+
+    <!-- ===== SECTION: TESTING ===== -->
+    <h2>Testing Email in Development</h2>
+
+    <p>During development, you do not want to accidentally send emails to real customers. Here are strategies for safe testing:</p>
+
+    <ul>
+      <li><strong>Use test API keys</strong> &mdash; Resend provides test API keys that simulate sending without actually delivering. The API responds as if the email was sent, but nothing reaches any inbox.</li>
+      <li><strong>Send to yourself</strong> &mdash; Use your own email address as the recipient during development. Set <code>NOTIFICATION_EMAIL=your.email@gmail.com</code> in your <code>.env.local</code>.</li>
+      <li><strong>Check the Resend dashboard</strong> &mdash; The Resend web dashboard shows every email sent through your account, including the full HTML content. You can preview emails without checking your inbox.</li>
+      <li><strong>Graceful degradation</strong> &mdash; If <code>RESEND_API_KEY</code> is not set, your email function should log a warning and return a "not configured" result instead of crashing.</li>
+    </ul>
+
+<pre><code>// Graceful degradation when email is not configured
+export async function sendEmail(options: EmailOptions): Promise&lt;EmailResult&gt; {
+  const RESEND_API_KEY = process.env.RESEND_API_KEY;
+
+  if (!RESEND_API_KEY) {
+    // In development, this is expected. Log and continue.
+    console.warn('RESEND_API_KEY not configured, skipping email');
+    console.warn('Would have sent:', options.subject, 'to', options.to);
+    return { success: false, error: 'Email service not configured' };
+  }
+
+  // ... actual send logic
+}</code></pre>
+
+    <!-- ===== SECTION: NOTIFICATION PATTERN ===== -->
+    <h2>Notification Emails: Alerting Business Owners</h2>
+
+    <p>A common pattern for business websites is sending notification emails to the business owner when something happens &mdash; a new contact form submission, a new order, or a system alert. The key elements:</p>
+
+    <ul>
+      <li><strong>Clear subject line</strong> &mdash; Include the type of event and key details. Example: <code>"New Contact Form (Topeka): Repair from John Doe"</code></li>
+      <li><strong>All relevant data</strong> &mdash; The business owner should be able to respond without visiting the website. Include name, email, phone, and the full message.</li>
+      <li><strong>Reply-to header</strong> &mdash; Set <code>reply_to</code> to the customer's email address. When the business owner hits "Reply" in their email client, it goes directly to the customer.</li>
+      <li><strong>Timestamp</strong> &mdash; Include when the form was submitted, in the business's local timezone.</li>
+      <li><strong>Actionable links</strong> &mdash; Include clickable links for the customer's email and phone number.</li>
+    </ul>
+
+    <div class="csk-connection">
+      <strong>CSK Connection</strong>
+      CSK's <code>sendContactNotification()</code> function sends a richly formatted HTML email to <code>contact@computerstoreks.com</code> with the subject line <code>"New Contact Form (Topeka): {subject} from {name}"</code>. The reply-to is set to the customer's email. The email includes the customer's name, email (as a clickable <code>mailto:</code> link), phone (as a clickable <code>tel:</code> link), selected location, subject, full message, and submission timestamp formatted for the Central time zone. CSK also sends a separate confirmation email to the customer with business contact info and hours.
+    </div>
+
+    <!-- ===== EXERCISES ===== -->
+    <section class="exercises">
+      <h2>Practice Exercises</h2>
+      <ol>
+        <li><strong>Email Type Classification:</strong> For each scenario, identify whether the email is transactional or marketing:
+          <ul>
+            <li>A "Your order has shipped" notification</li>
+            <li>A weekly newsletter about new blog posts</li>
+            <li>A password reset link</li>
+            <li>A "20% off this weekend" promotion</li>
+            <li>A "Your ticket has been updated" alert</li>
+          </ul>
+        </li>
+        <li><strong>DNS Record Identification:</strong> Explain in your own words what SPF, DKIM, and DMARC each verify. Use an analogy for each one (different from those in this lesson).</li>
+        <li><strong>Build an Email Template:</strong> Write an HTML email template (using inline CSS and table layout, max 600px wide) for a "Your repair is complete" notification. Include: customer name, ticket number, a description of the repair, the total cost, and a "Pick Up" call-to-action button.</li>
+        <li><strong>Error Handling Scenarios:</strong> For each failure scenario, write the code that handles it and describe what message the user should see:
+          <ul>
+            <li>The RESEND_API_KEY environment variable is not set</li>
+            <li>Resend returns a 429 rate limit error</li>
+            <li>The network connection to Resend times out</li>
+            <li>The notification email succeeds but the confirmation email fails</li>
+          </ul>
+        </li>
+        <li><strong>Contact Form Security:</strong> List five spam detection techniques beyond a simple honeypot field. For each, explain how a bot would behave differently from a real user.</li>
+        <li><strong>Resend API Call:</strong> Write a complete <code>fetch()</code> call to the Resend API that sends a welcome email to a new user. Include all required headers, the JSON body with from, to, subject, html, and text fields, and error handling for non-2xx responses.</li>
+      </ol>
+    </section>
+
+    <!-- ===== KEY TAKEAWAYS ===== -->
+    <section class="key-takeaways">
+      <h2>Key Takeaways</h2>
+      <ul>
+        <li>Transactional emails are triggered by user actions (contact forms, password resets). Marketing emails are promotional bulk sends. Different rules apply to each.</li>
+        <li>Use an email service provider (like Resend) instead of sending directly from your server. They provide the reputation, infrastructure, and deliverability your server lacks.</li>
+        <li>Domain verification through SPF, DKIM, and DMARC DNS records proves to email providers that your emails are legitimate and not spoofed.</li>
+        <li>The Resend API is a single POST endpoint. Send JSON with from, to, subject, html, and text fields. Authenticate with a Bearer token.</li>
+        <li>HTML email requires inline CSS, table-based layouts, and a 600px max width. Always provide a plain text alternative.</li>
+        <li>The contact form pattern: validate with Zod, check for spam, sanitize inputs, send emails in parallel, handle failures with fallback contact methods.</li>
+        <li>Never leave users without a way to reach you. If email fails, provide a phone number or alternative contact method.</li>
+        <li>In development, use graceful degradation: if the API key is not configured, log a warning instead of crashing.</li>
+      </ul>
+    </section>
+
+  </main>
+  <nav class="lesson-nav bottom">
+    <a href="37-external-apis.html">&larr; Previous Lesson</a>
+    <a href="../index.html">Back to Curriculum</a>
+    <a href="39-webhooks.html">Next Lesson &rarr;</a>
+  </nav>
+</body>
+</html>

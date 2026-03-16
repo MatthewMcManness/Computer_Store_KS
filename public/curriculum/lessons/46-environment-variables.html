@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 46: Environment Variables &amp; Configuration | Full-Stack Curriculum</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+
+<!-- ============================================ TOP NAV -->
+<nav class="lesson-nav">
+  <a href="45-print-document-generation.html">&larr; Previous: Print Document Generation</a>
+  <span>Lesson 46 of 56</span>
+  <a href="47-build-process.html">Next: Build Process &amp; Standalone Output &rarr;</a>
+</nav>
+
+<!-- ============================================ HEADER -->
+<header class="lesson-header" style="background: linear-gradient(135deg, #065a60 0%, #0891b2 100%);">
+  <div class="phase-badge" style="background: rgba(255,255,255,0.2);">Phase 11: Deployment &amp; DevOps</div>
+  <h1>Environment Variables &amp; Configuration</h1>
+  <p class="lesson-subtitle">Keep your secrets safe, your environments separate, and your configuration flexible with environment variables.</p>
+</header>
+
+<!-- ============================================ CONTENT -->
+<div class="lesson-content">
+
+  <!-- LEARNING OBJECTIVES -->
+  <div class="learning-objectives">
+    <h2>What You Will Learn</h2>
+    <ul>
+      <li>Understand what environment variables are and why they exist</li>
+      <li>Distinguish between development, staging, and production environments</li>
+      <li>Use <code>.env</code> files in Next.js: <code>.env.local</code>, <code>.env.development</code>, and <code>.env.production</code></li>
+      <li>Understand the <code>NEXT_PUBLIC_</code> prefix and the critical difference between browser-safe and server-only variables</li>
+      <li>Read environment variables with <code>process.env</code> in both server and client code</li>
+      <li>Create an <code>.env.example</code> file to document every required variable without exposing real secrets</li>
+      <li>Manage environment variables in deployment platforms like Render</li>
+      <li>Validate environment variables at startup for type safety</li>
+      <li>Organize variables by service for maintainability</li>
+      <li>Understand the 12-factor app methodology and why configuration belongs in the environment</li>
+    </ul>
+  </div>
+
+  <!-- ============================================ SECTION: WHAT ARE ENV VARS -->
+  <h2>What Are Environment Variables?</h2>
+
+  <p>Imagine you are building a house. The house has a mailbox where the postman delivers letters. The <strong>address</strong> of the house is not built into the walls -- it is something the outside world assigns to it. If the house were picked up and moved to a different street, the house itself would not need to change; only the address would change.</p>
+
+  <p>Environment variables work the same way. They are <strong>named values that live outside your code</strong> but that your code can read at runtime. Instead of hardcoding a database password directly into a file (which would be like engraving your bank PIN on the front door), you store it in an environment variable. Your code says, "Give me whatever value is stored under the name <code>DATABASE_URL</code>," and the environment provides it.</p>
+
+  <p>There are three fundamental reasons environment variables exist:</p>
+
+  <h3>1. Security: Keeping Secrets Secret</h3>
+
+  <p>Your application needs sensitive information to function: database passwords, API keys, encryption secrets, email service credentials. These values must <strong>never</strong> appear in your source code, because source code gets committed to Git, pushed to GitHub, and potentially seen by anyone with access to the repository. Even in a private repository, secrets in code create a permanent security risk -- they live in the Git history forever, even if you delete the file later.</p>
+
+  <p>Environment variables solve this by keeping secrets <strong>outside</strong> of the codebase entirely. The code says <code>process.env.RESEND_API_KEY</code>, and the actual key value is provided by the environment -- whether that is a <code>.env</code> file on your laptop or a configuration panel in Render's dashboard.</p>
+
+  <h3>2. Per-Environment Configuration</h3>
+
+  <p>Your application runs in different places with different settings. During development on your laptop, you connect to a local or test database. In production, you connect to the real database with real customer data. The code is identical -- only the configuration changes. Environment variables let you swap configuration without changing a single line of code.</p>
+
+  <h3>3. Flexibility Without Redeployment</h3>
+
+  <p>Need to change an email address, rotate an API key, or toggle a feature flag? With environment variables, you update the value in your deployment platform and restart the service. No code changes. No new build. No redeployment of the application.</p>
+
+  <div class="analogy">
+    <strong>Analogy:</strong> Think of environment variables like the settings on a car's dashboard. The engine (your code) does not change when you adjust the thermostat, switch radio stations, or toggle the headlights. The settings are external knobs that control the engine's behavior without modifying the engine itself.
+  </div>
+
+  <!-- ============================================ SECTION: ENVIRONMENTS -->
+  <h2>Understanding Different Environments</h2>
+
+  <p>A "environment" is the complete context in which your application runs: the machine, the operating system, the installed software, and -- crucially -- the configuration values. Most web applications run in at least two environments, and many use three:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Environment</th>
+        <th>Purpose</th>
+        <th>Who Uses It</th>
+        <th>Data</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Development</strong></td>
+        <td>Building and testing features locally</td>
+        <td>You, the developer, on your laptop</td>
+        <td>Test data, dummy accounts, fake API keys</td>
+      </tr>
+      <tr>
+        <td><strong>Staging</strong></td>
+        <td>Final testing before production</td>
+        <td>QA team, project reviewers</td>
+        <td>Realistic data, near-production configuration</td>
+      </tr>
+      <tr>
+        <td><strong>Production</strong></td>
+        <td>The live site that real users access</td>
+        <td>Customers, employees, the public</td>
+        <td>Real data, real API keys, real money</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>Each environment needs different values for the same variables. For example:</p>
+
+  <pre><code># Development (.env.local on your laptop)
+NEXT_PUBLIC_SUPABASE_URL=https://dev-project.supabase.co
+RESEND_API_KEY=re_test_key_for_development
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+
+# Production (Render dashboard)
+NEXT_PUBLIC_SUPABASE_URL=https://production-project.supabase.co
+RESEND_API_KEY=re_live_key_for_production
+NEXT_PUBLIC_APP_URL=https://computerstoreks.com</code></pre>
+
+  <p>The code is the same in both environments. The line <code>process.env.RESEND_API_KEY</code> works identically in development and production. But the <strong>value</strong> it returns is different because the environment variable was set differently.</p>
+
+  <div class="warning-box">
+    <strong>Why Separate Databases Matter</strong>
+    Never use the same database for development and production. If you accidentally run a destructive query or test script while developing, it could delete real customer data. Always use a separate Supabase project (or at minimum, separate tables) for development.
+  </div>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    Computer Store KS has two Render services: CSK-Production (deploys from the Production branch) and CSK-Development (deploys from the Development branch). Each service has its own set of environment variables configured in the Render dashboard, pointing to different resources where appropriate.
+  </div>
+
+  <!-- ============================================ SECTION: .ENV FILES IN NEXT.JS -->
+  <h2>.env Files in Next.js</h2>
+
+  <p>Next.js has built-in support for <code>.env</code> files. When you start your development server with <code>npm run dev</code> or build your application with <code>npm run build</code>, Next.js automatically reads values from specific <code>.env</code> files and makes them available through <code>process.env</code>.</p>
+
+  <h3>The .env File Hierarchy</h3>
+
+  <p>Next.js reads <code>.env</code> files in a specific order. Files loaded later <strong>override</strong> values from files loaded earlier:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>File</th>
+        <th>When Loaded</th>
+        <th>Commit to Git?</th>
+        <th>Purpose</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>.env</code></td>
+        <td>Always</td>
+        <td>Yes (if no secrets)</td>
+        <td>Default values for all environments</td>
+      </tr>
+      <tr>
+        <td><code>.env.development</code></td>
+        <td><code>npm run dev</code></td>
+        <td>Yes (if no secrets)</td>
+        <td>Development-specific defaults</td>
+      </tr>
+      <tr>
+        <td><code>.env.production</code></td>
+        <td><code>npm run build</code> / <code>npm run start</code></td>
+        <td>Yes (if no secrets)</td>
+        <td>Production-specific defaults</td>
+      </tr>
+      <tr>
+        <td><code>.env.local</code></td>
+        <td>Always (except test)</td>
+        <td><strong>No -- never commit</strong></td>
+        <td>Local overrides with real secrets</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>The loading priority (highest wins) is:</p>
+
+  <div class="diagram">.env.local          (highest priority -- your personal secrets)
+    |
+.env.development    (or .env.production depending on mode)
+    |
+.env                (lowest priority -- shared defaults)</div>
+
+  <h3>.env.local: Your Personal Secrets File</h3>
+
+  <p>The <code>.env.local</code> file is where you put your actual, real secret values during development. This file is <strong>automatically added to .gitignore</strong> by <code>create-next-app</code> and should <strong>never be committed to Git</strong>.</p>
+
+  <pre><code># .env.local -- YOUR actual secrets (never commit this file!)
+
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=https://gzcmwpcxnwlgknhjijic.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+# Resend (email)
+RESEND_API_KEY=re_abc123def456
+
+# Session
+SESSION_SECRET=a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2</code></pre>
+
+  <h3>.env.development and .env.production</h3>
+
+  <p>These files contain <strong>non-secret</strong> defaults that are safe to commit. They provide sensible values that differ between environments:</p>
+
+  <pre><code># .env.development -- safe to commit (no real secrets)
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+NODE_ENV=development
+NEXT_PUBLIC_ENABLE_ANALYTICS=false
+
+# .env.production -- safe to commit (no real secrets)
+NEXT_PUBLIC_APP_URL=https://computerstoreks.com
+NEXT_PUBLIC_ENABLE_ANALYTICS=true</code></pre>
+
+  <p>When you run <code>npm run dev</code>, Next.js loads <code>.env.development</code>. When you run <code>npm run build</code>, it loads <code>.env.production</code>. In both cases, <code>.env.local</code> overrides any conflicting values.</p>
+
+  <div class="info-box">
+    <strong>How It Works Under the Hood</strong>
+    Next.js uses the <code>dotenv</code> library to parse <code>.env</code> files. Each line in the format <code>KEY=value</code> is injected into <code>process.env</code> at startup. Lines starting with <code>#</code> are comments. Blank lines are ignored. Values can be quoted with single or double quotes, which is useful for values containing spaces.
+  </div>
+
+  <!-- ============================================ SECTION: NEXT_PUBLIC_ PREFIX -->
+  <h2>The NEXT_PUBLIC_ Prefix: Browser vs. Server</h2>
+
+  <p>This is one of the most important concepts in Next.js environment variables, and misunderstanding it is one of the most common security mistakes beginners make.</p>
+
+  <p>By default, <strong>all environment variables are server-only</strong>. They are available in API routes, Server Components, and server-side code, but they are completely invisible to the browser. This is a security feature -- it prevents your database passwords and API keys from being sent to users' browsers.</p>
+
+  <p>To make an environment variable available in <strong>client-side code</strong> (React components that run in the browser), you must prefix its name with <code>NEXT_PUBLIC_</code>.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Variable Name</th>
+        <th>Available Server-Side?</th>
+        <th>Available Client-Side?</th>
+        <th>Use For</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>SUPABASE_SERVICE_ROLE_KEY</code></td>
+        <td>Yes</td>
+        <td>No</td>
+        <td>Server-only secrets (API keys, passwords)</td>
+      </tr>
+      <tr>
+        <td><code>RESEND_API_KEY</code></td>
+        <td>Yes</td>
+        <td>No</td>
+        <td>Server-only secrets</td>
+      </tr>
+      <tr>
+        <td><code>SESSION_SECRET</code></td>
+        <td>Yes</td>
+        <td>No</td>
+        <td>Encryption keys</td>
+      </tr>
+      <tr>
+        <td><code>NEXT_PUBLIC_SUPABASE_URL</code></td>
+        <td>Yes</td>
+        <td>Yes</td>
+        <td>Public URLs, public keys</td>
+      </tr>
+      <tr>
+        <td><code>NEXT_PUBLIC_APP_URL</code></td>
+        <td>Yes</td>
+        <td>Yes</td>
+        <td>Public configuration</td>
+      </tr>
+      <tr>
+        <td><code>NEXT_PUBLIC_TURNSTILE_SITE_KEY</code></td>
+        <td>Yes</td>
+        <td>Yes</td>
+        <td>Keys designed to be public</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="warning-box">
+    <strong>Critical Security Rule</strong>
+    Never add <code>NEXT_PUBLIC_</code> to a secret value. If you name a variable <code>NEXT_PUBLIC_DATABASE_PASSWORD</code>, that password will be included in the JavaScript bundle sent to every user's browser. Anyone who opens DevTools can see it. The <code>NEXT_PUBLIC_</code> prefix literally means "send this to every browser that visits the site."
+  </div>
+
+  <h3>How It Works Technically</h3>
+
+  <p>During the build process (<code>npm run build</code>), Next.js scans your client-side code for references to <code>process.env.NEXT_PUBLIC_*</code> and performs a <strong>string replacement</strong>. The variable reference is replaced with the actual value at build time:</p>
+
+  <pre><code>// What you write in your code:
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+
+// What the browser receives after build:
+const supabaseUrl = "https://gzcmwpcxnwlgknhjijic.supabase.co";</code></pre>
+
+  <p>This means <code>NEXT_PUBLIC_</code> values are baked into the build. If you change them, you need to rebuild and redeploy. Non-public variables, by contrast, are read at runtime and can be changed by simply restarting the server.</p>
+
+  <div class="analogy">
+    <strong>Analogy:</strong> Think of <code>NEXT_PUBLIC_</code> variables like a store's public phone number printed on the sign outside. Everyone can see it, and that is fine. Server-only variables are like the safe combination in the back office. Only employees with access to the back office (the server) should know it. You would never print the safe combination on the store sign.
+  </div>
+
+  <!-- ============================================ SECTION: PROCESS.ENV -->
+  <h2>Reading Environment Variables with process.env</h2>
+
+  <p>In Node.js (and by extension, Next.js), you read environment variables using the <code>process.env</code> object. It is a global object available in any server-side code without any imports.</p>
+
+  <h3>In API Routes (Server-Side)</h3>
+
+  <pre><code>// src/app/api/contact/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { Resend } from 'resend';
+
+export async function POST(request: NextRequest) {
+  // Read a server-only environment variable
+  const resend = new Resend(process.env.RESEND_API_KEY);
+
+  const notificationEmail = process.env.NOTIFICATION_EMAIL;
+
+  // Use the values
+  await resend.emails.send({
+    from: 'Contact Form &lt;noreply@computerstoreks.com&gt;',
+    to: notificationEmail!,
+    subject: 'New Contact Form Submission',
+    html: '&lt;p&gt;Someone reached out!&lt;/p&gt;',
+  });
+
+  return NextResponse.json({ success: true });
+}</code></pre>
+
+  <h3>In Server Components</h3>
+
+  <pre><code>// src/app/page.tsx (Server Component by default)
+export default function HomePage() {
+  // Server Components can read ALL environment variables
+  const dbUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY; // server-only, works here
+
+  return (
+    &lt;main&gt;
+      &lt;h1&gt;Welcome&lt;/h1&gt;
+      {/* Never render secret values in HTML! */}
+    &lt;/main&gt;
+  );
+}</code></pre>
+
+  <h3>In Client Components</h3>
+
+  <pre><code>// src/components/features/analytics.tsx
+'use client';
+
+export function Analytics() {
+  // Client Components can ONLY read NEXT_PUBLIC_ variables
+  const gaId = process.env.NEXT_PUBLIC_GA_ID;
+
+  // This would be undefined in the browser:
+  // const secret = process.env.SESSION_SECRET; // undefined!
+
+  if (!gaId) return null;
+
+  return &lt;script src={`https://analytics.example.com/${gaId}`} /&gt;;
+}</code></pre>
+
+  <h3>The TypeScript Type Issue</h3>
+
+  <p>Every value in <code>process.env</code> is typed as <code>string | undefined</code> in TypeScript. This means you will see type errors if you try to use a value without checking if it exists:</p>
+
+  <pre><code>// TypeScript error: Type 'string | undefined' is not assignable to type 'string'
+const apiKey: string = process.env.RESEND_API_KEY;
+
+// Solution 1: Non-null assertion (when you are sure it exists)
+const apiKey = process.env.RESEND_API_KEY!;
+
+// Solution 2: Default value
+const apiKey = process.env.RESEND_API_KEY ?? 'missing-key';
+
+// Solution 3: Runtime check (safest)
+const apiKey = process.env.RESEND_API_KEY;
+if (!apiKey) {
+  throw new Error('RESEND_API_KEY environment variable is not set');
+}</code></pre>
+
+  <!-- ============================================ SECTION: .ENV.EXAMPLE -->
+  <h2>Creating .env.example: The Documentation File</h2>
+
+  <p>Your <code>.env.local</code> file is not committed to Git, which means a new developer joining the project would have no idea what environment variables are needed. The solution is to create a <code>.env.example</code> file that documents every required variable with placeholder values and helpful comments. This file <strong>is</strong> committed to Git.</p>
+
+  <h3>The Format</h3>
+
+  <pre><code># .env.example -- Copy to .env.local and fill in real values
+# This file documents all environment variables needed by the application.
+# It is committed to Git. The .env.local file is NOT committed.
+
+# ===========================================
+# Supabase (Database & Authentication)
+# ===========================================
+# Dashboard: https://supabase.com/dashboard/project/YOUR_PROJECT
+
+# Supabase project URL (safe for client-side)
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+
+# Supabase anon/public key (safe for client-side)
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
+
+# Supabase service role key (SERVER-ONLY -- keep secret!)
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key_here
+
+# ===========================================
+# Email Service - Resend
+# ===========================================
+# Create API key at: https://resend.com/api-keys
+
+RESEND_API_KEY=re_your_resend_api_key_here
+NOTIFICATION_EMAIL=contact@yourdomain.com
+
+# ===========================================
+# Session Security
+# ===========================================
+# Generate with: openssl rand -hex 32
+# Must be exactly 64 hex characters
+
+SESSION_SECRET=</code></pre>
+
+  <h3>Best Practices for .env.example</h3>
+
+  <ul>
+    <li><strong>Group by service:</strong> Organize variables under clear headings (Supabase, Resend, GitHub, etc.)</li>
+    <li><strong>Explain where to find values:</strong> Include links to dashboards and setup pages</li>
+    <li><strong>Include generation commands:</strong> For secrets that need to be generated (like <code>openssl rand -hex 32</code>)</li>
+    <li><strong>Use placeholder values:</strong> Never put real keys in this file, even for a second</li>
+    <li><strong>Note which are public:</strong> Mark <code>NEXT_PUBLIC_</code> variables as safe for client-side</li>
+    <li><strong>Note which are required:</strong> Distinguish between required and optional variables</li>
+  </ul>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    The Computer Store KS <code>.env.example</code> file documents over 40 environment variables organized into clear groups: Application, GitHub Integration, Authentication, Session Security, RepairShopr Integration, Supabase, Resend Email, Cloudflare Turnstile, Google Business Profile, NinjaOne RMM, ESET Protect Cloud, Cytracom Phone System, and Feature Flags. Every variable includes a comment explaining where to find or generate the value. A new developer can copy this file to <code>.env.local</code> and systematically fill in each value.
+  </div>
+
+  <!-- ============================================ SECTION: NEVER COMMIT SECRETS -->
+  <h2>Never Committing Real Secrets</h2>
+
+  <p>This point is critical enough to warrant its own section. If a secret value (API key, password, encryption key) ever ends up in a Git commit, it is compromised. Even if you immediately delete the file and make a new commit, the secret still exists in the Git history and can be recovered.</p>
+
+  <h3>Defense Layer 1: .gitignore</h3>
+
+  <p>Your <code>.gitignore</code> file should include every file that might contain secrets:</p>
+
+  <pre><code># .gitignore -- environment files with secrets
+.env
+.env.local
+.env.development.local
+.env.production.local
+.env.test.local</code></pre>
+
+  <p>Notice that <code>.env.example</code> is <strong>not</strong> in this list. That is the documentation file with placeholder values, and it should be committed.</p>
+
+  <h3>Defense Layer 2: Pre-Commit Awareness</h3>
+
+  <p>Before every commit, run <code>git status</code> and <code>git diff</code> to review what you are about to commit. If you see a <code>.env</code> file in the list, stop immediately.</p>
+
+  <pre><code># Always review before committing
+$ git status
+$ git diff --staged
+
+# If you accidentally staged a .env file:
+$ git reset HEAD .env.local</code></pre>
+
+  <h3>Defense Layer 3: What To Do If a Secret Leaks</h3>
+
+  <ol>
+    <li><strong>Rotate the key immediately.</strong> Go to the service dashboard (Supabase, Resend, GitHub) and generate a new key. The old key is now compromised.</li>
+    <li><strong>Update the new key</strong> in your deployment platform (Render) and locally (<code>.env.local</code>).</li>
+    <li><strong>Clean the Git history</strong> if the repository is public (use <code>git filter-branch</code> or the BFG Repo Cleaner tool). For private repos, rotating the key is usually sufficient.</li>
+  </ol>
+
+  <div class="warning-box">
+    <strong>Real-World Consequence</strong>
+    In 2023, Toyota exposed customer data because a subcontractor accidentally committed an access key to a public GitHub repository. GitHub itself scans for common secret patterns and will alert you, but by the time the alert arrives, automated bots may have already harvested the key. Prevention is far easier than recovery.
+  </div>
+
+  <!-- ============================================ SECTION: DEPLOYMENT PLATFORMS -->
+  <h2>Managing Environment Variables in Deployment Platforms</h2>
+
+  <p>When your application runs on a hosting platform like Render, there are no <code>.env</code> files. Instead, you configure environment variables through the platform's dashboard or configuration file. The platform injects these values into the running application's environment.</p>
+
+  <h3>Render Dashboard</h3>
+
+  <p>In Render, you add environment variables in the service's settings page. Each variable has a key and a value. Render stores values encrypted and injects them when the service starts.</p>
+
+  <pre><code># What you see in Render's Environment tab:
+# Key                              Value
+# ──────────────────────────────   ─────────────────────────────
+# NODE_ENV                         production
+# RESEND_API_KEY                   re_abc123def456...
+# NEXT_PUBLIC_SUPABASE_URL         https://xxx.supabase.co
+# SUPABASE_SERVICE_ROLE_KEY        eyJhbGciOi...
+# SESSION_SECRET                   a1b2c3d4e5f6...</code></pre>
+
+  <h3>render.yaml (Infrastructure as Code)</h3>
+
+  <p>Render also supports defining environment variables in a <code>render.yaml</code> file. Non-secret values can be set directly. Secret values use <code>sync: false</code> to indicate they must be set manually in the dashboard:</p>
+
+  <pre><code>services:
+  - type: web
+    name: my-app-production
+    env: node
+    envVars:
+      # Non-secret: value is set directly in the file
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_APP_URL
+        value: https://myapp.com
+
+      # Secret: must be set manually in Render dashboard
+      - key: RESEND_API_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SESSION_SECRET
+        sync: false</code></pre>
+
+  <p>The <code>sync: false</code> flag means "this variable exists but its value is managed through the dashboard, not this file." This keeps secrets out of your repository while still documenting that the variable is required.</p>
+
+  <div class="info-box">
+    <strong>Other Platforms Work Similarly</strong>
+    Vercel, Railway, Fly.io, and AWS all have their own ways to set environment variables, but the concept is the same: you configure key-value pairs through a dashboard or CLI, and the platform injects them at runtime. The principles you learn here apply everywhere.
+  </div>
+
+  <!-- ============================================ SECTION: VALIDATION -->
+  <h2>Type Safety: Validating Environment Variables at Startup</h2>
+
+  <p>One of the most frustrating deployment failures is pushing your code, waiting for the build, and then discovering the app crashes because an environment variable is missing. You can prevent this by validating all required variables when the application starts.</p>
+
+  <h3>Simple Validation</h3>
+
+  <pre><code>// src/lib/env.ts -- validate environment variables at import time
+
+function requireEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) {
+    throw new Error(
+      `Missing required environment variable: ${name}\n` +
+      `Check your .env.local file or Render dashboard.`
+    );
+  }
+  return value;
+}
+
+// Server-only variables (will throw at startup if missing)
+export const env = {
+  supabaseUrl: requireEnv('NEXT_PUBLIC_SUPABASE_URL'),
+  supabaseAnonKey: requireEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY'),
+  supabaseServiceKey: requireEnv('SUPABASE_SERVICE_ROLE_KEY'),
+  resendApiKey: requireEnv('RESEND_API_KEY'),
+  sessionSecret: requireEnv('SESSION_SECRET'),
+  notificationEmail: requireEnv('NOTIFICATION_EMAIL'),
+} as const;</code></pre>
+
+  <h3>Zod-Based Validation (Recommended for Larger Projects)</h3>
+
+  <p>For more robust validation, use the Zod library to define a schema for your environment variables. This gives you type safety, transformation, and clear error messages:</p>
+
+  <pre><code>// src/lib/env.ts -- Zod-based environment validation
+import { z } from 'zod';
+
+const envSchema = z.object({
+  // Required server-only variables
+  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1, 'Supabase service key is required'),
+  RESEND_API_KEY: z.string().startsWith('re_', 'Must be a valid Resend API key'),
+  SESSION_SECRET: z.string().length(64, 'Must be exactly 64 hex characters'),
+  NOTIFICATION_EMAIL: z.string().email('Must be a valid email address'),
+
+  // Required public variables
+  NEXT_PUBLIC_SUPABASE_URL: z.string().url('Must be a valid URL'),
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1, 'Supabase anon key is required'),
+
+  // Optional variables with defaults
+  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+  NEXT_PUBLIC_ENABLE_ANALYTICS: z.string().transform(v => v === 'true').default('false'),
+});
+
+// Validate and export
+export const env = envSchema.parse(process.env);</code></pre>
+
+  <p>If any variable is missing or invalid, the application fails immediately with a clear error message instead of crashing mysteriously later when the variable is first used.</p>
+
+  <!-- ============================================ SECTION: ORGANIZATION -->
+  <h2>Organizing Variables by Service</h2>
+
+  <p>As your application grows, you may end up with dozens of environment variables. Keeping them organized makes them manageable. Group variables by the service or feature they support, and use clear comment headers.</p>
+
+  <pre><code># ===========================================
+# Application
+# ===========================================
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+NODE_ENV=development
+
+# ===========================================
+# Supabase (Database & Auth)
+# ===========================================
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+
+# ===========================================
+# Email Service (Resend)
+# ===========================================
+RESEND_API_KEY=
+NOTIFICATION_EMAIL=
+
+# ===========================================
+# Authentication
+# ===========================================
+AUTH_MODE=repairshopr
+SESSION_SECRET=
+REPAIRSHOPR_SUBDOMAIN=
+
+# ===========================================
+# GitHub Integration (Gallery Images)
+# ===========================================
+GITHUB_TOKEN=
+GITHUB_OWNER=
+GITHUB_REPO=
+GITHUB_BRANCH=
+
+# ===========================================
+# Bot Protection (Cloudflare Turnstile)
+# ===========================================
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=
+TURNSTILE_SECRET_KEY=
+
+# ===========================================
+# Feature Flags
+# ===========================================
+NEXT_PUBLIC_ENABLE_ANALYTICS=false
+NEXT_PUBLIC_MAINTENANCE_MODE=false</code></pre>
+
+  <p>This organizational pattern makes it easy to find the variable you need, understand what each service requires, and onboard new developers quickly.</p>
+
+  <!-- ============================================ SECTION: 12-FACTOR APP -->
+  <h2>The 12-Factor App: Configuration in the Environment</h2>
+
+  <p>The <strong>12-factor app methodology</strong> is a set of best practices for building modern web applications, originally published by developers at Heroku. Factor number three states:</p>
+
+  <blockquote style="border-left: 4px solid #0891b2; padding: 1rem 1.25rem; margin: 1.25rem 0; background: #f0f9ff; border-radius: 0 8px 8px 0; font-style: italic;">
+    "Store config in the environment. An app's config is everything that is likely to vary between deploys (staging, production, developer environments). Config should be strictly separated from code."
+  </blockquote>
+
+  <p>This principle drives everything we have learned in this lesson. The idea is simple but powerful: <strong>the same code should run in any environment without modification</strong>. The only things that change between environments are the environment variables.</p>
+
+  <p>This matters because:</p>
+
+  <ul>
+    <li><strong>No code changes for deployment:</strong> The code deployed to production is identical to the code tested in development. Only the configuration differs.</li>
+    <li><strong>No secrets in code:</strong> Credentials never touch the codebase.</li>
+    <li><strong>Easy scaling:</strong> Spinning up a new instance just means setting the same environment variables.</li>
+    <li><strong>Easy rotation:</strong> API keys can be rotated by updating the environment variable and restarting, with zero code changes.</li>
+  </ul>
+
+  <div class="info-box">
+    <strong>The Other 11 Factors</strong>
+    The 12-factor methodology also covers codebase management, dependencies, backing services, build/release/run stages, processes, port binding, concurrency, disposability, dev/prod parity, logs, and admin processes. You will encounter many of these principles throughout this phase of the curriculum.
+  </div>
+
+  <!-- ============================================ SECTION: COMPLETE EXAMPLE -->
+  <h2>Complete Example: Setting Up Environment Variables for a New Project</h2>
+
+  <p>Let us walk through setting up environment variables for a brand new project that uses Supabase and Resend, just like CSK.</p>
+
+  <h3>Step 1: Create .env.example</h3>
+
+  <pre><code># .env.example -- Copy to .env.local and fill in real values
+
+# ===========================================
+# Application
+# ===========================================
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+NODE_ENV=development
+
+# ===========================================
+# Supabase
+# ===========================================
+# Dashboard: https://supabase.com/dashboard
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key_here
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
+
+# ===========================================
+# Resend (Email)
+# ===========================================
+# API Keys: https://resend.com/api-keys
+RESEND_API_KEY=re_your_api_key_here
+NOTIFICATION_EMAIL=contact@yourdomain.com
+
+# ===========================================
+# Session
+# ===========================================
+# Generate: openssl rand -hex 32
+SESSION_SECRET=</code></pre>
+
+  <h3>Step 2: Create .env.local (Not Committed)</h3>
+
+  <pre><code># Copy .env.example and fill in real values
+$ cp .env.example .env.local
+
+# Edit with your real values
+$ nano .env.local</code></pre>
+
+  <h3>Step 3: Ensure .gitignore Excludes Secrets</h3>
+
+  <pre><code># In .gitignore
+.env
+.env.local
+.env.development.local
+.env.production.local
+.env.test.local</code></pre>
+
+  <h3>Step 4: Create the Validation Module</h3>
+
+  <pre><code>// src/lib/env.ts
+function requireEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${name}`);
+  }
+  return value;
+}
+
+export const env = {
+  supabaseUrl: requireEnv('NEXT_PUBLIC_SUPABASE_URL'),
+  supabaseAnonKey: requireEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY'),
+  supabaseServiceKey: requireEnv('SUPABASE_SERVICE_ROLE_KEY'),
+  resendApiKey: requireEnv('RESEND_API_KEY'),
+  notificationEmail: requireEnv('NOTIFICATION_EMAIL'),
+  sessionSecret: requireEnv('SESSION_SECRET'),
+};</code></pre>
+
+  <h3>Step 5: Use in Your Application Code</h3>
+
+  <pre><code>// src/lib/supabase.ts
+import { createClient } from '@supabase/supabase-js';
+
+// Public client (uses NEXT_PUBLIC_ variables -- works in browser)
+export const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+// Admin client (uses server-only variable -- API routes only)
+export const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);</code></pre>
+
+  <h3>Step 6: Configure in Render for Production</h3>
+
+  <p>In Render's dashboard, navigate to your service, click "Environment," and add each variable with its production value. For the <code>render.yaml</code> approach, list variables with <code>sync: false</code> for secrets.</p>
+
+  <h3>Step 7: Verify Everything Works</h3>
+
+  <pre><code># Start development server (reads .env.local)
+$ npm run dev
+
+# Test in browser: http://localhost:3000
+# Check server logs for any "Missing required environment variable" errors
+
+# Test a production build locally
+$ npm run build
+$ npm run start</code></pre>
+
+  <!-- ============================================ EXERCISES -->
+  <div class="exercises">
+    <h2>Exercises</h2>
+    <ol>
+      <li><strong>Create a .env.example file:</strong> For a hypothetical project that uses Supabase, Resend, and a weather API, write a complete <code>.env.example</code> with groups, comments, and placeholder values. Include at least 10 variables, with a mix of <code>NEXT_PUBLIC_</code> and server-only variables.</li>
+      <li><strong>Classify variables:</strong> Given this list of variables, mark each as <code>NEXT_PUBLIC_</code> (browser-safe) or server-only: database connection string, site URL, Stripe secret key, Stripe publishable key, Google Analytics ID, session encryption secret, API base URL for a public weather service. Explain your reasoning.</li>
+      <li><strong>Write a validation module:</strong> Create a <code>src/lib/env.ts</code> file that validates all required environment variables at import time using the <code>requireEnv</code> pattern. Include at least 6 variables and meaningful error messages.</li>
+      <li><strong>Debug the leak:</strong> You discover that <code>NEXT_PUBLIC_DATABASE_PASSWORD=supersecret123</code> was committed to Git three commits ago. Write out the exact steps you would take to fix this, in order of priority.</li>
+      <li><strong>Environment differences:</strong> Write three separate <code>.env</code> configurations (development, staging, production) for a project that connects to different Supabase projects in each environment, uses different Resend API keys, and enables analytics only in production.</li>
+      <li><strong>Explore the CSK .env.example:</strong> Look at the Computer Store KS <code>.env.example</code> file and count how many distinct services are configured. For each service, identify which variables are <code>NEXT_PUBLIC_</code> (browser-safe) and which are server-only.</li>
+    </ol>
+  </div>
+
+  <!-- ============================================ KEY TAKEAWAYS -->
+  <div class="key-takeaways">
+    <h2>Key Takeaways</h2>
+    <ul>
+      <li>Environment variables store configuration and secrets <strong>outside your code</strong>, keeping them secure and flexible across environments.</li>
+      <li>Next.js loads <code>.env</code> files automatically: <code>.env.local</code> for your secrets (never committed), <code>.env.development</code> and <code>.env.production</code> for safe defaults (committed).</li>
+      <li>The <code>NEXT_PUBLIC_</code> prefix makes a variable available in the browser. <strong>Never prefix secret values</strong> with <code>NEXT_PUBLIC_</code>.</li>
+      <li>Use <code>process.env.VARIABLE_NAME</code> to read environment variables in your code.</li>
+      <li>Create a <code>.env.example</code> file that documents every variable with placeholder values, organized by service. Commit this file to Git.</li>
+      <li>Validate environment variables at startup to catch missing values immediately instead of discovering them at runtime.</li>
+      <li>Deployment platforms like Render manage environment variables through dashboards or config files. Use <code>sync: false</code> in <code>render.yaml</code> for secrets.</li>
+      <li>The 12-factor app methodology teaches us to strictly separate configuration from code, storing it in the environment.</li>
+      <li>If a secret is ever committed to Git, <strong>rotate the key immediately</strong> -- deleting the commit is not enough.</li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- ============================================ BOTTOM NAV -->
+<nav class="lesson-nav bottom">
+  <a href="45-print-document-generation.html">&larr; Previous: Print Document Generation</a>
+  <span>Lesson 46 of 56</span>
+  <a href="47-build-process.html">Next: Build Process &amp; Standalone Output &rarr;</a>
+</nav>
+
+</body>
+</html>

@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 35: Data Validation with Zod — Full-Stack Web Dev Curriculum</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <nav class="lesson-nav">
+    <a href="34-rest-api-design.html">&larr; Previous Lesson</a>
+    <span>Lesson 35 of 56</span>
+    <a href="36-error-handling.html">Next Lesson &rarr;</a>
+  </nav>
+  <header class="lesson-header" style="background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 100%);">
+    <span class="phase-badge" style="background:rgba(124,58,237,0.3);">Phase 8: API Design &amp; Data Validation</span>
+    <h1>Lesson 35: Data Validation with Zod</h1>
+    <p class="lesson-subtitle">Never trust user input &mdash; learn to validate every piece of data your server receives</p>
+  </header>
+  <main class="lesson-content">
+
+    <section class="learning-objectives">
+      <h2>Learning Objectives</h2>
+      <ul>
+        <li>Explain why server-side validation is mandatory and client-side validation alone is never sufficient</li>
+        <li>Install and configure Zod for a TypeScript project</li>
+        <li>Create schemas for strings, numbers, booleans, objects, arrays, and unions</li>
+        <li>Apply constraints like min, max, email, url, uuid, and regex to schema fields</li>
+        <li>Use .parse() and .safeParse() and understand when to choose each one</li>
+        <li>Extract TypeScript types from Zod schemas using z.infer</li>
+        <li>Format Zod validation errors into user-friendly API responses</li>
+        <li>Build reusable validation schemas for real-world forms and API endpoints</li>
+      </ul>
+    </section>
+
+    <!-- ===== SECTION: WHY VALIDATION MATTERS ===== -->
+    <h2>Why Validation Matters</h2>
+
+    <p>Imagine you build a contact form for your website. The form has three fields: name, email, and message. You write beautiful frontend code that prevents the user from submitting an empty form, checks that the email looks valid, and limits the message to 1,000 characters. Everything works perfectly in your browser.</p>
+
+    <p>Then someone opens their browser's developer tools, finds your API endpoint (<code>/api/contact</code>), and sends this directly:</p>
+
+<pre><code>// What a malicious user can send, bypassing your frontend entirely
+POST /api/contact
+Content-Type: application/json
+
+{
+  "name": "",
+  "email": "not-an-email",
+  "message": "&lt;script&gt;alert('hacked')&lt;/script&gt;" + "x".repeat(1000000)
+}</code></pre>
+
+    <p>Without server-side validation, your server would happily accept this garbage data. The empty name gets stored in your database. The invalid email means you cannot reply. The enormous message wastes storage. The script tag could be a cross-site scripting (XSS) attack. Everything your careful frontend validation prevented is bypassed in seconds.</p>
+
+    <div class="warning-box">
+      <strong>The Cardinal Rule of Web Development</strong>
+      <em>Never trust data that comes from the client.</em> This is not a suggestion &mdash; it is a non-negotiable requirement. Anyone can send any data to your API endpoints using tools like cURL, Postman, or browser developer tools. Your frontend validation is a courtesy for honest users. Your server-side validation is your actual security boundary.
+    </div>
+
+    <h3>What Can Go Wrong Without Validation?</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Attack / Problem</th>
+          <th>What Happens</th>
+          <th>How Validation Prevents It</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>SQL injection</td>
+          <td>Attacker inserts SQL commands in form fields to manipulate your database</td>
+          <td>Validate that inputs are plain text, not SQL commands</td>
+        </tr>
+        <tr>
+          <td>XSS (Cross-Site Scripting)</td>
+          <td>Attacker inserts JavaScript that runs in other users' browsers</td>
+          <td>Sanitize and validate input; reject script tags</td>
+        </tr>
+        <tr>
+          <td>Data corruption</td>
+          <td>Invalid data types crash your application or corrupt your database</td>
+          <td>Ensure each field matches the expected type and format</td>
+        </tr>
+        <tr>
+          <td>Resource exhaustion</td>
+          <td>Enormous inputs consume memory and storage, causing outages</td>
+          <td>Enforce maximum lengths and sizes</td>
+        </tr>
+        <tr>
+          <td>Business logic violations</td>
+          <td>Invalid states in your data (negative prices, future birth dates)</td>
+          <td>Apply domain-specific validation rules</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Server-Side vs. Client-Side Validation</h3>
+
+    <p>You need <strong>both</strong> types of validation, but they serve different purposes:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Aspect</th>
+          <th>Client-Side (Browser)</th>
+          <th>Server-Side (API)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Purpose</strong></td>
+          <td>User experience &mdash; fast feedback</td>
+          <td>Security &mdash; data integrity</td>
+        </tr>
+        <tr>
+          <td><strong>Can be bypassed?</strong></td>
+          <td>Yes, easily</td>
+          <td>No (if implemented correctly)</td>
+        </tr>
+        <tr>
+          <td><strong>When it runs</strong></td>
+          <td>Before the form is submitted</td>
+          <td>After the server receives the request</td>
+        </tr>
+        <tr>
+          <td><strong>Required?</strong></td>
+          <td>Recommended for UX</td>
+          <td><strong>Mandatory for security</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Tools</strong></td>
+          <td>HTML attributes, JavaScript, React forms</td>
+          <td>Zod, Yup, Joi, manual checks</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="analogy">
+      <strong>Analogy: Airport Security</strong><br>
+      Client-side validation is like the airline's online check-in form that asks if you are carrying hazardous materials. Honest people answer truthfully, and it saves time. Server-side validation is like the actual security screening at the airport &mdash; everyone goes through it, regardless of what they said online. You would never remove airport security just because the website asked the question. Similarly, you never skip server-side validation just because you have frontend checks.
+    </div>
+
+    <!-- ===== SECTION: INTRODUCING ZOD ===== -->
+    <h2>Introducing Zod</h2>
+
+    <p><strong>Zod</strong> is a TypeScript-first validation library that lets you define schemas (shapes of data) and validate data against them. It was created by Colin McDonnell and has become the most popular validation library in the TypeScript ecosystem.</p>
+
+    <p>Why Zod specifically? Here are the key reasons:</p>
+
+    <ul>
+      <li><strong>TypeScript-first</strong> &mdash; Zod schemas automatically generate TypeScript types, so you define your data shape once and get both validation and type safety</li>
+      <li><strong>Zero dependencies</strong> &mdash; Zod has no external dependencies, keeping your bundle small</li>
+      <li><strong>Excellent error messages</strong> &mdash; Zod provides detailed, structured error information that is easy to format for API responses</li>
+      <li><strong>Composable</strong> &mdash; You can combine, extend, and reuse schemas like building blocks</li>
+      <li><strong>Works everywhere</strong> &mdash; Zod runs in Node.js, browsers, Deno, and edge runtimes</li>
+    </ul>
+
+    <h3>Installing Zod</h3>
+
+<pre><code># Install Zod in your project
+npm install zod
+
+# That is it. No additional setup or configuration needed.</code></pre>
+
+    <p>Import it in any file where you need validation:</p>
+
+<pre><code>import { z } from 'zod';</code></pre>
+
+    <p>The <code>z</code> object is the entry point to all of Zod's functionality. Every schema starts with <code>z.something()</code>.</p>
+
+    <!-- ===== SECTION: BASIC SCHEMAS ===== -->
+    <h2>Basic Schemas: Primitives</h2>
+
+    <p>Zod provides schema builders for every JavaScript primitive type. Let us start with the basics.</p>
+
+    <h3>z.string() &mdash; String Validation</h3>
+
+<pre><code>import { z } from 'zod';
+
+// Basic string schema
+const nameSchema = z.string();
+
+nameSchema.parse("Matthew");    // Returns "Matthew" (valid)
+nameSchema.parse(123);          // Throws ZodError (not a string)
+nameSchema.parse(undefined);    // Throws ZodError (required by default)
+nameSchema.parse("");           // Returns "" (empty string IS a valid string)</code></pre>
+
+    <h3>z.number() &mdash; Number Validation</h3>
+
+<pre><code>const ageSchema = z.number();
+
+ageSchema.parse(25);            // Returns 25
+ageSchema.parse(3.14);          // Returns 3.14
+ageSchema.parse("25");          // Throws ZodError (string, not number)
+ageSchema.parse(NaN);           // Throws ZodError (NaN is not a valid number)
+ageSchema.parse(Infinity);      // Returns Infinity (valid by default)</code></pre>
+
+    <h3>z.boolean() &mdash; Boolean Validation</h3>
+
+<pre><code>const activeSchema = z.boolean();
+
+activeSchema.parse(true);       // Returns true
+activeSchema.parse(false);      // Returns false
+activeSchema.parse("true");     // Throws ZodError (string, not boolean)
+activeSchema.parse(1);          // Throws ZodError (number, not boolean)</code></pre>
+
+    <h3>Other Primitive Types</h3>
+
+<pre><code>z.null();                       // Only accepts null
+z.undefined();                  // Only accepts undefined
+z.bigint();                     // Accepts BigInt values
+z.date();                       // Accepts Date objects
+z.symbol();                     // Accepts Symbol values
+
+// Literal values (exact match)
+z.literal("published");         // Only accepts the string "published"
+z.literal(42);                  // Only accepts the number 42
+z.literal(true);                // Only accepts true (not false)</code></pre>
+
+    <!-- ===== SECTION: CONSTRAINTS ===== -->
+    <h2>Adding Constraints</h2>
+
+    <p>Raw type checking is just the beginning. Zod's real power comes from <strong>constraints</strong> &mdash; rules that narrow down what values are acceptable.</p>
+
+    <h3>String Constraints</h3>
+
+<pre><code>// Length constraints
+z.string().min(1)                 // At least 1 character (non-empty)
+z.string().max(100)               // At most 100 characters
+z.string().length(5)              // Exactly 5 characters
+
+// Format validation
+z.string().email()                // Must be a valid email address
+z.string().url()                  // Must be a valid URL
+z.string().uuid()                 // Must be a valid UUID
+z.string().datetime()             // Must be a valid ISO 8601 datetime
+z.string().ip()                   // Must be a valid IP address
+
+// Pattern matching
+z.string().regex(/^[a-z0-9-]+$/)  // Must match the regex pattern
+z.string().startsWith("https://") // Must start with "https://"
+z.string().endsWith(".com")       // Must end with ".com"
+z.string().includes("@")          // Must contain "@"
+
+// Transformations (also constraints)
+z.string().trim()                 // Trims whitespace before validation
+z.string().toLowerCase()          // Converts to lowercase before validation
+z.string().toUpperCase()          // Converts to uppercase before validation
+
+// Combining multiple constraints
+const emailSchema = z.string()
+  .min(1, "Email is required")       // Custom error message
+  .max(255, "Email is too long")
+  .email("Please enter a valid email address");
+
+// Each constraint has an optional custom error message
+const nameSchema = z.string()
+  .min(1, "Name cannot be empty")
+  .max(100, "Name must be under 100 characters")
+  .trim();</code></pre>
+
+    <h3>Number Constraints</h3>
+
+<pre><code>z.number().min(0)                 // Must be >= 0
+z.number().max(100)               // Must be <= 100
+z.number().int()                  // Must be an integer (no decimals)
+z.number().positive()             // Must be > 0
+z.number().nonnegative()          // Must be >= 0
+z.number().negative()             // Must be < 0
+z.number().finite()               // Must not be Infinity
+z.number().multipleOf(5)          // Must be a multiple of 5
+
+// Combining constraints for a price field
+const priceSchema = z.number()
+  .nonnegative("Price cannot be negative")
+  .finite("Price must be a finite number")
+  .multipleOf(0.01, "Price must have at most 2 decimal places");
+
+// Combining constraints for an age field
+const ageSchema = z.number()
+  .int("Age must be a whole number")
+  .min(0, "Age cannot be negative")
+  .max(150, "Age seems unrealistic");</code></pre>
+
+    <h3>Date Constraints</h3>
+
+<pre><code>z.date().min(new Date("2020-01-01"))  // Must be after Jan 1, 2020
+z.date().max(new Date())               // Must be in the past (before now)</code></pre>
+
+    <div class="info-box">
+      <strong>Custom Error Messages</strong>
+      Every constraint method accepts an optional string or object as its last argument to customize the error message. Use human-readable messages that tell the user exactly what went wrong and how to fix it. Good: <code>"Email must be a valid email address"</code>. Bad: <code>"Validation failed for field 'email'"</code>.
+    </div>
+
+    <!-- ===== SECTION: OBJECTS ===== -->
+    <h2>z.object() &mdash; Validating Structured Data</h2>
+
+    <p>Most real-world validation involves objects (JSON bodies from API requests). <code>z.object()</code> lets you define the shape of an object with validated fields:</p>
+
+<pre><code>const contactFormSchema = z.object({
+  name: z.string().min(1, "Name is required").max(100),
+  email: z.string().email("Please enter a valid email"),
+  message: z.string()
+    .min(10, "Message must be at least 10 characters")
+    .max(1000, "Message must be under 1000 characters"),
+});
+
+// Valid data passes through
+contactFormSchema.parse({
+  name: "Matthew",
+  email: "matthew@example.com",
+  message: "I need help with my computer. It will not turn on."
+});
+// Returns the exact same object
+
+// Invalid data throws a ZodError
+contactFormSchema.parse({
+  name: "",
+  email: "not-an-email",
+  message: "Hi"
+});
+// Throws ZodError with details about all three failures</code></pre>
+
+    <h3>Optional Fields</h3>
+
+    <p>By default, all fields in a Zod object are required. To make a field optional:</p>
+
+<pre><code>const userSchema = z.object({
+  name: z.string().min(1),                    // Required
+  email: z.string().email(),                  // Required
+  phone: z.string().optional(),               // Optional (can be undefined)
+  bio: z.string().nullable(),                 // Can be null (but not undefined)
+  website: z.string().url().optional(),       // Optional, but if present must be a URL
+  nickname: z.string().nullish(),             // Can be null OR undefined
+});
+
+// All of these are valid:
+userSchema.parse({ name: "Matt", email: "m@e.com" });
+userSchema.parse({ name: "Matt", email: "m@e.com", phone: undefined });
+userSchema.parse({ name: "Matt", email: "m@e.com", bio: null });
+userSchema.parse({ name: "Matt", email: "m@e.com", phone: "555-0123" });</code></pre>
+
+    <p>Here is the difference between the three:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Method</th>
+          <th>Accepts <code>undefined</code>?</th>
+          <th>Accepts <code>null</code>?</th>
+          <th>Use When</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>.optional()</code></td>
+          <td>Yes</td>
+          <td>No</td>
+          <td>Field might not be sent at all</td>
+        </tr>
+        <tr>
+          <td><code>.nullable()</code></td>
+          <td>No</td>
+          <td>Yes</td>
+          <td>Field is always sent but might be null</td>
+        </tr>
+        <tr>
+          <td><code>.nullish()</code></td>
+          <td>Yes</td>
+          <td>Yes</td>
+          <td>Field might be missing or null</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Default Values</h3>
+
+    <p>You can set default values for optional fields:</p>
+
+<pre><code>const postSchema = z.object({
+  title: z.string().min(1),
+  content: z.string().min(1),
+  status: z.string().default("draft"),       // Defaults to "draft" if not provided
+  featured: z.boolean().default(false),       // Defaults to false
+  views: z.number().default(0),               // Defaults to 0
+});
+
+// If status is not provided, it becomes "draft"
+postSchema.parse({ title: "Hello", content: "World" });
+// Returns: { title: "Hello", content: "World", status: "draft", featured: false, views: 0 }</code></pre>
+
+    <h3>Nested Objects</h3>
+
+    <p>Objects can contain other objects:</p>
+
+<pre><code>const addressSchema = z.object({
+  street: z.string().min(1),
+  city: z.string().min(1),
+  state: z.string().length(2),
+  zip: z.string().regex(/^\d{5}(-\d{4})?$/, "Invalid ZIP code"),
+});
+
+const customerSchema = z.object({
+  name: z.string().min(1),
+  email: z.string().email(),
+  address: addressSchema,              // Nested object schema
+  billingAddress: addressSchema.optional(), // Optional nested object
+});</code></pre>
+
+    <h3>Stripping Unknown Keys</h3>
+
+    <p>By default, Zod <strong>strips</strong> unknown keys from objects. If the client sends extra fields that are not in your schema, they are silently removed:</p>
+
+<pre><code>const schema = z.object({
+  name: z.string(),
+  email: z.string().email(),
+});
+
+const result = schema.parse({
+  name: "Matthew",
+  email: "m@e.com",
+  role: "admin",          // Not in schema &mdash; will be stripped
+  isHacker: true,         // Not in schema &mdash; will be stripped
+});
+
+// result = { name: "Matthew", email: "m@e.com" }
+// The extra fields are gone! This is a security feature.</code></pre>
+
+    <p>If you want to explicitly reject unknown keys (instead of stripping them), use <code>.strict()</code>:</p>
+
+<pre><code>const strictSchema = z.object({
+  name: z.string(),
+}).strict();
+
+strictSchema.parse({ name: "Matt", extra: "field" });
+// Throws ZodError: "Unrecognized key(s) in object: 'extra'"</code></pre>
+
+    <!-- ===== SECTION: ARRAYS AND UNIONS ===== -->
+    <h2>Arrays and Union Types</h2>
+
+    <h3>z.array() &mdash; Validating Lists</h3>
+
+<pre><code>// Array of strings
+const tagsSchema = z.array(z.string());
+tagsSchema.parse(["javascript", "react", "nextjs"]); // Valid
+tagsSchema.parse([]);                                  // Valid (empty array)
+tagsSchema.parse(["valid", 123]);                     // Error: element at index 1
+
+// Array with constraints
+const tagsWithLimits = z.array(z.string())
+  .min(1, "At least one tag is required")
+  .max(10, "Maximum 10 tags allowed");
+
+// Array of objects
+const commentsSchema = z.array(z.object({
+  author: z.string().min(1),
+  body: z.string().min(1).max(500),
+  created_at: z.string().datetime(),
+}));</code></pre>
+
+    <h3>z.union() &mdash; Multiple Possible Types</h3>
+
+    <p>Sometimes a field can accept more than one type:</p>
+
+<pre><code>// A field that can be a string or a number
+const idSchema = z.union([z.string(), z.number()]);
+idSchema.parse("abc-123");    // Valid
+idSchema.parse(42);            // Valid
+idSchema.parse(true);          // Error
+
+// Shorthand using .or()
+const idSchemaAlt = z.string().or(z.number());</code></pre>
+
+    <h3>z.discriminatedUnion() &mdash; Tagged Unions</h3>
+
+    <p>When you have objects that share a common "type" field, use discriminated unions for better error messages:</p>
+
+<pre><code>const notificationSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("email"),
+    to: z.string().email(),
+    subject: z.string(),
+    body: z.string(),
+  }),
+  z.object({
+    type: z.literal("sms"),
+    phone: z.string(),
+    message: z.string().max(160),
+  }),
+  z.object({
+    type: z.literal("push"),
+    deviceToken: z.string(),
+    title: z.string(),
+    body: z.string(),
+  }),
+]);
+
+// Zod knows which shape to validate against based on the "type" field
+notificationSchema.parse({
+  type: "email",
+  to: "matt@example.com",
+  subject: "Hello",
+  body: "World"
+}); // Valid
+
+notificationSchema.parse({
+  type: "sms",
+  phone: "555-0123",
+  message: "Hello"
+}); // Valid
+
+notificationSchema.parse({
+  type: "email",
+  phone: "555-0123",  // Wrong! Email needs "to", not "phone"
+}); // Error: clear message about missing "to" field</code></pre>
+
+    <h3>z.enum() &mdash; Restricting to Specific Values</h3>
+
+<pre><code>// Only accept specific string values
+const statusSchema = z.enum(["draft", "published", "archived"]);
+statusSchema.parse("published"); // Valid
+statusSchema.parse("deleted");   // Error: invalid value
+
+// Use with objects
+const postSchema = z.object({
+  title: z.string(),
+  status: z.enum(["draft", "published", "archived"]),
+});</code></pre>
+
+    <!-- ===== SECTION: PARSE VS SAFEPARSE ===== -->
+    <h2>.parse() vs. .safeParse()</h2>
+
+    <p>Zod provides two ways to validate data. Understanding when to use each is critical.</p>
+
+    <h3>.parse() &mdash; Throws on Failure</h3>
+
+    <p><code>.parse()</code> returns the validated data if it is valid, or <strong>throws a ZodError</strong> if it is not:</p>
+
+<pre><code>const schema = z.string().email();
+
+// Success: returns the validated value
+const email = schema.parse("user@example.com");
+console.log(email); // "user@example.com"
+
+// Failure: THROWS an error
+try {
+  schema.parse("not-an-email");
+} catch (error) {
+  // error is a ZodError
+  console.log(error.errors);
+  // [{ code: "invalid_string", message: "Invalid email", path: [] }]
+}</code></pre>
+
+    <p>Use <code>.parse()</code> when invalid data should stop execution entirely &mdash; for example, in middleware that rejects bad requests.</p>
+
+    <h3>.safeParse() &mdash; Never Throws</h3>
+
+    <p><code>.safeParse()</code> returns a result object that tells you whether validation succeeded or failed, without ever throwing an error:</p>
+
+<pre><code>const schema = z.string().email();
+
+// Success case
+const good = schema.safeParse("user@example.com");
+// good = { success: true, data: "user@example.com" }
+
+// Failure case
+const bad = schema.safeParse("not-an-email");
+// bad = { success: false, error: ZodError }
+
+// Use it with a conditional
+if (good.success) {
+  console.log("Valid email:", good.data);
+} else {
+  console.log("Errors:", good.error.errors);
+}</code></pre>
+
+    <p>Use <code>.safeParse()</code> when you want to handle validation errors yourself, such as in API routes where you need to return a formatted error response.</p>
+
+    <h3>When to Use Each</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Use <code>.parse()</code> When</th>
+          <th>Use <code>.safeParse()</code> When</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Invalid data should crash (middleware, scripts)</td>
+          <td>You need to format errors for an API response</td>
+        </tr>
+        <tr>
+          <td>You already have try/catch around the call</td>
+          <td>You want to check success/failure without try/catch</td>
+        </tr>
+        <tr>
+          <td>Inside a try/catch block that handles all errors</td>
+          <td>You want to collect errors from multiple fields</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="info-box">
+      <strong>Practical Rule of Thumb</strong>
+      In API route handlers, use <code>.safeParse()</code> so you can return a proper 422 error response with field-level error details. In scripts, utilities, and internal functions where invalid data is a programmer error, use <code>.parse()</code> with try/catch.
+    </div>
+
+    <!-- ===== SECTION: ERROR HANDLING ===== -->
+    <h2>Handling Validation Errors</h2>
+
+    <p>When validation fails, Zod provides a rich <code>ZodError</code> object with detailed information about every problem. Let us learn to format these errors into clean API responses.</p>
+
+    <h3>The ZodError Structure</h3>
+
+<pre><code>const schema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email address"),
+  age: z.number().int().min(0).max(150),
+});
+
+const result = schema.safeParse({
+  name: "",
+  email: "bad-email",
+  age: -5,
+});
+
+if (!result.success) {
+  console.log(result.error.errors);
+  // [
+  //   {
+  //     code: "too_small",
+  //     minimum: 1,
+  //     type: "string",
+  //     inclusive: true,
+  //     message: "Name is required",
+  //     path: ["name"]            &lt;-- Which field failed
+  //   },
+  //   {
+  //     code: "invalid_string",
+  //     validation: "email",
+  //     message: "Invalid email address",
+  //     path: ["email"]
+  //   },
+  //   {
+  //     code: "too_small",
+  //     minimum: 0,
+  //     type: "number",
+  //     inclusive: true,
+  //     message: "Number must be greater than or equal to 0",
+  //     path: ["age"]
+  //   }
+  // ]
+}</code></pre>
+
+    <h3>Formatting Errors for API Responses</h3>
+
+    <p>You can use Zod's built-in <code>.flatten()</code> or <code>.format()</code> methods, or write your own formatter:</p>
+
+<pre><code>// Method 1: Using .flatten() &mdash; groups errors by field
+const flattened = result.error.flatten();
+// {
+//   formErrors: [],                      &lt;-- Errors not tied to a specific field
+//   fieldErrors: {
+//     name: ["Name is required"],
+//     email: ["Invalid email address"],
+//     age: ["Number must be greater than or equal to 0"]
+//   }
+// }
+
+// Method 2: Custom formatter for API responses
+function formatZodErrors(error: z.ZodError) {
+  return error.errors.map((err) => ({
+    field: err.path.join('.'),
+    message: err.message,
+  }));
+}
+
+const formatted = formatZodErrors(result.error);
+// [
+//   { field: "name", message: "Name is required" },
+//   { field: "email", message: "Invalid email address" },
+//   { field: "age", message: "Number must be greater than or equal to 0" }
+// ]</code></pre>
+
+    <h3>Complete API Route with Zod Validation</h3>
+
+<pre><code>// src/app/api/contact/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+
+// Define the schema for contact form submissions
+const contactSchema = z.object({
+  name: z.string()
+    .min(1, "Name is required")
+    .max(100, "Name must be under 100 characters")
+    .trim(),
+  email: z.string()
+    .min(1, "Email is required")
+    .email("Please enter a valid email address")
+    .max(255, "Email is too long"),
+  message: z.string()
+    .min(10, "Message must be at least 10 characters")
+    .max(1000, "Message must be under 1000 characters")
+    .trim(),
+});
+
+export async function POST(request: NextRequest) {
+  try {
+    // Parse the request body
+    const body = await request.json();
+
+    // Validate with safeParse (does not throw)
+    const validation = contactSchema.safeParse(body);
+
+    if (!validation.success) {
+      // Return 422 with field-level error details
+      return NextResponse.json(
+        {
+          error: {
+            message: "Validation failed",
+            code: "VALIDATION_ERROR",
+            details: validation.error.errors.map((err) => ({
+              field: err.path.join('.'),
+              message: err.message,
+            })),
+          },
+        },
+        { status: 422 }
+      );
+    }
+
+    // validation.data is now typed and validated!
+    const { name, email, message } = validation.data;
+
+    // Process the validated data (send email, store in database, etc.)
+    await sendContactEmail({ name, email, message });
+
+    return NextResponse.json(
+      { data: { message: "Contact form submitted successfully" } },
+      { status: 201 }
+    );
+
+  } catch (error) {
+    // Handle unexpected errors (JSON parse failure, network issues, etc.)
+    return NextResponse.json(
+      {
+        error: {
+          message: "An unexpected error occurred",
+          code: "INTERNAL_ERROR",
+        },
+      },
+      { status: 500 }
+    );
+  }
+}</code></pre>
+
+    <div class="csk-connection">
+      <strong>CSK Connection</strong>
+      The Computer Store KS contact form uses exactly this pattern. The API route at <code>/api/contact</code> validates the name, email, and message fields before passing them to the Resend email service. Invalid submissions get a clear error response. Valid submissions trigger an email to the shop's notification address. Zod ensures that no garbage data ever reaches the email service.
+    </div>
+
+    <!-- ===== SECTION: TYPE INFERENCE ===== -->
+    <h2>Type Inference with z.infer</h2>
+
+    <p>One of Zod's most powerful features is automatic TypeScript type generation. Instead of defining your schema <em>and</em> a separate TypeScript type (and keeping them in sync), you define the schema once and derive the type from it.</p>
+
+<pre><code>import { z } from 'zod';
+
+// Define the schema once
+const userSchema = z.object({
+  id: z.number(),
+  name: z.string().min(1),
+  email: z.string().email(),
+  role: z.enum(["admin", "editor", "viewer"]),
+  bio: z.string().optional(),
+  created_at: z.string().datetime(),
+});
+
+// Derive the TypeScript type FROM the schema
+type User = z.infer&lt;typeof userSchema&gt;;
+
+// This is equivalent to writing:
+// type User = {
+//   id: number;
+//   name: string;
+//   email: string;
+//   role: "admin" | "editor" | "viewer";
+//   bio?: string | undefined;
+//   created_at: string;
+// }
+
+// Now you can use the type throughout your codebase
+function displayUser(user: User) {
+  console.log(`${user.name} (${user.role})`);
+  if (user.bio) {
+    console.log(user.bio);
+  }
+}
+
+// And validate incoming data against the same shape
+const validated = userSchema.parse(incomingData);
+displayUser(validated); // TypeScript knows this is safe!</code></pre>
+
+    <p>This is the "define once, use everywhere" principle. Your schema is the single source of truth for both validation logic and TypeScript types.</p>
+
+    <h3>Input vs. Output Types</h3>
+
+    <p>When schemas include transformations or defaults, the input type (what you pass in) can differ from the output type (what you get back):</p>
+
+<pre><code>const postSchema = z.object({
+  title: z.string(),
+  status: z.string().default("draft"),  // Optional input, always present in output
+});
+
+// Input type: what the client can send
+type PostInput = z.input&lt;typeof postSchema&gt;;
+// { title: string; status?: string | undefined }
+
+// Output type: what you get after parsing
+type PostOutput = z.infer&lt;typeof postSchema&gt;;
+// { title: string; status: string }
+// Notice: status is NOT optional in the output because of .default()</code></pre>
+
+    <!-- ===== SECTION: REUSABLE SCHEMAS ===== -->
+    <h2>Reusable Schemas Across API Routes</h2>
+
+    <p>In a real application, the same validation rules appear in multiple places. For example, an email field has the same constraints in the contact form, the registration form, and the profile update form. Zod schemas are just JavaScript values, so you can share them easily.</p>
+
+<pre><code>// src/lib/schemas/common.ts
+import { z } from 'zod';
+
+// Reusable field schemas
+export const emailField = z.string()
+  .min(1, "Email is required")
+  .email("Please enter a valid email")
+  .max(255)
+  .toLowerCase()
+  .trim();
+
+export const nameField = z.string()
+  .min(1, "Name is required")
+  .max(100, "Name must be under 100 characters")
+  .trim();
+
+export const slugField = z.string()
+  .min(1)
+  .max(200)
+  .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug must be lowercase with hyphens");
+
+export const idField = z.number().int().positive();</code></pre>
+
+<pre><code>// src/lib/schemas/contact.ts
+import { z } from 'zod';
+import { emailField, nameField } from './common';
+
+export const contactFormSchema = z.object({
+  name: nameField,
+  email: emailField,
+  message: z.string()
+    .min(10, "Message must be at least 10 characters")
+    .max(1000, "Message must be under 1000 characters")
+    .trim(),
+});
+
+export type ContactFormData = z.infer&lt;typeof contactFormSchema&gt;;</code></pre>
+
+<pre><code>// src/lib/schemas/blog.ts
+import { z } from 'zod';
+import { slugField } from './common';
+
+export const createPostSchema = z.object({
+  title: z.string().min(1, "Title is required").max(200),
+  slug: slugField,
+  content: z.string().min(1, "Content is required"),
+  excerpt: z.string().max(300).optional(),
+  category_id: z.number().int().positive().optional(),
+  tags: z.array(z.string()).max(10).optional(),
+  status: z.enum(["draft", "published"]).default("draft"),
+  featured_image: z.string().url().optional(),
+});
+
+export const updatePostSchema = createPostSchema.partial();
+// .partial() makes ALL fields optional &mdash; perfect for PATCH requests
+
+export type CreatePostData = z.infer&lt;typeof createPostSchema&gt;;
+export type UpdatePostData = z.infer&lt;typeof updatePostSchema&gt;;</code></pre>
+
+    <p>Notice <code>.partial()</code> &mdash; it takes an existing schema and makes every field optional. This is perfect for PATCH (partial update) endpoints where the client only sends the fields they want to change.</p>
+
+    <h3>Other Schema Composition Methods</h3>
+
+<pre><code>// .pick() &mdash; select specific fields
+const titleOnlySchema = createPostSchema.pick({ title: true, slug: true });
+// Only validates title and slug
+
+// .omit() &mdash; exclude specific fields
+const noIdSchema = userSchema.omit({ id: true, created_at: true });
+// Validates everything except id and created_at
+
+// .extend() &mdash; add new fields to an existing schema
+const adminPostSchema = createPostSchema.extend({
+  pinned: z.boolean().default(false),
+  internal_notes: z.string().optional(),
+});
+
+// .merge() &mdash; combine two schemas
+const fullProfileSchema = userSchema.merge(addressSchema);</code></pre>
+
+    <!-- ===== SECTION: TRANSFORM AND REFINE ===== -->
+    <h2>Transform and Refine: Advanced Validation</h2>
+
+    <h3>.transform() &mdash; Converting Data</h3>
+
+    <p><code>.transform()</code> lets you modify data after it passes validation. This is useful for normalizing input:</p>
+
+<pre><code>// Convert a string to a number
+const stringToNumber = z.string().transform((val) => parseInt(val, 10));
+stringToNumber.parse("42"); // Returns the number 42
+
+// Normalize an email address
+const normalizedEmail = z.string()
+  .email()
+  .transform((email) => email.toLowerCase().trim());
+normalizedEmail.parse("  User@Example.COM  "); // Returns "user@example.com"
+
+// Generate a slug from a title
+const titleWithSlug = z.object({
+  title: z.string().min(1),
+}).transform((data) => ({
+  ...data,
+  slug: data.title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, ''),
+}));
+
+titleWithSlug.parse({ title: "My First Blog Post!" });
+// Returns: { title: "My First Blog Post!", slug: "my-first-blog-post" }</code></pre>
+
+    <h3>.refine() &mdash; Custom Validation Rules</h3>
+
+    <p><code>.refine()</code> lets you add any custom validation logic that Zod does not provide built-in:</p>
+
+<pre><code>// Password with custom strength check
+const passwordSchema = z.string()
+  .min(12, "Password must be at least 12 characters")
+  .refine(
+    (password) => /[A-Z]/.test(password),
+    "Password must contain at least one uppercase letter"
+  )
+  .refine(
+    (password) => /[a-z]/.test(password),
+    "Password must contain at least one lowercase letter"
+  )
+  .refine(
+    (password) => /[0-9]/.test(password),
+    "Password must contain at least one number"
+  );
+
+// Cross-field validation using .superRefine() on the object
+const registrationSchema = z.object({
+  password: z.string().min(12),
+  confirmPassword: z.string(),
+}).refine(
+  (data) => data.password === data.confirmPassword,
+  {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],  // Attach error to the confirmPassword field
+  }
+);
+
+// Date range validation
+const dateRangeSchema = z.object({
+  startDate: z.string().datetime(),
+  endDate: z.string().datetime(),
+}).refine(
+  (data) => new Date(data.endDate) > new Date(data.startDate),
+  {
+    message: "End date must be after start date",
+    path: ["endDate"],
+  }
+);</code></pre>
+
+    <div class="warning-box">
+      <strong>Transform vs. Refine Order</strong>
+      Transformations and refinements are applied in the order they are chained. If you <code>.transform()</code> data and then <code>.refine()</code>, the refinement runs on the <em>transformed</em> data. If you <code>.refine()</code> first and then <code>.transform()</code>, the refinement runs on the <em>original</em> data. Keep this order in mind when combining them.
+    </div>
+
+    <!-- ===== SECTION: COMPLETE EXAMPLE ===== -->
+    <h2>Complete Example: Validating a Contact Form End-to-End</h2>
+
+    <p>Let us build a complete contact form validation flow from schema definition to API response. This mirrors the actual Computer Store KS contact form implementation.</p>
+
+    <h3>Step 1: Define the Schema</h3>
+
+<pre><code>// src/lib/schemas/contact.ts
+import { z } from 'zod';
+
+export const contactFormSchema = z.object({
+  name: z.string()
+    .min(1, "Name is required")
+    .max(100, "Name must be under 100 characters")
+    .trim(),
+  email: z.string()
+    .min(1, "Email is required")
+    .email("Please enter a valid email address")
+    .max(255, "Email address is too long")
+    .toLowerCase()
+    .trim(),
+  message: z.string()
+    .min(10, "Message must be at least 10 characters")
+    .max(1000, "Message must be under 1000 characters")
+    .trim(),
+});
+
+// Derive the TypeScript type
+export type ContactFormData = z.infer&lt;typeof contactFormSchema&gt;;
+// { name: string; email: string; message: string; }</code></pre>
+
+    <h3>Step 2: Create a Validation Helper</h3>
+
+<pre><code>// src/lib/validation.ts
+import { z } from 'zod';
+
+/**
+ * Formats ZodError into a clean API error response shape.
+ */
+export function formatValidationErrors(error: z.ZodError) {
+  return {
+    message: "Validation failed",
+    code: "VALIDATION_ERROR",
+    details: error.errors.map((err) => ({
+      field: err.path.join('.'),
+      message: err.message,
+    })),
+  };
+}</code></pre>
+
+    <h3>Step 3: Use in the API Route</h3>
+
+<pre><code>// src/app/api/contact/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { contactFormSchema } from '@/lib/schemas/contact';
+import { formatValidationErrors } from '@/lib/validation';
+import { sendContactEmail } from '@/lib/email';
+
+export async function POST(request: NextRequest) {
+  try {
+    // 1. Parse the JSON body
+    let body;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { error: { message: "Invalid JSON", code: "INVALID_JSON" } },
+        { status: 400 }
+      );
+    }
+
+    // 2. Validate against the schema
+    const validation = contactFormSchema.safeParse(body);
+
+    if (!validation.success) {
+      return NextResponse.json(
+        { error: formatValidationErrors(validation.error) },
+        { status: 422 }
+      );
+    }
+
+    // 3. Use the validated, typed data
+    const { name, email, message } = validation.data;
+
+    // 4. Process (send email)
+    await sendContactEmail({ name, email, message });
+
+    // 5. Return success
+    return NextResponse.json(
+      { data: { message: "Your message has been sent successfully" } },
+      { status: 201 }
+    );
+
+  } catch (error) {
+    console.error("Contact form error:", error);
+    return NextResponse.json(
+      { error: { message: "An unexpected error occurred", code: "INTERNAL_ERROR" } },
+      { status: 500 }
+    );
+  }
+}</code></pre>
+
+    <h3>Step 4: Reuse the Same Schema on the Frontend</h3>
+
+<pre><code>// src/components/ContactForm.tsx
+'use client';
+import { useState } from 'react';
+import { contactFormSchema, type ContactFormData } from '@/lib/schemas/contact';
+
+export function ContactForm() {
+  const [errors, setErrors] = useState&lt;Record&lt;string, string&gt;&gt;({});
+
+  async function handleSubmit(formData: FormData) {
+    const data = {
+      name: formData.get('name') as string,
+      email: formData.get('email') as string,
+      message: formData.get('message') as string,
+    };
+
+    // Client-side validation using the SAME schema
+    const validation = contactFormSchema.safeParse(data);
+    if (!validation.success) {
+      const fieldErrors: Record&lt;string, string&gt; = {};
+      validation.error.errors.forEach((err) => {
+        const field = err.path[0] as string;
+        fieldErrors[field] = err.message;
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+
+    // Submit to API (which also validates with the same schema)
+    const response = await fetch('/api/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(validation.data),
+    });
+
+    if (!response.ok) {
+      const json = await response.json();
+      // Handle server-side validation errors (if client-side was bypassed)
+      if (json.error?.details) {
+        const fieldErrors: Record&lt;string, string&gt; = {};
+        json.error.details.forEach((detail: { field: string; message: string }) => {
+          fieldErrors[detail.field] = detail.message;
+        });
+        setErrors(fieldErrors);
+      }
+    }
+  }
+
+  return (
+    &lt;form action={handleSubmit}&gt;
+      {/* Form fields with error display */}
+    &lt;/form&gt;
+  );
+}</code></pre>
+
+    <p>The key insight here is that <strong>the same Zod schema validates data on both the client and the server</strong>. This ensures identical rules everywhere and eliminates the problem of client and server validation getting out of sync.</p>
+
+    <div class="csk-connection">
+      <strong>CSK Connection</strong>
+      Zod validates data throughout the Computer Store KS codebase. Contact form submissions are validated for name, email, and message before being sent via Resend. Blog posts are validated for title, content, and slug before being stored in Supabase. Gallery entries are validated for required specs and pricing data. Every API route that accepts user input validates it with Zod schemas, ensuring no invalid data ever reaches the database or external services.
+    </div>
+
+    <!-- ===== EXERCISES ===== -->
+    <section class="exercises">
+      <h2>Practice Exercises</h2>
+      <ol>
+        <li><strong>Basic Schemas:</strong> Create Zod schemas for the following data types and test them with both valid and invalid inputs:
+          <ul>
+            <li>An email address that is required, has a max length of 255, and is automatically lowercased</li>
+            <li>A price field that must be a positive number with at most 2 decimal places</li>
+            <li>A username that is 3-20 characters, only contains letters, numbers, and underscores</li>
+          </ul>
+        </li>
+        <li><strong>Object Validation:</strong> Create a Zod schema for a "product" object with the following fields: name (required, 1-200 chars), description (optional, max 2000 chars), price (required, positive number), category (must be one of "electronics", "accessories", "services"), in_stock (boolean, default true), tags (array of strings, max 5). Test it with valid data, missing required fields, and invalid types.</li>
+        <li><strong>API Error Formatting:</strong> Write a function called <code>formatApiError</code> that takes a <code>ZodError</code> and returns a JSON object matching the <code>{ error: { message, code, details } }</code> pattern from Lesson 34. Test it with a schema that has at least 3 fields, all with invalid data.</li>
+        <li><strong>Parse vs. SafeParse:</strong> Write two versions of a validation function for a user registration form (email, password, confirmPassword). One version uses <code>.parse()</code> with try/catch. The other uses <code>.safeParse()</code> with conditional logic. Compare the code and explain when you would use each approach.</li>
+        <li><strong>Schema Composition:</strong> Create a <code>createUserSchema</code> with name, email, password, and role fields. Then derive three additional schemas from it: <code>updateUserSchema</code> (all fields optional using .partial()), <code>publicUserSchema</code> (no password using .omit()), and <code>loginSchema</code> (only email and password using .pick()). Verify each derived schema works correctly.</li>
+        <li><strong>Full API Route:</strong> Build a complete Next.js API route handler for a blog post creation endpoint (<code>POST /api/posts</code>). Include: a Zod schema with at least 5 fields, safeParse validation, formatted error responses for 400 (bad JSON) and 422 (validation failure), a success response with 201 status, and type inference using z.infer.</li>
+      </ol>
+    </section>
+
+    <!-- ===== KEY TAKEAWAYS ===== -->
+    <section class="key-takeaways">
+      <h2>Key Takeaways</h2>
+      <ul>
+        <li>Server-side validation is mandatory. Client-side validation is for user experience; server-side validation is for security. Never trust data from the client.</li>
+        <li>Zod is a TypeScript-first validation library that lets you define schemas with <code>z.string()</code>, <code>z.number()</code>, <code>z.boolean()</code>, <code>z.object()</code>, <code>z.array()</code>, and more.</li>
+        <li>Constraints like <code>.min()</code>, <code>.max()</code>, <code>.email()</code>, <code>.url()</code>, and <code>.regex()</code> add validation rules to schemas. Custom error messages make errors user-friendly.</li>
+        <li>Use <code>.safeParse()</code> in API routes to get a success/failure result without exceptions. Use <code>.parse()</code> when invalid data should throw an error.</li>
+        <li><code>z.infer&lt;typeof schema&gt;</code> extracts a TypeScript type from a Zod schema, giving you validation and type safety from a single source of truth.</li>
+        <li>Schema composition methods (<code>.partial()</code>, <code>.pick()</code>, <code>.omit()</code>, <code>.extend()</code>) let you derive new schemas from existing ones, keeping validation DRY.</li>
+        <li><code>.transform()</code> modifies data after validation (normalizing emails, generating slugs). <code>.refine()</code> adds custom validation logic (password matching, date ranges).</li>
+        <li>Share the same Zod schema between frontend and backend to ensure identical validation rules everywhere.</li>
+      </ul>
+    </section>
+
+  </main>
+  <nav class="lesson-nav bottom">
+    <a href="34-rest-api-design.html">&larr; Previous Lesson</a>
+    <a href="../index.html">Back to Curriculum</a>
+    <a href="36-error-handling.html">Next Lesson &rarr;</a>
+  </nav>
+</body>
+</html>

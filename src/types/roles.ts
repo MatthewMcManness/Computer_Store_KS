@@ -281,161 +281,26 @@ export interface SidebarSection {
 /**
  * Complete sidebar configuration with sections and their items.
  * Sections are filtered based on user permissions.
+ *
+ * Simplified to Tools section only (In-Store Manager + Photo Gallery).
  */
 export const SIDEBAR_CONFIG: SidebarSection[] = [
   {
-    id: 'reception',
-    label: 'Reception',
-    icon: 'ClipboardList',
-    items: [
-      {
-        label: 'Reception',
-        href: '/admin',
-        permissions: ['view_reception_dashboard'],
-        icon: 'LayoutDashboard',
-      },
-      {
-        label: 'Customers',
-        href: '/admin/customers',
-        permissions: ['view_customers'],
-        icon: 'Users',
-      },
-      {
-        label: 'Families',
-        href: '/admin/families',
-        permissions: ['view_families'],
-        icon: 'Home',
-      },
-      {
-        label: 'Businesses',
-        href: '/admin/businesses',
-        permissions: ['view_businesses'],
-        icon: 'Building2',
-      },
-      {
-        label: 'Tickets',
-        href: '/admin/tickets',
-        permissions: ['view_tickets'],
-        icon: 'Ticket',
-      },
-      {
-        label: 'Invoices',
-        href: '/admin/invoices',
-        permissions: ['view_invoices'],
-        icon: 'Receipt',
-      },
-      {
-        label: 'POS',
-        href: '/admin/pos',
-        permissions: ['use_pos'],
-        icon: 'CreditCard',
-      },
-      {
-        label: 'Leads',
-        href: '/admin/leads',
-        permissions: ['view_leads'],
-        icon: 'Target',
-      },
-      {
-        label: 'Quotes',
-        href: '/admin/quotes',
-        permissions: ['use_quotes'],
-        icon: 'FileText',
-      },
-    ],
-  },
-  {
-    id: 'technician',
-    label: 'Technician',
+    id: 'tools',
+    label: 'Tools',
     icon: 'Wrench',
     items: [
-      {
-        label: 'Dashboard',
-        href: '/admin/tech',
-        permissions: ['view_tech_dashboard'],
-        icon: 'LayoutDashboard',
-      },
-      {
-        label: 'Ticket Work',
-        href: '/admin/tickets/work',
-        permissions: ['manage_ticket_work'],
-        icon: 'Ticket',
-      },
       {
         label: 'In-Store Manager',
         href: '/admin/in-store',
         permissions: ['view_gallery'],
         icon: 'Images',
       },
-    ],
-  },
-  {
-    id: 'lead-tech',
-    label: 'Lead Tech',
-    icon: 'Crown',
-    items: [
-      {
-        label: 'Dashboard',
-        href: '/admin/lead-tech',
-        permissions: ['view_lead_tech_dashboard'],
-        icon: 'LayoutDashboard',
-      },
-    ],
-  },
-  {
-    id: 'social-media',
-    label: 'Social Media',
-    icon: 'Share2',
-    items: [
-      {
-        label: 'Blog Posts',
-        href: '/admin/blog',
-        permissions: ['view_blog'],
-        icon: 'PenTool',
-      },
       {
         label: 'Photo Gallery',
         href: '/admin/photo-gallery',
         permissions: ['view_photo_gallery'],
         icon: 'Images',
-      },
-    ],
-  },
-  {
-    id: 'management',
-    label: 'Management',
-    icon: 'Settings',
-    items: [
-      {
-        label: 'Employees',
-        href: '/admin/employees',
-        permissions: ['view_employees'],
-        icon: 'Users',
-      },
-    ],
-  },
-  {
-    id: 'admin',
-    label: 'Admin',
-    icon: 'Shield',
-    items: [
-      {
-        label: 'Dashboard',
-        href: '/admin',
-        permissions: ['view_admin_dashboard'],
-        icon: 'LayoutDashboard',
-      },
-      {
-        label: 'Data Sync',
-        href: '/admin/sync',
-        permissions: ['view_data_sync'],
-        icon: 'RefreshCw',
-      },
-      {
-        label: 'Deprecated Statuses',
-        href: '/admin/deprecated-statuses',
-        permissions: ['view_deprecated_statuses'],
-        icon: 'AlertTriangle',
       },
     ],
   },
@@ -448,37 +313,16 @@ export const SIDEBAR_CONFIG: SidebarSection[] = [
 /**
  * Maps route patterns to required permissions.
  * Used by middleware for route protection.
+ *
+ * Simplified to only active routes (admin dashboard, in-store, photo gallery).
  */
 export const ROUTE_PERMISSIONS: Record<string, Permission[]> = {
-  // Reception Dashboard (main admin page)
-  '/admin': ['view_admin_dashboard', 'view_reception_dashboard'],
-  // Reception Section
-  '/admin/intake': ['manage_intake'],
-  '/admin/customers': ['view_customers'],
-  '/admin/families': ['view_families'],
-  '/admin/businesses': ['view_businesses'],
-  '/admin/tickets': ['view_tickets'],
-  '/admin/invoices': ['view_invoices'],
-  '/admin/pos': ['use_pos'],
-  '/admin/leads': ['view_leads'],
-  '/admin/quotes': ['use_quotes'],
-  // Technician Section
-  '/admin/tech': ['view_tech_dashboard'],
-  '/admin/tickets/work': ['manage_ticket_work'],
-  '/admin/devices': ['view_devices'],
+  // Admin Dashboard
+  '/admin': ['view_admin_dashboard'],
+  // Tools
   '/admin/in-store': ['view_gallery'],
-  // Lead Tech Section
-  '/admin/lead-tech': ['view_lead_tech_dashboard'],
-  // Social Media Section
-  '/admin/blog': ['view_blog'],
-  '/admin/blog/new': ['manage_blog'],
   '/admin/photo-gallery': ['view_photo_gallery'],
   '/admin/photo-gallery/new': ['manage_photo_gallery'],
-  // Management Section
-  '/admin/employees': ['view_employees'],
-  // Admin Section
-  '/admin/sync': ['view_data_sync'],
-  '/admin/deprecated-statuses': ['view_deprecated_statuses'],
 };
 
 // ============================================================================

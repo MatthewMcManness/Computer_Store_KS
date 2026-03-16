@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Full-Stack Web Development Curriculum &mdash; Based on Computer Store KS</title>
+  <style>
+    :root {
+      --blue: #0863fd;
+      --dark-blue: #0a1481;
+      --bg: #f8f9fa;
+      --card-bg: #ffffff;
+      --text: #1a1a2e;
+      --text-muted: #555;
+      --border: #e0e0e0;
+      --phase-accent: var(--blue);
+      --green: #16a34a;
+      --orange: #ea580c;
+      --purple: #7c3aed;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 0;
+    }
+
+    /* HEADER */
+    .site-header {
+      background: linear-gradient(135deg, var(--dark-blue) 0%, var(--blue) 100%);
+      color: #fff;
+      padding: 3rem 2rem;
+      text-align: center;
+    }
+    .site-header h1 { font-size: 2.4rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .site-header p { font-size: 1.15rem; opacity: 0.9; max-width: 720px; margin: 0 auto; }
+    .site-header .subtitle { font-size: 0.95rem; opacity: 0.7; margin-top: 1rem; }
+
+    /* CONTAINER */
+    .container { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+    /* INTRO */
+    .intro { margin-bottom: 2.5rem; }
+    .intro h2 { font-size: 1.5rem; margin-bottom: 0.75rem; color: var(--dark-blue); }
+    .intro p { color: var(--text-muted); margin-bottom: 0.5rem; }
+
+    /* TECH OVERVIEW */
+    .tech-overview {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0.75rem;
+      margin: 1.5rem 0 2.5rem;
+    }
+    .tech-chip {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.6rem 1rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .tech-chip .dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
+    .dot.lang { background: #f59e0b; }
+    .dot.framework { background: var(--blue); }
+    .dot.tool { background: var(--green); }
+    .dot.service { background: var(--purple); }
+    .dot.concept { background: var(--orange); }
+
+    .legend { display: flex; gap: 1.25rem; flex-wrap: wrap; margin-bottom: 1rem; font-size: 0.8rem; color: var(--text-muted); }
+    .legend span { display: flex; align-items: center; gap: 0.35rem; }
+
+    /* PHASE */
+    .phase {
+      margin-bottom: 3rem;
+      border-left: 4px solid var(--phase-accent);
+      padding-left: 0;
+    }
+    .phase-header {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-left: none;
+      border-radius: 0 12px 12px 0;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .phase-number {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--phase-accent);
+      margin-bottom: 0.25rem;
+    }
+    .phase-header h2 { font-size: 1.35rem; margin-bottom: 0.25rem; }
+    .phase-header p { font-size: 0.9rem; color: var(--text-muted); }
+    .phase-duration {
+      display: inline-block;
+      background: #eef2ff;
+      color: var(--dark-blue);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+      margin-top: 0.5rem;
+    }
+
+    /* LESSON CARD */
+    .lesson {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-left: none;
+      border-radius: 0 10px 10px 0;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 0.75rem;
+      margin-left: 1rem;
+    }
+    .lesson-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+    }
+    .lesson-num {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #fff;
+      background: var(--phase-accent);
+      padding: 0.15rem 0.5rem;
+      border-radius: 12px;
+      flex-shrink: 0;
+    }
+    .lesson-goal {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-bottom: 0.6rem;
+      font-style: italic;
+    }
+    .lesson-topics { list-style: none; padding: 0; }
+    .lesson-topics li {
+      font-size: 0.85rem;
+      padding: 0.2rem 0;
+      padding-left: 1.2rem;
+      position: relative;
+    }
+    .lesson-topics li::before {
+      content: '\25B8';
+      position: absolute;
+      left: 0;
+      color: var(--phase-accent);
+      font-size: 0.8rem;
+    }
+    .lesson-csk {
+      margin-top: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      background: #f0f7ff;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      color: var(--dark-blue);
+    }
+    .lesson-csk strong { font-weight: 700; }
+
+    /* CAPSTONE */
+    .capstone {
+      background: linear-gradient(135deg, #eef2ff 0%, #f5f0ff 100%);
+      border: 2px solid var(--blue);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-top: 1rem;
+      margin-left: 1rem;
+    }
+    .capstone h4 {
+      font-size: 1rem;
+      color: var(--dark-blue);
+      margin-bottom: 0.5rem;
+    }
+    .capstone p { font-size: 0.88rem; color: var(--text-muted); }
+    .capstone ul { list-style: disc; padding-left: 1.5rem; font-size: 0.85rem; color: var(--text); margin-top: 0.5rem; }
+    .capstone li { margin-bottom: 0.2rem; }
+
+    /* FOOTER */
+    .site-footer {
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+      margin-top: 2rem;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 600px) {
+      .site-header h1 { font-size: 1.6rem; }
+      .tech-overview { grid-template-columns: 1fr 1fr; }
+      .lesson { margin-left: 0.5rem; padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <h1>Full-Stack Web Development Curriculum</h1>
+  <p>A complete lesson plan that takes a beginner from zero knowledge to building a production-grade business website &mdash; modeled on the Computer Store KS tech stack.</p>
+  <div class="subtitle">12 Phases &bull; 56 Lessons &bull; Covers 30+ Technologies</div>
+</header>
+
+<div class="container">
+
+<!-- ============================================================ -->
+<!-- INTRO -->
+<!-- ============================================================ -->
+<section class="intro">
+  <h2>About This Curriculum</h2>
+  <p>The Computer Store KS website (<em>computerstoreks.com</em>) is a real production application built for a computer repair business in Topeka, Kansas. It includes a public marketing site, an employee admin portal, blog system, gallery, customer intake, ticket management, and integrations with half a dozen third-party services.</p>
+  <p>This document breaks down every technology that went into building it and organizes them into a logical sequence of lessons. Each lesson has a clear goal and lists the specific topics a student must master. <strong>"CSK Connection"</strong> boxes show exactly where each concept appears in the real codebase.</p>
+  <p>No prior programming experience is assumed. By the end, a student will be capable of building and deploying a comparable full-stack application.</p>
+
+  <h2 style="margin-top:1.5rem;">Technologies Covered</h2>
+  <div class="legend">
+    <span><span class="dot lang" style="display:inline-block;width:8px;height:8px;border-radius:50%;"></span> Language</span>
+    <span><span class="dot framework" style="display:inline-block;width:8px;height:8px;border-radius:50%;"></span> Framework / Library</span>
+    <span><span class="dot tool" style="display:inline-block;width:8px;height:8px;border-radius:50%;"></span> Tool</span>
+    <span><span class="dot service" style="display:inline-block;width:8px;height:8px;border-radius:50%;"></span> Service / Platform</span>
+    <span><span class="dot concept" style="display:inline-block;width:8px;height:8px;border-radius:50%;"></span> Concept / Pattern</span>
+  </div>
+  <div class="tech-overview">
+    <div class="tech-chip"><span class="dot lang"></span> HTML5</div>
+    <div class="tech-chip"><span class="dot lang"></span> CSS3</div>
+    <div class="tech-chip"><span class="dot lang"></span> JavaScript (ES6+)</div>
+    <div class="tech-chip"><span class="dot lang"></span> TypeScript 5</div>
+    <div class="tech-chip"><span class="dot lang"></span> SQL / PostgreSQL</div>
+    <div class="tech-chip"><span class="dot framework"></span> React 18</div>
+    <div class="tech-chip"><span class="dot framework"></span> Next.js 14</div>
+    <div class="tech-chip"><span class="dot framework"></span> Tailwind CSS 3</div>
+    <div class="tech-chip"><span class="dot framework"></span> Zod</div>
+    <div class="tech-chip"><span class="dot framework"></span> Framer Motion</div>
+    <div class="tech-chip"><span class="dot framework"></span> Lucide Icons</div>
+    <div class="tech-chip"><span class="dot framework"></span> Marked (Markdown)</div>
+    <div class="tech-chip"><span class="dot framework"></span> clsx / CVA</div>
+    <div class="tech-chip"><span class="dot framework"></span> sharp</div>
+    <div class="tech-chip"><span class="dot framework"></span> bcryptjs</div>
+    <div class="tech-chip"><span class="dot service"></span> Supabase</div>
+    <div class="tech-chip"><span class="dot service"></span> Render</div>
+    <div class="tech-chip"><span class="dot service"></span> GitHub API</div>
+    <div class="tech-chip"><span class="dot service"></span> Resend (Email)</div>
+    <div class="tech-chip"><span class="dot service"></span> Cloudflare Turnstile</div>
+    <div class="tech-chip"><span class="dot service"></span> RepairShopr API</div>
+    <div class="tech-chip"><span class="dot service"></span> Google Business API</div>
+    <div class="tech-chip"><span class="dot service"></span> UptimeRobot</div>
+    <div class="tech-chip"><span class="dot tool"></span> Node.js 22</div>
+    <div class="tech-chip"><span class="dot tool"></span> npm</div>
+    <div class="tech-chip"><span class="dot tool"></span> Git</div>
+    <div class="tech-chip"><span class="dot tool"></span> VS Code</div>
+    <div class="tech-chip"><span class="dot tool"></span> PostCSS</div>
+    <div class="tech-chip"><span class="dot concept"></span> REST API Design</div>
+    <div class="tech-chip"><span class="dot concept"></span> Authentication / RBAC</div>
+    <div class="tech-chip"><span class="dot concept"></span> Webhooks</div>
+    <div class="tech-chip"><span class="dot concept"></span> Web Security (OWASP)</div>
+    <div class="tech-chip"><span class="dot concept"></span> SEO &amp; Metadata</div>
+    <div class="tech-chip"><span class="dot concept"></span> Responsive Design</div>
+    <div class="tech-chip"><span class="dot concept"></span> CI/CD &amp; Deployment</div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- PHASE 1 -->
+<!-- ============================================================ -->
+<section class="phase" style="--phase-accent: #f59e0b;">
+  <div class="phase-header">
+    <div class="phase-number">Phase 1</div>
+    <h2>Web Fundamentals</h2>
+    <p>Understand how the web works and learn the three core languages every website is built with.</p>
+    <span class="phase-duration">Estimated: 4&ndash;6 weeks</span>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#f59e0b;">01</span> How the Web Works</div>
+    <div class="lesson-goal">Goal: Understand the request/response cycle that powers every website.</div>
+    <ul class="lesson-topics">
+      <li>Clients and servers &mdash; what your browser actually does</li>
+      <li>HTTP protocol: requests, responses, status codes (200, 404, 500)</li>
+      <li>URLs, domains, DNS &mdash; how "computerstoreks.com" becomes a server</li>
+      <li>HTTPS and TLS &mdash; why the padlock matters</li>
+      <li>Static vs. dynamic websites</li>
+      <li>What a "full-stack" application means</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> Every page load on computerstoreks.com triggers HTTP requests. The site forces HTTPS via HSTS headers defined in <code>next.config.mjs</code> and <code>middleware.ts</code>.</div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#f59e0b;">02</span> HTML &mdash; Structuring Content</div>
+    <div class="lesson-goal">Goal: Build well-structured web pages using semantic HTML.</div>
+    <ul class="lesson-topics">
+      <li>HTML document structure: <code>&lt;!DOCTYPE&gt;</code>, <code>&lt;html&gt;</code>, <code>&lt;head&gt;</code>, <code>&lt;body&gt;</code></li>
+      <li>Semantic elements: <code>&lt;header&gt;</code>, <code>&lt;nav&gt;</code>, <code>&lt;main&gt;</code>, <code>&lt;section&gt;</code>, <code>&lt;footer&gt;</code></li>
+      <li>Text: headings, paragraphs, lists, links</li>
+      <li>Images: <code>&lt;img&gt;</code>, alt text, formats (PNG, JPG, SVG, WebP)</li>
+      <li>Forms: <code>&lt;input&gt;</code>, <code>&lt;textarea&gt;</code>, <code>&lt;select&gt;</code>, <code>&lt;button&gt;</code></li>
+      <li>Tables for tabular data</li>
+      <li>Accessibility basics: ARIA, screen readers, keyboard navigation</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> The public pages use semantic HTML throughout &mdash; <code>&lt;section class="hero"&gt;</code>, <code>&lt;nav&gt;</code> in <code>Header.tsx</code>, form elements in the contact page, and SVG logos in <code>public/assets/</code>.</div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#f59e0b;">03</span> CSS &mdash; Visual Styling</div>
+    <div class="lesson-goal">Goal: Style HTML pages with layouts, colors, typography, and visual effects.</div>
+    <ul class="lesson-topics">
+      <li>Selectors: element, class, ID, attribute, pseudo-class/element</li>
+      <li>The box model: margin, padding, border, content</li>
+      <li>Colors, backgrounds, gradients (<code>linear-gradient</code>)</li>
+      <li>Typography: font families, sizes, weights, line-height</li>
+      <li>Layout: Flexbox and CSS Grid</li>
+      <li>Positioning: static, relative, absolute, fixed, sticky</li>
+      <li>Transitions and transforms</li>
+      <li>Box shadows, border-radius, filters (<code>drop-shadow</code>)</li>
+      <li>CSS custom properties (variables)</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> <code>static-styles.css</code> (570+ lines) styles all public pages with gradients, box-shadows, flexbox layouts, and CSS filters. The silver plaque logo effect uses <code>linear-gradient</code>, <code>box-shadow</code> with insets, and <code>drop-shadow</code> filters.</div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#f59e0b;">04</span> Responsive Design &amp; Media Queries</div>
+    <div class="lesson-goal">Goal: Make websites look great on phones, tablets, and desktops.</div>
+    <ul class="lesson-topics">
+      <li>The viewport meta tag</li>
+      <li>Mobile-first vs. desktop-first approach</li>
+      <li>Media queries: breakpoints, min-width, max-width</li>
+      <li>Fluid layouts: percentages, <code>vw</code>/<code>vh</code>, <code>clamp()</code></li>
+      <li>Responsive images: <code>max-width: 100%</code>, <code>srcset</code></li>
+      <li>Flexible navigation patterns (hamburger menus)</li>
+      <li>Testing across devices and browser dev tools</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> CSK's ticket filter bar collapses to a grid on mobile. The hero section, navigation, and all public pages adapt via media queries in <code>static-styles.css</code>. Admin pages use Tailwind's responsive prefixes (<code>md:</code>, <code>lg:</code>).</div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#f59e0b;">05</span> JavaScript Fundamentals</div>
+    <div class="lesson-goal">Goal: Write programs using variables, functions, control flow, and data structures.</div>
+    <ul class="lesson-topics">
+      <li>Variables: <code>let</code>, <code>const</code> (never <code>var</code>)</li>
+      <li>Data types: string, number, boolean, null, undefined, object, array</li>
+      <li>Operators: arithmetic, comparison, logical</li>
+      <li>Control flow: <code>if/else</code>, ternary, <code>switch</code></li>
+      <li>Loops: <code>for</code>, <code>for...of</code>, <code>while</code></li>
+      <li>Functions: declarations, expressions, arrow functions</li>
+      <li>Objects and arrays: destructuring, spread operator, methods</li>
+      <li>Template literals</li>
+      <li>Error handling: <code>try/catch/finally</code></li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> Every <code>.ts</code> and <code>.tsx</code> file in the project uses these fundamentals. Arrow functions, destructuring, spread operators, and template literals are used pervasively throughout all components and API routes.</div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#f59e0b;">06</span> JavaScript &mdash; The DOM &amp; Events</div>
+    <div class="lesson-goal">Goal: Understand how JavaScript interacts with web pages (even though React abstracts most of this).</div>
+    <ul class="lesson-topics">
+      <li>The Document Object Model (DOM) tree</li>
+      <li>Selecting elements: <code>querySelector</code>, <code>getElementById</code></li>
+      <li>Modifying elements: <code>textContent</code>, <code>classList</code>, <code>style</code></li>
+      <li>Event listeners: <code>click</code>, <code>submit</code>, <code>keydown</code>, <code>change</code></li>
+      <li>Event propagation: bubbling and capturing</li>
+      <li>Form handling and <code>preventDefault()</code></li>
+      <li>Why frameworks like React exist (the pain of manual DOM updates)</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> CSK's spam detection system (<code>spam-detection.ts</code>) directly tracks DOM events &mdash; mouse movements, keyboard presses, and interaction timing to detect bots. Understanding the DOM explains what React is abstracting away.</div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#f59e0b;">07</span> Asynchronous JavaScript</div>
+    <div class="lesson-goal">Goal: Handle operations that take time &mdash; API calls, database queries, file reads.</div>
+    <ul class="lesson-topics">
+      <li>Synchronous vs. asynchronous execution</li>
+      <li>Callbacks and callback hell</li>
+      <li>Promises: <code>.then()</code>, <code>.catch()</code>, <code>.finally()</code></li>
+      <li><code>async</code>/<code>await</code> syntax</li>
+      <li><code>Promise.all()</code> for parallel operations</li>
+      <li>The <code>fetch()</code> API for HTTP requests</li>
+      <li>JSON: <code>JSON.parse()</code> and <code>JSON.stringify()</code></li>
+      <li>Error handling in async code</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> Nearly every API route and server component uses <code>async/await</code>. The dashboard uses <code>Promise.all()</code> to fetch tickets, customers, and status data in parallel. All Supabase and RepairShopr calls are async.</div>
+  </div>
+
+  <div class="capstone">
+    <h4>Phase 1 Milestone</h4>
+    <p>Build a static multi-page business website with a homepage, services page, contact form, and responsive navigation &mdash; using only HTML, CSS, and vanilla JavaScript.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- PHASE 2 -->
+<!-- ============================================================ -->
+<section class="phase" style="--phase-accent: #16a34a;">
+  <div class="phase-header">
+    <div class="phase-number">Phase 2</div>
+    <h2>Development Environment &amp; Tooling</h2>
+    <p>Set up a professional development workflow with the command line, version control, and package management.</p>
+    <span class="phase-duration">Estimated: 2&ndash;3 weeks</span>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#16a34a;">08</span> The Command Line</div>
+    <div class="lesson-goal">Goal: Navigate and operate your computer through a terminal.</div>
+    <ul class="lesson-topics">
+      <li>Why developers use terminals</li>
+      <li>Navigation: <code>cd</code>, <code>ls</code>, <code>pwd</code>, <code>mkdir</code></li>
+      <li>File operations: <code>cp</code>, <code>mv</code>, <code>rm</code>, <code>touch</code></li>
+      <li>Reading files: <code>cat</code>, <code>head</code>, <code>tail</code></li>
+      <li>Environment variables and <code>PATH</code></li>
+      <li>Running scripts and executables</li>
+      <li>Piping and redirection</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> Every development task &mdash; running the dev server (<code>npm run dev</code>), building (<code>npm run build</code>), committing code, deploying &mdash; happens through the terminal.</div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#16a34a;">09</span> Git &amp; Version Control</div>
+    <div class="lesson-goal">Goal: Track changes, collaborate, and never lose work.</div>
+    <ul class="lesson-topics">
+      <li>Why version control matters</li>
+      <li>Git basics: <code>init</code>, <code>add</code>, <code>commit</code>, <code>status</code>, <code>log</code></li>
+      <li>Branching and merging</li>
+      <li>Remote repositories: <code>push</code>, <code>pull</code>, <code>clone</code></li>
+      <li>GitHub: repositories, pull requests, issues</li>
+      <li><code>.gitignore</code> &mdash; keeping secrets out of version control</li>
+      <li>Commit message conventions: <code>feat:</code>, <code>fix:</code>, <code>docs:</code></li>
+      <li>Resolving merge conflicts</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> CSK uses a Production-branch workflow where code is pushed directly to <code>Production</code> on GitHub. Render auto-deploys from this branch. The <code>.gitignore</code> excludes <code>node_modules/</code>, <code>.env*</code> files, and build artifacts.</div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#16a34a;">10</span> Node.js &amp; npm</div>
+    <div class="lesson-goal">Goal: Understand server-side JavaScript and manage project dependencies.</div>
+    <ul class="lesson-topics">
+      <li>What Node.js is (JavaScript outside the browser)</li>
+      <li>Node.js version management with <code>nvm</code> and <code>.nvmrc</code></li>
+      <li><code>package.json</code>: name, scripts, dependencies, engines</li>
+      <li><code>npm install</code> vs. <code>npm ci</code></li>
+      <li><code>node_modules/</code> and <code>package-lock.json</code></li>
+      <li>npm scripts: <code>dev</code>, <code>build</code>, <code>start</code>, <code>lint</code></li>
+      <li>Dependencies vs. devDependencies</li>
+      <li>Semantic versioning: <code>^2.88.0</code> means what?</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> CSK pins Node.js 22 via <code>.nvmrc</code> and <code>package.json</code> engines. It has 25+ dependencies managed through npm. Scripts include <code>dev</code>, <code>build</code>, <code>start</code>, <code>lint</code>, <code>type-check</code>, and custom migration scripts.</div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#16a34a;">11</span> TypeScript</div>
+    <div class="lesson-goal">Goal: Add type safety to JavaScript to catch bugs before they happen.</div>
+    <ul class="lesson-topics">
+      <li>Why TypeScript exists and what problems it solves</li>
+      <li>Basic types: <code>string</code>, <code>number</code>, <code>boolean</code>, <code>null</code>, <code>undefined</code></li>
+      <li>Arrays and objects with types</li>
+      <li>Interfaces and type aliases</li>
+      <li>Union types and optional properties</li>
+      <li>Generics (basics)</li>
+      <li>Type narrowing and type guards</li>
+      <li><code>tsconfig.json</code>: strict mode, module resolution, path aliases</li>
+      <li>The <code>@</code> path alias (e.g., <code>@/lib/supabase</code>)</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> The entire codebase is TypeScript with strict mode. Types are defined in <code>src/types/</code> for roles, gallery items, locations, and more. The <code>tsconfig.json</code> configures <code>@/</code> path aliases and strict null checking.</div>
+  </div>
+
+  <div class="capstone">
+    <h4>Phase 2 Milestone</h4>
+    <p>Set up a TypeScript project from scratch with Git, npm, a <code>.gitignore</code>, and a build script. Push it to GitHub.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- PHASE 3 -->
+<!-- ============================================================ -->
+<section class="phase" style="--phase-accent: #0ea5e9;">
+  <div class="phase-header">
+    <div class="phase-number">Phase 3</div>
+    <h2>React</h2>
+    <p>Learn the UI library that powers the entire frontend.</p>
+    <span class="phase-duration">Estimated: 3&ndash;4 weeks</span>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#0ea5e9;">12</span> React Fundamentals</div>
+    <div class="lesson-goal">Goal: Build UIs with reusable components using JSX.</div>
+    <ul class="lesson-topics">
+      <li>What React is and why it dominates frontend development</li>
+      <li>Components: functions that return UI</li>
+      <li>JSX syntax: HTML-like code inside JavaScript</li>
+      <li>Props: passing data to components</li>
+      <li>Rendering lists with <code>.map()</code></li>
+      <li>Conditional rendering: ternary, <code>&amp;&amp;</code>, early returns</li>
+      <li>Component composition and children</li>
+      <li>File naming conventions: <code>ComponentName.tsx</code></li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> Every page and UI element is a React component. <code>Header.tsx</code>, <code>Footer.tsx</code>, <code>TestimonialsCarousel.tsx</code> are all reusable components with props. The gallery uses <code>.map()</code> to render computer cards.</div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#0ea5e9;">13</span> React State &amp; Hooks</div>
+    <div class="lesson-goal">Goal: Make components interactive with state and side effects.</div>
+    <ul class="lesson-topics">
+      <li><code>useState</code>: tracking values that change</li>
+      <li><code>useEffect</code>: running code on mount, update, and unmount</li>
+      <li><code>useRef</code>: referencing DOM elements and storing values</li>
+      <li><code>useCallback</code> and <code>useMemo</code>: performance optimization</li>
+      <li>The rules of hooks</li>
+      <li>Controlled vs. uncontrolled form inputs</li>
+      <li>State lifting: sharing state between siblings</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> The admin ticket page uses <code>useState</code> for filters and search, <code>useEffect</code> for polling ticket updates every 30 seconds, and <code>useRef</code> for form inputs. The "Call Customer" widget auto-refreshes via <code>useEffect</code> intervals.</div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#0ea5e9;">14</span> React Patterns &amp; Advanced Hooks</div>
+    <div class="lesson-goal">Goal: Organize complex applications with proven patterns.</div>
+    <ul class="lesson-topics">
+      <li>Context API: sharing state across the component tree</li>
+      <li>Custom hooks: extracting reusable logic (e.g., <code>useBotProtection</code>)</li>
+      <li>Form handling patterns: multi-step forms, validation feedback</li>
+      <li>Loading, error, and empty states</li>
+      <li>The <code>'use client'</code> directive &mdash; what it means (preview for Next.js)</li>
+      <li>Component organization: <code>static/</code>, <code>admin/</code>, <code>forms/</code>, <code>gallery/</code></li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> CSK has custom hooks for bot protection and interaction tracking. The customer intake is a multi-step wizard. Components are organized into feature folders under <code>src/components/</code>. Client components use <code>'use client'</code> at the top of the file.</div>
+  </div>
+
+  <div class="capstone">
+    <h4>Phase 3 Milestone</h4>
+    <p>Build an interactive React application with multiple pages (via client-side routing), forms with validation, and state management &mdash; such as a to-do app or product catalog.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- PHASE 4 -->
+<!-- ============================================================ -->
+<section class="phase" style="--phase-accent: #0863fd;">
+  <div class="phase-header">
+    <div class="phase-number">Phase 4</div>
+    <h2>Next.js &mdash; The Full-Stack Framework</h2>
+    <p>Turn React into a complete application framework with routing, server rendering, API routes, and more.</p>
+    <span class="phase-duration">Estimated: 4&ndash;5 weeks</span>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num">15</span> Next.js App Router &amp; File-Based Routing</div>
+    <div class="lesson-goal">Goal: Create pages and layouts by placing files in the right folders.</div>
+    <ul class="lesson-topics">
+      <li>Project structure: <code>src/app/</code> directory</li>
+      <li><code>page.tsx</code> = a route, <code>layout.tsx</code> = shared wrapper</li>
+      <li>Nested routes and route groups: <code>(public)</code>, <code>admin</code></li>
+      <li>Dynamic routes: <code>[slug]</code>, <code>[id]</code></li>
+      <li><code>loading.tsx</code> and <code>error.tsx</code> special files</li>
+      <li>Navigation: <code>&lt;Link&gt;</code> component and <code>useRouter()</code></li>
+      <li><code>not-found.tsx</code> for 404 pages</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> CSK uses route groups: <code>(public)</code> for customer pages, <code>admin</code> for the employee portal. Dynamic routes power blog posts (<code>/blog/[slug]</code>) and ticket detail pages (<code>/admin/tickets/[id]</code>).</div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num">16</span> Server Components vs. Client Components</div>
+    <div class="lesson-goal">Goal: Understand the most important architectural decision in modern Next.js.</div>
+    <ul class="lesson-topics">
+      <li>Server Components: run on the server, no JavaScript sent to browser</li>
+      <li>Client Components: run in the browser, needed for interactivity</li>
+      <li>When to use which (decision framework)</li>
+      <li>The <code>'use client'</code> boundary</li>
+      <li>Fetching data in Server Components (no <code>useEffect</code> needed)</li>
+      <li>Passing server data to client components via props</li>
+      <li>Performance implications: less JavaScript = faster pages</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> Public pages like the blog listing are Server Components that fetch directly from Supabase. Interactive elements &mdash; the contact form, ticket filters, gallery editor &mdash; are Client Components marked with <code>'use client'</code>.</div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num">17</span> API Route Handlers</div>
+    <div class="lesson-goal">Goal: Build a backend API right inside your Next.js project.</div>
+    <ul class="lesson-topics">
+      <li>Route handlers: <code>src/app/api/*/route.ts</code></li>
+      <li>HTTP methods: <code>GET</code>, <code>POST</code>, <code>PUT</code>, <code>DELETE</code></li>
+      <li><code>NextRequest</code> and <code>NextResponse</code></li>
+      <li>Parsing request bodies and query parameters</li>
+      <li>Returning JSON responses with status codes</li>
+      <li>Error handling in API routes</li>
+      <li>Organizing routes by feature: <code>/api/blog/</code>, <code>/api/auth/</code>, <code>/api/contact/</code></li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> CSK has 20+ API routes organized by feature. The blog API (<code>/api/blog/</code>) supports full CRUD. The contact API validates input with Zod, sends email via Resend, and returns appropriate status codes.</div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num">18</span> Middleware &amp; the Request Pipeline</div>
+    <div class="lesson-goal">Goal: Intercept and modify every request before it reaches a page or API route.</div>
+    <ul class="lesson-topics">
+      <li>What middleware is and where it runs</li>
+      <li><code>middleware.ts</code> in the project root</li>
+      <li>The <code>matcher</code> config for targeting specific routes</li>
+      <li>Redirecting unauthenticated users</li>
+      <li>Adding security headers to every response</li>
+      <li>Reading and setting cookies in middleware</li>
+      <li>Role-based route protection</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> <code>middleware.ts</code> protects all <code>/admin/*</code> routes by checking session cookies. It adds security headers (HSTS, X-Frame-Options, CSP) to every response and implements role-based access control.</div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num">19</span> Image Optimization &amp; Static Assets</div>
+    <div class="lesson-goal">Goal: Serve images fast using Next.js's built-in optimization.</div>
+    <ul class="lesson-topics">
+      <li>The <code>public/</code> directory for static files</li>
+      <li>Next.js <code>&lt;Image&gt;</code> component: automatic sizing, lazy loading, format conversion</li>
+      <li><code>width</code>, <code>height</code>, <code>priority</code>, and <code>alt</code> props</li>
+      <li>SVG handling: when to use <code>&lt;Image&gt;</code> vs. inline SVG</li>
+      <li>Remote images: <code>remotePatterns</code> in <code>next.config.mjs</code></li>
+      <li>The <code>sharp</code> library for server-side image processing</li>
+      <li>Common pitfalls (like SVGs without width/height in Firefox!)</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> The hero logo uses <code>&lt;Image&gt;</code> with <code>priority</code> for fast LCP. Gallery images use automatic optimization. <code>next.config.mjs</code> allows remote images from any HTTPS source. The <code>sharp</code> package handles server-side processing.</div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num">20</span> SEO, Metadata &amp; Open Graph</div>
+    <div class="lesson-goal">Goal: Make your site discoverable by search engines and shareable on social media.</div>
+    <ul class="lesson-topics">
+      <li>The <code>metadata</code> export in <code>layout.tsx</code> and <code>page.tsx</code></li>
+      <li>Title, description, keywords</li>
+      <li>Open Graph tags: <code>og:title</code>, <code>og:image</code>, <code>og:description</code></li>
+      <li>Twitter card metadata</li>
+      <li>Canonical URLs</li>
+      <li>Structured data / Schema.org (JSON-LD)</li>
+      <li>Robots and sitemap configuration</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> <code>layout.tsx</code> exports comprehensive metadata including Open Graph images, Twitter cards, Schema.org JSON-LD for LocalBusiness, and canonical URLs pointing to computerstoreks.com.</div>
+  </div>
+
+  <div class="capstone">
+    <h4>Phase 4 Milestone</h4>
+    <p>Build a Next.js application with public pages, an API, protected admin routes via middleware, and proper metadata &mdash; such as a blog with an admin editor.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- PHASE 5 -->
+<!-- ============================================================ -->
+<section class="phase" style="--phase-accent: #06b6d4;">
+  <div class="phase-header">
+    <div class="phase-number">Phase 5</div>
+    <h2>Styling at Scale</h2>
+    <p>Master Tailwind CSS and the utility patterns used in production applications.</p>
+    <span class="phase-duration">Estimated: 1&ndash;2 weeks</span>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#06b6d4;">21</span> Tailwind CSS</div>
+    <div class="lesson-goal">Goal: Style components rapidly using utility classes instead of writing custom CSS.</div>
+    <ul class="lesson-topics">
+      <li>The utility-first philosophy and why it works</li>
+      <li>Common utilities: spacing, colors, typography, layout, borders</li>
+      <li>Responsive prefixes: <code>sm:</code>, <code>md:</code>, <code>lg:</code></li>
+      <li>State variants: <code>hover:</code>, <code>focus:</code>, <code>active:</code>, <code>disabled:</code></li>
+      <li><code>tailwind.config.js</code>: custom colors, fonts, spacing</li>
+      <li><code>globals.css</code>: the <code>@tailwind</code> directives</li>
+      <li>PostCSS and Autoprefixer in the build pipeline</li>
+      <li>Dark mode support</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> All admin pages use Tailwind exclusively. <code>tailwind.config.js</code> defines custom colors, the Inter font family, and border-radius tokens. PostCSS processes Tailwind through <code>postcss.config.js</code>.</div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#06b6d4;">22</span> Component Styling Patterns</div>
+    <div class="lesson-goal">Goal: Build a consistent, maintainable component library with conditional styles.</div>
+    <ul class="lesson-topics">
+      <li><code>clsx</code>: conditionally joining class names</li>
+      <li><code>tailwind-merge</code>: resolving conflicting Tailwind classes</li>
+      <li>Class Variance Authority (CVA): type-safe component variants</li>
+      <li>A <code>cn()</code> utility combining clsx + tailwind-merge</li>
+      <li>Icon libraries: Lucide React for consistent SVG icons</li>
+      <li>When to use Tailwind vs. custom CSS</li>
+      <li>Animation with Framer Motion: enter/exit, transitions, gestures</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> CSK uses <code>clsx</code> for conditional classes (e.g., active ticket status filters), Lucide icons throughout the admin UI, and Framer Motion for page transitions and component animations. Public pages use custom CSS for complex visual effects like the silver plaque.</div>
+  </div>
+
+  <div class="capstone">
+    <h4>Phase 5 Milestone</h4>
+    <p>Restyle your Phase 4 blog project using Tailwind CSS for the admin area and custom CSS for the public pages, matching the dual-styling approach of CSK.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- PHASE 6 -->
+<!-- ============================================================ -->
+<section class="phase" style="--phase-accent: #16a34a;">
+  <div class="phase-header">
+    <div class="phase-number">Phase 6</div>
+    <h2>Databases &amp; Supabase</h2>
+    <p>Store, query, and secure persistent data with PostgreSQL through Supabase.</p>
+    <span class="phase-duration">Estimated: 3&ndash;4 weeks</span>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#16a34a;">23</span> Database Fundamentals</div>
+    <div class="lesson-goal">Goal: Understand how data is organized, stored, and queried in relational databases.</div>
+    <ul class="lesson-topics">
+      <li>What a database is and why you need one</li>
+      <li>Tables, rows, and columns</li>
+      <li>Primary keys and unique identifiers</li>
+      <li>Data types: text, integer, boolean, timestamp, UUID</li>
+      <li>Relationships: one-to-many, many-to-many</li>
+      <li>Foreign keys: linking tables together</li>
+      <li>Indexes: making queries fast</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> CSK has 15+ tables with UUIDs as primary keys, foreign key relationships linking customers to tickets to invoices, timestamps for created/updated tracking, and boolean flags like <code>assets_updated</code>.</div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#16a34a;">24</span> SQL &mdash; Querying Data</div>
+    <div class="lesson-goal">Goal: Read and manipulate database data using SQL.</div>
+    <ul class="lesson-topics">
+      <li><code>SELECT</code>: retrieving data with conditions</li>
+      <li><code>INSERT</code>: adding new records</li>
+      <li><code>UPDATE</code>: modifying existing records</li>
+      <li><code>DELETE</code>: removing records (and why soft deletes are better)</li>
+      <li><code>WHERE</code>, <code>ORDER BY</code>, <code>LIMIT</code></li>
+      <li><code>JOIN</code>: combining data from multiple tables</li>
+      <li>Aggregate functions: <code>COUNT</code>, <code>SUM</code>, <code>AVG</code></li>
+      <li>Subqueries and common patterns</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> CSK's migration files in <code>docs/database/</code> are raw SQL. The blog schema uses <code>CREATE TABLE</code>, foreign keys, indexes, and junction tables (<code>blog_post_tags</code>). Supabase queries translate to SQL under the hood.</div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#16a34a;">25</span> Supabase &mdash; Setup &amp; Client</div>
+    <div class="lesson-goal">Goal: Set up a Supabase project and connect to it from Next.js.</div>
+    <ul class="lesson-topics">
+      <li>Creating a Supabase project (free tier)</li>
+      <li>The Supabase dashboard: table editor, SQL editor</li>
+      <li><code>@supabase/supabase-js</code>: creating a client</li>
+      <li><code>@supabase/ssr</code>: server-side Supabase with cookies</li>
+      <li>Anon key (client-safe) vs. service role key (server-only)</li>
+      <li>Environment variables: <code>NEXT_PUBLIC_SUPABASE_URL</code>, keys</li>
+      <li>CRUD operations: <code>.select()</code>, <code>.insert()</code>, <code>.update()</code>, <code>.delete()</code></li>
+      <li>Filtering: <code>.eq()</code>, <code>.ilike()</code>, <code>.in()</code>, <code>.order()</code></li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> <code>src/lib/supabase.ts</code> creates both a public client (anon key) and admin client (service role key). <code>supabase-server.ts</code> creates cookie-based clients for SSR. Every feature reads/writes through these clients.</div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#16a34a;">26</span> Schema Design &amp; Migrations</div>
+    <div class="lesson-goal">Goal: Design a database schema that models real business data and evolve it over time.</div>
+    <ul class="lesson-topics">
+      <li>Planning tables from business requirements</li>
+      <li>Normalization: reducing data duplication</li>
+      <li>Junction tables for many-to-many relationships</li>
+      <li>Timestamps: <code>created_at</code>, <code>updated_at</code> with defaults</li>
+      <li>Soft deletes: <code>is_active</code>, <code>archived_at</code></li>
+      <li>Migrations: versioned SQL scripts that evolve the schema</li>
+      <li>Supabase migrations with <code>npx supabase db diff</code></li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> CSK's schema evolved through multiple migrations in <code>docs/database/migrations/</code> &mdash; adding location support, fixing RLS policies, and restructuring security. The blog uses a junction table (<code>blog_post_tags</code>) for post-to-tag relationships.</div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#16a34a;">27</span> Row-Level Security (RLS)</div>
+    <div class="lesson-goal">Goal: Protect data at the database level so users can only access what they're allowed to.</div>
+    <ul class="lesson-topics">
+      <li>What RLS is and why it's critical</li>
+      <li>Enabling RLS on tables</li>
+      <li>Writing policies: <code>SELECT</code>, <code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code></li>
+      <li><code>auth.uid()</code> &mdash; identifying the current user in policies</li>
+      <li>Public read policies for published content</li>
+      <li>Admin-only write policies</li>
+      <li>Testing policies: what happens when they're wrong</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> Every Supabase table has RLS enabled. Blog posts have public SELECT policies (published only) and admin-only INSERT/UPDATE/DELETE policies. Multiple migration files specifically fix and refine RLS policies.</div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#16a34a;">28</span> Database Triggers &amp; Automation</div>
+    <div class="lesson-goal">Goal: Automate database operations with PostgreSQL triggers.</div>
+    <ul class="lesson-topics">
+      <li>What triggers are: code that runs automatically on data changes</li>
+      <li>Trigger types: <code>BEFORE</code> and <code>AFTER</code> on <code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code></li>
+      <li>Trigger functions in PL/pgSQL</li>
+      <li>Use cases: auto-updating timestamps, auto-linking related records</li>
+      <li>Dangers of triggers: hidden logic, debugging difficulty</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> CSK has a PostgreSQL trigger <code>trg_link_customer_business</code> on the <code>rs_customers</code> table that automatically creates and links business records when a customer's <code>business_name</code> changes.</div>
+  </div>
+
+  <div class="capstone">
+    <h4>Phase 6 Milestone</h4>
+    <p>Design and implement a Supabase database for a blog system with posts, categories, tags (junction table), and RLS policies. Connect it to your Next.js app with full CRUD.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- PHASE 7 -->
+<!-- ============================================================ -->
+<section class="phase" style="--phase-accent: #dc2626;">
+  <div class="phase-header">
+    <div class="phase-number">Phase 7</div>
+    <h2>Authentication &amp; Security</h2>
+    <p>Protect your application with login systems, session management, role-based access, and security best practices.</p>
+    <span class="phase-duration">Estimated: 3&ndash;4 weeks</span>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#dc2626;">29</span> Authentication Concepts</div>
+    <div class="lesson-goal">Goal: Understand how websites know who you are.</div>
+    <ul class="lesson-topics">
+      <li>Authentication (who are you?) vs. authorization (what can you do?)</li>
+      <li>Sessions and cookies: how login state persists</li>
+      <li>JSON Web Tokens (JWT): stateless authentication</li>
+      <li>Cookie attributes: <code>httpOnly</code>, <code>secure</code>, <code>sameSite</code>, <code>maxAge</code></li>
+      <li>Session storage options: cookies, database, in-memory</li>
+      <li>Password security: never store plaintext</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> CSK uses both JWT-based auth (Supabase Auth) and custom encrypted session cookies (<code>admin_session</code>). Cookie config includes <code>httpOnly</code>, <code>secure</code>, and <code>sameSite</code> attributes defined in <code>session-cookie.ts</code>.</div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#dc2626;">30</span> Supabase Auth &amp; Custom Sessions</div>
+    <div class="lesson-goal">Goal: Implement a complete authentication system.</div>
+    <ul class="lesson-topics">
+      <li>Supabase Auth: email/password sign-up, sign-in, sign-out</li>
+      <li>Server-side session management with <code>@supabase/ssr</code></li>
+      <li>Password hashing with <code>bcryptjs</code>: <code>hash()</code> and <code>compare()</code></li>
+      <li>Custom session encryption: AES-256-GCM</li>
+      <li>Node.js <code>crypto</code> module: <code>createCipheriv</code>, <code>createDecipheriv</code></li>
+      <li>Login/logout API routes</li>
+      <li>Protected page patterns: redirect if not authenticated</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> <code>src/lib/supabase-auth.ts</code> handles Supabase auth. <code>src/lib/session-cookie.ts</code> uses AES-256-GCM encryption via Node's <code>crypto</code> module. <code>src/lib/auth.ts</code> uses <code>bcryptjs</code> for legacy password verification. Login routes are in <code>/api/auth/</code>.</div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#dc2626;">31</span> Role-Based Access Control (RBAC)</div>
+    <div class="lesson-goal">Goal: Restrict features based on user roles (admin, technician, receptionist, etc.).</div>
+    <ul class="lesson-topics">
+      <li>Designing a role system: which roles does the business need?</li>
+      <li>Multi-role users (one person can have several roles)</li>
+      <li>Route-to-role mapping: which pages require which roles</li>
+      <li>Server-side role checking in middleware</li>
+      <li>Client-side role checking for UI elements</li>
+      <li>The <code>user_profiles</code> table with a <code>roles</code> array</li>
+      <li>Role helper utilities</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> <code>src/lib/role-helpers.ts</code> defines 10 roles (admin, owner, technician, receptionist, etc.). Middleware checks roles against route requirements. Users can hold multiple roles stored as an array in <code>user_profiles</code>.</div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#dc2626;">32</span> Web Security Best Practices</div>
+    <div class="lesson-goal">Goal: Defend against the most common web attacks (OWASP Top 10).</div>
+    <ul class="lesson-topics">
+      <li>Cross-Site Scripting (XSS): sanitizing user input, Content Security Policy</li>
+      <li>Cross-Site Request Forgery (CSRF): <code>sameSite</code> cookies</li>
+      <li>SQL Injection: parameterized queries (Supabase handles this)</li>
+      <li>Security headers: HSTS, X-Frame-Options, X-Content-Type-Options</li>
+      <li>Rate limiting: preventing brute force attacks</li>
+      <li>Input validation: server-side with Zod schemas</li>
+      <li>Environment variable security: never expose secrets to the client</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> <code>middleware.ts</code> sets 7 security headers on every response. The contact API implements rate limiting (10 requests/minute). All API inputs are validated with Zod. <code>NEXT_PUBLIC_</code> prefix controls which env vars reach the browser.</div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#dc2626;">33</span> Spam &amp; Bot Protection</div>
+    <div class="lesson-goal">Goal: Keep bots and spam out of your forms without hurting real users.</div>
+    <ul class="lesson-topics">
+      <li>Honeypot fields: invisible inputs that trap bots</li>
+      <li>Timing analysis: humans take time to fill forms, bots don't</li>
+      <li>Interaction tracking: mouse/keyboard event monitoring</li>
+      <li>CAPTCHA alternatives: Cloudflare Turnstile</li>
+      <li>Browser fingerprinting with FingerprintJS</li>
+      <li>Disposable email detection</li>
+      <li>Layering multiple defenses for best results</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> CSK layers all of these: <code>spam-detection.ts</code> tracks interactions and timing, <code>disposable-email.ts</code> blocks throwaway addresses, Cloudflare Turnstile provides CAPTCHA, and FingerprintJS identifies repeat offenders.</div>
+  </div>
+
+  <div class="capstone">
+    <h4>Phase 7 Milestone</h4>
+    <p>Add authentication with multiple roles to your blog app. Admin role can create/edit posts, editor role can only edit, and anonymous users can only read. Implement security headers and rate limiting.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- PHASE 8 -->
+<!-- ============================================================ -->
+<section class="phase" style="--phase-accent: #7c3aed;">
+  <div class="phase-header">
+    <div class="phase-number">Phase 8</div>
+    <h2>API Design &amp; Data Validation</h2>
+    <p>Build robust, well-structured APIs that validate every input and handle every error.</p>
+    <span class="phase-duration">Estimated: 2&ndash;3 weeks</span>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#7c3aed;">34</span> REST API Design Principles</div>
+    <div class="lesson-goal">Goal: Design APIs that are intuitive, consistent, and follow industry conventions.</div>
+    <ul class="lesson-topics">
+      <li>REST principles: resources, HTTP methods, status codes</li>
+      <li>URL design: <code>/api/blog</code>, <code>/api/blog/[id]</code></li>
+      <li>HTTP methods and their meanings: GET, POST, PUT, DELETE</li>
+      <li>Status codes: 200, 201, 400, 401, 403, 404, 500</li>
+      <li>Consistent response shapes: <code>{ data, error }</code></li>
+      <li>Pagination, filtering, and sorting via query parameters</li>
+      <li>Versioning strategies</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> CSK's APIs follow REST conventions: <code>GET /api/blog</code> lists posts, <code>POST /api/blog</code> creates one, <code>GET /api/blog/[id]</code> retrieves by ID or slug, <code>PUT /api/blog/[id]</code> updates, <code>DELETE /api/blog/[id]</code> deletes. Query params like <code>?admin=true</code> modify behavior.</div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#7c3aed;">35</span> Data Validation with Zod</div>
+    <div class="lesson-goal">Goal: Validate every piece of data entering your system using type-safe schemas.</div>
+    <ul class="lesson-topics">
+      <li>Why server-side validation is mandatory (never trust the client)</li>
+      <li>Zod basics: <code>z.string()</code>, <code>z.number()</code>, <code>z.boolean()</code>, <code>z.object()</code></li>
+      <li>Constraints: <code>.min()</code>, <code>.max()</code>, <code>.email()</code>, <code>.url()</code></li>
+      <li>Optional and nullable fields</li>
+      <li>Arrays and nested objects</li>
+      <li>Custom error messages</li>
+      <li>Inferring TypeScript types from Zod schemas (<code>z.infer</code>)</li>
+      <li>Parsing vs. safe parsing: <code>.parse()</code> vs. <code>.safeParse()</code></li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> Zod validates contact form submissions (name, email, message), blog post creation (title, content, slug), gallery entries (specs, pricing), and API request bodies throughout the application.</div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#7c3aed;">36</span> Error Handling Patterns</div>
+    <div class="lesson-goal">Goal: Handle failures gracefully so your app never crashes silently.</div>
+    <ul class="lesson-topics">
+      <li>Try/catch in async API routes</li>
+      <li>Error response format: message, status code, details</li>
+      <li>Distinguishing client errors (4xx) from server errors (5xx)</li>
+      <li>Logging errors for debugging (without leaking to users)</li>
+      <li>Error boundaries in React for UI crashes</li>
+      <li>Graceful degradation: what to show when something fails</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> Every API route wraps its logic in try/catch, returning appropriate status codes. The middleware logs auth debug info. API routes never expose internal errors to clients &mdash; they return generic messages while logging details server-side.</div>
+  </div>
+
+  <div class="capstone">
+    <h4>Phase 8 Milestone</h4>
+    <p>Refactor your blog API with Zod validation on all inputs, consistent error responses, and proper HTTP status codes for every scenario.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- PHASE 9 -->
+<!-- ============================================================ -->
+<section class="phase" style="--phase-accent: #ea580c;">
+  <div class="phase-header">
+    <div class="phase-number">Phase 9</div>
+    <h2>Third-Party Integrations</h2>
+    <p>Connect your application to external services for email, file storage, CRM data, and more.</p>
+    <span class="phase-duration">Estimated: 3&ndash;4 weeks</span>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#ea580c;">37</span> Working with External APIs</div>
+    <div class="lesson-goal">Goal: Consume any third-party REST API from your server.</div>
+    <ul class="lesson-topics">
+      <li>API documentation: reading docs, understanding endpoints</li>
+      <li>Authentication methods: API keys, Bearer tokens, OAuth 2.0</li>
+      <li>Making HTTP requests with <code>fetch()</code> from server code</li>
+      <li>Request headers: <code>Authorization</code>, <code>Content-Type</code></li>
+      <li>Handling rate limits and retries</li>
+      <li>Creating reusable API client modules</li>
+      <li>Keeping API keys secure in environment variables</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> CSK integrates with 6+ external APIs. <code>repairshopr.ts</code> creates a reusable client with API key auth. <code>google-business.ts</code> uses OAuth 2.0 with refresh tokens. <code>ninjaone.ts</code> uses OAuth2 client credentials. All keys are in environment variables.</div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#ea580c;">38</span> Transactional Email with Resend</div>
+    <div class="lesson-goal">Goal: Send emails programmatically from your application.</div>
+    <ul class="lesson-topics">
+      <li>Transactional vs. marketing email</li>
+      <li>Setting up Resend: API key, verified domain</li>
+      <li>Sending emails: <code>resend.emails.send()</code></li>
+      <li>HTML email templates</li>
+      <li>From/to/subject/body configuration</li>
+      <li>Error handling for failed sends</li>
+      <li>Contact form pattern: validate, send, respond</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> <code>src/lib/email.ts</code> wraps the Resend API. The contact form (<code>/api/contact/</code>) validates with Zod, checks spam protection, sends the email, and returns success/failure. The from address uses the verified domain.</div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#ea580c;">39</span> Webhooks &mdash; Receiving External Events</div>
+    <div class="lesson-goal">Goal: Build endpoints that receive and process real-time notifications from external services.</div>
+    <ul class="lesson-topics">
+      <li>What webhooks are: the "reverse API" pattern</li>
+      <li>Creating a webhook endpoint: <code>/api/webhooks/[service]/route.ts</code></li>
+      <li>Verifying webhook authenticity (signatures, IP allowlists)</li>
+      <li>Parsing webhook payloads: different formats per service</li>
+      <li>Idempotency: handling duplicate deliveries</li>
+      <li>Processing strategies: sync vs. async</li>
+      <li>Error handling: always return 200 quickly</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> <code>/api/webhooks/repairshopr/route.ts</code> receives events when tickets, customers, or invoices change in RepairShopr. It parses the <code>{text, html, link, attributes}</code> payload, determines entity type from the URL path, and syncs data to Supabase tables.</div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#ea580c;">40</span> File Storage &amp; Image Management</div>
+    <div class="lesson-goal">Goal: Upload, store, and serve user-generated files.</div>
+    <ul class="lesson-topics">
+      <li>Storage options: Supabase Storage, GitHub API, S3-compatible</li>
+      <li>File upload handling: multipart form data, size limits</li>
+      <li>GitHub API for file storage (Octokit)</li>
+      <li>Supabase Storage: buckets, policies, public URLs</li>
+      <li>Image optimization on upload</li>
+      <li>File naming and path strategies</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> Gallery images are stored via the GitHub API (<code>@octokit/rest</code> in <code>github.ts</code>). Blog images can use Supabase Storage or external URLs. The upload APIs handle multipart data with a 100MB body size limit configured in <code>next.config.mjs</code>.</div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#ea580c;">41</span> Data Synchronization Patterns</div>
+    <div class="lesson-goal">Goal: Keep data consistent between your database and external systems.</div>
+    <ul class="lesson-topics">
+      <li>One-way sync vs. two-way sync</li>
+      <li>Webhook-based real-time sync</li>
+      <li>Batch sync for backfill and recovery</li>
+      <li>Conflict resolution strategies</li>
+      <li>Migration flags: tracking which records have been migrated</li>
+      <li>Source of truth: which system "wins"</li>
+      <li>Graceful degradation during sync failures</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> CSK syncs RepairShopr data into Supabase via webhooks (real-time) and batch sync (admin-triggered). The <code>assets_updated</code> flag tracks per-customer migration state. Supabase is the source of truth; RepairShopr is a maintained mirror.</div>
+  </div>
+
+  <div class="capstone">
+    <h4>Phase 9 Milestone</h4>
+    <p>Add a contact form that sends email via Resend, a file upload system using Supabase Storage, and a webhook endpoint that receives and processes external events.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- PHASE 10 -->
+<!-- ============================================================ -->
+<section class="phase" style="--phase-accent: #d946ef;">
+  <div class="phase-header">
+    <div class="phase-number">Phase 10</div>
+    <h2>Advanced UI Patterns</h2>
+    <p>Build complex, polished interface components that handle real-world workflows.</p>
+    <span class="phase-duration">Estimated: 2&ndash;3 weeks</span>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#d946ef;">42</span> Multi-Step Forms &amp; Wizards</div>
+    <div class="lesson-goal">Goal: Build complex data entry flows that guide users through multiple steps.</div>
+    <ul class="lesson-topics">
+      <li>State management for multi-step forms</li>
+      <li>Step navigation: next, back, jump to step</li>
+      <li>Validation per step vs. at submission</li>
+      <li>Progress indicators</li>
+      <li>Persisting partial data between steps</li>
+      <li>Final submission and error recovery</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> The customer intake wizard (<code>/admin/intake</code>) guides receptionists through customer lookup/creation, device registration, password setup, and ticket creation &mdash; all as a multi-step flow.</div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#d946ef;">43</span> Real-Time Updates &amp; Polling</div>
+    <div class="lesson-goal">Goal: Keep displayed data fresh without requiring page reloads.</div>
+    <ul class="lesson-topics">
+      <li>Polling: fetching data on an interval with <code>setInterval</code></li>
+      <li>Auto-refresh patterns with <code>useEffect</code></li>
+      <li>Optimistic updates: update UI before server confirms</li>
+      <li>Loading and stale states</li>
+      <li>When to poll vs. when to use real-time subscriptions</li>
+      <li>Cleanup: clearing intervals on unmount</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> The "Call Customer" widget on the reception dashboard auto-refreshes every 30 seconds using <code>useEffect</code> with <code>setInterval</code>. Ticket lists refresh to pick up status changes from other employees.</div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#d946ef;">44</span> Markdown Rendering &amp; Content Display</div>
+    <div class="lesson-goal">Goal: Render rich content stored as Markdown in your database.</div>
+    <ul class="lesson-topics">
+      <li>What Markdown is and its syntax</li>
+      <li>Parsing Markdown to HTML with the <code>marked</code> library</li>
+      <li>Safely rendering HTML: sanitization to prevent XSS</li>
+      <li><code>dangerouslySetInnerHTML</code> in React (and why it's named that way)</li>
+      <li>Styling rendered Markdown content with CSS</li>
+      <li>Blog post content workflow: write in Markdown, store in DB, render as HTML</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> Blog post content is stored as Markdown in the <code>blog_posts.content</code> column. The <code>marked</code> library converts it to HTML for display on <code>/blog/[slug]</code> pages.</div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#d946ef;">45</span> Print-Ready Document Generation</div>
+    <div class="lesson-goal">Goal: Generate printable documents (flyers, invoices, reports) from web content.</div>
+    <ul class="lesson-topics">
+      <li>CSS print styles: <code>@media print</code></li>
+      <li>Page sizing: <code>@page</code> rule for 8.5x11, A4</li>
+      <li>Print-specific layouts: hiding navigation, adjusting margins</li>
+      <li>Browser print dialog: <code>window.print()</code></li>
+      <li>Dynamic content generation for flyers/promotions</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> <code>flyer-generator.ts</code> creates print-ready promotional flyers with CSS print styling, 8.5x11 inch format, and dynamic content from the gallery/promotions data.</div>
+  </div>
+
+  <div class="capstone">
+    <h4>Phase 10 Milestone</h4>
+    <p>Add a multi-step customer registration wizard, a real-time ticket dashboard that auto-refreshes, and a Markdown-powered blog rendering system to your application.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- PHASE 11 -->
+<!-- ============================================================ -->
+<section class="phase" style="--phase-accent: #0891b2;">
+  <div class="phase-header">
+    <div class="phase-number">Phase 11</div>
+    <h2>Deployment &amp; DevOps</h2>
+    <p>Ship your application to production and keep it running 24/7.</p>
+    <span class="phase-duration">Estimated: 2&ndash;3 weeks</span>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#0891b2;">46</span> Environment Variables &amp; Configuration</div>
+    <div class="lesson-goal">Goal: Manage secrets and configuration across development and production.</div>
+    <ul class="lesson-topics">
+      <li>Why environment variables exist (secrets, per-environment config)</li>
+      <li><code>.env.local</code> for development, dashboard settings for production</li>
+      <li><code>.env.example</code> as documentation (committed, no real values)</li>
+      <li><code>NEXT_PUBLIC_</code> prefix: what reaches the browser</li>
+      <li><code>process.env</code> in Next.js: server-only vs. client-accessible</li>
+      <li>Never commit real secrets</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> CSK manages 20+ environment variables across Supabase, RepairShopr, GitHub, Resend, Turnstile, Google Business, ESET, NinjaOne, and Cytracom. <code>.env.example</code> documents every variable with descriptions.</div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#0891b2;">47</span> Build Process &amp; Standalone Output</div>
+    <div class="lesson-goal">Goal: Understand what happens when you run <code>npm run build</code> and how Next.js creates a deployable artifact.</div>
+    <ul class="lesson-topics">
+      <li>Development mode vs. production build</li>
+      <li><code>npm run build</code>: what it produces</li>
+      <li>Standalone output mode: self-contained server bundle</li>
+      <li>Static vs. dynamic pages in the build output</li>
+      <li>Build errors: TypeScript, missing imports, ESLint</li>
+      <li>Webpack configuration in <code>next.config.mjs</code></li>
+      <li>Testing the production build locally: <code>npm run start</code></li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> <code>next.config.mjs</code> sets <code>output: 'standalone'</code> for Render deployment. The webpack config adds path aliases (<code>@/</code>) and extension resolution. Build errors for TypeScript and ESLint are configured to not block builds during development.</div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#0891b2;">48</span> Deploying to Render</div>
+    <div class="lesson-goal">Goal: Deploy your Next.js application to the internet.</div>
+    <ul class="lesson-topics">
+      <li>Render: what it is and how it works</li>
+      <li><code>render.yaml</code>: Infrastructure as Code</li>
+      <li>Web service configuration: runtime, build/start commands, region</li>
+      <li>Environment variables in the Render dashboard</li>
+      <li>Auto-deploy on git push</li>
+      <li>Build logs and troubleshooting failed deploys</li>
+      <li>Free tier limitations and cold starts</li>
+      <li>Custom domains and SSL certificates</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> CSK's <code>render.yaml</code> defines two services (production and development). Pushing to the <code>Production</code> branch triggers automatic deployment. The Render dashboard holds all environment variables.</div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#0891b2;">49</span> Monitoring &amp; Uptime</div>
+    <div class="lesson-goal">Goal: Know when your site goes down and keep it awake.</div>
+    <ul class="lesson-topics">
+      <li>Health check endpoints: <code>/api/health</code></li>
+      <li>UptimeRobot: monitoring every 5 minutes for free</li>
+      <li>Keeping free-tier services awake (preventing cold starts)</li>
+      <li>Alert notifications via email</li>
+      <li>Status pages for transparency</li>
+      <li>What to monitor: uptime, response time, SSL expiry</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> CSK has a <code>/api/health</code> endpoint that checks database connectivity and returns status/response time. UptimeRobot pings it every 5 minutes, keeping the free-tier Render service awake 24/7 and alerting on downtime.</div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#0891b2;">50</span> Local-Production Parity</div>
+    <div class="lesson-goal">Goal: Ensure your local development environment matches production exactly.</div>
+    <ul class="lesson-topics">
+      <li>The "works on my machine" problem</li>
+      <li>Matching Node.js versions: <code>.nvmrc</code>, <code>engines</code></li>
+      <li>Using only one lock file (<code>package-lock.json</code>)</li>
+      <li>Testing with <code>npm ci &amp;&amp; npm run build</code> locally</li>
+      <li>Environment variable differences between dev and prod</li>
+      <li>Debugging Render build failures</li>
+    </ul>
+    <div class="lesson-csk"><strong>CSK Connection:</strong> CSK pins Node.js 22 in <code>.nvmrc</code> and <code>package.json</code> engines. Only <code>package-lock.json</code> exists (no yarn.lock or bun.lockb). The build command matches what Render runs: <code>npm ci &amp;&amp; npm run build</code>.</div>
+  </div>
+
+  <div class="capstone">
+    <h4>Phase 11 Milestone</h4>
+    <p>Deploy your complete application to Render with environment variables, a health check endpoint, UptimeRobot monitoring, and a custom domain with SSL.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- PHASE 12 -->
+<!-- ============================================================ -->
+<section class="phase" style="--phase-accent: #0a1481;">
+  <div class="phase-header">
+    <div class="phase-number">Phase 12</div>
+    <h2>Capstone &mdash; Putting It All Together</h2>
+    <p>Build a complete, production-grade business website that combines everything you've learned.</p>
+    <span class="phase-duration">Estimated: 4&ndash;6 weeks</span>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#0a1481;">51</span> Project Planning &amp; Architecture</div>
+    <div class="lesson-goal">Goal: Plan a real application before writing a single line of code.</div>
+    <ul class="lesson-topics">
+      <li>Gathering business requirements</li>
+      <li>Defining the page structure and user flows</li>
+      <li>Designing the database schema</li>
+      <li>Choosing which third-party services to integrate</li>
+      <li>Setting up the project: Next.js, TypeScript, Tailwind, Supabase</li>
+      <li>Creating a <code>.env.example</code> and documentation</li>
+    </ul>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#0a1481;">52</span> Building the Public Site</div>
+    <div class="lesson-goal">Goal: Create a polished, SEO-optimized public-facing website.</div>
+    <ul class="lesson-topics">
+      <li>Homepage with hero section, services overview, testimonials</li>
+      <li>Services pages with detailed descriptions</li>
+      <li>Contact page with validated form and email integration</li>
+      <li>Blog with Markdown rendering and category/tag filtering</li>
+      <li>Gallery or portfolio page with image optimization</li>
+      <li>Responsive design across all pages</li>
+      <li>SEO metadata, Open Graph, and Schema.org structured data</li>
+    </ul>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#0a1481;">53</span> Building the Admin Portal</div>
+    <div class="lesson-goal">Goal: Create a protected admin area for managing all site content.</div>
+    <ul class="lesson-topics">
+      <li>Authentication and role-based access</li>
+      <li>Dashboard with key metrics and status indicators</li>
+      <li>Content management: blog CRUD, gallery CRUD</li>
+      <li>Customer/user management</li>
+      <li>Settings and configuration pages</li>
+      <li>Sidebar navigation pattern</li>
+    </ul>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#0a1481;">54</span> Integrations &amp; Advanced Features</div>
+    <div class="lesson-goal">Goal: Connect to external services and implement business-specific workflows.</div>
+    <ul class="lesson-topics">
+      <li>Email notifications (Resend)</li>
+      <li>External API integration (any relevant service)</li>
+      <li>Webhook receiver for real-time sync</li>
+      <li>File upload and storage</li>
+      <li>Audit logging for admin actions</li>
+      <li>Print-ready document generation</li>
+    </ul>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#0a1481;">55</span> Security Hardening &amp; Testing</div>
+    <div class="lesson-goal">Goal: Lock down the application and verify everything works.</div>
+    <ul class="lesson-topics">
+      <li>Security checklist: headers, RLS, input validation, rate limiting</li>
+      <li>Spam protection on all public forms</li>
+      <li>Manual testing of all user flows</li>
+      <li>Cross-browser testing (Chrome, Firefox, Safari, mobile)</li>
+      <li>Performance testing: Core Web Vitals</li>
+      <li>Accessibility review</li>
+    </ul>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-title"><span class="lesson-num" style="background:#0a1481;">56</span> Launch &amp; Operations</div>
+    <div class="lesson-goal">Goal: Deploy to production and establish ongoing maintenance practices.</div>
+    <ul class="lesson-topics">
+      <li>Final deployment to Render with custom domain</li>
+      <li>DNS configuration and SSL verification</li>
+      <li>UptimeRobot monitoring setup</li>
+      <li>Backup strategy for database</li>
+      <li>Documentation: <code>CLAUDE.md</code>, <code>business_info.md</code>, <code>.env.example</code></li>
+      <li>Ongoing maintenance: dependency updates, schema migrations</li>
+      <li>Client handoff and training</li>
+    </ul>
+  </div>
+
+  <div class="capstone">
+    <h4>Final Capstone</h4>
+    <p>You've built a complete, production-grade business website comparable to Computer Store KS. It includes:</p>
+    <ul>
+      <li>A polished public site with SEO, responsive design, and a contact form</li>
+      <li>A blog system with Markdown, categories, and tags</li>
+      <li>A protected admin portal with role-based access</li>
+      <li>A Supabase database with RLS policies and migrations</li>
+      <li>Third-party integrations (email, file storage, external APIs)</li>
+      <li>Security: headers, validation, rate limiting, spam protection</li>
+      <li>Deployed to Render with monitoring and a custom domain</li>
+    </ul>
+    <p><strong>Congratulations &mdash; you're a full-stack web developer.</strong></p>
+  </div>
+</section>
+
+</div><!-- end container -->
+
+<footer class="site-footer">
+  <p>Curriculum designed by Resilient Web Solutions &bull; Based on the Computer Store KS production codebase</p>
+  <p>Technologies catalog current as of February 2026</p>
+</footer>
+
+</body>
+</html>

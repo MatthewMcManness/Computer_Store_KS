@@ -9,10 +9,10 @@
  * - Browser fingerprinting
  * - Disposable email detection
  * - Rate limiting
- * - RepairShopr customer matching (by email and phone)
  *
  * @version 1.0.0 - 2026-01-14T00:00:00Z - Initial implementation with bot protection
  * @version 1.1.0 - 2026-01-14T00:00:00Z - Added required fields and RepairShopr customer matching
+ * @version 2.0.0 - 2026-03-16T00:00:00Z - Removed RepairShopr dependency (archived)
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -20,7 +20,6 @@ import { z } from 'zod';
 import { signUp, createUserProfile } from '@/lib/supabase-auth';
 import { calculateSpamScore, SPAM_THRESHOLDS } from '@/lib/spam-detection';
 import { isDisposableEmail } from '@/lib/disposable-email';
-import { createRepairShoprClient, getSharedApiKey, RepairShoprCustomer } from '@/lib/repairshopr';
 
 export const dynamic = 'force-dynamic';
 
@@ -115,83 +114,6 @@ const registerSchema = z.object({
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 /**
- * Normalize a phone number to just digits for comparison
- *
- * @param phone - Phone number in any format
- * @returns Normalized phone number (digits only)
- *
- * @functions_called None
- * @called_by findRepairShoprCustomer
- *
- * @version 1.0.0 - 2026-01-14T00:00:00Z - Initial implementation
- */
-function normalizePhone(phone: string | null | undefined): string {
-  if (!phone) return '';
-  return phone.replace(/\D/g, '');
-}
-
-/**
- * Search RepairShopr for a matching customer by email or phone
- *
- * @param email - Customer email address
- * @param phone - Customer phone number (digits only)
- * @returns Matching RepairShopr customer or null
- *
- * @functions_called createRepairShoprClient, getSharedApiKey, searchCustomers, normalizePhone
- * @called_by POST handler
- *
- * @version 1.0.0 - 2026-01-14T00:00:00Z - Initial implementation
- */
-async function findRepairShoprCustomer(
-  email: string,
-  phone: string
-): Promise<RepairShoprCustomer | null> {
-  try {
-    const client = createRepairShoprClient();
-    const apiKey = getSharedApiKey();
-
-    // Search by email first (more precise)
-    const emailResults = await client.searchCustomers(apiKey, email);
-
-    // Check for exact email match
-    const emailMatch = emailResults.find(
-      (c) => c.email?.toLowerCase() === email.toLowerCase()
-    );
-    if (emailMatch) {
-      console.log(`[Register] Found RepairShopr customer by email: ${emailMatch.id}`);
-      return emailMatch;
-    }
-
-    // Search by phone number
-    if (phone && phone.length >= 10) {
-      const phoneResults = await client.searchCustomers(apiKey, phone);
-
-      // Check for phone match (normalize both for comparison)
-      const normalizedInputPhone = normalizePhone(phone);
-      const phoneMatch = phoneResults.find((c) => {
-        const customerPhone = normalizePhone(c.phone);
-        const customerMobile = normalizePhone(c.mobile);
-        return (
-          (customerPhone && customerPhone === normalizedInputPhone) ||
-          (customerMobile && customerMobile === normalizedInputPhone)
-        );
-      });
-
-      if (phoneMatch) {
-        console.log(`[Register] Found RepairShopr customer by phone: ${phoneMatch.id}`);
-        return phoneMatch;
-      }
-    }
-
-    return null;
-  } catch (error) {
-    console.error('[Register] Error searching RepairShopr:', error);
-    // Don't fail registration if RepairShopr search fails
-    return null;
-  }
-}
-
-/**
  * Check rate limit for an IP address
  *
  * @param ip - Client IP address
@@ -268,6 +190,7 @@ function getClientIP(request: NextRequest): string {
  * @called_by RegisterPage
  *
  * @version 1.0.0 - 2026-01-14T00:00:00Z - Initial implementation
+ * @version 2.0.0 - 2026-03-16T00:00:00Z - Removed RepairShopr customer matching
  */
 export async function POST(request: NextRequest) {
   try {
@@ -402,12 +325,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Search RepairShopr for matching customer by email or phone
-    const repairshoprCustomer = await findRepairShoprCustomer(
-      formData.email,
-      formData.phone
-    );
-
     // Proceed with registration
     const { user, error: signUpError } = await signUp(formData.email, formData.password, {
       full_name: fullName,
@@ -434,32 +351,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create user profile with RepairShopr customer link if found
+    // Create user profile
     await createUserProfile(user.id, formData.email, ['customer'], {
       fullName: fullName,
-      repairshoprCustomerId: repairshoprCustomer?.id || undefined,
     });
 
-    // Log successful registration with RepairShopr link info
+    // Log successful registration
     console.log(JSON.stringify({
       type: 'registration_success',
       timestamp: new Date().toISOString(),
       ip,
       email: formData.email,
-      repairshoprCustomerId: repairshoprCustomer?.id || null,
-      linked: !!repairshoprCustomer,
     }));
 
     return NextResponse.json({
       success: true,
-      message: repairshoprCustomer
-        ? 'Registration successful! Your account has been linked to your existing customer profile. Please check your email to verify your account.'
-        : 'Registration successful. Please check your email to verify your account.',
+      message: 'Registration successful. Please check your email to verify your account.',
       user: {
         id: user.id,
         email: user.email,
       },
-      linked: !!repairshoprCustomer,
     });
   } catch (error) {
     console.error('[Register] Error:', error);

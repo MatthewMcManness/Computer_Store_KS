@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 01: How the Web Works — Full-Stack Web Dev Curriculum</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <nav class="lesson-nav">
+    <a href="../index.html">&larr; Back to Curriculum</a>
+    <span>Lesson 01 of 56</span>
+    <a href="02-html-structuring-content.html">Next Lesson &rarr;</a>
+  </nav>
+  <header class="lesson-header">
+    <span class="phase-badge" style="background:rgba(245,158,11,0.3);">Phase 1: Web Fundamentals</span>
+    <h1>Lesson 01: How the Web Works</h1>
+    <p class="lesson-subtitle">Understanding what happens behind the scenes every time you visit a website</p>
+  </header>
+  <main class="lesson-content">
+
+    <section class="learning-objectives">
+      <h2>Learning Objectives</h2>
+      <ul>
+        <li>By the end of this lesson, you will be able to explain what happens step-by-step when you type a URL into a browser</li>
+        <li>By the end of this lesson, you will be able to describe the difference between a client and a server</li>
+        <li>By the end of this lesson, you will be able to identify common HTTP methods (GET, POST) and status codes (200, 404, 500)</li>
+        <li>By the end of this lesson, you will be able to explain why HTTPS matters and what the padlock icon in your browser means</li>
+        <li>By the end of this lesson, you will be able to distinguish between static and dynamic websites</li>
+        <li>By the end of this lesson, you will be able to define what "full-stack" development means</li>
+      </ul>
+    </section>
+
+    <!-- ===== SECTION: THE INTERNET VS THE WEB ===== -->
+    <h2>The Internet vs. The World Wide Web</h2>
+
+    <p>Before we dive into how the web works, let us clear up a common misconception: the Internet and the World Wide Web are not the same thing. The <strong>Internet</strong> is the massive global network of computers connected by cables, fiber optics, and wireless signals. Think of it as the highway system itself &mdash; the physical roads, bridges, and tunnels. The <strong>World Wide Web</strong> (or simply "the web") is one of many services that runs on top of the Internet, just like cars are one of many types of vehicles that use highways. Email, video calls, online gaming, and file sharing all use the Internet too, but they are not part of the web.</p>
+
+    <p>The web was invented in 1989 by Tim Berners-Lee, a British scientist working at CERN (a particle physics lab in Switzerland). He created three foundational technologies that still power the web today: <strong>HTML</strong> (a language for structuring web pages), <strong>URLs</strong> (addresses for locating pages), and <strong>HTTP</strong> (a protocol for transferring pages between computers). We will explore all three of these in this lesson and throughout this curriculum.</p>
+
+    <div class="analogy">
+      <strong>Analogy: The Postal System</strong><br>
+      Think of the Internet like the entire postal system &mdash; trucks, planes, sorting facilities, and mail carriers. The World Wide Web is like the letter-writing service that uses that postal system. You can also send packages (file transfers), make phone calls (VoIP), or send telegrams (instant messages) through the same postal infrastructure, but letter-writing (the web) is just one use of it.
+    </div>
+
+    <!-- ===== SECTION: WHAT HAPPENS WHEN YOU TYPE A URL ===== -->
+    <h2>What Happens When You Type a URL</h2>
+
+    <p>Every time you type an address into your browser (like <code>https://computerstoreks.com</code>) and press Enter, an astonishing sequence of events unfolds in milliseconds. Let us walk through each step.</p>
+
+    <h3>Step 1: Parsing the URL</h3>
+
+    <p>A <strong>URL</strong> (Uniform Resource Locator) is simply an address that tells your browser where to find something on the web. Let us break one apart:</p>
+
+<pre><code>https://www.computerstoreks.com/services/diagnostics
+  |        |                        |
+  |        |                        +-- Path (specific page)
+  |        +-- Domain name (which server)
+  +-- Protocol (how to communicate)
+</code></pre>
+
+    <p>The <strong>protocol</strong> (<code>https://</code>) tells the browser which language to speak when talking to the server. The <strong>domain name</strong> (<code>www.computerstoreks.com</code>) identifies which computer on the Internet to contact. The <strong>path</strong> (<code>/services/diagnostics</code>) tells the server which specific page you want. Think of the protocol as the language you speak, the domain name as the street address, and the path as the room number inside the building.</p>
+
+    <h3>Step 2: DNS Lookup &mdash; Finding the Server's Address</h3>
+
+    <p>Computers do not understand domain names like <code>computerstoreks.com</code>. They communicate using <strong>IP addresses</strong>, which are numerical labels like <code>216.24.57.1</code>. An IP address works exactly like a phone number &mdash; it uniquely identifies one computer on the Internet.</p>
+
+    <p>So how does your browser convert a domain name into an IP address? It uses the <strong>Domain Name System (DNS)</strong>, which functions like the Internet's phone book. Here is what happens:</p>
+
+    <ol>
+      <li>Your browser first checks its own memory (cache) &mdash; "Have I looked up this name recently?"</li>
+      <li>If not found, it asks your operating system (Windows, Mac, or Linux), which has its own cache.</li>
+      <li>If still not found, your computer asks your Internet Service Provider's (ISP's) DNS server.</li>
+      <li>If the ISP does not know, the request travels up to a <strong>root DNS server</strong>, then to a <strong>TLD (Top-Level Domain) server</strong> (which knows about all <code>.com</code> addresses), and finally to the <strong>authoritative DNS server</strong> for that specific domain.</li>
+      <li>The IP address is returned all the way back to your browser.</li>
+    </ol>
+
+    <div class="analogy">
+      <strong>Analogy: Finding a Phone Number</strong><br>
+      Imagine you want to call "The Computer Store." You check your own contacts first. If it is not there, you ask a family member. If they do not know, you look it up in the phone book. DNS works the same way &mdash; it is a series of lookups, starting with the fastest source (your own cache) and working outward until the answer is found.
+    </div>
+
+    <h3>Step 3: TCP Connection &mdash; Establishing a Reliable Channel</h3>
+
+    <p>Now that your browser knows the server's IP address, it needs to establish a reliable connection. This is done through <strong>TCP (Transmission Control Protocol)</strong>, which uses a process called the <strong>three-way handshake</strong>:</p>
+
+    <ol>
+      <li><strong>SYN</strong> &mdash; Your browser says: "Hello, I would like to connect." (Synchronize)</li>
+      <li><strong>SYN-ACK</strong> &mdash; The server replies: "Hello! I acknowledge your request and am ready." (Synchronize-Acknowledge)</li>
+      <li><strong>ACK</strong> &mdash; Your browser confirms: "Great, let us begin!" (Acknowledge)</li>
+    </ol>
+
+    <p>TCP guarantees that data arrives completely and in the correct order. If a piece of data gets lost during transmission, TCP detects the loss and retransmits it. This is critical for web pages &mdash; you would not want half a page to load or for paragraphs to arrive scrambled.</p>
+
+    <div class="analogy">
+      <strong>Analogy: A Phone Call</strong><br>
+      The TCP handshake is like the start of a phone call. You dial the number (SYN), the other person picks up and says "Hello?" (SYN-ACK), and you say "Hi, it's me!" (ACK). Now both sides know the connection is working, and the conversation can begin.
+    </div>
+
+    <h3>Step 4: TLS Handshake (for HTTPS)</h3>
+
+    <p>If the URL uses <code>https://</code> (which it should &mdash; more on this later), there is an additional step after TCP connects. <strong>TLS (Transport Layer Security)</strong> encrypts the connection so that nobody between you and the server can read the data. During the TLS handshake:</p>
+
+    <ol>
+      <li>The server presents a <strong>digital certificate</strong> (like a verified ID card) to prove it really is <code>computerstoreks.com</code>.</li>
+      <li>Your browser verifies the certificate was issued by a trusted authority.</li>
+      <li>Both sides agree on an encryption method and exchange keys.</li>
+      <li>All future communication is encrypted.</li>
+    </ol>
+
+    <p>This entire handshake happens in about 50-100 milliseconds. After it completes, everything sent between your browser and the server is scrambled in a way that only those two parties can unscramble.</p>
+
+    <h3>Step 5: HTTP Request &mdash; Asking for the Page</h3>
+
+    <p>With a secure, reliable connection in place, your browser sends an <strong>HTTP request</strong> to the server. This request is a structured message that says: "Please send me this specific page." Here is a simplified version of what that request looks like:</p>
+
+<pre><code>GET /services/diagnostics HTTP/2
+Host: computerstoreks.com
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)
+Accept: text/html,application/xhtml+xml
+Accept-Language: en-US,en
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive</code></pre>
+
+    <p>Let us decode each line:</p>
+    <ul>
+      <li><strong>GET /services/diagnostics HTTP/2</strong> &mdash; "I want to GET the page at /services/diagnostics, and I speak HTTP version 2."</li>
+      <li><strong>Host</strong> &mdash; The domain name of the server (needed because one server can host multiple websites).</li>
+      <li><strong>User-Agent</strong> &mdash; Information about your browser and operating system.</li>
+      <li><strong>Accept</strong> &mdash; The types of content your browser can handle.</li>
+      <li><strong>Accept-Language</strong> &mdash; Your preferred language.</li>
+      <li><strong>Accept-Encoding</strong> &mdash; Compression methods your browser supports (to speed up transfer).</li>
+    </ul>
+
+    <h3>Step 6: Server Processing</h3>
+
+    <p>The server receives your request and decides how to respond. For a <strong>static website</strong>, the server simply finds the requested file on its hard drive and sends it back. For a <strong>dynamic website</strong> (like Computer Store KS), the server runs code to generate the page. This might involve querying a database, checking if you are logged in, fetching the latest inventory, and assembling all of that data into an HTML page specifically for you.</p>
+
+    <h3>Step 7: HTTP Response &mdash; The Server Replies</h3>
+
+    <p>The server sends back an <strong>HTTP response</strong>, which looks something like this:</p>
+
+<pre><code>HTTP/2 200 OK
+Content-Type: text/html; charset=UTF-8
+Content-Length: 42378
+Content-Encoding: gzip
+Strict-Transport-Security: max-age=31536000
+X-Content-Type-Options: nosniff
+
+&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+  &lt;head&gt;
+    &lt;title&gt;Diagnostics - Computer Store KS&lt;/title&gt;
+    ...
+  &lt;/head&gt;
+  &lt;body&gt;
+    ...
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+    <p>The first line, <code>HTTP/2 200 OK</code>, tells your browser that the request was successful. The headers provide metadata about the response (content type, size, encoding, security policies). And then the actual HTML content of the page follows.</p>
+
+    <h3>Step 8: Browser Rendering</h3>
+
+    <p>Finally, your browser takes the HTML it received and transforms it into the visual page you see on screen. This is a complex process:</p>
+
+    <ol>
+      <li><strong>Parse HTML</strong> &mdash; The browser reads the HTML and builds a tree structure called the DOM (Document Object Model).</li>
+      <li><strong>Request additional resources</strong> &mdash; The HTML references CSS files, JavaScript files, images, and fonts. The browser sends additional HTTP requests for each of these.</li>
+      <li><strong>Parse CSS</strong> &mdash; Style rules are applied to determine how each element should look.</li>
+      <li><strong>Layout</strong> &mdash; The browser calculates the exact position and size of every element.</li>
+      <li><strong>Paint</strong> &mdash; Pixels are drawn to the screen.</li>
+      <li><strong>Execute JavaScript</strong> &mdash; Any interactive behavior (animations, button clicks, form validation) is enabled.</li>
+    </ol>
+
+    <p>All of this &mdash; from DNS lookup to the final painted pixel &mdash; typically happens in under one second.</p>
+
+    <!-- ===== DIAGRAM ===== -->
+    <h2>The Request/Response Flow</h2>
+
+    <p>Here is a visual summary of everything we just discussed:</p>
+
+    <div class="diagram">
+    YOUR BROWSER                          THE INTERNET                         THE SERVER
+    (Client)                                                                   (computerstoreks.com)
+    ============                          =============                        ==================
+
+    1. You type: computerstoreks.com
+         |
+         |--- DNS Lookup ---&gt; DNS Server ---&gt; Returns: 216.24.57.1
+         |
+    2. TCP Handshake (SYN / SYN-ACK / ACK)
+         |&lt;----------------------------------------------&gt;|
+         |
+    3. TLS Handshake (certificates + encryption keys)
+         |&lt;----------------------------------------------&gt;|
+         |
+    4. HTTP Request:
+         | --- GET /services HTTP/2 ----------------------&gt;|
+         |     Host: computerstoreks.com                   |
+         |                                                 |
+    5. Server processes request                            |
+         |                                    Queries database,
+         |                                    generates HTML page
+         |                                                 |
+    6. HTTP Response:                                      |
+         |&lt;--- 200 OK ------------------------------------|
+         |     Content-Type: text/html                     |
+         |     &lt;html&gt;...page content...&lt;/html&gt;            |
+         |
+    7. Browser renders the page
+         |--- Requests CSS, JS, images ---&gt;|
+         |&lt;--- Returns files --------------|
+         |
+    8. Page displayed to you!
+    </div>
+
+    <div class="csk-connection">
+      <strong>CSK Connection</strong>
+      When you visit <code>computerstoreks.com</code>, this exact process happens. The browser contacts Render's servers (where CSK is hosted), the Next.js application processes the request, queries Supabase for data like blog posts or gallery items, assembles the HTML, and sends it back. The entire round trip typically takes 200-500 milliseconds.
+    </div>
+
+    <!-- ===== SECTION: CLIENTS AND SERVERS ===== -->
+    <h2>Clients and Servers</h2>
+
+    <p>You have probably heard the terms "client" and "server" used in computing, and they are foundational to understanding web development. In the simplest terms:</p>
+
+    <ul>
+      <li>A <strong>client</strong> is the program that makes requests. Your web browser (Chrome, Firefox, Safari, Edge) is a client. Your phone's browser is a client. Even a mobile app that connects to the internet is a client.</li>
+      <li>A <strong>server</strong> is the program that receives requests and sends back responses. It is a computer (or program running on a computer) that is always on, always connected to the Internet, and always waiting for clients to ask it for things.</li>
+    </ul>
+
+    <div class="analogy">
+      <strong>Analogy: The Restaurant</strong><br>
+      Imagine a restaurant. <strong>You</strong> are the client &mdash; you sit at the table and make requests ("I'd like the pasta, please"). The <strong>waiter</strong> is like the HTTP protocol &mdash; they carry your request to the kitchen and bring back the response. The <strong>kitchen</strong> is the server &mdash; it receives orders, prepares the food (processes the request), and sends the finished dish back to you.<br><br>
+      Just as multiple customers can order from the same kitchen simultaneously, millions of clients can make requests to the same server. And just as a restaurant can have different kitchens for different cuisines, the web has different servers for different websites.
+    </div>
+
+    <p>An important nuance: "client" and "server" are <strong>roles</strong>, not physical devices. The same computer can be a client in one moment (when your laptop's browser requests a web page) and a server in another (if you run server software on your laptop for testing). In professional web development, servers are typically powerful computers housed in data centers &mdash; huge buildings full of rack-mounted machines with fast Internet connections, backup power, and climate control.</p>
+
+    <h3>The Client-Server Model in Practice</h3>
+
+    <p>The client-server model is a fundamental architectural pattern in computing. Here is how it plays out in a typical web interaction:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Aspect</th>
+          <th>Client (Your Browser)</th>
+          <th>Server (The Website)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Location</td>
+          <td>Your device (laptop, phone, tablet)</td>
+          <td>A data center (Render, AWS, Google Cloud)</td>
+        </tr>
+        <tr>
+          <td>Initiates</td>
+          <td>Sends requests</td>
+          <td>Waits for and responds to requests</td>
+        </tr>
+        <tr>
+          <td>Displays</td>
+          <td>Renders the visual page</td>
+          <td>Has no display (runs in the background)</td>
+        </tr>
+        <tr>
+          <td>Access</td>
+          <td>Anyone with a browser</td>
+          <td>Only the developer/admin can manage it</td>
+        </tr>
+        <tr>
+          <td>Trust</td>
+          <td>Not trusted (user can manipulate)</td>
+          <td>Trusted (controlled by developer)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="warning-box">
+      <strong>Security Principle: Never Trust the Client</strong>
+      Because users can modify anything in their browser (using developer tools, browser extensions, or scripts), the server must always validate data it receives. If a form says "maximum 100 characters," the server must enforce that limit too &mdash; a malicious user can easily bypass the client-side check. This principle of never trusting the client is a cornerstone of web security that we will revisit repeatedly throughout this curriculum.
+    </div>
+
+    <!-- ===== SECTION: HTTP METHODS ===== -->
+    <h2>HTTP Methods</h2>
+
+    <p><strong>HTTP (HyperText Transfer Protocol)</strong> is the language that clients and servers use to communicate on the web. Every HTTP request includes a <strong>method</strong> (sometimes called a "verb") that tells the server what action the client wants to perform. While there are several HTTP methods, two are by far the most common:</p>
+
+    <h3>GET &mdash; "Give me something"</h3>
+
+    <p>A <code>GET</code> request asks the server to send back a resource. When you type a URL into your browser, click a link, or load an image, your browser sends a GET request. GET requests should never change anything on the server &mdash; they only retrieve data. You can think of GET as a "read" operation.</p>
+
+    <p>Examples of GET requests:</p>
+    <ul>
+      <li>Loading a web page: <code>GET /about</code></li>
+      <li>Loading an image: <code>GET /images/logo.png</code></li>
+      <li>Searching: <code>GET /search?q=laptop+repair</code></li>
+      <li>Loading CSS: <code>GET /styles/main.css</code></li>
+    </ul>
+
+    <h3>POST &mdash; "Here is some data, do something with it"</h3>
+
+    <p>A <code>POST</code> request sends data to the server, typically to create something new or trigger an action. When you submit a form (like a contact form, login form, or checkout page), your browser usually sends a POST request. POST requests <em>can</em> change things on the server &mdash; creating database records, sending emails, processing payments, etc.</p>
+
+    <p>Examples of POST requests:</p>
+    <ul>
+      <li>Submitting a contact form: <code>POST /api/contact</code></li>
+      <li>Logging in: <code>POST /api/auth/login</code></li>
+      <li>Uploading an image: <code>POST /api/gallery/upload</code></li>
+      <li>Creating a blog post: <code>POST /api/blog</code></li>
+    </ul>
+
+    <h3>Other HTTP Methods</h3>
+
+    <p>As you progress through this curriculum, you will encounter additional HTTP methods:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Method</th>
+          <th>Purpose</th>
+          <th>Example</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>GET</code></td>
+          <td>Retrieve data</td>
+          <td>Load a page, fetch a list of products</td>
+        </tr>
+        <tr>
+          <td><code>POST</code></td>
+          <td>Create new data</td>
+          <td>Submit a form, create a new blog post</td>
+        </tr>
+        <tr>
+          <td><code>PUT</code></td>
+          <td>Replace existing data</td>
+          <td>Update an entire customer record</td>
+        </tr>
+        <tr>
+          <td><code>PATCH</code></td>
+          <td>Partially update data</td>
+          <td>Change just the status of a ticket</td>
+        </tr>
+        <tr>
+          <td><code>DELETE</code></td>
+          <td>Remove data</td>
+          <td>Delete a gallery item</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="info-box">
+      <strong>Did You Know?</strong>
+      Together, these methods form the basis of "CRUD" operations &mdash; Create (POST), Read (GET), Update (PUT/PATCH), and Delete (DELETE). Almost every web application is built around these four operations. You will learn to build CRUD APIs yourself in Phase 4 of this curriculum.
+    </div>
+
+    <!-- ===== SECTION: HTTP STATUS CODES ===== -->
+    <h2>HTTP Status Codes</h2>
+
+    <p>Every HTTP response from a server includes a three-digit <strong>status code</strong> that tells the client what happened. These codes fall into five categories, grouped by their first digit:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Range</th>
+          <th>Category</th>
+          <th>Meaning</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>1xx</code></td>
+          <td>Informational</td>
+          <td>Request received, continuing process</td>
+        </tr>
+        <tr>
+          <td><code>2xx</code></td>
+          <td>Success</td>
+          <td>The request worked as expected</td>
+        </tr>
+        <tr>
+          <td><code>3xx</code></td>
+          <td>Redirection</td>
+          <td>You need to go somewhere else</td>
+        </tr>
+        <tr>
+          <td><code>4xx</code></td>
+          <td>Client Error</td>
+          <td>Something was wrong with the request</td>
+        </tr>
+        <tr>
+          <td><code>5xx</code></td>
+          <td>Server Error</td>
+          <td>Something went wrong on the server</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>The Status Codes You Must Know</h3>
+
+    <p><strong><code>200 OK</code></strong> &mdash; The gold standard. Everything worked perfectly. The server found what you asked for and is sending it back. This is the most common status code by far, and the one you will see most often when browsing the web normally.</p>
+
+    <p><strong><code>201 Created</code></strong> &mdash; A close cousin of 200, this means the server successfully created something new. You will see this when a form submission creates a database record, like when someone submits a new blog post.</p>
+
+    <p><strong><code>301 Moved Permanently</code></strong> &mdash; The page you requested has permanently moved to a new address. The server tells you the new address, and your browser automatically goes there. This is commonly used when a website restructures its URLs. Search engines will update their records to use the new address.</p>
+
+    <p><strong><code>302 Found</code> (Temporary Redirect)</strong> &mdash; Similar to 301, but the move is temporary. The browser goes to the new address this time, but it will check the original address again next time.</p>
+
+    <p><strong><code>404 Not Found</code></strong> &mdash; Probably the most famous status code. It means the server cannot find what you asked for. You have likely seen a "404 page" before &mdash; that is the website's way of saying "this page doesn't exist." This often happens when a URL is typed wrong, a page has been deleted, or a link is broken.</p>
+
+    <p><strong><code>403 Forbidden</code></strong> &mdash; The server understood your request but refuses to fulfill it. You do not have permission. This might happen if you try to access an admin page without being logged in.</p>
+
+    <p><strong><code>500 Internal Server Error</code></strong> &mdash; Something went wrong on the server side. This is not the client's fault &mdash; it means the server's code crashed, the database is unreachable, or some other unexpected error occurred. When you see a 500 error on a website, it means the developers need to fix something.</p>
+
+    <div class="analogy">
+      <strong>Analogy: Restaurant Responses</strong><br>
+      Back to our restaurant analogy:<br>
+      <strong>200</strong> &mdash; "Here is your pasta, enjoy!" (Success)<br>
+      <strong>301</strong> &mdash; "We moved to the building next door permanently." (Permanent redirect)<br>
+      <strong>404</strong> &mdash; "We do not have that dish on our menu." (Not found)<br>
+      <strong>403</strong> &mdash; "That dish is only for VIP members." (Forbidden)<br>
+      <strong>500</strong> &mdash; "Sorry, the kitchen is on fire." (Server error)
+    </div>
+
+    <div class="csk-connection">
+      <strong>CSK Connection</strong>
+      The Computer Store KS website uses these status codes throughout its API. For example, <code>GET /api/blog</code> returns <code>200</code> with a list of blog posts. <code>POST /api/contact</code> returns <code>201</code> when a contact form is successfully submitted. If you try to access <code>/api/gallery/upload</code> without being logged in as an admin, you get a <code>403 Forbidden</code>. And if the Supabase database is temporarily unreachable, the health check endpoint at <code>/api/health</code> returns <code>503 Service Unavailable</code>.
+    </div>
+
+    <!-- ===== SECTION: HTTPS AND TLS ===== -->
+    <h2>HTTPS and TLS &mdash; Why the Padlock Matters</h2>
+
+    <p>Look at your browser's address bar right now. You should see a small padlock icon to the left of the URL. That padlock means the connection between your browser and the server is encrypted using <strong>HTTPS</strong> (HyperText Transfer Protocol Secure).</p>
+
+    <h3>What Problem Does HTTPS Solve?</h3>
+
+    <p>Without encryption, HTTP traffic travels across the Internet as plain text. Anyone who can intercept the data (your ISP, someone on the same WiFi network, a government agency) can read everything: the pages you view, the forms you submit, the passwords you type. This is called a <strong>man-in-the-middle attack</strong>.</p>
+
+    <p>HTTPS solves this by wrapping all HTTP communication in a layer of encryption called <strong>TLS (Transport Layer Security)</strong>. With HTTPS:</p>
+    <ul>
+      <li><strong>Encryption</strong> &mdash; Data is scrambled so only your browser and the server can read it.</li>
+      <li><strong>Authentication</strong> &mdash; The server proves its identity with a digital certificate, so you know you are really talking to <code>computerstoreks.com</code> and not an imposter.</li>
+      <li><strong>Integrity</strong> &mdash; Data cannot be modified in transit without detection.</li>
+    </ul>
+
+    <h3>HSTS &mdash; Enforcing HTTPS</h3>
+
+    <p>Even though HTTPS exists, what if someone tries to visit your site using plain <code>http://</code>? A technique called <strong>HSTS (HTTP Strict Transport Security)</strong> tells browsers: "Always use HTTPS for this website, no exceptions." Once a browser sees the HSTS header, it will automatically convert any <code>http://</code> request to <code>https://</code> before even contacting the server.</p>
+
+<pre><code>Strict-Transport-Security: max-age=31536000; includeSubDomains</code></pre>
+
+    <p>This header says: "For the next 31,536,000 seconds (one year), always use HTTPS for this domain and all its subdomains."</p>
+
+    <div class="csk-connection">
+      <strong>CSK Connection</strong>
+      The Computer Store KS website enforces HTTPS using HSTS headers set in two places: <code>middleware.ts</code> (which intercepts every request and adds security headers) and <code>next.config.mjs</code> (which configures additional response headers). This means even if someone types <code>http://computerstoreks.com</code>, they are automatically and securely redirected to the HTTPS version.
+    </div>
+
+    <div class="warning-box">
+      <strong>No Padlock = No Trust</strong>
+      If a website does not show the padlock icon, you should <strong>never</strong> enter sensitive information like passwords, credit card numbers, or personal details. Modern browsers actually warn you with messages like "Your connection is not private" or "Not Secure" in the address bar when a site lacks HTTPS.
+    </div>
+
+    <!-- ===== SECTION: STATIC VS DYNAMIC ===== -->
+    <h2>Static vs. Dynamic Websites</h2>
+
+    <p>Websites fall into two broad categories, and understanding the difference is crucial for web development.</p>
+
+    <h3>Static Websites</h3>
+
+    <p>A <strong>static website</strong> consists of pre-built files (HTML, CSS, images) stored on a server. When you request a page, the server simply sends the file as-is, without any processing. Every visitor sees the exact same content.</p>
+
+    <p>Characteristics of static websites:</p>
+    <ul>
+      <li>Content is the same for every visitor</li>
+      <li>Pages are pre-built files (not generated on-the-fly)</li>
+      <li>No database is needed</li>
+      <li>Very fast (just serving files)</li>
+      <li>Simple to host (any web server works)</li>
+      <li>Good for: portfolios, brochure sites, documentation</li>
+    </ul>
+
+    <h3>Dynamic Websites</h3>
+
+    <p>A <strong>dynamic website</strong> generates pages on-the-fly using server-side code. When you request a page, the server runs a program that may query a database, check your login status, personalize content based on your location, and then assemble the HTML specifically for your request. Different visitors may see different content.</p>
+
+    <p>Characteristics of dynamic websites:</p>
+    <ul>
+      <li>Content can be different for each visitor</li>
+      <li>Pages are generated by running code on the server</li>
+      <li>Typically uses a database to store and retrieve data</li>
+      <li>Can provide personalized, real-time experiences</li>
+      <li>More complex to build and host</li>
+      <li>Good for: e-commerce, social media, dashboards, blogs</li>
+    </ul>
+
+    <div class="csk-connection">
+      <strong>CSK Connection</strong>
+      The Computer Store KS website is a <strong>dynamic website</strong> built with Next.js. The public-facing pages (homepage, services, about) have some static characteristics &mdash; they look the same for every visitor. But the admin dashboard is fully dynamic: it queries the Supabase database in real-time to show the latest tickets, customer information, and gallery inventory. The blog is also dynamic &mdash; blog posts are stored in the database and rendered on-the-fly. Next.js actually blends both approaches, which is one of its superpowers.
+    </div>
+
+    <h3>The Modern Spectrum</h3>
+
+    <p>In practice, most modern websites are not purely static or purely dynamic &mdash; they sit somewhere on a spectrum. Modern frameworks like Next.js (which powers CSK) can render some pages statically at build time (for speed), while rendering others dynamically at request time (for freshness). This hybrid approach gives you the best of both worlds. We will explore this deeply in Phase 4 when we study Next.js.</p>
+
+    <!-- ===== SECTION: WHAT IS FULL-STACK ===== -->
+    <h2>What Does "Full-Stack" Mean?</h2>
+
+    <p>You will often hear the term "full-stack developer" in the industry, and this entire curriculum is designed to make you one. But what does it actually mean?</p>
+
+    <p>A web application has multiple <strong>layers</strong> (sometimes called the "stack"):</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Layer</th>
+          <th>Also Called</th>
+          <th>Technologies</th>
+          <th>What It Does</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Frontend</strong></td>
+          <td>Client-side</td>
+          <td>HTML, CSS, JavaScript, React</td>
+          <td>What the user sees and interacts with</td>
+        </tr>
+        <tr>
+          <td><strong>Backend</strong></td>
+          <td>Server-side</td>
+          <td>Node.js, Next.js API routes, Python, Java</td>
+          <td>Business logic, data processing, API endpoints</td>
+        </tr>
+        <tr>
+          <td><strong>Database</strong></td>
+          <td>Data layer</td>
+          <td>PostgreSQL, MySQL, MongoDB, Supabase</td>
+          <td>Stores and retrieves data persistently</td>
+        </tr>
+        <tr>
+          <td><strong>Infrastructure</strong></td>
+          <td>DevOps</td>
+          <td>Render, AWS, DNS, CI/CD pipelines</td>
+          <td>Hosting, deployment, monitoring</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>A <strong>frontend developer</strong> specializes in the user interface &mdash; making things look good and work smoothly in the browser. A <strong>backend developer</strong> specializes in the server-side logic &mdash; handling data, security, and business rules. A <strong>full-stack developer</strong> can work across <em>all</em> of these layers. They can design a beautiful UI, write the API that powers it, set up the database that stores the data, and deploy the whole thing to a production server.</p>
+
+    <div class="analogy">
+      <strong>Analogy: Building a House</strong><br>
+      Think of building a house. The <strong>frontend</strong> is the interior design &mdash; the paint colors, furniture arrangement, light fixtures, and everything you see and interact with. The <strong>backend</strong> is the plumbing, electrical wiring, and HVAC &mdash; critical systems that visitors do not see but that make the house functional. The <strong>database</strong> is the filing cabinet where you keep all your important documents. The <strong>infrastructure</strong> is the land, foundation, and utility connections that make the house habitable. A full-stack developer is the rare contractor who can handle all of these.
+    </div>
+
+    <div class="csk-connection">
+      <strong>CSK Connection</strong>
+      The Computer Store KS project is a full-stack application. Its <strong>frontend</strong> includes React components, Tailwind CSS styles, and client-side interactivity. Its <strong>backend</strong> includes Next.js API routes that handle contact form submissions, authentication, gallery management, and ticket operations. Its <strong>database</strong> is Supabase (PostgreSQL) storing blog posts, tickets, customers, and more. And its <strong>infrastructure</strong> includes Render for hosting, GitHub for code storage, and UptimeRobot for monitoring. By the end of this curriculum, you will understand every layer of this application.
+    </div>
+
+    <!-- ===== SECTION: DEVELOPER TOOLS PREVIEW ===== -->
+    <h2>Seeing HTTP in Action: Browser Developer Tools</h2>
+
+    <p>You do not have to take our word for all of this &mdash; you can see HTTP requests and responses happening live in your own browser. Every modern browser includes <strong>Developer Tools</strong> (often called "DevTools") that let you peek behind the curtain.</p>
+
+    <p>To open Developer Tools:</p>
+    <ul>
+      <li><strong>Chrome/Edge:</strong> Press <code>F12</code> or <code>Ctrl+Shift+I</code> (Windows/Linux) or <code>Cmd+Option+I</code> (Mac)</li>
+      <li><strong>Firefox:</strong> Press <code>F12</code> or <code>Ctrl+Shift+I</code></li>
+      <li><strong>Safari:</strong> First enable the Develop menu in Preferences &gt; Advanced, then press <code>Cmd+Option+I</code></li>
+    </ul>
+
+    <p>Once open, click the <strong>Network</strong> tab. Now refresh the page. You will see a list of every HTTP request your browser made, the response status code, the size of each response, and how long each request took. Click on any request to see the full headers, the request body (for POST requests), and the response body.</p>
+
+    <div class="info-box">
+      <strong>Try It Now!</strong>
+      Open your browser's Developer Tools right now and go to the Network tab. Navigate to <code>https://computerstoreks.com</code> and watch the requests appear. You should see the initial HTML document (status 200), followed by CSS files, JavaScript bundles, images, and font files. This is everything we discussed in this lesson, happening in real time.
+    </div>
+
+    <!-- ===== EXERCISES ===== -->
+    <section class="exercises">
+      <h2>Practice Exercises</h2>
+      <ol>
+        <li><strong>URL Dissection:</strong> Take the URL <code>https://www.computerstoreks.com/services/virus-removal</code> and identify the protocol, domain name, and path. Write a sentence explaining what each part does.</li>
+        <li><strong>DNS Walkthrough:</strong> In your own words, explain the DNS lookup process using an analogy that was not used in this lesson. Be creative!</li>
+        <li><strong>Status Code Identification:</strong> For each scenario, identify the HTTP status code you would expect:
+          <ul>
+            <li>You visit a page that loads normally.</li>
+            <li>You visit a URL that does not exist.</li>
+            <li>The website's database crashes when you try to load a page.</li>
+            <li>You try to access the admin dashboard without logging in.</li>
+            <li>A page has permanently moved to a new URL.</li>
+          </ul>
+        </li>
+        <li><strong>Network Tab Exploration:</strong> Open Developer Tools in your browser (F12), go to the Network tab, and visit any website. Answer these questions:
+          <ul>
+            <li>How many requests were made to fully load the page?</li>
+            <li>What was the status code of the first (main document) request?</li>
+            <li>What types of files were requested (HTML, CSS, JS, images)?</li>
+            <li>How long did the entire page take to load?</li>
+          </ul>
+        </li>
+        <li><strong>Static vs. Dynamic:</strong> List three websites you use regularly. For each, explain whether you think it is static, dynamic, or a hybrid, and why. What clues do you look for?</li>
+        <li><strong>Full-Stack Mapping:</strong> Think of an online store like Amazon. List one example of what happens at each layer of the stack (frontend, backend, database, infrastructure) when you search for a product and add it to your cart.</li>
+      </ol>
+    </section>
+
+    <!-- ===== KEY TAKEAWAYS ===== -->
+    <section class="key-takeaways">
+      <h2>Key Takeaways</h2>
+      <ul>
+        <li>When you type a URL, your browser performs a DNS lookup (to find the server's IP address), establishes a TCP connection (for reliable delivery), negotiates TLS encryption (for security), sends an HTTP request, and receives an HTTP response.</li>
+        <li>The client (your browser) makes requests; the server receives them, processes them, and sends back responses. This is the client-server model.</li>
+        <li>HTTP methods define what action a request performs: GET retrieves data, POST sends new data, PUT replaces data, and DELETE removes data.</li>
+        <li>HTTP status codes communicate the result: 200 means success, 301 means moved permanently, 404 means not found, and 500 means the server had an error.</li>
+        <li>HTTPS encrypts communication between client and server using TLS. The padlock icon confirms a connection is secure. HSTS headers force browsers to always use HTTPS.</li>
+        <li>Static websites serve pre-built files unchanged; dynamic websites generate content on-the-fly using server-side code and databases. Most modern sites are a hybrid of both.</li>
+        <li>Full-stack development spans all layers: frontend (what users see), backend (server logic), database (data storage), and infrastructure (hosting and deployment).</li>
+      </ul>
+    </section>
+
+  </main>
+  <nav class="lesson-nav bottom">
+    <a href="../index.html">&larr; Back to Curriculum</a>
+    <a href="../index.html">Back to Curriculum</a>
+    <a href="02-html-structuring-content.html">Next Lesson &rarr;</a>
+  </nav>
+</body>
+</html>

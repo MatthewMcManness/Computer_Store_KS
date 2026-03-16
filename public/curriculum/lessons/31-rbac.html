@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 31: Role-Based Access Control (RBAC) | Full-Stack Web Development Curriculum</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="lesson-nav">
+  <a href="30-supabase-auth.html">&larr; Previous: Supabase Auth &amp; Custom Sessions</a>
+  <span>Lesson 31 of 56</span>
+  <a href="32-web-security.html">Next: Web Security Best Practices &rarr;</a>
+</nav>
+
+<!-- HEADER -->
+<header class="lesson-header" style="background: linear-gradient(135deg, #7f1d1d 0%, #dc2626 100%);">
+  <div class="phase-badge" style="background: rgba(255,255,255,0.2);">Phase 7: Authentication &amp; Security</div>
+  <h1>Role-Based Access Control (RBAC)</h1>
+  <p class="lesson-subtitle">Designing and implementing a multi-role permission system for real business needs</p>
+</header>
+
+<!-- MAIN CONTENT -->
+<div class="lesson-content">
+
+  <!-- LEARNING OBJECTIVES -->
+  <div class="learning-objectives">
+    <h2>What You Will Learn</h2>
+    <ul>
+      <li>What RBAC is and why simple admin/user roles are not enough</li>
+      <li>How to analyze business needs to design appropriate roles</li>
+      <li>Multi-role users: why one person may need several roles</li>
+      <li>The user_profiles table: linking auth users to roles</li>
+      <li>Route-to-role mapping: which pages require which roles</li>
+      <li>Implementing role checks in middleware</li>
+      <li>Client-side role checks for showing/hiding UI elements</li>
+      <li>Building a full permission system: roles, permissions, and features</li>
+    </ul>
+  </div>
+
+  <!-- SECTION 1: WHY RBAC -->
+  <h2>Why Simple Admin/User Is Not Enough</h2>
+
+  <p>Many tutorials teach a simple two-role system: users are either "admin" (can do everything) or "user" (can do very little). This works for a personal blog, but it falls apart quickly in a real business.</p>
+
+  <p>Consider a computer repair shop. The business has employees with very different job responsibilities:</p>
+  <ul>
+    <li>The <strong>receptionist</strong> checks in customers, creates tickets, and answers the phone. They need access to customer data and the intake form, but they should not be able to change ticket statuses that only a technician understands.</li>
+    <li>The <strong>technician</strong> diagnoses and repairs computers. They need to update ticket statuses and add technical notes, but they should not manage employee accounts or view financial data.</li>
+    <li>The <strong>owner</strong> needs to see everything -- employee management, financial reports, customer data, and system settings.</li>
+    <li>The <strong>social media person</strong> writes blog posts. They need blog access but nothing else in the admin portal.</li>
+  </ul>
+
+  <p>With only "admin" and "user," you would have to give the social media person full admin access just so they can write blog posts. That violates the <strong>principle of least privilege</strong>: every user should have only the minimum permissions needed to do their job.</p>
+
+  <div class="analogy">
+    <strong>Analogy:</strong> Think of a hospital. Doctors, nurses, lab technicians, and billing staff all need access to different parts of the hospital and different patient records. You would not give every employee the master key that opens every door. You give each person keys only to the rooms they need.
+  </div>
+
+  <!-- SECTION 2: DESIGNING ROLES -->
+  <h2>Designing Roles: Analyzing Business Needs</h2>
+
+  <p>Before writing any code, you need to understand the business. Ask these questions:</p>
+
+  <ol>
+    <li><strong>Who are the different types of users?</strong> List every distinct group.</li>
+    <li><strong>What does each group need to do?</strong> List their daily tasks.</li>
+    <li><strong>What should each group NOT be able to do?</strong> This is often more important.</li>
+    <li><strong>Is there a hierarchy?</strong> Do some roles inherit the abilities of others?</li>
+    <li><strong>Can someone hold multiple roles?</strong> Could a technician also be the social media manager?</li>
+  </ol>
+
+  <h3>Example: Computer Repair Shop Roles</h3>
+
+  <p>After analyzing the business needs of a computer repair shop, you might design this role hierarchy:</p>
+
+  <div class="diagram">
+              BUSINESS ROLE HIERARCHY
+
+    owner (Level 5)         Everything
+      |
+    manager (Level 4)       Employees + finances + everything below
+      |
+    lead_technician (Level 3)   Lead tech features + everything below
+      |
+    technician (Level 2)    Repairs + gallery + everything below
+      |
+    receptionist (Level 1)  Intake, customers, tickets, invoices
+
+    --- ADD-ON ROLES (can be combined with any business role) ---
+
+    social_media            Blog access (for non-managers)
+    lead_developer          Superuser (full system access, IT admin)
+  </div>
+
+  <p>The hierarchy means each level automatically inherits all permissions from the levels below it. A manager can do everything a lead_technician can do, plus manage employees and finances. A lead_technician can do everything a technician can do, plus lead-specific features.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Role</th>
+        <th>Level</th>
+        <th>Key Capabilities</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>receptionist</code></td>
+        <td>1</td>
+        <td>Customer intake, view tickets, view customers, manage invoices</td>
+      </tr>
+      <tr>
+        <td><code>technician</code></td>
+        <td>2</td>
+        <td>Everything above + update ticket work, manage gallery, view devices</td>
+      </tr>
+      <tr>
+        <td><code>lead_technician</code></td>
+        <td>3</td>
+        <td>Everything above + lead tech dashboard, assign work</td>
+      </tr>
+      <tr>
+        <td><code>manager</code></td>
+        <td>4</td>
+        <td>Everything above + manage employees, view reports, blog access</td>
+      </tr>
+      <tr>
+        <td><code>owner</code></td>
+        <td>5</td>
+        <td>Everything above + system settings, billing, full admin</td>
+      </tr>
+      <tr>
+        <td><code>social_media</code></td>
+        <td>Add-on</td>
+        <td>Blog management only (combine with any business role)</td>
+      </tr>
+      <tr>
+        <td><code>lead_developer</code></td>
+        <td>Add-on</td>
+        <td>Full system access, IT superuser (bypasses all restrictions)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- SECTION 3: MULTI-ROLE USERS -->
+  <h2>Multi-Role Users</h2>
+
+  <p>In a small business, people wear many hats. The receptionist might also manage social media. A technician might be the lead developer who maintains the website. A single-role system forces you into awkward workarounds.</p>
+
+  <p>The solution is to store roles as an <strong>array</strong>. Each user can have one or more roles, and their effective permissions are the combination of all their roles:</p>
+
+  <pre><code>// Single role (old, limited approach)
+{ role: 'technician' }  // Can only be one thing
+
+// Multi-role (flexible, real-world approach)
+{ roles: ['technician', 'social_media'] }  // Technician who also writes blog posts
+{ roles: ['receptionist'] }                 // Just a receptionist
+{ roles: ['owner', 'lead_developer'] }      // Owner who also does IT</code></pre>
+
+  <h3>Rules for Multi-Role Assignment</h3>
+  <ul>
+    <li>Every user must have at least one role.</li>
+    <li>The <code>customer</code> role cannot be combined with employee roles (you are either a customer or an employee, never both).</li>
+    <li>Add-on roles (<code>social_media</code>, <code>lead_developer</code>) can be combined with any business role.</li>
+    <li>Having multiple business roles is allowed but usually unnecessary because of the hierarchy (a manager already has all technician permissions).</li>
+  </ul>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    CSK stores roles as a PostgreSQL <code>TEXT[]</code> (text array) in the <code>user_profiles</code> table. The <code>roles</code> column can contain any combination like <code>['technician', 'social_media']</code> or <code>['owner', 'lead_developer']</code>. A <code>validateRoles()</code> function in <code>role-helpers.ts</code> enforces the rules: at least one role required, customer cannot be mixed with employee roles.
+  </div>
+
+  <!-- SECTION 4: USER PROFILES TABLE -->
+  <h2>The user_profiles Table</h2>
+
+  <p>Supabase Auth handles the core authentication (email, password, sessions), but your application needs additional data about each user -- their roles, display name, location, and business-specific IDs. This data lives in a <code>user_profiles</code> table that links to the Supabase auth user:</p>
+
+  <pre><code>CREATE TABLE user_profiles (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  email TEXT NOT NULL,
+  full_name TEXT,
+  role TEXT DEFAULT 'customer',       -- Legacy single-role field
+  roles TEXT[] DEFAULT '{customer}',  -- Multi-role array (primary)
+  location_id UUID REFERENCES locations(id),
+  repairshopr_user_id INTEGER,       -- Link to legacy system
+  repairshopr_customer_id INTEGER,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Enable Row-Level Security
+ALTER TABLE user_profiles ENABLE ROW LEVEL SECURITY;
+
+-- Users can read their own profile
+CREATE POLICY "Users can read own profile"
+  ON user_profiles FOR SELECT
+  USING (auth.uid() = id);
+
+-- Only admins can update profiles
+CREATE POLICY "Admins can update profiles"
+  ON user_profiles FOR UPDATE
+  USING (
+    EXISTS (
+      SELECT 1 FROM user_profiles
+      WHERE id = auth.uid()
+      AND 'owner' = ANY(roles)
+    )
+  );</code></pre>
+
+  <p>Key design decisions:</p>
+  <ul>
+    <li>The <code>id</code> column is the same UUID as the Supabase auth user, linked with a foreign key. When the auth user is deleted, the profile is automatically deleted too (<code>ON DELETE CASCADE</code>).</li>
+    <li>Both <code>role</code> (single string) and <code>roles</code> (array) exist for backward compatibility during migration. New code always reads from <code>roles</code>.</li>
+    <li>RLS policies ensure users can only see their own profile, while admins can modify any profile.</li>
+  </ul>
+
+  <!-- SECTION 5: ROLE EXPANSION AND INHERITANCE -->
+  <h2>Role Expansion with Inheritance</h2>
+
+  <p>Because of the hierarchy, a <code>manager</code> inherits all permissions from <code>lead_technician</code>, <code>technician</code>, and <code>receptionist</code>. We need a function that "expands" a user's roles to include all inherited roles:</p>
+
+  <pre><code>// Define which roles each business role inherits
+const ROLE_HIERARCHY: Record&lt;string, string[]&gt; = {
+  owner:           ['manager', 'lead_technician', 'technician', 'receptionist'],
+  manager:         ['lead_technician', 'technician', 'receptionist'],
+  lead_technician: ['technician', 'receptionist'],
+  technician:      ['receptionist'],
+  receptionist:    [],
+};
+
+/**
+ * Expand a set of roles to include all inherited roles.
+ * Example: expandRoles(['manager']) returns
+ *   ['manager', 'lead_technician', 'technician', 'receptionist']
+ */
+function expandRoles(roles: string[]): string[] {
+  const expanded = new Set&lt;string&gt;(roles);
+
+  for (const role of roles) {
+    const inherited = ROLE_HIERARCHY[role];
+    if (inherited) {
+      for (const r of inherited) {
+        expanded.add(r);
+      }
+    }
+  }
+
+  return Array.from(expanded);
+}
+
+// Usage:
+expandRoles(['technician'])
+// ['technician', 'receptionist']
+
+expandRoles(['manager', 'social_media'])
+// ['manager', 'lead_technician', 'technician', 'receptionist', 'social_media']</code></pre>
+
+  <p>Add-on roles like <code>social_media</code> and <code>lead_developer</code> are not part of the hierarchy -- they do not inherit from or grant other roles. They simply add specific permissions on top of whatever business role the user has.</p>
+
+  <!-- SECTION 6: PERMISSIONS -->
+  <h2>Building a Permission System</h2>
+
+  <p>Roles define who you are. <strong>Permissions</strong> define what you can do. The mapping between roles and permissions is where the real power of RBAC lives.</p>
+
+  <h3>Defining Permissions</h3>
+  <pre><code>// Each permission is a specific capability
+type Permission =
+  | 'view_reception_dashboard'
+  | 'manage_intake'
+  | 'view_customers'
+  | 'manage_customers'
+  | 'view_tickets'
+  | 'manage_tickets'
+  | 'view_tech_dashboard'
+  | 'manage_ticket_work'
+  | 'view_gallery'
+  | 'manage_gallery'
+  | 'view_employees'
+  | 'manage_employees'
+  | 'view_blog'
+  | 'manage_blog'
+  | 'view_admin_dashboard'
+  | 'manage_system_settings';</code></pre>
+
+  <h3>Mapping Roles to Permissions</h3>
+  <pre><code>const ROLE_PERMISSIONS: Record&lt;string, Permission[]&gt; = {
+  receptionist: [
+    'view_reception_dashboard',
+    'manage_intake',
+    'view_customers',
+    'manage_customers',
+    'view_tickets',
+    'manage_tickets',
+    'view_invoices',
+  ],
+  technician: [
+    'view_tech_dashboard',
+    'manage_ticket_work',
+    'view_gallery',
+    'manage_gallery',
+    'view_devices',
+    'manage_devices',
+  ],
+  lead_technician: [
+    'view_lead_tech_dashboard',
+    'assign_tickets',
+    'view_reports',
+  ],
+  manager: [
+    'view_admin_dashboard',
+    'view_employees',
+    'manage_employees',
+    'view_blog',
+    'manage_blog',
+    'view_reports',
+  ],
+  owner: [
+    'manage_system_settings',
+    'manage_billing',
+    'view_all_reports',
+  ],
+  social_media: [
+    'view_blog',
+    'manage_blog',
+  ],
+  lead_developer: [
+    // Special: full access to everything (checked separately)
+  ],
+};</code></pre>
+
+  <h3>Checking Permissions</h3>
+  <pre><code>/**
+ * Get all permissions for a user based on their roles.
+ * Expands roles with inheritance first, then collects all permissions.
+ */
+function getEffectivePermissions(roles: string[]): Permission[] {
+  const permissions = new Set&lt;Permission&gt;();
+  const expandedRoles = expandRoles(roles);
+
+  for (const role of expandedRoles) {
+    const rolePerms = ROLE_PERMISSIONS[role];
+    if (rolePerms) {
+      for (const perm of rolePerms) {
+        permissions.add(perm);
+      }
+    }
+  }
+
+  return Array.from(permissions);
+}
+
+/**
+ * Check if a user has a specific permission.
+ */
+function hasPermission(roles: string[], permission: Permission): boolean {
+  const permissions = getEffectivePermissions(roles);
+  return permissions.includes(permission);
+}
+
+/**
+ * Check if a user has ANY of the required permissions.
+ */
+function hasAnyPermission(roles: string[], required: Permission[]): boolean {
+  const permissions = getEffectivePermissions(roles);
+  return required.some(p =&gt; permissions.includes(p));
+}
+
+// Usage:
+hasPermission(['technician'], 'manage_gallery')     // true
+hasPermission(['receptionist'], 'manage_gallery')    // false
+hasPermission(['manager'], 'view_tickets')           // true (inherited)</code></pre>
+
+  <!-- SECTION 7: ROUTE PROTECTION -->
+  <h2>Route-to-Role Mapping</h2>
+
+  <p>Now we connect routes (URLs) to the permissions required to access them:</p>
+
+  <pre><code>const ROUTE_PERMISSIONS: Record&lt;string, Permission[]&gt; = {
+  // Reception section
+  '/admin':              ['view_reception_dashboard', 'view_tech_dashboard',
+                          'view_lead_tech_dashboard', 'view_admin_dashboard'],
+  '/admin/reception':    ['view_reception_dashboard'],
+  '/admin/intake':       ['manage_intake'],
+  '/admin/customers':    ['view_customers'],
+  '/admin/tickets':      ['view_tickets'],
+  '/admin/invoices':     ['view_invoices'],
+
+  // Technician section
+  '/admin/tech':         ['view_tech_dashboard'],
+  '/admin/gallery':      ['view_gallery'],
+  '/admin/devices':      ['view_devices'],
+
+  // Lead technician section
+  '/admin/lead-tech':    ['view_lead_tech_dashboard'],
+
+  // Management section
+  '/admin/employees':    ['view_employees'],
+  '/admin/blog':         ['view_blog'],
+  '/admin/reports':      ['view_reports'],
+
+  // System settings (owner + lead_developer only)
+  '/admin/settings':     ['manage_system_settings'],
+};</code></pre>
+
+  <h3>Implementing Route Checks in Middleware</h3>
+  <pre><code>function canAccessRoute(roles: string[], pathname: string): boolean {
+  // Lead developer can access everything
+  if (roles.includes('lead_developer')) {
+    return true;
+  }
+
+  // Look up required permissions for this route
+  const requiredPermissions = ROUTE_PERMISSIONS[pathname];
+  if (requiredPermissions) {
+    return hasAnyPermission(roles, requiredPermissions);
+  }
+
+  // Check for prefix matches (e.g., /admin/blog/new matches /admin/blog)
+  for (const [route, permissions] of Object.entries(ROUTE_PERMISSIONS)) {
+    if (pathname.startsWith(route) && route !== '/admin') {
+      return hasAnyPermission(roles, permissions);
+    }
+  }
+
+  // Unknown route -- deny by default for security
+  return false;
+}</code></pre>
+
+  <div class="warning-box">
+    <strong>Default Deny:</strong> When a route is not listed in the permissions map, it is denied by default. This is the safest approach because new routes are automatically protected. The alternative (default allow) means any new page you create is accidentally public until you remember to add permissions.
+  </div>
+
+  <!-- SECTION 8: CLIENT-SIDE ROLE CHECKS -->
+  <h2>Client-Side Role Checks for UI Elements</h2>
+
+  <p>While the server enforces authorization (preventing unauthorized API calls and page access), the client should also hide UI elements that the user cannot use. This is not for security -- it is for user experience. Showing a "Manage Employees" button to a receptionist who will just get an error is confusing.</p>
+
+  <pre><code>// components/admin/admin-sidebar.tsx
+'use client';
+
+import { useSession } from '@/hooks/useSession';
+import { hasAnyPermission } from '@/lib/role-helpers';
+
+export function AdminSidebar() {
+  const { user } = useSession();
+  const roles = user?.roles || [];
+
+  return (
+    &lt;nav&gt;
+      {/* Everyone with reception access sees this */}
+      {hasAnyPermission(roles, ['view_reception_dashboard']) && (
+        &lt;SidebarSection title="Reception"&gt;
+          &lt;SidebarLink href="/admin/reception"&gt;Dashboard&lt;/SidebarLink&gt;
+          &lt;SidebarLink href="/admin/customers"&gt;Customers&lt;/SidebarLink&gt;
+          &lt;SidebarLink href="/admin/tickets"&gt;Tickets&lt;/SidebarLink&gt;
+        &lt;/SidebarSection&gt;
+      )}
+
+      {/* Only technicians and above see this */}
+      {hasAnyPermission(roles, ['view_tech_dashboard']) && (
+        &lt;SidebarSection title="Technician"&gt;
+          &lt;SidebarLink href="/admin/tech"&gt;Tech Dashboard&lt;/SidebarLink&gt;
+          &lt;SidebarLink href="/admin/gallery"&gt;Gallery&lt;/SidebarLink&gt;
+        &lt;/SidebarSection&gt;
+      )}
+
+      {/* Only managers and above see this */}
+      {hasAnyPermission(roles, ['view_employees']) && (
+        &lt;SidebarSection title="Management"&gt;
+          &lt;SidebarLink href="/admin/employees"&gt;Employees&lt;/SidebarLink&gt;
+        &lt;/SidebarSection&gt;
+      )}
+
+      {/* Blog access: social_media role OR manager+ */}
+      {hasAnyPermission(roles, ['view_blog']) && (
+        &lt;SidebarSection title="Content"&gt;
+          &lt;SidebarLink href="/admin/blog"&gt;Blog Posts&lt;/SidebarLink&gt;
+        &lt;/SidebarSection&gt;
+      )}
+    &lt;/nav&gt;
+  );
+}</code></pre>
+
+  <div class="warning-box">
+    <strong>Client-side checks are NOT security.</strong> A determined user can modify the JavaScript in their browser to show hidden elements. Always enforce permissions on the server (middleware and API routes). Client-side checks are purely for a cleaner user experience.
+  </div>
+
+  <!-- SECTION 9: ROLE HELPER UTILITIES -->
+  <h2>Role Helper Utilities</h2>
+
+  <p>To keep role checks consistent across your codebase, build a utility module with helper functions:</p>
+
+  <pre><code>// lib/role-helpers.ts
+
+/** Check if user has any of the target roles (exact match) */
+export function hasAnyRole(userRoles: string[], targetRoles: string[]): boolean {
+  return targetRoles.some(role =&gt; userRoles.includes(role));
+}
+
+/** Check if user is a customer (only the customer role) */
+export function isCustomer(roles: string[]): boolean {
+  return roles.includes('customer') && roles.length === 1;
+}
+
+/** Check if user is any type of employee */
+export function isEmployee(roles: string[]): boolean {
+  const employeeRoles = [
+    'receptionist', 'technician', 'lead_technician',
+    'manager', 'owner', 'social_media', 'lead_developer',
+  ];
+  return roles.some(role =&gt; employeeRoles.includes(role));
+}
+
+/** Check if user is management level (manager, owner, or lead_developer) */
+export function isManagement(roles: string[]): boolean {
+  return hasAnyRole(roles, ['manager', 'owner', 'lead_developer']);
+}
+
+/** Check if user is the lead developer (superuser) */
+export function isLeadDeveloper(roles: string[]): boolean {
+  return roles.includes('lead_developer');
+}
+
+/** Check if user has blog access */
+export function hasBlogAccess(roles: string[]): boolean {
+  return hasAnyRole(roles, ['social_media', 'manager', 'owner', 'lead_developer']);
+}
+
+/** Check if user can manage employees */
+export function canManageEmployees(roles: string[]): boolean {
+  return hasAnyRole(roles, ['manager', 'owner', 'lead_developer']);
+}
+
+/** Get the default dashboard for a user based on their highest role */
+export function getDefaultDashboard(roles: string[]): string {
+  if (hasAnyRole(roles, ['lead_developer', 'owner', 'manager'])) {
+    return '/admin';
+  }
+  if (roles.includes('lead_technician')) return '/admin/lead-tech';
+  if (roles.includes('technician')) return '/admin/tech';
+  if (roles.includes('receptionist')) return '/admin/reception';
+  return '/admin';
+}
+
+/** Validate that a roles array is valid */
+export function validateRoles(roles: string[]): { valid: boolean; error?: string } {
+  if (!roles || roles.length === 0) {
+    return { valid: false, error: 'At least one role is required' };
+  }
+
+  const hasCustomer = roles.includes('customer');
+  const hasEmployee = roles.some(r =&gt;
+    ['receptionist','technician','lead_technician','manager','owner',
+     'social_media','lead_developer'].includes(r)
+  );
+
+  if (hasCustomer && hasEmployee) {
+    return { valid: false, error: 'Customer role cannot be combined with employee roles' };
+  }
+
+  return { valid: true };
+}</code></pre>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    CSK's <code>role-helpers.ts</code> contains all of these functions plus additional ones like <code>expandRoles()</code>, <code>getEffectivePermissions()</code>, <code>canAccessRoute()</code>, and <code>getFilteredSidebar()</code>. The roles type system is defined in <code>types/roles.ts</code> with the full hierarchy of 5 business roles (receptionist through owner) plus 2 add-on roles (social_media, lead_developer). The middleware uses <code>canAccessRoute()</code> for permission-based route protection, and the sidebar component uses <code>getFilteredSidebar()</code> to show only relevant navigation items.
+  </div>
+
+  <!-- SECTION 10: TESTING RBAC -->
+  <h2>Testing RBAC</h2>
+
+  <p>RBAC is one of the most critical systems to test thoroughly. A bug here means either users cannot do their jobs (too restrictive) or they can access things they should not (too permissive).</p>
+
+  <h3>What to Test</h3>
+  <ol>
+    <li><strong>Each role can access their allowed routes:</strong> A technician can access <code>/admin/tech</code> and <code>/admin/gallery</code>.</li>
+    <li><strong>Each role CANNOT access restricted routes:</strong> A receptionist cannot access <code>/admin/employees</code>.</li>
+    <li><strong>Role inheritance works:</strong> A manager can access technician routes without explicitly having the technician role.</li>
+    <li><strong>Multi-role combinations work:</strong> A <code>['receptionist', 'social_media']</code> user can access both reception and blog.</li>
+    <li><strong>Lead developer bypasses all restrictions:</strong> The superuser can access everything.</li>
+    <li><strong>Unauthenticated users are redirected to login.</strong></li>
+    <li><strong>Customers cannot access admin routes.</strong></li>
+  </ol>
+
+  <h3>Example Test Cases</h3>
+  <pre><code>// role-helpers.test.ts
+describe('canAccessRoute', () =&gt; {
+  test('receptionist can access reception dashboard', () =&gt; {
+    expect(canAccessRoute(['receptionist'], '/admin/reception')).toBe(true);
+  });
+
+  test('receptionist cannot access employee management', () =&gt; {
+    expect(canAccessRoute(['receptionist'], '/admin/employees')).toBe(false);
+  });
+
+  test('manager inherits technician permissions', () =&gt; {
+    expect(canAccessRoute(['manager'], '/admin/gallery')).toBe(true);
+  });
+
+  test('social_media add-on grants blog access', () =&gt; {
+    expect(canAccessRoute(['receptionist', 'social_media'], '/admin/blog')).toBe(true);
+  });
+
+  test('lead_developer can access everything', () =&gt; {
+    expect(canAccessRoute(['lead_developer'], '/admin/settings')).toBe(true);
+    expect(canAccessRoute(['lead_developer'], '/admin/employees')).toBe(true);
+    expect(canAccessRoute(['lead_developer'], '/admin/anything')).toBe(true);
+  });
+
+  test('customer cannot access admin routes', () =&gt; {
+    expect(canAccessRoute(['customer'], '/admin')).toBe(false);
+  });
+});</code></pre>
+
+  <!-- EXERCISES -->
+  <div class="exercises">
+    <h2>Exercises</h2>
+    <ol>
+      <li><strong>Role Design:</strong> You are building a school management system. Design a role hierarchy for: student, teacher, department head, principal, IT admin. List what each role can and cannot do.</li>
+      <li><strong>Permission Mapping:</strong> Given CSK's role hierarchy, determine which roles can access each of these routes:
+        <ul>
+          <li><code>/admin/blog/new</code></li>
+          <li><code>/admin/employees</code></li>
+          <li><code>/admin/gallery</code></li>
+          <li><code>/admin/settings</code></li>
+        </ul>
+      </li>
+      <li><strong>Implement expandRoles:</strong> Write the <code>expandRoles()</code> function from scratch. Test it with: <code>expandRoles(['technician'])</code>, <code>expandRoles(['manager', 'social_media'])</code>, and <code>expandRoles(['lead_developer'])</code>.</li>
+      <li><strong>Multi-Role Validation:</strong> Write a <code>validateRoles()</code> function that returns an error if:
+        <ul>
+          <li>The roles array is empty</li>
+          <li>Customer is combined with any employee role</li>
+          <li>An invalid role name is provided</li>
+        </ul>
+      </li>
+      <li><strong>Sidebar Filtering:</strong> Given a sidebar configuration with sections for Reception, Technician, Management, and Blog, write a function that returns only the sections a user with roles <code>['technician', 'social_media']</code> should see.</li>
+    </ol>
+  </div>
+
+  <!-- KEY TAKEAWAYS -->
+  <div class="key-takeaways">
+    <h2>Key Takeaways</h2>
+    <ul>
+      <li>Simple admin/user roles do not work for real businesses. RBAC lets you model the actual organizational hierarchy.</li>
+      <li>Design roles by analyzing who does what in the business, then apply the principle of least privilege.</li>
+      <li>Store roles as an array -- real people often need multiple roles (e.g., technician + social media).</li>
+      <li>Role hierarchy with inheritance reduces redundancy: a manager automatically gets all technician permissions.</li>
+      <li>Permissions are the bridge between roles and features: roles grant permissions, permissions gate features.</li>
+      <li>Route-to-permission mapping in middleware enforces authorization on every request.</li>
+      <li>Default to deny: unknown routes should be blocked, not allowed.</li>
+      <li>Client-side role checks are for UX only. Server-side checks are the actual security.</li>
+      <li>Test every role against every route to catch both "too restrictive" and "too permissive" bugs.</li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="lesson-nav bottom">
+  <a href="30-supabase-auth.html">&larr; Previous: Supabase Auth &amp; Custom Sessions</a>
+  <span>Lesson 31 of 56</span>
+  <a href="32-web-security.html">Next: Web Security Best Practices &rarr;</a>
+</nav>
+
+</body>
+</html>

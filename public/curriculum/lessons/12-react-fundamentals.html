@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 12: React Fundamentals | Full-Stack Web Development Curriculum</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+
+<!-- ── TOP NAV ── -->
+<nav class="lesson-nav">
+  <a href="11-typescript.html">&larr; Previous: TypeScript</a>
+  <span>Lesson 12 of 56</span>
+  <a href="13-react-state-hooks.html">Next: React State &amp; Hooks &rarr;</a>
+</nav>
+
+<!-- ── HEADER ── -->
+<header class="lesson-header">
+  <div class="phase-badge" style="background:rgba(14,165,233,0.35);color:#fff;">Phase 3: React</div>
+  <h1>React Fundamentals</h1>
+  <p class="lesson-subtitle">Build user interfaces from composable, reusable components using the library that powers millions of production websites.</p>
+</header>
+
+<!-- ── CONTENT ── -->
+<main class="lesson-content">
+
+  <!-- Learning Objectives -->
+  <div class="learning-objectives">
+    <h2>What You Will Learn</h2>
+    <ul>
+      <li>Understand what React is, why it dominates front-end development, and how the virtual DOM works</li>
+      <li>Create a React project and understand the file structure</li>
+      <li>Write JSX and understand how it differs from HTML</li>
+      <li>Build components as functions that return JSX</li>
+      <li>Pass data between components using props with TypeScript typing</li>
+      <li>Render lists with <code>.map()</code> and understand why the <code>key</code> prop matters</li>
+      <li>Apply conditional rendering patterns: ternary, <code>&amp;&amp;</code>, and early return</li>
+      <li>Compose complex UIs from simple, reusable pieces</li>
+      <li>Organize components into files with proper import/export patterns</li>
+    </ul>
+  </div>
+
+  <!-- ============================== -->
+  <!-- SECTION: What Is React? -->
+  <!-- ============================== -->
+  <h2>What Is React and Why Does It Dominate?</h2>
+
+  <p>React is a <strong>JavaScript library for building user interfaces</strong>. Created by Facebook (now Meta) in 2013, it has become the most widely used front-end library in the world. When you visit sites like Facebook, Instagram, Netflix, Airbnb, or Uber, you are looking at React applications.</p>
+
+  <p>But why did React become so popular? To understand that, we need to understand the problem it solves.</p>
+
+  <h3>The Problem: Keeping the UI in Sync with Data</h3>
+
+  <p>In the previous lessons, you learned to manipulate the DOM with vanilla JavaScript. You selected elements, changed their text, added event listeners, and toggled classes. This works well for simple pages, but imagine building something like a ticket management dashboard where:</p>
+
+  <ul>
+    <li>A list of tickets updates every 30 seconds</li>
+    <li>Clicking a status filter changes which tickets are visible</li>
+    <li>A search box filters tickets in real time</li>
+    <li>Each ticket card shows customer name, status badge, and creation date</li>
+    <li>Clicking a ticket opens a detail panel</li>
+  </ul>
+
+  <p>With vanilla JavaScript, you would need to manually find every DOM element that needs updating, change its content, add or remove elements from lists, and keep everything in sync. As the application grows, this becomes a tangled mess of <code>document.querySelector</code> calls and <code>innerHTML</code> assignments. One missed update creates a bug where the UI shows stale data.</p>
+
+  <div class="analogy">
+    <strong>Analogy:</strong> Imagine you are running a restaurant kitchen. Without React, you are the chef AND the waiter &mdash; you cook the food AND personally walk each dish to every table, remembering which table ordered what. With React, you just update the menu board (your data), and a team of efficient waiters (React's rendering engine) automatically delivers the right dishes to the right tables. You describe <em>what</em> should be served, not <em>how</em> to deliver it.
+  </div>
+
+  <h3>React's Solution: Declarative UI</h3>
+
+  <p>React introduces a fundamentally different approach. Instead of telling the browser <em>how</em> to update the DOM step by step (imperative), you describe <em>what</em> the UI should look like for any given data (declarative). React figures out the most efficient way to update the actual DOM to match.</p>
+
+  <pre><span style="color:#6c7086;">// Imperative (vanilla JS) - HOW to update</span>
+<span style="color:#cba6f7;">const</span> <span style="color:#cdd6f4;">list</span> = <span style="color:#cdd6f4;">document</span>.<span style="color:#89b4fa;">querySelector</span>(<span style="color:#a6e3a1;">'.ticket-list'</span>);
+<span style="color:#cdd6f4;">list</span>.<span style="color:#cdd6f4;">innerHTML</span> = <span style="color:#a6e3a1;">''</span>;
+<span style="color:#cdd6f4;">tickets</span>.<span style="color:#89b4fa;">forEach</span>(<span style="color:#cdd6f4;">ticket</span> =&gt; {
+  <span style="color:#cba6f7;">const</span> <span style="color:#cdd6f4;">li</span> = <span style="color:#cdd6f4;">document</span>.<span style="color:#89b4fa;">createElement</span>(<span style="color:#a6e3a1;">'li'</span>);
+  <span style="color:#cdd6f4;">li</span>.<span style="color:#cdd6f4;">textContent</span> = <span style="color:#cdd6f4;">ticket</span>.<span style="color:#cdd6f4;">subject</span>;
+  <span style="color:#cdd6f4;">list</span>.<span style="color:#89b4fa;">appendChild</span>(<span style="color:#cdd6f4;">li</span>);
+});
+
+<span style="color:#6c7086;">// Declarative (React) - WHAT the UI should be</span>
+<span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">TicketList</span>({ <span style="color:#cdd6f4;">tickets</span> }) {
+  <span style="color:#cba6f7;">return</span> (
+    &lt;<span style="color:#89b4fa;">ul</span> <span style="color:#cdd6f4;">className</span>=<span style="color:#a6e3a1;">"ticket-list"</span>&gt;
+      {<span style="color:#cdd6f4;">tickets</span>.<span style="color:#89b4fa;">map</span>(<span style="color:#cdd6f4;">ticket</span> =&gt; (
+        &lt;<span style="color:#89b4fa;">li</span> <span style="color:#cdd6f4;">key</span>={<span style="color:#cdd6f4;">ticket</span>.<span style="color:#cdd6f4;">id</span>}&gt;{<span style="color:#cdd6f4;">ticket</span>.<span style="color:#cdd6f4;">subject</span>}&lt;/<span style="color:#89b4fa;">li</span>&gt;
+      ))}
+    &lt;/<span style="color:#89b4fa;">ul</span>&gt;
+  );
+}</pre>
+
+  <p>The React version says "here is what a ticket list looks like given some data." When the data changes, React automatically re-runs this function and updates only the parts of the DOM that actually changed.</p>
+
+  <h3>The Virtual DOM</h3>
+
+  <p>React achieves its efficiency through something called the <strong>virtual DOM</strong>. Here is how it works:</p>
+
+  <ol>
+    <li><strong>Render:</strong> When your data changes, React calls your component functions and builds a lightweight JavaScript representation of what the DOM <em>should</em> look like. This is the virtual DOM &mdash; a plain JavaScript object tree, not actual DOM nodes.</li>
+    <li><strong>Diff:</strong> React compares the new virtual DOM with the previous one to figure out exactly what changed. This comparison is called "reconciliation."</li>
+    <li><strong>Patch:</strong> React applies only the minimal set of changes to the real DOM. If one ticket's status changed out of 50 tickets, React updates just that one element &mdash; not all 50.</li>
+  </ol>
+
+  <div class="diagram">Virtual DOM Flow:
+
+Your Data Changes
+       |
+       v
++------------------+     +------------------+
+|  New Virtual DOM  | vs  |  Old Virtual DOM  |
+|  (JS objects)     |     |  (JS objects)     |
++------------------+     +------------------+
+       |
+       v
+   Diff / Reconcile
+       |
+       v
++------------------+
+|  Minimal DOM      |
+|  Updates Applied  |
++------------------+</div>
+
+  <p>This is much faster than wiping out a section of the DOM and rebuilding it from scratch, which is what many vanilla JavaScript approaches do with <code>innerHTML</code>.</p>
+
+  <h3>The Component Model</h3>
+
+  <p>React's other big idea is <strong>components</strong>. Instead of building a page as one giant HTML file, you break it into small, self-contained pieces. Each piece is a component &mdash; a JavaScript function that returns a description of what part of the UI should look like.</p>
+
+  <div class="diagram">A Page Broken Into Components:
+
++-----------------------------------------------+
+|  &lt;Header /&gt;                                    |
+|  [Logo]  [Nav Links]  [Search]                 |
++-----------------------------------------------+
+|                                                 |
+|  +-------------------+  +--------------------+  |
+|  | &lt;Sidebar /&gt;       |  | &lt;TicketList /&gt;     |  |
+|  | [Filters]         |  | &lt;TicketCard /&gt;     |  |
+|  | [Status Counts]   |  | &lt;TicketCard /&gt;     |  |
+|  +-------------------+  | &lt;TicketCard /&gt;     |  |
+|                          +--------------------+  |
++-----------------------------------------------+
+|  &lt;Footer /&gt;                                    |
++-----------------------------------------------+</div>
+
+  <p>Components are <strong>reusable</strong>. Build a <code>&lt;TicketCard /&gt;</code> once and render it 50 times with different data. Components are <strong>composable</strong>. Combine simple components to build complex interfaces. Components are <strong>isolated</strong>. A bug in the sidebar does not break the ticket list.</p>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    Every page on the Computer Store KS website is a React component. The <code>Header.tsx</code> and <code>Footer.tsx</code> components appear on every public page. The <code>TestimonialsCarousel</code> component is reused wherever customer reviews need to be shown. The gallery page renders a grid of <code>FlipCard</code> components &mdash; each one displaying a different computer.
+  </div>
+
+  <!-- ============================== -->
+  <!-- SECTION: Creating a React Project -->
+  <!-- ============================== -->
+  <h2>Creating a React Project</h2>
+
+  <p>The easiest way to start a React project with TypeScript in 2026 is using <strong>Vite</strong> (pronounced "veet"), a lightning-fast build tool. In a real production project, you would typically use <strong>Next.js</strong> (which we cover in Lesson 15), but Vite is perfect for learning React fundamentals without the added complexity.</p>
+
+  <pre><span style="color:#6c7086;"># Create a new React + TypeScript project</span>
+npm create vite@latest my-react-app -- --template react-ts
+
+<span style="color:#6c7086;"># Move into the project folder</span>
+cd my-react-app
+
+<span style="color:#6c7086;"># Install dependencies</span>
+npm install
+
+<span style="color:#6c7086;"># Start the development server</span>
+npm run dev</pre>
+
+  <p>Open your browser to the URL shown (usually <code>http://localhost:5173</code>). You should see a starter page with a Vite + React logo.</p>
+
+  <h3>Project Structure</h3>
+
+  <p>Here is what a fresh Vite + React project looks like:</p>
+
+  <pre>my-react-app/
+  public/              <span style="color:#6c7086;"># Static files (favicon, images)</span>
+  src/
+    App.tsx            <span style="color:#6c7086;"># Main application component</span>
+    App.css            <span style="color:#6c7086;"># Styles for App</span>
+    main.tsx           <span style="color:#6c7086;"># Entry point - renders App into the DOM</span>
+    index.css          <span style="color:#6c7086;"># Global styles</span>
+    vite-env.d.ts      <span style="color:#6c7086;"># TypeScript type declarations for Vite</span>
+  index.html           <span style="color:#6c7086;"># The single HTML page</span>
+  package.json         <span style="color:#6c7086;"># Dependencies and scripts</span>
+  tsconfig.json        <span style="color:#6c7086;"># TypeScript configuration</span>
+  vite.config.ts       <span style="color:#6c7086;"># Vite configuration</span></pre>
+
+  <p>The key file is <code>main.tsx</code>. It takes your root <code>&lt;App /&gt;</code> component and renders it into the <code>&lt;div id="root"&gt;</code> element in <code>index.html</code>:</p>
+
+  <pre><span style="color:#6c7086;">// src/main.tsx</span>
+<span style="color:#cba6f7;">import</span> <span style="color:#cdd6f4;">React</span> <span style="color:#cba6f7;">from</span> <span style="color:#a6e3a1;">'react'</span>
+<span style="color:#cba6f7;">import</span> <span style="color:#cdd6f4;">ReactDOM</span> <span style="color:#cba6f7;">from</span> <span style="color:#a6e3a1;">'react-dom/client'</span>
+<span style="color:#cba6f7;">import</span> <span style="color:#cdd6f4;">App</span> <span style="color:#cba6f7;">from</span> <span style="color:#a6e3a1;">'./App'</span>
+<span style="color:#cba6f7;">import</span> <span style="color:#a6e3a1;">'./index.css'</span>
+
+<span style="color:#cdd6f4;">ReactDOM</span>.<span style="color:#89b4fa;">createRoot</span>(
+  <span style="color:#cdd6f4;">document</span>.<span style="color:#89b4fa;">getElementById</span>(<span style="color:#a6e3a1;">'root'</span>)!
+).<span style="color:#89b4fa;">render</span>(
+  &lt;<span style="color:#89b4fa;">React.StrictMode</span>&gt;
+    &lt;<span style="color:#89b4fa;">App</span> /&gt;
+  &lt;/<span style="color:#89b4fa;">React.StrictMode</span>&gt;
+)</pre>
+
+  <p><code>React.StrictMode</code> is a development-only wrapper that helps catch common mistakes by running your components twice and warning about unsafe patterns. It does not affect production.</p>
+
+  <!-- ============================== -->
+  <!-- SECTION: JSX -->
+  <!-- ============================== -->
+  <h2>JSX: JavaScript + XML (It Is Not HTML!)</h2>
+
+  <p>The most striking thing about React code is <strong>JSX</strong> &mdash; that HTML-like syntax sitting inside your JavaScript. JSX stands for JavaScript XML, and it is a <em>syntax extension</em> to JavaScript. It looks like HTML, but it is NOT HTML. It is closer to JavaScript wearing an HTML costume.</p>
+
+  <pre><span style="color:#6c7086;">// This is JSX - it looks like HTML but compiles to JavaScript</span>
+<span style="color:#cba6f7;">const</span> <span style="color:#cdd6f4;">element</span> = &lt;<span style="color:#89b4fa;">h1</span>&gt;Hello, world!&lt;/<span style="color:#89b4fa;">h1</span>&gt;;
+
+<span style="color:#6c7086;">// Under the hood, the compiler transforms it to this:</span>
+<span style="color:#cba6f7;">const</span> <span style="color:#cdd6f4;">element</span> = <span style="color:#cdd6f4;">React</span>.<span style="color:#89b4fa;">createElement</span>(<span style="color:#a6e3a1;">'h1'</span>, <span style="color:#cba6f7;">null</span>, <span style="color:#a6e3a1;">'Hello, world!'</span>);</pre>
+
+  <p>The build tool (Vite, in our case) transforms JSX into regular JavaScript function calls before the browser ever sees it. The browser never processes JSX directly.</p>
+
+  <h3>Key Differences from HTML</h3>
+
+  <p>Because JSX is JavaScript, not HTML, there are several important differences you must know:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>HTML</th>
+        <th>JSX</th>
+        <th>Why</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>class="btn"</code></td>
+        <td><code>className="btn"</code></td>
+        <td><code>class</code> is a reserved word in JavaScript</td>
+      </tr>
+      <tr>
+        <td><code>for="email"</code></td>
+        <td><code>htmlFor="email"</code></td>
+        <td><code>for</code> is a reserved word in JavaScript</td>
+      </tr>
+      <tr>
+        <td><code>style="color: red"</code></td>
+        <td><code>style={{ color: 'red' }}</code></td>
+        <td>Styles are JavaScript objects, not strings</td>
+      </tr>
+      <tr>
+        <td><code>onclick="handleClick()"</code></td>
+        <td><code>onClick={handleClick}</code></td>
+        <td>Event handlers use camelCase and take functions</td>
+      </tr>
+      <tr>
+        <td><code>&lt;img src="..."&gt;</code></td>
+        <td><code>&lt;img src="..." /&gt;</code></td>
+        <td>All tags must be closed (self-closing slash required)</td>
+      </tr>
+      <tr>
+        <td><code>tabindex="0"</code></td>
+        <td><code>tabIndex={0}</code></td>
+        <td>Multi-word attributes use camelCase</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Expressions in Curly Braces</h3>
+
+  <p>The curly braces <code>{}</code> are JSX's escape hatch into JavaScript. Anything inside curly braces is evaluated as a JavaScript expression:</p>
+
+  <pre><span style="color:#cba6f7;">const</span> <span style="color:#cdd6f4;">name</span> = <span style="color:#a6e3a1;">'Computer Store KS'</span>;
+<span style="color:#cba6f7;">const</span> <span style="color:#cdd6f4;">ticketCount</span> = <span style="color:#fab387;">42</span>;
+
+<span style="color:#cba6f7;">const</span> <span style="color:#cdd6f4;">element</span> = (
+  &lt;<span style="color:#89b4fa;">div</span>&gt;
+    &lt;<span style="color:#89b4fa;">h1</span>&gt;Welcome to {<span style="color:#cdd6f4;">name</span>}&lt;/<span style="color:#89b4fa;">h1</span>&gt;                     <span style="color:#6c7086;">{/* Variable */}</span>
+    &lt;<span style="color:#89b4fa;">p</span>&gt;You have {<span style="color:#cdd6f4;">ticketCount</span>} open tickets&lt;/<span style="color:#89b4fa;">p</span>&gt;        <span style="color:#6c7086;">{/* Variable */}</span>
+    &lt;<span style="color:#89b4fa;">p</span>&gt;{<span style="color:#cdd6f4;">ticketCount</span> &gt; <span style="color:#fab387;">0</span> ? <span style="color:#a6e3a1;">'Busy day!'</span> : <span style="color:#a6e3a1;">'All clear'</span>}&lt;/<span style="color:#89b4fa;">p</span>&gt;  <span style="color:#6c7086;">{/* Expression */}</span>
+    &lt;<span style="color:#89b4fa;">p</span>&gt;{<span style="color:#cba6f7;">new</span> <span style="color:#89b4fa;">Date</span>().<span style="color:#89b4fa;">toLocaleDateString</span>()}&lt;/<span style="color:#89b4fa;">p</span>&gt;     <span style="color:#6c7086;">{/* Method call */}</span>
+    &lt;<span style="color:#89b4fa;">p</span>&gt;{<span style="color:#fab387;">2</span> + <span style="color:#fab387;">2</span>}&lt;/<span style="color:#89b4fa;">p</span>&gt;                                  <span style="color:#6c7086;">{/* Math: shows 4 */}</span>
+  &lt;/<span style="color:#89b4fa;">div</span>&gt;
+);</pre>
+
+  <div class="warning-box">
+    <strong>Important:</strong> You can only put <em>expressions</em> inside curly braces &mdash; things that produce a value. You cannot put <em>statements</em> like <code>if</code>, <code>for</code>, or <code>let</code> inside curly braces. That is why we use ternary operators and <code>.map()</code> instead (covered later in this lesson).
+  </div>
+
+  <h3>Style Objects</h3>
+
+  <p>In JSX, the <code>style</code> attribute takes a JavaScript object, not a CSS string. Property names use camelCase instead of kebab-case:</p>
+
+  <pre><span style="color:#6c7086;">// In HTML:  style="background-color: blue; font-size: 16px; margin-top: 10px;"</span>
+<span style="color:#6c7086;">// In JSX:</span>
+<span style="color:#cba6f7;">const</span> <span style="color:#cdd6f4;">myStyles</span> = {
+  <span style="color:#cdd6f4;">backgroundColor</span>: <span style="color:#a6e3a1;">'blue'</span>,       <span style="color:#6c7086;">// background-color becomes backgroundColor</span>
+  <span style="color:#cdd6f4;">fontSize</span>: <span style="color:#a6e3a1;">'16px'</span>,              <span style="color:#6c7086;">// font-size becomes fontSize</span>
+  <span style="color:#cdd6f4;">marginTop</span>: <span style="color:#a6e3a1;">'10px'</span>,             <span style="color:#6c7086;">// margin-top becomes marginTop</span>
+};
+
+&lt;<span style="color:#89b4fa;">div</span> <span style="color:#cdd6f4;">style</span>={<span style="color:#cdd6f4;">myStyles</span>}&gt;Styled content&lt;/<span style="color:#89b4fa;">div</span>&gt;
+
+<span style="color:#6c7086;">// Or inline (note the double curly braces: outer = JSX expression, inner = object literal)</span>
+&lt;<span style="color:#89b4fa;">div</span> <span style="color:#cdd6f4;">style</span>={{ <span style="color:#cdd6f4;">color</span>: <span style="color:#a6e3a1;">'red'</span>, <span style="color:#cdd6f4;">fontWeight</span>: <span style="color:#a6e3a1;">'bold'</span> }}&gt;Bold red text&lt;/<span style="color:#89b4fa;">div</span>&gt;</pre>
+
+  <p>In practice, most React projects use CSS classes (via <code>className</code>) or a framework like Tailwind CSS rather than inline styles. Inline styles are useful for dynamic values that depend on data (like setting a progress bar width).</p>
+
+  <h3>JSX Must Have One Root Element</h3>
+
+  <p>A JSX expression must return exactly one root element. If you need to return multiple elements side by side, wrap them in a parent <code>&lt;div&gt;</code> or use a <strong>Fragment</strong>:</p>
+
+  <pre><span style="color:#6c7086;">// Error! Multiple root elements</span>
+<span style="color:#cba6f7;">return</span> (
+  &lt;<span style="color:#89b4fa;">h1</span>&gt;Title&lt;/<span style="color:#89b4fa;">h1</span>&gt;
+  &lt;<span style="color:#89b4fa;">p</span>&gt;Paragraph&lt;/<span style="color:#89b4fa;">p</span>&gt;
+);
+
+<span style="color:#6c7086;">// Solution 1: Wrap in a div</span>
+<span style="color:#cba6f7;">return</span> (
+  &lt;<span style="color:#89b4fa;">div</span>&gt;
+    &lt;<span style="color:#89b4fa;">h1</span>&gt;Title&lt;/<span style="color:#89b4fa;">h1</span>&gt;
+    &lt;<span style="color:#89b4fa;">p</span>&gt;Paragraph&lt;/<span style="color:#89b4fa;">p</span>&gt;
+  &lt;/<span style="color:#89b4fa;">div</span>&gt;
+);
+
+<span style="color:#6c7086;">// Solution 2: Use a Fragment (adds no extra DOM node)</span>
+<span style="color:#cba6f7;">return</span> (
+  &lt;&gt;
+    &lt;<span style="color:#89b4fa;">h1</span>&gt;Title&lt;/<span style="color:#89b4fa;">h1</span>&gt;
+    &lt;<span style="color:#89b4fa;">p</span>&gt;Paragraph&lt;/<span style="color:#89b4fa;">p</span>&gt;
+  &lt;/&gt;
+);</pre>
+
+  <p>The <code>&lt;&gt;...&lt;/&gt;</code> syntax is shorthand for <code>&lt;React.Fragment&gt;...&lt;/React.Fragment&gt;</code>. It groups elements without adding an extra <code>&lt;div&gt;</code> to the DOM.</p>
+
+  <!-- ============================== -->
+  <!-- SECTION: Components -->
+  <!-- ============================== -->
+  <h2>Components: Functions That Return JSX</h2>
+
+  <p>A React component is simply a <strong>JavaScript function that returns JSX</strong>. That is it. The function name must start with a capital letter (this is how React distinguishes components from regular HTML tags).</p>
+
+  <pre><span style="color:#6c7086;">// A simple component</span>
+<span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">Welcome</span>() {
+  <span style="color:#cba6f7;">return</span> &lt;<span style="color:#89b4fa;">h1</span>&gt;Welcome to our store!&lt;/<span style="color:#89b4fa;">h1</span>&gt;;
+}
+
+<span style="color:#6c7086;">// Using it (just like an HTML tag, but capitalized)</span>
+<span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">App</span>() {
+  <span style="color:#cba6f7;">return</span> (
+    &lt;<span style="color:#89b4fa;">div</span>&gt;
+      &lt;<span style="color:#89b4fa;">Welcome</span> /&gt;
+      &lt;<span style="color:#89b4fa;">Welcome</span> /&gt;
+      &lt;<span style="color:#89b4fa;">Welcome</span> /&gt;
+    &lt;/<span style="color:#89b4fa;">div</span>&gt;
+  );
+}</pre>
+
+  <p>This renders "Welcome to our store!" three times. The component is <em>reusable</em> &mdash; define once, use everywhere.</p>
+
+  <div class="info-box">
+    <strong>Naming Convention:</strong> Component names must start with an uppercase letter. <code>&lt;welcome /&gt;</code> would be treated as an HTML element (and fail). <code>&lt;Welcome /&gt;</code> is treated as a React component. This is a hard rule, not a style preference.
+  </div>
+
+  <p>You can also write components as arrow functions, which is equally common:</p>
+
+  <pre><span style="color:#6c7086;">// Arrow function component</span>
+<span style="color:#cba6f7;">const</span> <span style="color:#89b4fa;">Welcome</span> = () =&gt; {
+  <span style="color:#cba6f7;">return</span> &lt;<span style="color:#89b4fa;">h1</span>&gt;Welcome to our store!&lt;/<span style="color:#89b4fa;">h1</span>&gt;;
+};
+
+<span style="color:#6c7086;">// With implicit return (no curly braces = automatic return)</span>
+<span style="color:#cba6f7;">const</span> <span style="color:#89b4fa;">Welcome</span> = () =&gt; &lt;<span style="color:#89b4fa;">h1</span>&gt;Welcome to our store!&lt;/<span style="color:#89b4fa;">h1</span>&gt;;</pre>
+
+  <!-- ============================== -->
+  <!-- SECTION: Props -->
+  <!-- ============================== -->
+  <h2>Props: Passing Data to Components</h2>
+
+  <p>A component that always shows the same thing is not very useful. <strong>Props</strong> (short for "properties") let you pass data into a component, making it dynamic and reusable.</p>
+
+  <div class="analogy">
+    <strong>Analogy:</strong> Think of a component as a cookie cutter and props as the dough. The cookie cutter (component) defines the shape, but the dough (props) determines the flavor and color. Same shape, different cookies.
+  </div>
+
+  <pre><span style="color:#6c7086;">// Component that accepts props</span>
+<span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">Greeting</span>(<span style="color:#cdd6f4;">props</span>) {
+  <span style="color:#cba6f7;">return</span> &lt;<span style="color:#89b4fa;">h1</span>&gt;Hello, {<span style="color:#cdd6f4;">props</span>.<span style="color:#cdd6f4;">name</span>}! You have {<span style="color:#cdd6f4;">props</span>.<span style="color:#cdd6f4;">ticketCount</span>} tickets.&lt;/<span style="color:#89b4fa;">h1</span>&gt;;
+}
+
+<span style="color:#6c7086;">// Using it - props are passed like HTML attributes</span>
+<span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">App</span>() {
+  <span style="color:#cba6f7;">return</span> (
+    &lt;<span style="color:#89b4fa;">div</span>&gt;
+      &lt;<span style="color:#89b4fa;">Greeting</span> <span style="color:#cdd6f4;">name</span>=<span style="color:#a6e3a1;">"Matthew"</span> <span style="color:#cdd6f4;">ticketCount</span>={<span style="color:#fab387;">5</span>} /&gt;
+      &lt;<span style="color:#89b4fa;">Greeting</span> <span style="color:#cdd6f4;">name</span>=<span style="color:#a6e3a1;">"Sarah"</span> <span style="color:#cdd6f4;">ticketCount</span>={<span style="color:#fab387;">12</span>} /&gt;
+      &lt;<span style="color:#89b4fa;">Greeting</span> <span style="color:#cdd6f4;">name</span>=<span style="color:#a6e3a1;">"Mike"</span> <span style="color:#cdd6f4;">ticketCount</span>={<span style="color:#fab387;">0</span>} /&gt;
+    &lt;/<span style="color:#89b4fa;">div</span>&gt;
+  );
+}</pre>
+
+  <h3>Destructuring Props</h3>
+
+  <p>Writing <code>props.name</code> and <code>props.ticketCount</code> everywhere gets tedious. JavaScript destructuring lets you pull out the values directly:</p>
+
+  <pre><span style="color:#6c7086;">// Destructuring in the parameter list (most common pattern)</span>
+<span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">Greeting</span>({ <span style="color:#cdd6f4;">name</span>, <span style="color:#cdd6f4;">ticketCount</span> }) {
+  <span style="color:#cba6f7;">return</span> &lt;<span style="color:#89b4fa;">h1</span>&gt;Hello, {<span style="color:#cdd6f4;">name</span>}! You have {<span style="color:#cdd6f4;">ticketCount</span>} tickets.&lt;/<span style="color:#89b4fa;">h1</span>&gt;;
+}</pre>
+
+  <h3>TypeScript Typing for Props</h3>
+
+  <p>Since we are using TypeScript, we should define the <em>shape</em> of our props. This catches bugs at compile time and gives you autocomplete in your editor:</p>
+
+  <pre><span style="color:#6c7086;">// Define a type or interface for the props</span>
+<span style="color:#cba6f7;">interface</span> <span style="color:#89b4fa;">GreetingProps</span> {
+  <span style="color:#cdd6f4;">name</span>: <span style="color:#cba6f7;">string</span>;
+  <span style="color:#cdd6f4;">ticketCount</span>: <span style="color:#cba6f7;">number</span>;
+}
+
+<span style="color:#6c7086;">// Use the type in the component</span>
+<span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">Greeting</span>({ <span style="color:#cdd6f4;">name</span>, <span style="color:#cdd6f4;">ticketCount</span> }: <span style="color:#89b4fa;">GreetingProps</span>) {
+  <span style="color:#cba6f7;">return</span> &lt;<span style="color:#89b4fa;">h1</span>&gt;Hello, {<span style="color:#cdd6f4;">name</span>}! You have {<span style="color:#cdd6f4;">ticketCount</span>} tickets.&lt;/<span style="color:#89b4fa;">h1</span>&gt;;
+}
+
+<span style="color:#6c7086;">// Now TypeScript catches errors:</span>
+&lt;<span style="color:#89b4fa;">Greeting</span> <span style="color:#cdd6f4;">name</span>={<span style="color:#fab387;">42</span>} /&gt;          <span style="color:#6c7086;">// Error! name must be a string</span>
+&lt;<span style="color:#89b4fa;">Greeting</span> <span style="color:#cdd6f4;">name</span>=<span style="color:#a6e3a1;">"Bob"</span> /&gt;        <span style="color:#6c7086;">// Error! ticketCount is required</span>
+&lt;<span style="color:#89b4fa;">Greeting</span> <span style="color:#cdd6f4;">name</span>=<span style="color:#a6e3a1;">"Bob"</span> <span style="color:#cdd6f4;">ticketCount</span>={<span style="color:#fab387;">5</span>} /&gt;  <span style="color:#6c7086;">// Correct!</span></pre>
+
+  <h3>Optional Props and Default Values</h3>
+
+  <pre><span style="color:#cba6f7;">interface</span> <span style="color:#89b4fa;">ButtonProps</span> {
+  <span style="color:#cdd6f4;">label</span>: <span style="color:#cba6f7;">string</span>;
+  <span style="color:#cdd6f4;">variant</span>?: <span style="color:#a6e3a1;">'primary'</span> | <span style="color:#a6e3a1;">'secondary'</span> | <span style="color:#a6e3a1;">'danger'</span>;  <span style="color:#6c7086;">// ? makes it optional</span>
+  <span style="color:#cdd6f4;">disabled</span>?: <span style="color:#cba6f7;">boolean</span>;
+}
+
+<span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">Button</span>({ <span style="color:#cdd6f4;">label</span>, <span style="color:#cdd6f4;">variant</span> = <span style="color:#a6e3a1;">'primary'</span>, <span style="color:#cdd6f4;">disabled</span> = <span style="color:#cba6f7;">false</span> }: <span style="color:#89b4fa;">ButtonProps</span>) {
+  <span style="color:#cba6f7;">return</span> (
+    &lt;<span style="color:#89b4fa;">button</span>
+      <span style="color:#cdd6f4;">className</span>={<span style="color:#a6e3a1;">`btn btn-</span>${<span style="color:#cdd6f4;">variant</span>}<span style="color:#a6e3a1;">`</span>}
+      <span style="color:#cdd6f4;">disabled</span>={<span style="color:#cdd6f4;">disabled</span>}
+    &gt;
+      {<span style="color:#cdd6f4;">label</span>}
+    &lt;/<span style="color:#89b4fa;">button</span>&gt;
+  );
+}
+
+<span style="color:#6c7086;">// Usage</span>
+&lt;<span style="color:#89b4fa;">Button</span> <span style="color:#cdd6f4;">label</span>=<span style="color:#a6e3a1;">"Submit"</span> /&gt;                          <span style="color:#6c7086;">// variant defaults to 'primary'</span>
+&lt;<span style="color:#89b4fa;">Button</span> <span style="color:#cdd6f4;">label</span>=<span style="color:#a6e3a1;">"Cancel"</span> <span style="color:#cdd6f4;">variant</span>=<span style="color:#a6e3a1;">"secondary"</span> /&gt;          <span style="color:#6c7086;">// explicit variant</span>
+&lt;<span style="color:#89b4fa;">Button</span> <span style="color:#cdd6f4;">label</span>=<span style="color:#a6e3a1;">"Delete"</span> <span style="color:#cdd6f4;">variant</span>=<span style="color:#a6e3a1;">"danger"</span> <span style="color:#cdd6f4;">disabled</span> /&gt;   <span style="color:#6c7086;">// boolean prop without value = true</span></pre>
+
+  <h3>The Children Prop</h3>
+
+  <p>There is a special prop called <code>children</code> that represents whatever you put <em>between</em> a component's opening and closing tags:</p>
+
+  <pre><span style="color:#cba6f7;">interface</span> <span style="color:#89b4fa;">CardProps</span> {
+  <span style="color:#cdd6f4;">title</span>: <span style="color:#cba6f7;">string</span>;
+  <span style="color:#cdd6f4;">children</span>: <span style="color:#cdd6f4;">React</span>.<span style="color:#89b4fa;">ReactNode</span>;  <span style="color:#6c7086;">// ReactNode = any renderable content</span>
+}
+
+<span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">Card</span>({ <span style="color:#cdd6f4;">title</span>, <span style="color:#cdd6f4;">children</span> }: <span style="color:#89b4fa;">CardProps</span>) {
+  <span style="color:#cba6f7;">return</span> (
+    &lt;<span style="color:#89b4fa;">div</span> <span style="color:#cdd6f4;">className</span>=<span style="color:#a6e3a1;">"card"</span>&gt;
+      &lt;<span style="color:#89b4fa;">h2</span>&gt;{<span style="color:#cdd6f4;">title</span>}&lt;/<span style="color:#89b4fa;">h2</span>&gt;
+      &lt;<span style="color:#89b4fa;">div</span> <span style="color:#cdd6f4;">className</span>=<span style="color:#a6e3a1;">"card-body"</span>&gt;
+        {<span style="color:#cdd6f4;">children</span>}
+      &lt;/<span style="color:#89b4fa;">div</span>&gt;
+    &lt;/<span style="color:#89b4fa;">div</span>&gt;
+  );
+}
+
+<span style="color:#6c7086;">// Usage - anything between the tags becomes children</span>
+&lt;<span style="color:#89b4fa;">Card</span> <span style="color:#cdd6f4;">title</span>=<span style="color:#a6e3a1;">"Customer Info"</span>&gt;
+  &lt;<span style="color:#89b4fa;">p</span>&gt;Name: John Smith&lt;/<span style="color:#89b4fa;">p</span>&gt;
+  &lt;<span style="color:#89b4fa;">p</span>&gt;Email: john@example.com&lt;/<span style="color:#89b4fa;">p</span>&gt;
+&lt;/<span style="color:#89b4fa;">Card</span>&gt;
+
+&lt;<span style="color:#89b4fa;">Card</span> <span style="color:#cdd6f4;">title</span>=<span style="color:#a6e3a1;">"Ticket Details"</span>&gt;
+  &lt;<span style="color:#89b4fa;">TicketForm</span> /&gt;
+  &lt;<span style="color:#89b4fa;">TicketHistory</span> /&gt;
+&lt;/<span style="color:#89b4fa;">Card</span>&gt;</pre>
+
+  <p>The <code>children</code> prop makes components extremely flexible. The <code>Card</code> component does not need to know what will be inside it. It just provides the wrapper (border, padding, title), and the parent decides the content.</p>
+
+  <div class="warning-box">
+    <strong>Props Are Read-Only:</strong> A component must never modify its own props. Props flow <em>down</em> from parent to child, and the child treats them as read-only data. If you need data that changes, you need <strong>state</strong> (covered in Lesson 13).
+  </div>
+
+  <!-- ============================== -->
+  <!-- SECTION: Rendering Lists -->
+  <!-- ============================== -->
+  <h2>Rendering Lists with .map()</h2>
+
+  <p>Displaying a list of data is one of the most common things you do in React. Since you cannot use <code>for</code> loops inside JSX (they are statements, not expressions), you use the array <code>.map()</code> method to transform an array of data into an array of JSX elements:</p>
+
+  <pre><span style="color:#cba6f7;">interface</span> <span style="color:#89b4fa;">Service</span> {
+  <span style="color:#cdd6f4;">id</span>: <span style="color:#cba6f7;">number</span>;
+  <span style="color:#cdd6f4;">name</span>: <span style="color:#cba6f7;">string</span>;
+  <span style="color:#cdd6f4;">price</span>: <span style="color:#cba6f7;">number</span>;
+}
+
+<span style="color:#cba6f7;">const</span> <span style="color:#cdd6f4;">services</span>: <span style="color:#89b4fa;">Service</span>[] = [
+  { <span style="color:#cdd6f4;">id</span>: <span style="color:#fab387;">1</span>, <span style="color:#cdd6f4;">name</span>: <span style="color:#a6e3a1;">'Virus Removal'</span>, <span style="color:#cdd6f4;">price</span>: <span style="color:#fab387;">79</span> },
+  { <span style="color:#cdd6f4;">id</span>: <span style="color:#fab387;">2</span>, <span style="color:#cdd6f4;">name</span>: <span style="color:#a6e3a1;">'Data Transfer'</span>, <span style="color:#cdd6f4;">price</span>: <span style="color:#fab387;">49</span> },
+  { <span style="color:#cdd6f4;">id</span>: <span style="color:#fab387;">3</span>, <span style="color:#cdd6f4;">name</span>: <span style="color:#a6e3a1;">'OS Installation'</span>, <span style="color:#cdd6f4;">price</span>: <span style="color:#fab387;">59</span> },
+];
+
+<span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">ServiceList</span>() {
+  <span style="color:#cba6f7;">return</span> (
+    &lt;<span style="color:#89b4fa;">ul</span>&gt;
+      {<span style="color:#cdd6f4;">services</span>.<span style="color:#89b4fa;">map</span>(<span style="color:#cdd6f4;">service</span> =&gt; (
+        &lt;<span style="color:#89b4fa;">li</span> <span style="color:#cdd6f4;">key</span>={<span style="color:#cdd6f4;">service</span>.<span style="color:#cdd6f4;">id</span>}&gt;
+          {<span style="color:#cdd6f4;">service</span>.<span style="color:#cdd6f4;">name</span>} &mdash; ${<span style="color:#cdd6f4;">service</span>.<span style="color:#cdd6f4;">price</span>}
+        &lt;/<span style="color:#89b4fa;">li</span>&gt;
+      ))}
+    &lt;/<span style="color:#89b4fa;">ul</span>&gt;
+  );
+}</pre>
+
+  <p>Let us trace through what happens: <code>.map()</code> takes each item in the <code>services</code> array and returns a <code>&lt;li&gt;</code> element. The result is an array of three <code>&lt;li&gt;</code> elements, which React happily renders inside the <code>&lt;ul&gt;</code>.</p>
+
+  <h3>Why Keys Matter</h3>
+
+  <p>Notice the <code>key={service.id}</code> prop on each <code>&lt;li&gt;</code>. The <code>key</code> prop is a <strong>requirement</strong> when rendering lists in React, and understanding why is crucial.</p>
+
+  <p>When your list data changes (an item is added, removed, or reordered), React needs to figure out which DOM elements to update. Without keys, React would have to compare items by position, which leads to incorrect and inefficient updates.</p>
+
+  <div class="diagram">Without keys (comparison by position):
+
+Before:  [ Virus Removal, Data Transfer, OS Install ]
+After:   [ Data Transfer, OS Install ]
+
+React thinks:
+  Position 0: "Virus Removal" changed to "Data Transfer" (UPDATE)
+  Position 1: "Data Transfer" changed to "OS Install" (UPDATE)
+  Position 2: "OS Install" removed (REMOVE)
+  = 3 operations, 2 are wrong!
+
+With keys (comparison by identity):
+
+Before:  [ id:1 Virus Removal, id:2 Data Transfer, id:3 OS Install ]
+After:   [ id:2 Data Transfer, id:3 OS Install ]
+
+React thinks:
+  id:1 is gone (REMOVE just that one element)
+  id:2 and id:3 are unchanged (do nothing)
+  = 1 operation, all correct!</div>
+
+  <p><strong>Rules for keys:</strong></p>
+  <ul>
+    <li>Keys must be <strong>unique among siblings</strong> (not globally unique)</li>
+    <li>Keys must be <strong>stable</strong> &mdash; the same item should always get the same key</li>
+    <li>Use a database ID, unique identifier, or other stable unique value</li>
+    <li><strong>Never use array index as a key</strong> if items can be reordered, added, or removed (the index is not stable in those cases)</li>
+    <li>Keys are not passed as a prop to the component &mdash; they are used internally by React</li>
+  </ul>
+
+  <pre><span style="color:#6c7086;">// Good: stable unique IDs</span>
+{<span style="color:#cdd6f4;">tickets</span>.<span style="color:#89b4fa;">map</span>(<span style="color:#cdd6f4;">ticket</span> =&gt; &lt;<span style="color:#89b4fa;">TicketCard</span> <span style="color:#cdd6f4;">key</span>={<span style="color:#cdd6f4;">ticket</span>.<span style="color:#cdd6f4;">id</span>} <span style="color:#cdd6f4;">ticket</span>={<span style="color:#cdd6f4;">ticket</span>} /&gt;)}
+
+<span style="color:#6c7086;">// Bad: array index as key (items can be reordered)</span>
+{<span style="color:#cdd6f4;">tickets</span>.<span style="color:#89b4fa;">map</span>((<span style="color:#cdd6f4;">ticket</span>, <span style="color:#cdd6f4;">index</span>) =&gt; &lt;<span style="color:#89b4fa;">TicketCard</span> <span style="color:#cdd6f4;">key</span>={<span style="color:#cdd6f4;">index</span>} <span style="color:#cdd6f4;">ticket</span>={<span style="color:#cdd6f4;">ticket</span>} /&gt;)}
+
+<span style="color:#6c7086;">// Okay: index as key for truly static lists that never change</span>
+{<span style="color:#cdd6f4;">menuItems</span>.<span style="color:#89b4fa;">map</span>((<span style="color:#cdd6f4;">item</span>, <span style="color:#cdd6f4;">index</span>) =&gt; &lt;<span style="color:#89b4fa;">li</span> <span style="color:#cdd6f4;">key</span>={<span style="color:#cdd6f4;">index</span>}&gt;{<span style="color:#cdd6f4;">item</span>}&lt;/<span style="color:#89b4fa;">li</span>&gt;)}</pre>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    The gallery page on Computer Store KS uses <code>.map()</code> to render a grid of computer cards from the <code>gallery.json</code> data file. Each computer has a unique ID that serves as the key. The admin ticket list maps over fetched ticket data the same way, using RepairShopr's ticket ID as the key.
+  </div>
+
+  <!-- ============================== -->
+  <!-- SECTION: Conditional Rendering -->
+  <!-- ============================== -->
+  <h2>Conditional Rendering</h2>
+
+  <p>Often you want to show different UI depending on some condition: a loading spinner while data loads, an error message when something fails, or different content based on user role. React gives you several patterns for this.</p>
+
+  <h3>Pattern 1: Ternary Operator</h3>
+
+  <p>The ternary operator (<code>condition ? valueIfTrue : valueIfFalse</code>) is the most versatile because it handles both the true and false cases:</p>
+
+  <pre><span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">TicketStatus</span>({ <span style="color:#cdd6f4;">isOpen</span> }: { <span style="color:#cdd6f4;">isOpen</span>: <span style="color:#cba6f7;">boolean</span> }) {
+  <span style="color:#cba6f7;">return</span> (
+    &lt;<span style="color:#89b4fa;">span</span> <span style="color:#cdd6f4;">className</span>={<span style="color:#cdd6f4;">isOpen</span> ? <span style="color:#a6e3a1;">'badge-open'</span> : <span style="color:#a6e3a1;">'badge-closed'</span>}&gt;
+      {<span style="color:#cdd6f4;">isOpen</span> ? <span style="color:#a6e3a1;">'Open'</span> : <span style="color:#a6e3a1;">'Closed'</span>}
+    &lt;/<span style="color:#89b4fa;">span</span>&gt;
+  );
+}</pre>
+
+  <h3>Pattern 2: Logical AND (&amp;&amp;)</h3>
+
+  <p>When you only want to show something when a condition is true (and show nothing otherwise), use <code>&amp;&amp;</code>:</p>
+
+  <pre><span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">CustomerCard</span>({ <span style="color:#cdd6f4;">name</span>, <span style="color:#cdd6f4;">hasSilverPlan</span> }: { <span style="color:#cdd6f4;">name</span>: <span style="color:#cba6f7;">string</span>; <span style="color:#cdd6f4;">hasSilverPlan</span>: <span style="color:#cba6f7;">boolean</span> }) {
+  <span style="color:#cba6f7;">return</span> (
+    &lt;<span style="color:#89b4fa;">div</span> <span style="color:#cdd6f4;">className</span>=<span style="color:#a6e3a1;">"customer-card"</span>&gt;
+      &lt;<span style="color:#89b4fa;">h3</span>&gt;{<span style="color:#cdd6f4;">name</span>}&lt;/<span style="color:#89b4fa;">h3</span>&gt;
+      {<span style="color:#cdd6f4;">hasSilverPlan</span> &amp;&amp; &lt;<span style="color:#89b4fa;">span</span> <span style="color:#cdd6f4;">className</span>=<span style="color:#a6e3a1;">"silver-badge"</span>&gt;Silver Plan&lt;/<span style="color:#89b4fa;">span</span>&gt;}
+    &lt;/<span style="color:#89b4fa;">div</span>&gt;
+  );
+}</pre>
+
+  <p>If <code>hasSilverPlan</code> is <code>true</code>, the badge renders. If <code>false</code>, React renders nothing (it skips <code>false</code>, <code>null</code>, and <code>undefined</code> values).</p>
+
+  <div class="warning-box">
+    <strong>Watch out for zero!</strong> The expression <code>{count &amp;&amp; &lt;span&gt;Items&lt;/span&gt;}</code> will render the number <code>0</code> on screen when count is 0, because <code>0</code> is falsy but is a valid React node. Use <code>{count &gt; 0 &amp;&amp; &lt;span&gt;Items&lt;/span&gt;}</code> instead, which evaluates to <code>false</code> (and renders nothing) when count is 0.
+  </div>
+
+  <h3>Pattern 3: Early Return</h3>
+
+  <p>For larger conditional blocks, you can return early from the component function:</p>
+
+  <pre><span style="color:#cba6f7;">interface</span> <span style="color:#89b4fa;">DataDisplayProps</span> {
+  <span style="color:#cdd6f4;">isLoading</span>: <span style="color:#cba6f7;">boolean</span>;
+  <span style="color:#cdd6f4;">error</span>: <span style="color:#cba6f7;">string</span> | <span style="color:#cba6f7;">null</span>;
+  <span style="color:#cdd6f4;">data</span>: <span style="color:#cba6f7;">string</span>[];
+}
+
+<span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">DataDisplay</span>({ <span style="color:#cdd6f4;">isLoading</span>, <span style="color:#cdd6f4;">error</span>, <span style="color:#cdd6f4;">data</span> }: <span style="color:#89b4fa;">DataDisplayProps</span>) {
+  <span style="color:#6c7086;">// Early return for loading state</span>
+  <span style="color:#cba6f7;">if</span> (<span style="color:#cdd6f4;">isLoading</span>) {
+    <span style="color:#cba6f7;">return</span> &lt;<span style="color:#89b4fa;">div</span> <span style="color:#cdd6f4;">className</span>=<span style="color:#a6e3a1;">"spinner"</span>&gt;Loading...&lt;/<span style="color:#89b4fa;">div</span>&gt;;
+  }
+
+  <span style="color:#6c7086;">// Early return for error state</span>
+  <span style="color:#cba6f7;">if</span> (<span style="color:#cdd6f4;">error</span>) {
+    <span style="color:#cba6f7;">return</span> &lt;<span style="color:#89b4fa;">div</span> <span style="color:#cdd6f4;">className</span>=<span style="color:#a6e3a1;">"error"</span>&gt;Error: {<span style="color:#cdd6f4;">error</span>}&lt;/<span style="color:#89b4fa;">div</span>&gt;;
+  }
+
+  <span style="color:#6c7086;">// Early return for empty state</span>
+  <span style="color:#cba6f7;">if</span> (<span style="color:#cdd6f4;">data</span>.<span style="color:#cdd6f4;">length</span> === <span style="color:#fab387;">0</span>) {
+    <span style="color:#cba6f7;">return</span> &lt;<span style="color:#89b4fa;">div</span> <span style="color:#cdd6f4;">className</span>=<span style="color:#a6e3a1;">"empty"</span>&gt;No items found.&lt;/<span style="color:#89b4fa;">div</span>&gt;;
+  }
+
+  <span style="color:#6c7086;">// Happy path - we have data!</span>
+  <span style="color:#cba6f7;">return</span> (
+    &lt;<span style="color:#89b4fa;">ul</span>&gt;
+      {<span style="color:#cdd6f4;">data</span>.<span style="color:#89b4fa;">map</span>((<span style="color:#cdd6f4;">item</span>, <span style="color:#cdd6f4;">i</span>) =&gt; &lt;<span style="color:#89b4fa;">li</span> <span style="color:#cdd6f4;">key</span>={<span style="color:#cdd6f4;">i</span>}&gt;{<span style="color:#cdd6f4;">item</span>}&lt;/<span style="color:#89b4fa;">li</span>&gt;)}
+    &lt;/<span style="color:#89b4fa;">ul</span>&gt;
+  );
+}</pre>
+
+  <p>Early return is the cleanest pattern when you have multiple conditions, because each case is handled completely before moving on. The final return is always the "happy path" &mdash; when everything is normal.</p>
+
+  <!-- ============================== -->
+  <!-- SECTION: Component Composition -->
+  <!-- ============================== -->
+  <h2>Component Composition: Building Complex UIs</h2>
+
+  <p>The real power of React emerges when you compose small, focused components into larger ones. Each component handles one concern.</p>
+
+  <div class="analogy">
+    <strong>Analogy:</strong> Think of React components like LEGO bricks. A single brick is simple and boring. But combine them and you can build a castle, a spaceship, or anything you can imagine. A <code>&lt;Button /&gt;</code> brick, a <code>&lt;Badge /&gt;</code> brick, and a <code>&lt;Card /&gt;</code> brick combine into a <code>&lt;TicketCard /&gt;</code>. Multiple <code>&lt;TicketCard /&gt;</code> bricks form a <code>&lt;TicketList /&gt;</code>. Add a <code>&lt;SearchBar /&gt;</code> and some <code>&lt;Filter /&gt;</code> bricks and you have a <code>&lt;TicketDashboard /&gt;</code>.
+  </div>
+
+  <p>Let us build a realistic example step by step: a product card for a computer store.</p>
+
+  <pre><span style="color:#6c7086;">// Step 1: Small, focused components</span>
+
+<span style="color:#cba6f7;">interface</span> <span style="color:#89b4fa;">PriceBadgeProps</span> {
+  <span style="color:#cdd6f4;">price</span>: <span style="color:#cba6f7;">number</span>;
+  <span style="color:#cdd6f4;">salePrice</span>?: <span style="color:#cba6f7;">number</span>;
+}
+
+<span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">PriceBadge</span>({ <span style="color:#cdd6f4;">price</span>, <span style="color:#cdd6f4;">salePrice</span> }: <span style="color:#89b4fa;">PriceBadgeProps</span>) {
+  <span style="color:#cba6f7;">if</span> (<span style="color:#cdd6f4;">salePrice</span>) {
+    <span style="color:#cba6f7;">return</span> (
+      &lt;<span style="color:#89b4fa;">div</span> <span style="color:#cdd6f4;">className</span>=<span style="color:#a6e3a1;">"price-badge"</span>&gt;
+        &lt;<span style="color:#89b4fa;">span</span> <span style="color:#cdd6f4;">className</span>=<span style="color:#a6e3a1;">"price-original"</span>&gt;${<span style="color:#cdd6f4;">price</span>}&lt;/<span style="color:#89b4fa;">span</span>&gt;
+        &lt;<span style="color:#89b4fa;">span</span> <span style="color:#cdd6f4;">className</span>=<span style="color:#a6e3a1;">"price-sale"</span>&gt;${<span style="color:#cdd6f4;">salePrice</span>}&lt;/<span style="color:#89b4fa;">span</span>&gt;
+      &lt;/<span style="color:#89b4fa;">div</span>&gt;
+    );
+  }
+  <span style="color:#cba6f7;">return</span> &lt;<span style="color:#89b4fa;">div</span> <span style="color:#cdd6f4;">className</span>=<span style="color:#a6e3a1;">"price-badge"</span>&gt;${<span style="color:#cdd6f4;">price</span>}&lt;/<span style="color:#89b4fa;">div</span>&gt;;
+}
+
+
+<span style="color:#cba6f7;">interface</span> <span style="color:#89b4fa;">SpecListProps</span> {
+  <span style="color:#cdd6f4;">specs</span>: <span style="color:#cba6f7;">string</span>[];
+}
+
+<span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">SpecList</span>({ <span style="color:#cdd6f4;">specs</span> }: <span style="color:#89b4fa;">SpecListProps</span>) {
+  <span style="color:#cba6f7;">return</span> (
+    &lt;<span style="color:#89b4fa;">ul</span> <span style="color:#cdd6f4;">className</span>=<span style="color:#a6e3a1;">"spec-list"</span>&gt;
+      {<span style="color:#cdd6f4;">specs</span>.<span style="color:#89b4fa;">map</span>((<span style="color:#cdd6f4;">spec</span>, <span style="color:#cdd6f4;">index</span>) =&gt; (
+        &lt;<span style="color:#89b4fa;">li</span> <span style="color:#cdd6f4;">key</span>={<span style="color:#cdd6f4;">index</span>}&gt;{<span style="color:#cdd6f4;">spec</span>}&lt;/<span style="color:#89b4fa;">li</span>&gt;
+      ))}
+    &lt;/<span style="color:#89b4fa;">ul</span>&gt;
+  );
+}
+
+
+<span style="color:#cba6f7;">interface</span> <span style="color:#89b4fa;">CategoryBadgeProps</span> {
+  <span style="color:#cdd6f4;">category</span>: <span style="color:#a6e3a1;">'desktop'</span> | <span style="color:#a6e3a1;">'laptop'</span>;
+}
+
+<span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">CategoryBadge</span>({ <span style="color:#cdd6f4;">category</span> }: <span style="color:#89b4fa;">CategoryBadgeProps</span>) {
+  <span style="color:#cba6f7;">return</span> (
+    &lt;<span style="color:#89b4fa;">span</span> <span style="color:#cdd6f4;">className</span>={<span style="color:#a6e3a1;">`badge badge-</span>${<span style="color:#cdd6f4;">category</span>}<span style="color:#a6e3a1;">`</span>}&gt;
+      {<span style="color:#cdd6f4;">category</span> === <span style="color:#a6e3a1;">'desktop'</span> ? <span style="color:#a6e3a1;">'Desktop'</span> : <span style="color:#a6e3a1;">'Laptop'</span>}
+    &lt;/<span style="color:#89b4fa;">span</span>&gt;
+  );
+}</pre>
+
+  <pre><span style="color:#6c7086;">// Step 2: Compose them into a ProductCard</span>
+
+<span style="color:#cba6f7;">interface</span> <span style="color:#89b4fa;">Product</span> {
+  <span style="color:#cdd6f4;">id</span>: <span style="color:#cba6f7;">number</span>;
+  <span style="color:#cdd6f4;">name</span>: <span style="color:#cba6f7;">string</span>;
+  <span style="color:#cdd6f4;">category</span>: <span style="color:#a6e3a1;">'desktop'</span> | <span style="color:#a6e3a1;">'laptop'</span>;
+  <span style="color:#cdd6f4;">price</span>: <span style="color:#cba6f7;">number</span>;
+  <span style="color:#cdd6f4;">salePrice</span>?: <span style="color:#cba6f7;">number</span>;
+  <span style="color:#cdd6f4;">imageUrl</span>: <span style="color:#cba6f7;">string</span>;
+  <span style="color:#cdd6f4;">specs</span>: <span style="color:#cba6f7;">string</span>[];
+}
+
+<span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">ProductCard</span>({ <span style="color:#cdd6f4;">product</span> }: { <span style="color:#cdd6f4;">product</span>: <span style="color:#89b4fa;">Product</span> }) {
+  <span style="color:#cba6f7;">return</span> (
+    &lt;<span style="color:#89b4fa;">div</span> <span style="color:#cdd6f4;">className</span>=<span style="color:#a6e3a1;">"product-card"</span>&gt;
+      &lt;<span style="color:#89b4fa;">img</span> <span style="color:#cdd6f4;">src</span>={<span style="color:#cdd6f4;">product</span>.<span style="color:#cdd6f4;">imageUrl</span>} <span style="color:#cdd6f4;">alt</span>={<span style="color:#cdd6f4;">product</span>.<span style="color:#cdd6f4;">name</span>} /&gt;
+      &lt;<span style="color:#89b4fa;">CategoryBadge</span> <span style="color:#cdd6f4;">category</span>={<span style="color:#cdd6f4;">product</span>.<span style="color:#cdd6f4;">category</span>} /&gt;
+      &lt;<span style="color:#89b4fa;">h3</span>&gt;{<span style="color:#cdd6f4;">product</span>.<span style="color:#cdd6f4;">name</span>}&lt;/<span style="color:#89b4fa;">h3</span>&gt;
+      &lt;<span style="color:#89b4fa;">SpecList</span> <span style="color:#cdd6f4;">specs</span>={<span style="color:#cdd6f4;">product</span>.<span style="color:#cdd6f4;">specs</span>} /&gt;
+      &lt;<span style="color:#89b4fa;">PriceBadge</span> <span style="color:#cdd6f4;">price</span>={<span style="color:#cdd6f4;">product</span>.<span style="color:#cdd6f4;">price</span>} <span style="color:#cdd6f4;">salePrice</span>={<span style="color:#cdd6f4;">product</span>.<span style="color:#cdd6f4;">salePrice</span>} /&gt;
+    &lt;/<span style="color:#89b4fa;">div</span>&gt;
+  );
+}</pre>
+
+  <pre><span style="color:#6c7086;">// Step 3: Compose ProductCard into a ProductList</span>
+
+<span style="color:#cba6f7;">interface</span> <span style="color:#89b4fa;">ProductListProps</span> {
+  <span style="color:#cdd6f4;">products</span>: <span style="color:#89b4fa;">Product</span>[];
+  <span style="color:#cdd6f4;">title</span>: <span style="color:#cba6f7;">string</span>;
+}
+
+<span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">ProductList</span>({ <span style="color:#cdd6f4;">products</span>, <span style="color:#cdd6f4;">title</span> }: <span style="color:#89b4fa;">ProductListProps</span>) {
+  <span style="color:#cba6f7;">if</span> (<span style="color:#cdd6f4;">products</span>.<span style="color:#cdd6f4;">length</span> === <span style="color:#fab387;">0</span>) {
+    <span style="color:#cba6f7;">return</span> &lt;<span style="color:#89b4fa;">p</span>&gt;No products available.&lt;/<span style="color:#89b4fa;">p</span>&gt;;
+  }
+
+  <span style="color:#cba6f7;">return</span> (
+    &lt;<span style="color:#89b4fa;">section</span>&gt;
+      &lt;<span style="color:#89b4fa;">h2</span>&gt;{<span style="color:#cdd6f4;">title</span>} ({<span style="color:#cdd6f4;">products</span>.<span style="color:#cdd6f4;">length</span>} items)&lt;/<span style="color:#89b4fa;">h2</span>&gt;
+      &lt;<span style="color:#89b4fa;">div</span> <span style="color:#cdd6f4;">className</span>=<span style="color:#a6e3a1;">"product-grid"</span>&gt;
+        {<span style="color:#cdd6f4;">products</span>.<span style="color:#89b4fa;">map</span>(<span style="color:#cdd6f4;">product</span> =&gt; (
+          &lt;<span style="color:#89b4fa;">ProductCard</span> <span style="color:#cdd6f4;">key</span>={<span style="color:#cdd6f4;">product</span>.<span style="color:#cdd6f4;">id</span>} <span style="color:#cdd6f4;">product</span>={<span style="color:#cdd6f4;">product</span>} /&gt;
+        ))}
+      &lt;/<span style="color:#89b4fa;">div</span>&gt;
+    &lt;/<span style="color:#89b4fa;">section</span>&gt;
+  );
+}</pre>
+
+  <p>Look at how each layer only knows about its immediate children: <code>ProductList</code> knows about <code>ProductCard</code>, and <code>ProductCard</code> knows about <code>PriceBadge</code>, <code>SpecList</code>, and <code>CategoryBadge</code>. Nobody needs to know the whole tree. This is the power of composition.</p>
+
+  <!-- ============================== -->
+  <!-- SECTION: File Organization -->
+  <!-- ============================== -->
+  <h2>File Organization and Import/Export</h2>
+
+  <p>As your application grows, putting all components in one file becomes unmanageable. The standard practice is <strong>one component per file</strong>, with the file named after the component.</p>
+
+  <h3>Naming Conventions</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Convention</th>
+        <th>Example</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>File name</td>
+        <td><code>ProductCard.tsx</code></td>
+        <td>PascalCase, matches component name</td>
+      </tr>
+      <tr>
+        <td>Component name</td>
+        <td><code>ProductCard</code></td>
+        <td>PascalCase (required by React)</td>
+      </tr>
+      <tr>
+        <td>Props interface</td>
+        <td><code>ProductCardProps</code></td>
+        <td>Component name + "Props"</td>
+      </tr>
+      <tr>
+        <td>File extension</td>
+        <td><code>.tsx</code></td>
+        <td><code>.tsx</code> for JSX + TypeScript, <code>.ts</code> for non-JSX TypeScript</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Export Patterns</h3>
+
+  <pre><span style="color:#6c7086;">// ---- src/components/ProductCard.tsx ----</span>
+
+<span style="color:#6c7086;">// Named export (you can have multiple per file)</span>
+<span style="color:#cba6f7;">export</span> <span style="color:#cba6f7;">interface</span> <span style="color:#89b4fa;">ProductCardProps</span> {
+  <span style="color:#cdd6f4;">product</span>: <span style="color:#89b4fa;">Product</span>;
+}
+
+<span style="color:#cba6f7;">export</span> <span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">ProductCard</span>({ <span style="color:#cdd6f4;">product</span> }: <span style="color:#89b4fa;">ProductCardProps</span>) {
+  <span style="color:#cba6f7;">return</span> (
+    &lt;<span style="color:#89b4fa;">div</span> <span style="color:#cdd6f4;">className</span>=<span style="color:#a6e3a1;">"product-card"</span>&gt;
+      {<span style="color:#6c7086;">/* ... */</span>}
+    &lt;/<span style="color:#89b4fa;">div</span>&gt;
+  );
+}
+
+
+<span style="color:#6c7086;">// ---- src/components/ProductList.tsx ----</span>
+
+<span style="color:#6c7086;">// Import the component from its file</span>
+<span style="color:#cba6f7;">import</span> { <span style="color:#89b4fa;">ProductCard</span> } <span style="color:#cba6f7;">from</span> <span style="color:#a6e3a1;">'./ProductCard'</span>;
+<span style="color:#6c7086;">// Note: .tsx extension is omitted in imports</span>
+
+<span style="color:#cba6f7;">export</span> <span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">ProductList</span>({ <span style="color:#cdd6f4;">products</span> }: <span style="color:#89b4fa;">ProductListProps</span>) {
+  <span style="color:#cba6f7;">return</span> (
+    &lt;<span style="color:#89b4fa;">div</span>&gt;
+      {<span style="color:#cdd6f4;">products</span>.<span style="color:#89b4fa;">map</span>(<span style="color:#cdd6f4;">p</span> =&gt; &lt;<span style="color:#89b4fa;">ProductCard</span> <span style="color:#cdd6f4;">key</span>={<span style="color:#cdd6f4;">p</span>.<span style="color:#cdd6f4;">id</span>} <span style="color:#cdd6f4;">product</span>={<span style="color:#cdd6f4;">p</span>} /&gt;)}
+    &lt;/<span style="color:#89b4fa;">div</span>&gt;
+  );
+}</pre>
+
+  <h3>Recommended File Structure</h3>
+
+  <pre>src/
+  components/
+    ui/                       <span style="color:#6c7086;"># Generic, reusable UI pieces</span>
+      Button.tsx
+      Badge.tsx
+      Card.tsx
+    features/                  <span style="color:#6c7086;"># Feature-specific components</span>
+      gallery/
+        ProductCard.tsx
+        ProductList.tsx
+        CategoryBadge.tsx
+      tickets/
+        TicketCard.tsx
+        TicketList.tsx
+        StatusBadge.tsx
+    layouts/                   <span style="color:#6c7086;"># Structural components</span>
+      Header.tsx
+      Footer.tsx
+      Sidebar.tsx
+  types/                       <span style="color:#6c7086;"># Shared TypeScript types</span>
+    product.ts
+    ticket.ts</pre>
+
+  <p>Group related components together by feature. This makes it easy to find everything related to "gallery" or "tickets" in one place.</p>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    The Computer Store KS codebase organizes components exactly this way. The <code>src/components/static/</code> folder holds Header, Footer, and TestimonialsCarousel. The <code>src/components/gallery/</code> folder holds all gallery-related components. The <code>src/components/admin/</code> folder holds admin dashboard components like the sidebar, call-customer widget, and ticket management UI.
+  </div>
+
+  <!-- ============================== -->
+  <!-- SECTION: Complete Example -->
+  <!-- ============================== -->
+  <h2>Complete Example: Building a Product Catalog</h2>
+
+  <p>Let us bring everything together into a complete, working example. This is what a real-world component structure looks like.</p>
+
+  <pre><span style="color:#6c7086;">// ---- types/product.ts ----</span>
+<span style="color:#cba6f7;">export</span> <span style="color:#cba6f7;">interface</span> <span style="color:#89b4fa;">Product</span> {
+  <span style="color:#cdd6f4;">id</span>: <span style="color:#cba6f7;">number</span>;
+  <span style="color:#cdd6f4;">name</span>: <span style="color:#cba6f7;">string</span>;
+  <span style="color:#cdd6f4;">category</span>: <span style="color:#a6e3a1;">'desktop'</span> | <span style="color:#a6e3a1;">'laptop'</span>;
+  <span style="color:#cdd6f4;">price</span>: <span style="color:#cba6f7;">number</span>;
+  <span style="color:#cdd6f4;">salePrice</span>?: <span style="color:#cba6f7;">number</span>;
+  <span style="color:#cdd6f4;">imageUrl</span>: <span style="color:#cba6f7;">string</span>;
+  <span style="color:#cdd6f4;">specs</span>: <span style="color:#cba6f7;">string</span>[];
+  <span style="color:#cdd6f4;">inStock</span>: <span style="color:#cba6f7;">boolean</span>;
+}</pre>
+
+  <pre><span style="color:#6c7086;">// ---- components/gallery/ProductCard.tsx ----</span>
+<span style="color:#cba6f7;">import</span> <span style="color:#cba6f7;">type</span> { <span style="color:#89b4fa;">Product</span> } <span style="color:#cba6f7;">from</span> <span style="color:#a6e3a1;">'../../types/product'</span>;
+
+<span style="color:#cba6f7;">interface</span> <span style="color:#89b4fa;">ProductCardProps</span> {
+  <span style="color:#cdd6f4;">product</span>: <span style="color:#89b4fa;">Product</span>;
+}
+
+<span style="color:#cba6f7;">export</span> <span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">ProductCard</span>({ <span style="color:#cdd6f4;">product</span> }: <span style="color:#89b4fa;">ProductCardProps</span>) {
+  <span style="color:#cba6f7;">const</span> <span style="color:#cdd6f4;">isOnSale</span> = <span style="color:#cdd6f4;">product</span>.<span style="color:#cdd6f4;">salePrice</span> !== <span style="color:#cba6f7;">undefined</span>;
+
+  <span style="color:#cba6f7;">return</span> (
+    &lt;<span style="color:#89b4fa;">div</span> <span style="color:#cdd6f4;">className</span>=<span style="color:#a6e3a1;">"product-card"</span>&gt;
+      <span style="color:#6c7086;">{/* Image */}</span>
+      &lt;<span style="color:#89b4fa;">div</span> <span style="color:#cdd6f4;">className</span>=<span style="color:#a6e3a1;">"product-image"</span>&gt;
+        &lt;<span style="color:#89b4fa;">img</span> <span style="color:#cdd6f4;">src</span>={<span style="color:#cdd6f4;">product</span>.<span style="color:#cdd6f4;">imageUrl</span>} <span style="color:#cdd6f4;">alt</span>={<span style="color:#cdd6f4;">product</span>.<span style="color:#cdd6f4;">name</span>} /&gt;
+        {<span style="color:#cdd6f4;">isOnSale</span> &amp;&amp; &lt;<span style="color:#89b4fa;">span</span> <span style="color:#cdd6f4;">className</span>=<span style="color:#a6e3a1;">"sale-badge"</span>&gt;SALE&lt;/<span style="color:#89b4fa;">span</span>&gt;}
+      &lt;/<span style="color:#89b4fa;">div</span>&gt;
+
+      <span style="color:#6c7086;">{/* Info */}</span>
+      &lt;<span style="color:#89b4fa;">div</span> <span style="color:#cdd6f4;">className</span>=<span style="color:#a6e3a1;">"product-info"</span>&gt;
+        &lt;<span style="color:#89b4fa;">span</span> <span style="color:#cdd6f4;">className</span>={<span style="color:#a6e3a1;">`badge badge-</span>${<span style="color:#cdd6f4;">product</span>.<span style="color:#cdd6f4;">category</span>}<span style="color:#a6e3a1;">`</span>}&gt;
+          {<span style="color:#cdd6f4;">product</span>.<span style="color:#cdd6f4;">category</span>}
+        &lt;/<span style="color:#89b4fa;">span</span>&gt;
+        &lt;<span style="color:#89b4fa;">h3</span>&gt;{<span style="color:#cdd6f4;">product</span>.<span style="color:#cdd6f4;">name</span>}&lt;/<span style="color:#89b4fa;">h3</span>&gt;
+
+        <span style="color:#6c7086;">{/* Specs */}</span>
+        &lt;<span style="color:#89b4fa;">ul</span> <span style="color:#cdd6f4;">className</span>=<span style="color:#a6e3a1;">"spec-list"</span>&gt;
+          {<span style="color:#cdd6f4;">product</span>.<span style="color:#cdd6f4;">specs</span>.<span style="color:#89b4fa;">map</span>((<span style="color:#cdd6f4;">spec</span>, <span style="color:#cdd6f4;">index</span>) =&gt; (
+            &lt;<span style="color:#89b4fa;">li</span> <span style="color:#cdd6f4;">key</span>={<span style="color:#cdd6f4;">index</span>}&gt;{<span style="color:#cdd6f4;">spec</span>}&lt;/<span style="color:#89b4fa;">li</span>&gt;
+          ))}
+        &lt;/<span style="color:#89b4fa;">ul</span>&gt;
+
+        <span style="color:#6c7086;">{/* Price */}</span>
+        &lt;<span style="color:#89b4fa;">div</span> <span style="color:#cdd6f4;">className</span>=<span style="color:#a6e3a1;">"price-section"</span>&gt;
+          {<span style="color:#cdd6f4;">isOnSale</span> ? (
+            &lt;&gt;
+              &lt;<span style="color:#89b4fa;">span</span> <span style="color:#cdd6f4;">className</span>=<span style="color:#a6e3a1;">"price-original"</span>&gt;${<span style="color:#cdd6f4;">product</span>.<span style="color:#cdd6f4;">price</span>}&lt;/<span style="color:#89b4fa;">span</span>&gt;
+              &lt;<span style="color:#89b4fa;">span</span> <span style="color:#cdd6f4;">className</span>=<span style="color:#a6e3a1;">"price-sale"</span>&gt;${<span style="color:#cdd6f4;">product</span>.<span style="color:#cdd6f4;">salePrice</span>}&lt;/<span style="color:#89b4fa;">span</span>&gt;
+            &lt;/&gt;
+          ) : (
+            &lt;<span style="color:#89b4fa;">span</span> <span style="color:#cdd6f4;">className</span>=<span style="color:#a6e3a1;">"price"</span>&gt;${<span style="color:#cdd6f4;">product</span>.<span style="color:#cdd6f4;">price</span>}&lt;/<span style="color:#89b4fa;">span</span>&gt;
+          )}
+        &lt;/<span style="color:#89b4fa;">div</span>&gt;
+
+        <span style="color:#6c7086;">{/* Stock status */}</span>
+        &lt;<span style="color:#89b4fa;">p</span> <span style="color:#cdd6f4;">className</span>={<span style="color:#cdd6f4;">product</span>.<span style="color:#cdd6f4;">inStock</span> ? <span style="color:#a6e3a1;">'in-stock'</span> : <span style="color:#a6e3a1;">'out-of-stock'</span>}&gt;
+          {<span style="color:#cdd6f4;">product</span>.<span style="color:#cdd6f4;">inStock</span> ? <span style="color:#a6e3a1;">'In Stock'</span> : <span style="color:#a6e3a1;">'Out of Stock'</span>}
+        &lt;/<span style="color:#89b4fa;">p</span>&gt;
+      &lt;/<span style="color:#89b4fa;">div</span>&gt;
+    &lt;/<span style="color:#89b4fa;">div</span>&gt;
+  );
+}</pre>
+
+  <pre><span style="color:#6c7086;">// ---- components/gallery/ProductList.tsx ----</span>
+<span style="color:#cba6f7;">import</span> { <span style="color:#89b4fa;">ProductCard</span> } <span style="color:#cba6f7;">from</span> <span style="color:#a6e3a1;">'./ProductCard'</span>;
+<span style="color:#cba6f7;">import</span> <span style="color:#cba6f7;">type</span> { <span style="color:#89b4fa;">Product</span> } <span style="color:#cba6f7;">from</span> <span style="color:#a6e3a1;">'../../types/product'</span>;
+
+<span style="color:#cba6f7;">interface</span> <span style="color:#89b4fa;">ProductListProps</span> {
+  <span style="color:#cdd6f4;">products</span>: <span style="color:#89b4fa;">Product</span>[];
+}
+
+<span style="color:#cba6f7;">export</span> <span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">ProductList</span>({ <span style="color:#cdd6f4;">products</span> }: <span style="color:#89b4fa;">ProductListProps</span>) {
+  <span style="color:#cba6f7;">if</span> (<span style="color:#cdd6f4;">products</span>.<span style="color:#cdd6f4;">length</span> === <span style="color:#fab387;">0</span>) {
+    <span style="color:#cba6f7;">return</span> (
+      &lt;<span style="color:#89b4fa;">div</span> <span style="color:#cdd6f4;">className</span>=<span style="color:#a6e3a1;">"empty-state"</span>&gt;
+        &lt;<span style="color:#89b4fa;">h3</span>&gt;No computers available&lt;/<span style="color:#89b4fa;">h3</span>&gt;
+        &lt;<span style="color:#89b4fa;">p</span>&gt;Check back soon for new inventory!&lt;/<span style="color:#89b4fa;">p</span>&gt;
+      &lt;/<span style="color:#89b4fa;">div</span>&gt;
+    );
+  }
+
+  <span style="color:#cba6f7;">return</span> (
+    &lt;<span style="color:#89b4fa;">div</span> <span style="color:#cdd6f4;">className</span>=<span style="color:#a6e3a1;">"product-grid"</span>&gt;
+      {<span style="color:#cdd6f4;">products</span>.<span style="color:#89b4fa;">map</span>(<span style="color:#cdd6f4;">product</span> =&gt; (
+        &lt;<span style="color:#89b4fa;">ProductCard</span> <span style="color:#cdd6f4;">key</span>={<span style="color:#cdd6f4;">product</span>.<span style="color:#cdd6f4;">id</span>} <span style="color:#cdd6f4;">product</span>={<span style="color:#cdd6f4;">product</span>} /&gt;
+      ))}
+    &lt;/<span style="color:#89b4fa;">div</span>&gt;
+  );
+}</pre>
+
+  <pre><span style="color:#6c7086;">// ---- App.tsx ----</span>
+<span style="color:#cba6f7;">import</span> { <span style="color:#89b4fa;">ProductList</span> } <span style="color:#cba6f7;">from</span> <span style="color:#a6e3a1;">'./components/gallery/ProductList'</span>;
+<span style="color:#cba6f7;">import</span> <span style="color:#cba6f7;">type</span> { <span style="color:#89b4fa;">Product</span> } <span style="color:#cba6f7;">from</span> <span style="color:#a6e3a1;">'./types/product'</span>;
+
+<span style="color:#cba6f7;">const</span> <span style="color:#cdd6f4;">inventory</span>: <span style="color:#89b4fa;">Product</span>[] = [
+  {
+    <span style="color:#cdd6f4;">id</span>: <span style="color:#fab387;">1</span>,
+    <span style="color:#cdd6f4;">name</span>: <span style="color:#a6e3a1;">'Refurbished Dell OptiPlex 7050'</span>,
+    <span style="color:#cdd6f4;">category</span>: <span style="color:#a6e3a1;">'desktop'</span>,
+    <span style="color:#cdd6f4;">price</span>: <span style="color:#fab387;">299</span>,
+    <span style="color:#cdd6f4;">salePrice</span>: <span style="color:#fab387;">249</span>,
+    <span style="color:#cdd6f4;">imageUrl</span>: <span style="color:#a6e3a1;">'/images/optiplex-7050.jpg'</span>,
+    <span style="color:#cdd6f4;">specs</span>: [<span style="color:#a6e3a1;">'Intel i7-7700'</span>, <span style="color:#a6e3a1;">'16GB RAM'</span>, <span style="color:#a6e3a1;">'512GB SSD'</span>, <span style="color:#a6e3a1;">'Windows 11 Pro'</span>],
+    <span style="color:#cdd6f4;">inStock</span>: <span style="color:#cba6f7;">true</span>,
+  },
+  {
+    <span style="color:#cdd6f4;">id</span>: <span style="color:#fab387;">2</span>,
+    <span style="color:#cdd6f4;">name</span>: <span style="color:#a6e3a1;">'Refurbished ThinkPad T480'</span>,
+    <span style="color:#cdd6f4;">category</span>: <span style="color:#a6e3a1;">'laptop'</span>,
+    <span style="color:#cdd6f4;">price</span>: <span style="color:#fab387;">349</span>,
+    <span style="color:#cdd6f4;">imageUrl</span>: <span style="color:#a6e3a1;">'/images/thinkpad-t480.jpg'</span>,
+    <span style="color:#cdd6f4;">specs</span>: [<span style="color:#a6e3a1;">'Intel i5-8350U'</span>, <span style="color:#a6e3a1;">'8GB RAM'</span>, <span style="color:#a6e3a1;">'256GB SSD'</span>, <span style="color:#a6e3a1;">'14" Display'</span>],
+    <span style="color:#cdd6f4;">inStock</span>: <span style="color:#cba6f7;">true</span>,
+  },
+  {
+    <span style="color:#cdd6f4;">id</span>: <span style="color:#fab387;">3</span>,
+    <span style="color:#cdd6f4;">name</span>: <span style="color:#a6e3a1;">'Custom Gaming PC'</span>,
+    <span style="color:#cdd6f4;">category</span>: <span style="color:#a6e3a1;">'desktop'</span>,
+    <span style="color:#cdd6f4;">price</span>: <span style="color:#fab387;">899</span>,
+    <span style="color:#cdd6f4;">imageUrl</span>: <span style="color:#a6e3a1;">'/images/gaming-pc.jpg'</span>,
+    <span style="color:#cdd6f4;">specs</span>: [<span style="color:#a6e3a1;">'AMD Ryzen 7 5800X'</span>, <span style="color:#a6e3a1;">'32GB RAM'</span>, <span style="color:#a6e3a1;">'1TB NVMe SSD'</span>, <span style="color:#a6e3a1;">'RTX 3060'</span>],
+    <span style="color:#cdd6f4;">inStock</span>: <span style="color:#cba6f7;">false</span>,
+  },
+];
+
+<span style="color:#cba6f7;">function</span> <span style="color:#89b4fa;">App</span>() {
+  <span style="color:#cba6f7;">return</span> (
+    &lt;<span style="color:#89b4fa;">div</span> <span style="color:#cdd6f4;">className</span>=<span style="color:#a6e3a1;">"app"</span>&gt;
+      &lt;<span style="color:#89b4fa;">h1</span>&gt;Computer Store KS - Gallery&lt;/<span style="color:#89b4fa;">h1</span>&gt;
+      &lt;<span style="color:#89b4fa;">ProductList</span> <span style="color:#cdd6f4;">products</span>={<span style="color:#cdd6f4;">inventory</span>} /&gt;
+    &lt;/<span style="color:#89b4fa;">div</span>&gt;
+  );
+}</pre>
+
+  <p>This is a complete, working React application. The data flows from <code>App</code> (which owns the data) down through <code>ProductList</code> into each <code>ProductCard</code>. Each component is responsible for its own rendering logic. If you need to change how prices are displayed, you only edit <code>ProductCard</code>. If you need to change the grid layout, you only edit <code>ProductList</code>.</p>
+
+  <!-- ============================== -->
+  <!-- EXERCISES -->
+  <!-- ============================== -->
+  <div class="exercises">
+    <h2>Hands-On Exercises</h2>
+    <ol>
+      <li>
+        <strong>Create a React project:</strong> Use Vite to scaffold a new React + TypeScript project. Delete the default content in <code>App.tsx</code> and replace it with a component that displays your name and a welcome message.
+      </li>
+      <li>
+        <strong>Build a ServiceCard component:</strong> Create a component that takes <code>name</code> (string), <code>description</code> (string), <code>price</code> (number), and <code>available</code> (boolean) as typed props. Display each piece of data, and conditionally show "Available" or "Currently Unavailable" using a ternary.
+      </li>
+      <li>
+        <strong>Render a list:</strong> Create an array of at least 5 services (objects with id, name, description, price, available). Map over them to render a list of <code>ServiceCard</code> components with proper keys. Filter the array to show only available services.
+      </li>
+      <li>
+        <strong>Build a Card wrapper:</strong> Create a reusable <code>Card</code> component that accepts <code>title</code> (string) and <code>children</code> (ReactNode) props. Use it to wrap different content in different places &mdash; once with text, once with a list, once with another component inside it.
+      </li>
+      <li>
+        <strong>Component composition challenge:</strong> Build a simple "Employee Directory" with the following component tree: <code>EmployeeDirectory</code> contains a heading and an <code>EmployeeList</code>. <code>EmployeeList</code> maps over employees and renders <code>EmployeeCard</code> components. Each <code>EmployeeCard</code> shows name, role, and a <code>StatusBadge</code> (online/offline). Use TypeScript interfaces for all props. Put each component in its own file.
+      </li>
+      <li>
+        <strong>Conditional rendering practice:</strong> Build a <code>TicketSummary</code> component that receives <code>total</code> (number), <code>open</code> (number), and <code>urgent</code> (number) as props. If <code>total</code> is 0, show "No tickets." If <code>urgent</code> is greater than 0, show a red warning message. Otherwise show a green "All clear" message. Use all three conditional rendering patterns (ternary, <code>&amp;&amp;</code>, and early return).
+      </li>
+    </ol>
+  </div>
+
+  <!-- ============================== -->
+  <!-- KEY TAKEAWAYS -->
+  <!-- ============================== -->
+  <div class="key-takeaways">
+    <h2>Key Takeaways</h2>
+    <ul>
+      <li>React is a declarative library: you describe <em>what</em> the UI should look like, and React figures out <em>how</em> to update the DOM efficiently via the virtual DOM.</li>
+      <li>JSX is JavaScript, not HTML. Use <code>className</code> instead of <code>class</code>, <code>style</code> objects instead of strings, camelCase attributes, and curly braces <code>{}</code> for JavaScript expressions.</li>
+      <li>Components are functions that return JSX. Their names must start with an uppercase letter.</li>
+      <li>Props pass data from parent to child. Always type your props with TypeScript interfaces. Props are read-only.</li>
+      <li>The <code>children</code> prop captures whatever is placed between a component's opening and closing tags, making wrapper components possible.</li>
+      <li>Use <code>.map()</code> to render lists. Every mapped element needs a unique, stable <code>key</code> prop so React can efficiently track changes.</li>
+      <li>Conditional rendering uses ternary (<code>? :</code>) for either/or, <code>&amp;&amp;</code> for show-or-nothing, and early <code>return</code> for handling multiple exclusive conditions.</li>
+      <li>Compose complex UIs from small, focused components. Each component should do one thing well.</li>
+      <li>Organize files as one component per file, using PascalCase naming, and group related components into feature folders.</li>
+    </ul>
+  </div>
+
+</main>
+
+<!-- ── BOTTOM NAV ── -->
+<nav class="lesson-nav bottom">
+  <a href="11-typescript.html">&larr; Previous: TypeScript</a>
+  <span>Lesson 12 of 56</span>
+  <a href="13-react-state-hooks.html">Next: React State &amp; Hooks &rarr;</a>
+</nav>
+
+</body>
+</html>

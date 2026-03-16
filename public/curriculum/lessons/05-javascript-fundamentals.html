@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 05: JavaScript Fundamentals — Full-Stack Web Dev Curriculum</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <nav class="lesson-nav">
+    <a href="04-responsive-design.html">&larr; Previous Lesson</a>
+    <span>Lesson 05 of 56</span>
+    <a href="06-javascript-dom-events.html">Next Lesson &rarr;</a>
+  </nav>
+  <header class="lesson-header">
+    <span class="phase-badge" style="background:rgba(245,158,11,0.3);">Phase 1: Web Fundamentals</span>
+    <h1>Lesson 05: JavaScript Fundamentals</h1>
+    <p class="lesson-subtitle">The programming language that brings web pages to life with logic, data, and interactivity</p>
+  </header>
+  <main class="lesson-content">
+
+    <section class="learning-objectives">
+      <h2>Learning Objectives</h2>
+      <ul>
+        <li>By the end of this lesson, you will be able to declare variables with <code>let</code> and <code>const</code> and explain when to use each</li>
+        <li>By the end of this lesson, you will be able to identify and use all JavaScript data types</li>
+        <li>By the end of this lesson, you will be able to write conditional logic with if/else and control flow with loops</li>
+        <li>By the end of this lesson, you will be able to create and use functions (declarations, expressions, and arrow functions)</li>
+        <li>By the end of this lesson, you will be able to work with objects and arrays, including common array methods</li>
+        <li>By the end of this lesson, you will be able to use template literals, destructuring, the spread operator, and error handling</li>
+      </ul>
+    </section>
+
+    <!-- ===== SECTION: WHAT IS JAVASCRIPT ===== -->
+    <h2>What Is JavaScript?</h2>
+
+    <p><strong>JavaScript</strong> is the programming language of the web. While HTML provides structure and CSS provides styling, JavaScript provides <strong>behavior</strong> &mdash; the ability to make things happen. When a button responds to a click, when a form validates your input, when content loads without a page refresh, when a notification pops up, or when a dashboard updates with real-time data &mdash; that is all JavaScript.</p>
+
+    <p>JavaScript is unique among programming languages in several ways:</p>
+    <ul>
+      <li>It is the <strong>only programming language</strong> that runs natively in web browsers. Every browser (Chrome, Firefox, Safari, Edge) has a built-in JavaScript engine.</li>
+      <li>With <strong>Node.js</strong>, JavaScript also runs on servers, making it possible to use one language for both the frontend and backend.</li>
+      <li>It is the most widely used programming language in the world, powering virtually every website.</li>
+    </ul>
+
+    <div class="analogy">
+      <strong>Analogy: The Nervous System</strong><br>
+      If HTML is the skeleton (structure) and CSS is the skin and clothing (appearance), then JavaScript is the nervous system and brain. It senses user actions (clicks, keystrokes, scrolling), makes decisions ("Is this form valid?"), sends signals to other parts of the body (fetching data from a server), and controls movement (animations, showing/hiding elements). Without JavaScript, a website is like a mannequin &mdash; it looks good but cannot do anything.
+    </div>
+
+    <h3>Where JavaScript Runs</h3>
+
+    <p>You can run JavaScript in two places:</p>
+
+    <p><strong>1. In the browser (client-side):</strong> Open your browser's Developer Tools (<code>F12</code>), click the <strong>Console</strong> tab, and type:</p>
+
+<pre><code>console.log("Hello from the browser!");
+alert("This is JavaScript!");</code></pre>
+
+    <p><strong>2. On a server (with Node.js):</strong> Create a file called <code>hello.js</code> and run it from the command line:</p>
+
+<pre><code>// hello.js
+console.log("Hello from the server!");
+
+// Run with: node hello.js</code></pre>
+
+    <p>In this curriculum, we will use JavaScript in both environments. The CSK project runs JavaScript in the browser (for the interactive UI) and on the server (for API routes, database queries, and authentication).</p>
+
+    <!-- ===== SECTION: VARIABLES ===== -->
+    <h2>Variables: Storing Data</h2>
+
+    <p>A <strong>variable</strong> is a named container that holds a value. Think of it like a labeled box where you can store something and retrieve it later by its label.</p>
+
+    <h3>Declaring Variables: let and const</h3>
+
+<pre><code>// const — for values that will NOT change (use by default)
+const shopName = "Computer Store KS";
+const maxTickets = 100;
+const isOpen = true;
+
+// let — for values that WILL change
+let ticketCount = 42;
+ticketCount = 43;  // This is allowed with let
+
+let currentStatus = "open";
+currentStatus = "diagnosing";  // Reassignment is fine</code></pre>
+
+    <p><strong>Rule of thumb:</strong> Always use <code>const</code> by default. Only switch to <code>let</code> when you know the value needs to change. This makes your code safer and easier to reason about, because you always know that a <code>const</code> value will not be reassigned unexpectedly.</p>
+
+    <div class="warning-box">
+      <strong>Never Use var</strong>
+      You may see <code>var</code> in older code or tutorials. <strong>Do not use it.</strong> <code>var</code> has problematic scoping rules that lead to subtle bugs. It was the only option before 2015, but <code>let</code> and <code>const</code> (introduced in ES6/ES2015) fixed those issues. Every modern JavaScript project uses <code>let</code> and <code>const</code> exclusively. The CSK codebase uses <code>const</code> almost everywhere, with <code>let</code> only when reassignment is genuinely needed.
+    </div>
+
+    <h3>Variable Naming Rules</h3>
+    <ul>
+      <li>Must start with a letter, underscore (<code>_</code>), or dollar sign (<code>$</code>)</li>
+      <li>Can contain letters, numbers, underscores, and dollar signs</li>
+      <li>Are case-sensitive (<code>userName</code> and <code>username</code> are different variables)</li>
+      <li>Use <strong>camelCase</strong> for variables and functions: <code>firstName</code>, <code>ticketCount</code>, <code>isLoggedIn</code></li>
+      <li>Use <strong>UPPER_SNAKE_CASE</strong> for constants that represent fixed, known values: <code>MAX_RETRIES</code>, <code>API_BASE_URL</code></li>
+      <li>Choose <strong>descriptive names</strong>: <code>customerEmail</code> is much better than <code>ce</code> or <code>x</code></li>
+    </ul>
+
+    <!-- ===== SECTION: DATA TYPES ===== -->
+    <h2>Data Types</h2>
+
+    <p>Every value in JavaScript has a <strong>type</strong> that determines what kind of data it is and what you can do with it. JavaScript has eight data types, but you will primarily work with the first six:</p>
+
+    <h3>String</h3>
+    <p>Text data, enclosed in quotes:</p>
+<pre><code>const name = "Computer Store KS";   // Double quotes
+const city = 'Topeka';              // Single quotes
+const greeting = `Hello, ${name}!`; // Template literal (backticks)
+
+// String properties and methods
+console.log(name.length);           // 17 (number of characters)
+console.log(name.toUpperCase());    // "COMPUTER STORE KS"
+console.log(name.toLowerCase());    // "computer store ks"
+console.log(name.includes("Store")); // true
+console.log(city.startsWith("Top")); // true
+console.log(name.slice(0, 8));      // "Computer" (characters 0-7)
+console.log(name.replace("KS", "Kansas")); // "Computer Store Kansas"
+console.log("  hello  ".trim());    // "hello" (removes whitespace)</code></pre>
+
+    <h3>Number</h3>
+    <p>Both integers and decimals use the same type:</p>
+<pre><code>const price = 45.99;
+const quantity = 3;
+const total = price * quantity;    // 137.97
+
+// Special numeric values
+const infinity = Infinity;
+const notANumber = NaN;            // Result of invalid math like 0 / 0
+
+// Useful number methods
+console.log(Math.round(4.7));      // 5
+console.log(Math.floor(4.9));      // 4 (always rounds down)
+console.log(Math.ceil(4.1));       // 5 (always rounds up)
+console.log(Math.max(10, 20, 5));  // 20
+console.log(Math.min(10, 20, 5));  // 5
+console.log(Math.random());        // Random decimal between 0 and 1
+console.log(total.toFixed(2));     // "137.97" (string with 2 decimal places)
+
+// Converting strings to numbers
+const input = "42";
+const num = Number(input);         // 42 (as a number)
+const parsed = parseInt("42px");   // 42 (ignores trailing text)
+const decimal = parseFloat("3.14");// 3.14</code></pre>
+
+    <h3>Boolean</h3>
+    <p>A value that is either <code>true</code> or <code>false</code>:</p>
+<pre><code>const isOpen = true;
+const isClosed = false;
+const hasPassword = true;
+
+// Booleans from comparisons
+const isExpensive = price > 100;   // false (45.99 is not > 100)
+const isMatch = name === "Computer Store KS"; // true</code></pre>
+
+    <h3>null and undefined</h3>
+<pre><code>// undefined — variable declared but never assigned a value
+let middleName;
+console.log(middleName);           // undefined
+
+// null — intentionally empty (you set it to "nothing")
+let selectedTicket = null;         // "No ticket is selected yet"
+selectedTicket = { id: 42 };       // Now a ticket is selected
+selectedTicket = null;             // Ticket deselected</code></pre>
+
+    <p>The difference is subtle but important: <code>undefined</code> means "no value was ever assigned," while <code>null</code> means "a value was intentionally set to nothing." Think of <code>undefined</code> as an empty mailbox that has never received mail, and <code>null</code> as a mailbox you deliberately emptied.</p>
+
+    <h3>Object</h3>
+    <p>A collection of key-value pairs (covered in detail below):</p>
+<pre><code>const customer = {
+  name: "Jane Smith",
+  email: "jane@example.com",
+  phone: "(785) 555-1234"
+};</code></pre>
+
+    <h3>Array</h3>
+    <p>An ordered list of values (covered in detail below):</p>
+<pre><code>const services = ["Virus Removal", "Diagnostics", "Data Recovery"];</code></pre>
+
+    <h3>BigInt and Symbol</h3>
+    <p>These are specialized types you will rarely need as a beginner. <code>BigInt</code> handles integers larger than Number can safely represent. <code>Symbol</code> creates unique identifiers. We mention them for completeness, but you can safely ignore them for now.</p>
+
+    <h3>Checking Types</h3>
+<pre><code>console.log(typeof "hello");       // "string"
+console.log(typeof 42);            // "number"
+console.log(typeof true);          // "boolean"
+console.log(typeof undefined);     // "undefined"
+console.log(typeof null);          // "object" (this is a known JavaScript bug!)
+console.log(typeof {});            // "object"
+console.log(typeof []);            // "object" (arrays are objects)
+
+// To check if something is an array:
+console.log(Array.isArray([]));    // true</code></pre>
+
+    <!-- ===== SECTION: OPERATORS ===== -->
+    <h2>Operators</h2>
+
+    <h3>Arithmetic Operators</h3>
+<pre><code>const a = 10;
+const b = 3;
+
+console.log(a + b);   // 13  (addition)
+console.log(a - b);   // 7   (subtraction)
+console.log(a * b);   // 30  (multiplication)
+console.log(a / b);   // 3.333... (division)
+console.log(a % b);   // 1   (modulo — the remainder of 10 / 3)
+console.log(a ** b);  // 1000 (exponentiation — 10 to the power of 3)
+
+// Increment and decrement
+let count = 0;
+count++;               // count is now 1
+count--;               // count is now 0
+count += 5;            // count is now 5 (shorthand for count = count + 5)
+count -= 2;            // count is now 3
+count *= 3;            // count is now 9</code></pre>
+
+    <h3>Comparison Operators</h3>
+<pre><code>// ALWAYS use strict equality (=== and !==)
+console.log(5 === 5);       // true  (same value AND same type)
+console.log(5 === "5");     // false (different types)
+console.log(5 !== 3);       // true  (not equal)
+
+// AVOID loose equality (== and !=) — causes surprising behavior
+console.log(5 == "5");      // true  (DANGEROUS — type coercion)
+console.log(0 == false);    // true  (DANGEROUS)
+console.log("" == false);   // true  (DANGEROUS)
+
+// Relational operators
+console.log(10 > 5);        // true
+console.log(10 >= 10);      // true
+console.log(3 < 7);         // true
+console.log(3 <= 2);        // false</code></pre>
+
+    <div class="warning-box">
+      <strong>Always Use === (Strict Equality)</strong>
+      The loose equality operator (<code>==</code>) performs type coercion, which leads to bizarre results like <code>"" == false</code> being <code>true</code>. Always use the strict equality operator (<code>===</code>) which checks both value and type. The entire CSK codebase uses strict equality exclusively. This is a non-negotiable best practice in modern JavaScript.
+    </div>
+
+    <h3>Logical Operators</h3>
+<pre><code>const isAdmin = true;
+const isLoggedIn = true;
+const isBanned = false;
+
+// AND (&&) — both must be true
+console.log(isAdmin && isLoggedIn);          // true
+console.log(isAdmin && isBanned);            // false
+
+// OR (||) — at least one must be true
+console.log(isAdmin || isBanned);            // true
+console.log(isBanned || false);              // false
+
+// NOT (!) — inverts the boolean
+console.log(!isAdmin);                       // false
+console.log(!isBanned);                      // true
+
+// Practical example
+if (isLoggedIn && isAdmin && !isBanned) {
+  console.log("Access granted to admin panel");
+}</code></pre>
+
+    <!-- ===== SECTION: CONTROL FLOW ===== -->
+    <h2>Control Flow</h2>
+
+    <h3>if / else if / else</h3>
+
+    <p>Conditional statements let your program make decisions:</p>
+
+<pre><code>const ticketStatus = "diagnosing";
+
+if (ticketStatus === "new") {
+  console.log("Ticket needs to be assigned to a technician.");
+} else if (ticketStatus === "diagnosing") {
+  console.log("Technician is investigating the issue.");
+} else if (ticketStatus === "repairing") {
+  console.log("Repair is in progress.");
+} else if (ticketStatus === "ready_for_pickup") {
+  console.log("Call the customer — their computer is ready!");
+} else {
+  console.log(`Status: ${ticketStatus}`);
+}
+
+// Nested conditions
+const customer = { name: "Jane", silverPlan: true };
+const repairCost = 120;
+
+if (customer.silverPlan) {
+  if (repairCost <= 150) {
+    console.log("Repair is covered by Silver Plan!");
+  } else {
+    console.log("Repair exceeds Silver Plan coverage.");
+  }
+} else {
+  console.log(`Total cost: $${repairCost}`);
+}</code></pre>
+
+    <h3>Ternary Operator</h3>
+    <p>A concise way to write simple if/else statements:</p>
+<pre><code>// Syntax: condition ? valueIfTrue : valueIfFalse
+const status = isOpen ? "Open" : "Closed";
+const message = ticketCount > 0 ? `${ticketCount} tickets` : "No tickets";
+const greeting = customer.silverPlan ? "Welcome, Silver member!" : "Welcome!";
+
+// Used often in React for conditional rendering:
+// {isLoggedIn ? &lt;Dashboard /&gt; : &lt;LoginPage /&gt;}</code></pre>
+
+    <h3>switch Statement</h3>
+    <p>When you have many conditions based on a single value, <code>switch</code> can be cleaner than a chain of if/else:</p>
+<pre><code>const statusCode = 404;
+
+switch (statusCode) {
+  case 200:
+    console.log("OK — request succeeded");
+    break;
+  case 301:
+    console.log("Moved Permanently — update your bookmarks");
+    break;
+  case 404:
+    console.log("Not Found — the page does not exist");
+    break;
+  case 500:
+    console.log("Internal Server Error — something broke on the server");
+    break;
+  default:
+    console.log(`Unexpected status code: ${statusCode}`);
+}</code></pre>
+
+    <!-- ===== SECTION: LOOPS ===== -->
+    <h2>Loops</h2>
+
+    <p>Loops let you repeat an action multiple times. This is essential for processing lists of data.</p>
+
+    <h3>for Loop</h3>
+<pre><code>// Classic for loop: initialize; condition; update
+for (let i = 0; i < 5; i++) {
+  console.log(`Iteration ${i}`);  // 0, 1, 2, 3, 4
+}</code></pre>
+
+    <h3>for...of Loop</h3>
+    <p>The preferred way to iterate over arrays in modern JavaScript:</p>
+<pre><code>const services = ["Diagnostics", "Virus Removal", "Data Recovery"];
+
+for (const service of services) {
+  console.log(`We offer: ${service}`);
+}
+// Output:
+// We offer: Diagnostics
+// We offer: Virus Removal
+// We offer: Data Recovery</code></pre>
+
+    <h3>while and do...while Loops</h3>
+<pre><code>// while — checks condition BEFORE each iteration
+let attempts = 0;
+while (attempts < 3) {
+  console.log(`Attempt ${attempts + 1}`);
+  attempts++;
+}
+
+// do...while — checks condition AFTER each iteration (runs at least once)
+let input;
+do {
+  input = "valid"; // In real code, this would prompt the user
+} while (input === "");</code></pre>
+
+    <div class="info-box">
+      <strong>Which Loop to Use</strong>
+      <ul>
+        <li><code>for...of</code> — Use for iterating over arrays (most common). Clean and readable.</li>
+        <li><code>for</code> — Use when you need the index number or need custom iteration logic.</li>
+        <li><code>while</code> — Use when you do not know in advance how many times to loop.</li>
+        <li><code>do...while</code> — Rare. Use when the loop must run at least once.</li>
+        <li>Array methods (<code>.map()</code>, <code>.filter()</code>, etc.) — Often better than loops. Covered below.</li>
+      </ul>
+    </div>
+
+    <!-- ===== SECTION: FUNCTIONS ===== -->
+    <h2>Functions</h2>
+
+    <p>A <strong>function</strong> is a reusable block of code that performs a specific task. Functions are the building blocks of all programs. You define a function once and then call it as many times as you need.</p>
+
+    <h3>Function Declaration</h3>
+<pre><code>function greet(name) {
+  return `Hello, ${name}! Welcome to Computer Store KS.`;
+}
+
+// Calling the function
+const message = greet("Jane");
+console.log(message);  // "Hello, Jane! Welcome to Computer Store KS."
+
+// Function with multiple parameters
+function calculateTotal(price, quantity, taxRate) {
+  const subtotal = price * quantity;
+  const tax = subtotal * taxRate;
+  return subtotal + tax;
+}
+
+const total = calculateTotal(45.99, 2, 0.065);
+console.log(total.toFixed(2));  // "97.95"</code></pre>
+
+    <h3>Function Expression</h3>
+<pre><code>// A function stored in a variable
+const greet = function(name) {
+  return `Hello, ${name}!`;
+};
+
+console.log(greet("Bob"));  // "Hello, Bob!"</code></pre>
+
+    <h3>Arrow Functions</h3>
+    <p>Arrow functions are a shorter syntax introduced in ES6. They are the <strong>most common function syntax</strong> in modern JavaScript and React codebases:</p>
+
+<pre><code>// Full arrow function
+const greet = (name) => {
+  return `Hello, ${name}!`;
+};
+
+// Concise body (when the function is a single expression)
+// No curly braces needed, return is implicit
+const greet = (name) => `Hello, ${name}!`;
+
+// Single parameter — parentheses optional
+const double = n => n * 2;
+
+// No parameters — empty parentheses required
+const getTimestamp = () => new Date().toISOString();
+
+// Multiple parameters
+const add = (a, b) => a + b;
+
+// Usage
+console.log(greet("Jane"));    // "Hello, Jane!"
+console.log(double(21));       // 42
+console.log(add(10, 5));       // 15</code></pre>
+
+    <h3>Default Parameters</h3>
+<pre><code>const createTicket = (title, priority = "normal", assignee = "unassigned") => {
+  return { title, priority, assignee };
+};
+
+console.log(createTicket("Screen broken"));
+// { title: "Screen broken", priority: "normal", assignee: "unassigned" }
+
+console.log(createTicket("Data loss", "urgent", "Mike"));
+// { title: "Data loss", priority: "urgent", assignee: "Mike" }</code></pre>
+
+    <div class="csk-connection">
+      <strong>CSK Connection</strong>
+      The CSK codebase uses arrow functions almost exclusively. Every React component, every API route handler, every utility function uses arrow syntax. For example, the blog API route starts with <code>export async function GET(request: NextRequest)</code> (using declaration syntax for the Next.js export), but internal helper functions use arrows: <code>const formatDate = (date) =&gt; ...</code>. Understanding arrow functions is essential for reading any modern JavaScript or TypeScript codebase.
+    </div>
+
+    <!-- ===== SECTION: OBJECTS ===== -->
+    <h2>Objects</h2>
+
+    <p>An <strong>object</strong> is a collection of related data and functionality, stored as key-value pairs (also called "properties"). Objects are fundamental to JavaScript &mdash; nearly everything in the language is an object or behaves like one.</p>
+
+<pre><code>// Creating an object
+const customer = {
+  id: 42,
+  firstName: "Jane",
+  lastName: "Smith",
+  email: "jane@example.com",
+  phone: "(785) 555-1234",
+  silverPlan: true,
+  visits: 12,
+
+  // A method (function inside an object)
+  getFullName() {
+    return `${this.firstName} ${this.lastName}`;
+  }
+};
+
+// Accessing properties
+console.log(customer.firstName);      // "Jane" (dot notation)
+console.log(customer["email"]);       // "jane@example.com" (bracket notation)
+console.log(customer.getFullName());  // "Jane Smith"
+
+// Dynamic property access (bracket notation required)
+const field = "phone";
+console.log(customer[field]);         // "(785) 555-1234"
+
+// Modifying properties
+customer.visits = 13;
+customer.lastVisit = "2026-02-01";   // Adding a new property
+
+// Checking if a property exists
+console.log("email" in customer);     // true
+console.log("address" in customer);   // false</code></pre>
+
+    <h3>Nested Objects</h3>
+<pre><code>const ticket = {
+  id: 1234,
+  subject: "Laptop won't boot",
+  customer: {
+    name: "Jane Smith",
+    email: "jane@example.com"
+  },
+  status: {
+    custom: "diagnosing",
+    repairshopr: "In Progress"
+  },
+  createdAt: "2026-02-01T10:30:00Z"
+};
+
+// Accessing nested properties
+console.log(ticket.customer.name);     // "Jane Smith"
+console.log(ticket.status.custom);     // "diagnosing"</code></pre>
+
+    <h3>Destructuring Objects</h3>
+    <p>Destructuring lets you extract properties from an object into individual variables. This is used everywhere in modern JavaScript and React:</p>
+
+<pre><code>const customer = {
+  firstName: "Jane",
+  lastName: "Smith",
+  email: "jane@example.com",
+  silverPlan: true
+};
+
+// Without destructuring
+const firstName = customer.firstName;
+const email = customer.email;
+
+// With destructuring (much cleaner)
+const { firstName, lastName, email, silverPlan } = customer;
+console.log(firstName);  // "Jane"
+console.log(email);      // "jane@example.com"
+
+// Destructuring with renaming
+const { firstName: first, lastName: last } = customer;
+console.log(first);      // "Jane"
+
+// Destructuring in function parameters
+const displayCustomer = ({ firstName, lastName, silverPlan }) => {
+  const badge = silverPlan ? " [Silver]" : "";
+  return `${firstName} ${lastName}${badge}`;
+};
+console.log(displayCustomer(customer));  // "Jane Smith [Silver]"</code></pre>
+
+    <!-- ===== SECTION: ARRAYS ===== -->
+    <h2>Arrays</h2>
+
+    <p>An <strong>array</strong> is an ordered list of values. Arrays are essential for working with collections of data &mdash; lists of customers, tickets, services, products, and more.</p>
+
+<pre><code>// Creating arrays
+const services = ["Diagnostics", "Virus Removal", "Data Recovery"];
+const prices = [45, 75, 120, 99];
+const mixed = ["hello", 42, true, null, { name: "Jane" }];
+
+// Accessing elements (zero-indexed)
+console.log(services[0]);    // "Diagnostics" (first element)
+console.log(services[1]);    // "Virus Removal" (second element)
+console.log(services[2]);    // "Data Recovery" (third element)
+console.log(services.length); // 3 (number of elements)
+
+// Modifying arrays
+services.push("OS Installation");     // Add to end
+services.unshift("Consultation");     // Add to beginning
+const removed = services.pop();       // Remove from end (returns removed item)
+const first = services.shift();       // Remove from beginning</code></pre>
+
+    <h3>Essential Array Methods</h3>
+
+    <p>Array methods are the workhorses of JavaScript programming. These are used constantly in real-world code:</p>
+
+    <h3>.map() &mdash; Transform every element</h3>
+<pre><code>const prices = [45, 75, 120, 99];
+
+// Create a new array with each price increased by 10%
+const newPrices = prices.map(price => price * 1.10);
+console.log(newPrices);  // [49.5, 82.5, 132, 108.9]
+
+// Transform objects
+const customers = [
+  { firstName: "Jane", lastName: "Smith" },
+  { firstName: "Bob", lastName: "Jones" }
+];
+
+const names = customers.map(c => `${c.firstName} ${c.lastName}`);
+console.log(names);  // ["Jane Smith", "Bob Jones"]</code></pre>
+
+    <h3>.filter() &mdash; Keep only matching elements</h3>
+<pre><code>const tickets = [
+  { id: 1, status: "new", priority: "high" },
+  { id: 2, status: "diagnosing", priority: "normal" },
+  { id: 3, status: "new", priority: "urgent" },
+  { id: 4, status: "completed", priority: "normal" }
+];
+
+// Get only new tickets
+const newTickets = tickets.filter(ticket => ticket.status === "new");
+console.log(newTickets.length);  // 2
+
+// Get high-priority tickets
+const urgent = tickets.filter(t => t.priority === "urgent" || t.priority === "high");
+console.log(urgent.length);  // 2</code></pre>
+
+    <h3>.find() &mdash; Find the first matching element</h3>
+<pre><code>const ticket = tickets.find(t => t.id === 3);
+console.log(ticket);  // { id: 3, status: "new", priority: "urgent" }
+
+// Returns undefined if not found
+const missing = tickets.find(t => t.id === 999);
+console.log(missing);  // undefined</code></pre>
+
+    <h3>.reduce() &mdash; Combine all elements into one value</h3>
+<pre><code>const prices = [45, 75, 120, 99];
+
+// Sum all prices
+const total = prices.reduce((sum, price) => sum + price, 0);
+console.log(total);  // 339
+
+// Count tickets by status
+const statusCounts = tickets.reduce((counts, ticket) => {
+  counts[ticket.status] = (counts[ticket.status] || 0) + 1;
+  return counts;
+}, {});
+console.log(statusCounts);  // { new: 2, diagnosing: 1, completed: 1 }</code></pre>
+
+    <h3>.forEach() &mdash; Do something with each element (no return value)</h3>
+<pre><code>services.forEach(service => {
+  console.log(`Service available: ${service}`);
+});</code></pre>
+
+    <h3>.includes() &mdash; Check if an element exists</h3>
+<pre><code>const statuses = ["new", "diagnosing", "repairing", "completed"];
+console.log(statuses.includes("diagnosing"));  // true
+console.log(statuses.includes("deleted"));     // false</code></pre>
+
+    <h3>.sort() &mdash; Sort elements</h3>
+<pre><code>const names = ["Charlie", "Alice", "Bob"];
+names.sort();  // ["Alice", "Bob", "Charlie"] (alphabetical)
+
+// Sort numbers (requires a comparison function!)
+const numbers = [30, 5, 100, 15];
+numbers.sort((a, b) => a - b);  // [5, 15, 30, 100] (ascending)
+numbers.sort((a, b) => b - a);  // [100, 30, 15, 5] (descending)</code></pre>
+
+    <h3>Chaining Array Methods</h3>
+    <p>One of the most powerful patterns in JavaScript is chaining methods together:</p>
+
+<pre><code>const tickets = [
+  { id: 1, subject: "Won't boot", status: "new", priority: "high" },
+  { id: 2, subject: "Slow performance", status: "completed", priority: "low" },
+  { id: 3, subject: "Blue screen", status: "new", priority: "urgent" },
+  { id: 4, subject: "No WiFi", status: "diagnosing", priority: "normal" }
+];
+
+// Get subject lines of open high-priority tickets
+const urgentSubjects = tickets
+  .filter(t => t.status !== "completed")          // Remove completed
+  .filter(t => t.priority === "high" || t.priority === "urgent")  // Only high/urgent
+  .map(t => t.subject);                            // Extract subjects
+
+console.log(urgentSubjects);  // ["Won't boot", "Blue screen"]</code></pre>
+
+    <!-- ===== SECTION: SPREAD OPERATOR ===== -->
+    <h2>The Spread Operator (...)</h2>
+
+    <p>The spread operator (<code>...</code>) "spreads" an array or object into its individual elements. It is used extensively in modern JavaScript:</p>
+
+<pre><code>// Spread in arrays
+const basics = ["Diagnostics", "Virus Removal"];
+const premium = ["Custom Build", "Data Recovery"];
+const allServices = [...basics, ...premium];
+// ["Diagnostics", "Virus Removal", "Custom Build", "Data Recovery"]
+
+// Copy an array (without reference)
+const original = [1, 2, 3];
+const copy = [...original];
+copy.push(4);
+console.log(original);  // [1, 2, 3] — unchanged!
+
+// Spread in objects
+const defaults = { priority: "normal", status: "new" };
+const ticket = {
+  ...defaults,
+  subject: "Broken screen",
+  priority: "high"       // Overrides the default
+};
+// { priority: "high", status: "new", subject: "Broken screen" }
+
+// Immutable update (common in React)
+const updatedCustomer = {
+  ...customer,
+  visits: customer.visits + 1,
+  lastVisit: new Date().toISOString()
+};</code></pre>
+
+    <!-- ===== SECTION: TEMPLATE LITERALS ===== -->
+    <h2>Template Literals</h2>
+
+    <p>Template literals use backticks (<code>`</code>) instead of quotes and allow <strong>string interpolation</strong> &mdash; embedding expressions directly inside a string:</p>
+
+<pre><code>const name = "Jane";
+const tickets = 3;
+
+// Old way (string concatenation) — ugly and error-prone
+const message = "Hello, " + name + "! You have " + tickets + " open tickets.";
+
+// Modern way (template literal) — clean and readable
+const message = `Hello, ${name}! You have ${tickets} open tickets.`;
+
+// You can put ANY expression inside ${}
+const total = `Total: $${(45.99 * 3).toFixed(2)}`;
+const status = `Status: ${isOpen ? "Open" : "Closed"}`;
+
+// Multi-line strings (great for HTML)
+const html = `
+  &lt;div class="ticket"&gt;
+    &lt;h3&gt;${ticket.subject}&lt;/h3&gt;
+    &lt;p&gt;Status: ${ticket.status}&lt;/p&gt;
+  &lt;/div&gt;
+`;</code></pre>
+
+    <div class="csk-connection">
+      <strong>CSK Connection</strong>
+      Template literals, destructuring, spread operators, and array methods (<code>.map()</code>, <code>.filter()</code>, <code>.find()</code>) are used in virtually every file in the CSK codebase. React components use <code>.map()</code> to render lists of tickets, customers, and services. API routes use destructuring to extract request parameters. Object spread is used to merge default options with user-provided ones. These are not "advanced" features &mdash; they are the everyday vocabulary of modern JavaScript.
+    </div>
+
+    <!-- ===== SECTION: ERROR HANDLING ===== -->
+    <h2>Error Handling: try/catch</h2>
+
+    <p>Errors are inevitable in programming. When something goes wrong (a network request fails, data is in an unexpected format, a file is missing), you need to handle the error gracefully instead of letting your program crash.</p>
+
+<pre><code>// Basic try/catch
+try {
+  // Code that might throw an error
+  const data = JSON.parse("this is not valid JSON");
+} catch (error) {
+  // Handle the error
+  console.error("Failed to parse JSON:", error.message);
+}
+
+// try/catch/finally
+try {
+  const result = riskyOperation();
+  console.log("Success:", result);
+} catch (error) {
+  console.error("Error:", error.message);
+} finally {
+  // This runs NO MATTER WHAT — whether it succeeded or failed
+  console.log("Cleanup complete");
+}
+
+// Throwing your own errors
+const validateEmail = (email) => {
+  if (!email) {
+    throw new Error("Email is required");
+  }
+  if (!email.includes("@")) {
+    throw new Error("Invalid email format");
+  }
+  return true;
+};
+
+try {
+  validateEmail("not-an-email");
+} catch (error) {
+  console.log(error.message);  // "Invalid email format"
+}</code></pre>
+
+    <div class="info-box">
+      <strong>Errors Are Your Friends</strong>
+      New programmers often fear errors, but they are actually incredibly helpful. An error message tells you exactly what went wrong and where. Get comfortable reading error messages &mdash; they contain the line number, file name, and a description of the problem. The better you get at reading errors, the faster you will become at fixing code.
+    </div>
+
+    <!-- ===== EXERCISES ===== -->
+    <section class="exercises">
+      <h2>Practice Exercises</h2>
+      <ol>
+        <li><strong>Variable Practice:</strong> Create variables for a computer repair ticket: ticket ID (number), customer name (string), description (string), priority (string), is under warranty (boolean), estimated cost (number). Use <code>const</code> for values that will not change and <code>let</code> for those that will. Print them all using template literals.</li>
+        <li><strong>Conditionals:</strong> Write a function <code>getStatusMessage(status)</code> that takes a ticket status string and returns an appropriate message. Handle at least: "new", "diagnosing", "repairing", "ready_for_pickup", and "completed". Use if/else. Then rewrite it with a switch statement.</li>
+        <li><strong>Array Methods Challenge:</strong> Given this array of repair tickets:
+<pre><code>const tickets = [
+  { id: 1, customer: "Alice", cost: 45, completed: true },
+  { id: 2, customer: "Bob", cost: 120, completed: false },
+  { id: 3, customer: "Charlie", cost: 75, completed: true },
+  { id: 4, customer: "Diana", cost: 200, completed: false },
+  { id: 5, customer: "Eve", cost: 60, completed: true }
+];</code></pre>
+          Write code to:
+          <ul>
+            <li>Get an array of only completed tickets</li>
+            <li>Get an array of customer names from open (not completed) tickets</li>
+            <li>Calculate the total revenue from completed tickets</li>
+            <li>Find the ticket for "Diana"</li>
+            <li>Check if any ticket costs more than $150</li>
+          </ul>
+        </li>
+        <li><strong>Object Building:</strong> Create a <code>computerSpec</code> object with nested properties: <code>cpu</code> (brand, model, cores, speed), <code>ram</code> (size, type), <code>storage</code> (type, capacity), and <code>price</code>. Write a function that takes this object and returns a formatted description string using destructuring and template literals.</li>
+        <li><strong>Spread and Merge:</strong> Create two objects: <code>defaultSettings</code> (theme: "light", language: "en", notifications: true) and <code>userSettings</code> (theme: "dark", fontSize: 18). Merge them using the spread operator so that user settings override defaults. Verify that the merged object has all five properties.</li>
+        <li><strong>Error Handling:</strong> Write a function <code>parseTicketId(input)</code> that takes a string, converts it to a number, and throws an error if the result is not a valid positive integer. Test it with <code>try/catch</code> using inputs: "42", "abc", "-5", "3.14".</li>
+      </ol>
+    </section>
+
+    <!-- ===== KEY TAKEAWAYS ===== -->
+    <section class="key-takeaways">
+      <h2>Key Takeaways</h2>
+      <ul>
+        <li>JavaScript is the programming language of the web, running in browsers (client-side) and on servers (Node.js). It makes web pages interactive.</li>
+        <li>Use <code>const</code> by default for variables that will not be reassigned, and <code>let</code> for those that will. Never use <code>var</code>.</li>
+        <li>JavaScript has eight data types: string, number, boolean, null, undefined, object, array (technically an object), BigInt, and Symbol.</li>
+        <li>Always use strict equality (<code>===</code>) instead of loose equality (<code>==</code>) to avoid type coercion bugs.</li>
+        <li>Arrow functions (<code>const fn = (x) =&gt; x * 2</code>) are the standard function syntax in modern JavaScript. Use function declarations for top-level exports.</li>
+        <li>Objects store key-value pairs. Arrays store ordered lists. Both support destructuring for clean variable extraction.</li>
+        <li>Array methods (<code>.map()</code>, <code>.filter()</code>, <code>.find()</code>, <code>.reduce()</code>) are essential tools for transforming and querying data. Chain them together for powerful data pipelines.</li>
+        <li>Template literals (<code>`Hello, ${name}!`</code>), the spread operator (<code>...</code>), and destructuring are modern JavaScript features used constantly in professional codebases.</li>
+      </ul>
+    </section>
+
+  </main>
+  <nav class="lesson-nav bottom">
+    <a href="04-responsive-design.html">&larr; Previous Lesson</a>
+    <a href="../index.html">Back to Curriculum</a>
+    <a href="06-javascript-dom-events.html">Next Lesson &rarr;</a>
+  </nav>
+</body>
+</html>

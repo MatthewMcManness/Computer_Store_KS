@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 24: SQL &mdash; Querying Data | Full-Stack Web Development Curriculum</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+
+<!-- ========== TOP NAV ========== -->
+<nav class="lesson-nav">
+  <a href="23-database-fundamentals.html">&larr; Prev: Database Fundamentals</a>
+  <span>Lesson 24 of 56</span>
+  <a href="25-supabase-setup.html">Next: Supabase &mdash; Setup &amp; Client &rarr;</a>
+</nav>
+
+<!-- ========== HEADER ========== -->
+<header class="lesson-header">
+  <div class="phase-badge" style="background:rgba(22,163,74,0.3);color:#bbf7d0;">Phase 6: Databases &amp; Supabase</div>
+  <h1>SQL &mdash; Querying Data</h1>
+  <p class="lesson-subtitle">Learn the language every relational database speaks &mdash; from simple reads to complex joins and aggregations.</p>
+</header>
+
+<!-- ========== CONTENT ========== -->
+<div class="lesson-content">
+
+  <!-- ---- LEARNING OBJECTIVES ---- -->
+  <div class="learning-objectives">
+    <h2>What You Will Learn</h2>
+    <ul>
+      <li>SELECT basics &mdash; reading data from tables</li>
+      <li>Filtering with WHERE, AND, OR, NOT, LIKE, and ILIKE</li>
+      <li>INSERT, UPDATE, and DELETE &mdash; writing and modifying data</li>
+      <li>Sorting with ORDER BY and paginating with LIMIT/OFFSET</li>
+      <li>Aggregate functions: COUNT, SUM, AVG, MIN, MAX</li>
+      <li>GROUP BY and HAVING for summarizing data</li>
+      <li>JOINs &mdash; combining data from multiple tables</li>
+      <li>Subqueries for complex logic</li>
+      <li>CREATE TABLE and ALTER TABLE for schema management</li>
+      <li>NULL handling, soft deletes, and upsert patterns</li>
+    </ul>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>SELECT &mdash; Reading Data</h2>
+  <!-- ============================================================ -->
+
+  <p>The <code>SELECT</code> statement is the most fundamental SQL command. It reads data from one or more tables.</p>
+
+  <h3>Select All Columns</h3>
+
+<pre><code>-- Get everything from the customers table
+SELECT * FROM customers;</code></pre>
+
+  <p>The <code>*</code> means "all columns." This is handy for exploration but in production code, you should list specific columns to avoid fetching data you do not need.</p>
+
+  <h3>Select Specific Columns</h3>
+
+<pre><code>-- Only get name and email
+SELECT name, email FROM customers;</code></pre>
+
+  <h3>Column Aliases</h3>
+
+<pre><code>-- Rename columns in the output
+SELECT
+  name AS customer_name,
+  email AS contact_email
+FROM customers;</code></pre>
+
+  <!-- ============================================================ -->
+  <h2>WHERE &mdash; Filtering Results</h2>
+  <!-- ============================================================ -->
+
+  <p>The <code>WHERE</code> clause filters which rows are returned. Only rows that match the condition appear in the results.</p>
+
+  <h3>Comparison Operators</h3>
+
+  <table>
+    <thead>
+      <tr><th>Operator</th><th>Meaning</th><th>Example</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>=</code></td><td>Equal to</td><td><code>WHERE status = 'published'</code></td></tr>
+      <tr><td><code>!=</code> or <code>&lt;&gt;</code></td><td>Not equal to</td><td><code>WHERE status != 'draft'</code></td></tr>
+      <tr><td><code>&gt;</code></td><td>Greater than</td><td><code>WHERE price > 100</code></td></tr>
+      <tr><td><code>&gt;=</code></td><td>Greater than or equal</td><td><code>WHERE price >= 50</code></td></tr>
+      <tr><td><code>&lt;</code></td><td>Less than</td><td><code>WHERE quantity < 10</code></td></tr>
+      <tr><td><code>&lt;=</code></td><td>Less than or equal</td><td><code>WHERE quantity <= 0</code></td></tr>
+    </tbody>
+  </table>
+
+<pre><code>-- Find all published blog posts
+SELECT title, published_at
+FROM blog_posts
+WHERE status = 'published';
+
+-- Find computers priced over $500
+SELECT name, price
+FROM gallery_computers
+WHERE price > 500;</code></pre>
+
+  <h3>AND, OR, NOT</h3>
+
+<pre><code>-- Multiple conditions must ALL be true
+SELECT * FROM blog_posts
+WHERE status = 'published'
+  AND category_id IS NOT NULL;
+
+-- At least ONE condition must be true
+SELECT * FROM tickets
+WHERE status = 'new'
+   OR status = 'in_progress';
+
+-- Negate a condition
+SELECT * FROM customers
+WHERE NOT is_active;</code></pre>
+
+  <h3>IN &mdash; Multiple Values</h3>
+
+<pre><code>-- Shorthand for multiple OR conditions
+SELECT * FROM tickets
+WHERE status IN ('new', 'in_progress', 'waiting_for_parts');
+
+-- Equivalent to:
+-- WHERE status = 'new' OR status = 'in_progress' OR status = 'waiting_for_parts'</code></pre>
+
+  <h3>BETWEEN</h3>
+
+<pre><code>-- Range check (inclusive on both ends)
+SELECT * FROM invoices
+WHERE amount BETWEEN 50 AND 500;
+
+-- Date ranges
+SELECT * FROM blog_posts
+WHERE published_at BETWEEN '2026-01-01' AND '2026-01-31';</code></pre>
+
+  <h3>String Matching: LIKE and ILIKE</h3>
+
+  <p><code>LIKE</code> performs pattern matching. <code>ILIKE</code> is the case-insensitive version (PostgreSQL-specific).</p>
+
+  <table>
+    <thead>
+      <tr><th>Pattern</th><th>Matches</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>%</code></td><td>Any number of characters (including zero)</td></tr>
+      <tr><td><code>_</code></td><td>Exactly one character</td></tr>
+    </tbody>
+  </table>
+
+<pre><code>-- Names starting with "J"
+SELECT * FROM customers
+WHERE name LIKE 'J%';
+
+-- Emails containing "gmail" (case-insensitive)
+SELECT * FROM customers
+WHERE email ILIKE '%gmail%';
+
+-- Names that are exactly 4 characters
+SELECT * FROM customers
+WHERE name LIKE '____';</code></pre>
+
+  <!-- ============================================================ -->
+  <h2>INSERT &mdash; Adding Data</h2>
+  <!-- ============================================================ -->
+
+<pre><code>-- Insert a single row
+INSERT INTO customers (name, email)
+VALUES ('Jane Smith', 'jane@example.com');
+
+-- Insert multiple rows at once
+INSERT INTO blog_tags (name, slug)
+VALUES
+  ('Windows', 'windows'),
+  ('Linux', 'linux'),
+  ('Hardware', 'hardware');
+
+-- Insert and return the created row
+INSERT INTO blog_posts (title, slug, content, author_name, status)
+VALUES ('My First Post', 'my-first-post', 'Hello world!', 'Matthew', 'draft')
+RETURNING *;</code></pre>
+
+  <p>The <code>RETURNING *</code> clause is a PostgreSQL feature that returns the inserted row, including any auto-generated values like <code>id</code> and <code>created_at</code>. Very useful in application code.</p>
+
+  <!-- ============================================================ -->
+  <h2>UPDATE &mdash; Modifying Data</h2>
+  <!-- ============================================================ -->
+
+<pre><code>-- Update a specific row
+UPDATE blog_posts
+SET status = 'published',
+    published_at = NOW()
+WHERE id = 'abc123-...';
+
+-- Update multiple rows
+UPDATE tickets
+SET status = 'resolved'
+WHERE status = 'ready_for_pickup'
+  AND created_at < '2026-01-01';</code></pre>
+
+  <div class="warning-box">
+    <strong>Always include a WHERE clause with UPDATE!</strong>
+    Running <code>UPDATE customers SET is_active = false;</code> without a WHERE will set <em>every single customer</em> to inactive. This is one of the most common and devastating SQL mistakes. Always double-check your WHERE clause before running an UPDATE or DELETE.
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>DELETE &mdash; Removing Data</h2>
+  <!-- ============================================================ -->
+
+<pre><code>-- Delete a specific row
+DELETE FROM blog_post_tags
+WHERE post_id = 'abc123-...' AND tag_id = 'def456-...';
+
+-- Delete all expired sessions
+DELETE FROM sessions
+WHERE expires_at < NOW();</code></pre>
+
+  <h3>Why Soft Deletes Are Better</h3>
+
+  <p>In most production applications, you <strong>never truly delete data</strong>. Instead, you mark it as inactive or archived. This is called a <strong>soft delete</strong>.</p>
+
+  <div class="analogy">
+    <strong>Analogy:</strong> When you "delete" an email, it goes to the Trash folder first. You can recover it. Only when you empty the Trash is it truly gone. Soft deletes work the same way &mdash; data is marked as removed but can be recovered.
+  </div>
+
+  <p>There are two common patterns:</p>
+
+<pre><code>-- Pattern 1: Boolean flag
+-- Add an is_active column (default true)
+UPDATE gallery_computers
+SET is_active = false,
+    archived_at = NOW()
+WHERE id = 'abc123-...';
+
+-- Only show active items
+SELECT * FROM gallery_computers WHERE is_active = true;
+
+-- Pattern 2: Timestamp
+-- NULL means active, a date means "deleted at this time"
+UPDATE tickets
+SET archived_at = NOW()
+WHERE id = 'abc123-...';
+
+-- Only show non-archived
+SELECT * FROM tickets WHERE archived_at IS NULL;</code></pre>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    CSK uses soft deletes for gallery computers. The <code>deleteComputer()</code> function in <code>src/lib/supabase.ts</code> does not actually <code>DELETE</code> the row &mdash; it sets <code>is_active = false</code> and records an <code>archived_at</code> timestamp. There is a separate <code>hardDeleteComputer()</code> for permanent removal and a <code>restoreComputer()</code> to undo a soft delete.
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>ORDER BY, LIMIT, and OFFSET</h2>
+  <!-- ============================================================ -->
+
+  <h3>Sorting Results</h3>
+
+<pre><code>-- Sort alphabetically by name (ascending is default)
+SELECT * FROM customers ORDER BY name;
+
+-- Sort by newest first (descending)
+SELECT * FROM blog_posts ORDER BY published_at DESC;
+
+-- Sort by multiple columns
+SELECT * FROM tickets
+ORDER BY status ASC, created_at DESC;</code></pre>
+
+  <h3>Pagination with LIMIT and OFFSET</h3>
+
+  <p>When you have thousands of rows, you do not want to return them all at once. <code>LIMIT</code> restricts how many rows are returned. <code>OFFSET</code> skips a number of rows before starting to return results.</p>
+
+<pre><code>-- First page: 10 items
+SELECT * FROM blog_posts
+WHERE status = 'published'
+ORDER BY published_at DESC
+LIMIT 10;
+
+-- Second page: skip the first 10, get the next 10
+SELECT * FROM blog_posts
+WHERE status = 'published'
+ORDER BY published_at DESC
+LIMIT 10 OFFSET 10;
+
+-- Third page
+LIMIT 10 OFFSET 20;</code></pre>
+
+  <p><strong>Formula:</strong> <code>OFFSET = (page_number - 1) * page_size</code></p>
+
+  <div class="warning-box">
+    <strong>OFFSET Performance Warning</strong>
+    Large OFFSET values are slow because the database still reads and skips all those rows. For high-performance pagination on large tables, consider <strong>cursor-based pagination</strong> (using WHERE clauses with the last seen value) instead of OFFSET.
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>Aggregate Functions</h2>
+  <!-- ============================================================ -->
+
+  <p>Aggregate functions calculate a single result from multiple rows.</p>
+
+  <table>
+    <thead>
+      <tr><th>Function</th><th>What It Does</th><th>Example</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>COUNT(*)</code></td><td>Counts rows</td><td><code>SELECT COUNT(*) FROM customers;</code></td></tr>
+      <tr><td><code>COUNT(column)</code></td><td>Counts non-NULL values</td><td><code>SELECT COUNT(email) FROM customers;</code></td></tr>
+      <tr><td><code>SUM(column)</code></td><td>Adds up all values</td><td><code>SELECT SUM(amount) FROM invoices;</code></td></tr>
+      <tr><td><code>AVG(column)</code></td><td>Calculates the average</td><td><code>SELECT AVG(price) FROM gallery_computers;</code></td></tr>
+      <tr><td><code>MIN(column)</code></td><td>Finds the smallest value</td><td><code>SELECT MIN(price) FROM gallery_computers;</code></td></tr>
+      <tr><td><code>MAX(column)</code></td><td>Finds the largest value</td><td><code>SELECT MAX(price) FROM gallery_computers;</code></td></tr>
+    </tbody>
+  </table>
+
+<pre><code>-- How many published posts?
+SELECT COUNT(*) FROM blog_posts WHERE status = 'published';
+
+-- Total revenue from paid invoices
+SELECT SUM(amount) AS total_revenue
+FROM invoices
+WHERE paid_at IS NOT NULL;
+
+-- Average computer price
+SELECT AVG(price) AS avg_price FROM gallery_computers WHERE is_active = true;
+
+-- Price range
+SELECT
+  MIN(price) AS cheapest,
+  MAX(price) AS most_expensive,
+  AVG(price) AS average_price
+FROM gallery_computers
+WHERE is_active = true;</code></pre>
+
+  <!-- ============================================================ -->
+  <h2>GROUP BY and HAVING</h2>
+  <!-- ============================================================ -->
+
+  <p><code>GROUP BY</code> splits rows into groups based on column values, then lets you run aggregate functions on each group.</p>
+
+<pre><code>-- How many tickets does each customer have?
+SELECT
+  customer_id,
+  COUNT(*) AS ticket_count
+FROM tickets
+GROUP BY customer_id;
+
+-- How many posts in each category?
+SELECT
+  c.name AS category_name,
+  COUNT(p.id) AS post_count
+FROM blog_categories c
+LEFT JOIN blog_posts p ON p.category_id = c.id
+GROUP BY c.name
+ORDER BY post_count DESC;</code></pre>
+
+  <h3>HAVING &mdash; Filtering Groups</h3>
+
+  <p><code>WHERE</code> filters individual rows <em>before</em> grouping. <code>HAVING</code> filters groups <em>after</em> grouping.</p>
+
+<pre><code>-- Find customers with more than 5 tickets
+SELECT
+  customer_id,
+  COUNT(*) AS ticket_count
+FROM tickets
+GROUP BY customer_id
+HAVING COUNT(*) > 5;
+
+-- Find categories with at least 3 published posts
+SELECT
+  c.name,
+  COUNT(p.id) AS post_count
+FROM blog_categories c
+JOIN blog_posts p ON p.category_id = c.id
+WHERE p.status = 'published'      -- WHERE filters rows BEFORE grouping
+GROUP BY c.name
+HAVING COUNT(p.id) >= 3           -- HAVING filters groups AFTER grouping
+ORDER BY post_count DESC;</code></pre>
+
+  <!-- ============================================================ -->
+  <h2>JOINs &mdash; Combining Tables</h2>
+  <!-- ============================================================ -->
+
+  <p>JOINs are how you combine data from two or more related tables in a single query. This is the real power of relational databases.</p>
+
+  <h3>INNER JOIN</h3>
+
+  <p>Returns only rows where there is a match in <strong>both</strong> tables. If a row in either table has no match, it is excluded.</p>
+
+  <div class="diagram">
+INNER JOIN: Only matching rows from both sides
+
+  customers               tickets
+  +-------+--------+     +-------+---------+-------------+
+  |  id   |  name  |     |  id   | subject | customer_id |
+  +-------+--------+     +-------+---------+-------------+
+  | uuid1 | Jane   | --- | tkt-1 | Screen  |   uuid1     |  Match!
+  | uuid2 | Bob    | --- | tkt-2 | Virus   |   uuid2     |  Match!
+  | uuid3 | Sue    |     | tkt-3 | Slow PC |   uuid1     |  Match!
+  +-------+--------+     +-------+---------+-------------+
+
+  Result: Jane + Screen, Bob + Virus, Jane + Slow PC
+  Sue is EXCLUDED (no tickets)
+  </div>
+
+<pre><code>SELECT
+  c.name AS customer_name,
+  t.subject AS ticket_subject,
+  t.status
+FROM customers c
+INNER JOIN tickets t ON t.customer_id = c.id;</code></pre>
+
+  <h3>LEFT JOIN (LEFT OUTER JOIN)</h3>
+
+  <p>Returns <strong>all rows</strong> from the left table, and matching rows from the right table. If there is no match, the right side columns are NULL.</p>
+
+  <div class="diagram">
+LEFT JOIN: All rows from left, matching from right
+
+  customers (LEFT)        tickets (RIGHT)
+  +-------+--------+     +-------+---------+-------------+
+  |  id   |  name  |     |  id   | subject | customer_id |
+  +-------+--------+     +-------+---------+-------------+
+  | uuid1 | Jane   | --- | tkt-1 | Screen  |   uuid1     |  Match!
+  | uuid2 | Bob    | --- | tkt-2 | Virus   |   uuid2     |  Match!
+  | uuid3 | Sue    |     |                                |  No match
+  +-------+--------+     +-------+---------+-------------+
+
+  Result: Jane + Screen, Bob + Virus, Jane + Slow PC, Sue + NULL
+  Sue is INCLUDED (with NULL ticket data)
+  </div>
+
+<pre><code>-- Show ALL customers and their tickets (even if they have none)
+SELECT
+  c.name AS customer_name,
+  t.subject AS ticket_subject
+FROM customers c
+LEFT JOIN tickets t ON t.customer_id = c.id;
+
+-- Find customers with NO tickets
+SELECT c.name
+FROM customers c
+LEFT JOIN tickets t ON t.customer_id = c.id
+WHERE t.id IS NULL;</code></pre>
+
+  <h3>RIGHT JOIN (RIGHT OUTER JOIN)</h3>
+
+  <p>The mirror of LEFT JOIN: returns all rows from the <strong>right</strong> table and matching rows from the left. In practice, you can always rewrite a RIGHT JOIN as a LEFT JOIN by swapping the table order, so RIGHT JOINs are rarely used.</p>
+
+  <h3>Joining Multiple Tables</h3>
+
+<pre><code>-- Get blog posts with their category name and all tag names
+SELECT
+  p.title,
+  c.name AS category,
+  t.name AS tag
+FROM blog_posts p
+LEFT JOIN blog_categories c ON c.id = p.category_id
+LEFT JOIN blog_post_tags pt ON pt.post_id = p.id
+LEFT JOIN blog_tags t ON t.id = pt.tag_id
+WHERE p.status = 'published'
+ORDER BY p.published_at DESC;</code></pre>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    In <code>src/lib/supabase.ts</code>, the <code>getPublishedPosts()</code> function uses Supabase's <code>.select('*, category:blog_categories(*)')</code> which generates a LEFT JOIN behind the scenes. Tags are fetched separately via the <code>blog_post_tags</code> junction table. Understanding JOINs helps you know what Supabase is doing for you under the hood.
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>Subqueries</h2>
+  <!-- ============================================================ -->
+
+  <p>A <strong>subquery</strong> is a query nested inside another query. It runs first, and its result is used by the outer query.</p>
+
+<pre><code>-- Find posts that have the tag "Linux"
+SELECT * FROM blog_posts
+WHERE id IN (
+  SELECT post_id FROM blog_post_tags
+  WHERE tag_id = (
+    SELECT id FROM blog_tags WHERE slug = 'linux'
+  )
+);
+
+-- Find customers who have spent more than the average
+SELECT name, email FROM customers
+WHERE id IN (
+  SELECT customer_id FROM invoices
+  GROUP BY customer_id
+  HAVING SUM(amount) > (SELECT AVG(amount) FROM invoices)
+);</code></pre>
+
+  <p>While powerful, subqueries can sometimes be rewritten as JOINs for better readability and performance. Use whichever is clearer.</p>
+
+  <!-- ============================================================ -->
+  <h2>CREATE TABLE and ALTER TABLE</h2>
+  <!-- ============================================================ -->
+
+  <h3>Creating Tables</h3>
+
+  <p>We covered the basics in Lesson 23, but here is the full syntax with all common options:</p>
+
+<pre><code>CREATE TABLE IF NOT EXISTS blog_categories (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name VARCHAR(100) NOT NULL UNIQUE,
+  slug VARCHAR(100) NOT NULL UNIQUE,
+  description TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);</code></pre>
+
+  <p><code>IF NOT EXISTS</code> prevents errors if the table already exists &mdash; useful in migration scripts that might run multiple times.</p>
+
+  <h3>Altering Tables</h3>
+
+  <p>As your application evolves, you will need to modify existing tables.</p>
+
+<pre><code>-- Add a new column
+ALTER TABLE rs_customers
+  ADD COLUMN IF NOT EXISTS business_id INTEGER REFERENCES businesses(id);
+
+-- Change a column's type
+ALTER TABLE products
+  ALTER COLUMN price TYPE NUMERIC(10, 2);
+
+-- Add a constraint after the fact
+ALTER TABLE blog_posts
+  ADD CONSTRAINT check_status
+  CHECK (status IN ('draft', 'published', 'archived'));
+
+-- Rename a column
+ALTER TABLE customers
+  RENAME COLUMN phone TO phone_number;
+
+-- Drop a column (careful!)
+ALTER TABLE customers
+  DROP COLUMN IF EXISTS legacy_field;</code></pre>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    CSK's migration files in <code>docs/database/</code> are full of real ALTER TABLE statements. For example, <code>businesses-table-migration.sql</code> adds a <code>business_id</code> column to the existing <code>rs_customers</code> table. <code>assets-updated-migration.sql</code> adds the <code>assets_updated</code> boolean flag. These are raw SQL scripts that show how production schemas evolve over time.
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>NULL Handling</h2>
+  <!-- ============================================================ -->
+
+  <p><code>NULL</code> in SQL means "unknown" or "no value." It is not the same as zero, empty string, or false. NULL requires special handling because any comparison with NULL returns NULL (not true or false).</p>
+
+<pre><code>-- WRONG: This will NOT find null values!
+SELECT * FROM blog_posts WHERE published_at = NULL;  -- Always returns 0 rows!
+
+-- CORRECT: Use IS NULL / IS NOT NULL
+SELECT * FROM blog_posts WHERE published_at IS NULL;      -- Drafts (never published)
+SELECT * FROM blog_posts WHERE published_at IS NOT NULL;  -- Published posts</code></pre>
+
+  <h3>COALESCE &mdash; Default for NULL</h3>
+
+  <p><code>COALESCE</code> returns the first non-NULL value from its arguments. Use it to provide fallback values.</p>
+
+<pre><code>-- If excerpt is NULL, use the first 100 characters of content
+SELECT
+  title,
+  COALESCE(excerpt, LEFT(content, 100)) AS preview
+FROM blog_posts;
+
+-- If category name is NULL (no category), show "Uncategorized"
+SELECT
+  p.title,
+  COALESCE(c.name, 'Uncategorized') AS category
+FROM blog_posts p
+LEFT JOIN blog_categories c ON c.id = p.category_id;</code></pre>
+
+  <!-- ============================================================ -->
+  <h2>Common SQL Patterns</h2>
+  <!-- ============================================================ -->
+
+  <h3>Upsert: INSERT ON CONFLICT</h3>
+
+  <p>An "upsert" inserts a row if it does not exist, or updates it if it does. This is extremely useful for syncing data.</p>
+
+<pre><code>-- Insert a tag, or do nothing if the slug already exists
+INSERT INTO blog_tags (name, slug)
+VALUES ('Windows', 'windows')
+ON CONFLICT (slug) DO NOTHING;
+
+-- Insert or update a ticket status override
+INSERT INTO ticket_status_overrides (repairshopr_ticket_id, custom_status, updated_at)
+VALUES (12345, 'diagnosing', NOW())
+ON CONFLICT (repairshopr_ticket_id)
+DO UPDATE SET
+  custom_status = EXCLUDED.custom_status,
+  updated_at = EXCLUDED.updated_at;</code></pre>
+
+  <p><code>EXCLUDED</code> refers to the row that was attempted to be inserted. This pattern is used extensively in data synchronization.</p>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    CSK uses upserts throughout. The <code>setTicketStatusOverride()</code> function uses Supabase's <code>.upsert()</code> method (which generates <code>INSERT ON CONFLICT</code>). The blog schema seeds default categories and tags with <code>ON CONFLICT (slug) DO NOTHING</code> to safely re-run the migration.
+  </div>
+
+  <h3>Counting with Conditions</h3>
+
+<pre><code>-- Count different statuses in one query
+SELECT
+  COUNT(*) AS total,
+  COUNT(*) FILTER (WHERE status = 'published') AS published,
+  COUNT(*) FILTER (WHERE status = 'draft') AS drafts,
+  COUNT(*) FILTER (WHERE status = 'archived') AS archived
+FROM blog_posts;</code></pre>
+
+  <h3>Checking Existence</h3>
+
+<pre><code>-- Does this slug already exist?
+SELECT EXISTS (
+  SELECT 1 FROM blog_posts WHERE slug = 'my-first-post'
+) AS slug_taken;</code></pre>
+
+  <!-- ============================================================ -->
+  <h2>Complete Query Examples</h2>
+  <!-- ============================================================ -->
+
+  <p>Here are some realistic queries that combine multiple concepts:</p>
+
+<pre><code>-- 1. Published blog posts with categories, sorted by date, paginated
+SELECT
+  p.id,
+  p.title,
+  p.slug,
+  p.excerpt,
+  p.published_at,
+  c.name AS category_name
+FROM blog_posts p
+LEFT JOIN blog_categories c ON c.id = p.category_id
+WHERE p.status = 'published'
+ORDER BY p.published_at DESC
+LIMIT 10 OFFSET 0;
+
+-- 2. Customer summary: name, total tickets, total spent
+SELECT
+  c.name,
+  c.email,
+  COUNT(DISTINCT t.id) AS ticket_count,
+  COALESCE(SUM(i.amount), 0) AS total_spent
+FROM customers c
+LEFT JOIN tickets t ON t.customer_id = c.id
+LEFT JOIN invoices i ON i.customer_id = c.id AND i.paid_at IS NOT NULL
+GROUP BY c.id, c.name, c.email
+ORDER BY total_spent DESC
+LIMIT 20;
+
+-- 3. Find all posts tagged with either "linux" or "hardware"
+SELECT DISTINCT p.title, p.slug
+FROM blog_posts p
+JOIN blog_post_tags pt ON pt.post_id = p.id
+JOIN blog_tags t ON t.id = pt.tag_id
+WHERE t.slug IN ('linux', 'hardware')
+  AND p.status = 'published'
+ORDER BY p.published_at DESC;</code></pre>
+
+  <!-- ============================================================ -->
+  <!-- EXERCISES -->
+  <!-- ============================================================ -->
+  <div class="exercises">
+    <h2>Hands-On Exercises</h2>
+    <ol>
+      <li>
+        <strong>Basic SELECT:</strong> Write a query to get the <code>title</code> and <code>status</code> of all blog posts, sorted by <code>created_at</code> (newest first).
+      </li>
+      <li>
+        <strong>Filtering:</strong> Write a query to find all customers whose email ends with <code>@gmail.com</code> (case-insensitive) and who are active.
+      </li>
+      <li>
+        <strong>INSERT and RETURNING:</strong> Write an INSERT statement to add a new blog category called "Tutorials" with slug "tutorials" and description "Step-by-step guides for common tasks." Return the created row.
+      </li>
+      <li>
+        <strong>Safe UPDATE:</strong> Write an UPDATE that publishes a blog post (sets status to 'published' and published_at to NOW()) but ONLY if the post is currently in 'draft' status. Target a specific post by its slug.
+      </li>
+      <li>
+        <strong>Aggregation:</strong> Write a query that shows each ticket status and how many tickets have that status, sorted by count descending.
+      </li>
+      <li>
+        <strong>JOIN Challenge:</strong> Write a query that shows all blog categories and the number of published posts in each category. Include categories that have zero published posts. Sort by post count descending.
+      </li>
+      <li>
+        <strong>Upsert:</strong> Write an INSERT ON CONFLICT statement that inserts a customer protection plan record. If the customer already has a record, update the plan_tier and updated_at instead.
+      </li>
+      <li>
+        <strong>Soft Delete:</strong> Design a soft delete mechanism for a <code>products</code> table. Write the ALTER TABLE to add the necessary columns, the "delete" UPDATE statement, and a SELECT that only shows non-deleted products.
+      </li>
+    </ol>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- KEY TAKEAWAYS -->
+  <!-- ============================================================ -->
+  <div class="key-takeaways">
+    <h2>Key Takeaways</h2>
+    <ul>
+      <li><code>SELECT</code> reads data; always specify columns in production code instead of using <code>*</code>.</li>
+      <li><code>WHERE</code> filters rows with comparison operators, <code>AND</code>/<code>OR</code>/<code>NOT</code>, <code>IN</code>, <code>BETWEEN</code>, <code>LIKE</code>/<code>ILIKE</code>.</li>
+      <li><code>INSERT</code> adds rows; <code>UPDATE</code> modifies them; <code>DELETE</code> removes them &mdash; always use WHERE with UPDATE and DELETE.</li>
+      <li><code>ORDER BY</code> sorts results; <code>LIMIT</code>/<code>OFFSET</code> handles pagination.</li>
+      <li>Aggregate functions (<code>COUNT</code>, <code>SUM</code>, <code>AVG</code>, <code>MIN</code>, <code>MAX</code>) summarize data across rows.</li>
+      <li><code>GROUP BY</code> creates groups for aggregation; <code>HAVING</code> filters groups after aggregation.</li>
+      <li><strong>INNER JOIN</strong> returns only matching rows; <strong>LEFT JOIN</strong> returns all left rows plus matches.</li>
+      <li>Use <code>IS NULL</code> / <code>IS NOT NULL</code> (never <code>= NULL</code>); use <code>COALESCE</code> for fallback values.</li>
+      <li><strong>Soft deletes</strong> (boolean flag or timestamp) are safer than hard deletes in production.</li>
+      <li><strong>Upserts</strong> (<code>INSERT ON CONFLICT</code>) insert or update in a single atomic operation.</li>
+    </ul>
+  </div>
+
+</div> <!-- /lesson-content -->
+
+<!-- ========== BOTTOM NAV ========== -->
+<nav class="lesson-nav bottom">
+  <a href="23-database-fundamentals.html">&larr; Prev: Database Fundamentals</a>
+  <span>Lesson 24 of 56</span>
+  <a href="25-supabase-setup.html">Next: Supabase &mdash; Setup &amp; Client &rarr;</a>
+</nav>
+
+</body>
+</html>

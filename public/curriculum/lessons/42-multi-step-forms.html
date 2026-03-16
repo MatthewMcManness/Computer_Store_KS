@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 42: Multi-Step Forms &amp; Wizards | Full-Stack Web Development Curriculum</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+
+<!-- ── TOP NAV ── -->
+<nav class="lesson-nav">
+  <a href="41-data-synchronization.html">&larr; Previous</a>
+  <span>Lesson 42 of 56</span>
+  <a href="43-realtime-updates.html">Next &rarr;</a>
+</nav>
+
+<!-- ── HEADER ── -->
+<header class="lesson-header" style="background: linear-gradient(135deg, #7e22ce 0%, #d946ef 100%);">
+  <span class="phase-badge" style="background: rgba(217,70,239,0.3);">Phase 10: Advanced UI Patterns</span>
+  <h1>Multi-Step Forms &amp; Wizards</h1>
+  <p class="lesson-subtitle">Break complex data entry into manageable steps &mdash; guide users through long forms without overwhelming them.</p>
+</header>
+
+<!-- ── MAIN CONTENT ── -->
+<main class="lesson-content">
+
+  <!-- Learning Objectives -->
+  <section class="learning-objectives">
+    <h2>What You Will Learn</h2>
+    <ul>
+      <li>When and why to use multi-step forms instead of single-page forms</li>
+      <li>How to manage wizard state: current step index and shared form data</li>
+      <li>Building step navigation: next, back, and jump-to-step controls</li>
+      <li>Creating a visual step indicator and progress bar component</li>
+      <li>Implementing per-step validation before allowing the user to proceed</li>
+      <li>The shared form data pattern: parent state passed down to step children</li>
+      <li>Structuring each step as its own isolated component</li>
+      <li>Combining all step data for final submission</li>
+      <li>Handling error recovery when submission fails after completing all steps</li>
+      <li>Persisting partial data with localStorage so users do not lose progress</li>
+      <li>Accessibility: focus management and screen reader announcements between steps</li>
+    </ul>
+  </section>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>Why Multi-Step Forms Exist</h2>
+
+  <p>Imagine you are signing up for a new service and the website presents you with a single page containing 25 form fields: your name, email, password, address, phone number, billing information, preferences, notification settings, and a terms of service checkbox. Even though all of those fields are necessary, seeing them all at once creates a wall of inputs that feels exhausting before you even start. Research consistently shows that long, single-page forms have significantly higher abandonment rates than shorter forms. Users see the length, feel overwhelmed, and leave.</p>
+
+  <p>Multi-step forms (also called <strong>wizards</strong>) solve this problem by breaking one large form into several smaller, focused steps. Instead of 25 fields on one page, you might have four steps with 5&ndash;7 fields each. Each step has a clear purpose: "Personal Information," "Address," "Preferences," "Review &amp; Submit." The user sees only one manageable chunk at a time, completes it, clicks Next, and moves to the next chunk. A progress indicator at the top shows how far they have come and how much remains.</p>
+
+  <p>This pattern works because of several psychological principles. <strong>Chunking</strong> reduces cognitive load by grouping related information together. <strong>Progress visibility</strong> motivates completion because users can see they are 50% done and feel invested enough to finish. <strong>Focused attention</strong> on fewer fields at once reduces errors because users are not scanning past unrelated inputs.</p>
+
+  <div class="analogy">
+    <strong>Analogy:</strong> Think about assembling furniture from a box. If the instruction sheet showed all 47 steps at once in a single wall of text, you would feel overwhelmed. But when the instructions are broken into stages &mdash; "Step 1: Attach the legs," "Step 2: Mount the shelves" &mdash; each stage feels achievable. A multi-step form is the same concept applied to data entry.
+  </div>
+
+  <h3>When to Use Multi-Step Forms</h3>
+
+  <p>Not every form needs multiple steps. A simple contact form with name, email, and message is perfectly fine as a single form. Use multi-step forms when:</p>
+
+  <ul>
+    <li><strong>The form has more than 8&ndash;10 fields</strong> &mdash; Enough to feel overwhelming on one page</li>
+    <li><strong>Fields can be logically grouped</strong> &mdash; Personal info, address, payment, and preferences are natural groups</li>
+    <li><strong>Later steps depend on earlier answers</strong> &mdash; Conditional logic that shows different fields based on previous choices</li>
+    <li><strong>The process has a natural sequence</strong> &mdash; Like an intake process that must happen in order</li>
+    <li><strong>You need a review step</strong> &mdash; Letting users confirm everything before final submission</li>
+  </ul>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    The Computer Store KS admin panel has a customer intake wizard at <code>/admin/intake</code>. When a customer walks into the shop, the receptionist uses this wizard to guide them through: (1) looking up or creating the customer, (2) registering their device, (3) setting up passwords and access info, and (4) creating a repair ticket. Each of these steps is complex enough on its own that combining them into a single page would be chaotic. The wizard keeps the process organized and ensures no steps are missed.
+  </div>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>State Management for Wizards</h2>
+
+  <p>A multi-step form needs to track two pieces of state: <strong>which step the user is currently on</strong> and <strong>the form data collected across all steps</strong>. Both pieces of state live in the parent component that wraps the entire wizard. The individual step components receive this state as props and call callbacks to update it.</p>
+
+  <h3>The Core State Shape</h3>
+
+  <p>Here is what the state looks like for a typical wizard:</p>
+
+  <pre><code>// The parent wizard component manages all state
+const [currentStep, setCurrentStep] = useState(0);
+const [formData, setFormData] = useState({
+  // Step 1: Personal Info
+  firstName: '',
+  lastName: '',
+  email: '',
+  phone: '',
+
+  // Step 2: Address
+  street: '',
+  city: '',
+  state: '',
+  zip: '',
+
+  // Step 3: Preferences
+  newsletter: false,
+  contactMethod: 'email',
+  theme: 'light',
+
+  // Step 4: (Review step uses all the above)
+});</code></pre>
+
+  <p>The <code>currentStep</code> is a simple integer. Step 0 is the first step, step 1 is the second, and so on. We use a zero-based index because it maps directly to array indices, which makes it easy to look up step components and labels from an array.</p>
+
+  <p>The <code>formData</code> is a single object that contains every field from every step. This is the <strong>shared form data pattern</strong>. All steps read from and write to the same object. When the user goes back to a previous step, their earlier answers are still there because everything lives in one place.</p>
+
+  <h3>Updating Shared Form Data</h3>
+
+  <p>Each step component needs a way to update the shared form data. The parent passes down an update function:</p>
+
+  <pre><code>// In the parent wizard component
+function updateFormData(newFields) {
+  setFormData(prev =&gt; ({
+    ...prev,    // Keep all existing fields
+    ...newFields // Override only the changed fields
+  }));
+}
+
+// Later, pass it to each step component:
+&lt;StepPersonalInfo
+  data={formData}
+  onUpdate={updateFormData}
+/&gt;</code></pre>
+
+  <p>Inside a step component, updating a field is straightforward:</p>
+
+  <pre><code>// Inside StepPersonalInfo component
+function StepPersonalInfo({ data, onUpdate }) {
+  return (
+    &lt;div&gt;
+      &lt;label htmlFor="firstName"&gt;First Name&lt;/label&gt;
+      &lt;input
+        id="firstName"
+        type="text"
+        value={data.firstName}
+        onChange={(e) =&gt; onUpdate({ firstName: e.target.value })}
+      /&gt;
+
+      &lt;label htmlFor="lastName"&gt;Last Name&lt;/label&gt;
+      &lt;input
+        id="lastName"
+        type="text"
+        value={data.lastName}
+        onChange={(e) =&gt; onUpdate({ lastName: e.target.value })}
+      /&gt;
+
+      &lt;label htmlFor="email"&gt;Email&lt;/label&gt;
+      &lt;input
+        id="email"
+        type="email"
+        value={data.email}
+        onChange={(e) =&gt; onUpdate({ email: e.target.value })}
+      /&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+  <p>Notice how each <code>onChange</code> only passes the single field that changed. The <code>updateFormData</code> function in the parent merges it into the full object using the spread operator. This pattern is simple, predictable, and scales to any number of fields.</p>
+
+  <div class="info-box">
+    <strong>Why One Object Instead of Separate States?</strong>
+    You could use separate <code>useState</code> calls for each field, but that becomes unwieldy with 15+ fields. A single form data object keeps everything together, makes it easy to serialize (for localStorage or submission), and simplifies the props you pass to each step. For very complex forms, you might consider <code>useReducer</code> instead of <code>useState</code>, but a single state object with a merge function works well for most wizards.
+  </div>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>Step Navigation: Next, Back, and Jump</h2>
+
+  <p>The wizard needs controls for moving between steps. At minimum, you need a "Next" button and a "Back" button. Some wizards also allow users to click on the step indicator to jump directly to any completed step.</p>
+
+  <h3>Basic Navigation Functions</h3>
+
+  <pre><code>const STEPS = [
+  { label: 'Personal Info', component: StepPersonalInfo },
+  { label: 'Address',       component: StepAddress },
+  { label: 'Preferences',   component: StepPreferences },
+  { label: 'Review',        component: StepReview },
+];
+
+const totalSteps = STEPS.length;
+
+function goToNext() {
+  setCurrentStep(prev =&gt; Math.min(prev + 1, totalSteps - 1));
+}
+
+function goToBack() {
+  setCurrentStep(prev =&gt; Math.max(prev - 1, 0));
+}
+
+function goToStep(index) {
+  // Only allow jumping to completed steps or the current step
+  if (index &lt;= currentStep) {
+    setCurrentStep(index);
+  }
+}
+
+const isFirstStep = currentStep === 0;
+const isLastStep = currentStep === totalSteps - 1;</code></pre>
+
+  <p>The <code>Math.min</code> and <code>Math.max</code> calls are safety guards. <code>goToNext</code> ensures you never go past the last step. <code>goToBack</code> ensures you never go before the first step. These prevent crashes if a button somehow gets clicked when it should be disabled.</p>
+
+  <h3>Rendering the Current Step</h3>
+
+  <p>The STEPS array makes rendering dynamic. Instead of a chain of if/else statements, you just look up the component by index:</p>
+
+  <pre><code>// Get the current step's component from the array
+const CurrentStepComponent = STEPS[currentStep].component;
+
+// In the JSX:
+return (
+  &lt;div className="wizard"&gt;
+    &lt;StepIndicator
+      steps={STEPS}
+      currentStep={currentStep}
+      onStepClick={goToStep}
+    /&gt;
+
+    &lt;div className="wizard-body"&gt;
+      &lt;CurrentStepComponent
+        data={formData}
+        onUpdate={updateFormData}
+      /&gt;
+    &lt;/div&gt;
+
+    &lt;div className="wizard-footer"&gt;
+      {!isFirstStep &amp;&amp; (
+        &lt;button type="button" onClick={goToBack}&gt;
+          Back
+        &lt;/button&gt;
+      )}
+
+      {isLastStep ? (
+        &lt;button type="button" onClick={handleSubmit}&gt;
+          Submit
+        &lt;/button&gt;
+      ) : (
+        &lt;button type="button" onClick={handleNext}&gt;
+          Next
+        &lt;/button&gt;
+      )}
+    &lt;/div&gt;
+  &lt;/div&gt;
+);</code></pre>
+
+  <p>A few key details here. The Back button is hidden on the first step because there is nowhere to go back to. On the last step, the Next button is replaced with a Submit button. The <code>handleNext</code> function (which we will define shortly) includes validation before calling <code>goToNext</code>.</p>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>Building a Step Indicator and Progress Bar</h2>
+
+  <p>A step indicator gives users a visual map of the wizard. It shows all the steps, highlights which one they are currently on, and marks which ones they have completed. This is critical for user confidence &mdash; it answers the questions "How much have I done?" and "How much is left?"</p>
+
+  <h3>The Step Indicator Component</h3>
+
+  <pre><code>function StepIndicator({ steps, currentStep, onStepClick }) {
+  return (
+    &lt;div className="step-indicator" role="navigation" aria-label="Form progress"&gt;
+      {/* Progress bar behind the circles */}
+      &lt;div className="step-progress-track"&gt;
+        &lt;div
+          className="step-progress-fill"
+          style={{ width: `${(currentStep / (steps.length - 1)) * 100}%` }}
+        /&gt;
+      &lt;/div&gt;
+
+      {/* Step circles */}
+      &lt;div className="step-circles"&gt;
+        {steps.map((step, index) =&gt; {
+          const isCompleted = index &lt; currentStep;
+          const isCurrent = index === currentStep;
+          const isClickable = index &lt;= currentStep;
+
+          return (
+            &lt;button
+              key={index}
+              type="button"
+              className={`step-circle ${
+                isCompleted ? 'completed' :
+                isCurrent ? 'current' : 'upcoming'
+              }`}
+              onClick={() =&gt; isClickable &amp;&amp; onStepClick(index)}
+              disabled={!isClickable}
+              aria-current={isCurrent ? 'step' : undefined}
+              aria-label={`Step ${index + 1}: ${step.label}${
+                isCompleted ? ' (completed)' :
+                isCurrent ? ' (current)' : ''
+              }`}
+            &gt;
+              {isCompleted ? (
+                &lt;span aria-hidden="true"&gt;&amp;#10003;&lt;/span&gt;
+              ) : (
+                &lt;span&gt;{index + 1}&lt;/span&gt;
+              )}
+              &lt;span className="step-label"&gt;{step.label}&lt;/span&gt;
+            &lt;/button&gt;
+          );
+        })}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+  <p>The progress bar width is calculated as a percentage. If you are on step 0 out of 4 steps (indices 0&ndash;3), the fill is 0%. On step 1, it is 33%. On step 2, it is 67%. On step 3 (the last step), it is 100%. The formula <code>(currentStep / (steps.length - 1)) * 100</code> produces this scaling.</p>
+
+  <p>Each circle button has three possible states: <code>completed</code> (the user has been here and moved on), <code>current</code> (the user is here now), and <code>upcoming</code> (the user has not reached this step yet). Completed steps show a checkmark and are clickable so the user can go back. Upcoming steps are grayed out and disabled.</p>
+
+  <h3>Styling the Step Indicator</h3>
+
+  <pre><code>/* Step indicator container */
+.step-indicator {
+  position: relative;
+  padding: 2rem 1rem;
+}
+
+/* The line connecting all circles */
+.step-progress-track {
+  position: absolute;
+  top: 50%;
+  left: 2rem;
+  right: 2rem;
+  height: 4px;
+  background: #e5e7eb;
+  border-radius: 2px;
+  transform: translateY(-50%);
+}
+
+/* The filled portion of the line */
+.step-progress-fill {
+  height: 100%;
+  background: #3b82f6;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+/* Step circles layout */
+.step-circles {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+}
+
+/* Individual circle */
+.step-circle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+.step-circle:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Circle number/checkmark */
+.step-circle span:first-child {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  background: white;
+  border: 3px solid #e5e7eb;
+  transition: all 0.3s ease;
+}
+
+.step-circle.completed span:first-child {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: white;
+}
+
+.step-circle.current span:first-child {
+  border-color: #3b82f6;
+  color: #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+}
+
+/* Step label text */
+.step-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+}
+.step-circle.current .step-label {
+  color: #3b82f6;
+}
+.step-circle.completed .step-label {
+  color: #1e40af;
+}</code></pre>
+
+  <div class="analogy">
+    <strong>Analogy:</strong> The step indicator is like the progress dots on a subway map. You can see where you are, where you have been (the dots behind you are lit up), and where you are going (the dots ahead are dim). If you want, you can go back to a previous stop, but you cannot skip ahead to one you have not reached yet.
+  </div>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>Per-Step Validation</h2>
+
+  <p>One of the biggest advantages of multi-step forms is that you can validate each step <strong>before</strong> the user moves forward. Instead of showing 15 errors at the end, you catch problems immediately. The user fixes them on the current step and then proceeds with confidence that their earlier answers are correct.</p>
+
+  <h3>Defining Validation Rules Per Step</h3>
+
+  <pre><code>// Validation functions return an object of field-level errors
+// An empty object means the step is valid
+
+function validatePersonalInfo(data) {
+  const errors = {};
+
+  if (!data.firstName.trim()) {
+    errors.firstName = 'First name is required';
+  }
+  if (!data.lastName.trim()) {
+    errors.lastName = 'Last name is required';
+  }
+  if (!data.email.trim()) {
+    errors.email = 'Email is required';
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+    errors.email = 'Please enter a valid email address';
+  }
+
+  return errors;
+}
+
+function validateAddress(data) {
+  const errors = {};
+
+  if (!data.street.trim()) {
+    errors.street = 'Street address is required';
+  }
+  if (!data.city.trim()) {
+    errors.city = 'City is required';
+  }
+  if (!data.state.trim()) {
+    errors.state = 'State is required';
+  }
+  if (!data.zip.trim()) {
+    errors.zip = 'ZIP code is required';
+  } else if (!/^\d{5}(-\d{4})?$/.test(data.zip)) {
+    errors.zip = 'Please enter a valid ZIP code';
+  }
+
+  return errors;
+}
+
+function validatePreferences(data) {
+  // Preferences are optional, so this step might always pass
+  return {};
+}
+
+// No validation needed for the review step
+function validateReview() {
+  return {};
+}</code></pre>
+
+  <h3>Integrating Validation with Navigation</h3>
+
+  <pre><code>// Associate each step with its validation function
+const STEPS = [
+  { label: 'Personal Info', component: StepPersonalInfo, validate: validatePersonalInfo },
+  { label: 'Address',       component: StepAddress,      validate: validateAddress },
+  { label: 'Preferences',   component: StepPreferences,  validate: validatePreferences },
+  { label: 'Review',        component: StepReview,        validate: validateReview },
+];
+
+// Track errors in state
+const [errors, setErrors] = useState({});
+
+// The handleNext function validates before proceeding
+function handleNext() {
+  const validateFn = STEPS[currentStep].validate;
+  const stepErrors = validateFn(formData);
+
+  if (Object.keys(stepErrors).length &gt; 0) {
+    // There are errors - show them and stay on this step
+    setErrors(stepErrors);
+    return;
+  }
+
+  // No errors - clear any previous errors and move forward
+  setErrors({});
+  goToNext();
+}</code></pre>
+
+  <h3>Displaying Errors in Step Components</h3>
+
+  <p>The parent passes the <code>errors</code> object down to each step component:</p>
+
+  <pre><code>&lt;CurrentStepComponent
+  data={formData}
+  onUpdate={updateFormData}
+  errors={errors}
+/&gt;</code></pre>
+
+  <p>Inside the step component, render error messages next to the relevant fields:</p>
+
+  <pre><code>function StepPersonalInfo({ data, onUpdate, errors }) {
+  return (
+    &lt;div&gt;
+      &lt;div className="form-field"&gt;
+        &lt;label htmlFor="firstName"&gt;First Name *&lt;/label&gt;
+        &lt;input
+          id="firstName"
+          type="text"
+          value={data.firstName}
+          onChange={(e) =&gt; onUpdate({ firstName: e.target.value })}
+          aria-invalid={errors.firstName ? 'true' : 'false'}
+          aria-describedby={errors.firstName ? 'firstName-error' : undefined}
+          className={errors.firstName ? 'input-error' : ''}
+        /&gt;
+        {errors.firstName &amp;&amp; (
+          &lt;p id="firstName-error" className="error-message" role="alert"&gt;
+            {errors.firstName}
+          &lt;/p&gt;
+        )}
+      &lt;/div&gt;
+
+      &lt;div className="form-field"&gt;
+        &lt;label htmlFor="email"&gt;Email *&lt;/label&gt;
+        &lt;input
+          id="email"
+          type="email"
+          value={data.email}
+          onChange={(e) =&gt; onUpdate({ email: e.target.value })}
+          aria-invalid={errors.email ? 'true' : 'false'}
+          aria-describedby={errors.email ? 'email-error' : undefined}
+          className={errors.email ? 'input-error' : ''}
+        /&gt;
+        {errors.email &amp;&amp; (
+          &lt;p id="email-error" className="error-message" role="alert"&gt;
+            {errors.email}
+          &lt;/p&gt;
+        )}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+  <div class="warning-box">
+    <strong>Clear Errors When Going Back</strong>
+    When the user clicks "Back," always clear the current errors: <code>setErrors({})</code>. Otherwise, they will see stale error messages from the step they just left, which is confusing and discouraging. Errors should only appear after the user attempts to move forward.
+  </div>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>The Step Component Pattern</h2>
+
+  <p>Each step of the wizard should be its own component. This is not just good organization &mdash; it makes each step testable in isolation, reusable if needed, and easy to rearrange. Every step component follows the same interface: it receives the shared form data, an update callback, and an errors object.</p>
+
+  <h3>The Step Interface</h3>
+
+  <pre><code>// TypeScript interface that every step component follows
+interface StepProps {
+  data: FormData;                          // The shared form data
+  onUpdate: (fields: Partial&lt;FormData&gt;) =&gt; void;  // Update callback
+  errors: Record&lt;string, string&gt;;          // Validation errors
+}
+
+// Step 1
+function StepPersonalInfo({ data, onUpdate, errors }: StepProps) {
+  return ( /* ... personal info fields ... */ );
+}
+
+// Step 2
+function StepAddress({ data, onUpdate, errors }: StepProps) {
+  return ( /* ... address fields ... */ );
+}
+
+// Step 3
+function StepPreferences({ data, onUpdate, errors }: StepProps) {
+  return ( /* ... preference fields ... */ );
+}
+
+// Step 4 - Review step (read-only)
+function StepReview({ data }: StepProps) {
+  return (
+    &lt;div className="review-step"&gt;
+      &lt;h3&gt;Review Your Information&lt;/h3&gt;
+
+      &lt;section&gt;
+        &lt;h4&gt;Personal Information&lt;/h4&gt;
+        &lt;p&gt;&lt;strong&gt;Name:&lt;/strong&gt; {data.firstName} {data.lastName}&lt;/p&gt;
+        &lt;p&gt;&lt;strong&gt;Email:&lt;/strong&gt; {data.email}&lt;/p&gt;
+        &lt;p&gt;&lt;strong&gt;Phone:&lt;/strong&gt; {data.phone || 'Not provided'}&lt;/p&gt;
+      &lt;/section&gt;
+
+      &lt;section&gt;
+        &lt;h4&gt;Address&lt;/h4&gt;
+        &lt;p&gt;{data.street}&lt;/p&gt;
+        &lt;p&gt;{data.city}, {data.state} {data.zip}&lt;/p&gt;
+      &lt;/section&gt;
+
+      &lt;section&gt;
+        &lt;h4&gt;Preferences&lt;/h4&gt;
+        &lt;p&gt;&lt;strong&gt;Newsletter:&lt;/strong&gt; {data.newsletter ? 'Yes' : 'No'}&lt;/p&gt;
+        &lt;p&gt;&lt;strong&gt;Contact Method:&lt;/strong&gt; {data.contactMethod}&lt;/p&gt;
+        &lt;p&gt;&lt;strong&gt;Theme:&lt;/strong&gt; {data.theme}&lt;/p&gt;
+      &lt;/section&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+  <p>The review step is different from the others: it displays data in a read-only format so the user can double-check everything before submitting. It does not need the <code>onUpdate</code> or <code>errors</code> props, but it still receives them (and ignores them) because all steps share the same interface. If the user spots a mistake, they can click Back or click a previous step in the step indicator to fix it.</p>
+
+  <div class="info-box">
+    <strong>File Organization</strong>
+    A common way to organize multi-step form files is to create a folder for the wizard with each step in its own file:
+    <pre><code>src/components/registration-wizard/
+  RegistrationWizard.tsx     (parent / orchestrator)
+  StepPersonalInfo.tsx
+  StepAddress.tsx
+  StepPreferences.tsx
+  StepReview.tsx
+  StepIndicator.tsx
+  validation.ts              (all validation functions)
+  types.ts                   (FormData interface)</code></pre>
+  </div>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>Final Submission: Combining All Step Data</h2>
+
+  <p>Because all steps write to the same shared <code>formData</code> object, submission is straightforward. When the user clicks Submit on the final step, you send the entire <code>formData</code> object to your API.</p>
+
+  <pre><code>const [isSubmitting, setIsSubmitting] = useState(false);
+const [submitError, setSubmitError] = useState(null);
+
+async function handleSubmit() {
+  // Run final validation on all steps
+  for (let i = 0; i &lt; STEPS.length; i++) {
+    const stepErrors = STEPS[i].validate(formData);
+    if (Object.keys(stepErrors).length &gt; 0) {
+      // Jump the user to the step with errors
+      setCurrentStep(i);
+      setErrors(stepErrors);
+      return;
+    }
+  }
+
+  setIsSubmitting(true);
+  setSubmitError(null);
+
+  try {
+    const response = await fetch('/api/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData),
+    });
+
+    if (!response.ok) {
+      throw new Error('Registration failed. Please try again.');
+    }
+
+    const result = await response.json();
+
+    // Success! Clear saved data and redirect
+    localStorage.removeItem('registration-draft');
+    router.push('/welcome');
+
+  } catch (error) {
+    setSubmitError(error.message);
+  } finally {
+    setIsSubmitting(false);
+  }
+}</code></pre>
+
+  <p>Notice the "full validation sweep" before submission. Even though each step validates individually, a final check ensures nothing was missed. If a step has errors, the wizard jumps the user back to that step with the errors displayed. This handles edge cases like a user going back, changing a valid field to an invalid one, and then skipping forward to the review step.</p>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>Error Recovery After Submission Failure</h2>
+
+  <p>What happens when the user completes all four steps, clicks Submit, and the server returns an error? This is a frustrating experience if handled poorly. The user just invested time filling out the form, and now they are told it failed. Good error recovery is essential.</p>
+
+  <h3>Strategy 1: Show the Error on the Review Step</h3>
+
+  <pre><code>// In the wizard JSX, below the Submit button:
+{submitError &amp;&amp; (
+  &lt;div className="submit-error" role="alert"&gt;
+    &lt;p&gt;&lt;strong&gt;Submission failed:&lt;/strong&gt; {submitError}&lt;/p&gt;
+    &lt;p&gt;Your information has been saved. Please try again.&lt;/p&gt;
+    &lt;button type="button" onClick={handleSubmit}&gt;
+      Retry
+    &lt;/button&gt;
+  &lt;/div&gt;
+)}</code></pre>
+
+  <p>The key phrase is "Your information has been saved." The form data is still in React state, so nothing is lost. The user can click Retry or go back and make changes. This is the minimum viable error recovery.</p>
+
+  <h3>Strategy 2: Server-Side Field Errors</h3>
+
+  <p>Sometimes the server rejects specific fields (for example, "This email is already registered"). The server should return structured error information that you can map back to specific steps:</p>
+
+  <pre><code>// Server returns: { errors: { email: "Already registered" } }
+
+// Map server errors to the correct step
+const fieldToStep = {
+  firstName: 0, lastName: 0, email: 0, phone: 0,
+  street: 1, city: 1, state: 1, zip: 1,
+  newsletter: 2, contactMethod: 2, theme: 2,
+};
+
+function handleServerErrors(serverErrors) {
+  // Find which step has the first error
+  const firstErrorField = Object.keys(serverErrors)[0];
+  const targetStep = fieldToStep[firstErrorField];
+
+  // Jump to that step and show the errors
+  setCurrentStep(targetStep);
+  setErrors(serverErrors);
+}</code></pre>
+
+  <div class="warning-box">
+    <strong>Never Lose User Data</strong>
+    The cardinal rule of multi-step form error recovery is: never lose the user's data. If submission fails, all form fields should remain populated exactly as the user left them. The user should only need to fix the specific problem and retry &mdash; never re-enter everything from scratch.
+  </div>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>Persisting Partial Data with localStorage</h2>
+
+  <p>What if the user accidentally closes the browser tab halfway through the wizard? Without persistence, all their progress is lost. By saving form data to <code>localStorage</code>, you can restore their progress when they return.</p>
+
+  <h3>Auto-Saving on Every Change</h3>
+
+  <pre><code>const STORAGE_KEY = 'registration-draft';
+
+// Load saved data on mount
+const [formData, setFormData] = useState(() =&gt; {
+  if (typeof window === 'undefined') return defaultFormData;
+
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) {
+    try {
+      return { ...defaultFormData, ...JSON.parse(saved) };
+    } catch {
+      return defaultFormData;
+    }
+  }
+  return defaultFormData;
+});
+
+// Save to localStorage whenever formData changes
+useEffect(() =&gt; {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+}, [formData]);</code></pre>
+
+  <p>The initial state uses a <strong>lazy initializer</strong> (a function passed to <code>useState</code>) to check localStorage on the first render. If saved data exists, it is merged with the defaults (so any new fields added to the form since the save still have initial values). The <code>useEffect</code> saves the data every time it changes.</p>
+
+  <h3>Saving the Current Step Too</h3>
+
+  <pre><code>// Also persist which step the user was on
+const [currentStep, setCurrentStep] = useState(() =&gt; {
+  if (typeof window === 'undefined') return 0;
+
+  const savedStep = localStorage.getItem(STORAGE_KEY + '-step');
+  return savedStep ? parseInt(savedStep, 10) : 0;
+});
+
+useEffect(() =&gt; {
+  localStorage.setItem(STORAGE_KEY + '-step', String(currentStep));
+}, [currentStep]);</code></pre>
+
+  <h3>Clearing Saved Data After Successful Submission</h3>
+
+  <pre><code>// After successful submission
+localStorage.removeItem(STORAGE_KEY);
+localStorage.removeItem(STORAGE_KEY + '-step');</code></pre>
+
+  <h3>Offering a "Start Fresh" Option</h3>
+
+  <p>If the user returns and sees partially filled data, give them the option to continue or start over:</p>
+
+  <pre><code>const [showResumeDialog, setShowResumeDialog] = useState(false);
+
+useEffect(() =&gt; {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) {
+    setShowResumeDialog(true);
+  }
+}, []);
+
+// In JSX:
+{showResumeDialog &amp;&amp; (
+  &lt;div className="resume-dialog" role="dialog" aria-label="Resume saved progress"&gt;
+    &lt;p&gt;You have a saved draft. Would you like to continue where you left off?&lt;/p&gt;
+    &lt;button onClick={() =&gt; setShowResumeDialog(false)}&gt;Continue&lt;/button&gt;
+    &lt;button onClick={() =&gt; {
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(STORAGE_KEY + '-step');
+      setFormData(defaultFormData);
+      setCurrentStep(0);
+      setShowResumeDialog(false);
+    }}&gt;Start Fresh&lt;/button&gt;
+  &lt;/div&gt;
+)}</code></pre>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>Complete Example: 4-Step Registration Wizard</h2>
+
+  <p>Let us bring everything together into a complete, working wizard. This example includes all the patterns we have discussed: shared state, per-step validation, step indicators, navigation, localStorage persistence, and error handling.</p>
+
+  <pre><code>// RegistrationWizard.tsx
+'use client';
+
+import { useState, useEffect, useRef } from 'react';
+
+// ── Types ──
+interface FormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  street: string;
+  city: string;
+  state: string;
+  zip: string;
+  newsletter: boolean;
+  contactMethod: 'email' | 'phone' | 'text';
+  theme: 'light' | 'dark' | 'system';
+}
+
+interface StepProps {
+  data: FormData;
+  onUpdate: (fields: Partial&lt;FormData&gt;) =&gt; void;
+  errors: Record&lt;string, string&gt;;
+}
+
+const defaultFormData: FormData = {
+  firstName: '', lastName: '', email: '', phone: '',
+  street: '', city: '', state: '', zip: '',
+  newsletter: false, contactMethod: 'email', theme: 'system',
+};
+
+// ── Validation ──
+function validateStep0(data: FormData) {
+  const errors: Record&lt;string, string&gt; = {};
+  if (!data.firstName.trim()) errors.firstName = 'First name is required';
+  if (!data.lastName.trim()) errors.lastName = 'Last name is required';
+  if (!data.email.trim()) errors.email = 'Email is required';
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email))
+    errors.email = 'Invalid email format';
+  return errors;
+}
+
+function validateStep1(data: FormData) {
+  const errors: Record&lt;string, string&gt; = {};
+  if (!data.street.trim()) errors.street = 'Street is required';
+  if (!data.city.trim()) errors.city = 'City is required';
+  if (!data.state.trim()) errors.state = 'State is required';
+  if (!data.zip.trim()) errors.zip = 'ZIP code is required';
+  else if (!/^\d{5}(-\d{4})?$/.test(data.zip))
+    errors.zip = 'Invalid ZIP code';
+  return errors;
+}
+
+function validateStep2() { return {}; }
+function validateStep3() { return {}; }
+
+// ── Steps Configuration ──
+const STEPS = [
+  { label: 'Personal Info', validate: validateStep0 },
+  { label: 'Address',       validate: validateStep1 },
+  { label: 'Preferences',   validate: validateStep2 },
+  { label: 'Review',        validate: validateStep3 },
+];
+
+const STORAGE_KEY = 'registration-draft';
+
+// ── Main Wizard Component ──
+export default function RegistrationWizard() {
+  // Load persisted data
+  const [formData, setFormData] = useState&lt;FormData&gt;(() =&gt; {
+    if (typeof window === 'undefined') return defaultFormData;
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try { return { ...defaultFormData, ...JSON.parse(saved) }; }
+      catch { return defaultFormData; }
+    }
+    return defaultFormData;
+  });
+
+  const [currentStep, setCurrentStep] = useState(() =&gt; {
+    if (typeof window === 'undefined') return 0;
+    const saved = localStorage.getItem(STORAGE_KEY + '-step');
+    return saved ? parseInt(saved, 10) : 0;
+  });
+
+  const [errors, setErrors] = useState&lt;Record&lt;string, string&gt;&gt;({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState&lt;string | null&gt;(null);
+
+  // Ref for focus management
+  const stepRef = useRef&lt;HTMLDivElement&gt;(null);
+
+  // Persist form data
+  useEffect(() =&gt; {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+  }, [formData]);
+
+  useEffect(() =&gt; {
+    localStorage.setItem(STORAGE_KEY + '-step', String(currentStep));
+  }, [currentStep]);
+
+  // Focus the step container when step changes (accessibility)
+  useEffect(() =&gt; {
+    stepRef.current?.focus();
+  }, [currentStep]);
+
+  // Update function for child steps
+  function updateFormData(fields: Partial&lt;FormData&gt;) {
+    setFormData(prev =&gt; ({ ...prev, ...fields }));
+  }
+
+  // Navigation
+  function handleNext() {
+    const stepErrors = STEPS[currentStep].validate(formData);
+    if (Object.keys(stepErrors).length &gt; 0) {
+      setErrors(stepErrors);
+      return;
+    }
+    setErrors({});
+    setCurrentStep(prev =&gt; Math.min(prev + 1, STEPS.length - 1));
+  }
+
+  function handleBack() {
+    setErrors({});
+    setCurrentStep(prev =&gt; Math.max(prev - 1, 0));
+  }
+
+  async function handleSubmit() {
+    // Final validation sweep
+    for (let i = 0; i &lt; STEPS.length; i++) {
+      const stepErrors = STEPS[i].validate(formData);
+      if (Object.keys(stepErrors).length &gt; 0) {
+        setCurrentStep(i);
+        setErrors(stepErrors);
+        return;
+      }
+    }
+
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) throw new Error('Registration failed');
+
+      // Success: clean up and redirect
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(STORAGE_KEY + '-step');
+      window.location.href = '/welcome';
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : 'Unknown error');
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  const isFirstStep = currentStep === 0;
+  const isLastStep = currentStep === STEPS.length - 1;
+
+  return (
+    &lt;div className="wizard-container"&gt;
+      {/* Step Indicator */}
+      &lt;StepIndicator steps={STEPS} currentStep={currentStep} /&gt;
+
+      {/* Screen reader announcement */}
+      &lt;div
+        role="status"
+        aria-live="polite"
+        className="sr-only"
+      &gt;
+        Step {currentStep + 1} of {STEPS.length}: {STEPS[currentStep].label}
+      &lt;/div&gt;
+
+      {/* Current Step */}
+      &lt;div
+        ref={stepRef}
+        tabIndex={-1}
+        className="wizard-step"
+        aria-label={`Step ${currentStep + 1}: ${STEPS[currentStep].label}`}
+      &gt;
+        &lt;h2&gt;{STEPS[currentStep].label}&lt;/h2&gt;
+
+        {currentStep === 0 &amp;&amp; &lt;StepPersonalInfo data={formData} onUpdate={updateFormData} errors={errors} /&gt;}
+        {currentStep === 1 &amp;&amp; &lt;StepAddress data={formData} onUpdate={updateFormData} errors={errors} /&gt;}
+        {currentStep === 2 &amp;&amp; &lt;StepPreferences data={formData} onUpdate={updateFormData} errors={errors} /&gt;}
+        {currentStep === 3 &amp;&amp; &lt;StepReview data={formData} onUpdate={updateFormData} errors={errors} /&gt;}
+      &lt;/div&gt;
+
+      {/* Submit Error */}
+      {submitError &amp;&amp; (
+        &lt;div className="submit-error" role="alert"&gt;
+          &lt;strong&gt;Error:&lt;/strong&gt; {submitError}
+        &lt;/div&gt;
+      )}
+
+      {/* Navigation Buttons */}
+      &lt;div className="wizard-nav"&gt;
+        {!isFirstStep &amp;&amp; (
+          &lt;button type="button" onClick={handleBack}&gt;Back&lt;/button&gt;
+        )}
+        &lt;div style={{ flex: 1 }} /&gt;
+        {isLastStep ? (
+          &lt;button
+            type="button"
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+          &gt;
+            {isSubmitting ? 'Submitting...' : 'Submit Registration'}
+          &lt;/button&gt;
+        ) : (
+          &lt;button type="button" onClick={handleNext}&gt;Next&lt;/button&gt;
+        )}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+  <p>This complete example demonstrates every concept from this lesson working together: state management, step navigation, validation, localStorage persistence, error handling, and accessibility features. Each step component receives the same props interface, and the parent wizard orchestrates everything.</p>
+
+  <!-- ────────────────────────────────────────── -->
+  <h2>Accessibility: Focus Management and Screen Reader Support</h2>
+
+  <p>Multi-step forms present unique accessibility challenges. When the user clicks "Next" and the step changes, a sighted user sees the new content appear. But a screen reader user hears nothing unless you explicitly manage focus and announcements.</p>
+
+  <h3>Focus Management Between Steps</h3>
+
+  <p>When the step changes, move focus to the top of the new step. This ensures keyboard users and screen reader users start at the right place:</p>
+
+  <pre><code>// The step container has tabIndex={-1} so it can receive focus
+&lt;div
+  ref={stepRef}
+  tabIndex={-1}
+  className="wizard-step"
+  aria-label={`Step ${currentStep + 1}: ${STEPS[currentStep].label}`}
+&gt;
+  {/* Step content */}
+&lt;/div&gt;
+
+// When step changes, focus the container
+useEffect(() =&gt; {
+  stepRef.current?.focus();
+}, [currentStep]);</code></pre>
+
+  <p>The <code>tabIndex={-1}</code> attribute makes the element focusable via JavaScript but not via the Tab key. This is exactly what we want: focus moves here when the step changes, but the user's next Tab press goes to the first form field within the step.</p>
+
+  <h3>Screen Reader Announcements</h3>
+
+  <p>Use an ARIA live region to announce the step change:</p>
+
+  <pre><code>&lt;div
+  role="status"
+  aria-live="polite"
+  className="sr-only"
+&gt;
+  Step {currentStep + 1} of {STEPS.length}: {STEPS[currentStep].label}
+&lt;/div&gt;</code></pre>
+
+  <p>The <code>sr-only</code> class visually hides this element but keeps it available to screen readers. When its content changes (because <code>currentStep</code> changed), the screen reader announces the new text: "Step 2 of 4: Address."</p>
+
+  <h3>Additional Accessibility Practices</h3>
+
+  <ul>
+    <li>Use <code>aria-invalid="true"</code> on fields with validation errors</li>
+    <li>Use <code>aria-describedby</code> to associate error messages with their fields</li>
+    <li>Use <code>role="alert"</code> on error messages so screen readers announce them immediately</li>
+    <li>Use <code>aria-current="step"</code> on the current step indicator circle</li>
+    <li>Ensure all navigation buttons have visible focus styles</li>
+    <li>Do not use <code>aria-disabled</code> on upcoming step indicators &mdash; use the HTML <code>disabled</code> attribute instead</li>
+  </ul>
+
+  <div class="warning-box">
+    <strong>Do Not Auto-Advance Steps</strong>
+    Some forms auto-advance to the next step when all fields are filled. This is disorienting for screen reader users because the page changes without any explicit action. Always require the user to click "Next" to advance. The user should be in control of when the context changes.
+  </div>
+
+  <!-- ── Exercises ── -->
+  <section class="exercises">
+    <h2>Hands-On Exercises</h2>
+    <ol>
+      <li><strong>Two-step form:</strong> Build a simple two-step form (Step 1: Name and Email, Step 2: Review and Submit). Use <code>useState</code> for form data and current step. Add a Back button on step 2 and a Submit button that logs the data to the console.</li>
+      <li><strong>Step indicator:</strong> Add a visual step indicator to the form from Exercise 1. Show numbered circles with the current step highlighted and completed steps showing a checkmark. Make completed steps clickable.</li>
+      <li><strong>Per-step validation:</strong> Add validation to your form. Step 1 should require both name and email, and email must be a valid format. The Next button should not advance if there are errors. Display error messages below the fields.</li>
+      <li><strong>localStorage persistence:</strong> Add localStorage saving to your form. When the user refreshes the page, the form data and current step should be restored. Add a "Clear saved data" button.</li>
+      <li><strong>Four-step wizard:</strong> Expand your form into a four-step wizard: Personal Info, Address, Preferences, and Review. Implement the complete pattern from the lesson including validation, persistence, and a review step that displays all entered data.</li>
+      <li><strong>Accessibility audit:</strong> Tab through your wizard using only the keyboard. Verify that focus moves to the step content when you click Next, that screen readers announce the current step, and that error messages are associated with their fields using <code>aria-describedby</code>.</li>
+    </ol>
+  </section>
+
+  <!-- ── Key Takeaways ── -->
+  <section class="key-takeaways">
+    <h2>Key Takeaways</h2>
+    <ul>
+      <li>Multi-step forms reduce overwhelm by breaking long forms into focused, manageable chunks.</li>
+      <li>Wizard state has two parts: the <strong>current step index</strong> (which step to show) and the <strong>shared form data</strong> (all fields across all steps in one object).</li>
+      <li>Each step is its own component that receives data, an update callback, and errors through a consistent interface.</li>
+      <li>Validate each step <strong>before</strong> allowing the user to advance &mdash; catch errors early, not all at the end.</li>
+      <li>A step indicator shows progress and lets users navigate back to completed steps.</li>
+      <li>On final submission, run a validation sweep across <strong>all</strong> steps and jump the user to any step with errors.</li>
+      <li>Persist form data and current step to <code>localStorage</code> so users do not lose progress if they close the tab.</li>
+      <li>Always clear saved data after successful submission.</li>
+      <li>For accessibility: move focus to the new step content, announce step changes to screen readers, and never auto-advance steps.</li>
+    </ul>
+  </section>
+
+</main>
+
+<!-- ── BOTTOM NAV ── -->
+<nav class="lesson-nav bottom">
+  <a href="41-data-synchronization.html">&larr; Previous: Data Synchronization</a>
+  <a href="../index.html">Curriculum Index</a>
+  <a href="43-realtime-updates.html">Next: Real-Time Updates &amp; Polling &rarr;</a>
+</nav>
+
+</body>
+</html>

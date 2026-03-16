@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 22: Component Styling Patterns | Full-Stack Web Development Curriculum</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+
+<!-- ============== TOP NAV ============== -->
+<nav class="lesson-nav">
+  <a href="21-tailwind-css.html">&larr; Previous: Tailwind CSS</a>
+  <span>Lesson 22 of 56</span>
+  <a href="23-database-fundamentals.html">Next: Database Fundamentals &rarr;</a>
+</nav>
+
+<!-- ============== HEADER ============== -->
+<header class="lesson-header" style="background: linear-gradient(135deg, #06494f 0%, #06b6d4 100%);">
+  <div class="phase-badge" style="background: rgba(255,255,255,0.2);">Phase 5: Styling at Scale</div>
+  <h1>Component Styling Patterns</h1>
+  <p class="lesson-subtitle">Libraries and patterns that tame the complexity of conditional, variant-based Tailwind styling in professional React components.</p>
+</header>
+
+<!-- ============== CONTENT ============== -->
+<div class="lesson-content">
+
+  <!-- Learning Objectives -->
+  <div class="learning-objectives">
+    <h2>What You Will Learn</h2>
+    <ul>
+      <li>Understand the problem of managing conditional, variant-based styles in components</li>
+      <li>Use <code>clsx</code> to combine class names conditionally</li>
+      <li>Use <code>tailwind-merge</code> to resolve conflicting Tailwind classes</li>
+      <li>Build the <code>cn()</code> utility that combines clsx + tailwind-merge</li>
+      <li>Create typed component variants with Class Variance Authority (CVA)</li>
+      <li>Build a complete Button component with CVA, size, and variant props</li>
+      <li>Use Lucide React icons &mdash; importing, sizing, color, and stroke width</li>
+      <li>Build an icon button component</li>
+      <li>Know when to use Tailwind vs. custom CSS</li>
+      <li>Add animations with Framer Motion &mdash; basic transitions, AnimatePresence, whileHover/whileTap</li>
+      <li>Build animated card and button components</li>
+    </ul>
+  </div>
+
+  <!-- ============================== -->
+  <h2>The Problem: Conditional Styles Get Messy Fast</h2>
+  <!-- ============================== -->
+
+  <p>In Lesson 21 you learned to write Tailwind utility classes directly in your markup. That works beautifully for static designs, but real components need <strong>conditional styling</strong>. A button might be primary or destructive. A sidebar link might be active or collapsed. A card might be selected or disabled.</p>
+
+  <p>Here is what happens when you try to handle variants with raw string concatenation:</p>
+
+<pre><code><span style="color: var(--code-comment);">// This gets ugly very quickly</span>
+<span style="color: var(--code-keyword);">function</span> <span style="color: var(--code-function);">Button</span>({ variant, size, isLoading, disabled, className }) {
+  <span style="color: var(--code-keyword);">let</span> classes = <span style="color: var(--code-string);">'inline-flex items-center justify-center font-medium'</span>;
+
+  <span style="color: var(--code-keyword);">if</span> (variant === <span style="color: var(--code-string);">'primary'</span>) {
+    classes += <span style="color: var(--code-string);">' bg-blue-600 text-white hover:bg-blue-700'</span>;
+  } <span style="color: var(--code-keyword);">else if</span> (variant === <span style="color: var(--code-string);">'destructive'</span>) {
+    classes += <span style="color: var(--code-string);">' bg-red-600 text-white hover:bg-red-700'</span>;
+  }
+
+  <span style="color: var(--code-keyword);">if</span> (size === <span style="color: var(--code-string);">'sm'</span>) classes += <span style="color: var(--code-string);">' h-9 px-3 text-xs'</span>;
+  <span style="color: var(--code-keyword);">else if</span> (size === <span style="color: var(--code-string);">'lg'</span>) classes += <span style="color: var(--code-string);">' h-11 px-8 text-base'</span>;
+  <span style="color: var(--code-keyword);">else</span> classes += <span style="color: var(--code-string);">' h-10 px-4 py-2'</span>;
+
+  <span style="color: var(--code-keyword);">if</span> (disabled || isLoading) classes += <span style="color: var(--code-string);">' opacity-50 cursor-not-allowed'</span>;
+  <span style="color: var(--code-keyword);">if</span> (className) classes += <span style="color: var(--code-string);">' '</span> + className;
+
+  <span style="color: var(--code-keyword);">return</span> <span style="color: var(--code-keyword);">&lt;button</span> <span style="color: var(--code-function);">className</span>={classes}<span style="color: var(--code-keyword);">&gt;</span>...<span style="color: var(--code-keyword);">&lt;/button&gt;</span>;
+}</code></pre>
+
+  <p>This code has multiple problems: string concatenation is error-prone, accidentally adding a space at the wrong place breaks things, there is no type safety on valid variants, and if a consumer passes <code>className="px-8"</code> while the default size already has <code>px-4</code>, both will be applied and Tailwind cannot resolve the conflict.</p>
+
+  <p>The ecosystem has developed a clean stack of tools to solve each of these problems. Let us examine them one by one.</p>
+
+  <!-- ============================== -->
+  <h2>clsx: Conditional Class Name Joining</h2>
+  <!-- ============================== -->
+
+  <p><strong>clsx</strong> is a tiny (228 bytes) utility that joins class names together, intelligently handling conditionals, arrays, and objects. It replaces messy string concatenation with a clean, declarative API.</p>
+
+  <h3>Installation</h3>
+
+<pre><code>npm install clsx</code></pre>
+
+  <h3>Basic Usage</h3>
+
+<pre><code><span style="color: var(--code-keyword);">import</span> { clsx } <span style="color: var(--code-keyword);">from</span> <span style="color: var(--code-string);">'clsx'</span>;
+
+<span style="color: var(--code-comment);">// Strings are joined together</span>
+clsx(<span style="color: var(--code-string);">'px-4'</span>, <span style="color: var(--code-string);">'py-2'</span>, <span style="color: var(--code-string);">'font-bold'</span>)
+<span style="color: var(--code-comment);">// =&gt; "px-4 py-2 font-bold"</span>
+
+<span style="color: var(--code-comment);">// Falsy values are ignored (false, null, undefined, 0, "")</span>
+clsx(<span style="color: var(--code-string);">'px-4'</span>, <span style="color: var(--code-keyword);">false</span> && <span style="color: var(--code-string);">'hidden'</span>, <span style="color: var(--code-keyword);">null</span>, <span style="color: var(--code-string);">'py-2'</span>)
+<span style="color: var(--code-comment);">// =&gt; "px-4 py-2"</span>
+
+<span style="color: var(--code-comment);">// Conditional with logical AND (&&)</span>
+<span style="color: var(--code-keyword);">const</span> isActive = <span style="color: var(--code-keyword);">true</span>;
+clsx(<span style="color: var(--code-string);">'tab'</span>, isActive && <span style="color: var(--code-string);">'bg-blue-600 text-white'</span>)
+<span style="color: var(--code-comment);">// =&gt; "tab bg-blue-600 text-white"</span>
+
+<span style="color: var(--code-comment);">// Object syntax: keys are classes, values are booleans</span>
+clsx({
+  <span style="color: var(--code-string);">'bg-blue-600 text-white'</span>: isActive,
+  <span style="color: var(--code-string);">'bg-gray-100 text-gray-700'</span>: !isActive,
+  <span style="color: var(--code-string);">'opacity-50 cursor-not-allowed'</span>: disabled,
+})
+<span style="color: var(--code-comment);">// Active &amp; not disabled =&gt; "bg-blue-600 text-white"</span></code></pre>
+
+  <h3>Real-World Example: Sidebar Link</h3>
+
+<pre><code><span style="color: var(--code-keyword);">function</span> <span style="color: var(--code-function);">SidebarLink</span>({ href, icon: Icon, label, isActive, isCollapsed }) {
+  <span style="color: var(--code-keyword);">return</span> (
+    <span style="color: var(--code-keyword);">&lt;a</span>
+      <span style="color: var(--code-function);">href</span>={href}
+      <span style="color: var(--code-function);">className</span>={clsx(
+        <span style="color: var(--code-comment);">// Base styles (always applied)</span>
+        <span style="color: var(--code-string);">'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors'</span>,
+        <span style="color: var(--code-comment);">// Active state</span>
+        isActive
+          ? <span style="color: var(--code-string);">'bg-primary-100 text-primary-700 font-semibold'</span>
+          : <span style="color: var(--code-string);">'text-gray-600 hover:bg-gray-100 hover:text-gray-900'</span>,
+        <span style="color: var(--code-comment);">// Collapsed sidebar: center the icon</span>
+        isCollapsed && <span style="color: var(--code-string);">'justify-center'</span>
+      )}
+    <span style="color: var(--code-keyword);">&gt;</span>
+      <span style="color: var(--code-keyword);">&lt;Icon</span> <span style="color: var(--code-function);">className</span>=<span style="color: var(--code-string);">"h-5 w-5"</span> <span style="color: var(--code-keyword);">/&gt;</span>
+      {!isCollapsed && <span style="color: var(--code-keyword);">&lt;span&gt;</span>{label}<span style="color: var(--code-keyword);">&lt;/span&gt;</span>}
+    <span style="color: var(--code-keyword);">&lt;/a&gt;</span>
+  );
+}</code></pre>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    The CSK admin sidebar uses exactly this pattern. In <code>admin-sidebar.tsx</code>, the <code>cn()</code> utility (which wraps clsx) conditionally applies <code>justify-center</code> when the sidebar is collapsed: <code>cn('flex items-center gap-3', isCollapsed && 'justify-center')</code>.
+  </div>
+
+  <!-- ============================== -->
+  <h2>tailwind-merge: Resolving Class Conflicts</h2>
+  <!-- ============================== -->
+
+  <p>clsx solves conditional joining, but it has a blind spot: it does not understand Tailwind class conflicts. Consider this scenario:</p>
+
+<pre><code><span style="color: var(--code-comment);">// A component has default padding</span>
+<span style="color: var(--code-keyword);">const</span> baseClasses = <span style="color: var(--code-string);">'p-2 text-sm bg-white'</span>;
+
+<span style="color: var(--code-comment);">// A consumer overrides the padding</span>
+<span style="color: var(--code-keyword);">const</span> overrideClasses = <span style="color: var(--code-string);">'p-4'</span>;
+
+<span style="color: var(--code-comment);">// With clsx alone:</span>
+clsx(baseClasses, overrideClasses)
+<span style="color: var(--code-comment);">// =&gt; "p-2 text-sm bg-white p-4"</span>
+<span style="color: var(--code-comment);">//     ^^^ BOTH p-2 AND p-4 are in the string!</span>
+<span style="color: var(--code-comment);">//     Which one wins? It depends on CSS source order, not class order.</span>
+<span style="color: var(--code-comment);">//     This is unpredictable and buggy.</span></code></pre>
+
+  <p><strong>tailwind-merge</strong> solves this by understanding Tailwind's class structure. It knows that <code>p-2</code> and <code>p-4</code> conflict (both set <code>padding</code>), and keeps only the last one.</p>
+
+  <h3>Installation</h3>
+
+<pre><code>npm install tailwind-merge</code></pre>
+
+  <h3>How It Works</h3>
+
+<pre><code><span style="color: var(--code-keyword);">import</span> { twMerge } <span style="color: var(--code-keyword);">from</span> <span style="color: var(--code-string);">'tailwind-merge'</span>;
+
+twMerge(<span style="color: var(--code-string);">'p-2 text-sm bg-white'</span>, <span style="color: var(--code-string);">'p-4'</span>)
+<span style="color: var(--code-comment);">// =&gt; "text-sm bg-white p-4"</span>
+<span style="color: var(--code-comment);">//     p-2 is removed because p-4 overrides it</span>
+
+twMerge(<span style="color: var(--code-string);">'text-red-500 text-lg'</span>, <span style="color: var(--code-string);">'text-blue-700'</span>)
+<span style="color: var(--code-comment);">// =&gt; "text-lg text-blue-700"</span>
+<span style="color: var(--code-comment);">//     text-red-500 removed (color conflict), text-lg kept (size, not color)</span>
+
+twMerge(<span style="color: var(--code-string);">'rounded-lg border-2'</span>, <span style="color: var(--code-string);">'rounded-full'</span>)
+<span style="color: var(--code-comment);">// =&gt; "border-2 rounded-full"</span>
+<span style="color: var(--code-comment);">//     rounded-lg replaced by rounded-full, border-2 kept (no conflict)</span></code></pre>
+
+  <p>tailwind-merge is smart. It knows that <code>text-red-500</code> (color) and <code>text-lg</code> (font-size) are NOT in conflict, even though both start with <code>text-</code>. It only removes classes that set the same CSS property.</p>
+
+  <div class="warning-box">
+    <strong>Why this matters for component libraries.</strong>
+    When you build reusable components, consumers will pass <code>className</code> props to customize styling. Without tailwind-merge, those overrides silently fail because the default classes remain in the string. This is the number one source of "why isn't my style applying?" bugs in Tailwind codebases.
+  </div>
+
+  <!-- ============================== -->
+  <h2>The cn() Utility: clsx + tailwind-merge</h2>
+  <!-- ============================== -->
+
+  <p>The industry-standard pattern is to combine both tools into a single utility function called <code>cn()</code>. This is the function you will use everywhere in your components.</p>
+
+  <h3>The Implementation</h3>
+
+<pre><code><span style="color: var(--code-comment);">// src/lib/utils.ts</span>
+<span style="color: var(--code-keyword);">import</span> { type ClassValue, clsx } <span style="color: var(--code-keyword);">from</span> <span style="color: var(--code-string);">'clsx'</span>;
+<span style="color: var(--code-keyword);">import</span> { twMerge } <span style="color: var(--code-keyword);">from</span> <span style="color: var(--code-string);">'tailwind-merge'</span>;
+
+<span style="color: var(--code-keyword);">export function</span> <span style="color: var(--code-function);">cn</span>(...inputs: ClassValue[]) {
+  <span style="color: var(--code-keyword);">return</span> twMerge(clsx(inputs));
+}</code></pre>
+
+  <p>That is the entire implementation &mdash; just two lines of code. But those two lines solve a massive problem:</p>
+
+  <ol>
+    <li><strong>clsx</strong> runs first: joins strings, resolves conditionals, filters falsy values</li>
+    <li><strong>twMerge</strong> runs second: deduplicates conflicting Tailwind classes from the joined string</li>
+  </ol>
+
+  <div class="diagram">
+Input Arguments              clsx                  twMerge                Output
+
+'base p-2',              Join all into         Remove conflicting     'base text-sm
+ isActive &&   --------&gt; one string  --------&gt; Tailwind classes ----&gt;  bg-blue-600
+ 'bg-blue-600',           "base p-2             (p-2 vs p-4)           p-4'
+ 'p-4 text-sm'            bg-blue-600
+                           p-4 text-sm"
+  </div>
+
+  <h3>Using cn() in Components</h3>
+
+<pre><code><span style="color: var(--code-keyword);">import</span> { cn } <span style="color: var(--code-keyword);">from</span> <span style="color: var(--code-string);">'@/lib/utils'</span>;
+
+<span style="color: var(--code-keyword);">function</span> <span style="color: var(--code-function);">Card</span>({ className, children }) {
+  <span style="color: var(--code-keyword);">return</span> (
+    <span style="color: var(--code-keyword);">&lt;div</span> <span style="color: var(--code-function);">className</span>={cn(
+      <span style="color: var(--code-comment);">// Default card styles</span>
+      <span style="color: var(--code-string);">'bg-white rounded-lg border shadow-sm p-6'</span>,
+      <span style="color: var(--code-comment);">// Consumer can override any of these</span>
+      className
+    )}<span style="color: var(--code-keyword);">&gt;</span>
+      {children}
+    <span style="color: var(--code-keyword);">&lt;/div&gt;</span>
+  );
+}
+
+<span style="color: var(--code-comment);">// Usage - consumer overrides padding and adds a shadow</span>
+<span style="color: var(--code-keyword);">&lt;Card</span> <span style="color: var(--code-function);">className</span>=<span style="color: var(--code-string);">"p-8 shadow-xl"</span><span style="color: var(--code-keyword);">&gt;</span>
+  Big padded card with large shadow
+<span style="color: var(--code-keyword);">&lt;/Card&gt;</span>
+<span style="color: var(--code-comment);">// Output: "bg-white rounded-lg border p-8 shadow-xl"</span>
+<span style="color: var(--code-comment);">//         p-6 was replaced by p-8, shadow-sm replaced by shadow-xl</span></code></pre>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    The CSK project has this exact <code>cn()</code> function in <code>src/lib/utils.ts</code>. It is imported by every UI component that accepts a <code>className</code> prop, including Button, Badge, Modal, Select, and all admin components. The documented JSDoc in the real file even includes the same usage examples shown above.
+  </div>
+
+  <!-- ============================== -->
+  <h2>Class Variance Authority (CVA): Typed Component Variants</h2>
+  <!-- ============================== -->
+
+  <p><code>cn()</code> handles conditional classes and conflict resolution, but it does not give you a structured way to define <em>component variants</em>. That is where <strong>Class Variance Authority (CVA)</strong> comes in.</p>
+
+  <p>CVA lets you define a component's styling system declaratively: base styles, variant groups, sizes, and default values &mdash; all in one configuration object. It also provides TypeScript types automatically.</p>
+
+  <h3>Installation</h3>
+
+<pre><code>npm install class-variance-authority</code></pre>
+
+  <h3>Basic Concept</h3>
+
+<pre><code><span style="color: var(--code-keyword);">import</span> { cva } <span style="color: var(--code-keyword);">from</span> <span style="color: var(--code-string);">'class-variance-authority'</span>;
+
+<span style="color: var(--code-comment);">// Define all possible styles in one place</span>
+<span style="color: var(--code-keyword);">const</span> <span style="color: var(--code-function);">buttonVariants</span> = cva(
+  <span style="color: var(--code-comment);">// First argument: BASE styles (always applied)</span>
+  <span style="color: var(--code-string);">'inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors'</span>,
+  {
+    <span style="color: var(--code-comment);">// Second argument: variant configuration</span>
+    <span style="color: var(--code-function);">variants</span>: {
+      <span style="color: var(--code-function);">variant</span>: {
+        <span style="color: var(--code-function);">primary</span>: <span style="color: var(--code-string);">'bg-primary-600 text-white hover:bg-primary-700'</span>,
+        <span style="color: var(--code-function);">secondary</span>: <span style="color: var(--code-string);">'bg-gray-100 text-gray-900 hover:bg-gray-200'</span>,
+        <span style="color: var(--code-function);">destructive</span>: <span style="color: var(--code-string);">'bg-red-600 text-white hover:bg-red-700'</span>,
+        <span style="color: var(--code-function);">ghost</span>: <span style="color: var(--code-string);">'hover:bg-gray-100 hover:text-gray-900'</span>,
+        <span style="color: var(--code-function);">link</span>: <span style="color: var(--code-string);">'text-primary-600 underline-offset-4 hover:underline'</span>,
+      },
+      <span style="color: var(--code-function);">size</span>: {
+        <span style="color: var(--code-function);">sm</span>: <span style="color: var(--code-string);">'h-9 px-3 text-xs'</span>,
+        <span style="color: var(--code-function);">md</span>: <span style="color: var(--code-string);">'h-10 px-4 py-2'</span>,
+        <span style="color: var(--code-function);">lg</span>: <span style="color: var(--code-string);">'h-11 px-8 text-base'</span>,
+        <span style="color: var(--code-function);">icon</span>: <span style="color: var(--code-string);">'h-10 w-10'</span>,
+      },
+    },
+    <span style="color: var(--code-comment);">// Defaults when no variant/size is specified</span>
+    <span style="color: var(--code-function);">defaultVariants</span>: {
+      <span style="color: var(--code-function);">variant</span>: <span style="color: var(--code-string);">'primary'</span>,
+      <span style="color: var(--code-function);">size</span>: <span style="color: var(--code-string);">'md'</span>,
+    },
+  }
+);
+
+<span style="color: var(--code-comment);">// Call it to get the class string</span>
+buttonVariants({ variant: <span style="color: var(--code-string);">'primary'</span>, size: <span style="color: var(--code-string);">'lg'</span> })
+<span style="color: var(--code-comment);">// =&gt; "inline-flex items-center justify-center rounded-md text-sm font-medium</span>
+<span style="color: var(--code-comment);">//     transition-colors bg-primary-600 text-white hover:bg-primary-700 h-11 px-8 text-base"</span>
+
+<span style="color: var(--code-comment);">// With defaults</span>
+buttonVariants()
+<span style="color: var(--code-comment);">// =&gt; Uses variant: 'primary' and size: 'md' automatically</span></code></pre>
+
+  <h3>Full Button Component with CVA</h3>
+
+  <p>Here is a complete, production-grade Button component that combines CVA with <code>cn()</code>, TypeScript, and React's <code>forwardRef</code>:</p>
+
+<pre><code><span style="color: var(--code-string);">'use client'</span>;
+
+<span style="color: var(--code-keyword);">import</span> * <span style="color: var(--code-keyword);">as</span> React <span style="color: var(--code-keyword);">from</span> <span style="color: var(--code-string);">'react'</span>;
+<span style="color: var(--code-keyword);">import</span> { cva, <span style="color: var(--code-keyword);">type</span> VariantProps } <span style="color: var(--code-keyword);">from</span> <span style="color: var(--code-string);">'class-variance-authority'</span>;
+<span style="color: var(--code-keyword);">import</span> { cn } <span style="color: var(--code-keyword);">from</span> <span style="color: var(--code-string);">'@/lib/utils'</span>;
+<span style="color: var(--code-keyword);">import</span> { Loader2 } <span style="color: var(--code-keyword);">from</span> <span style="color: var(--code-string);">'lucide-react'</span>;
+
+<span style="color: var(--code-comment);">// Step 1: Define variants with cva()</span>
+<span style="color: var(--code-keyword);">const</span> <span style="color: var(--code-function);">buttonVariants</span> = cva(
+  <span style="color: var(--code-comment);">// Base styles</span>
+  <span style="color: var(--code-string);">'inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50'</span>,
+  {
+    <span style="color: var(--code-function);">variants</span>: {
+      <span style="color: var(--code-function);">variant</span>: {
+        <span style="color: var(--code-function);">primary</span>: <span style="color: var(--code-string);">'bg-primary-600 text-white hover:bg-primary-700 active:bg-primary-800'</span>,
+        <span style="color: var(--code-function);">secondary</span>: <span style="color: var(--code-string);">'bg-secondary text-secondary-foreground hover:bg-secondary/80'</span>,
+        <span style="color: var(--code-function);">outline</span>: <span style="color: var(--code-string);">'border border-input bg-background hover:bg-accent hover:text-accent-foreground'</span>,
+        <span style="color: var(--code-function);">ghost</span>: <span style="color: var(--code-string);">'hover:bg-accent hover:text-accent-foreground'</span>,
+        <span style="color: var(--code-function);">destructive</span>: <span style="color: var(--code-string);">'bg-destructive text-destructive-foreground hover:bg-destructive/90'</span>,
+        <span style="color: var(--code-function);">link</span>: <span style="color: var(--code-string);">'text-primary-600 underline-offset-4 hover:underline'</span>,
+      },
+      <span style="color: var(--code-function);">size</span>: {
+        <span style="color: var(--code-function);">sm</span>: <span style="color: var(--code-string);">'h-9 px-3 text-xs'</span>,
+        <span style="color: var(--code-function);">md</span>: <span style="color: var(--code-string);">'h-10 px-4 py-2'</span>,
+        <span style="color: var(--code-function);">lg</span>: <span style="color: var(--code-string);">'h-11 px-8 text-base'</span>,
+        <span style="color: var(--code-function);">icon</span>: <span style="color: var(--code-string);">'h-10 w-10'</span>,
+      },
+    },
+    <span style="color: var(--code-function);">defaultVariants</span>: {
+      <span style="color: var(--code-function);">variant</span>: <span style="color: var(--code-string);">'primary'</span>,
+      <span style="color: var(--code-function);">size</span>: <span style="color: var(--code-string);">'md'</span>,
+    },
+  }
+);
+
+<span style="color: var(--code-comment);">// Step 2: Define TypeScript interface</span>
+<span style="color: var(--code-comment);">// VariantProps extracts the variant types automatically!</span>
+<span style="color: var(--code-keyword);">export interface</span> ButtonProps
+  <span style="color: var(--code-keyword);">extends</span> React.ButtonHTMLAttributes&lt;HTMLButtonElement&gt;,
+    VariantProps&lt;<span style="color: var(--code-keyword);">typeof</span> buttonVariants&gt; {
+  isLoading?: <span style="color: var(--code-keyword);">boolean</span>;
+  leftIcon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
+}
+
+<span style="color: var(--code-comment);">// Step 3: Build the component with forwardRef</span>
+<span style="color: var(--code-keyword);">const</span> <span style="color: var(--code-function);">Button</span> = React.forwardRef&lt;HTMLButtonElement, ButtonProps&gt;(
+  ({ className, variant, size, isLoading, leftIcon, rightIcon, children, disabled, ...props }, ref) =&gt; {
+    <span style="color: var(--code-keyword);">return</span> (
+      <span style="color: var(--code-keyword);">&lt;button</span>
+        <span style="color: var(--code-function);">className</span>={cn(buttonVariants({ variant, size, className }))}
+        <span style="color: var(--code-function);">ref</span>={ref}
+        <span style="color: var(--code-function);">disabled</span>={disabled || isLoading}
+        {...props}
+      <span style="color: var(--code-keyword);">&gt;</span>
+        {isLoading ? (
+          <span style="color: var(--code-keyword);">&lt;Loader2</span> <span style="color: var(--code-function);">className</span>=<span style="color: var(--code-string);">"mr-2 h-4 w-4 animate-spin"</span> <span style="color: var(--code-keyword);">/&gt;</span>
+        ) : leftIcon ? (
+          <span style="color: var(--code-keyword);">&lt;span</span> <span style="color: var(--code-function);">className</span>=<span style="color: var(--code-string);">"mr-2"</span><span style="color: var(--code-keyword);">&gt;</span>{leftIcon}<span style="color: var(--code-keyword);">&lt;/span&gt;</span>
+        ) : <span style="color: var(--code-keyword);">null</span>}
+        {children}
+        {rightIcon && !isLoading && <span style="color: var(--code-keyword);">&lt;span</span> <span style="color: var(--code-function);">className</span>=<span style="color: var(--code-string);">"ml-2"</span><span style="color: var(--code-keyword);">&gt;</span>{rightIcon}<span style="color: var(--code-keyword);">&lt;/span&gt;</span>}
+      <span style="color: var(--code-keyword);">&lt;/button&gt;</span>
+    );
+  }
+);
+
+Button.displayName = <span style="color: var(--code-string);">'Button'</span>;
+<span style="color: var(--code-keyword);">export</span> { Button, buttonVariants };</code></pre>
+
+  <h3>Using the Button Component</h3>
+
+<pre><code><span style="color: var(--code-comment);">// TypeScript knows exactly which variants are valid</span>
+<span style="color: var(--code-keyword);">&lt;Button&gt;</span>Default (primary, md)<span style="color: var(--code-keyword);">&lt;/Button&gt;</span>
+<span style="color: var(--code-keyword);">&lt;Button</span> <span style="color: var(--code-function);">variant</span>=<span style="color: var(--code-string);">"destructive"</span> <span style="color: var(--code-function);">size</span>=<span style="color: var(--code-string);">"sm"</span><span style="color: var(--code-keyword);">&gt;</span>Delete<span style="color: var(--code-keyword);">&lt;/Button&gt;</span>
+<span style="color: var(--code-keyword);">&lt;Button</span> <span style="color: var(--code-function);">variant</span>=<span style="color: var(--code-string);">"ghost"</span> <span style="color: var(--code-function);">size</span>=<span style="color: var(--code-string);">"icon"</span><span style="color: var(--code-keyword);">&gt;</span><span style="color: var(--code-keyword);">&lt;X /&gt;</span><span style="color: var(--code-keyword);">&lt;/Button&gt;</span>
+<span style="color: var(--code-keyword);">&lt;Button</span> <span style="color: var(--code-function);">isLoading</span><span style="color: var(--code-keyword);">&gt;</span>Saving...<span style="color: var(--code-keyword);">&lt;/Button&gt;</span>
+<span style="color: var(--code-keyword);">&lt;Button</span> <span style="color: var(--code-function);">className</span>=<span style="color: var(--code-string);">"w-full"</span><span style="color: var(--code-keyword);">&gt;</span>Full Width<span style="color: var(--code-keyword);">&lt;/Button&gt;</span>
+
+<span style="color: var(--code-comment);">// TypeScript ERROR: "invalid" is not a valid variant</span>
+<span style="color: var(--code-keyword);">&lt;Button</span> <span style="color: var(--code-function);">variant</span>=<span style="color: var(--code-string);">"invalid"</span><span style="color: var(--code-keyword);">&gt;</span>Nope<span style="color: var(--code-keyword);">&lt;/Button&gt;</span></code></pre>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    The CSK project's <code>src/components/ui/button.tsx</code> is this exact component. It uses CVA with six variants (primary, secondary, outline, ghost, destructive, link) and four sizes (sm, md, lg, icon). The same pattern is replicated in <code>src/components/ui/badge.tsx</code> for status badges throughout the admin dashboard.
+  </div>
+
+  <div class="info-box">
+    <strong>Why forwardRef?</strong>
+    <code>React.forwardRef</code> allows parent components to get a direct reference to the underlying <code>&lt;button&gt;</code> DOM element. This is essential for accessibility (focus management), animation libraries, and tooltip positioning. It is standard practice for all reusable UI primitives.
+  </div>
+
+  <!-- ============================== -->
+  <h2>Lucide React: Beautiful, Consistent Icons</h2>
+  <!-- ============================== -->
+
+  <p><strong>Lucide React</strong> is an icon library with 1,400+ clean, minimal SVG icons. Each icon is a React component that renders an inline SVG, making them crisp at any size and styleable with Tailwind.</p>
+
+  <h3>Installation</h3>
+
+<pre><code>npm install lucide-react</code></pre>
+
+  <h3>Basic Usage</h3>
+
+<pre><code><span style="color: var(--code-keyword);">import</span> { Search, User, Clock, Loader2, ChevronDown, X } <span style="color: var(--code-keyword);">from</span> <span style="color: var(--code-string);">'lucide-react'</span>;
+
+<span style="color: var(--code-comment);">// Default size (24x24px)</span>
+<span style="color: var(--code-keyword);">&lt;Search /&gt;</span>
+
+<span style="color: var(--code-comment);">// Custom size via className (Tailwind)</span>
+<span style="color: var(--code-keyword);">&lt;Search</span> <span style="color: var(--code-function);">className</span>=<span style="color: var(--code-string);">"h-5 w-5"</span> <span style="color: var(--code-keyword);">/&gt;</span>          <span style="color: var(--code-comment);">// 20x20px</span>
+<span style="color: var(--code-keyword);">&lt;Search</span> <span style="color: var(--code-function);">className</span>=<span style="color: var(--code-string);">"h-4 w-4"</span> <span style="color: var(--code-keyword);">/&gt;</span>          <span style="color: var(--code-comment);">// 16x16px (common for buttons)</span>
+<span style="color: var(--code-keyword);">&lt;Search</span> <span style="color: var(--code-function);">className</span>=<span style="color: var(--code-string);">"h-8 w-8"</span> <span style="color: var(--code-keyword);">/&gt;</span>          <span style="color: var(--code-comment);">// 32x32px</span>
+
+<span style="color: var(--code-comment);">// Custom size via props (pixels)</span>
+<span style="color: var(--code-keyword);">&lt;Search</span> <span style="color: var(--code-function);">size</span>={<span style="color: var(--code-number);">20</span>} <span style="color: var(--code-keyword);">/&gt;</span>
+
+<span style="color: var(--code-comment);">// Color via className (inherits text color by default)</span>
+<span style="color: var(--code-keyword);">&lt;Search</span> <span style="color: var(--code-function);">className</span>=<span style="color: var(--code-string);">"h-5 w-5 text-gray-400"</span> <span style="color: var(--code-keyword);">/&gt;</span>
+<span style="color: var(--code-keyword);">&lt;Search</span> <span style="color: var(--code-function);">className</span>=<span style="color: var(--code-string);">"h-5 w-5 text-blue-600"</span> <span style="color: var(--code-keyword);">/&gt;</span>
+
+<span style="color: var(--code-comment);">// Stroke width (default: 2)</span>
+<span style="color: var(--code-keyword);">&lt;Search</span> <span style="color: var(--code-function);">strokeWidth</span>={<span style="color: var(--code-number);">1.5</span>} <span style="color: var(--code-keyword);">/&gt;</span>           <span style="color: var(--code-comment);">// Thinner lines</span>
+<span style="color: var(--code-keyword);">&lt;Search</span> <span style="color: var(--code-function);">strokeWidth</span>={<span style="color: var(--code-number);">2.5</span>} <span style="color: var(--code-keyword);">/&gt;</span>           <span style="color: var(--code-comment);">// Bolder lines</span></code></pre>
+
+  <h3>Icons in Context</h3>
+
+<pre><code><span style="color: var(--code-comment);">// Button with icon</span>
+<span style="color: var(--code-keyword);">&lt;button</span> <span style="color: var(--code-function);">className</span>=<span style="color: var(--code-string);">"flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg"</span><span style="color: var(--code-keyword);">&gt;</span>
+  <span style="color: var(--code-keyword);">&lt;Search</span> <span style="color: var(--code-function);">className</span>=<span style="color: var(--code-string);">"h-4 w-4"</span> <span style="color: var(--code-keyword);">/&gt;</span>
+  Search
+<span style="color: var(--code-keyword);">&lt;/button&gt;</span>
+
+<span style="color: var(--code-comment);">// Loading spinner (Loader2 rotates with animate-spin)</span>
+<span style="color: var(--code-keyword);">&lt;Loader2</span> <span style="color: var(--code-function);">className</span>=<span style="color: var(--code-string);">"h-4 w-4 animate-spin"</span> <span style="color: var(--code-keyword);">/&gt;</span>
+
+<span style="color: var(--code-comment);">// Navigation with icons</span>
+<span style="color: var(--code-keyword);">&lt;nav</span> <span style="color: var(--code-function);">className</span>=<span style="color: var(--code-string);">"flex flex-col gap-1"</span><span style="color: var(--code-keyword);">&gt;</span>
+  <span style="color: var(--code-keyword);">&lt;a</span> <span style="color: var(--code-function);">className</span>=<span style="color: var(--code-string);">"flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700"</span><span style="color: var(--code-keyword);">&gt;</span>
+    <span style="color: var(--code-keyword);">&lt;User</span> <span style="color: var(--code-function);">className</span>=<span style="color: var(--code-string);">"h-5 w-5"</span> <span style="color: var(--code-keyword);">/&gt;</span>
+    Customers
+  <span style="color: var(--code-keyword);">&lt;/a&gt;</span>
+  <span style="color: var(--code-keyword);">&lt;a</span> <span style="color: var(--code-function);">className</span>=<span style="color: var(--code-string);">"flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700"</span><span style="color: var(--code-keyword);">&gt;</span>
+    <span style="color: var(--code-keyword);">&lt;Clock</span> <span style="color: var(--code-function);">className</span>=<span style="color: var(--code-string);">"h-5 w-5"</span> <span style="color: var(--code-keyword);">/&gt;</span>
+    Tickets
+  <span style="color: var(--code-keyword);">&lt;/a&gt;</span>
+<span style="color: var(--code-keyword);">&lt;/nav&gt;</span></code></pre>
+
+  <h3>Building an Icon Button</h3>
+
+<pre><code><span style="color: var(--code-keyword);">import</span> { X } <span style="color: var(--code-keyword);">from</span> <span style="color: var(--code-string);">'lucide-react'</span>;
+<span style="color: var(--code-keyword);">import</span> { Button } <span style="color: var(--code-keyword);">from</span> <span style="color: var(--code-string);">'@/components/ui/button'</span>;
+
+<span style="color: var(--code-comment);">// Using the CVA Button with icon size</span>
+<span style="color: var(--code-keyword);">&lt;Button</span> <span style="color: var(--code-function);">variant</span>=<span style="color: var(--code-string);">"ghost"</span> <span style="color: var(--code-function);">size</span>=<span style="color: var(--code-string);">"icon"</span> <span style="color: var(--code-function);">aria-label</span>=<span style="color: var(--code-string);">"Close"</span><span style="color: var(--code-keyword);">&gt;</span>
+  <span style="color: var(--code-keyword);">&lt;X</span> <span style="color: var(--code-function);">className</span>=<span style="color: var(--code-string);">"h-4 w-4"</span> <span style="color: var(--code-keyword);">/&gt;</span>
+<span style="color: var(--code-keyword);">&lt;/Button&gt;</span></code></pre>
+
+  <div class="warning-box">
+    <strong>Always add aria-label for icon-only buttons.</strong>
+    An icon button with no text has no accessible name for screen readers. The <code>aria-label</code> attribute provides that text alternative. This is not optional &mdash; it is an accessibility requirement.
+  </div>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    The CSK admin dashboard imports Lucide icons extensively. The tickets page uses <code>Ticket</code>, <code>User</code>, <code>Clock</code>, <code>Loader2</code>, <code>Filter</code>, and <code>ChevronDown</code>. The sidebar uses icons for every navigation item. The Button component uses <code>Loader2</code> with <code>animate-spin</code> for its loading state.
+  </div>
+
+  <!-- ============================== -->
+  <h2>When to Use Tailwind vs. Custom CSS</h2>
+  <!-- ============================== -->
+
+  <p>Tailwind handles 90% or more of your styling needs. But some things are better expressed in traditional CSS.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Use Tailwind For</th>
+        <th>Use Custom CSS For</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Layout (flex, grid, positioning)</td>
+        <td>Complex multi-step <code>@keyframes</code> animations</td>
+      </tr>
+      <tr>
+        <td>Spacing, sizing, colors</td>
+        <td>Advanced <code>::before</code> / <code>::after</code> pseudo-elements</td>
+      </tr>
+      <tr>
+        <td>Typography and text styling</td>
+        <td><code>@media print</code> styles</td>
+      </tr>
+      <tr>
+        <td>Simple hover/focus transitions</td>
+        <td>CSS gradients with multiple color stops</td>
+      </tr>
+      <tr>
+        <td>Responsive breakpoints</td>
+        <td>3D transforms and perspective effects</td>
+      </tr>
+      <tr>
+        <td>Borders, shadows, rounded corners</td>
+        <td>Custom scrollbar styling</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>You can place custom CSS in <code>globals.css</code> inside <code>@layer utilities</code> to keep it compatible with Tailwind's ordering:</p>
+
+<pre><code><span style="color: var(--code-comment);">/* globals.css */</span>
+<span style="color: var(--code-keyword);">@layer</span> utilities {
+  <span style="color: var(--code-comment);">/* Custom 3D flip card transform */</span>
+  <span style="color: var(--code-function);">.perspective-1000</span> {
+    <span style="color: var(--code-keyword);">perspective</span>: 1000px;
+  }
+  <span style="color: var(--code-function);">.transform-style-3d</span> {
+    <span style="color: var(--code-keyword);">transform-style</span>: preserve-3d;
+  }
+  <span style="color: var(--code-function);">.backface-hidden</span> {
+    <span style="color: var(--code-keyword);">backface-visibility</span>: hidden;
+  }
+  <span style="color: var(--code-function);">.rotate-y-180</span> {
+    <span style="color: var(--code-keyword);">transform</span>: rotateY(180deg);
+  }
+}</code></pre>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    The CSK project's <code>globals.css</code> contains exactly these custom utilities for the gallery flip-card effect, plus <code>@keyframes silverShine</code> and <code>@keyframes goldBorder</code> for the Silver Plan badge animations. These complex visual effects require multi-step keyframe animations and layered box-shadows that would be impractical with utility classes alone. Meanwhile, public pages use a separate <code>static-styles.css</code> for the silver plaque metallic effect.
+  </div>
+
+  <!-- ============================== -->
+  <h2>Framer Motion: Animation for React</h2>
+  <!-- ============================== -->
+
+  <p><strong>Framer Motion</strong> is a production-grade animation library for React. While Tailwind handles simple CSS transitions (<code>transition-colors</code>, <code>hover:scale-105</code>), Framer Motion provides:</p>
+
+  <ul>
+    <li><strong>Declarative animations</strong> &mdash; animate with props, not imperative code</li>
+    <li><strong>Mount/unmount animations</strong> &mdash; animate elements as they enter and leave the DOM</li>
+    <li><strong>Spring physics</strong> &mdash; natural, fluid motion beyond CSS easing</li>
+    <li><strong>Gesture animations</strong> &mdash; hover, tap, drag responses</li>
+    <li><strong>Scroll-triggered animations</strong> &mdash; elements animate as they scroll into view</li>
+  </ul>
+
+  <h3>Installation</h3>
+
+<pre><code>npm install framer-motion</code></pre>
+
+  <h3>Basic Animation</h3>
+
+<pre><code><span style="color: var(--code-string);">'use client'</span>;  <span style="color: var(--code-comment);">// Required! Framer Motion uses browser APIs</span>
+
+<span style="color: var(--code-keyword);">import</span> { motion } <span style="color: var(--code-keyword);">from</span> <span style="color: var(--code-string);">'framer-motion'</span>;
+
+<span style="color: var(--code-comment);">// Replace any HTML element with its motion equivalent</span>
+<span style="color: var(--code-keyword);">function</span> <span style="color: var(--code-function);">FadeInBox</span>() {
+  <span style="color: var(--code-keyword);">return</span> (
+    <span style="color: var(--code-keyword);">&lt;motion.div</span>
+      <span style="color: var(--code-function);">initial</span>={{ opacity: <span style="color: var(--code-number);">0</span>, y: <span style="color: var(--code-number);">20</span> }}  <span style="color: var(--code-comment);">// Start invisible, 20px below</span>
+      <span style="color: var(--code-function);">animate</span>={{ opacity: <span style="color: var(--code-number);">1</span>, y: <span style="color: var(--code-number);">0</span> }}   <span style="color: var(--code-comment);">// Animate to visible, original position</span>
+      <span style="color: var(--code-function);">transition</span>={{ duration: <span style="color: var(--code-number);">0.5</span> }}  <span style="color: var(--code-comment);">// Over 0.5 seconds</span>
+      <span style="color: var(--code-function);">className</span>=<span style="color: var(--code-string);">"p-6 bg-white rounded-lg shadow-md"</span>
+    <span style="color: var(--code-keyword);">&gt;</span>
+      I fade in and slide up!
+    <span style="color: var(--code-keyword);">&lt;/motion.div&gt;</span>
+  );
+}</code></pre>
+
+  <p>The three core props are:</p>
+  <ul>
+    <li><strong><code>initial</code></strong> &mdash; where the animation starts (or <code>false</code> to skip)</li>
+    <li><strong><code>animate</code></strong> &mdash; where the animation ends (the target state)</li>
+    <li><strong><code>transition</code></strong> &mdash; how the animation behaves (duration, easing, delay, spring physics)</li>
+  </ul>
+
+  <h3>Transition Configuration</h3>
+
+<pre><code><span style="color: var(--code-comment);">// Timed animation (CSS-like)</span>
+<span style="color: var(--code-function);">transition</span>={{ duration: <span style="color: var(--code-number);">0.5</span>, ease: <span style="color: var(--code-string);">'easeOut'</span> }}
+
+<span style="color: var(--code-comment);">// Spring physics (bouncy, natural)</span>
+<span style="color: var(--code-function);">transition</span>={{ type: <span style="color: var(--code-string);">'spring'</span>, stiffness: <span style="color: var(--code-number);">300</span>, damping: <span style="color: var(--code-number);">20</span> }}
+
+<span style="color: var(--code-comment);">// Delayed start</span>
+<span style="color: var(--code-function);">transition</span>={{ duration: <span style="color: var(--code-number);">0.5</span>, delay: <span style="color: var(--code-number);">0.2</span> }}</code></pre>
+
+  <h3>Hover and Tap Gestures</h3>
+
+<pre><code><span style="color: var(--code-keyword);">&lt;motion.button</span>
+  <span style="color: var(--code-function);">whileHover</span>={{ scale: <span style="color: var(--code-number);">1.02</span> }}      <span style="color: var(--code-comment);">// Slightly enlarge on hover</span>
+  <span style="color: var(--code-function);">whileTap</span>={{ scale: <span style="color: var(--code-number);">0.98</span> }}        <span style="color: var(--code-comment);">// Slightly shrink on click</span>
+  <span style="color: var(--code-function);">className</span>=<span style="color: var(--code-string);">"px-6 py-3 bg-blue-600 text-white rounded-lg"</span>
+<span style="color: var(--code-keyword);">&gt;</span>
+  Click Me
+<span style="color: var(--code-keyword);">&lt;/motion.button&gt;</span></code></pre>
+
+  <h3>Scroll-Triggered Animations with whileInView</h3>
+
+<pre><code><span style="color: var(--code-keyword);">&lt;motion.div</span>
+  <span style="color: var(--code-function);">initial</span>={{ opacity: <span style="color: var(--code-number);">0</span>, y: <span style="color: var(--code-number);">20</span> }}
+  <span style="color: var(--code-function);">whileInView</span>={{ opacity: <span style="color: var(--code-number);">1</span>, y: <span style="color: var(--code-number);">0</span> }}
+  <span style="color: var(--code-function);">viewport</span>={{ once: <span style="color: var(--code-keyword);">true</span>, margin: <span style="color: var(--code-string);">'-50px'</span> }}
+  <span style="color: var(--code-function);">transition</span>={{ duration: <span style="color: var(--code-number);">0.5</span>, ease: <span style="color: var(--code-string);">'easeOut'</span> }}
+  <span style="color: var(--code-function);">className</span>=<span style="color: var(--code-string);">"p-6 bg-white rounded-lg"</span>
+<span style="color: var(--code-keyword);">&gt;</span>
+  I animate when you scroll to me (once).
+<span style="color: var(--code-keyword);">&lt;/motion.div&gt;</span></code></pre>
+
+  <p>The <code>viewport</code> prop controls when the animation triggers: <code>once: true</code> means it animates only the first time it scrolls into view, and <code>margin: '-50px'</code> triggers it 50px before it fully enters the viewport.</p>
+
+  <h3>Variants: Reusable Animation Definitions</h3>
+
+  <p>Instead of repeating animation props, define reusable <strong>variants</strong>:</p>
+
+<pre><code><span style="color: var(--code-keyword);">import</span> { motion, Variants } <span style="color: var(--code-keyword);">from</span> <span style="color: var(--code-string);">'framer-motion'</span>;
+
+<span style="color: var(--code-keyword);">const</span> <span style="color: var(--code-function);">fadeInUp</span>: Variants = {
+  <span style="color: var(--code-function);">hidden</span>: { opacity: <span style="color: var(--code-number);">0</span>, y: <span style="color: var(--code-number);">20</span> },
+  <span style="color: var(--code-function);">visible</span>: {
+    opacity: <span style="color: var(--code-number);">1</span>,
+    y: <span style="color: var(--code-number);">0</span>,
+    transition: { duration: <span style="color: var(--code-number);">0.5</span>, ease: <span style="color: var(--code-string);">'easeOut'</span> }
+  },
+};
+
+<span style="color: var(--code-keyword);">const</span> <span style="color: var(--code-function);">staggerContainer</span>: Variants = {
+  <span style="color: var(--code-function);">hidden</span>: { opacity: <span style="color: var(--code-number);">0</span> },
+  <span style="color: var(--code-function);">visible</span>: {
+    opacity: <span style="color: var(--code-number);">1</span>,
+    transition: {
+      staggerChildren: <span style="color: var(--code-number);">0.1</span>,    <span style="color: var(--code-comment);">// Each child starts 0.1s after the previous</span>
+      delayChildren: <span style="color: var(--code-number);">0.1</span>,      <span style="color: var(--code-comment);">// Wait 0.1s before starting</span>
+    },
+  },
+};
+
+<span style="color: var(--code-comment);">// Parent with stagger, children inherit animation</span>
+<span style="color: var(--code-keyword);">&lt;motion.div</span>
+  <span style="color: var(--code-function);">initial</span>=<span style="color: var(--code-string);">"hidden"</span>
+  <span style="color: var(--code-function);">whileInView</span>=<span style="color: var(--code-string);">"visible"</span>
+  <span style="color: var(--code-function);">variants</span>={staggerContainer}
+<span style="color: var(--code-keyword);">&gt;</span>
+  <span style="color: var(--code-keyword);">&lt;motion.div</span> <span style="color: var(--code-function);">variants</span>={fadeInUp}<span style="color: var(--code-keyword);">&gt;</span>Card 1<span style="color: var(--code-keyword);">&lt;/motion.div&gt;</span>
+  <span style="color: var(--code-keyword);">&lt;motion.div</span> <span style="color: var(--code-function);">variants</span>={fadeInUp}<span style="color: var(--code-keyword);">&gt;</span>Card 2<span style="color: var(--code-keyword);">&lt;/motion.div&gt;</span>
+  <span style="color: var(--code-keyword);">&lt;motion.div</span> <span style="color: var(--code-function);">variants</span>={fadeInUp}<span style="color: var(--code-keyword);">&gt;</span>Card 3<span style="color: var(--code-keyword);">&lt;/motion.div&gt;</span>
+<span style="color: var(--code-keyword);">&lt;/motion.div&gt;</span></code></pre>
+
+  <p>Each child animates in sequence, 0.1 seconds apart, creating a cascading reveal effect.</p>
+
+  <h3>AnimatePresence: Exit Animations</h3>
+
+  <p>CSS cannot animate elements as they are removed from the DOM. Framer Motion's <code>AnimatePresence</code> makes this possible:</p>
+
+<pre><code><span style="color: var(--code-keyword);">import</span> { motion, AnimatePresence } <span style="color: var(--code-keyword);">from</span> <span style="color: var(--code-string);">'framer-motion'</span>;
+
+<span style="color: var(--code-keyword);">function</span> <span style="color: var(--code-function);">Notification</span>({ isVisible, message }) {
+  <span style="color: var(--code-keyword);">return</span> (
+    <span style="color: var(--code-keyword);">&lt;AnimatePresence&gt;</span>
+      {isVisible && (
+        <span style="color: var(--code-keyword);">&lt;motion.div</span>
+          <span style="color: var(--code-function);">initial</span>={{ opacity: <span style="color: var(--code-number);">0</span>, y: <span style="color: var(--code-number);">-20</span> }}  <span style="color: var(--code-comment);">// Enter: slide down from above</span>
+          <span style="color: var(--code-function);">animate</span>={{ opacity: <span style="color: var(--code-number);">1</span>, y: <span style="color: var(--code-number);">0</span> }}
+          <span style="color: var(--code-function);">exit</span>={{ opacity: <span style="color: var(--code-number);">0</span>, y: <span style="color: var(--code-number);">-20</span> }}     <span style="color: var(--code-comment);">// Exit: slide back up</span>
+          <span style="color: var(--code-function);">className</span>=<span style="color: var(--code-string);">"p-4 bg-green-100 text-green-800 rounded-lg"</span>
+        <span style="color: var(--code-keyword);">&gt;</span>
+          {message}
+        <span style="color: var(--code-keyword);">&lt;/motion.div&gt;</span>
+      )}
+    <span style="color: var(--code-keyword);">&lt;/AnimatePresence&gt;</span>
+  );
+}</code></pre>
+
+  <p>Without <code>AnimatePresence</code>, when <code>isVisible</code> becomes <code>false</code>, React immediately removes the element. <code>AnimatePresence</code> intercepts the removal, plays the <code>exit</code> animation, and THEN removes the element.</p>
+
+  <h3>Building an Animated Card Component</h3>
+
+<pre><code><span style="color: var(--code-keyword);">import</span> { motion, Variants } <span style="color: var(--code-keyword);">from</span> <span style="color: var(--code-string);">'framer-motion'</span>;
+
+<span style="color: var(--code-keyword);">const</span> <span style="color: var(--code-function);">fadeInUp</span>: Variants = {
+  <span style="color: var(--code-function);">hidden</span>: { opacity: <span style="color: var(--code-number);">0</span>, y: <span style="color: var(--code-number);">20</span> },
+  <span style="color: var(--code-function);">visible</span>: {
+    opacity: <span style="color: var(--code-number);">1</span>,
+    y: <span style="color: var(--code-number);">0</span>,
+    transition: { duration: <span style="color: var(--code-number);">0.5</span>, ease: <span style="color: var(--code-string);">'easeOut'</span> }
+  },
+};
+
+<span style="color: var(--code-keyword);">interface</span> MotionCardProps {
+  children: React.ReactNode;
+  className?: <span style="color: var(--code-keyword);">string</span>;
+  index?: <span style="color: var(--code-keyword);">number</span>;
+}
+
+<span style="color: var(--code-keyword);">function</span> <span style="color: var(--code-function);">MotionCard</span>({ children, className = <span style="color: var(--code-string);">''</span>, index = <span style="color: var(--code-number);">0</span> }: MotionCardProps) {
+  <span style="color: var(--code-keyword);">return</span> (
+    <span style="color: var(--code-keyword);">&lt;motion.div</span>
+      <span style="color: var(--code-function);">initial</span>=<span style="color: var(--code-string);">"hidden"</span>
+      <span style="color: var(--code-function);">whileInView</span>=<span style="color: var(--code-string);">"visible"</span>
+      <span style="color: var(--code-function);">viewport</span>={{ once: <span style="color: var(--code-keyword);">true</span>, margin: <span style="color: var(--code-string);">'-30px'</span> }}
+      <span style="color: var(--code-function);">variants</span>={fadeInUp}
+      <span style="color: var(--code-function);">transition</span>={{ delay: index * <span style="color: var(--code-number);">0.1</span> }}
+      <span style="color: var(--code-function);">whileHover</span>={{
+        y: <span style="color: var(--code-number);">-8</span>,
+        transition: { duration: <span style="color: var(--code-number);">0.2</span> }
+      }}
+      <span style="color: var(--code-function);">className</span>={className}
+    <span style="color: var(--code-keyword);">&gt;</span>
+      {children}
+    <span style="color: var(--code-keyword);">&lt;/motion.div&gt;</span>
+  );
+}</code></pre>
+
+  <p>This card fades in when scrolled into view, with a stagger delay based on its <code>index</code> in a list, and lifts 8px on hover. Use it in a grid:</p>
+
+<pre><code><span style="color: var(--code-keyword);">&lt;div</span> <span style="color: var(--code-function);">className</span>=<span style="color: var(--code-string);">"grid grid-cols-1 md:grid-cols-3 gap-6"</span><span style="color: var(--code-keyword);">&gt;</span>
+  {services.map((service, i) =&gt; (
+    <span style="color: var(--code-keyword);">&lt;MotionCard</span> <span style="color: var(--code-function);">key</span>={service.id} <span style="color: var(--code-function);">index</span>={i} <span style="color: var(--code-function);">className</span>=<span style="color: var(--code-string);">"bg-white rounded-lg shadow p-6"</span><span style="color: var(--code-keyword);">&gt;</span>
+      <span style="color: var(--code-keyword);">&lt;h3&gt;</span>{service.name}<span style="color: var(--code-keyword);">&lt;/h3&gt;</span>
+      <span style="color: var(--code-keyword);">&lt;p&gt;</span>{service.description}<span style="color: var(--code-keyword);">&lt;/p&gt;</span>
+    <span style="color: var(--code-keyword);">&lt;/MotionCard&gt;</span>
+  ))}
+<span style="color: var(--code-keyword);">&lt;/div&gt;</span></code></pre>
+
+  <div class="csk-connection">
+    <strong>CSK Connection</strong>
+    The CSK project has a dedicated <code>src/components/animations/motion.tsx</code> file that exports reusable animation components: <code>MotionContainer</code>, <code>MotionSection</code>, <code>MotionCard</code>, <code>MotionButton</code>, <code>MotionHeading</code>, and <code>PageTransition</code>. It defines shared variants (<code>fadeInUp</code>, <code>fadeIn</code>, <code>slideInLeft</code>, <code>slideInRight</code>, <code>scaleIn</code>, <code>staggerContainer</code>) that are used across the public homepage hero section, services preview, and testimonials carousel. The <code>MotionButton</code> component uses <code>whileHover: { scale: 1.02 }</code> and <code>whileTap: { scale: 0.98 }</code> for tactile button feedback.
+  </div>
+
+  <div class="warning-box">
+    <strong>Framer Motion requires 'use client'.</strong>
+    Because Framer Motion uses browser APIs (requestAnimationFrame, IntersectionObserver), all components using <code>motion</code> must be Client Components. Add <code>'use client'</code> at the top of the file. If you are using Server Components, create a thin client wrapper.
+  </div>
+
+  <!-- ============================== -->
+  <h2>The Complete Styling Toolkit at a Glance</h2>
+  <!-- ============================== -->
+
+  <table>
+    <thead>
+      <tr>
+        <th>Tool</th>
+        <th>Purpose</th>
+        <th>Size</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Tailwind CSS</strong></td>
+        <td>Utility-first styling framework</td>
+        <td>~0 KB runtime (build-time only)</td>
+      </tr>
+      <tr>
+        <td><strong>clsx</strong></td>
+        <td>Conditional class name joining</td>
+        <td>228 bytes</td>
+      </tr>
+      <tr>
+        <td><strong>tailwind-merge</strong></td>
+        <td>Resolve conflicting Tailwind classes</td>
+        <td>~3 KB</td>
+      </tr>
+      <tr>
+        <td><strong>CVA</strong></td>
+        <td>Typed component variant definitions</td>
+        <td>~1 KB</td>
+      </tr>
+      <tr>
+        <td><strong>Lucide React</strong></td>
+        <td>SVG icon components</td>
+        <td>Tree-shaken (only imported icons)</td>
+      </tr>
+      <tr>
+        <td><strong>Framer Motion</strong></td>
+        <td>Declarative React animations</td>
+        <td>~35 KB (tree-shaken)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="analogy">
+    <strong>Analogy:</strong> If Tailwind CSS is the LEGO brick system, then clsx is the glue for conditionally joining bricks, tailwind-merge is the quality checker that removes duplicate bricks, CVA is the instruction booklet that defines valid combinations, Lucide is the decoration set, and Framer Motion is the motorized kit that makes things move.
+  </div>
+
+  <!-- ============== EXERCISES ============== -->
+  <div class="exercises">
+    <h2>Hands-On Exercises</h2>
+    <ol>
+      <li>
+        <strong>Implement cn() from scratch:</strong> Install <code>clsx</code> and <code>tailwind-merge</code>, then create the <code>cn()</code> function in <code>src/lib/utils.ts</code>. Test it by passing conflicting classes like <code>cn('p-2 bg-red-500', 'p-4 bg-blue-600')</code> and verify only <code>p-4 bg-blue-600</code> survives.
+      </li>
+      <li>
+        <strong>Build a Badge component with CVA:</strong> Create a <code>Badge</code> component with variants: <code>default</code> (blue), <code>success</code> (green), <code>warning</code> (yellow), <code>destructive</code> (red), and <code>outline</code>. Each should have appropriate background, text color, and border styles. Include a <code>size</code> variant with <code>sm</code> and <code>md</code>.
+      </li>
+      <li>
+        <strong>Create an icon navigation bar:</strong> Import five Lucide icons of your choice. Build a vertical navigation sidebar where each link has an icon, a label, and an active state. Use <code>cn()</code> to conditionally apply active styles (blue background, white text) based on a <code>currentPage</code> prop.
+      </li>
+      <li>
+        <strong>Animated service cards:</strong> Build a grid of three "service cards" using Framer Motion. Each card should: (a) fade in and slide up when scrolled into view, (b) stagger the animation with 0.15s between each card, (c) lift 8px on hover with a shadow increase.
+      </li>
+      <li>
+        <strong>Toast notification with AnimatePresence:</strong> Create a notification component that slides in from the top when shown and slides back out when dismissed. Use <code>AnimatePresence</code> with <code>initial</code>, <code>animate</code>, and <code>exit</code> props. Add a close button using a Lucide <code>X</code> icon.
+      </li>
+    </ol>
+  </div>
+
+  <!-- ============== KEY TAKEAWAYS ============== -->
+  <div class="key-takeaways">
+    <h2>Key Takeaways</h2>
+    <ul>
+      <li><code>clsx</code> joins class names conditionally, handling strings, objects, arrays, and falsy values</li>
+      <li><code>tailwind-merge</code> resolves conflicting Tailwind classes, ensuring consumer overrides work correctly</li>
+      <li>The <code>cn()</code> utility combines both &mdash; clsx runs first, then twMerge deduplicates. This is the standard pattern in every Tailwind + React project</li>
+      <li>Class Variance Authority (CVA) provides a declarative way to define typed component variants (color, size) with base styles and defaults</li>
+      <li>Lucide React provides 1,400+ SVG icons as React components, styled with Tailwind classes for size and color</li>
+      <li>Custom CSS still wins for complex <code>@keyframes</code> animations, pseudo-elements, print styles, and 3D transforms</li>
+      <li>Framer Motion adds declarative React animations with <code>initial</code>, <code>animate</code>, <code>exit</code>, <code>whileHover</code>, <code>whileTap</code>, and <code>whileInView</code></li>
+      <li><code>AnimatePresence</code> enables exit animations when elements are removed from the DOM &mdash; something CSS cannot do</li>
+      <li>Variants and stagger patterns create cascading reveal effects across lists and grids</li>
+      <li>All Framer Motion components must be Client Components (<code>'use client'</code>) because they use browser APIs</li>
+    </ul>
+  </div>
+
+</div> <!-- /lesson-content -->
+
+<!-- ============== BOTTOM NAV ============== -->
+<nav class="lesson-nav bottom">
+  <a href="21-tailwind-css.html">&larr; Previous: Tailwind CSS</a>
+  <span>Lesson 22 of 56</span>
+  <a href="23-database-fundamentals.html">Next: Database Fundamentals &rarr;</a>
+</nav>
+
+</body>
+</html>

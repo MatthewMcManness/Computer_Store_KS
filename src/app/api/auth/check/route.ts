@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth';
-import { getLocationContext } from '@/lib/location-helpers';
 import { getDefaultDashboard } from '@/lib/role-helpers';
 
 export const dynamic = 'force-dynamic';
@@ -13,7 +12,7 @@ export const dynamic = 'force-dynamic';
  * determine authentication state and user permissions.
  *
  * @returns NextResponse with authentication status:
- * - Authenticated (200): { authenticated: true, user: {...}, roles: [...], locationContext: {...} }
+ * - Authenticated (200): { authenticated: true, user: {...}, roles: [...], redirectUrl: string }
  * - Not authenticated (200): { authenticated: false }
  * - Server error (500): { authenticated: false, error: 'Auth check failed' }
  *
@@ -29,18 +28,18 @@ export const dynamic = 'force-dynamic';
  * if (data.authenticated) {
  *   console.log('User:', data.user);
  *   console.log('Roles:', data.roles);
- *   console.log('Location:', data.locationContext);
  * }
  *
- * @functions_called getCurrentUser (from @/lib/auth), getLocationContext (from @/lib/location-helpers)
+ * @functions_called getCurrentUser (from @/lib/auth), getDefaultDashboard (from @/lib/role-helpers)
  * @called_by
  * - Client-side auth context providers
  * - Protected page components
  * - Middleware that needs to verify auth state
- * - AdminSidebar for location selector
+ * - AdminSidebar
  *
  * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
  * @version 1.1.0 - 2026-01-11T00:00:00Z - Added roles array and location context
+ * @version 2.0.0 - 2026-03-16T00:00:00Z - Removed location context (location-helpers archived)
  */
 export async function GET() {
   try {
@@ -49,21 +48,6 @@ export async function GET() {
     if (user) {
       // Get user roles (from session or derive from single role)
       const roles = user.roles || (user.role ? [user.role] : ['customer']);
-
-      // Get location context for the sidebar location selector
-      let locationContext = null;
-      if (user.userType === 'employee') {
-        try {
-          locationContext = await getLocationContext(
-            roles,
-            user.location_id || null,
-            user.default_location_id || null
-          );
-        } catch (locError) {
-          console.error('[AUTH CHECK] Failed to get location context:', locError);
-          // Continue without location context - not a fatal error
-        }
-      }
 
       // Compute redirect URL based on roles
       const redirectUrl = user.userType === 'customer'
@@ -80,7 +64,6 @@ export async function GET() {
         },
         roles,
         redirectUrl,
-        locationContext,
       });
     }
 

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Website That Taught the World to Share — Computer Store Kansas</title>
+<meta property="og:title" content="March 16, 1995: The Day Anyone Could Edit the Internet 🌐" />
+<meta property="og:description" content="30 years ago, Ward Cunningham launched WikiWikiWeb — the world's first wiki. One quiet idea that eventually became Wikipedia and changed how humanity shares knowledge." />
+<meta property="og:url" content="https://computerstoreks.com/march16-first-wiki.html" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Computer Store Kansas" />
+<meta property="og:image" content="https://computerstoreks.com/march16-preview.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+
+  html, body, .page { background: #ffffff !important; background-color: #ffffff !important; }
+  html::before, body::before { display: none !important; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    font-family: 'Instrument Sans', sans-serif;
+    color: #0e0e0e;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+  .ticker-bar { position: fixed; top: 0; left: 0; right: 0; background: #0e0e0e; padding: 6px 0; z-index: 100; overflow: hidden; display: flex; align-items: center; }
+  .ticker-label { background: #c0392b; color: #fff; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; padding: 3px 14px; white-space: nowrap; flex-shrink: 0; margin-right: 16px; }
+  .ticker-scroll { overflow: hidden; flex: 1; }
+  .ticker-text { display: inline-block; white-space: nowrap; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: #d0d8e0; animation: ticker 55s linear infinite; }
+
+  .page { max-width: 740px; margin: 0 auto; padding: 56px 28px 60px; }
+  .masthead { text-align: center; border-bottom: 3px double #0e0e0e; padding-bottom: 18px; margin-bottom: 24px; }
+  .masthead-store { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.3em; text-transform: uppercase; color: #6b7280; margin-bottom: 6px; }
+  .masthead-title { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 7vw, 3.6rem); font-weight: 900; line-height: 1.05; color: #0e0e0e; }
+  .masthead-title em { font-style: italic; color: #c0392b; }
+  .masthead-date { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: #6b7280; margin-top: 10px; }
+
+  .rule { border: none; border-top: 1px solid rgba(14,14,14,0.12); margin: 20px 0; }
+  .rule-thick { border: none; border-top: 2px solid #0e0e0e; margin: 24px 0; }
+  .dateline { display: inline-block; background: #c0392b; color: #fff; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; padding: 4px 12px; margin-bottom: 18px; }
+  .lede { font-family: 'Playfair Display', serif; font-size: clamp(1.4rem, 4vw, 2rem); font-weight: 700; line-height: 1.3; color: #0e0e0e; margin-bottom: 16px; }
+  .lede em { font-style: italic; color: #c0392b; }
+  .body-copy { font-size: 1rem; line-height: 1.75; color: #1a1a1a; margin-bottom: 20px; }
+  .body-copy strong { font-weight: 700; color: #0e0e0e; }
+
+  .pull-quote { border-left: 4px solid #c0392b; margin: 28px 0; padding: 12px 20px; background: #f2f2f2; }
+  .pull-quote p { font-family: 'Playfair Display', serif; font-size: clamp(1.1rem, 3vw, 1.4rem); font-style: italic; line-height: 1.5; color: #0e0e0e; }
+  .pull-quote cite { display: block; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #6b7280; margin-top: 8px; font-style: normal; }
+
+  .section-head { display: flex; align-items: center; gap: 12px; margin: 28px 0 14px; }
+  .section-head-icon { font-size: 1.3rem; flex-shrink: 0; }
+  .section-head-text { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.25em; text-transform: uppercase; color: #0e0e0e; }
+  .section-head::after { content: ''; flex: 1; height: 1px; background: #0e0e0e; opacity: 0.2; }
+
+  .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 16px 0 24px; }
+  .stat-card { background: #0e0e0e; color: #f5f0e8; padding: 16px 14px; position: relative; overflow: hidden; }
+  .stat-card::before { content: ''; position: absolute; top: 0; right: 0; width: 40px; height: 40px; background: #c0392b; opacity: 0.3; }
+  .stat-num { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 900; color: #fff; line-height: 1; margin-bottom: 4px; }
+  .stat-label { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #d0d8e0; line-height: 1.4; }
+
+  /* PI CIRCLE ANIMATION */
+  .pi-display {
+    background: #0e0e0e;
+    margin: 28px 0;
+    padding: 32px 20px 24px;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+  }
+  .pi-display::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 50%, rgba(192,57,43,0.1) 0%, transparent 65%);
+  }
+  .pi-canvas-wrap { position: relative; height: 130px; margin-bottom: 16px; }
+  canvas#picanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+  .pi-caption { font-family: 'Playfair Display', serif; font-size: clamp(1.1rem, 3.5vw, 1.6rem); font-weight: 700; color: #fff; line-height: 1.3; position: relative; }
+  .pi-caption em { color: #c0392b; font-style: italic; }
+  .pi-sub { font-size: 0.78rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: #6b7280; margin-top: 8px; position: relative; }
+
+  /* DIGITS SCROLL */
+  .pi-digits {
+    font-family: 'Instrument Sans', monospace;
+    font-size: clamp(0.75rem, 2vw, 0.95rem);
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: #c0392b;
+    background: #f2f2f2;
+    padding: 14px 16px;
+    border-radius: 4px;
+    word-break: break-all;
+    margin: 20px 0;
+    line-height: 1.8;
+    text-align: center;
+  }
+
+  /* FUN FACTS */
+  .fact-list { margin: 16px 0 24px; }
+  .fact-item { display: flex; gap: 14px; padding: 12px 0; border-bottom: 1px solid rgba(14,14,14,0.1); align-items: flex-start; }
+  .fact-item:last-child { border-bottom: none; }
+  .fact-emoji { font-size: 1.4rem; flex-shrink: 0; }
+  .fact-text { font-size: 0.95rem; line-height: 1.6; color: #1a1a1a; }
+  .fact-text strong { font-weight: 700; }
+
+  /* CTA */
+  .store-cta { background: #0e0e0e; margin-top: 32px; border-radius: 4px; overflow: hidden; }
+  .cta-header { padding: 28px 28px 20px; display: flex; align-items: center; gap: 18px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .cta-icon-wrap { width: 60px; height: 60px; border-radius: 14px; background: #1a1a1a; border: 2px solid #333; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; flex-shrink: 0; }
+  .cta-store-name { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.25em; text-transform: uppercase; color: #c0392b; margin-bottom: 5px; }
+  .cta-tagline { font-family: 'Playfair Display', serif; font-size: clamp(1rem, 3vw, 1.35rem); font-weight: 700; color: #ffffff; line-height: 1.3; }
+  .cta-body-text { padding: 20px 28px; font-size: 0.9rem; line-height: 1.75; color: #cccccc; border-left: 3px solid #c0392b; margin: 0 28px; background: rgba(255,255,255,0.02); border-radius: 0 4px 4px 0; }
+  .cta-body-text strong { color: #ffffff; font-weight: 700; }
+  .cta-info-grid { display: grid; grid-template-columns: repeat(3, 1fr); margin: 20px 28px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; overflow: hidden; }
+  .cta-info-cell { padding: 18px 16px; background: #161616; border-right: 1px solid rgba(255,255,255,0.08); }
+  .cta-info-cell:last-child { border-right: none; }
+  .cta-info-cell-icon { font-size: 1.5rem; margin-bottom: 8px; display: block; }
+  .cta-info-cell-label { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #c0392b; margin-bottom: 5px; display: block; }
+  .cta-info-cell-val { font-size: 0.88rem; font-weight: 600; color: #ffffff; line-height: 1.6; }
+  .cta-pills { display: flex; gap: 8px; flex-wrap: wrap; padding: 16px 28px 28px; }
+  .cta-pill { background: rgba(192,57,43,0.15); border: 1px solid rgba(192,57,43,0.35); border-radius: 100px; padding: 6px 16px; font-size: 0.8rem; font-weight: 700; color: #ff9980; white-space: nowrap; }
+
+  @media (max-width: 540px) {
+    .page { padding: 52px 14px 40px; }
+    .stat-grid { grid-template-columns: 1fr 1fr; }
+    .cta-info-grid { grid-template-columns: 1fr; margin: 16px 14px; }
+    .cta-info-cell { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .cta-info-cell:last-child { border-bottom: none; }
+    .cta-header { padding: 20px 14px; }
+    .cta-body-text { margin: 0 14px; }
+    .cta-pills { padding: 14px 14px 24px; }
+  }
+
+</style>
+</head>
+<body style="background:#ffffff !important;">
+
+<div class="ticker-bar">
+  <div class="ticker-label">🌐 First Wiki</div>
+  <div class="ticker-scroll">
+    <div class="ticker-text">COMPUTER STORE KANSAS &nbsp;•&nbsp; 2008 SW GAGE BLVD, TOPEKA KS &nbsp;•&nbsp; (785) 267-3223 &nbsp;•&nbsp; COMPUTERSTOREKS.COM &nbsp;•&nbsp; DESKTOPS FROM $329.99 &nbsp;•&nbsp; LAPTOPS FROM $429.99 &nbsp;•&nbsp; MON–FRI 10AM–6PM &nbsp;•&nbsp; SAT 10AM–2PM &nbsp;•&nbsp; YOUR LOCAL TECH EXPERTS &nbsp;•&nbsp; COMPUTER STORE KANSAS &nbsp;•&nbsp; 2008 SW GAGE BLVD, TOPEKA KS &nbsp;•&nbsp; (785) 267-3223 &nbsp;•&nbsp; COMPUTERSTOREKS.COM &nbsp;•&nbsp; DESKTOPS FROM $329.99 &nbsp;•&nbsp; LAPTOPS FROM $429.99 &nbsp;•&nbsp; MON–FRI 10AM–6PM &nbsp;•&nbsp; SAT 10AM–2PM &nbsp;•&nbsp; YOUR LOCAL TECH EXPERTS &nbsp;•&nbsp;</div>
+  </div>
+</div>
+
+<div class="page">
+
+  <div class="masthead">
+    <div class="masthead-store">Computer Store Kansas &mdash; Topeka, KS</div>
+    <h1 class="masthead-title">This Day in<br><em>Tech History</em></h1>
+    <div class="masthead-date">March 16, 2025 &nbsp;|&nbsp; Edition No. 7</div>
+  </div>
+
+  <div class="dateline">🌐 March 16, 1995 — On This Day in Tech History</div>
+
+  <p class="lede">On March 16, 1995, Ward Cunningham launched a website where anyone could edit any page. No ads. No algorithm. No agenda. Just <em>trust.</em></p>
+
+  <hr class="rule">
+
+  <div class="section-head"><span class="section-head-icon">🌐</span><span class="section-head-text">The Idea That Changed Everything</span></div>
+
+  <p class="body-copy">On March 16, 1995, a programmer named <strong>Ward Cunningham</strong> quietly launched a website with a peculiar name: <strong>WikiWikiWeb</strong>. A website where anyone — literally anyone — could edit any page. No password. No approval. No editor. Just pure, open, collaborative trust.</p>
+
+  <p class="body-copy">Cunningham named it after the "Wiki Wiki" shuttle buses at Honolulu Airport — <em>wiki wiki</em> meaning "quick" in Hawaiian. He wanted something fast and simple. What he got was the foundation of a new kind of internet.</p>
+
+  <div class="pull-quote"><p>"The simplest online database that could possibly work."</p><cite>— Ward Cunningham, describing WikiWikiWeb, 1995</cite></div>
+
+  <p class="body-copy">What made Cunningham's invention radical wasn't the technology — it was the <strong>philosophy</strong>. He believed most people, given the chance, would contribute honestly. That the community would self-correct. That openness was a feature, not a vulnerability. In 1995, that was a genuinely wild bet.</p>
+
+  <div class="section-head"><span class="section-head-icon">📊</span><span class="section-head-text">By the Numbers</span></div>
+
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-num">1995</div><div class="stat-label">Year the first wiki went live — 6 years before Wikipedia</div></div>
+    <div class="stat-card"><div class="stat-num">62M+</div><div class="stat-label">Wikipedia articles across all languages today</div></div>
+    <div class="stat-card"><div class="stat-num">#7</div><div class="stat-label">Wikipedia's rank as most visited website on Earth</div></div>
+    <div class="stat-card"><div class="stat-num">100K+</div><div class="stat-label">Active Wikipedia editors contributing every month</div></div>
+  </div>
+
+  <div class="section-head"><span class="section-head-icon">📅</span><span class="section-head-text">From One Page to Everything</span></div>
+
+  <div class="timeline">
+    <div class="tl-item"><div class="tl-year">1995</div><div class="tl-text">Ward Cunningham launches WikiWikiWeb — the world's first wiki — as a tool for software developers to share ideas.</div></div>
+    <div class="tl-item"><div class="tl-year">2001</div><div class="tl-text">Jimmy Wales and Larry Sanger launch Wikipedia, directly inspired by Cunningham's model. It starts with a single article.</div></div>
+    <div class="tl-item"><div class="tl-year">2003</div><div class="tl-text">Wikipedia surpasses 100,000 articles. Britannica editors call it a fad. They were wrong.</div></div>
+    <div class="tl-item"><div class="tl-year">2006</div><div class="tl-text">Time magazine names "You" — the collaborative internet user — Person of the Year. Wikipedia is Exhibit A.</div></div>
+    <div class="tl-item"><div class="tl-year">2024</div><div class="tl-text">Wikipedia serves over 15 billion page views per month. Non-profit. Ad-free. Still running on trust.</div></div>
+  </div>
+
+  <div class="pull-quote"><p>"Wiki is a celebration of the freedom to create and connect ideas."</p><cite>— Ward Cunningham</cite></div>
+
+  <p class="body-copy">Today, wiki technology powers everything from massive knowledge bases to internal company docs. Every time you look something up on Wikipedia, you're using the direct descendant of what one programmer launched on a quiet Tuesday in 1995. Not bad for something named after a shuttle bus.</p>
+
+  <div class="chart-display">
+    <div class="chart-wrap"><canvas id="wikichart"></canvas></div>
+    <div class="chart-caption">From 1 page to <em>62 million articles</em> in 30 years</div>
+    <div class="chart-sub">Wikipedia article growth — 2001 to present</div>
+  </div>
+  <script>
+  (function(){
+    var cv=document.getElementById('wikichart');
+    if(!cv)return;
+    var ctx=cv.getContext('2d');
+    function resize(){cv.width=cv.offsetWidth;cv.height=cv.offsetHeight;}
+    resize();
+    var data=[0,0.5,2,10,22,35,44,52,57,60,62];
+    var t=0;
+    function draw(){
+      ctx.clearRect(0,0,cv.width,cv.height);
+      var w=cv.width,h=cv.height,pad=12;
+      var pts=Math.min(Math.ceil(t),data.length);
+      ctx.beginPath();
+      for(var i=0;i<pts;i++){
+        var x=pad+(i/(data.length-1))*(w-pad*2);
+        var y=h-pad-(data[i]/62)*(h-pad*2);
+        if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+      }
+      if(pts<data.length){
+        var frac=t-Math.floor(t),i2=Math.floor(t);
+        var x1=pad+(i2/(data.length-1))*(w-pad*2),x2=pad+((i2+1)/(data.length-1))*(w-pad*2);
+        var y1=h-pad-(data[i2]/62)*(h-pad*2),y2=h-pad-(data[Math.min(i2+1,data.length-1)]/62)*(h-pad*2);
+        ctx.lineTo(x1+(x2-x1)*frac,y1+(y2-y1)*frac);
+      }
+      ctx.strokeStyle='#c0392b';ctx.lineWidth=2.5;ctx.stroke();
+      ctx.lineTo(pad+(Math.min(pts-1,data.length-1)/(data.length-1))*(w-pad*2),h-pad);
+      ctx.lineTo(pad,h-pad);ctx.closePath();
+      ctx.fillStyle='rgba(192,57,43,0.12)';ctx.fill();
+      if(t<data.length-1){t+=0.04;requestAnimationFrame(draw);}
+    }
+    draw();
+  })();
+  </script>
+
+  <div class="store-cta">
+    <div class="cta-header">
+      <div class="cta-icon-wrap">🖥️</div>
+      <div>
+        <div class="cta-store-name">Computer Store Kansas</div>
+        <div class="cta-tagline">Topeka's Local Tech Experts — We've Been Here Through Every Tech Revolution</div>
+      </div>
+    </div>
+    <div class="cta-body-text">
+      History is full of moments where the right machine changed everything. At <strong>Computer Store Kansas</strong>, we help you find yours — whether you need a powerhouse desktop, a reliable laptop, or a monitor worth staring at. <strong>Come see us in person.</strong> No algorithms. No chatbots. Just real people who know computers.
+    </div>
+    <div class="cta-info-grid">
+      <div class="cta-info-cell">
+        <span class="cta-info-cell-icon">📍</span>
+        <span class="cta-info-cell-label">Location</span>
+        <span class="cta-info-cell-val">2008 SW Gage Blvd<br>Topeka, KS 66604</span>
+      </div>
+      <div class="cta-info-cell">
+        <span class="cta-info-cell-icon">📞</span>
+        <span class="cta-info-cell-label">Phone</span>
+        <span class="cta-info-cell-val">(785) 267-3223</span>
+      </div>
+      <div class="cta-info-cell">
+        <span class="cta-info-cell-icon">🕐</span>
+        <span class="cta-info-cell-label">Hours</span>
+        <span class="cta-info-cell-val">Mon–Fri: 10AM–6PM<br>Sat: 10AM–2PM</span>
+      </div>
+    </div>
+    <div style="padding:0 28px 24px;display:flex;gap:10px;flex-wrap:wrap;">
+      <span style="background:#c0392b;color:#fff;font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:6px 14px;border-radius:3px;">💻 Desktops from $329</span>
+      <span style="background:#c0392b;color:#fff;font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:6px 14px;border-radius:3px;">🖥️ Laptops from $429</span>
+      <span style="background:#c0392b;color:#fff;font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:6px 14px;border-radius:3px;">🔧 Repairs &amp; Upgrades</span>
+    </div>
+  </div>
+
+  <p style="margin-top:24px;font-size:0.78rem;color:#9ca3af;text-align:center;line-height:2;">#TechHistory #Wikipedia #Wiki #WardCunningham #ComputerStoreKansas #Topeka</p>
+
+</div>
+</body>
+</html>

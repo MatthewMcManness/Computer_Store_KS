@@ -10,7 +10,7 @@ export async function GET() {
   if (supabaseAdmin) {
     try {
       const { count, error } = await supabaseAdmin
-        .from('rs_customers')
+        .from('gallery_computers')
         .select('*', { count: 'exact', head: true });
 
       if (error) {

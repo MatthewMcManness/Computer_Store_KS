@@ -1,4 +1,3 @@
-import '../static-styles.css';
 import { Header } from '@/components/static/Header';
 import { Footer } from '@/components/static/Footer';
 import { MobileCallButton } from '@/components/ui/mobile-call-button';

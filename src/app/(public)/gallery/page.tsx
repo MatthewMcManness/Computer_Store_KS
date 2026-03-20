@@ -149,16 +149,19 @@ export default function GalleryPage() {
   return (
     <>
       {/* Hero Section - Company Colors */}
-      <section className="hero" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=1920&q=80)' }}>
-        <div className="container">
-          <h2>Photo Gallery</h2>
-          <p>Take a look at our store, custom builds, repairs, and more!</p>
+      <section
+        className="hero-overlay hero-clip text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=1920&q=80)' }}
+      >
+        <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[3]">
+          <h2 className="text-white text-[clamp(2rem,4vw,3rem)] mb-6 font-bold">Photo Gallery</h2>
+          <p className="text-[clamp(1.1rem,2vw,1.3rem)] mb-0 max-w-[700px] mx-auto opacity-95">Take a look at our store, custom builds, repairs, and more!</p>
         </div>
       </section>
 
       {/* Category Filters */}
       <section className="gallery-nav">
-        <div className="container">
+        <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <div className="gallery-nav-inner">
             {availableCategories.map((cat) => (
               <button
@@ -175,7 +178,7 @@ export default function GalleryPage() {
 
       {/* Masonry Gallery */}
       <section className="gallery-section">
-        <div className="container">
+        <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           {isLoading ? (
             // Skeleton Loading State
             <div className="masonry-grid">
@@ -192,7 +195,7 @@ export default function GalleryPage() {
           ) : error ? (
             <div className="gallery-status">
               <p className="gallery-error-text">{error}</p>
-              <button onClick={fetchPhotos} className="btn">
+              <button onClick={fetchPhotos} className="inline-block px-8 py-4 rounded-brand-md font-semibold text-base transition-all duration-300 cursor-pointer border-none text-center whitespace-nowrap bg-primary-600 text-white shadow-brand-sm hover:bg-primary-800 hover:-translate-y-0.5 hover:shadow-brand-md">
                 Try Again
               </button>
             </div>
@@ -311,11 +314,11 @@ export default function GalleryPage() {
       )}
 
       {/* CTA Section */}
-      <section className="cta">
-        <div className="container">
-          <h2>Want to See More?</h2>
-          <p>Visit our store in Topeka or follow us on social media!</p>
-          <a href="/contact" className="btn btn-white">Contact Us</a>
+      <section className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-16 text-center relative overflow-hidden">
+        <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
+          <h2 className="text-white text-[2rem] mb-4">Want to See More?</h2>
+          <p className="text-[1.1rem] mb-8 opacity-95">Visit our store in Topeka or follow us on social media!</p>
+          <a href="/contact" className="inline-block px-8 py-4 rounded-brand-md font-semibold text-base transition-all duration-300 cursor-pointer bg-white text-primary-600 shadow-brand-md hover:-translate-y-0.5 hover:shadow-brand-lg">Contact Us</a>
         </div>
       </section>
 

@@ -33,16 +33,19 @@ export default function ProtectionPlansPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="hero" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=1920&q=80)' }}>
-        <div className="container">
-          <h1 className="hero-title">Protection Plans</h1>
-          <p className="hero-subtitle">Comprehensive computer care for home and business</p>
+      <section
+        className="hero-overlay hero-clip text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=1920&q=80)' }}
+      >
+        <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[3]">
+          <h1 className="flex flex-col items-center text-white text-[clamp(2.5rem,5vw,4rem)] font-bold leading-tight tracking-tight mb-4">Protection Plans</h1>
+          <p className="text-[clamp(1.1rem,2vw,1.3rem)] mb-0 max-w-[700px] mx-auto opacity-95">Comprehensive computer care for home and business</p>
         </div>
       </section>
 
       {/* Plans Section */}
-      <section className="membership">
-        <div className="container">
+      <section className="hero-next-section bg-bg-light py-20 -mt-20 pt-32 relative z-[1]">
+        <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <div style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
@@ -97,52 +100,52 @@ export default function ProtectionPlansPage() {
 
               <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1.5rem 0', flexGrow: 1 }}>
                 <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#374151' }}>
-                  <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>✓</span>
+                  <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>&#10003;</span>
                   Antivirus software included
                 </li>
                 <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#374151' }}>
-                  <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>✓</span>
+                  <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>&#10003;</span>
                   50% discount on virus removal
                 </li>
                 <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#374151' }}>
-                  <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>✓</span>
+                  <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>&#10003;</span>
                   50% off house calls
                 </li>
                 <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#374151' }}>
-                  <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>✓</span>
+                  <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>&#10003;</span>
                   50% off account recovery
                 </li>
                 <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#374151' }}>
-                  <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>✓</span>
+                  <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>&#10003;</span>
                   Remote support (4 hrs/month)
                 </li>
                 <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#374151' }}>
-                  <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>✓</span>
+                  <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>&#10003;</span>
                   Performance monitoring &amp; alerts
                 </li>
                 <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#374151' }}>
-                  <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>✓</span>
+                  <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>&#10003;</span>
                   15% discount on labor
                 </li>
                 <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#374151' }}>
-                  <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>✓</span>
+                  <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>&#10003;</span>
                   Priority scheduling
                 </li>
                 <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#374151' }}>
-                  <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>✓</span>
+                  <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>&#10003;</span>
                   Free in-store diagnostics
                 </li>
                 <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#374151' }}>
-                  <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>✓</span>
+                  <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>&#10003;</span>
                   Email support (24-48hr response)
                 </li>
                 <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#374151' }}>
-                  <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>✓</span>
+                  <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>&#10003;</span>
                   Quarterly system health check
                 </li>
               </ul>
 
-              <Link href="/contact" className="btn btn-primary" style={{ width: '100%', textAlign: 'center', padding: '0.875rem 1.5rem', fontSize: '1rem', marginTop: 'auto' }}>Get Started</Link>
+              <Link href="/contact" className="inline-block px-8 py-4 rounded-brand-md font-semibold text-base transition-all duration-300 cursor-pointer bg-primary-600 text-white shadow-brand-sm hover:bg-primary-800 hover:-translate-y-0.5 hover:shadow-brand-md w-full text-center mt-auto">Get Started</Link>
             </div>
 
             {/* Silver Plus Plan Card */}
@@ -193,40 +196,40 @@ export default function ProtectionPlansPage() {
 
               <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1.5rem 0', flexGrow: 1 }}>
                 <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#b8860b', fontWeight: 500 }}>
-                  <span style={{ color: '#ffd700', fontWeight: 'bold', flexShrink: 0 }}>★</span>
+                  <span style={{ color: '#ffd700', fontWeight: 'bold', flexShrink: 0 }}>&#9733;</span>
                   $35 service calls (65% off - normally $100)
                 </li>
                 <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#b8860b', fontWeight: 500 }}>
-                  <span style={{ color: '#ffd700', fontWeight: 'bold', flexShrink: 0 }}>★</span>
+                  <span style={{ color: '#ffd700', fontWeight: 'bold', flexShrink: 0 }}>&#9733;</span>
                   6 hours/month remote support included
                 </li>
                 <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#b8860b', fontWeight: 500 }}>
-                  <span style={{ color: '#ffd700', fontWeight: 'bold', flexShrink: 0 }}>★</span>
+                  <span style={{ color: '#ffd700', fontWeight: 'bold', flexShrink: 0 }}>&#9733;</span>
                   25% off all labor charges
                 </li>
                 <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#374151' }}>
-                  <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>✓</span>
+                  <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>&#10003;</span>
                   Business-grade antivirus included
                 </li>
                 <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#374151' }}>
-                  <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>✓</span>
+                  <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>&#10003;</span>
                   Priority business scheduling
                 </li>
                 <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#374151' }}>
-                  <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>✓</span>
+                  <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>&#10003;</span>
                   Proactive system monitoring
                 </li>
                 <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#374151' }}>
-                  <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>✓</span>
+                  <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>&#10003;</span>
                   Monthly system health reports
                 </li>
                 <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#374151' }}>
-                  <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>✓</span>
+                  <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>&#10003;</span>
                   Business hours phone support
                 </li>
               </ul>
 
-              <Link href="/contact" className="btn btn-primary" style={{ width: '100%', textAlign: 'center', padding: '0.875rem 1.5rem', fontSize: '1rem', marginTop: 'auto' }}>Get Started</Link>
+              <Link href="/contact" className="inline-block px-8 py-4 rounded-brand-md font-semibold text-base transition-all duration-300 cursor-pointer bg-primary-600 text-white shadow-brand-sm hover:bg-primary-800 hover:-translate-y-0.5 hover:shadow-brand-md w-full text-center mt-auto">Get Started</Link>
             </div>
 
           </div>
@@ -234,11 +237,11 @@ export default function ProtectionPlansPage() {
       </section>
 
       {/* Call-to-Action Section */}
-      <section className="cta">
-        <div className="container">
-          <h2>Questions About Our Plans?</h2>
-          <p>Contact us to find the right protection plan for your needs.</p>
-          <Link href="/contact" className="btn btn-white">Contact Us</Link>
+      <section className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-16 text-center relative overflow-hidden">
+        <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
+          <h2 className="text-white text-[2rem] mb-4">Questions About Our Plans?</h2>
+          <p className="text-[1.1rem] mb-8 opacity-95">Contact us to find the right protection plan for your needs.</p>
+          <Link href="/contact" className="inline-block px-8 py-4 rounded-brand-md font-semibold text-base transition-all duration-300 cursor-pointer bg-white text-primary-600 shadow-brand-md hover:-translate-y-0.5 hover:shadow-brand-lg">Contact Us</Link>
         </div>
       </section>
     </>

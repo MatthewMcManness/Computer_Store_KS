@@ -60,11 +60,11 @@ function transformComputer(computer: GalleryComputer): GalleryItem {
  */
 function SkeletonRow({ reverse }: { reverse: boolean }) {
   return (
-    <div className={`gallery-row ${reverse ? 'gallery-row-reverse' : ''}`}>
-      <div className="gallery-row-image skeleton-image">
+    <div className={`flex flex-col bg-white rounded-brand-lg shadow-gallery-card overflow-hidden transition-all duration-300 ${reverse ? '' : ''}`}>
+      <div className="relative aspect-video bg-gradient-to-br from-bg-light to-bg-dark overflow-hidden skeleton-image">
         <div className="skeleton-shimmer"></div>
       </div>
-      <div className="gallery-row-specs skeleton-specs">
+      <div className="p-5 pb-6 flex flex-col grow bg-white skeleton-specs">
         <div className="skeleton-title"></div>
         <div className="skeleton-price"></div>
         <div className="skeleton-spec-list">
@@ -237,35 +237,35 @@ function GalleryContent() {
       `}</style>
 
       {/* Gallery Filters Section */}
-      <section className="gallery-filters-section texture-dots">
-        <div className="container">
-          <div className="gallery-filters">
+      <section className="texture-dots py-8 bg-bg-light">
+        <div className="w-[90%] max-w-[1200px] mx-auto px-4">
+          <div className="flex justify-center gap-3 flex-wrap">
             <button
-              className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
+              className={`py-[0.7rem] px-[1.4rem] border-none rounded-full font-semibold text-[0.9rem] cursor-pointer transition-all duration-300 ${filter === 'all' ? 'filter-btn-active-gradient text-white shadow-filter-btn-active' : 'bg-white text-gray-700 shadow-filter-btn hover:bg-bg-light hover:text-primary-600 hover:-translate-y-0.5 hover:shadow-filter-btn-hover'}`}
               onClick={() => handleFilterClick('all')}
             >
               All Computers
             </button>
             <button
-              className={`filter-btn ${filter === 'desktop' ? 'active' : ''}`}
+              className={`py-[0.7rem] px-[1.4rem] border-none rounded-full font-semibold text-[0.9rem] cursor-pointer transition-all duration-300 ${filter === 'desktop' ? 'filter-btn-active-gradient text-white shadow-filter-btn-active' : 'bg-white text-gray-700 shadow-filter-btn hover:bg-bg-light hover:text-primary-600 hover:-translate-y-0.5 hover:shadow-filter-btn-hover'}`}
               onClick={() => handleFilterClick('desktop')}
             >
               Desktops
             </button>
             <button
-              className={`filter-btn ${filter === 'laptop' ? 'active' : ''}`}
+              className={`py-[0.7rem] px-[1.4rem] border-none rounded-full font-semibold text-[0.9rem] cursor-pointer transition-all duration-300 ${filter === 'laptop' ? 'filter-btn-active-gradient text-white shadow-filter-btn-active' : 'bg-white text-gray-700 shadow-filter-btn hover:bg-bg-light hover:text-primary-600 hover:-translate-y-0.5 hover:shadow-filter-btn-hover'}`}
               onClick={() => handleFilterClick('laptop')}
             >
               Laptops
             </button>
             <button
-              className={`filter-btn ${filter === 'refurbished' ? 'active' : ''}`}
+              className={`py-[0.7rem] px-[1.4rem] border-none rounded-full font-semibold text-[0.9rem] cursor-pointer transition-all duration-300 ${filter === 'refurbished' ? 'filter-btn-active-gradient text-white shadow-filter-btn-active' : 'bg-white text-gray-700 shadow-filter-btn hover:bg-bg-light hover:text-primary-600 hover:-translate-y-0.5 hover:shadow-filter-btn-hover'}`}
               onClick={() => handleFilterClick('refurbished')}
             >
               Refurbished
             </button>
             <button
-              className={`filter-btn ${filter === 'custom' ? 'active' : ''}`}
+              className={`py-[0.7rem] px-[1.4rem] border-none rounded-full font-semibold text-[0.9rem] cursor-pointer transition-all duration-300 ${filter === 'custom' ? 'filter-btn-active-gradient text-white shadow-filter-btn-active' : 'bg-white text-gray-700 shadow-filter-btn hover:bg-bg-light hover:text-primary-600 hover:-translate-y-0.5 hover:shadow-filter-btn-hover'}`}
               onClick={() => handleFilterClick('custom')}
             >
               Custom Builds
@@ -275,41 +275,40 @@ function GalleryContent() {
       </section>
 
       {/* Gallery Grid Section */}
-      <section className="gallery-section">
-        <div className="container">
+      <section className="py-16 bg-white">
+        <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           {isLoading ? (
-            <div className="gallery-rows" id="gallery-grid">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-8 mt-8 px-4" id="gallery-grid">
               {[0, 1, 2, 3].map((i) => (
                 <SkeletonRow key={i} reverse={i % 2 === 1} />
               ))}
             </div>
           ) : error ? (
-            <div style={{ padding: '3rem', textAlign: 'center' }}>
-              <p style={{ color: '#dc2626' }}>{error}</p>
+            <div className="py-12 text-center">
+              <p className="text-red-600">{error}</p>
               <button
                 onClick={fetchGallery}
-                className="btn"
-                style={{ marginTop: '1rem' }}
+                className="mt-4 inline-block px-8 py-4 rounded-brand-md font-semibold text-base transition-all duration-300 cursor-pointer bg-primary-600 text-white shadow-brand-sm hover:bg-primary-800 hover:-translate-y-0.5 hover:shadow-brand-md"
               >
                 Try Again
               </button>
             </div>
           ) : filteredItems.length === 0 ? (
-            <div style={{ padding: '3rem', textAlign: 'center' }}>
+            <div className="py-12 text-center">
               <p>No computers found{filter !== 'all' ? ` in "${filter}" category` : ''}.</p>
             </div>
           ) : (
-          <div className="gallery-rows" id="gallery-grid">
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-8 mt-8 px-4" id="gallery-grid">
             {filteredItems.map((item, index) => (
               <div
                 key={item.id}
-                className={`gallery-row ${index % 2 === 1 ? 'gallery-row-reverse' : ''}`}
+                className="flex flex-col bg-white rounded-brand-lg shadow-gallery-card overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-gallery-card-hover"
                 data-category={item.category}
                 data-computer-id={item.id}
                 data-type={item.type}
               >
                 {/* Image Section - 16:9 aspect ratio */}
-                <div className="gallery-row-image">
+                <div className="gallery-image-shadow relative aspect-video bg-gradient-to-br from-bg-light to-bg-dark overflow-hidden">
                   <div className="image-container">
                     {/* Skeleton placeholder */}
                     <div className={`image-skeleton ${loadedImages.has(item.id) ? 'loaded' : ''}`}>
@@ -323,7 +322,7 @@ function GalleryContent() {
                     )}
                     {item.isBlackFridaySale && <div className="bf-ribbon-corner"></div>}
                     {item.isBlackFridaySale && (
-                      <div className="gallery-row-badge badge-black-friday">
+                      <div className="badge-black-friday absolute top-4 right-4 py-2 px-5 rounded-full text-xs font-bold uppercase tracking-wider shadow-[0_4px_15px_rgba(0,0,0,0.2)] z-[2] backdrop-blur-[4px]">
                         Black Friday Sale
                       </div>
                     )}
@@ -332,7 +331,7 @@ function GalleryContent() {
                       alt={item.name}
                       width={640}
                       height={360}
-                      className="gallery-row-img"
+                      className="w-full h-full object-cover transition-transform duration-[0.4s] ease-in-out group-hover:scale-[1.06]"
                       onLoad={() => handleImageLoad(item.id)}
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = '/assets/csk-icon.svg';
@@ -343,34 +342,41 @@ function GalleryContent() {
                 </div>
 
                 {/* Specs Section */}
-                <div className="gallery-row-specs">
-                  <h3 className="gallery-row-title">{item.name}</h3>
-                  <div className="gallery-row-price">
+                <div className="p-5 pb-6 flex flex-col grow bg-white">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2 leading-tight tracking-tight">{item.name}</h3>
+                  <div className="text-xl font-bold text-primary-600 mb-4 flex flex-wrap gap-2 items-center">
                     {item.salePrice ? (
                       <>
-                        <span className="original-price">${item.price.toFixed(2)}</span>
-                        <span className="sale-price">${item.salePrice.toFixed(2)}</span>
-                        <span className="savings-badge">
+                        <span className="line-through text-gray-700 text-base opacity-70">${item.price.toFixed(2)}</span>
+                        <span className="text-red-600 text-[1.35rem] font-extrabold">${item.salePrice.toFixed(2)}</span>
+                        <span className="savings-badge text-white py-1 px-[0.65rem] rounded-full text-[0.7rem] font-bold">
                           Save {Math.round(((item.price - item.salePrice) / item.price) * 100)}%
                         </span>
                       </>
                     ) : (
-                      <span className="current-price">${item.price.toFixed(2)}</span>
+                      <span className="price-gradient-text text-2xl font-extrabold">${item.price.toFixed(2)}</span>
                     )}
                   </div>
-                  <div className="gallery-row-specs-list">
+                  <div className="flex flex-col gap-[0.35rem] mb-4 py-[0.85rem] border-t border-b border-bg-dark">
                     {item.specs.map((spec, specIndex) => (
-                      <div key={specIndex} className="spec-item">
-                        <strong>{spec.label}:</strong> {spec.value}
+                      <div key={specIndex} className="text-sm text-gray-900 py-[0.15rem] leading-snug">
+                        <strong className="text-gray-700 font-semibold mr-[0.2rem]">{spec.label}:</strong> {spec.value}
                       </div>
                     ))}
                   </div>
-                  <div className="gallery-row-category">
-                    <span className={`category-tag category-${item.category.toLowerCase()}`}>
+                  <div className="flex gap-[0.6rem] flex-wrap">
+                    <span className={`py-[0.4rem] px-[0.9rem] rounded-full text-[0.7rem] font-bold uppercase tracking-wider transition-transform duration-200 hover:-translate-y-px text-white ${
+                      item.category.toLowerCase() === 'custom' ? 'category-custom-gradient shadow-blue-glow' :
+                      item.category.toLowerCase() === 'refurbished' ? 'category-refurbished-gradient shadow-green-glow' :
+                      'category-new-gradient shadow-purple-glow'
+                    }`}>
                       {item.category.toLowerCase() === 'refurbished' ? 'Refurbished' :
                        (item.category.toLowerCase() === 'custom' && item.type.toLowerCase() === 'laptop') ? 'New' : 'Custom Built'}
                     </span>
-                    <span className={`type-tag type-${item.type.toLowerCase()}`}>
+                    <span className={`py-[0.4rem] px-[0.9rem] rounded-full text-[0.7rem] font-bold uppercase tracking-wider transition-transform duration-200 hover:-translate-y-px text-white ${
+                      item.type.toLowerCase() === 'desktop' ? 'type-desktop-gradient shadow-[0_2px_6px_rgba(71,85,105,0.25)]' :
+                      'type-laptop-gradient shadow-[0_2px_6px_rgba(100,116,139,0.25)]'
+                    }`}>
                       {item.type.toLowerCase() === 'desktop' ? 'Desktop' : 'Laptop'}
                     </span>
                   </div>
@@ -389,23 +395,26 @@ export default function InStorePCsPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="hero" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1587831990711-23ca6441447b?w=1920&q=80)' }}>
-        <div className="container">
-          <h2>In-Store PCs</h2>
-          <p>Browse our collection of custom-built and refurbished computers ready for your home or business.</p>
+      <section
+        className="hero-overlay hero-clip text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1587831990711-23ca6441447b?w=1920&q=80)' }}
+      >
+        <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[3]">
+          <h2 className="text-white text-[clamp(2rem,4vw,3rem)] mb-6 font-bold">In-Store PCs</h2>
+          <p className="text-[clamp(1.1rem,2vw,1.3rem)] mb-0 max-w-[700px] mx-auto opacity-95">Browse our collection of custom-built and refurbished computers ready for your home or business.</p>
         </div>
       </section>
 
-      <Suspense fallback={<div className="container" style={{ padding: '2rem', textAlign: 'center' }}>Loading computers...</div>}>
+      <Suspense fallback={<div className="w-[90%] max-w-[1200px] mx-auto px-4 py-8 text-center">Loading computers...</div>}>
         <GalleryContent />
       </Suspense>
 
       {/* Call-to-Action Section */}
-      <section className="cta">
-        <div className="container">
-          <h2>Interested in a Computer?</h2>
-          <p>Contact us to learn more about any of our available systems or to request a custom build.</p>
-          <Link href="/contact" className="btn btn-white">Ask About This Computer</Link>
+      <section className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-16 text-center relative overflow-hidden">
+        <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
+          <h2 className="text-white text-[2rem] mb-4">Interested in a Computer?</h2>
+          <p className="text-[1.1rem] mb-8 opacity-95">Contact us to learn more about any of our available systems or to request a custom build.</p>
+          <Link href="/contact" className="inline-block px-8 py-4 rounded-brand-md font-semibold text-base transition-all duration-300 cursor-pointer bg-white text-primary-600 shadow-brand-md hover:-translate-y-0.5 hover:shadow-brand-lg">Ask About This Computer</Link>
         </div>
       </section>
     </>

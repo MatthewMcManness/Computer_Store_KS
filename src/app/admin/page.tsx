@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { isAuthenticated } from '@/lib/auth';
+import { isAuthenticated } from '@/lib/supabase-auth';
 import Link from 'next/link';
 import NextImage from 'next/image';
 import { Images, Monitor } from 'lucide-react';

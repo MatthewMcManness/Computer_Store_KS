@@ -1,23 +1,27 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
-import { signInWithGoogle } from '@/lib/supabase-auth';
+import { useSearchParams } from 'next/navigation';
+import { createBrowserClient } from '@supabase/ssr';
 
 /**
- * Error code to user-friendly message mapping
+ * Error messages for URL query parameter error codes.
  */
 const errorMessages: Record<string, string> = {
-  INVALID_CREDENTIALS: 'Invalid email or password',
-  RATE_LIMITED: 'Too many login attempts. Please wait a moment.',
-  SERVICE_UNAVAILABLE: 'Authentication service unavailable. Please try again.',
-  auth_callback_failed: 'Sign in with Google failed. Please try again.',
-  auth_not_configured: 'Authentication is not configured. Please contact support.',
+  unauthorized:
+    'Access denied. Only authorized employee accounts may sign in.',
+  auth_failed:
+    'Sign-in failed. Please try again.',
 };
 
 /**
- * Loading spinner component
+ * Loading spinner component.
+ *
+ * @param className - Tailwind size classes (default: 'h-5 w-5')
+ * @returns SVG spinner element
+ *
+ * @called_by LoginPage, LoginPageContent
+ * @version 1.0.0 - 2026-03-20T00:00:00Z - Initial implementation
  */
 function LoadingSpinner({ className = 'h-5 w-5' }: { className?: string }) {
   return (
@@ -40,21 +44,30 @@ function LoadingSpinner({ className = 'h-5 w-5' }: { className?: string }) {
   );
 }
 
+/**
+ * Inner login page content that uses useSearchParams (requires Suspense boundary).
+ *
+ * Displays a centered card with a "Sign in with Google" button for employee login.
+ * Reads error query params from the URL to show contextual messages when
+ * the auth callback rejects unauthorized emails.
+ *
+ * @returns Employee login card with Google OAuth button
+ *
+ * @sideEffects
+ * - Redirects browser to Google OAuth via Supabase signInWithOAuth
+ *
+ * @functions_called createBrowserClient, supabase.auth.signInWithOAuth
+ * @called_by LoginPage
+ *
+ * @version 1.0.0 - 2026-03-20T00:00:00Z - Initial implementation (Google-only OAuth)
+ */
 function LoginPageContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
-  const returnTo = searchParams?.get('returnTo') ?? null;
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-  const [showPassword, setShowPassword] = useState(false);
 
-  // Check for error from OAuth callback
+  // Check for error from OAuth callback on mount
   useEffect(() => {
     const errorParam = searchParams?.get('error');
     if (errorParam && errorMessages[errorParam]) {
@@ -62,273 +75,67 @@ function LoginPageContent() {
     }
   }, [searchParams]);
 
-  // Check if already authenticated
-  useEffect(() => {
-    let mounted = true;
-
-    const checkAuth = async () => {
-      try {
-        const response = await fetch('/api/auth/check');
-        const data = await response.json();
-        if (mounted && data.authenticated) {
-          // Redirect based on user type or return URL
-          if (returnTo) {
-            router.replace(returnTo);
-          } else if (data.user?.userType === 'customer') {
-            router.replace('/portal');
-          } else {
-            router.replace('/admin');
-          }
-        }
-      } catch {
-        // Not authenticated, stay on login page
-      } finally {
-        if (mounted) {
-          setIsCheckingAuth(false);
-        }
-      }
-    };
-
-    checkAuth();
-
-    return () => {
-      mounted = false;
-    };
-  }, [router, returnTo]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  /**
+   * Initiates Google OAuth sign-in via Supabase.
+   * On success the browser redirects to Google; on error a message is shown.
+   */
+  const handleGoogleSignIn = async () => {
     setError('');
-    setSuccessMessage('');
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
+
+      const { error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
         },
-        body: JSON.stringify({ email, password }),
       });
 
-      const result = await response.json();
-
-      if (response.ok && result.success) {
-        // Show success message with user name
-        const userName = result.user?.name || 'User';
-        setSuccessMessage(`Welcome back, ${userName}!`);
-
-        // Redirect based on user type or return URL
-        setTimeout(() => {
-          if (returnTo) {
-            router.push(returnTo);
-          } else if (result.user?.userType === 'customer') {
-            router.push('/portal');
-          } else {
-            router.push('/admin');
-          }
-          router.refresh();
-        }, 800);
-      } else {
-        // Map error code to user-friendly message
-        const errorCode = result.code || '';
-        const errorMsg =
-          errorMessages[errorCode] || result.error || 'Invalid credentials';
-        setError(errorMsg);
-        setPassword('');
-      }
-    } catch {
-      setError('Login failed. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleGoogleSignIn = async () => {
-    setError('');
-    setIsGoogleLoading(true);
-
-    try {
-      const { error } = await signInWithGoogle(returnTo || undefined);
-      if (error) {
-        setError(error.message);
-        setIsGoogleLoading(false);
+      if (oauthError) {
+        setError(oauthError.message);
+        setIsLoading(false);
       }
       // If no error, browser will redirect to Google
     } catch {
       setError('Sign in with Google failed. Please try again.');
-      setIsGoogleLoading(false);
+      setIsLoading(false);
     }
   };
 
-  // Show loading while checking initial auth
-  if (isCheckingAuth) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <div className="text-center text-gray-600 dark:text-gray-400">
-          <LoadingSpinner className="mx-auto h-8 w-8" />
-          <p className="mt-2">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <>
-      {/* Page Title */}
-      <h1 className="mb-6 text-center text-2xl font-bold text-gray-900 dark:text-white">
-        Sign In
+      {/* Heading */}
+      <h1 className="mb-2 text-center text-2xl font-bold text-gray-900 dark:text-white">
+        Employee Login
       </h1>
-
-      {/* Success Message */}
-      {successMessage && (
-        <div
-          className="mb-6 rounded-lg border border-green-200 bg-green-50 p-4"
-          role="alert"
-          aria-live="polite"
-        >
-          <p className="text-sm font-medium text-green-600">{successMessage}</p>
-        </div>
-      )}
+      <p className="mb-8 text-center text-sm text-gray-500 dark:text-gray-400">
+        Sign in with your authorized Google account
+      </p>
 
       {/* Error Message */}
       {error && (
         <div
-          className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4"
+          className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/30"
           role="alert"
           aria-live="assertive"
         >
-          <p className="text-sm text-red-600">{error}</p>
+          <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
         </div>
       )}
 
-      {/* Login Form */}
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
-            Email
-          </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter your email"
-            autoComplete="email"
-            required
-            autoFocus
-            disabled={isLoading || !!successMessage}
-            aria-describedby={error ? 'login-error' : undefined}
-            className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:bg-gray-100 disabled:cursor-not-allowed dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 dark:disabled:bg-gray-700"
-          />
-        </div>
-
-        <div>
-          <label
-            htmlFor="password"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
-            Password
-          </label>
-          <div className="relative">
-            <input
-              type={showPassword ? 'text' : 'password'}
-              id="password"
-              name="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
-              autoComplete="current-password"
-              required
-              disabled={isLoading || !!successMessage}
-              className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 pr-12 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:bg-gray-100 disabled:cursor-not-allowed dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 dark:disabled:bg-gray-700"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              disabled={isLoading || !!successMessage}
-              className="absolute right-3 top-1/2 -translate-y-1/2 mt-0.5 text-gray-500 hover:text-gray-700 focus:outline-none disabled:cursor-not-allowed dark:text-gray-400 dark:hover:text-gray-300"
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
-            >
-              {showPassword ? (
-                <svg
-                  className="h-5 w-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
-                  />
-                </svg>
-              ) : (
-                <svg
-                  className="h-5 w-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                  />
-                </svg>
-              )}
-            </button>
-          </div>
-        </div>
-
-        <button
-          type="submit"
-          disabled={isLoading || isGoogleLoading || !!successMessage}
-          className="w-full rounded-lg bg-blue-600 px-4 py-3 font-semibold text-white transition-all hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isLoading ? (
-            <span className="flex items-center justify-center">
-              <LoadingSpinner className="mr-2 h-5 w-5" />
-              Signing in...
-            </span>
-          ) : (
-            'Sign In'
-          )}
-        </button>
-      </form>
-
-      {/* Divider */}
-      <div className="relative my-6">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-gray-300 dark:border-gray-600" />
-        </div>
-        <div className="relative flex justify-center text-sm">
-          <span className="bg-white dark:bg-gray-900 px-4 text-gray-500 dark:text-gray-400">
-            Or continue with
-          </span>
-        </div>
-      </div>
-
-      {/* Google Sign In */}
+      {/* Google Sign In Button */}
       <button
         type="button"
         onClick={handleGoogleSignIn}
-        disabled={isLoading || isGoogleLoading || !!successMessage}
-        className="w-full flex items-center justify-center gap-3 rounded-lg border border-gray-300 bg-white px-4 py-3 font-medium text-gray-700 transition-all hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+        disabled={isLoading}
+        className="w-full flex items-center justify-center gap-3 rounded-lg border border-gray-300 bg-white px-4 py-3 font-medium text-gray-700 transition-all hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
       >
-        {isGoogleLoading ? (
+        {isLoading ? (
           <LoadingSpinner className="h-5 w-5" />
         ) : (
           <svg className="h-5 w-5" viewBox="0 0 24 24" aria-hidden="true">
@@ -350,33 +157,30 @@ function LoginPageContent() {
             />
           </svg>
         )}
-        {isGoogleLoading ? 'Connecting...' : 'Sign in with Google'}
+        {isLoading ? 'Connecting...' : 'Sign in with Google'}
       </button>
 
-      {/* Links */}
-      <div className="mt-6 space-y-3 text-center text-sm">
-        <div>
-          <Link
-            href="/reset-password"
-            className="text-blue-600 hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
-          >
-            Forgot your password?
-          </Link>
-        </div>
-        <div className="text-gray-600 dark:text-gray-400">
-          Don&apos;t have an account?{' '}
-          <Link
-            href="/register"
-            className="text-blue-600 hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
-          >
-            Create account
-          </Link>
-        </div>
-      </div>
+      {/* Authorized employees notice */}
+      <p className="mt-6 text-center text-xs text-gray-400 dark:text-gray-500">
+        Authorized employees only
+      </p>
     </>
   );
 }
 
+/**
+ * Login page component with Suspense boundary for useSearchParams.
+ *
+ * Renders a clean, centered card with the site branding, an "Employee Login"
+ * heading, and a single "Sign in with Google" button. The auth layout wrapper
+ * provides the gradient background, logo, and card container.
+ *
+ * @returns Login page wrapped in Suspense
+ *
+ * @called_by Next.js App Router at /login
+ *
+ * @version 1.0.0 - 2026-03-20T00:00:00Z - Rewritten for simple Google OAuth
+ */
 export default function LoginPage() {
   return (
     <Suspense

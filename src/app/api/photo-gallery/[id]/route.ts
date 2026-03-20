@@ -7,11 +7,11 @@
  *
  * @version 1.0.0 - 2026-01-19T00:00:00Z - Initial implementation
  * @version 2.0.0 - 2026-03-20T17:52:44Z - Extract inline queries to data access module
+ * @version 3.0.0 - 2026-03-20T00:00:00Z - Simplified auth: single-employee model, no RBAC
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { isAuthenticated, getUserRoles } from '@/lib/auth';
-import { hasPermission } from '@/lib/role-helpers';
+import { isAuthenticated } from '@/lib/supabase-auth';
 import { getPhotoById, updatePhoto, deletePhoto } from '@/lib/photo-gallery';
 import type { PhotoGalleryItem, UpdatePhotoInput } from '@/types/photo-gallery';
 
@@ -65,18 +65,19 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 /**
  * PUT /api/photo-gallery/[id] - Update photo
  *
- * Requires authentication and manage_photo_gallery permission.
+ * Requires authentication.
  *
  * @param request - Request with partial photo data in body
  * @param params - Route params containing the photo ID
  *
  * @returns JSON response with { success, data } containing the updated PhotoGalleryItem
  *
- * @functions_called isAuthenticated, getUserRoles, hasPermission, updatePhoto
+ * @functions_called isAuthenticated, updatePhoto
  * @called_by AdminPhotoGalleryPage
  *
  * @version 1.0.0 - 2026-01-19T00:00:00Z - Initial implementation
  * @version 2.0.0 - 2026-03-20T17:52:44Z - Delegate to data access module
+ * @version 3.0.0 - 2026-03-20T00:00:00Z - Simplified auth check (no role permissions)
  */
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
@@ -88,15 +89,6 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
-      );
-    }
-
-    // Check permission
-    const roles = await getUserRoles();
-    if (!hasPermission(roles, 'manage_photo_gallery')) {
-      return NextResponse.json(
-        { success: false, error: 'Forbidden' },
-        { status: 403 }
       );
     }
 
@@ -128,7 +120,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 /**
  * DELETE /api/photo-gallery/[id] - Delete photo
  *
- * Requires authentication and manage_photo_gallery permission.
+ * Requires authentication.
  *
  * @param request - The incoming Next.js request
  * @param params - Route params containing the photo ID
@@ -138,11 +130,12 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
  * @sideEffects
  * - Permanently deletes the photo record from the database
  *
- * @functions_called isAuthenticated, getUserRoles, hasPermission, deletePhoto
+ * @functions_called isAuthenticated, deletePhoto
  * @called_by AdminPhotoGalleryPage
  *
  * @version 1.0.0 - 2026-01-19T00:00:00Z - Initial implementation
  * @version 2.0.0 - 2026-03-20T17:52:44Z - Delegate to data access module
+ * @version 3.0.0 - 2026-03-20T00:00:00Z - Simplified auth check (no role permissions)
  */
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
@@ -154,15 +147,6 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
-      );
-    }
-
-    // Check permission
-    const roles = await getUserRoles();
-    if (!hasPermission(roles, 'manage_photo_gallery')) {
-      return NextResponse.json(
-        { success: false, error: 'Forbidden' },
-        { status: 403 }
       );
     }
 

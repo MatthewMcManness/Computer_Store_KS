@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import { Plus, Pencil, Trash2, Eye, EyeOff, X, Upload, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-import { isAuthenticated } from '@/lib/auth';
 import type { PhotoGalleryItem } from '@/types/photo-gallery';
 import { PHOTO_CATEGORIES, transformPhoto, type PhotoGalleryDisplay } from '@/types/photo-gallery';
 

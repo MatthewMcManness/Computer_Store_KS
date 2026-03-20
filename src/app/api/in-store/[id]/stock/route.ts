@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { isAuthenticated } from '@/lib/auth';
+import { isAuthenticated } from '@/lib/supabase-auth';
 import { updateStockQuantity } from '@/lib/gallery';
 import { isSupabaseAdminConfigured } from '@/lib/supabase';
 

@@ -1,4 +1,4 @@
-import { isAuthenticated } from '@/lib/auth';
+import { isAuthenticated } from '@/lib/supabase-auth';
 import { AdminShell } from '@/components/admin';
 import './admin.css';
 

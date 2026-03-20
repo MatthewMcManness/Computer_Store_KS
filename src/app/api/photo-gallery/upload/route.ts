@@ -13,9 +13,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { isAuthenticated, getUserRoles } from '@/lib/auth';
+import { isAuthenticated } from '@/lib/supabase-auth';
 import { supabaseAdmin } from '@/lib/supabase';
-import { hasPermission } from '@/lib/role-helpers';
 import { isAllowedFile, processImage, uploadToStorage, MAX_FILE_SIZE } from '@/lib/image-upload';
 
 // Next.js App Router route segment config
@@ -39,15 +38,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
-      );
-    }
-
-    // Check permission
-    const roles = await getUserRoles();
-    if (!hasPermission(roles, 'manage_photo_gallery')) {
-      return NextResponse.json(
-        { success: false, error: 'Forbidden' },
-        { status: 403 }
       );
     }
 

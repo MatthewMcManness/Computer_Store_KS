@@ -8,12 +8,14 @@
  * - Middleware
  *
  * Uses @supabase/ssr for proper cookie handling in Next.js
+ *
+ * @version 1.0.0 - 2026-01-11T00:00:00Z - Initial implementation
+ * @version 2.0.0 - 2026-03-20T00:00:00Z - Simplified: removed role/profile helpers (single-employee model)
  */
 
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
-import type { UserProfile, UserRole } from './supabase-auth';
 
 // =============================================================================
 // Configuration
@@ -23,7 +25,13 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 /**
- * Check if Supabase is configured
+ * Check if Supabase is configured.
+ *
+ * @returns true if both SUPABASE_URL and SUPABASE_ANON_KEY are set
+ *
+ * @called_by Middleware, server components
+ *
+ * @version 1.0.0 - 2026-01-11T00:00:00Z - Initial implementation
  */
 export function isSupabaseServerConfigured(): boolean {
   return !!(supabaseUrl && supabaseAnonKey);
@@ -34,8 +42,14 @@ export function isSupabaseServerConfigured(): boolean {
 // =============================================================================
 
 /**
- * Create a Supabase client for use in Server Components
- * This client can read cookies but cannot modify them
+ * Create a Supabase client for use in Server Components.
+ * This client can read cookies but cannot modify them.
+ *
+ * @returns Supabase server client or null if not configured
+ *
+ * @called_by getServerUser, server components
+ *
+ * @version 1.0.0 - 2026-01-11T00:00:00Z - Initial implementation
  */
 export async function createSupabaseServerClient() {
   if (!supabaseUrl || !supabaseAnonKey) {
@@ -68,8 +82,16 @@ export async function createSupabaseServerClient() {
 // =============================================================================
 
 /**
- * Create a Supabase client for use in Middleware
- * This client can both read and write cookies via request/response
+ * Create a Supabase client for use in Middleware.
+ * This client can both read and write cookies via request/response.
+ *
+ * @param request - The Next.js middleware request
+ * @param response - The Next.js middleware response
+ * @returns Supabase server client or null if not configured
+ *
+ * @called_by Middleware
+ *
+ * @version 1.0.0 - 2026-01-11T00:00:00Z - Initial implementation
  */
 export function createSupabaseMiddlewareClient(
   request: NextRequest,
@@ -95,88 +117,17 @@ export function createSupabaseMiddlewareClient(
 }
 
 // =============================================================================
-// Session & User Helpers for Middleware
-// =============================================================================
-
-export interface MiddlewareAuthResult {
-  user: {
-    id: string;
-    email: string;
-  } | null;
-  profile: UserProfile | null;
-  isAuthenticated: boolean;
-  role: UserRole | null;
-}
-
-/**
- * Get authenticated user and profile from middleware context
- * Returns user info without making additional database calls if possible
- */
-export async function getMiddlewareAuth(
-  request: NextRequest,
-  response: NextResponse
-): Promise<MiddlewareAuthResult> {
-  const supabase = createSupabaseMiddlewareClient(request, response);
-
-  if (!supabase) {
-    return {
-      user: null,
-      profile: null,
-      isAuthenticated: false,
-      role: null,
-    };
-  }
-
-  try {
-    // Get the session - this validates the JWT from cookies
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser();
-
-    if (error || !user) {
-      return {
-        user: null,
-        profile: null,
-        isAuthenticated: false,
-        role: null,
-      };
-    }
-
-    // Get user profile with role
-    const { data: profile } = await supabase
-      .from('user_profiles')
-      .select('*')
-      .eq('id', user.id)
-      .single();
-
-    return {
-      user: {
-        id: user.id,
-        email: user.email || '',
-      },
-      profile: profile as UserProfile | null,
-      isAuthenticated: true,
-      role: (profile?.role as UserRole) || null,
-    };
-  } catch (error) {
-    console.error('[MIDDLEWARE AUTH] Error getting auth:', error);
-    return {
-      user: null,
-      profile: null,
-      isAuthenticated: false,
-      role: null,
-    };
-  }
-}
-
-// =============================================================================
 // Route Handler Client (for API routes)
 // =============================================================================
 
 /**
- * Create a Supabase client for use in Route Handlers (API routes)
- * Similar to server component client but for API context
+ * Create a Supabase client for use in Route Handlers (API routes).
+ *
+ * @returns Supabase server client or null if not configured
+ *
+ * @called_by OAuth callback route, API routes
+ *
+ * @version 1.0.0 - 2026-01-11T00:00:00Z - Initial implementation
  */
 export async function createSupabaseRouteClient() {
   if (!supabaseUrl || !supabaseAnonKey) {
@@ -208,8 +159,14 @@ export async function createSupabaseRouteClient() {
 // =============================================================================
 
 /**
- * Create a Supabase client for use in Server Actions
- * This client can modify cookies for session management
+ * Create a Supabase client for use in Server Actions.
+ * This client can modify cookies for session management.
+ *
+ * @returns Supabase server client or null if not configured
+ *
+ * @called_by Server actions
+ *
+ * @version 1.0.0 - 2026-01-11T00:00:00Z - Initial implementation
  */
 export async function createSupabaseActionClient() {
   if (!supabaseUrl || !supabaseAnonKey) {
@@ -237,8 +194,15 @@ export async function createSupabaseActionClient() {
 // =============================================================================
 
 /**
- * Get the current user from server context
- * Useful for protecting server components and actions
+ * Get the current user from server context.
+ * Useful for protecting server components and actions.
+ *
+ * @returns The Supabase User object, or null if not authenticated
+ *
+ * @functions_called createSupabaseServerClient
+ * @called_by Server components, server actions
+ *
+ * @version 1.0.0 - 2026-01-11T00:00:00Z - Initial implementation
  */
 export async function getServerUser() {
   const supabase = await createSupabaseServerClient();
@@ -254,41 +218,6 @@ export async function getServerUser() {
 }
 
 /**
- * Get the current user's profile from server context
- */
-export async function getServerUserProfile(): Promise<UserProfile | null> {
-  const supabase = await createSupabaseServerClient();
-  if (!supabase) return null;
-
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) return null;
-
-  const { data: profile, error: profileError } = await supabase
-    .from('user_profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single();
-
-  if (profileError || !profile) return null;
-  return profile as UserProfile;
-}
-
-/**
- * Check if the current server user has a specific role
- */
-export async function serverUserHasRole(
-  allowedRoles: UserRole[]
-): Promise<boolean> {
-  const profile = await getServerUserProfile();
-  if (!profile) return false;
-  return (allowedRoles as string[]).includes(profile.role);
-}
-
-/**
- * Alias for createSupabaseRouteClient for simpler imports
+ * Alias for createSupabaseRouteClient for simpler imports.
  */
 export const createClient = createSupabaseRouteClient;

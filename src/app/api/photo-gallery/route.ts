@@ -6,11 +6,11 @@
  *
  * @version 1.0.0 - 2026-01-19T00:00:00Z - Initial implementation
  * @version 2.0.0 - 2026-03-20T17:52:44Z - Extract inline queries to data access module
+ * @version 3.0.0 - 2026-03-20T00:00:00Z - Simplified auth: single-employee model, no RBAC
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { isAuthenticated, getUserRoles } from '@/lib/auth';
-import { hasPermission } from '@/lib/role-helpers';
+import { isAuthenticated } from '@/lib/supabase-auth';
 import { getPhotos, createPhoto } from '@/lib/photo-gallery';
 import type { PhotoGalleryItem } from '@/types/photo-gallery';
 import type { CreatePhotoInput } from '@/types/photo-gallery';
@@ -28,11 +28,12 @@ export const dynamic = 'force-dynamic';
  *
  * @returns JSON response with { success, data } containing array of PhotoGalleryItem
  *
- * @functions_called isAuthenticated, getUserRoles, hasPermission, getPhotos
+ * @functions_called isAuthenticated, getPhotos
  * @called_by PhotoGalleryPage, AdminPhotoGalleryPage
  *
  * @version 1.0.0 - 2026-01-19T00:00:00Z - Initial implementation
  * @version 2.0.0 - 2026-03-20T17:52:44Z - Delegate to data access module
+ * @version 3.0.0 - 2026-03-20T00:00:00Z - Simplified auth check (no role permissions)
  */
 export async function GET(request: NextRequest) {
   try {
@@ -40,21 +41,13 @@ export async function GET(request: NextRequest) {
     const isAdmin = searchParams.get('admin') === 'true';
     const category = searchParams.get('category');
 
-    // Admin mode requires authentication and permission
+    // Admin mode requires authentication
     if (isAdmin) {
       const authenticated = await isAuthenticated();
       if (!authenticated) {
         return NextResponse.json(
           { success: false, error: 'Unauthorized' },
           { status: 401 }
-        );
-      }
-
-      const roles = await getUserRoles();
-      if (!hasPermission(roles, 'view_photo_gallery')) {
-        return NextResponse.json(
-          { success: false, error: 'Forbidden' },
-          { status: 403 }
         );
       }
     }
@@ -87,17 +80,18 @@ export async function GET(request: NextRequest) {
 /**
  * POST /api/photo-gallery - Create a new photo
  *
- * Requires authentication and manage_photo_gallery permission.
+ * Requires authentication.
  *
  * @param request - Request with photo data in body
  *
  * @returns JSON response with { success, data } containing the created PhotoGalleryItem
  *
- * @functions_called isAuthenticated, getUserRoles, hasPermission, createPhoto
+ * @functions_called isAuthenticated, createPhoto
  * @called_by AdminPhotoGalleryPage
  *
  * @version 1.0.0 - 2026-01-19T00:00:00Z - Initial implementation
  * @version 2.0.0 - 2026-03-20T17:52:44Z - Delegate to data access module
+ * @version 3.0.0 - 2026-03-20T00:00:00Z - Simplified auth check (no role permissions)
  */
 export async function POST(request: NextRequest) {
   try {
@@ -107,15 +101,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
-      );
-    }
-
-    // Check permission
-    const roles = await getUserRoles();
-    if (!hasPermission(roles, 'manage_photo_gallery')) {
-      return NextResponse.json(
-        { success: false, error: 'Forbidden' },
-        { status: 403 }
       );
     }
 

@@ -148,9 +148,9 @@ export function Header() {
               </Link>
             </li>
             <li>
-              <Link className={`nav-link ${pathname?.startsWith('/games') ? 'active' : ''}`} href="/games">
+              <a className={`nav-link ${pathname?.startsWith('/games') ? 'active' : ''}`} href="/games/">
                 Games
-              </Link>
+              </a>
             </li>
             <li>
               <Link className={`nav-link ${isActive('/contact') ? 'active' : ''}`} href="/contact">

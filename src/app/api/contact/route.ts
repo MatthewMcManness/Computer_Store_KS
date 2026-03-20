@@ -7,12 +7,25 @@ import { getClientIP } from '@/lib/request-helpers';
 
 export const dynamic = 'force-dynamic';
 
-// CORS headers for cross-origin requests from static site
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-};
+const ALLOWED_ORIGINS: [string, ...string[]] = ['https://computerstoreks.com', 'https://www.computerstoreks.com'];
+
+/**
+ * Build CORS headers with origin checking instead of wildcard.
+ *
+ * @param request - The incoming request to extract the Origin header from
+ * @returns CORS headers object with the validated origin
+ *
+ * @version 1.0.0 - 2026-03-20T00:00:00Z - Replace wildcard CORS with origin allowlist
+ */
+function getCorsHeaders(request: NextRequest): Record<string, string> {
+  const origin = request.headers.get('origin') || '';
+  const corsOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    'Access-Control-Allow-Origin': corsOrigin,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  };
+}
 
 // Rate limit configuration: 10 requests per minute per IP
 const rateLimiter = createRateLimiter(10, 60 * 1000);
@@ -78,10 +91,22 @@ const contactFormSchema = z.object({
 type ContactFormData = z.infer<typeof contactFormSchema>;
 
 /**
- * Sanitize string to prevent XSS
+ * Escape HTML special characters to prevent XSS in email output.
+ *
+ * @param str - The untrusted user input string to escape
+ * @returns The string with HTML special characters replaced by entities
+ *
+ * @called_by POST handler (contact form)
+ *
+ * @version 1.0.0 - 2026-03-20T00:00:00Z - Replace naive strip with proper entity escaping
  */
-function sanitize(str: string): string {
-  return str.replace(/[<>]/g, '');
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 export async function POST(request: NextRequest) {
@@ -101,7 +126,7 @@ export async function POST(request: NextRequest) {
         {
           status: 429,
           headers: {
-            ...corsHeaders,
+            ...getCorsHeaders(request),
             'X-RateLimit-Remaining': '0',
             'Retry-After': String(retryAfter),
           },
@@ -116,7 +141,7 @@ export async function POST(request: NextRequest) {
     } catch {
       return NextResponse.json(
         { success: false, error: 'Invalid request body' },
-        { status: 400, headers: corsHeaders }
+        { status: 400, headers: getCorsHeaders(request) }
       );
     }
 
@@ -133,7 +158,7 @@ export async function POST(request: NextRequest) {
           error: 'Validation failed',
           errors,
         },
-        { status: 400, headers: corsHeaders }
+        { status: 400, headers: getCorsHeaders(request) }
       );
     }
 
@@ -203,11 +228,11 @@ export async function POST(request: NextRequest) {
 
     // Sanitize inputs for legitimate submissions
     const sanitizedData = {
-      name: sanitize(formData.name),
+      name: escapeHtml(formData.name),
       email: formData.email, // Already validated as email
-      phone: formData.phone ? sanitize(formData.phone) : undefined,
+      phone: formData.phone ? escapeHtml(formData.phone) : undefined,
       subject: formData.subject,
-      message: sanitize(formData.message),
+      message: escapeHtml(formData.message),
       location: formData.location,
     };
 
@@ -243,7 +268,7 @@ export async function POST(request: NextRequest) {
           success: false,
           error: 'We had trouble delivering your message. Please call us directly at (785) 267-3223 or email contact@computerstoreks.com.',
         },
-        { status: 500, headers: corsHeaders }
+        { status: 500, headers: getCorsHeaders(request) }
       );
     }
 
@@ -254,7 +279,7 @@ export async function POST(request: NextRequest) {
       },
       {
         headers: {
-          ...corsHeaders,
+          ...getCorsHeaders(request),
           'X-RateLimit-Remaining': String(rateLimit.remaining),
         },
       }
@@ -266,19 +291,15 @@ export async function POST(request: NextRequest) {
         success: false,
         error: 'An error occurred. Please try again or call us directly at (785) 267-3223.',
       },
-      { status: 500, headers: corsHeaders }
+      { status: 500, headers: getCorsHeaders(request) }
     );
   }
 }
 
 // Optionally support OPTIONS for CORS preflight
-export async function OPTIONS() {
+export async function OPTIONS(request: NextRequest) {
   return new NextResponse(null, {
     status: 204,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-    },
+    headers: getCorsHeaders(request),
   });
 }

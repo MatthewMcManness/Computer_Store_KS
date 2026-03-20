@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
+import { AUTHORIZED_EMAIL } from '@/lib/constants';
 
-const ALLOWED_EMAIL = 'contact@computerstoreks.com';
+const ALLOWED_EMAIL = AUTHORIZED_EMAIL;
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || '';
 
 const PUBLIC_ROUTES = new Set([
@@ -10,8 +11,17 @@ const PUBLIC_ROUTES = new Set([
   '/reviews', '/services', '/silver-plan', '/why-linux', '/login',
 ]);
 
+// Exact API paths that are public (no sub-route access)
+const PUBLIC_API_EXACT = new Set([
+  '/api/contact',
+  '/api/health',
+  '/api/in-store',
+  '/api/in-store/sale',
+  '/api/photo-gallery',
+]);
+
+// Non-API prefixes that allow all sub-routes
 const PUBLIC_PREFIXES = [
-  '/api/contact', '/api/health', '/api/in-store', '/api/photo-gallery',
   '/services/', '/auth/callback', '/_next/', '/assets/', '/public/',
 ];
 
@@ -31,11 +41,22 @@ function addSecurityHeaders(response: NextResponse): void {
   response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   response.headers.set('Permissions-Policy', 'geolocation=(), microphone=()');
-  response.headers.set('X-XSS-Protection', '1; mode=block');
+
+  const csp = [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://challenges.cloudflare.com",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob: https://*.supabase.co https://*.supabase.in https://images.unsplash.com https://raw.githubusercontent.com",
+    "connect-src 'self' https://*.supabase.co https://*.supabase.in https://www.google-analytics.com https://challenges.cloudflare.com",
+    "frame-src https://challenges.cloudflare.com",
+    "font-src 'self'",
+  ].join('; ');
+  response.headers.set('Content-Security-Policy', csp);
 }
 
 function isPublicRoute(pathname: string): boolean {
   if (PUBLIC_ROUTES.has(pathname)) return true;
+  if (PUBLIC_API_EXACT.has(pathname)) return true;
   return PUBLIC_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 }
 

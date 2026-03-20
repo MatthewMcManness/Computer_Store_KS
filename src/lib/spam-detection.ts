@@ -649,7 +649,6 @@ export async function calculateSpamScore(
 
   // Turnstile verification (0 or 30)
   let turnstileScore = 0;
-  let turnstileFailed = false;
   if (data._turnstile) {
     const turnstileValid = await verifyTurnstile(data._turnstile, clientIP);
     if (!turnstileValid) {
@@ -657,12 +656,10 @@ export async function calculateSpamScore(
       // Legitimate users can fail Turnstile due to misconfigured keys,
       // network issues, or Cloudflare outages.
       turnstileScore = 30;
-      turnstileFailed = true;
     }
   } else if (process.env.TURNSTILE_SECRET_KEY) {
     // Token required but not provided — suspicious but not fatal
     turnstileScore = 30;
-    turnstileFailed = true;
   }
 
   // Gibberish detection in message (0-30, or 200 for instant block)

@@ -160,13 +160,3 @@ export function detectSpamPatterns(message: string, email?: string): SpamPattern
   };
 }
 
-/**
- * Quick check if message contains any spam keywords
- *
- * @param message - Message to check
- * @returns true if spam keywords detected
- */
-export function hasSpamKeywords(message: string): boolean {
-  const lowerMessage = message.toLowerCase();
-  return SPAM_KEYWORDS.some(keyword => lowerMessage.includes(keyword.toLowerCase()));
-}

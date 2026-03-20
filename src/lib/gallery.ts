@@ -1,89 +1,11 @@
 import { supabase, supabaseAdmin } from './supabase';
-
-// =============================================================================
-// Gallery Type Definitions
-// =============================================================================
-
-export interface GallerySpec {
-  label: string;
-  value: string;
-}
-
-export interface BlackFridayData {
-  enabled: boolean;
-  originalPrice: string;
-  salePrice: string;
-  discount: number;
-  originalPartsWarranty?: string;
-  originalFreeDiagnostics?: string;
-}
-
-export interface GalleryComputerDB {
-  id: string;
-  name: string;
-  type: 'desktop' | 'laptop';
-  category: 'refurbished' | 'custom' | 'new';
-  price: number;
-  image_url: string | null;
-  thumbnail_url: string | null;
-  specs: GallerySpec[];
-  is_active: boolean;
-  sort_order: number;
-  stock_quantity: number;
-  archived_at: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface GalleryComputer {
-  id: string;
-  name: string;
-  type: 'desktop' | 'laptop';
-  category: 'refurbished' | 'custom' | 'new';
-  price: string;
-  image: string;
-  specs: GallerySpec[];
-  blackFriday?: BlackFridayData;
-  thumbnail?: string;
-  stockQuantity: number;
-  isActive?: boolean;
-  archivedAt?: string;
-  created_at?: string;
-  updated_at?: string;
-}
-
-export interface GallerySale {
-  id: string;
-  sale_type: string;
-  name: string;
-  discount_percent: number;
-  applies_to: string[];
-  is_active: boolean;
-  created_at: string;
-}
-
-export interface CreateComputerInput {
-  name: string;
-  type: 'desktop' | 'laptop';
-  category: 'refurbished' | 'custom' | 'new';
-  price: number;
-  image_url?: string;
-  thumbnail_url?: string;
-  specs?: GallerySpec[];
-  sort_order?: number;
-  stock_quantity?: number;
-}
-
-export interface UpdateComputerInput {
-  name?: string;
-  type?: 'desktop' | 'laptop';
-  category?: 'refurbished' | 'custom' | 'new';
-  price?: number;
-  image_url?: string;
-  specs?: GallerySpec[];
-  is_active?: boolean;
-  sort_order?: number;
-}
+import type {
+  GalleryComputer,
+  GalleryComputerDB,
+  GallerySale,
+  CreateComputerInput,
+  UpdateComputerInput,
+} from '@/types/gallery';
 
 // =============================================================================
 // Gallery Helper Functions

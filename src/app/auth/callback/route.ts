@@ -22,8 +22,7 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
-
-const AUTHORIZED_EMAIL = 'contact@computerstoreks.com';
+import { AUTHORIZED_EMAIL } from '@/lib/constants';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);

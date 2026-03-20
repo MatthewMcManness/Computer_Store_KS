@@ -8,27 +8,9 @@
  * @version 2.0.0 - 2026-03-20T00:00:00Z - Simplified to single-employee Google OAuth model
  */
 
-import { createBrowserClient, createServerClient } from '@supabase/ssr';
+import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-
-/** The single authorized employee email */
-const AUTHORIZED_EMAIL = 'contact@computerstoreks.com';
-
-/**
- * Create a Supabase client for browser/client components.
- *
- * @returns Supabase browser client instance
- *
- * @called_by Login page, client-side components
- *
- * @version 1.0.0 - 2026-03-20T00:00:00Z - Initial implementation
- */
-export function createAuthClient() {
-  return createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-}
+import { AUTHORIZED_EMAIL } from '@/lib/constants';
 
 /**
  * Create a Supabase client for server-side auth operations.

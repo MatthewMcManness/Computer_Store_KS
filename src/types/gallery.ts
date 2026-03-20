@@ -46,6 +46,31 @@ export interface BlackFridayData {
 }
 
 /**
+ * Raw database row from the gallery_computers table.
+ *
+ * Represents the Supabase row shape before transformation into
+ * the display-oriented GalleryComputer type.
+ *
+ * @version 1.0.0 - 2026-03-20T00:00:00Z - Moved from lib/gallery.ts to centralize types
+ */
+export interface GalleryComputerDB {
+  id: string;
+  name: string;
+  type: 'desktop' | 'laptop';
+  category: 'refurbished' | 'custom' | 'new';
+  price: number;
+  image_url: string | null;
+  thumbnail_url: string | null;
+  specs: GallerySpec[];
+  is_active: boolean;
+  sort_order: number;
+  stock_quantity: number;
+  archived_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
  * Gallery computer item with all display and metadata.
  *
  * Represents a single computer in the gallery inventory system.

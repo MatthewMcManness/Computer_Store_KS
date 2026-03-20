@@ -3,6 +3,7 @@ import type { NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 
 const ALLOWED_EMAIL = 'contact@computerstoreks.com';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || '';
 
 const PUBLIC_ROUTES = new Set([
   '/', '/about', '/contact', '/gallery', '/in-store-pcs',
@@ -84,7 +85,7 @@ export async function middleware(request: NextRequest) {
   // Authenticated user on /login -> redirect to admin
   if (pathname === '/login') {
     if (user?.email === ALLOWED_EMAIL) {
-      return NextResponse.redirect(new URL('/admin', request.url));
+      return NextResponse.redirect(new URL('/admin', SITE_URL || request.url));
     }
     return response;
   }
@@ -92,12 +93,12 @@ export async function middleware(request: NextRequest) {
   // Protected /admin/* routes
   if (pathname.startsWith('/admin')) {
     if (!user) {
-      const loginUrl = new URL('/login', request.url);
+      const loginUrl = new URL('/login', SITE_URL || request.url);
       loginUrl.searchParams.set('returnTo', pathname);
       return NextResponse.redirect(loginUrl);
     }
     if (user.email !== ALLOWED_EMAIL) {
-      const loginUrl = new URL('/login', request.url);
+      const loginUrl = new URL('/login', SITE_URL || request.url);
       loginUrl.searchParams.set('error', 'unauthorized');
       return NextResponse.redirect(loginUrl);
     }

@@ -28,7 +28,7 @@ const AUTHORIZED_EMAIL = 'contact@computerstoreks.com';
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get('code');
-  const origin = request.nextUrl.origin;
+  const origin = process.env.NEXT_PUBLIC_SITE_URL || request.nextUrl.origin;
 
   if (code) {
     const cookieStore = await cookies();

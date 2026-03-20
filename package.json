@@ -8,13 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
-    "clean": "rm -rf .next out node_modules",
-    "migrate-users": "npx ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/migrate-users.ts",
-    "migrate-users:dry-run": "npx ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/migrate-users.ts --dry-run --verbose"
+    "clean": "rm -rf .next out node_modules"
   },
-  "devDependencies": {
-    "ts-node": "^10.9.2"
-  },
+  "devDependencies": {},
   "dependencies": {
     "@fingerprintjs/fingerprintjs": "^5.0.1",
     "@marsidev/react-turnstile": "^1.4.0",
@@ -39,6 +35,6 @@
     "zod": "^4.1.12"
   },
   "engines": {
-    "node": ">=20.11.0 <21.0.0"
+    "node": ">=22.0.0"
   }
 }

@@ -2,9 +2,6 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { BUSINESS_INFO } from '@/lib/constants';
 
-// Prevent static prerendering at build time
-export const dynamic = 'force-dynamic';
-
 export const metadata: Metadata = {
   title: {
     default: `${BUSINESS_INFO.name} | Computer Sales & Repair in Topeka, KS`,

@@ -5,12 +5,15 @@ services:
   - type: web
     name: CSK-Production
     env: node
+    plan: free
+    region: oregon
     branch: Production
-    buildCommand: npm install && npm run build && cp -r .next/static .next/standalone/.next/static && rm -rf .next/standalone/public && cp -R public .next/standalone/ && cp package.json .next/standalone/
+    buildCommand: npm ci && npm run build && cp -r .next/static .next/standalone/.next/static && rm -rf .next/standalone/public && cp -R public .next/standalone/ && cp package.json .next/standalone/
     startCommand: cd .next/standalone && node server.js
+    healthCheckPath: /api/health
     envVars:
       - key: NODE_VERSION
-        value: 20.11.0
+        value: "22"
       - key: NODE_ENV
         value: production
       - key: PORT
@@ -56,12 +59,15 @@ services:
   - type: web
     name: CSK-Development
     env: node
+    plan: free
+    region: oregon
     branch: Development
-    buildCommand: npm install && npm run build && cp -r .next/static .next/standalone/.next/static && rm -rf .next/standalone/public && cp -R public .next/standalone/ && cp package.json .next/standalone/
+    buildCommand: npm ci && npm run build && cp -r .next/static .next/standalone/.next/static && rm -rf .next/standalone/public && cp -R public .next/standalone/ && cp package.json .next/standalone/
     startCommand: cd .next/standalone && node server.js
+    healthCheckPath: /api/health
     envVars:
       - key: NODE_VERSION
-        value: 20.11.0
+        value: "22"
       - key: NODE_ENV
         value: production
       - key: PORT

@@ -5,9 +5,6 @@ import { ChatWidget } from '@/components/ui/chat-widget';
 import { LocalBusinessSchema } from '@/components/seo/json-ld';
 import Script from 'next/script';
 
-// Force dynamic rendering for all public pages (avoid prerendering issues with client hooks)
-export const dynamic = 'force-dynamic';
-
 export default function PublicLayout({
   children,
 }: {

@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isAuthenticated } from '@/lib/auth';
-import {
-  getArchivedComputers,
-  hardDeleteComputer,
-  isSupabaseAdminConfigured,
-} from '@/lib/supabase';
+import { getArchivedComputers, hardDeleteComputer } from '@/lib/gallery';
+import { isSupabaseAdminConfigured } from '@/lib/supabase';
 
 /**
  * Gets all archived (soft-deleted) computers.

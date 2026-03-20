@@ -57,7 +57,6 @@ const PUBLIC_PREFIXES = [
   '/api/public',
   '/api/contact',
   '/api/health',
-  '/api/recurring-checklist',
   '/auth/callback',
   '/_next',
   '/static',

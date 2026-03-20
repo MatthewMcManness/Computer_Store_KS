@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isAuthenticated } from '@/lib/auth';
-import {
-  restoreComputer,
-  isSupabaseAdminConfigured,
-} from '@/lib/supabase';
+import { restoreComputer } from '@/lib/gallery';
+import { isSupabaseAdminConfigured } from '@/lib/supabase';
 
 /**
  * Restores an archived (soft-deleted) computer to active status.

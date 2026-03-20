@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isAuthenticated } from '@/lib/auth';
-import {
-  updateStockQuantity,
-  isSupabaseAdminConfigured,
-} from '@/lib/supabase';
+import { updateStockQuantity } from '@/lib/gallery';
+import { isSupabaseAdminConfigured } from '@/lib/supabase';
 
 /**
  * Adjusts stock quantity for a computer by a delta value.

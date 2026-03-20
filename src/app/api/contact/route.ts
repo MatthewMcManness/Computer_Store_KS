@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { sendContactNotification, sendContactConfirmation } from '@/lib/email';
 import { calculateSpamScore, SPAM_THRESHOLDS } from '@/lib/spam-detection';
+import { createRateLimiter } from '@/lib/rate-limiter';
+import { getClientIP } from '@/lib/request-helpers';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,12 +14,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'Content-Type',
 };
 
-// Rate limiting store (in production, use Redis)
-const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
-
-// Rate limit configuration
-const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
-const MAX_REQUESTS = 10; // 10 requests per minute
+// Rate limit configuration: 10 requests per minute per IP
+const rateLimiter = createRateLimiter(10, 60 * 1000);
 
 // Interaction tracking schema
 const interactionSchema = z.object({
@@ -80,51 +78,10 @@ const contactFormSchema = z.object({
 type ContactFormData = z.infer<typeof contactFormSchema>;
 
 /**
- * Check rate limit for an IP address
- */
-function checkRateLimit(ip: string): { allowed: boolean; remaining: number; resetTime: number } {
-  const now = Date.now();
-  const record = rateLimitStore.get(ip);
-
-  // Clean up old entries periodically
-  if (rateLimitStore.size > 10000) {
-    const cutoff = now - RATE_LIMIT_WINDOW;
-    for (const [key, value] of rateLimitStore.entries()) {
-      if (value.resetTime < cutoff) {
-        rateLimitStore.delete(key);
-      }
-    }
-  }
-
-  if (!record || now > record.resetTime) {
-    rateLimitStore.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
-    return { allowed: true, remaining: MAX_REQUESTS - 1, resetTime: now + RATE_LIMIT_WINDOW };
-  }
-
-  if (record.count >= MAX_REQUESTS) {
-    return { allowed: false, remaining: 0, resetTime: record.resetTime };
-  }
-
-  record.count++;
-  return { allowed: true, remaining: MAX_REQUESTS - record.count, resetTime: record.resetTime };
-}
-
-/**
  * Sanitize string to prevent XSS
  */
 function sanitize(str: string): string {
   return str.replace(/[<>]/g, '');
-}
-
-/**
- * Get client IP from request headers
- */
-function getClientIP(request: NextRequest): string {
-  return (
-    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-    request.headers.get('x-real-ip') ||
-    'unknown'
-  );
 }
 
 export async function POST(request: NextRequest) {
@@ -133,7 +90,7 @@ export async function POST(request: NextRequest) {
     const ip = getClientIP(request);
 
     // Check rate limit
-    const rateLimit = checkRateLimit(ip);
+    const rateLimit = rateLimiter.check(ip);
     if (!rateLimit.allowed) {
       const retryAfter = Math.ceil((rateLimit.resetTime - Date.now()) / 1000);
       return NextResponse.json(

@@ -1,7 +1,8 @@
 import { redirect, notFound } from 'next/navigation';
 import { isAuthenticated } from '@/lib/auth';
 import { ComputerForm } from '@/components/admin';
-import { getComputerByIdAdmin, isSupabaseAdminConfigured } from '@/lib/supabase';
+import { getComputerByIdAdmin } from '@/lib/gallery';
+import { isSupabaseAdminConfigured } from '@/lib/supabase';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 

@@ -5,6 +5,8 @@ import {
   getAllComputers,
   createComputer,
   parsePrice,
+} from '@/lib/gallery';
+import {
   isSupabaseConfigured,
   isSupabaseAdminConfigured,
 } from '@/lib/supabase';

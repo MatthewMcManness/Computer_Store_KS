@@ -5,13 +5,15 @@
  * POST /api/photo-gallery - Create a new photo (admin only)
  *
  * @version 1.0.0 - 2026-01-19T00:00:00Z - Initial implementation
+ * @version 2.0.0 - 2026-03-20T17:52:44Z - Extract inline queries to data access module
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { isAuthenticated, getUserRoles } from '@/lib/auth';
-import { supabaseAdmin } from '@/lib/supabase';
 import { hasPermission } from '@/lib/role-helpers';
-import type { PhotoGalleryItem, CreatePhotoInput } from '@/types/photo-gallery';
+import { getPhotos, createPhoto } from '@/lib/photo-gallery';
+import type { PhotoGalleryItem } from '@/types/photo-gallery';
+import type { CreatePhotoInput } from '@/types/photo-gallery';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,27 +24,21 @@ export const dynamic = 'force-dynamic';
  * - admin=true: Include inactive photos (requires authentication)
  * - category: Filter by category
  *
- * @returns List of photos
+ * @param request - The incoming Next.js request with optional query parameters
+ *
+ * @returns JSON response with { success, data } containing array of PhotoGalleryItem
+ *
+ * @functions_called isAuthenticated, getUserRoles, hasPermission, getPhotos
+ * @called_by PhotoGalleryPage, AdminPhotoGalleryPage
+ *
+ * @version 1.0.0 - 2026-01-19T00:00:00Z - Initial implementation
+ * @version 2.0.0 - 2026-03-20T17:52:44Z - Delegate to data access module
  */
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const isAdmin = searchParams.get('admin') === 'true';
     const category = searchParams.get('category');
-
-    if (!supabaseAdmin) {
-      return NextResponse.json(
-        { success: false, error: 'Database not configured' },
-        { status: 500 }
-      );
-    }
-
-    // Build query
-    let query = supabaseAdmin
-      .from('photo_gallery')
-      .select('*')
-      .order('sort_order', { ascending: true })
-      .order('created_at', { ascending: false });
 
     // Admin mode requires authentication and permission
     if (isAdmin) {
@@ -61,30 +57,23 @@ export async function GET(request: NextRequest) {
           { status: 403 }
         );
       }
-      // Admin sees all photos
-    } else {
-      // Public only sees active photos
-      query = query.eq('is_active', true);
     }
 
-    // Filter by category if specified
-    if (category && category !== 'all') {
-      query = query.eq('category', category);
-    }
+    const result = await getPhotos({
+      activeOnly: !isAdmin,
+      category: category ?? undefined,
+    });
 
-    const { data, error } = await query;
-
-    if (error) {
-      console.error('Error fetching photos:', error);
+    if (result.error) {
       return NextResponse.json(
-        { success: false, error: 'Failed to fetch photos' },
+        { success: false, error: result.error.message },
         { status: 500 }
       );
     }
 
     return NextResponse.json({
       success: true,
-      data: data as PhotoGalleryItem[],
+      data: result.data as PhotoGalleryItem[],
     });
   } catch (error) {
     console.error('Error in photo gallery GET:', error);
@@ -101,7 +90,14 @@ export async function GET(request: NextRequest) {
  * Requires authentication and manage_photo_gallery permission.
  *
  * @param request - Request with photo data in body
- * @returns Created photo
+ *
+ * @returns JSON response with { success, data } containing the created PhotoGalleryItem
+ *
+ * @functions_called isAuthenticated, getUserRoles, hasPermission, createPhoto
+ * @called_by AdminPhotoGalleryPage
+ *
+ * @version 1.0.0 - 2026-01-19T00:00:00Z - Initial implementation
+ * @version 2.0.0 - 2026-03-20T17:52:44Z - Delegate to data access module
  */
 export async function POST(request: NextRequest) {
   try {
@@ -123,13 +119,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!supabaseAdmin) {
-      return NextResponse.json(
-        { success: false, error: 'Database not configured' },
-        { status: 500 }
-      );
-    }
-
     const body: CreatePhotoInput = await request.json();
 
     // Validate required fields
@@ -140,32 +129,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Insert photo (using DB column names: caption, alt_text)
-    const { data, error } = await supabaseAdmin
-      .from('photo_gallery')
-      .insert({
-        caption: body.title,
-        alt_text: body.description || null,
-        image_url: body.imageUrl,
-        thumbnail_url: body.thumbnailUrl || null,
-        category: body.category || 'general',
-        sort_order: body.sortOrder || 0,
-        is_active: true,
-      })
-      .select()
-      .single();
+    const result = await createPhoto(body);
 
-    if (error) {
-      console.error('Error creating photo:', error);
+    if (result.error) {
       return NextResponse.json(
-        { success: false, error: 'Failed to create photo' },
+        { success: false, error: result.error.message },
         { status: 500 }
       );
     }
 
     return NextResponse.json({
       success: true,
-      data: data as PhotoGalleryItem,
+      data: result.data as PhotoGalleryItem,
     });
   } catch (error) {
     console.error('Error in photo gallery POST:', error);

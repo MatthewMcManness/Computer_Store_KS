@@ -9,89 +9,18 @@
  *
  * @version 1.0.0 - 2026-01-19T00:00:00Z - Initial implementation
  * @version 1.1.0 - 2026-01-19T12:00:00Z - Add RAW format support, increase max size to 100MB
+ * @version 1.2.0 - 2026-03-20T17:52:06Z - Extract shared upload pipeline to @/lib/image-upload
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { isAuthenticated, getUserRoles } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase';
 import { hasPermission } from '@/lib/role-helpers';
-import sharp from 'sharp';
+import { isAllowedFile, processImage, uploadToStorage, MAX_FILE_SIZE } from '@/lib/image-upload';
 
 // Next.js App Router route segment config
 export const maxDuration = 60; // 60 seconds timeout for large uploads
 export const dynamic = 'force-dynamic';
-
-// Maximum file size: 100MB (RAW files can be 20-80MB)
-const MAX_FILE_SIZE = 100 * 1024 * 1024;
-
-// Allowed MIME types
-const ALLOWED_MIME_TYPES = [
-  'image/jpeg',
-  'image/jpg',
-  'image/png',
-  'image/webp',
-  'image/gif',
-  'image/heic',
-  'image/heif',
-  'image/tiff',
-  'image/x-canon-cr2',
-  'image/x-canon-cr3',
-  'image/x-canon-crw',
-  'image/x-nikon-nef',
-  'image/x-sony-arw',
-  'image/x-fuji-raf',
-  'image/x-olympus-orf',
-  'image/x-panasonic-rw2',
-  'image/x-pentax-pef',
-  'image/x-adobe-dng',
-  'image/x-leica-rwl',
-  'image/x-samsung-srw',
-  'application/octet-stream', // RAW files often come as this
-];
-
-// Allowed file extensions (for RAW format fallback validation)
-const ALLOWED_EXTENSIONS = [
-  '.jpg', '.jpeg', '.png', '.webp', '.gif', '.heic', '.heif', '.tiff', '.tif',
-  // Canon
-  '.cr2', '.cr3', '.crw',
-  // Nikon
-  '.nef', '.nrw',
-  // Sony
-  '.arw', '.srf', '.sr2',
-  // Fujifilm
-  '.raf',
-  // Olympus
-  '.orf',
-  // Panasonic
-  '.rw2',
-  // Pentax
-  '.pef', '.ptx',
-  // Adobe DNG (universal RAW)
-  '.dng',
-  // Leica
-  '.rwl',
-  // Samsung
-  '.srw',
-];
-
-/**
- * Check if file is allowed based on MIME type or extension
- */
-function isAllowedFile(file: File): boolean {
-  // Check MIME type first
-  if (ALLOWED_MIME_TYPES.includes(file.type)) {
-    // For octet-stream, also verify extension
-    if (file.type === 'application/octet-stream') {
-      const ext = '.' + file.name.split('.').pop()?.toLowerCase();
-      return ALLOWED_EXTENSIONS.includes(ext);
-    }
-    return true;
-  }
-
-  // Fallback: check extension (RAW files often have wrong MIME type)
-  const ext = '.' + file.name.split('.').pop()?.toLowerCase();
-  return ALLOWED_EXTENSIONS.includes(ext);
-}
 
 /**
  * POST /api/photo-gallery/upload - Upload image
@@ -162,83 +91,24 @@ export async function POST(request: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Generate filenames with timestamp
+    // Process image into full-size and thumbnail
+    const { fullSize, thumbnail } = await processImage(buffer);
+
+    // Upload to Supabase Storage
     const timestamp = Date.now();
-    const fullFilename = `photo-gallery-${timestamp}-full.webp`;
-    const thumbFilename = `photo-gallery-${timestamp}-thumb.webp`;
-
-    // Generate high-quality full-size image (max 2048px, preserves aspect ratio)
-    const fullBuffer = await sharp(buffer)
-      .resize(2048, 2048, {
-        fit: 'inside',           // Preserve aspect ratio, fit within bounds
-        withoutEnlargement: true, // Don't upscale small images
-      })
-      .webp({
-        quality: 92,             // High quality for gallery display
-        effort: 6,               // Higher compression effort for better quality/size
-      })
-      .toBuffer();
-
-    // Generate thumbnail (400px max, preserves aspect ratio)
-    const thumbBuffer = await sharp(buffer)
-      .resize(400, 400, {
-        fit: 'inside',           // Preserve aspect ratio
-        withoutEnlargement: true,
-      })
-      .webp({
-        quality: 85,             // Good quality for thumbnails
-      })
-      .toBuffer();
-
-    // Upload both images to Supabase Storage in parallel
-    // Using 'gallery-images' bucket (same as in-store PCs)
-    const [fullUpload, thumbUpload] = await Promise.all([
-      supabaseAdmin.storage
-        .from('gallery-images')
-        .upload(fullFilename, fullBuffer, {
-          contentType: 'image/webp',
-          cacheControl: '31536000', // 1 year cache
-          upsert: false,
-        }),
-      supabaseAdmin.storage
-        .from('gallery-images')
-        .upload(thumbFilename, thumbBuffer, {
-          contentType: 'image/webp',
-          cacheControl: '31536000',
-          upsert: false,
-        }),
-    ]);
-
-    if (fullUpload.error) {
-      console.error('Error uploading full image:', fullUpload.error);
-      return NextResponse.json(
-        { success: false, error: 'Failed to upload image' },
-        { status: 500 }
-      );
-    }
-
-    if (thumbUpload.error) {
-      console.error('Error uploading thumbnail:', thumbUpload.error);
-      return NextResponse.json(
-        { success: false, error: 'Failed to upload thumbnail' },
-        { status: 500 }
-      );
-    }
-
-    // Get public URLs for both images
-    const { data: fullUrlData } = supabaseAdmin.storage
-      .from('gallery-images')
-      .getPublicUrl(fullFilename);
-
-    const { data: thumbUrlData } = supabaseAdmin.storage
-      .from('gallery-images')
-      .getPublicUrl(thumbFilename);
+    const fileName = `photo-gallery-${timestamp}`;
+    const { imageUrl, thumbnailUrl } = await uploadToStorage(
+      supabaseAdmin,
+      fullSize,
+      thumbnail,
+      fileName,
+    );
 
     return NextResponse.json({
       success: true,
-      filename: fullFilename,
-      url: fullUrlData.publicUrl,
-      thumbnailUrl: thumbUrlData.publicUrl,
+      filename: `${fileName}-full.webp`,
+      url: imageUrl,
+      thumbnailUrl: thumbnailUrl,
     });
   } catch (error) {
     console.error('Error uploading image:', error);

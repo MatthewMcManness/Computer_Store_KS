@@ -20,15 +20,13 @@ import { z } from 'zod';
 import { signUp, createUserProfile } from '@/lib/supabase-auth';
 import { calculateSpamScore, SPAM_THRESHOLDS } from '@/lib/spam-detection';
 import { isDisposableEmail } from '@/lib/disposable-email';
+import { createRateLimiter } from '@/lib/rate-limiter';
+import { getClientIP } from '@/lib/request-helpers';
 
 export const dynamic = 'force-dynamic';
 
-// Rate limiting store (in production, use Redis)
-const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
-
-// Rate limit configuration - stricter for registration
-const RATE_LIMIT_WINDOW = 60 * 60 * 1000; // 1 hour
-const MAX_REQUESTS = 5; // 5 registrations per hour per IP
+// Rate limit configuration - stricter for registration: 5 per hour per IP
+const rateLimiter = createRateLimiter(5, 60 * 60 * 1000);
 
 // Interaction tracking schema
 const interactionSchema = z.object({
@@ -114,63 +112,6 @@ const registerSchema = z.object({
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 /**
- * Check rate limit for an IP address
- *
- * @param ip - Client IP address
- * @returns Rate limit status
- *
- * @functions_called None
- * @called_by POST handler
- *
- * @version 1.0.0 - 2026-01-14T00:00:00Z - Initial implementation
- */
-function checkRateLimit(ip: string): { allowed: boolean; remaining: number; resetTime: number } {
-  const now = Date.now();
-  const record = rateLimitStore.get(ip);
-
-  // Clean up old entries periodically
-  if (rateLimitStore.size > 10000) {
-    const cutoff = now - RATE_LIMIT_WINDOW;
-    for (const [key, value] of rateLimitStore.entries()) {
-      if (value.resetTime < cutoff) {
-        rateLimitStore.delete(key);
-      }
-    }
-  }
-
-  if (!record || now > record.resetTime) {
-    rateLimitStore.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
-    return { allowed: true, remaining: MAX_REQUESTS - 1, resetTime: now + RATE_LIMIT_WINDOW };
-  }
-
-  if (record.count >= MAX_REQUESTS) {
-    return { allowed: false, remaining: 0, resetTime: record.resetTime };
-  }
-
-  record.count++;
-  return { allowed: true, remaining: MAX_REQUESTS - record.count, resetTime: record.resetTime };
-}
-
-/**
- * Get client IP from request headers
- *
- * @param request - Next.js request object
- * @returns Client IP address
- *
- * @functions_called None
- * @called_by POST handler
- *
- * @version 1.0.0 - 2026-01-14T00:00:00Z - Initial implementation
- */
-function getClientIP(request: NextRequest): string {
-  return (
-    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-    request.headers.get('x-real-ip') ||
-    'unknown'
-  );
-}
-
-/**
  * POST /api/auth/register
  * Handle user registration with bot protection
  *
@@ -198,7 +139,7 @@ export async function POST(request: NextRequest) {
     const ip = getClientIP(request);
 
     // Check rate limit
-    const rateLimit = checkRateLimit(ip);
+    const rateLimit = rateLimiter.check(ip);
     if (!rateLimit.allowed) {
       const retryAfter = Math.ceil((rateLimit.resetTime - Date.now()) / 1000);
       console.log(`[Register] Rate limited IP: ${ip}`);

@@ -6,7 +6,7 @@ services:
     name: CSK-Production
     env: node
     branch: Production
-    buildCommand: npm install && npm run build && cp -r .next/static .next/standalone/.next/static && rm -rf .next/standalone/public && cp -R public .next/standalone/ && cp -r node_modules .next/standalone/ && cp package.json .next/standalone/
+    buildCommand: npm install && npm run build && cp -r .next/static .next/standalone/.next/static && rm -rf .next/standalone/public && cp -R public .next/standalone/ && cp package.json .next/standalone/
     startCommand: cd .next/standalone && node server.js
     envVars:
       - key: NODE_VERSION
@@ -57,7 +57,7 @@ services:
     name: CSK-Development
     env: node
     branch: Development
-    buildCommand: npm install && npm run build && cp -r .next/static .next/standalone/.next/static && rm -rf .next/standalone/public && cp -R public .next/standalone/ && cp -r node_modules .next/standalone/ && cp package.json .next/standalone/
+    buildCommand: npm install && npm run build && cp -r .next/static .next/standalone/.next/static && rm -rf .next/standalone/public && cp -R public .next/standalone/ && cp package.json .next/standalone/
     startCommand: cd .next/standalone && node server.js
     envVars:
       - key: NODE_VERSION

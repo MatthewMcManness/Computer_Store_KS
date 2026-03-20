@@ -13,9 +13,13 @@
     "migrate-users:dry-run": "npx ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/migrate-users.ts --dry-run --verbose"
   },
   "devDependencies": {
-    "@types/bcryptjs": "^2.4.6",
-    "marked": "^17.0.1",
-    "ts-node": "^10.9.2"
+    "@types/node": "^24.10.1",
+    "@types/react": "18",
+    "autoprefixer": "^10.4.22",
+    "postcss": "^8.5.6",
+    "tailwindcss": "3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
   },
   "dependencies": {
     "@fingerprintjs/fingerprintjs": "^5.0.1",
@@ -23,22 +27,15 @@
     "@octokit/rest": "^22.0.1",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.88.0",
-    "@types/node": "^24.10.1",
-    "@types/react": "18",
-    "autoprefixer": "^10.4.22",
-    "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.23.24",
     "lucide-react": "^0.554.0",
     "next": "^14.2.35",
-    "postcss": "^8.5.6",
     "react": "18",
     "react-dom": "18",
     "sharp": "^0.34.5",
     "tailwind-merge": "^3.4.0",
-    "tailwindcss": "3",
-    "typescript": "^5.9.3",
     "zod": "^4.1.12"
   },
   "engines": {

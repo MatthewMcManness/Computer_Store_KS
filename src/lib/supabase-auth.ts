@@ -674,20 +674,6 @@ export async function listUsers(
 // =============================================================================
 
 /**
- * Check if Supabase Auth is properly configured
- */
-export function isAuthConfigured(): boolean {
-  return !!(supabaseUrl && supabaseAnonKey);
-}
-
-/**
- * Check if Supabase Admin Auth is properly configured
- */
-export function isAdminAuthConfigured(): boolean {
-  return !!(supabaseUrl && supabaseServiceKey);
-}
-
-/**
  * Get user-friendly error message for auth errors
  */
 export function getAuthErrorMessage(error: Error): string {

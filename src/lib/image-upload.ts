@@ -18,7 +18,7 @@ import sharp from 'sharp';
 export const MAX_FILE_SIZE = 100 * 1024 * 1024;
 
 /** Allowed MIME types for image uploads */
-export const ALLOWED_MIME_TYPES = [
+const ALLOWED_MIME_TYPES = [
   'image/jpeg',
   'image/jpg',
   'image/png',

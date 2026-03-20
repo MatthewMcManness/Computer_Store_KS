@@ -1,2 +1,1 @@
-export { LocalBusinessSchema, ProductSchema, FAQSchema } from './json-ld';
-export { Breadcrumbs } from './breadcrumbs';
+export { LocalBusinessSchema } from './json-ld';

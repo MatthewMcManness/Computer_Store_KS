@@ -43,7 +43,7 @@ interface ErrorResult {
   };
 }
 
-export type DataResult<T> = SuccessResult<T> | ErrorResult;
+type DataResult<T> = SuccessResult<T> | ErrorResult;
 
 // =============================================================================
 // Query Functions

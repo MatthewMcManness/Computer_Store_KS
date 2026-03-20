@@ -21,7 +21,7 @@ const RESEND_API_URL = 'https://api.resend.com/emails';
 /**
  * Send an email via Resend API
  */
-export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
+async function sendEmail(options: EmailOptions): Promise<EmailResult> {
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
 
   if (!RESEND_API_KEY) {

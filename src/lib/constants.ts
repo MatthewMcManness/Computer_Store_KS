@@ -47,7 +47,6 @@ export const AUTHORIZED_EMAIL = 'contact@computerstoreks.com';
  *   })}
  * </script>
  *
- * @see SITE_CONFIG for derived site metadata
  * @see formatPhoneNumber in utils.ts
  * @see google-business.ts for Google Business Profile integration
  *
@@ -95,7 +94,7 @@ export const BUSINESS_INFO = {
   },
 } as const;
 
-export type LocationKey = 'topeka';
+type LocationKey = 'topeka';
 
 export const LOCATIONS: Record<LocationKey, {
   name: string;
@@ -129,49 +128,3 @@ export const LOCATIONS: Record<LocationKey, {
   },
 } as const;
 
-/**
- * Site-wide configuration for metadata, SEO, and social sharing.
- *
- * Derived from BUSINESS_INFO, this configuration object provides standardized
- * site metadata used for HTML meta tags, OpenGraph, Twitter Cards, and
- * search engine optimization. The description is the default used when pages
- * don't provide their own.
- *
- * @constant
- * @type {Readonly<SiteConfig>}
- *
- * @property name - Site name for meta tags (from BUSINESS_INFO.name)
- * @property description - Default meta description for SEO (160 chars)
- * @property url - Canonical base URL (from BUSINESS_INFO.website)
- * @property ogImage - Path to default OpenGraph image for social sharing
- * @property links - Social media profile URLs for sharing buttons
- *
- * @example
- * // In metadata generation
- * export const metadata = {
- *   title: SITE_CONFIG.name,
- *   description: SITE_CONFIG.description,
- *   openGraph: {
- *     images: [SITE_CONFIG.ogImage]
- *   }
- * }
- *
- * @see BUSINESS_INFO for source data
- * @see generateMetadata in layout.tsx
- * @see OpenGraph component
- *
- * @functions_called None (constant declaration)
- * @called_by RootLayout, generateMetadata, SEO components, ShareButtons
- *
- * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
- */
-export const SITE_CONFIG = {
-  name: BUSINESS_INFO.name,
-  description: `${BUSINESS_INFO.name} offers quality refurbished computers, expert repair services, and exceptional customer support in Topeka, Kansas.`,
-  url: BUSINESS_INFO.website,
-  ogImage: '/og-image.jpg',
-  links: {
-    facebook: BUSINESS_INFO.socialMedia.facebook,
-    google: BUSINESS_INFO.socialMedia.google,
-  },
-} as const;

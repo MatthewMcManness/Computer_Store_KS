@@ -36,7 +36,7 @@ export interface GallerySpec {
  *
  * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
  */
-export interface BlackFridayData {
+interface BlackFridayData {
   enabled: boolean;
   originalPrice: string;
   salePrice: string;
@@ -164,51 +164,6 @@ export interface GallerySale {
   applies_to: string[];
   is_active: boolean;
   created_at: string;
-}
-
-/**
- * LEGACY: Gallery data structure from old JSON-based system.
- *
- * @deprecated Kept for migration script compatibility only.
- * New code should use Supabase queries directly.
- *
- * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
- */
-export interface GalleryData {
-  computers: GalleryComputer[];
-  lastUpdated: string;
-  version: string;
-  globalSale?: SaleType; // Active global sale
-}
-
-/**
- * Generic API response wrapper for gallery endpoints.
- *
- * @template T - Type of data payload
- *
- * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
- */
-export interface GalleryApiResponse<T = unknown> {
-  success: boolean;
-  data?: T;
-  error?: string;
-  message?: string;
-}
-
-/**
- * Response from image upload API endpoint.
- *
- * Includes URLs for both full-size image and optimized thumbnail.
- *
- * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
- */
-export interface ImageUploadResponse {
-  success: boolean;
-  filename: string;
-  path: string;
-  url: string;
-  thumbnailUrl?: string; // Small 400x300 WebP thumbnail
-  thumbnailPath?: string;
 }
 
 /**

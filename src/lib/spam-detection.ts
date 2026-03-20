@@ -549,13 +549,11 @@ export async function verifyTurnstile(token: string, ip: string): Promise<boolea
 
   // If no secret key configured, skip verification (allows testing)
   if (!secretKey) {
-    console.log('Turnstile: No secret key configured, skipping verification');
     return true;
   }
 
   // If no token provided, fail verification
   if (!token) {
-    console.log('Turnstile: No token provided');
     return false;
   }
 

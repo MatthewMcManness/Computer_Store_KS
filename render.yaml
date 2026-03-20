@@ -23,16 +23,8 @@ services:
       # Email service for contact form (REQUIRED)
       - key: RESEND_API_KEY
         sync: false
-      # Authentication settings (REQUIRED for admin panel)
-      - key: AUTH_MODE
-        value: repairshopr
-      - key: SESSION_SECRET
-        sync: false
-      - key: REPAIRSHOPR_SUBDOMAIN
-        value: thecomputerstore
-      # Gallery admin authentication (legacy mode fallback)
-      - key: ADMIN_PASSWORD
-        sync: false
+      - key: NOTIFICATION_EMAIL
+        value: contact@computerstoreks.com
       # GitHub integration for gallery (OPTIONAL - only if you use gallery manager)
       - key: GITHUB_TOKEN
         sync: false
@@ -77,16 +69,8 @@ services:
       # Email service for contact form (REQUIRED)
       - key: RESEND_API_KEY
         sync: false
-      # Authentication settings (REQUIRED for admin panel)
-      - key: AUTH_MODE
-        value: repairshopr
-      - key: SESSION_SECRET
-        sync: false
-      - key: REPAIRSHOPR_SUBDOMAIN
-        value: thecomputerstore
-      # Gallery admin authentication (legacy mode fallback)
-      - key: ADMIN_PASSWORD
-        sync: false
+      - key: NOTIFICATION_EMAIL
+        value: contact@computerstoreks.com
       # GitHub integration for gallery (OPTIONAL - only if you use gallery manager)
       - key: GITHUB_TOKEN
         sync: false

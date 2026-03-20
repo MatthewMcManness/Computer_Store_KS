@@ -172,8 +172,8 @@ export function ReviewsWidget({ maxReviews = 6 }: ReviewsWidgetProps) {
             setIsFromGoogle(true);
           }
         }
-      } catch (err) {
-        console.log('Using fallback reviews');
+      } catch {
+        // API unavailable; continue with fallback reviews
       }
     }
 

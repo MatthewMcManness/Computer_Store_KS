@@ -23,7 +23,7 @@ import { AUTHORIZED_EMAIL } from '@/lib/constants';
  *
  * @version 1.0.0 - 2026-03-20T00:00:00Z - Initial implementation
  */
-export async function createAuthServerClient() {
+async function createAuthServerClient() {
   const cookieStore = await cookies();
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

@@ -193,21 +193,8 @@ export async function POST(request: NextRequest) {
     // Calculate spam score (async for Turnstile verification)
     const spamResult = await calculateSpamScore(spamDetectionData, request.headers, ip);
 
-    // Log spam score for monitoring
-    console.log(JSON.stringify({
-      type: 'spam_score',
-      timestamp: new Date().toISOString(),
-      ip,
-      location: formData.location,
-      score: spamResult.score,
-      breakdown: spamResult.breakdown,
-      action: spamResult.action,
-      message_preview: formData.message.substring(0, 50),
-    }));
-
     // Handle high spam scores (silent success to not alert bots)
     if (spamResult.score >= SPAM_THRESHOLDS.SILENT_SUCCESS_SCORE) {
-      console.log(`Silent success for high spam score (${spamResult.score}) from IP: ${ip}`);
       return NextResponse.json({
         success: true,
         message: 'Thank you for your message! We will get back to you within 24 hours.',
@@ -216,7 +203,6 @@ export async function POST(request: NextRequest) {
 
     // Block moderate spam scores
     if (spamResult.score >= SPAM_THRESHOLDS.BLOCK_SCORE) {
-      console.log(`Blocked submission with spam score (${spamResult.score}) from IP: ${ip}`);
       return NextResponse.json(
         {
           success: false,
@@ -245,19 +231,6 @@ export async function POST(request: NextRequest) {
         subject: sanitizedData.subject,
       }),
     ]);
-
-    // Log submission
-    console.log('Contact form submission:', {
-      ip,
-      name: sanitizedData.name,
-      email: sanitizedData.email,
-      subject: sanitizedData.subject,
-      notificationSent: notificationResult.success,
-      notificationError: notificationResult.error || null,
-      confirmationSent: confirmationResult.success,
-      confirmationError: confirmationResult.error || null,
-      timestamp: new Date().toISOString(),
-    });
 
     // If the notification email failed, the business won't see this message.
     // Tell the user so they can call instead.

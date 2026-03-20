@@ -7,6 +7,7 @@ const __dirname = path.dirname(__filename);
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
+  poweredByHeader: false,
   // Ensure webpack resolves TypeScript paths correctly
   webpack: (config, { isServer }) => {
 

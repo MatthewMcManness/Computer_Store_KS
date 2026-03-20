@@ -24,7 +24,7 @@
 /**
  * Result returned by the rate limiter check function.
  */
-export interface RateLimitResult {
+interface RateLimitResult {
   allowed: boolean;
   remaining: number;
   resetTime: number;

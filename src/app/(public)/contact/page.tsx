@@ -1,47 +1,8 @@
-'use client';
-
-import { useState, FormEvent } from 'react';
 import { LOCATIONS } from '@/lib/constants';
+import { ContactForm } from '@/components/forms/contact-form';
 
 export default function ContactPage() {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    subject: 'General',
-    message: '',
-  });
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [statusMessage, setStatusMessage] = useState('');
-
   const loc = LOCATIONS.topeka;
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    setStatus('loading');
-
-    try {
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ ...formData, location: loc.name }),
-      });
-
-      if (response.ok) {
-        setStatus('success');
-        setStatusMessage('Thank you! Your message has been sent successfully.');
-        setFormData({ name: '', email: '', phone: '', subject: 'General', message: '' });
-      } else {
-        setStatus('error');
-        setStatusMessage('There was an error sending your message. Please try again.');
-      }
-    } catch {
-      setStatus('error');
-      setStatusMessage('There was an error sending your message. Please try again.');
-    }
-  };
 
   return (
     <>
@@ -61,100 +22,7 @@ export default function ContactPage() {
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-[1200px] mx-auto">
             {/* Left: Contact Form */}
-            <div className="bg-white p-8 rounded-brand-lg shadow-brand-md">
-              <h2 className="text-[1.75rem] text-gray-900 mb-6">Send Us a Message</h2>
-              <form onSubmit={handleSubmit}>
-                <div className="mb-6">
-                  <label htmlFor="contact-name" className="block font-semibold text-gray-900 mb-2">Name</label>
-                  <input
-                    type="text"
-                    id="contact-name"
-                    name="name"
-                    placeholder="Your name"
-                    required
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full py-3 px-4 border border-gray-300 rounded-brand-md text-base transition-colors duration-300 focus:outline-none focus:border-primary-600 focus:ring-[3px] focus:ring-primary-600/10"
-                  />
-                </div>
-                <div className="mb-6">
-                  <label htmlFor="contact-email" className="block font-semibold text-gray-900 mb-2">Email</label>
-                  <input
-                    type="email"
-                    id="contact-email"
-                    name="email"
-                    placeholder="Your email"
-                    required
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full py-3 px-4 border border-gray-300 rounded-brand-md text-base transition-colors duration-300 focus:outline-none focus:border-primary-600 focus:ring-[3px] focus:ring-primary-600/10"
-                  />
-                </div>
-                <div className="mb-6">
-                  <label htmlFor="contact-phone" className="block font-semibold text-gray-900 mb-2">Phone Number</label>
-                  <input
-                    type="tel"
-                    id="contact-phone"
-                    name="phone"
-                    placeholder="(555) 123-4567"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full py-3 px-4 border border-gray-300 rounded-brand-md text-base transition-colors duration-300 focus:outline-none focus:border-primary-600 focus:ring-[3px] focus:ring-primary-600/10"
-                  />
-                </div>
-                <div className="mb-6">
-                  <label htmlFor="contact-subject" className="block font-semibold text-gray-900 mb-2">Subject</label>
-                  <select
-                    id="contact-subject"
-                    name="subject"
-                    required
-                    value={formData.subject}
-                    onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                    className="w-full py-3 px-4 border border-gray-300 rounded-brand-md text-base transition-colors duration-300 bg-white focus:outline-none focus:border-primary-600 focus:ring-[3px] focus:ring-primary-600/10"
-                  >
-                    <option value="General">General Inquiry</option>
-                    <option value="Repair">Computer Repair</option>
-                    <option value="Custom Build">Custom Build</option>
-                    <option value="Protection Plans">Protection Plans</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
-                <div className="mb-6">
-                  <label htmlFor="contact-message" className="block font-semibold text-gray-900 mb-2">Message</label>
-                  <textarea
-                    id="contact-message"
-                    name="message"
-                    rows={4}
-                    placeholder="Tell us how we can help..."
-                    required
-                    value={formData.message}
-                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    className="w-full py-3 px-4 border border-gray-300 rounded-brand-md text-base transition-colors duration-300 font-[inherit] focus:outline-none focus:border-primary-600 focus:ring-[3px] focus:ring-primary-600/10"
-                  />
-                </div>
-                <div className="text-center mt-6">
-                  <button
-                    type="submit"
-                    className="w-full py-4 bg-primary-600 text-white border-none rounded-brand-md text-base font-semibold cursor-pointer transition-colors duration-300 hover:bg-primary-800 disabled:opacity-50"
-                    disabled={status === 'loading'}
-                  >
-                    <span>
-                      {status === 'loading' ? 'Sending...' : 'Send Message'}
-                    </span>
-                  </button>
-                  {statusMessage && (
-                    <div
-                      className={`mt-4 p-2 rounded-brand-sm text-center font-medium min-h-[24px] ${
-                        status === 'success' ? 'text-green-600 bg-green-50' : 'text-red-600 bg-red-50'
-                      }`}
-                      aria-live="polite"
-                    >
-                      {statusMessage}
-                    </div>
-                  )}
-                </div>
-              </form>
-            </div>
+            <ContactForm />
 
             {/* Right: Business Info */}
             <div className="flex flex-col gap-6">

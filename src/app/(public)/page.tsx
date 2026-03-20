@@ -63,7 +63,7 @@ export default function HomePage() {
       </section>
 
       {/* SERVICES OVERVIEW SECTION */}
-      <section className="texture-circuit py-20 bg-bg-light">
+      <section className="texture-circuit py-20 bg-bg-light relative overflow-hidden">
         <div className="diamond-accent top-1/2 -right-[60px] w-[180px] h-[180px] !opacity-5 animate-rotate-slow"></div>
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <h2 className="text-center mb-12 text-gray-900">What We Do</h2>

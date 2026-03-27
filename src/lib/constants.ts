@@ -96,6 +96,7 @@ export const BUSINESS_INFO = {
 
 type LocationKey = 'topeka';
 
+/** Store locations with addresses, phone numbers, and business hours. */
 export const LOCATIONS: Record<LocationKey, {
   name: string;
   address: string;

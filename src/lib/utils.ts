@@ -1,3 +1,10 @@
+/**
+ * GENERAL UTILITIES - Small helper functions used across the site.
+ *
+ * WHEN TO EDIT: When you need a new utility that doesn't fit in a
+ * more specific file (like gallery.ts or email.ts).
+ */
+
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 

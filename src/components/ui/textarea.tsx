@@ -1,3 +1,8 @@
+/**
+ * TEXT AREA - Reusable multi-line text input with label and error support.
+ *
+ * WHEN TO EDIT: When changing how text areas look across the site.
+ */
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 

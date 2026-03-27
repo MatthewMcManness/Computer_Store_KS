@@ -1,3 +1,11 @@
+/**
+ * SITE HEADER - The navigation bar at the top of every page.
+ * Shows logo, page links, services dropdown, and login button.
+ *
+ * WHEN TO EDIT: When adding/removing navigation links, changing
+ * the logo, or modifying the services dropdown menu.
+ */
+
 'use client';
 
 import Link from 'next/link';
@@ -29,6 +37,7 @@ const dropdownClassMap: Record<string, string> = {
   silver: 'dropdown-silver font-semibold',
 };
 
+/** Renders the fixed navigation bar with logo, links, and services dropdown. */
 export function Header() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);

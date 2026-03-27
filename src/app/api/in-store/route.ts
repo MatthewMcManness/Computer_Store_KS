@@ -1,3 +1,13 @@
+/**
+ * IN-STORE COMPUTERS API - List and create computers for sale.
+ *
+ * GET /api/in-store  - Public: returns active computers with sale pricing.
+ * POST /api/in-store - Admin only: creates a new computer listing.
+ *
+ * WHEN TO EDIT: When changing how computers are listed or what fields
+ * are required when creating a new computer.
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
 import { isAuthenticated } from '@/lib/supabase-auth';
 import {

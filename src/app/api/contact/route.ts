@@ -1,3 +1,12 @@
+/**
+ * CONTACT FORM API - Receives contact form submissions from the website.
+ * Validates input, runs spam detection, rate-limits by IP, and sends
+ * emails (notification to business + confirmation to customer).
+ *
+ * WHEN TO EDIT: When changing form validation rules, spam thresholds,
+ * rate limits, or email behavior.
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { sendContactNotification, sendContactConfirmation } from '@/lib/email';
@@ -110,11 +119,47 @@ function escapeHtml(str: string): string {
 }
 
 export async function POST(request: NextRequest) {
+  // ─── SPAM DETECTION PIPELINE ──────────────────────────────────────
+  // The contact form goes through multiple layers of protection before
+  // an email is actually sent. Here's the order:
+  //
+  //   1. RATE LIMITING (below) — Max 10 submissions per minute per IP.
+  //      Stops brute-force spam floods.
+  //
+  //   2. VALIDATION — Zod schema checks all fields (name, email, subject,
+  //      message) for correct format and length.
+  //
+  //   3. SPAM SCORING — calculateSpamScore() runs ALL of these checks:
+  //      a. Honeypot fields: 3 hidden fields (email2, phone_confirm, url)
+  //         that humans never see. If any are filled in → bot.
+  //      b. Timing check: Records when the page loaded vs. when the form
+  //         was submitted. Under 3 seconds → probably a bot.
+  //      c. Content analysis: Checks for gibberish, keyboard walks
+  //         (qwerty, asdf), random characters, excessive caps/links.
+  //      d. Name validation: Is the name real-looking or spam-like?
+  //      e. Spam patterns: Known spam keywords (viagra, bitcoin, SEO),
+  //         excessive URLs, foreign scripts.
+  //      f. Disposable email check: Known throwaway email domains.
+  //      g. Interaction tracking: Did the user actually move the mouse,
+  //         scroll, and type like a human?
+  //      h. Browser fingerprint: Consistency check on browser signals.
+  //      i. Turnstile CAPTCHA: Cloudflare's invisible challenge token.
+  //
+  //   4. SCORE THRESHOLDS:
+  //      - Score >= 70 → "Silent success" (pretend email was sent, but don't
+  //        actually send it — this tricks bots into thinking they succeeded)
+  //      - Score >= 40 → Block with error message
+  //      - Score < 40  → Legitimate, send the email
+  //
+  //   5. EMAIL DELIVERY — Two emails sent in parallel:
+  //      a. Notification to the store (contact@computerstoreks.com)
+  //      b. Confirmation to the customer ("thanks, we got your message")
+  // ──────────────────────────────────────────────────────────────────
+
   try {
-    // Get client IP for rate limiting
+    // Step 1: Rate limiting — max 10 requests per minute per IP
     const ip = getClientIP(request);
 
-    // Check rate limit
     const rateLimit = rateLimiter.check(ip);
     if (!rateLimit.allowed) {
       const retryAfter = Math.ceil((rateLimit.resetTime - Date.now()) / 1000);

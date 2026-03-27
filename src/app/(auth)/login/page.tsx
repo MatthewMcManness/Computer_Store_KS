@@ -1,3 +1,9 @@
+/**
+ * LOGIN PAGE - Google OAuth sign-in page for the store employee
+ * (contact@computerstoreks.com).
+ *
+ * WHEN TO EDIT: When changing the login UI or authentication flow.
+ */
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';

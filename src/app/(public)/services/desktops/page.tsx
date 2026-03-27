@@ -1,3 +1,8 @@
+/**
+ * REFURBISHED DESKTOPS PAGE - Describes refurbished desktop computers for sale.
+ *
+ * WHEN TO EDIT: When updating the description, pricing, or details for this service.
+ */
 import type { Metadata } from 'next';
 import Link from 'next/link';
 

@@ -1,3 +1,11 @@
+/**
+ * PUBLIC LAYOUT - Wraps all customer-facing pages with the Header,
+ * Footer, mobile call button, chat widget, and SEO schema markup.
+ *
+ * WHEN TO EDIT: When adding or removing site-wide elements that
+ * appear on every public page (not admin pages).
+ */
+
 import { Header } from '@/components/static/Header';
 import { Footer } from '@/components/static/Footer';
 import { MobileCallButton } from '@/components/ui/mobile-call-button';

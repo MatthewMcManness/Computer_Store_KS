@@ -1,3 +1,11 @@
+/**
+ * REVIEWS WIDGET - Compact review summary shown on other pages (like
+ * the homepage) to highlight customer ratings.
+ *
+ * WHEN TO EDIT: When changing the review summary design or which pages
+ * show it.
+ */
+
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';

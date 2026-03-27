@@ -1,3 +1,12 @@
+/**
+ * ADMIN LAYOUT - Wraps all /admin pages with the sidebar navigation
+ * and checks that the user is logged in. If not authenticated,
+ * redirects to /login.
+ *
+ * WHEN TO EDIT: When changing the admin sidebar, navigation structure,
+ * or admin-specific CSS.
+ */
+
 import { isAuthenticated } from '@/lib/supabase-auth';
 import { AdminShell } from '@/components/admin';
 import './admin.css';

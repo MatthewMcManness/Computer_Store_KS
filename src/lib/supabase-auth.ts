@@ -13,15 +13,8 @@ import { cookies } from 'next/headers';
 import { AUTHORIZED_EMAIL } from '@/lib/constants';
 
 /**
- * Create a Supabase client for server-side auth operations.
- *
- * Uses cookies from the incoming request to authenticate.
- *
- * @returns Supabase server client instance
- *
- * @called_by isAuthorizedEmployee, getCurrentUser, signOut, isAuthenticated
- *
- * @version 1.0.0 - 2026-03-20T00:00:00Z - Initial implementation
+ * Creates a Supabase client that can read/write auth cookies.
+ * Used in server components and API routes to check who's logged in.
  */
 async function createAuthServerClient() {
   const cookieStore = await cookies();

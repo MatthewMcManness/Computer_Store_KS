@@ -1,3 +1,9 @@
+/**
+ * ARCHIVED COMPUTERS - Shows computers that were removed from the public gallery.
+ * Allows restoring or permanently deleting them.
+ *
+ * WHEN TO EDIT: When changing the archive/restore workflow.
+ */
 'use client';
 
 import { useState, useEffect } from 'react';

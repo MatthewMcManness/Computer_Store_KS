@@ -1,3 +1,9 @@
+/**
+ * IN-STORE PCS PAGE - Shows computers currently available for purchase in the store,
+ * with prices and specs.
+ *
+ * WHEN TO EDIT: When changing how the computer gallery is displayed to customers.
+ */
 'use client';
 
 import { useState, useEffect, Suspense, useCallback } from 'react';

@@ -1,3 +1,8 @@
+/**
+ * CONTACT PAGE - Shows the contact form and store location/hours info.
+ *
+ * WHEN TO EDIT: When changing the contact page layout (form logic is in contact-form.tsx).
+ */
 import { LOCATIONS } from '@/lib/constants';
 import { ContactForm } from '@/components/forms/contact-form';
 

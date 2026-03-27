@@ -71,13 +71,7 @@ export interface SpamPatternResult {
   };
 }
 
-/**
- * Detect spam patterns in message content
- *
- * @param message - Message content to analyze
- * @param email - Email in form (to check for different email in message)
- * @returns Spam pattern analysis result
- */
+/** Scans form text for common spam keywords, excessive URLs, too many capital letters, and foreign scripts. */
 export function detectSpamPatterns(message: string, email?: string): SpamPatternResult {
   const patterns: string[] = [];
   let score = 0;

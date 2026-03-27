@@ -1,3 +1,9 @@
+/**
+ * PHOTO GALLERY MANAGER - Upload, edit, and delete photos shown in the
+ * public photo gallery.
+ *
+ * WHEN TO EDIT: When changing photo management features.
+ */
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';

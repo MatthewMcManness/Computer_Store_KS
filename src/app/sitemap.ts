@@ -1,3 +1,9 @@
+/**
+ * SITEMAP GENERATOR - Creates a sitemap.xml for search engines listing all
+ * public pages. Generated dynamically by Next.js.
+ *
+ * WHEN TO EDIT: When adding or removing public pages that should appear in search results.
+ */
 import type { MetadataRoute } from 'next';
 
 const BASE_URL = 'https://computerstoreks.com';

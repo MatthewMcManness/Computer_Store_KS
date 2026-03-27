@@ -1,3 +1,12 @@
+/**
+ * ADMIN COMPUTER TABLE - The table in the admin panel that lists all
+ * computers for sale. Supports editing, archiving, stock adjustment,
+ * and printing sales flyers.
+ *
+ * WHEN TO EDIT: When changing the admin computer list layout, adding
+ * columns, or modifying the stock/archive/flyer actions.
+ */
+
 'use client';
 
 import { useState } from 'react';

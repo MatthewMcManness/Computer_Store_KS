@@ -1,8 +1,17 @@
+/**
+ * SITE FOOTER - The bottom section on every page.
+ * Shows store locations, phone numbers, hours, and credits.
+ *
+ * WHEN TO EDIT: When store hours, phone numbers, or addresses change
+ * (update constants.ts instead — this file reads from there).
+ */
+
 import Image from 'next/image';
 import { LOCATIONS } from '@/lib/constants';
 
 const locationKeys = Object.keys(LOCATIONS) as Array<keyof typeof LOCATIONS>;
 
+/** Renders the site footer with store locations, hours, and credits. */
 export function Footer() {
   return (
     <footer className="bg-gray-900 text-white text-center py-8 text-sm">

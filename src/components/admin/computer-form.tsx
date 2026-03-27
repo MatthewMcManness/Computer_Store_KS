@@ -1,3 +1,12 @@
+/**
+ * COMPUTER FORM - The form used in the admin panel to add or edit
+ * a computer listing. Handles name, price, specs, category, image
+ * upload, and stock quantity.
+ *
+ * WHEN TO EDIT: When adding new fields to computer listings or
+ * changing the form layout/validation.
+ */
+
 'use client';
 
 import { useState, useEffect } from 'react';

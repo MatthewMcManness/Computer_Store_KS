@@ -1,3 +1,9 @@
+/**
+ * ADMIN DASHBOARD - The main page employees see after logging in.
+ * Shows quick links to manage computers and photos.
+ *
+ * WHEN TO EDIT: When adding new admin features or changing the dashboard layout.
+ */
 import { redirect } from 'next/navigation';
 import { isAuthenticated } from '@/lib/supabase-auth';
 import Link from 'next/link';

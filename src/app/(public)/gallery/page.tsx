@@ -1,3 +1,8 @@
+/**
+ * PHOTO GALLERY - Public gallery of store photos uploaded by the admin.
+ *
+ * WHEN TO EDIT: When changing how photos are displayed to customers.
+ */
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';

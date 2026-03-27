@@ -1,3 +1,8 @@
+/**
+ * ABOUT PAGE - Tells customers about the store's history, mission, and team.
+ *
+ * WHEN TO EDIT: When updating the store's story or team info.
+ */
 import type { Metadata } from 'next';
 import Link from 'next/link';
 

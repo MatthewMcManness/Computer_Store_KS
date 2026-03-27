@@ -1,3 +1,8 @@
+/**
+ * SERVICES HUB - Overview page listing all services the store offers, with links to detail pages.
+ *
+ * WHEN TO EDIT: When updating the description, pricing, or details for this service.
+ */
 import type { Metadata } from 'next';
 import Link from 'next/link';
 

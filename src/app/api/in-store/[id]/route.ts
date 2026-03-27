@@ -1,3 +1,13 @@
+/**
+ * SINGLE COMPUTER API - View, edit, or archive one computer by ID.
+ *
+ * GET /api/in-store/[id]    - Public: returns one active computer.
+ * PUT /api/in-store/[id]    - Admin only: updates computer details.
+ * DELETE /api/in-store/[id] - Admin only: archives (soft-deletes) a computer.
+ *
+ * WHEN TO EDIT: When changing update validation or archive behavior.
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
 import { isAuthenticated } from '@/lib/supabase-auth';
 import {

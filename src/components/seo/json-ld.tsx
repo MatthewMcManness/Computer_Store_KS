@@ -1,3 +1,12 @@
+/**
+ * JSON-LD STRUCTURED DATA - Generates LocalBusiness schema markup so
+ * search engines understand the store's name, address, hours, and
+ * services.
+ *
+ * WHEN TO EDIT: When business info changes (hours, services, address)
+ * or when adding new schema types (e.g., Product, FAQ).
+ */
+
 import * as React from 'react';
 import { BUSINESS_INFO } from '@/lib/constants';
 

@@ -21,7 +21,34 @@ import { isAllowedFile, processImage, uploadToStorage, MAX_FILE_SIZE } from '@/l
 export const maxDuration = 60; // 60 seconds timeout for large uploads
 export const dynamic = 'force-dynamic';
 
-// POST /api/in-store/upload - Upload image with thumbnail generation to Supabase Storage
+// ─── IMAGE UPLOAD PIPELINE ────────────────────────────────────────
+// When the admin uploads a photo of a computer, here's what happens:
+//
+//   1. AUTH CHECK — Only the logged-in admin can upload (middleware
+//      already blocked unauthenticated requests, but we double-check).
+//
+//   2. FILE VALIDATION — The file must be:
+//      - An image (JPEG, PNG, WebP, GIF, HEIC, TIFF, or camera RAW)
+//      - Under 100 MB (RAW files from professional cameras can be 20-80 MB)
+//      - RAW formats are accepted because the store uses a Canon camera.
+//        Browsers often label RAW files as "application/octet-stream",
+//        so we also check the file extension as a fallback.
+//
+//   3. IMAGE PROCESSING (via Sharp library) — Two versions are created:
+//      a. Full-size: resized to fit within 2048×2048 pixels, converted
+//         to WebP at 92% quality. This is what customers see on the site.
+//      b. Thumbnail: resized to fit within 400×400 pixels, WebP at 85%.
+//         This is the small preview shown in the gallery grid.
+//      Both preserve the original aspect ratio and never upscale.
+//
+//   4. STORAGE UPLOAD — Both images are uploaded in parallel to Supabase
+//      Storage ("gallery-images" bucket) with 1-year cache headers.
+//      Filenames are: {type}-{timestamp}-full.webp and {type}-{timestamp}-thumb.webp
+//
+//   5. RESPONSE — Returns the public URLs for both the full image and
+//      thumbnail, which get saved to the computer's database record.
+// ──────────────────────────────────────────────────────────────────
+
 export async function POST(request: NextRequest) {
   try {
     // Check authentication

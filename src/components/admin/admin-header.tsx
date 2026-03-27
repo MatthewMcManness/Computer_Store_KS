@@ -1,3 +1,9 @@
+/**
+ * ADMIN PAGE HEADER - The title bar at the top of each admin page showing
+ * the page name and optional action buttons.
+ *
+ * WHEN TO EDIT: When changing the admin page header layout.
+ */
 'use client';
 
 import {

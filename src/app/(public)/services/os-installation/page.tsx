@@ -1,3 +1,8 @@
+/**
+ * OS INSTALLATION SERVICE PAGE - Describes operating system installation services.
+ *
+ * WHEN TO EDIT: When updating the description, pricing, or details for this service.
+ */
 import type { Metadata } from 'next';
 import Link from 'next/link';
 

@@ -1,3 +1,9 @@
+/**
+ * IN-STORE COMPUTER MANAGER - Lists all computers for sale with options to
+ * add, edit, archive, adjust stock, and print flyers.
+ *
+ * WHEN TO EDIT: When changing the computer management interface.
+ */
 'use client';
 
 import { useState, useEffect } from 'react';

@@ -1,3 +1,12 @@
+/**
+ * IMAGE UPLOAD - Drag-and-drop image uploader used in admin pages
+ * (gallery, blog) to upload photos to the server. Supports common
+ * image formats and RAW camera files.
+ *
+ * WHEN TO EDIT: When changing allowed file types, size limits, or the
+ * upload UI design.
+ */
+
 'use client';
 
 import { useState, useRef } from 'react';

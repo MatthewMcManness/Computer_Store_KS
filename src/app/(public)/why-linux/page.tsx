@@ -1,3 +1,8 @@
+/**
+ * WHY LINUX PAGE - Educational page explaining the benefits of Linux to customers.
+ *
+ * WHEN TO EDIT: When updating the Linux advocacy content.
+ */
 import type { Metadata } from 'next';
 import Link from 'next/link';
 

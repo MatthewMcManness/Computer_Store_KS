@@ -1,3 +1,8 @@
+/**
+ * DIAGNOSTICS SERVICE PAGE - Describes computer diagnostic services.
+ *
+ * WHEN TO EDIT: When updating the description, pricing, or details for this service.
+ */
 import type { Metadata } from 'next';
 import Link from 'next/link';
 

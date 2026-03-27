@@ -1,5 +1,4 @@
 {
-  "outputStyle": "bast-web-dev.md",
   "hooks": {
     "Stop": [{
       "hooks": [{
@@ -25,10 +24,5 @@
         "command": "paplay /usr/share/sounds/freedesktop/stereo/service-logout.oga"
       }]
     }]
-  },
-  "companyAnnouncements": [
-    "🎯 Bast + CCPM Project Management Active",
-    "📋 Spec-driven development: PRD → Epic → Task → Code",
-    "⚡ Parallel execution with 137 specialized agents"
-  ]
+  }
 }

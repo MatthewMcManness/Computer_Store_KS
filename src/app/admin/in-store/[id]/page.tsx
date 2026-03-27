@@ -1,3 +1,9 @@
+/**
+ * EDIT COMPUTER - Form page for editing an existing computer's details,
+ * price, specs, or image.
+ *
+ * WHEN TO EDIT: When changing the edit form behavior.
+ */
 import { redirect, notFound } from 'next/navigation';
 import { isAuthenticated } from '@/lib/supabase-auth';
 import { ComputerForm } from '@/components/admin';

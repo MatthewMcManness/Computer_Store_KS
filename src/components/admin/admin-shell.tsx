@@ -1,3 +1,9 @@
+/**
+ * ADMIN SHELL - The outer wrapper that combines the sidebar and main
+ * content area for all admin pages.
+ *
+ * WHEN TO EDIT: When changing the overall admin page structure.
+ */
 'use client';
 
 import { useState, useEffect } from 'react';

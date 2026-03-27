@@ -1,3 +1,11 @@
+/**
+ * SECURITY GATEKEEPER - Runs before every page request. Adds security
+ * headers and checks if the visitor is allowed to see admin pages.
+ *
+ * WHEN TO EDIT: When adding new public pages, changing which pages
+ * require login, or updating security headers.
+ */
+
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
@@ -79,16 +87,41 @@ function isPublicRoute(pathname: string): boolean {
  * @version 2.0.0 - 2026-03-20T00:00:00Z - Rewritten for single-user Google OAuth model
  */
 export async function middleware(request: NextRequest) {
+  // ─── AUTH FLOW OVERVIEW ─────────────────────────────────────────────
+  // This is the main gatekeeper for the entire site. Every request
+  // passes through here. The logic works like this:
+  //
+  //   1. Add security headers to EVERY response (CSP, X-Frame-Options, etc.)
+  //   2. If the page is public (home, about, services, etc.) → let it through
+  //   3. If the page is protected (admin, non-public API) → check auth:
+  //      a. Read the Supabase session cookie from the browser
+  //      b. Ask Supabase: "who is this user?"
+  //      c. If their email is contact@computerstoreks.com → allow access
+  //      d. If not logged in → redirect to /login
+  //      e. If logged in as wrong email → redirect to /login?error=unauthorized
+  //
+  // The login itself happens via Google OAuth:
+  //   /login page → "Sign in with Google" button → Google consent screen
+  //   → Google redirects to /auth/callback → callback route checks email
+  //   → if authorized, session cookie is set → redirect to /admin
+  //
+  // Only ONE email (contact@computerstoreks.com) is allowed. This is
+  // defined in constants.ts as AUTHORIZED_EMAIL.
+  // ────────────────────────────────────────────────────────────────────
+
   const { pathname } = request.nextUrl;
   const response = NextResponse.next({ request: { headers: request.headers } });
   addSecurityHeaders(response);
 
+  // Step 2: Public pages pass through without any auth check
   if (isPublicRoute(pathname) && pathname !== '/login') return response;
 
+  // If Supabase isn't configured, can't check auth — let everything through
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!supabaseUrl || !supabaseAnonKey) return response;
 
+  // Step 3a: Create a Supabase client that reads auth cookies from the request
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
       getAll: () => request.cookies.getAll(),
@@ -101,9 +134,10 @@ export async function middleware(request: NextRequest) {
     },
   });
 
+  // Step 3b: Ask Supabase "who is this user?" based on their cookie
   const { data: { user } } = await supabase.auth.getUser();
 
-  // Protect non-public API routes
+  // Step 3c-e: Protect non-public API routes
   if (pathname.startsWith('/api/') && !isPublicRoute(pathname)) {
     if (!user || user.email !== ALLOWED_EMAIL) {
       return new NextResponse(JSON.stringify({ error: 'Unauthorized' }), {
@@ -113,7 +147,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Authenticated user on /login -> redirect to admin
+  // If already logged in and visiting /login, skip straight to admin
   if (pathname === '/login') {
     if (user?.email === ALLOWED_EMAIL) {
       return NextResponse.redirect(new URL('/admin', SITE_URL || request.url));
@@ -121,7 +155,7 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  // Protected /admin/* routes
+  // Protected /admin/* routes — must be logged in as the authorized email
   if (pathname.startsWith('/admin')) {
     if (!user) {
       const loginUrl = new URL('/login', SITE_URL || request.url);

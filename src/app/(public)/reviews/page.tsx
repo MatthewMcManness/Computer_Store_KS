@@ -1,3 +1,8 @@
+/**
+ * REVIEWS PAGE - Displays customer reviews and testimonials.
+ *
+ * WHEN TO EDIT: When changing how reviews are shown.
+ */
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ReviewsDisplay } from '@/components/reviews/ReviewsDisplay';

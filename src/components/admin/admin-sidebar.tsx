@@ -1,3 +1,10 @@
+/**
+ * ADMIN SIDEBAR - The navigation menu on the left side of admin pages.
+ * Shows links to Dashboard, In-Store Manager, Photo Gallery, and a
+ * logout button.
+ *
+ * WHEN TO EDIT: When adding or removing admin navigation links.
+ */
 'use client';
 
 import { useState, useEffect } from 'react';

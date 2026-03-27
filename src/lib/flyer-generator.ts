@@ -564,8 +564,8 @@ function generatePriceSection(computer: GalleryComputer): string {
 }
 
 /**
- * Generate a print-ready HTML flyer for a computer
- * Opens in a new browser tab ready for printing
+ * Generates a printable HTML sales flyer for a computer and opens it
+ * in a new browser tab, ready for printing.
  */
 export function generateFlyer(computer: GalleryComputer): void {
   const isLaptop = computer.type === 'laptop';

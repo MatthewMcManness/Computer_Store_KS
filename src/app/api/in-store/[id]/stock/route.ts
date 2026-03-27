@@ -1,3 +1,9 @@
+/**
+ * STOCK ADJUSTMENT API - Adjusts the stock quantity for a computer by a delta value.
+ * PATCH /api/in-store/[id]/stock (admin only).
+ *
+ * WHEN TO EDIT: When changing stock adjustment rules (e.g., minimum stock).
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import { isAuthenticated } from '@/lib/supabase-auth';
 import { updateStockQuantity } from '@/lib/gallery';

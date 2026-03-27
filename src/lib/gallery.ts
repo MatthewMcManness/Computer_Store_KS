@@ -1,3 +1,9 @@
+/**
+ * GALLERY DATA LAYER - All database operations for the in-store computer gallery.
+ * Handles listing, creating, updating, archiving, restoring computers, and managing sales/discounts.
+ *
+ * WHEN TO EDIT: When changing how computers are stored, queried, or how sale pricing is calculated.
+ */
 import { supabase, supabaseAdmin } from './supabase';
 import type {
   GalleryComputer,
@@ -25,8 +31,40 @@ export function parsePrice(price: string): number {
   return parseFloat(price.replace(/[$,]/g, '')) || 0;
 }
 
+// ─── SALE PRICING SYSTEM ────────────────────────────────────────────
+// How discounts work on the gallery:
+//
+//   1. The admin creates "sales" in the gallery_sales table (e.g.,
+//      "Black Friday - 15% off desktops"). Each sale has:
+//      - sale_type: a name like "black-friday" or "summer-clearance"
+//      - discount_percent: e.g. 15 (meaning 15% off)
+//      - applies_to: which categories get the discount (e.g. ["desktop"])
+//      - is_active: only ONE sale can be active at a time
+//
+//   2. When computers are fetched (getComputers, getAllComputers, etc.),
+//      the active sale is also fetched. Then applySalePricing() below
+//      runs for EACH computer:
+//      - If no active sale → computer shows normal price
+//      - If active sale exists AND the computer's category is in
+//        applies_to → a "blackFriday" object is added with:
+//        - originalPrice: the normal price (e.g. "$850.00")
+//        - salePrice: the discounted price (e.g. "$722.50")
+//        - discount: the percentage (e.g. 15)
+//
+//   3. The frontend checks for blackFriday.enabled and shows crossed-out
+//      original price + red sale price when it exists.
+//
+//   4. The admin toggles sales from the admin panel via setActiveSale().
+//      Activating a new sale deactivates all others automatically.
+//
+// The field is called "blackFriday" for historical reasons (it was
+// originally built for Black Friday), but it's used for ALL sales now.
+// ────────────────────────────────────────────────────────────────────
+
 /**
- * Apply sale pricing to a computer if eligible
+ * Apply sale pricing to a computer if eligible.
+ * Checks if the active sale's categories include this computer,
+ * and if so, calculates and attaches the discounted price.
  */
 function applySalePricing(
   computer: GalleryComputerDB,
@@ -48,7 +86,7 @@ function applySalePricing(
     updated_at: computer.updated_at,
   };
 
-  // Check if sale applies to this computer
+  // Does this sale apply to this computer's category?
   if (
     activeSale &&
     activeSale.sale_type !== 'none' &&
@@ -238,7 +276,9 @@ export async function getComputerByIdAdmin(id: string): Promise<GalleryComputer 
 }
 
 /**
- * Create a new computer (Admin)
+ * Create a new computer listing in the database.
+ * Called from the admin "Add Computer" form. Returns the new computer
+ * with any active sale pricing applied.
  */
 export async function createComputer(input: CreateComputerInput): Promise<GalleryComputer | null> {
   if (!supabaseAdmin) return null;
@@ -269,7 +309,9 @@ export async function createComputer(input: CreateComputerInput): Promise<Galler
 }
 
 /**
- * Update a computer (Admin)
+ * Update an existing computer listing with new details.
+ * Accepts any subset of computer fields (name, price, specs, etc.)
+ * and returns the updated computer with sale pricing recalculated.
  */
 export async function updateComputer(
   id: string,
@@ -331,7 +373,9 @@ export async function deleteComputer(id: string): Promise<boolean> {
 }
 
 /**
- * Permanently delete a computer (Admin)
+ * Permanently delete a computer record from the database.
+ * Unlike the soft-delete in deleteComputer(), this cannot be undone.
+ * Used by admins to remove entries that should never be restored.
  */
 export async function hardDeleteComputer(id: string): Promise<boolean> {
   if (!supabaseAdmin) return false;

@@ -1,3 +1,8 @@
+/**
+ * BUTTON - Reusable button component with variants (primary, secondary, danger) and loading state.
+ *
+ * WHEN TO EDIT: When adding button styles or changing button behavior.
+ */
 'use client';
 
 import * as React from 'react';

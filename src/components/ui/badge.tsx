@@ -1,3 +1,8 @@
+/**
+ * BADGE - Small colored label used to show status (e.g., 'In Stock', 'Sale').
+ *
+ * WHEN TO EDIT: When adding new badge styles or colors.
+ */
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';

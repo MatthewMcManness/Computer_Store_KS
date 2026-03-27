@@ -1,3 +1,8 @@
+/**
+ * SKELETON LOADER - Placeholder animation shown while content is loading (gray pulsing boxes).
+ *
+ * WHEN TO EDIT: When changing the loading placeholder design.
+ */
 import { cn } from '@/lib/utils';
 
 function Skeleton({

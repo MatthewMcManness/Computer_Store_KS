@@ -1,3 +1,9 @@
+/**
+ * SALE SELECTOR DROPDOWN - Dropdown menu in the admin panel for choosing
+ * which sale to activate (e.g., Black Friday, Summer Clearance, or No Sale).
+ *
+ * WHEN TO EDIT: When adding new sale types or changing the dropdown UI.
+ */
 'use client';
 
 import { useState, useEffect } from 'react';

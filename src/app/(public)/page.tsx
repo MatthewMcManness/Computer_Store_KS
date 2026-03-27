@@ -1,3 +1,9 @@
+/**
+ * HOMEPAGE - The main landing page customers see at computerstoreks.com.
+ * Shows hero banner, services overview, and call-to-action.
+ *
+ * WHEN TO EDIT: When changing the homepage content, hero image, or featured sections.
+ */
 'use client';
 
 import Image from 'next/image';

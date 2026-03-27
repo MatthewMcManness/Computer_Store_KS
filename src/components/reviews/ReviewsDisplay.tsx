@@ -1,3 +1,11 @@
+/**
+ * REVIEWS DISPLAY - Shows customer reviews on the /reviews page with
+ * star ratings and review text.
+ *
+ * WHEN TO EDIT: When changing how reviews are displayed or adding new
+ * review sources.
+ */
+
 'use client';
 
 import { useEffect, useState } from 'react';

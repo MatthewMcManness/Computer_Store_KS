@@ -1,147 +1,40 @@
-# Branch Operations
+# Git Workflow
 
-Git branches enable parallel development by allowing multiple developers to work on the same repository with isolated changes.
+This project uses a direct-to-production workflow. There is no staging environment.
 
-## Creating Branches
+## Production Branch
 
-Always create branches from a clean main branch:
+All work happens in the `Production` branch. Render auto-deploys when you push.
+
 ```bash
-# Ensure main is up to date
-git checkout main
-git pull origin main
-
-# Create branch for epic
-git checkout -b epic/{name}
-git push -u origin epic/{name}
+git checkout Production
+npm run dev                    # Test at http://localhost:3000
+# Share localhost link with user, get approval
+npm run build                  # Verify build passes
+git add <files>
+git commit -m "feat: description"
+git push origin Production     # Goes live immediately
 ```
 
-The branch will be created and pushed to origin with upstream tracking.
+A pre-push hook runs `npm run build` automatically — push will be rejected if the build fails.
 
-## Working in Branches
+## Commit Messages
 
-### Agent Commits
-- Agents commit directly to the branch
-- Use small, focused commits
-- Commit message format: `Issue #{number}: {description}`
-- Example: `Issue #1234: Add user authentication schema`
+Use conventional commits:
 
-### File Operations
-```bash
-# Working directory is the current directory
-# (no need to change directories like with worktrees)
-
-# Normal git operations work
-git add {files}
-git commit -m "Issue #{number}: {change}"
-
-# View branch status
-git status
-git log --oneline -5
+```
+feat: add new feature
+fix: fix a bug
+refactor: restructure code without changing behavior
+docs: update documentation
+chore: dependency updates, config changes
+test: add or update tests
 ```
 
-## Parallel Work in Same Branch
+## Rules
 
-Multiple agents can work in the same branch if they coordinate file access:
-```bash
-# Agent A works on API
-git add src/api/*
-git commit -m "Issue #1234: Add user endpoints"
-
-# Agent B works on UI (coordinate to avoid conflicts!)
-git pull origin epic/{name}  # Get latest changes
-git add src/ui/*
-git commit -m "Issue #1235: Add dashboard component"
-```
-
-## Merging Branches
-
-When epic is complete, merge back to main:
-```bash
-# From main repository
-git checkout main
-git pull origin main
-
-# Merge epic branch
-git merge epic/{name}
-
-# If successful, clean up
-git branch -d epic/{name}
-git push origin --delete epic/{name}
-```
-
-## Handling Conflicts
-
-If merge conflicts occur:
-```bash
-# Conflicts will be shown
-git status
-
-# Human resolves conflicts
-# Then continue merge
-git add {resolved-files}
-git commit
-```
-
-## Branch Management
-
-### List Active Branches
-```bash
-git branch -a
-```
-
-### Remove Stale Branch
-```bash
-# Delete local branch
-git branch -d epic/{name}
-
-# Delete remote branch
-git push origin --delete epic/{name}
-```
-
-### Check Branch Status
-```bash
-# Current branch info
-git branch -v
-
-# Compare with main
-git log --oneline main..epic/{name}
-```
-
-## Best Practices
-
-1. **One branch per epic** - Not per issue
-2. **Clean before create** - Always start from updated main
-3. **Commit frequently** - Small commits are easier to merge
-4. **Pull before push** - Get latest changes to avoid conflicts
-5. **Use descriptive branches** - `epic/feature-name` not `feature`
-
-## Common Issues
-
-### Branch Already Exists
-```bash
-# Delete old branch first
-git branch -D epic/{name}
-git push origin --delete epic/{name}
-# Then create new one
-```
-
-### Cannot Push Branch
-```bash
-# Check if branch exists remotely
-git ls-remote origin epic/{name}
-
-# Push with upstream
-git push -u origin epic/{name}
-```
-
-### Merge Conflicts During Pull
-```bash
-# Stash changes if needed
-git stash
-
-# Pull and rebase
-git pull --rebase origin epic/{name}
-
-# Restore changes
-git stash pop
-```
+- **Always test locally** before pushing — `npm run dev` at http://localhost:3000
+- **Always get user approval** before pushing — there is no undo once it's live
+- **Never force push** to Production
+- **Commit frequently** with small, focused commits
+- If something breaks in production: `git revert HEAD && git push origin Production`

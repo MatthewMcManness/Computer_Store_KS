@@ -1,3 +1,9 @@
+/**
+ * PROTECTION PLANS PAGE - Describes the Silver Plan and other protection plan
+ * options for customers.
+ *
+ * WHEN TO EDIT: When updating plan details, pricing, or descriptions.
+ */
 import type { Metadata } from 'next';
 import Link from 'next/link';
 

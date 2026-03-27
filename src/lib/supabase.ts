@@ -1,3 +1,10 @@
+/**
+ * DATABASE CONNECTION - Creates the Supabase database clients.
+ *
+ * WHEN TO EDIT: When changing database connection settings or adding
+ * a new Supabase client variant.
+ */
+
 import { createClient } from '@supabase/supabase-js';
 
 // Environment variables for Supabase connection

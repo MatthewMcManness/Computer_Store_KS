@@ -13,7 +13,6 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import NextImage from 'next/image';
 import {
-  Images,
   LogOut,
   Monitor,
   Wrench,
@@ -53,11 +52,6 @@ const NAV_ITEMS: NavItem[] = [
     label: 'In-Store Manager',
     href: '/admin/in-store',
     icon: <Monitor className="h-5 w-5 flex-shrink-0" />,
-  },
-  {
-    label: 'Photo Gallery',
-    href: '/admin/photo-gallery',
-    icon: <Images className="h-5 w-5 flex-shrink-0" />,
   },
 ];
 

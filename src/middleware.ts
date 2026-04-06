@@ -15,7 +15,7 @@ const ALLOWED_EMAIL = AUTHORIZED_EMAIL;
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || '';
 
 const PUBLIC_ROUTES = new Set([
-  '/', '/about', '/contact', '/gallery', '/in-store-pcs',
+  '/', '/about', '/contact',
   '/reviews', '/services', '/silver-plan', '/why-linux', '/login',
 ]);
 
@@ -23,9 +23,6 @@ const PUBLIC_ROUTES = new Set([
 const PUBLIC_API_EXACT = new Set([
   '/api/contact',
   '/api/health',
-  '/api/in-store',
-  '/api/in-store/sale',
-  '/api/photo-gallery',
 ]);
 
 // Non-API prefixes that allow all sub-routes

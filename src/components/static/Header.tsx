@@ -198,26 +198,6 @@ export function Header() {
               )}
             </li>
             <li className="ml-2 max-md:ml-0 max-md:my-2 max-md:text-left max-md:pl-4 max-md:w-full">
-              <Link
-                className={`text-gray-700 no-underline font-medium py-2 px-4 rounded-brand-sm transition-all duration-fast inline-block hover:text-primary-600 hover:bg-primary-100 max-md:w-full max-md:block ${
-                  isActive('/in-store-pcs') ? 'text-primary-600 bg-primary-100' : ''
-                }`}
-                href="/in-store-pcs"
-              >
-                In-Store PCs
-              </Link>
-            </li>
-            <li className="ml-2 max-md:ml-0 max-md:my-2 max-md:text-left max-md:pl-4 max-md:w-full">
-              <Link
-                className={`text-gray-700 no-underline font-medium py-2 px-4 rounded-brand-sm transition-all duration-fast inline-block hover:text-primary-600 hover:bg-primary-100 max-md:w-full max-md:block ${
-                  isActive('/gallery') ? 'text-primary-600 bg-primary-100' : ''
-                }`}
-                href="/gallery"
-              >
-                Gallery
-              </Link>
-            </li>
-            <li className="ml-2 max-md:ml-0 max-md:my-2 max-md:text-left max-md:pl-4 max-md:w-full">
               <a
                 className={`text-gray-700 no-underline font-medium py-2 px-4 rounded-brand-sm transition-all duration-fast inline-block hover:text-primary-600 hover:bg-primary-100 max-md:w-full max-md:block ${
                   pathname?.startsWith('/games') ? 'text-primary-600 bg-primary-100' : ''

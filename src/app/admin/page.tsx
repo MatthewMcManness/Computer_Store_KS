@@ -8,14 +8,10 @@ import { redirect } from 'next/navigation';
 import { isAuthenticated } from '@/lib/supabase-auth';
 import Link from 'next/link';
 import NextImage from 'next/image';
-import { Images, Monitor } from 'lucide-react';
+import { Monitor } from 'lucide-react';
 
 /**
  * Admin dashboard landing page with quick-access cards.
- *
- * Displays two management tools:
- * - In-Store Manager for managing in-store computer inventory
- * - Photo Gallery for managing the photo gallery
  *
  * @returns Admin dashboard page with tool cards
  *
@@ -26,7 +22,6 @@ import { Images, Monitor } from 'lucide-react';
  * @called_by Next.js App Router
  *
  * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
- * @version 2.0.0 - 2026-03-16T00:00:00Z - Simplified to In-Store and Gallery tools only
  */
 export default async function AdminDashboardPage() {
   // Check authentication
@@ -41,7 +36,7 @@ export default async function AdminDashboardPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Admin Dashboard</h1>
         <p className="mt-1 text-gray-500 dark:text-gray-400">
-          Manage your in-store inventory and photo gallery
+          Manage your in-store inventory
         </p>
       </div>
 
@@ -63,21 +58,6 @@ export default async function AdminDashboardPage() {
           </div>
         </Link>
 
-        {/* Photo Gallery Card */}
-        <Link
-          href="/admin/photo-gallery"
-          className="group flex flex-col items-center gap-4 rounded-xl border border-gray-200 bg-white p-8 shadow-sm transition-all hover:border-purple-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:hover:border-purple-600"
-        >
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-purple-100 text-purple-600 transition-colors group-hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:group-hover:bg-purple-900/50">
-            <Images className="h-8 w-8" />
-          </div>
-          <div className="text-center">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Photo Gallery</h2>
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              Manage photos and images for the website gallery
-            </p>
-          </div>
-        </Link>
       </div>
 
       {/* RWS Footer */}

@@ -59,8 +59,6 @@ export interface GalleryComputerDB {
   type: 'desktop' | 'laptop';
   category: 'refurbished' | 'custom' | 'new';
   price: number;
-  image_url: string | null;
-  thumbnail_url: string | null;
   specs: GallerySpec[];
   is_active: boolean;
   sort_order: number;
@@ -96,8 +94,6 @@ export interface GalleryComputer {
   type: 'desktop' | 'laptop';
   category: 'custom' | 'refurbished' | 'new';
   price: string;
-  image: string;
-  thumbnail?: string; // Small 400x300 WebP for grid display
   specs: GallerySpec[];
   stockQuantity: number; // Inventory count (0 = out of stock)
   blackFriday?: BlackFridayData;
@@ -178,8 +174,6 @@ export interface ComputerFormData {
   type: 'desktop' | 'laptop';
   category: 'custom' | 'refurbished' | 'new';
   price: string;
-  image: string;
-  thumbnail?: string;
   specs: GallerySpec[];
   stockQuantity: number; // Inventory count
 }
@@ -196,8 +190,6 @@ export interface CreateComputerInput {
   type: 'desktop' | 'laptop';
   category: 'refurbished' | 'custom' | 'new';
   price: number;
-  image_url?: string;
-  thumbnail_url?: string;
   specs?: GallerySpec[];
   sort_order?: number;
   stock_quantity?: number; // Default: 1
@@ -215,8 +207,6 @@ export interface UpdateComputerInput {
   type?: 'desktop' | 'laptop';
   category?: 'refurbished' | 'custom' | 'new';
   price?: number;
-  image_url?: string;
-  thumbnail_url?: string;
   specs?: GallerySpec[];
   is_active?: boolean;
   sort_order?: number;

@@ -11,7 +11,6 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ImageUpload } from './image-upload';
 import type { GalleryComputer, GallerySpec, ComputerFormData } from '@/types/gallery';
 
 /**
@@ -107,8 +106,6 @@ export function ComputerForm({ computer, onSubmit, isLoading }: ComputerFormProp
     category: computer?.category || 'custom' as 'custom' | 'refurbished' | 'new',
     price: computer?.price || '',
     stockQuantity: computer?.stockQuantity ?? 1,
-    image: computer?.image || '',
-    thumbnail: computer?.thumbnail || '',
   });
 
   const [specs, setSpecs] = useState<GallerySpec[]>([]);
@@ -195,7 +192,7 @@ export function ComputerForm({ computer, onSubmit, isLoading }: ComputerFormProp
 
     try {
       // Validate
-      if (!formData.name || !formData.price || !formData.image) {
+      if (!formData.name || !formData.price) {
         throw new Error('Please fill in all required fields');
       }
 
@@ -205,8 +202,6 @@ export function ComputerForm({ computer, onSubmit, isLoading }: ComputerFormProp
         category: formData.category,
         price: formData.price,
         stockQuantity: formData.stockQuantity,
-        image: formData.image,
-        thumbnail: formData.thumbnail || undefined,
         specs: specs.filter(s => s.value.trim() !== ''),
       };
 
@@ -330,25 +325,6 @@ export function ComputerForm({ computer, onSubmit, isLoading }: ComputerFormProp
           />
           <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Default: 1. Can be adjusted later.</p>
         </div>
-      </div>
-
-      {/* Image Upload */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          Image *
-        </label>
-        <ImageUpload
-          currentImage={formData.image}
-          currentThumbnail={formData.thumbnail}
-          computerType={formData.type}
-          onImageChange={(result) =>
-            setFormData({
-              ...formData,
-              image: result.url,
-              thumbnail: result.thumbnailUrl || '',
-            })
-          }
-        />
       </div>
 
       {/* Specifications */}

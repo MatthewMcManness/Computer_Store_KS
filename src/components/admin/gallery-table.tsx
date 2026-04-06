@@ -11,10 +11,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import type { GalleryComputer } from '@/types/gallery';
-import { Pencil, Trash2, Eye, Printer, Minus, Plus } from 'lucide-react';
+import { Pencil, Trash2, Printer, Minus, Plus } from 'lucide-react';
 import { generateFlyer } from '@/lib/flyer-generator';
 
 /**
@@ -128,9 +127,6 @@ export function GalleryTable({ computers, onDelete, onStockChange, isLoading }: 
     return (
       <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
         <div className="p-8 text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
-            <Eye className="h-6 w-6 text-gray-400" />
-          </div>
           <h3 className="text-lg font-medium text-gray-900 dark:text-white">No computers found</h3>
           <p className="mt-1 text-gray-500 dark:text-gray-400">Get started by adding your first computer.</p>
           <Link
@@ -183,28 +179,9 @@ export function GalleryTable({ computers, onDelete, onStockChange, isLoading }: 
               )}
             >
               <td className="whitespace-nowrap px-6 py-4">
-                <div className="flex items-center">
-                  <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
-                    {computer.image ? (
-                      <Image
-                        src={computer.image}
-                        alt={computer.name}
-                        width={48}
-                        height={48}
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center">
-                        <Eye className="h-5 w-5 text-gray-400" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="ml-4">
-                    <div className="font-medium text-gray-900 dark:text-white">{computer.name}</div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
-                      {computer.specs.length} specs
-                    </div>
-                  </div>
+                <div className="font-medium text-gray-900 dark:text-white">{computer.name}</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  {computer.specs.length} specs
                 </div>
               </td>
               <td className="whitespace-nowrap px-6 py-4">

@@ -131,11 +131,7 @@ export async function PUT(
         ? parsePrice(body.price)
         : body.price;
     }
-    if (body.image !== undefined) updateData.image_url = body.image;
-    if (body.image_url !== undefined) updateData.image_url = body.image_url;
-    if (body.thumbnail !== undefined) updateData.thumbnail_url = body.thumbnail;
-    if (body.thumbnail_url !== undefined) updateData.thumbnail_url = body.thumbnail_url;
-    if (body.specs !== undefined) updateData.specs = body.specs as GallerySpec[];
+if (body.specs !== undefined) updateData.specs = body.specs as GallerySpec[];
     if (body.is_active !== undefined) updateData.is_active = body.is_active;
     if (body.sort_order !== undefined) updateData.sort_order = body.sort_order;
     if (body.stock_quantity !== undefined) updateData.stock_quantity = body.stock_quantity;

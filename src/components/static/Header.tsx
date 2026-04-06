@@ -140,6 +140,16 @@ export function Header() {
                 About
               </Link>
             </li>
+            <li className="ml-2 max-md:ml-0 max-md:my-2 max-md:text-left max-md:pl-4 max-md:w-full">
+              <Link
+                className={`text-gray-700 no-underline font-medium py-2 px-4 rounded-brand-sm transition-all duration-fast inline-block hover:text-primary-600 hover:bg-primary-100 max-md:w-full max-md:block ${
+                  isActive('/computers') ? 'text-primary-600 bg-primary-100' : ''
+                }`}
+                href="/computers"
+              >
+                Computers
+              </Link>
+            </li>
             <li
               className={`ml-2 relative max-md:ml-0 max-md:my-2 max-md:text-left max-md:pl-4 max-md:w-full ${isMobile ? 'max-md:static' : ''}`}
               ref={servicesRef}

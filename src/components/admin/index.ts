@@ -4,7 +4,6 @@
  *
  * WHEN TO EDIT: When adding a new admin component that other files need to import.
  */
-export { AdminSidebar } from './admin-sidebar';
 export { AdminHeader } from './admin-header';
 export { AdminShell } from './admin-shell';
 export { GalleryTable } from './gallery-table';

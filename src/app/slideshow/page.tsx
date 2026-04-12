@@ -218,7 +218,8 @@ export default function SlideshowPage() {
     return () => window.removeEventListener('keydown', handleKey);
   }, [next, prev]);
 
-  const slide = slides[current];
+  // current is always a valid index (initialized to 0, incremented with modulo)
+  const slide = slides[current]!;
   const { theme } = slide;
 
   return (

@@ -8,7 +8,7 @@ import { redirect } from 'next/navigation';
 import { isAuthenticated } from '@/lib/supabase-auth';
 import Link from 'next/link';
 import NextImage from 'next/image';
-import { Monitor } from 'lucide-react';
+import { Monitor, Presentation } from 'lucide-react';
 
 /**
  * Admin dashboard landing page with quick-access cards.
@@ -54,6 +54,22 @@ export default async function AdminDashboardPage() {
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">In-Store Manager</h2>
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Manage computers available for sale in-store
+            </p>
+          </div>
+        </Link>
+
+        {/* Slideshow Manager Card */}
+        <Link
+          href="/admin/slideshow"
+          className="group flex flex-col items-center gap-4 rounded-xl border border-gray-200 bg-white p-8 shadow-sm transition-all hover:border-green-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:hover:border-green-600"
+        >
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-green-600 transition-colors group-hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400 dark:group-hover:bg-green-900/50">
+            <Presentation className="h-8 w-8" />
+          </div>
+          <div className="text-center">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Slideshow Manager</h2>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              Manage the in-store display slideshow
             </p>
           </div>
         </Link>

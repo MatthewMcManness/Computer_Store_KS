@@ -16,7 +16,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || '';
 
 const PUBLIC_ROUTES = new Set([
   '/', '/about', '/contact',
-  '/reviews', '/services', '/silver-plan', '/why-linux', '/login',
+  '/reviews', '/services', '/silver-plan', '/why-linux', '/login', '/shop',
 ]);
 
 // Exact API paths that are public (no sub-route access)
@@ -53,7 +53,7 @@ function addSecurityHeaders(response: NextResponse): void {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob: https://*.supabase.co https://*.supabase.in https://images.unsplash.com https://raw.githubusercontent.com",
     "connect-src 'self' https://*.supabase.co https://*.supabase.in https://www.google-analytics.com https://challenges.cloudflare.com",
-    "frame-src https://challenges.cloudflare.com https://www.google.com",
+    "frame-src https://challenges.cloudflare.com https://www.google.com https://cmc-td.com https://cmcengage.com",
     "font-src 'self'",
   ].join('; ');
   response.headers.set('Content-Security-Policy', csp);

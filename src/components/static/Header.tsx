@@ -229,6 +229,17 @@ export function Header() {
             </li>
             <li className="ml-2 max-md:ml-0 max-md:my-2 max-md:text-left max-md:pl-4 max-md:w-full">
               <Link
+                className={`nav-silver-shimmer no-underline font-semibold py-2.5 px-5 rounded-brand-md whitespace-nowrap transition-all duration-normal shadow-brand-sm inline-block hover:-translate-y-0.5 relative overflow-hidden text-gray-800 max-md:w-full max-md:block max-md:text-center ${
+                  isActive('/service') ? 'brightness-90' : ''
+                }`}
+                style={{ background: 'linear-gradient(135deg, #f0f0f0 0%, #c8c8c8 40%, #e8e8e8 100%)' }}
+                href="/service"
+              >
+                Service Calls
+              </Link>
+            </li>
+            <li className="ml-2 max-md:ml-0 max-md:my-2 max-md:text-left max-md:pl-4 max-md:w-full">
+              <Link
                 className="bg-primary-600 text-white no-underline font-semibold py-2.5 px-5 rounded-brand-md whitespace-nowrap transition-all duration-normal shadow-brand-sm inline-block hover:bg-primary-800 hover:-translate-y-0.5 hover:shadow-brand-md"
                 href="/login"
               >

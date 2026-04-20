@@ -98,7 +98,7 @@ export default function ProtectionPlansPage() {
               }}>
                 <div style={{ margin: '0.5rem 0' }}>
                   <span style={{ fontSize: '2.5rem', fontWeight: 700, color: '#1f2937' }}>$24.99</span>
-                  <span style={{ fontSize: '1rem', color: '#6b7280' }}>/month</span>
+                  <span style={{ fontSize: '1rem', color: '#6b7280' }}>/device/month</span>
                 </div>
                 <p style={{ fontSize: '0.875rem', color: '#6b7280', margin: '0.25rem 0' }}>3-month minimum commitment</p>
                 <p style={{ fontSize: '0.875rem', color: '#4b5563', margin: '0.5rem 0 0 0' }}><em>Best value for home users, families, and remote workers</em></p>

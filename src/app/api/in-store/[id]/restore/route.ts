@@ -1,9 +1,13 @@
+/**
+ * RESTORE COMPUTER API - Restores an archived computer back to the active gallery.
+ * POST /api/in-store/[id]/restore (admin only).
+ *
+ * WHEN TO EDIT: When changing the restore behavior.
+ */
 import { NextRequest, NextResponse } from 'next/server';
-import { isAuthenticated } from '@/lib/auth';
-import {
-  restoreComputer,
-  isSupabaseAdminConfigured,
-} from '@/lib/supabase';
+import { isAuthenticated } from '@/lib/supabase-auth';
+import { restoreComputer } from '@/lib/gallery';
+import { isSupabaseAdminConfigured } from '@/lib/supabase';
 
 /**
  * Restores an archived (soft-deleted) computer to active status.

@@ -1,3 +1,11 @@
+/**
+ * AUTH LAYOUT - Wraps the login page with a centered card layout
+ * and the store logo. Separate from the public layout since login
+ * doesn't need the full header/footer.
+ *
+ * WHEN TO EDIT: When changing the login page's surrounding design.
+ */
+
 import Image from 'next/image';
 import Link from 'next/link';
 

@@ -1,3 +1,12 @@
+/**
+ * CONTACT FORM - The form customers use to send messages from the
+ * /contact page. Includes spam protection (honeypots, Turnstile
+ * CAPTCHA, timing checks) and sends emails via the /api/contact route.
+ *
+ * WHEN TO EDIT: When changing form fields, validation rules, or
+ * the spam protection strategy.
+ */
+
 'use client';
 
 import * as React from 'react';
@@ -53,6 +62,10 @@ const subjectOptions = [
 // Turnstile site key - MUST be set in production
 const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA';
 
+/**
+ * Contact form with multi-layered spam protection.
+ * Collects name, email, phone, subject, and message, then POSTs to /api/contact.
+ */
 export function ContactForm() {
   const { timing, honeypotFields } = useBotProtection();
   const { getInteractionScore } = useInteractionTracking();

@@ -1,3 +1,8 @@
+/**
+ * CHAT WIDGET - Floating chat button in the bottom-right corner that links to the contact page.
+ *
+ * WHEN TO EDIT: When changing the chat button design or behavior.
+ */
 'use client';
 
 import * as React from 'react';

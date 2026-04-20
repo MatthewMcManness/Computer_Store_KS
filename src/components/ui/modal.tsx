@@ -1,3 +1,8 @@
+/**
+ * MODAL DIALOG - Popup overlay used for confirmations and forms in the admin panel.
+ *
+ * WHEN TO EDIT: When changing the modal design or animation.
+ */
 'use client';
 
 import * as React from 'react';

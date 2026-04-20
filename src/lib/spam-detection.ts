@@ -22,7 +22,7 @@ import { getDisposableEmailScore } from './disposable-email';
 /**
  * Extended spam score breakdown with new detection layers
  */
-export interface SpamScoreResult {
+interface SpamScoreResult {
   /** Total spam score (0-200+) */
   score: number;
   /** Individual signal scores */
@@ -57,7 +57,7 @@ export interface SpamScoreResult {
 /**
  * Content analysis result
  */
-export interface ContentAnalysis {
+interface ContentAnalysis {
   /** Content spam score (0-30) */
   score: number;
   /** Ratio of valid words (0-1) */
@@ -201,14 +201,8 @@ const KEYBOARD_WALKS = [
  */
 const VOWELS = new Set(['a', 'e', 'i', 'o', 'u']);
 
-/**
- * Detect if a string is likely gibberish (random characters)
- * Uses multiple heuristics:
- * - Consonant cluster analysis
- * - Character transition patterns
- * - Mixed case in single "words"
- */
-export function isGibberish(text: string): { isGibberish: boolean; score: number; reasons: string[] } {
+/** Checks if text looks like random keyboard mashing or nonsense. */
+function isGibberish(text: string): { isGibberish: boolean; score: number; reasons: string[] } {
   if (!text || text.trim().length === 0) {
     return { isGibberish: false, score: 0, reasons: [] };
   }
@@ -288,11 +282,8 @@ export function isGibberish(text: string): { isGibberish: boolean; score: number
   };
 }
 
-/**
- * Validate that a name looks like a real human name
- * Returns spam score (0 = looks valid, higher = suspicious)
- */
-export function validateName(name: string): { score: number; reasons: string[] } {
+/** Checks if a name looks like a real person's name (not gibberish or spam). */
+function validateName(name: string): { score: number; reasons: string[] } {
   if (!name || name.trim().length === 0) {
     return { score: 0, reasons: [] };
   }
@@ -368,10 +359,8 @@ function hasKeyboardWalks(text: string): boolean {
   return KEYBOARD_WALKS.some(pattern => lowerText.includes(pattern));
 }
 
-/**
- * Analyze content for spam indicators
- */
-export function analyzeContent(message: string): ContentAnalysis {
+/** Analyzes message text for spam signals like excessive links, caps, or repeated characters. */
+function analyzeContent(message: string): ContentAnalysis {
   if (!message || message.trim().length === 0) {
     return { score: 30, validWordRatio: 0, entropy: 0 };
   }
@@ -427,10 +416,8 @@ export function analyzeContent(message: string): ContentAnalysis {
   };
 }
 
-/**
- * Validate submission timing
- */
-export function validateTiming(pageLoadTime: number, submitTime: number): number {
+/** Checks if the form was filled out at a human-realistic speed (not instantly like a bot). */
+function validateTiming(pageLoadTime: number, submitTime: number): number {
   if (!pageLoadTime || !submitTime || pageLoadTime <= 0 || submitTime <= 0) {
     return 10;
   }
@@ -449,10 +436,8 @@ export function validateTiming(pageLoadTime: number, submitTime: number): number
   return 0;
 }
 
-/**
- * Check honeypot fields
- */
-export function checkHoneypots(fields: Record<string, string | undefined>): number {
+/** Checks hidden form fields that humans never see -- bots fill them in, revealing themselves. */
+function checkHoneypots(fields: Record<string, string | undefined>): number {
   const honeypotFields = [
     'website',
     'url',
@@ -516,10 +501,8 @@ function analyzeFingerprint(headers: Headers): number {
   return Math.min(score, 15);
 }
 
-/**
- * Extended form data with all bot protection fields
- */
-export interface ExtendedFormData extends ContactFormData {
+/** The shape of form data including hidden anti-spam fields like honeypots, timing, and fingerprints. */
+interface ExtendedFormData extends ContactFormData {
   website?: string;
   pageLoadTime?: number;
   submitTime?: number;
@@ -541,21 +524,17 @@ export interface ExtendedFormData extends ContactFormData {
   };
 }
 
-/**
- * Verify Cloudflare Turnstile token
- */
-export async function verifyTurnstile(token: string, ip: string): Promise<boolean> {
+/** Verifies the Cloudflare Turnstile CAPTCHA token with Cloudflare's API. */
+async function verifyTurnstile(token: string, ip: string): Promise<boolean> {
   const secretKey = process.env.TURNSTILE_SECRET_KEY;
 
   // If no secret key configured, skip verification (allows testing)
   if (!secretKey) {
-    console.log('Turnstile: No secret key configured, skipping verification');
     return true;
   }
 
   // If no token provided, fail verification
   if (!token) {
-    console.log('Turnstile: No token provided');
     return false;
   }
 
@@ -586,28 +565,7 @@ export async function verifyTurnstile(token: string, ip: string): Promise<boolea
   }
 }
 
-/**
- * Calculate comprehensive spam score for a contact form submission
- *
- * Multi-layered analysis:
- * - Content (30 points max) - entropy, word validity, keyboard walks
- * - Patterns (30 points max) - spam keywords, links, caps
- * - Timing (20 points max) - submission speed
- * - Honeypot (50 points) - hidden field detection
- * - Fingerprint (15 points max) - request headers
- * - Disposable Email (25 points) - throwaway email detection
- * - Interaction (20 points max) - behavioral analysis
- * - Browser Fingerprint (10 points max) - client fingerprint
- * - Turnstile (30 points) - CAPTCHA verification
- * - Gibberish (30 points max) - random character detection in message
- * - Name Validation (25 points max) - suspicious name patterns
- *
- * Actions based on thresholds:
- * - 0-49: allow (legitimate)
- * - 50-79: log (suspicious, but allow)
- * - 80-119: block (likely spam)
- * - 120+: silent_success (definite spam, fake success response)
- */
+/** The main function: runs all spam checks and returns an overall spam score. */
 export async function calculateSpamScore(
   data: ExtendedFormData,
   headers: Headers,
@@ -649,7 +607,6 @@ export async function calculateSpamScore(
 
   // Turnstile verification (0 or 30)
   let turnstileScore = 0;
-  let turnstileFailed = false;
   if (data._turnstile) {
     const turnstileValid = await verifyTurnstile(data._turnstile, clientIP);
     if (!turnstileValid) {
@@ -657,12 +614,10 @@ export async function calculateSpamScore(
       // Legitimate users can fail Turnstile due to misconfigured keys,
       // network issues, or Cloudflare outages.
       turnstileScore = 30;
-      turnstileFailed = true;
     }
   } else if (process.env.TURNSTILE_SECRET_KEY) {
     // Token required but not provided — suspicious but not fatal
     turnstileScore = 30;
-    turnstileFailed = true;
   }
 
   // Gibberish detection in message (0-30, or 200 for instant block)
@@ -724,88 +679,3 @@ export async function calculateSpamScore(
   };
 }
 
-/**
- * Legacy synchronous version for backwards compatibility
- * Does not include Turnstile verification
- */
-export function calculateSpamScoreSync(
-  data: ExtendedFormData,
-  headers: Headers
-): SpamScoreResult {
-  const contentAnalysis = analyzeContent(data.message);
-  const contentScore = contentAnalysis.score;
-
-  const patternResult = detectSpamPatterns(data.message, data.email);
-  const patternsScore = patternResult.score;
-
-  const timingScore = validateTiming(
-    data.pageLoadTime || 0,
-    data.submitTime || Date.now()
-  );
-
-  const honeypotScore = checkHoneypots({
-    website: data.website,
-    _hp_email2: data._hp_email2,
-    _hp_phone_confirm: data._hp_phone_confirm,
-    _hp_url: data._hp_url,
-  });
-
-  const fingerprintScore = analyzeFingerprint(headers);
-  const disposableEmailScore = getDisposableEmailScore(data.email);
-  const interactionScore = data._interaction?.spamScore || 0;
-  const browserFingerprintScore = data._fingerprint?.spamScore || 0;
-
-  // Gibberish detection in message (0-30, or 200 for instant block)
-  const messageGibberishResult = isGibberish(data.message);
-  let gibberishScore = messageGibberishResult.score;
-
-  // If message has zero valid words AND is detected as gibberish, instant block
-  if (contentAnalysis.validWordRatio === 0 && messageGibberishResult.isGibberish) {
-    gibberishScore = 200;
-  }
-
-  // Name validation (0-25)
-  const nameResult = validateName(data.name);
-  const nameValidationScore = nameResult.score;
-
-  const totalScore =
-    contentScore +
-    patternsScore +
-    timingScore +
-    honeypotScore +
-    fingerprintScore +
-    disposableEmailScore +
-    interactionScore +
-    browserFingerprintScore +
-    gibberishScore +
-    nameValidationScore;
-
-  let action: SpamScoreResult['action'];
-  if (totalScore >= SPAM_THRESHOLDS.SILENT_SUCCESS_SCORE) {
-    action = 'silent_success';
-  } else if (totalScore >= SPAM_THRESHOLDS.BLOCK_SCORE) {
-    action = 'block';
-  } else if (totalScore >= SPAM_THRESHOLDS.LOG_SCORE) {
-    action = 'log';
-  } else {
-    action = 'allow';
-  }
-
-  return {
-    score: totalScore,
-    breakdown: {
-      content: contentScore,
-      patterns: patternsScore,
-      timing: timingScore,
-      honeypot: honeypotScore,
-      fingerprint: fingerprintScore,
-      disposableEmail: disposableEmailScore,
-      interaction: interactionScore,
-      browserFingerprint: browserFingerprintScore,
-      turnstile: 0,
-      gibberish: gibberishScore,
-      nameValidation: nameValidationScore,
-    },
-    action,
-  };
-}

@@ -1,3 +1,9 @@
+/**
+ * LOADING SPINNER - Shown while pages are loading.
+ * This is the site-wide loading state.
+ *
+ * WHEN TO EDIT: When changing the loading animation or spinner design.
+ */
 export default function Loading() {
   return (
     <div className="flex min-h-screen items-center justify-center">

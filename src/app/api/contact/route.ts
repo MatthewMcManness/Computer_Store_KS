@@ -1,23 +1,43 @@
+/**
+ * CONTACT FORM API - Receives contact form submissions from the website.
+ * Validates input, runs spam detection, rate-limits by IP, and sends
+ * emails (notification to business + confirmation to customer).
+ *
+ * WHEN TO EDIT: When changing form validation rules, spam thresholds,
+ * rate limits, or email behavior.
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { sendContactNotification, sendContactConfirmation } from '@/lib/email';
 import { calculateSpamScore, SPAM_THRESHOLDS } from '@/lib/spam-detection';
+import { createRateLimiter } from '@/lib/rate-limiter';
+import { getClientIP } from '@/lib/request-helpers';
 
 export const dynamic = 'force-dynamic';
 
-// CORS headers for cross-origin requests from static site
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-};
+const ALLOWED_ORIGINS: [string, ...string[]] = ['https://computerstoreks.com', 'https://www.computerstoreks.com'];
 
-// Rate limiting store (in production, use Redis)
-const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
+/**
+ * Build CORS headers with origin checking instead of wildcard.
+ *
+ * @param request - The incoming request to extract the Origin header from
+ * @returns CORS headers object with the validated origin
+ *
+ * @version 1.0.0 - 2026-03-20T00:00:00Z - Replace wildcard CORS with origin allowlist
+ */
+function getCorsHeaders(request: NextRequest): Record<string, string> {
+  const origin = request.headers.get('origin') || '';
+  const corsOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    'Access-Control-Allow-Origin': corsOrigin,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  };
+}
 
-// Rate limit configuration
-const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
-const MAX_REQUESTS = 10; // 10 requests per minute
+// Rate limit configuration: 10 requests per minute per IP
+const rateLimiter = createRateLimiter(10, 60 * 1000);
 
 // Interaction tracking schema
 const interactionSchema = z.object({
@@ -61,7 +81,7 @@ const contactFormSchema = z.object({
     .min(10, 'Message must be at least 10 characters')
     .max(5000, 'Message must be less than 5000 characters')
     .transform((val) => val.trim()),
-  location: z.enum(['Topeka', 'Holton']).optional().default('Topeka'),
+  location: z.enum(['Topeka']).optional().default('Topeka'),
   // Honeypot field - should always be empty
   website: z.string().optional(),
   // Bot protection fields
@@ -80,60 +100,67 @@ const contactFormSchema = z.object({
 type ContactFormData = z.infer<typeof contactFormSchema>;
 
 /**
- * Check rate limit for an IP address
+ * Escape HTML special characters to prevent XSS in email output.
+ *
+ * @param str - The untrusted user input string to escape
+ * @returns The string with HTML special characters replaced by entities
+ *
+ * @called_by POST handler (contact form)
+ *
+ * @version 1.0.0 - 2026-03-20T00:00:00Z - Replace naive strip with proper entity escaping
  */
-function checkRateLimit(ip: string): { allowed: boolean; remaining: number; resetTime: number } {
-  const now = Date.now();
-  const record = rateLimitStore.get(ip);
-
-  // Clean up old entries periodically
-  if (rateLimitStore.size > 10000) {
-    const cutoff = now - RATE_LIMIT_WINDOW;
-    for (const [key, value] of rateLimitStore.entries()) {
-      if (value.resetTime < cutoff) {
-        rateLimitStore.delete(key);
-      }
-    }
-  }
-
-  if (!record || now > record.resetTime) {
-    rateLimitStore.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
-    return { allowed: true, remaining: MAX_REQUESTS - 1, resetTime: now + RATE_LIMIT_WINDOW };
-  }
-
-  if (record.count >= MAX_REQUESTS) {
-    return { allowed: false, remaining: 0, resetTime: record.resetTime };
-  }
-
-  record.count++;
-  return { allowed: true, remaining: MAX_REQUESTS - record.count, resetTime: record.resetTime };
-}
-
-/**
- * Sanitize string to prevent XSS
- */
-function sanitize(str: string): string {
-  return str.replace(/[<>]/g, '');
-}
-
-/**
- * Get client IP from request headers
- */
-function getClientIP(request: NextRequest): string {
-  return (
-    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-    request.headers.get('x-real-ip') ||
-    'unknown'
-  );
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 export async function POST(request: NextRequest) {
+  // ─── SPAM DETECTION PIPELINE ──────────────────────────────────────
+  // The contact form goes through multiple layers of protection before
+  // an email is actually sent. Here's the order:
+  //
+  //   1. RATE LIMITING (below) — Max 10 submissions per minute per IP.
+  //      Stops brute-force spam floods.
+  //
+  //   2. VALIDATION — Zod schema checks all fields (name, email, subject,
+  //      message) for correct format and length.
+  //
+  //   3. SPAM SCORING — calculateSpamScore() runs ALL of these checks:
+  //      a. Honeypot fields: 3 hidden fields (email2, phone_confirm, url)
+  //         that humans never see. If any are filled in → bot.
+  //      b. Timing check: Records when the page loaded vs. when the form
+  //         was submitted. Under 3 seconds → probably a bot.
+  //      c. Content analysis: Checks for gibberish, keyboard walks
+  //         (qwerty, asdf), random characters, excessive caps/links.
+  //      d. Name validation: Is the name real-looking or spam-like?
+  //      e. Spam patterns: Known spam keywords (viagra, bitcoin, SEO),
+  //         excessive URLs, foreign scripts.
+  //      f. Disposable email check: Known throwaway email domains.
+  //      g. Interaction tracking: Did the user actually move the mouse,
+  //         scroll, and type like a human?
+  //      h. Browser fingerprint: Consistency check on browser signals.
+  //      i. Turnstile CAPTCHA: Cloudflare's invisible challenge token.
+  //
+  //   4. SCORE THRESHOLDS:
+  //      - Score >= 70 → "Silent success" (pretend email was sent, but don't
+  //        actually send it — this tricks bots into thinking they succeeded)
+  //      - Score >= 40 → Block with error message
+  //      - Score < 40  → Legitimate, send the email
+  //
+  //   5. EMAIL DELIVERY — Two emails sent in parallel:
+  //      a. Notification to the store (contact@computerstoreks.com)
+  //      b. Confirmation to the customer ("thanks, we got your message")
+  // ──────────────────────────────────────────────────────────────────
+
   try {
-    // Get client IP for rate limiting
+    // Step 1: Rate limiting — max 10 requests per minute per IP
     const ip = getClientIP(request);
 
-    // Check rate limit
-    const rateLimit = checkRateLimit(ip);
+    const rateLimit = rateLimiter.check(ip);
     if (!rateLimit.allowed) {
       const retryAfter = Math.ceil((rateLimit.resetTime - Date.now()) / 1000);
       return NextResponse.json(
@@ -144,7 +171,7 @@ export async function POST(request: NextRequest) {
         {
           status: 429,
           headers: {
-            ...corsHeaders,
+            ...getCorsHeaders(request),
             'X-RateLimit-Remaining': '0',
             'Retry-After': String(retryAfter),
           },
@@ -159,7 +186,7 @@ export async function POST(request: NextRequest) {
     } catch {
       return NextResponse.json(
         { success: false, error: 'Invalid request body' },
-        { status: 400, headers: corsHeaders }
+        { status: 400, headers: getCorsHeaders(request) }
       );
     }
 
@@ -176,7 +203,7 @@ export async function POST(request: NextRequest) {
           error: 'Validation failed',
           errors,
         },
-        { status: 400, headers: corsHeaders }
+        { status: 400, headers: getCorsHeaders(request) }
       );
     }
 
@@ -211,21 +238,8 @@ export async function POST(request: NextRequest) {
     // Calculate spam score (async for Turnstile verification)
     const spamResult = await calculateSpamScore(spamDetectionData, request.headers, ip);
 
-    // Log spam score for monitoring
-    console.log(JSON.stringify({
-      type: 'spam_score',
-      timestamp: new Date().toISOString(),
-      ip,
-      location: formData.location,
-      score: spamResult.score,
-      breakdown: spamResult.breakdown,
-      action: spamResult.action,
-      message_preview: formData.message.substring(0, 50),
-    }));
-
     // Handle high spam scores (silent success to not alert bots)
     if (spamResult.score >= SPAM_THRESHOLDS.SILENT_SUCCESS_SCORE) {
-      console.log(`Silent success for high spam score (${spamResult.score}) from IP: ${ip}`);
       return NextResponse.json({
         success: true,
         message: 'Thank you for your message! We will get back to you within 24 hours.',
@@ -234,7 +248,6 @@ export async function POST(request: NextRequest) {
 
     // Block moderate spam scores
     if (spamResult.score >= SPAM_THRESHOLDS.BLOCK_SCORE) {
-      console.log(`Blocked submission with spam score (${spamResult.score}) from IP: ${ip}`);
       return NextResponse.json(
         {
           success: false,
@@ -246,11 +259,11 @@ export async function POST(request: NextRequest) {
 
     // Sanitize inputs for legitimate submissions
     const sanitizedData = {
-      name: sanitize(formData.name),
+      name: escapeHtml(formData.name),
       email: formData.email, // Already validated as email
-      phone: formData.phone ? sanitize(formData.phone) : undefined,
+      phone: formData.phone ? escapeHtml(formData.phone) : undefined,
       subject: formData.subject,
-      message: sanitize(formData.message),
+      message: escapeHtml(formData.message),
       location: formData.location,
     };
 
@@ -264,19 +277,6 @@ export async function POST(request: NextRequest) {
       }),
     ]);
 
-    // Log submission
-    console.log('Contact form submission:', {
-      ip,
-      name: sanitizedData.name,
-      email: sanitizedData.email,
-      subject: sanitizedData.subject,
-      notificationSent: notificationResult.success,
-      notificationError: notificationResult.error || null,
-      confirmationSent: confirmationResult.success,
-      confirmationError: confirmationResult.error || null,
-      timestamp: new Date().toISOString(),
-    });
-
     // If the notification email failed, the business won't see this message.
     // Tell the user so they can call instead.
     if (!notificationResult.success) {
@@ -286,7 +286,7 @@ export async function POST(request: NextRequest) {
           success: false,
           error: 'We had trouble delivering your message. Please call us directly at (785) 267-3223 or email contact@computerstoreks.com.',
         },
-        { status: 500, headers: corsHeaders }
+        { status: 500, headers: getCorsHeaders(request) }
       );
     }
 
@@ -297,7 +297,7 @@ export async function POST(request: NextRequest) {
       },
       {
         headers: {
-          ...corsHeaders,
+          ...getCorsHeaders(request),
           'X-RateLimit-Remaining': String(rateLimit.remaining),
         },
       }
@@ -309,19 +309,15 @@ export async function POST(request: NextRequest) {
         success: false,
         error: 'An error occurred. Please try again or call us directly at (785) 267-3223.',
       },
-      { status: 500, headers: corsHeaders }
+      { status: 500, headers: getCorsHeaders(request) }
     );
   }
 }
 
 // Optionally support OPTIONS for CORS preflight
-export async function OPTIONS() {
+export async function OPTIONS(request: NextRequest) {
   return new NextResponse(null, {
     status: 204,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-    },
+    headers: getCorsHeaders(request),
   });
 }

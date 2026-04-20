@@ -1,102 +1,39 @@
 services:
-  # =============================================================================
-  # PRODUCTION - Main Website (deploys from Production branch)
-  # =============================================================================
   - type: web
-    name: CSK-Production
+    name: Computer_Store_KS
     env: node
+    plan: free
+    region: oregon
     branch: Production
-    buildCommand: npm install && npm run build && cp -r .next/static .next/standalone/.next/static && rm -rf .next/standalone/public && cp -R public .next/standalone/ && cp -r node_modules .next/standalone/ && cp package.json .next/standalone/
+    buildCommand: npm ci && npm run build && cp -r .next/static .next/standalone/.next/static && rm -rf .next/standalone/public && cp -R public .next/standalone/ && cp package.json .next/standalone/
     startCommand: cd .next/standalone && node server.js
+    healthCheckPath: /api/health
     envVars:
       - key: NODE_VERSION
-        value: 20.11.0
+        value: "22"
       - key: NODE_ENV
         value: production
       - key: PORT
         value: 3000
       - key: HOSTNAME
         value: 0.0.0.0
-      # Email service for contact form (REQUIRED)
+      # Supabase (REQUIRED)
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      # Email (REQUIRED for contact form)
       - key: RESEND_API_KEY
         sync: false
-      # Authentication settings (REQUIRED for admin panel)
-      - key: AUTH_MODE
-        value: repairshopr
-      - key: SESSION_SECRET
-        sync: false
-      - key: REPAIRSHOPR_SUBDOMAIN
-        value: thecomputerstore
-      # Gallery admin authentication (legacy mode fallback)
-      - key: ADMIN_PASSWORD
-        sync: false
-      # GitHub integration for gallery (OPTIONAL - only if you use gallery manager)
-      - key: GITHUB_TOKEN
-        sync: false
-      - key: GITHUB_OWNER
-        value: MatthewMcManness
-      - key: GITHUB_REPO
-        value: Computer_Store_KS
-      - key: GITHUB_BRANCH
-        value: Production
-      # Static site URL for "View Site" link
+      - key: NOTIFICATION_EMAIL
+        value: contact@computerstoreks.com
+      # Site URL (REQUIRED for OAuth redirects)
       - key: NEXT_PUBLIC_SITE_URL
         value: https://computerstoreks.com
-      # Supabase (REQUIRED for customer portal and blog)
-      - key: NEXT_PUBLIC_SUPABASE_URL
+      # Cloudflare Turnstile (optional)
+      - key: NEXT_PUBLIC_TURNSTILE_SITE_KEY
         sync: false
-      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
-        sync: false
-      - key: SUPABASE_SERVICE_ROLE_KEY
-        sync: false
-
-  # =============================================================================
-  # DEVELOPMENT - Staging/Test Environment (deploys from Development branch)
-  # =============================================================================
-  - type: web
-    name: CSK-Development
-    env: node
-    branch: Development
-    buildCommand: npm install && npm run build && cp -r .next/static .next/standalone/.next/static && rm -rf .next/standalone/public && cp -R public .next/standalone/ && cp -r node_modules .next/standalone/ && cp package.json .next/standalone/
-    startCommand: cd .next/standalone && node server.js
-    envVars:
-      - key: NODE_VERSION
-        value: 20.11.0
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: 3000
-      - key: HOSTNAME
-        value: 0.0.0.0
-      # Email service for contact form (REQUIRED)
-      - key: RESEND_API_KEY
-        sync: false
-      # Authentication settings (REQUIRED for admin panel)
-      - key: AUTH_MODE
-        value: repairshopr
-      - key: SESSION_SECRET
-        sync: false
-      - key: REPAIRSHOPR_SUBDOMAIN
-        value: thecomputerstore
-      # Gallery admin authentication (legacy mode fallback)
-      - key: ADMIN_PASSWORD
-        sync: false
-      # GitHub integration for gallery (OPTIONAL - only if you use gallery manager)
-      - key: GITHUB_TOKEN
-        sync: false
-      - key: GITHUB_OWNER
-        value: MatthewMcManness
-      - key: GITHUB_REPO
-        value: Computer_Store_KS
-      - key: GITHUB_BRANCH
-        value: Development
-      # Static site URL for "View Site" link (dev URL)
-      - key: NEXT_PUBLIC_SITE_URL
-        value: https://csk-development.onrender.com
-      # Supabase (REQUIRED for customer portal and blog)
-      - key: NEXT_PUBLIC_SUPABASE_URL
-        sync: false
-      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
-        sync: false
-      - key: SUPABASE_SERVICE_ROLE_KEY
+      - key: TURNSTILE_SECRET_KEY
         sync: false

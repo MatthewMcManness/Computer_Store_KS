@@ -8,28 +8,20 @@
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
-    "clean": "rm -rf .next out node_modules",
-    "migrate-users": "npx ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/migrate-users.ts",
-    "migrate-users:dry-run": "npx ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/migrate-users.ts --dry-run --verbose"
+    "check": "npm run lint && npm run type-check && npm run build",
+    "clean": "rm -rf .next out node_modules"
   },
-  "devDependencies": {
-    "@types/bcryptjs": "^2.4.6",
-    "marked": "^17.0.1",
-    "ts-node": "^10.9.2"
-  },
+  "devDependencies": {},
   "dependencies": {
     "@fingerprintjs/fingerprintjs": "^5.0.1",
     "@marsidev/react-turnstile": "^1.4.0",
-    "@octokit/rest": "^22.0.1",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.88.0",
     "@types/node": "^24.10.1",
     "@types/react": "18",
     "autoprefixer": "^10.4.22",
-    "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "framer-motion": "^12.23.24",
     "lucide-react": "^0.554.0",
     "next": "^14.2.35",
     "postcss": "^8.5.6",
@@ -42,6 +34,6 @@
     "zod": "^4.1.12"
   },
   "engines": {
-    "node": ">=20.11.0 <21.0.0"
+    "node": ">=22.0.0"
   }
 }

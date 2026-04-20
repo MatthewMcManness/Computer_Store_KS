@@ -1,3 +1,8 @@
+/**
+ * MOBILE CALL BUTTON - Floating phone button that appears on mobile devices, letting customers tap to call the store.
+ *
+ * WHEN TO EDIT: When changing the mobile call button design or phone number (phone number comes from constants.ts).
+ */
 'use client';
 
 import * as React from 'react';

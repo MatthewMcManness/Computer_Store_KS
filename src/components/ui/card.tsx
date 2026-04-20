@@ -1,3 +1,8 @@
+/**
+ * CARD - Container component with optional header, content, and footer sections.
+ *
+ * WHEN TO EDIT: When changing the card design.
+ */
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 

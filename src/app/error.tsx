@@ -1,3 +1,9 @@
+/**
+ * ERROR PAGE - Shown when something goes wrong on the site.
+ * Displays a friendly error message with a retry button.
+ *
+ * WHEN TO EDIT: When changing the error page design or adding error reporting.
+ */
 'use client';
 
 import { useEffect } from 'react';

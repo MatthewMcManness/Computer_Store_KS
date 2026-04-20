@@ -1,5 +1,10 @@
+/**
+ * ADD NEW COMPUTER - Form page for adding a new computer to the in-store gallery.
+ *
+ * WHEN TO EDIT: When changing what info is collected for new computers.
+ */
 import { redirect } from 'next/navigation';
-import { isAuthenticated } from '@/lib/auth';
+import { isAuthenticated } from '@/lib/supabase-auth';
 import { ComputerForm } from '@/components/admin';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';

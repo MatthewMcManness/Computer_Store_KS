@@ -1,10 +1,13 @@
+/**
+ * ARCHIVED COMPUTERS API - List archived computers and permanently delete them.
+ * GET returns all archived computers. DELETE permanently removes one (admin only).
+ *
+ * WHEN TO EDIT: When changing the archive list or permanent delete behavior.
+ */
 import { NextRequest, NextResponse } from 'next/server';
-import { isAuthenticated } from '@/lib/auth';
-import {
-  getArchivedComputers,
-  hardDeleteComputer,
-  isSupabaseAdminConfigured,
-} from '@/lib/supabase';
+import { isAuthenticated } from '@/lib/supabase-auth';
+import { getArchivedComputers, hardDeleteComputer } from '@/lib/gallery';
+import { isSupabaseAdminConfigured } from '@/lib/supabase';
 
 /**
  * Gets all archived (soft-deleted) computers.

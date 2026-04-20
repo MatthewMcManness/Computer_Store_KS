@@ -1,3 +1,8 @@
+/**
+ * TEXT INPUT - Reusable form input field with label, error message, and helper text support.
+ *
+ * WHEN TO EDIT: When changing how form inputs look or behave across the site.
+ */
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 

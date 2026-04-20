@@ -1,10 +1,18 @@
+/**
+ * SALE MANAGEMENT API - Get or set the currently active sale.
+ * GET returns the active sale (public). POST activates a sale by type (admin only).
+ *
+ * WHEN TO EDIT: When changing how sales are activated or what sale data is returned.
+ */
 import { NextRequest, NextResponse } from 'next/server';
-import { isAuthenticated } from '@/lib/auth';
+import { isAuthenticated } from '@/lib/supabase-auth';
 import {
   getActiveSale,
   getAvailableSales,
   setActiveSale,
   getAvailableSalesAdmin,
+} from '@/lib/gallery';
+import {
   isSupabaseConfigured,
   isSupabaseAdminConfigured,
 } from '@/lib/supabase';

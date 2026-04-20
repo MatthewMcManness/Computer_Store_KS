@@ -1,3 +1,9 @@
+/**
+ * GLOBAL ERROR PAGE - Fallback error page for critical failures that crash
+ * the root layout. This is the last-resort error screen.
+ *
+ * WHEN TO EDIT: Rarely -- only if the critical error page design needs changing.
+ */
 'use client';
 
 import { useEffect } from 'react';

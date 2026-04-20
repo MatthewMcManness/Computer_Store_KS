@@ -7,14 +7,7 @@ const __dirname = path.dirname(__filename);
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
-  // Skip type checking during build (we run it separately in CI)
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  // Allow build to continue with errors (useful for debugging)
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  poweredByHeader: false,
   // Ensure webpack resolves TypeScript paths correctly
   webpack: (config, { isServer }) => {
 
@@ -42,10 +35,10 @@ const nextConfig = {
   },
   images: {
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '**',
-      },
+      { protocol: 'https', hostname: '*.supabase.co' },
+      { protocol: 'https', hostname: '*.supabase.in' },
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: 'raw.githubusercontent.com' },
     ],
   },
   experimental: {
@@ -66,26 +59,6 @@ const nextConfig = {
           {
             key: 'Strict-Transport-Security',
             value: 'max-age=63072000; includeSubDomains; preload',
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-          {
-            key: 'X-Frame-Options',
-            value: 'DENY',
-          },
-          {
-            key: 'X-XSS-Protection',
-            value: '1; mode=block',
-          },
-          {
-            key: 'Referrer-Policy',
-            value: 'origin-when-cross-origin',
-          },
-          {
-            key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=()',
           },
         ],
       },

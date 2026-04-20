@@ -1,10 +1,22 @@
+/**
+ * IN-STORE COMPUTERS API - List and create computers for sale.
+ *
+ * GET /api/in-store  - Public: returns active computers with sale pricing.
+ * POST /api/in-store - Admin only: creates a new computer listing.
+ *
+ * WHEN TO EDIT: When changing how computers are listed or what fields
+ * are required when creating a new computer.
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
-import { isAuthenticated } from '@/lib/auth';
+import { isAuthenticated } from '@/lib/supabase-auth';
 import {
   getComputers,
   getAllComputers,
   createComputer,
   parsePrice,
+} from '@/lib/gallery';
+import {
   isSupabaseConfigured,
   isSupabaseAdminConfigured,
 } from '@/lib/supabase';
@@ -91,9 +103,7 @@ export async function POST(request: NextRequest) {
       type: body.type,
       category: body.category,
       price: priceValue,
-      image_url: body.image || body.image_url || null,
-      thumbnail_url: body.thumbnail || body.thumbnail_url || null,
-      specs: (body.specs || []) as GallerySpec[],
+specs: (body.specs || []) as GallerySpec[],
       sort_order: body.sort_order || 0,
     });
 

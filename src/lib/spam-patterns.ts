@@ -71,13 +71,7 @@ export interface SpamPatternResult {
   };
 }
 
-/**
- * Detect spam patterns in message content
- *
- * @param message - Message content to analyze
- * @param email - Email in form (to check for different email in message)
- * @returns Spam pattern analysis result
- */
+/** Scans form text for common spam keywords, excessive URLs, too many capital letters, and foreign scripts. */
 export function detectSpamPatterns(message: string, email?: string): SpamPatternResult {
   const patterns: string[] = [];
   let score = 0;
@@ -160,13 +154,3 @@ export function detectSpamPatterns(message: string, email?: string): SpamPattern
   };
 }
 
-/**
- * Quick check if message contains any spam keywords
- *
- * @param message - Message to check
- * @returns true if spam keywords detected
- */
-export function hasSpamKeywords(message: string): boolean {
-  const lowerMessage = message.toLowerCase();
-  return SPAM_KEYWORDS.some(keyword => lowerMessage.includes(keyword.toLowerCase()));
-}

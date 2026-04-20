@@ -19,9 +19,13 @@ interface EmailResult {
 const RESEND_API_URL = 'https://api.resend.com/emails';
 
 /**
- * Send an email via Resend API
+ * Send an email via Resend API.
+ *
+ * This is the internal helper that all other email functions in this file use.
+ * It builds the request, calls the Resend API, and returns a success/failure
+ * result so callers don't have to deal with HTTP details themselves.
  */
-export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
+async function sendEmail(options: EmailOptions): Promise<EmailResult> {
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
 
   if (!RESEND_API_KEY) {
@@ -61,7 +65,11 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
 }
 
 /**
- * Send notification email to business when contact form is submitted
+ * Send a notification email to the store owner when someone submits the contact form.
+ *
+ * Builds a nicely formatted email containing the customer's name, email address,
+ * phone number, subject line, and full message, then delivers it to the store's
+ * notification inbox so staff can follow up.
  */
 export async function sendContactNotification(data: {
   name: string;
@@ -170,7 +178,11 @@ Submitted on ${timestamp} CST
 }
 
 /**
- * Send confirmation email to user after contact form submission
+ * Send a "thank you" confirmation email to the customer after they submit the contact form.
+ *
+ * Lets the customer know their message was received and includes the store's phone
+ * number, email address, physical address, and business hours so they have everything
+ * they need if they want to reach out directly.
  */
 export async function sendContactConfirmation(data: {
   name: string;

@@ -409,7 +409,7 @@ const DISPOSABLE_DOMAINS = new Set([
  * @param email - Email address to check
  * @returns true if the email uses a known disposable domain
  */
-export function isDisposableEmail(email: string): boolean {
+function isDisposableEmail(email: string): boolean {
   if (!email || typeof email !== 'string') {
     return false;
   }

@@ -1,3 +1,12 @@
+/**
+ * JSON-LD STRUCTURED DATA - Generates LocalBusiness schema markup so
+ * search engines understand the store's name, address, hours, and
+ * services.
+ *
+ * WHEN TO EDIT: When business info changes (hours, services, address)
+ * or when adding new schema types (e.g., Product, FAQ).
+ */
+
 import * as React from 'react';
 import { BUSINESS_INFO } from '@/lib/constants';
 
@@ -77,73 +86,3 @@ export function LocalBusinessSchema({ additionalData }: LocalBusinessSchemaProps
   );
 }
 
-interface ProductSchemaProps {
-  name: string;
-  description: string;
-  image: string;
-  price: number;
-  availability?: 'InStock' | 'OutOfStock' | 'PreOrder';
-  sku?: string;
-}
-
-export function ProductSchema({
-  name,
-  description,
-  image,
-  price,
-  availability = 'InStock',
-  sku,
-}: ProductSchemaProps) {
-  const schema = {
-    '@context': 'https://schema.org',
-    '@type': 'Product',
-    name,
-    description,
-    image,
-    sku,
-    offers: {
-      '@type': 'Offer',
-      url: BUSINESS_INFO.website,
-      priceCurrency: 'USD',
-      price,
-      availability: `https://schema.org/${availability}`,
-      seller: {
-        '@type': 'Organization',
-        name: BUSINESS_INFO.name,
-      },
-    },
-  };
-
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-    />
-  );
-}
-
-interface FAQSchemaProps {
-  questions: Array<{ question: string; answer: string }>;
-}
-
-export function FAQSchema({ questions }: FAQSchemaProps) {
-  const schema = {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: questions.map((q) => ({
-      '@type': 'Question',
-      name: q.question,
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: q.answer,
-      },
-    })),
-  };
-
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-    />
-  );
-}

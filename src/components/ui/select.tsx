@@ -1,3 +1,8 @@
+/**
+ * SELECT DROPDOWN - Reusable dropdown/select input with label and error support.
+ *
+ * WHEN TO EDIT: When changing how dropdown menus look across the site.
+ */
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 import { ChevronDown } from 'lucide-react';

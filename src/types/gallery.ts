@@ -36,13 +36,36 @@ export interface GallerySpec {
  *
  * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
  */
-export interface BlackFridayData {
+interface BlackFridayData {
   enabled: boolean;
   originalPrice: string;
   salePrice: string;
   discount: number;
   originalPartsWarranty?: string;
   originalFreeDiagnostics?: string;
+}
+
+/**
+ * Raw database row from the gallery_computers table.
+ *
+ * Represents the Supabase row shape before transformation into
+ * the display-oriented GalleryComputer type.
+ *
+ * @version 1.0.0 - 2026-03-20T00:00:00Z - Moved from lib/gallery.ts to centralize types
+ */
+export interface GalleryComputerDB {
+  id: string;
+  name: string;
+  type: 'desktop' | 'laptop';
+  category: 'refurbished' | 'custom' | 'new';
+  price: number;
+  specs: GallerySpec[];
+  is_active: boolean;
+  sort_order: number;
+  stock_quantity: number;
+  archived_at: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 /**
@@ -71,8 +94,6 @@ export interface GalleryComputer {
   type: 'desktop' | 'laptop';
   category: 'custom' | 'refurbished' | 'new';
   price: string;
-  image: string;
-  thumbnail?: string; // Small 400x300 WebP for grid display
   specs: GallerySpec[];
   stockQuantity: number; // Inventory count (0 = out of stock)
   blackFriday?: BlackFridayData;
@@ -142,51 +163,6 @@ export interface GallerySale {
 }
 
 /**
- * LEGACY: Gallery data structure from old JSON-based system.
- *
- * @deprecated Kept for migration script compatibility only.
- * New code should use Supabase queries directly.
- *
- * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
- */
-export interface GalleryData {
-  computers: GalleryComputer[];
-  lastUpdated: string;
-  version: string;
-  globalSale?: SaleType; // Active global sale
-}
-
-/**
- * Generic API response wrapper for gallery endpoints.
- *
- * @template T - Type of data payload
- *
- * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
- */
-export interface GalleryApiResponse<T = unknown> {
-  success: boolean;
-  data?: T;
-  error?: string;
-  message?: string;
-}
-
-/**
- * Response from image upload API endpoint.
- *
- * Includes URLs for both full-size image and optimized thumbnail.
- *
- * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
- */
-export interface ImageUploadResponse {
-  success: boolean;
-  filename: string;
-  path: string;
-  url: string;
-  thumbnailUrl?: string; // Small 400x300 WebP thumbnail
-  thumbnailPath?: string;
-}
-
-/**
  * Form data for creating or editing a computer in admin UI.
  *
  * Uses string price (e.g., "$599.99") to match display format.
@@ -198,8 +174,6 @@ export interface ComputerFormData {
   type: 'desktop' | 'laptop';
   category: 'custom' | 'refurbished' | 'new';
   price: string;
-  image: string;
-  thumbnail?: string;
   specs: GallerySpec[];
   stockQuantity: number; // Inventory count
 }
@@ -216,8 +190,6 @@ export interface CreateComputerInput {
   type: 'desktop' | 'laptop';
   category: 'refurbished' | 'custom' | 'new';
   price: number;
-  image_url?: string;
-  thumbnail_url?: string;
   specs?: GallerySpec[];
   sort_order?: number;
   stock_quantity?: number; // Default: 1
@@ -235,8 +207,6 @@ export interface UpdateComputerInput {
   type?: 'desktop' | 'laptop';
   category?: 'refurbished' | 'custom' | 'new';
   price?: number;
-  image_url?: string;
-  thumbnail_url?: string;
   specs?: GallerySpec[];
   is_active?: boolean;
   sort_order?: number;

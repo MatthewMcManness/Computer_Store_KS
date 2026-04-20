@@ -1,11 +1,23 @@
+/**
+ * SINGLE COMPUTER API - View, edit, or archive one computer by ID.
+ *
+ * GET /api/in-store/[id]    - Public: returns one active computer.
+ * PUT /api/in-store/[id]    - Admin only: updates computer details.
+ * DELETE /api/in-store/[id] - Admin only: archives (soft-deletes) a computer.
+ *
+ * WHEN TO EDIT: When changing update validation or archive behavior.
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
-import { isAuthenticated } from '@/lib/auth';
+import { isAuthenticated } from '@/lib/supabase-auth';
 import {
   getComputerById,
   getComputerByIdAdmin,
   updateComputer,
   deleteComputer,
   parsePrice,
+} from '@/lib/gallery';
+import {
   isSupabaseConfigured,
   isSupabaseAdminConfigured,
 } from '@/lib/supabase';
@@ -119,11 +131,7 @@ export async function PUT(
         ? parsePrice(body.price)
         : body.price;
     }
-    if (body.image !== undefined) updateData.image_url = body.image;
-    if (body.image_url !== undefined) updateData.image_url = body.image_url;
-    if (body.thumbnail !== undefined) updateData.thumbnail_url = body.thumbnail;
-    if (body.thumbnail_url !== undefined) updateData.thumbnail_url = body.thumbnail_url;
-    if (body.specs !== undefined) updateData.specs = body.specs as GallerySpec[];
+if (body.specs !== undefined) updateData.specs = body.specs as GallerySpec[];
     if (body.is_active !== undefined) updateData.is_active = body.is_active;
     if (body.sort_order !== undefined) updateData.sort_order = body.sort_order;
     if (body.stock_quantity !== undefined) updateData.stock_quantity = body.stock_quantity;

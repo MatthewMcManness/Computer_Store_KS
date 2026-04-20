@@ -1,9 +1,14 @@
+/**
+ * ARCHIVED COMPUTERS - Shows computers that were removed from the public gallery.
+ * Allows restoring or permanently deleting them.
+ *
+ * WHEN TO EDIT: When changing the archive/restore workflow.
+ */
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 import { ArrowLeft, RotateCcw, Trash2, Eye, AlertTriangle } from 'lucide-react';
 import type { GalleryComputer } from '@/types/gallery';
 
@@ -194,27 +199,10 @@ export default function ArchivedGalleryPage() {
               {computers.map((computer) => (
                 <tr key={computer.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                   <td className="whitespace-nowrap px-6 py-4">
-                    <div className="flex items-center">
-                      <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
-                        {computer.image ? (
-                          <Image
-                            src={computer.image}
-                            alt={computer.name}
-                            width={48}
-                            height={48}
-                            className="h-full w-full object-cover opacity-50"
-                          />
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center">
-                            <Eye className="h-5 w-5 text-gray-400" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="ml-4">
-                        <div className="font-medium text-gray-900 dark:text-white">{computer.name}</div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
-                          {computer.category}
-                        </div>
+                    <div>
+                      <div className="font-medium text-gray-900 dark:text-white">{computer.name}</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                        {computer.category}
                       </div>
                     </div>
                   </td>

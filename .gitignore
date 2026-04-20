@@ -1,16 +1,13 @@
-# Environment variables (contains sensitive credentials)
-.env
-api/.env
+# Environment variables (never commit secrets)
+.env*
+!.env.example
 
 # Node modules
 node_modules/
-api/node_modules/
 
 # Logs
 *.log
 npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 
 # OS files
 .DS_Store
@@ -27,19 +24,9 @@ desktop.ini
 *.tmp
 *.temp
 
-# Python cache (from desktop app)
-__pycache__/
-*.py[cod]
-*$py.class
-
 # Next.js build output
 .next/
 out/
 
-# Server-side sessions (encrypted, sensitive)
-.sessions/
-
-# CCPM local workspace
+# Claude Code local settings (user-specific permissions)
 .claude/settings.local.json
-# Trigger rebuild Thu Nov 27 09:25:25 AM CST 2025
-.env.local

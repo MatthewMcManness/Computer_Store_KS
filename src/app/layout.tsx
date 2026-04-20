@@ -1,9 +1,14 @@
+/**
+ * ROOT LAYOUT - The outermost wrapper for every page on the site.
+ * Sets the HTML lang, loads global CSS, and defines default SEO metadata.
+ *
+ * WHEN TO EDIT: When changing the site-wide font, default page title,
+ * meta description, or global CSS imports.
+ */
+
 import type { Metadata } from 'next';
 import './globals.css';
 import { BUSINESS_INFO } from '@/lib/constants';
-
-// Prevent static prerendering at build time
-export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: {

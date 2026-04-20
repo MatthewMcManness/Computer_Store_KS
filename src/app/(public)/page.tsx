@@ -33,8 +33,8 @@ export default function HomePage() {
           </div>
           <h2 className="text-white text-[clamp(2rem,4vw,3rem)] mb-6 font-bold">Your Go-To Technology Center Since 2003</h2>
           <p className="text-[clamp(1.1rem,2vw,1.3rem)] mb-0 max-w-[700px] mx-auto opacity-95">Count on The Computer Store for all your computer service needs. Fast, friendly, and reliable service you can trust.</p>
-          <p className="mt-4">Now we do house calls!</p>
-          <Link href="/service" className="btn btn-white mt-4">Schedule a Service Call</Link>
+          <p className="text-[clamp(1.1rem,2vw,1.3rem)] font-bold mt-4 animate-pulse opacity-95">Now we do house calls!</p>
+          <Link href="/service" className="btn-silver mt-6">Schedule a Service Call</Link>
         </div>
       </section>
 

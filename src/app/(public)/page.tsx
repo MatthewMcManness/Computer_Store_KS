@@ -23,6 +23,8 @@ export default function HomePage() {
           </div>
           <h2>Your Go-To Technology Center Since 2003</h2>
           <p>Count on The Computer Store for all your computer service needs. Fast, friendly, and reliable service you can trust.</p>
+          <p>Now we do house calls!</p><br><Link href="/service" className="btn btn-white">Schedule a Service Call</Link></br>
+
         </div>
       </section>
 

@@ -1,10 +1,9 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
-import { LOCATIONS, LocationKey } from '@/lib/constants';
+import { LOCATIONS } from '@/lib/constants';
 
 export default function ContactPage() {
-  const [location, setLocation] = useState<LocationKey>('topeka');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -15,7 +14,7 @@ export default function ContactPage() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [statusMessage, setStatusMessage] = useState('');
 
-  const loc = LOCATIONS[location];
+  const loc = LOCATIONS.topeka;
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -51,22 +50,6 @@ export default function ContactPage() {
         <div className="container">
           <h2>Contact Us</h2>
           <p>Get in touch with Computer Store Kansas - we&apos;re here to help!</p>
-          <div className="location-toggle">
-            <button
-              className={`location-toggle-btn ${location === 'topeka' ? 'active' : ''}`}
-              onClick={() => setLocation('topeka')}
-              type="button"
-            >
-              Topeka
-            </button>
-            <button
-              className={`location-toggle-btn ${location === 'holton' ? 'active' : ''}`}
-              onClick={() => setLocation('holton')}
-              type="button"
-            >
-              Holton
-            </button>
-          </div>
         </div>
       </section>
 

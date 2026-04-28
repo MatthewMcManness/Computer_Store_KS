@@ -1,7 +1,7 @@
 /**
  * CONTACT WITH SIDEBAR - Renders the contact form alongside a context-aware
  * sidebar panel. The sidebar swaps based on the form's current mode:
- *   - house-call: shows Service Call Rates (Standard / Silver / Silver+)
+ *   - house-call: shows Service Call Rates (Standard / Silver / Silver+ / Platinum)
  *   - in-store / general: shows Visit Us info (address, phone, email, hours, map)
  * Used by the /contact page; can be embedded elsewhere with a different
  * initialMode if another entry point ever needs to default to house-call.
@@ -90,11 +90,16 @@ function HouseCallSidebar() {
 
       <div className="p-6 rounded-brand-md border-l-4" style={{ borderColor: '#b8860b', background: 'linear-gradient(145deg, #fffdf0 0%, #fef9d0 100%)' }}>
         <h3 className="text-[1.125rem] mb-1 font-semibold gold-text">Silver+ Members</h3>
+        <p className="text-gray-700 m-0 text-2xl font-bold">$40 <span className="text-base font-normal text-gray-500">/ hour</span></p>
+      </div>
+
+      <div className="p-6 rounded-brand-md border-l-4" style={{ borderColor: '#6b7280', background: 'linear-gradient(145deg, #f4f6f8 0%, #d8dde3 100%)' }}>
+        <h3 className="text-[1.125rem] mb-1 font-semibold" style={{ color: '#6b7280' }}>Platinum Members</h3>
         <p className="text-gray-700 m-0 text-2xl font-bold">$35 <span className="text-base font-normal text-gray-500">/ hour</span></p>
       </div>
 
       <Link href="/silver-plan" className="btn-silver text-center">
-        Learn More About Silver Plans
+        Learn More About Protection Plans
       </Link>
     </div>
   );

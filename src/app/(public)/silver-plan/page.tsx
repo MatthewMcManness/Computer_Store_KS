@@ -35,6 +35,13 @@ const silverBadgeStyle = {
   border: '2px solid #a0a0a0',
 };
 
+// Lighter silver variant for the Platinum tier badge
+const platinumBadgeStyle = {
+  ...silverBadgeStyle,
+  backgroundImage: 'linear-gradient(135deg, #f9fafb 0%, #d1d5db 25%, #f3f4f6 50%, #c8c8c8 75%, #e5e7eb 100%)',
+  border: '2px solid #d1d5db',
+};
+
 export default function ProtectionPlansPage() {
   return (
     <>
@@ -56,7 +63,7 @@ export default function ProtectionPlansPage() {
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
             gap: '2rem',
-            maxWidth: '900px',
+            maxWidth: '1280px',
             margin: '0 auto',
             padding: '2rem 0'
           }}>
@@ -203,7 +210,7 @@ export default function ProtectionPlansPage() {
               <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1.5rem 0', flexGrow: 1 }}>
                 <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#b8860b', fontWeight: 500 }}>
                   <span style={{ color: '#ffd700', fontWeight: 'bold', flexShrink: 0 }}>&#9733;</span>
-                  $35 service calls (65% off - normally $100)
+                  $40 service calls (60% off - normally $100)
                 </li>
                 <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#b8860b', fontWeight: 500 }}>
                   <span style={{ color: '#ffd700', fontWeight: 'bold', flexShrink: 0 }}>&#9733;</span>
@@ -212,6 +219,88 @@ export default function ProtectionPlansPage() {
                 <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#b8860b', fontWeight: 500 }}>
                   <span style={{ color: '#ffd700', fontWeight: 'bold', flexShrink: 0 }}>&#9733;</span>
                   25% off all labor charges
+                </li>
+                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#374151' }}>
+                  <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>&#10003;</span>
+                  Business-grade antivirus included
+                </li>
+                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#374151' }}>
+                  <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>&#10003;</span>
+                  Priority business scheduling
+                </li>
+                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#374151' }}>
+                  <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>&#10003;</span>
+                  Proactive system monitoring
+                </li>
+                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#374151' }}>
+                  <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>&#10003;</span>
+                  Monthly system health reports
+                </li>
+                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#374151' }}>
+                  <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>&#10003;</span>
+                  Business hours phone support
+                </li>
+              </ul>
+
+              <Link href="/contact" className="inline-block px-8 py-4 rounded-brand-md font-semibold text-base transition-all duration-300 cursor-pointer bg-primary-600 text-white shadow-brand-sm hover:bg-primary-800 hover:-translate-y-0.5 hover:shadow-brand-md w-full text-center mt-auto">Get Started</Link>
+            </div>
+
+            {/* Platinum Plan Card */}
+            <div style={{
+              background: '#fff',
+              borderRadius: '12px',
+              padding: '2rem',
+              boxShadow: '0 4px 20px rgba(156, 163, 175, 0.35)',
+              position: 'relative',
+              display: 'flex',
+              flexDirection: 'column',
+            }}>
+              <div style={{
+                position: 'absolute',
+                top: '-12px',
+                right: '20px',
+                padding: '0.25rem 1rem',
+                borderRadius: '20px',
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                background: 'linear-gradient(135deg, #e5e7eb 0%, #9ca3af 100%)',
+                color: '#374151'
+              }}>Top Tier</div>
+
+              {/* Animated Lighter-Silver Badge Header */}
+              <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+                <div className="animate-silver-shine" style={platinumBadgeStyle}>Platinum</div>
+              </div>
+
+              <div style={{
+                textAlign: 'center',
+                marginBottom: '1.5rem',
+                paddingBottom: '1.5rem',
+                borderBottom: '1px solid #e5e7eb'
+              }}>
+                <div style={{ margin: '0.5rem 0' }}>
+                  <span style={{ fontSize: '2.5rem', fontWeight: 700, color: '#6b7280' }}>$54.99</span>
+                  <span style={{ fontSize: '1rem', color: '#6b7280' }}>/device/month</span>
+                </div>
+                <p style={{ fontSize: '0.875rem', color: '#6b7280', margin: '0.25rem 0' }}>3-month minimum commitment</p>
+                <p style={{ fontSize: '0.875rem', color: '#4b5563', margin: '0.5rem 0 0 0' }}><em>Round-the-clock coverage for customers who can&apos;t afford downtime</em></p>
+              </div>
+
+              <p style={{ fontWeight: 600, color: '#1f2937', marginBottom: '0.5rem' }}>Everything in Silver Plus, plus:</p>
+
+              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1.5rem 0', flexGrow: 1 }}>
+                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#4b5563', fontWeight: 500 }}>
+                  <span style={{ color: '#9ca3af', fontWeight: 'bold', flexShrink: 0 }}>&#9733;</span>
+                  $35 service calls (65% off - normally $100)
+                </li>
+                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#4b5563', fontWeight: 500 }}>
+                  <span style={{ color: '#9ca3af', fontWeight: 'bold', flexShrink: 0 }}>&#9733;</span>
+                  24/7 remote support included
+                </li>
+                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#4b5563', fontWeight: 500 }}>
+                  <span style={{ color: '#9ca3af', fontWeight: 'bold', flexShrink: 0 }}>&#9733;</span>
+                  30% off all labor charges
                 </li>
                 <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#374151' }}>
                   <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>&#10003;</span>

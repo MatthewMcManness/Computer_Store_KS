@@ -318,10 +318,6 @@ export default function ProtectionPlansPage() {
                   <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>&#10003;</span>
                   Monthly system health reports
                 </li>
-                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.5rem 0', fontSize: '0.95rem', color: '#374151' }}>
-                  <span style={{ color: '#10b981', fontWeight: 'bold', flexShrink: 0 }}>&#10003;</span>
-                  Business hours phone support
-                </li>
               </ul>
 
               <Link href="/contact" className="inline-block px-8 py-4 rounded-brand-md font-semibold text-base transition-all duration-300 cursor-pointer bg-primary-600 text-white shadow-brand-sm hover:bg-primary-800 hover:-translate-y-0.5 hover:shadow-brand-md w-full text-center mt-auto">Get Started</Link>

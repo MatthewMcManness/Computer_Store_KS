@@ -3,8 +3,8 @@
  * sidebar panel. The sidebar swaps based on the form's current mode:
  *   - house-call: shows Service Call Rates (Standard / Silver / Silver+)
  *   - in-store / general: shows Visit Us info (address, phone, email, hours, map)
- * Used by the /contact and /service pages so each can default to a different
- * starting mode while sharing the same swap behavior.
+ * Used by the /contact page; can be embedded elsewhere with a different
+ * initialMode if another entry point ever needs to default to house-call.
  *
  * WHEN TO EDIT: When changing the sidebar copy, pricing, store info, or
  * the rule that decides which sidebar to show for a given mode.

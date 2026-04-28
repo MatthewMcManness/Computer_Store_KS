@@ -220,22 +220,12 @@ export function Header() {
             </li>
             <li className="ml-2 max-md:ml-0 max-md:my-2 max-md:text-left max-md:pl-4 max-md:w-full">
               <Link
-                className={`text-gray-700 no-underline font-medium py-2 px-4 rounded-brand-sm transition-all duration-fast inline-block hover:text-primary-600 hover:bg-primary-100 max-md:w-full max-md:block ${
-                  isActive('/contact') ? 'text-primary-600 bg-primary-100' : ''
+                className={`no-underline font-semibold py-2.5 px-5 rounded-brand-md whitespace-nowrap transition-all duration-normal shadow-brand-sm inline-block hover:-translate-y-0.5 text-gray-700 bg-gray-100 hover:bg-gray-300 hover:text-gray-900 max-md:w-full max-md:block max-md:text-center ${
+                  isActive('/contact') ? 'bg-gray-300 text-gray-900' : ''
                 }`}
                 href="/contact"
               >
                 Contact
-              </Link>
-            </li>
-            <li className="ml-2 max-md:ml-0 max-md:my-2 max-md:text-left max-md:pl-4 max-md:w-full">
-              <Link
-                className={`no-underline font-semibold py-2.5 px-5 rounded-brand-md whitespace-nowrap transition-all duration-normal shadow-brand-sm inline-block hover:-translate-y-0.5 text-gray-700 bg-gray-100 hover:bg-gray-300 hover:text-gray-900 max-md:w-full max-md:block max-md:text-center ${
-                  isActive('/service') ? 'bg-gray-300 text-gray-900' : ''
-                }`}
-                href="/service"
-              >
-                Service Calls
               </Link>
             </li>
             <li className="ml-2 max-md:ml-0 max-md:my-2 max-md:text-left max-md:pl-4 max-md:w-full">

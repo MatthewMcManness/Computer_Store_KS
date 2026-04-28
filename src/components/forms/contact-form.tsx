@@ -1,9 +1,13 @@
 /**
- * CONTACT FORM - The form customers use to send messages from the
- * /contact page. Includes spam protection (honeypots, Turnstile
- * CAPTCHA, timing checks) and sends emails via the /api/contact route.
+ * CONTACT FORM - Mode-switching form customers use to send messages.
+ * Three prominent buttons at the top pick the inquiry type:
+ *   - house-call: scheduled appointment, shows the Availability field
+ *   - in-store: walk-in, first-come-first-serve (Silver/Silver+ priority)
+ *   - general: questions, callbacks, email replies
+ * Includes spam protection (honeypots, Turnstile CAPTCHA, timing checks)
+ * and posts to /api/contact with the selected mode.
  *
- * WHEN TO EDIT: When changing form fields, validation rules, or
+ * WHEN TO EDIT: When changing form fields, modes, validation rules, or
  * the spam protection strategy.
  */
 
@@ -14,7 +18,6 @@ import { Turnstile } from '@marsidev/react-turnstile';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Select } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { BUSINESS_INFO } from '@/lib/constants';
 import { Send, CheckCircle, AlertCircle, Clock } from 'lucide-react';
@@ -22,11 +25,13 @@ import { useBotProtection } from '@/hooks/useBotProtection';
 import { useInteractionTracking } from '@/hooks/useInteractionTracking';
 import { useFingerprint, getSimpleFingerprint } from '@/hooks/useFingerprint';
 
+export type ContactFormMode = 'house-call' | 'in-store' | 'general';
+
 interface FormData {
   name: string;
   email: string;
   phone: string;
-  subject: string;
+  availability: string;
   message: string;
   website: string; // Honeypot field
 }
@@ -35,7 +40,7 @@ interface FormErrors {
   name?: string;
   email?: string;
   phone?: string;
-  subject?: string;
+  availability?: string;
   message?: string;
 }
 
@@ -51,33 +56,64 @@ interface APIResponse {
   errors?: APIError[];
 }
 
-const subjectOptions = [
-  { value: 'General', label: 'General Inquiry' },
-  { value: 'Repair', label: 'Computer Repair' },
-  { value: 'Custom Build', label: 'Custom Build' },
-  { value: 'Protection Plans', label: 'Protection Plans' },
-  { value: 'Other', label: 'Other' },
-];
+interface ContactFormProps {
+  mode?: ContactFormMode;
+  onModeChange?: (mode: ContactFormMode) => void;
+}
+
+const MODE_CONFIG: Record<ContactFormMode, { subject: string; label: string; helper: string }> = {
+  'house-call': {
+    subject: 'Schedule a House Call',
+    label: 'We come to you',
+    helper: 'Scheduled house call — tell us when you\'re available below.',
+  },
+  'in-store': {
+    subject: 'In-Store Service Inquiry',
+    label: 'You come to us',
+    helper: 'Walk in any time during business hours. Silver and Silver+ members get priority service.',
+  },
+  general: {
+    subject: 'General Inquiry',
+    label: 'General question',
+    helper: 'Ask anything — questions, callbacks, email replies.',
+  },
+};
+
+const MODE_ORDER: ContactFormMode[] = ['house-call', 'in-store', 'general'];
 
 // Turnstile site key - MUST be set in production
 const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA';
 
 /**
- * Contact form with multi-layered spam protection.
- * Collects name, email, phone, subject, and message, then POSTs to /api/contact.
+ * Mode-switching contact form with multi-layered spam protection.
+ * Collects name, email, phone, message — plus availability for house-call mode —
+ * then POSTs to /api/contact with the selected mode and matching subject.
  */
-export function ContactForm() {
+export function ContactForm({ mode = 'general', onModeChange }: ContactFormProps) {
   const { timing, honeypotFields } = useBotProtection();
   const { getInteractionScore } = useInteractionTracking();
   const { fingerprint, getFingerprintSpamScore } = useFingerprint();
   const [honeypots, setHoneypots] = React.useState(honeypotFields);
   const [turnstileToken, setTurnstileToken] = React.useState<string>('');
+  const [currentMode, setCurrentMode] = React.useState<ContactFormMode>(mode);
+
+  // Notify parent of the initial mode on mount so it can sync its own state
+  // (e.g. swap a sidebar) even when its default differs from ours.
+  const onModeChangeRef = React.useRef(onModeChange);
+  React.useEffect(() => {
+    onModeChangeRef.current = onModeChange;
+  }, [onModeChange]);
+  React.useEffect(() => {
+    onModeChangeRef.current?.(mode);
+    // Intentionally only fire once on mount — handleModeChange handles updates afterwards.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [formData, setFormData] = React.useState<FormData>({
     name: '',
     email: '',
     phone: '',
-    subject: '',
+    availability: '',
     message: '',
     website: '', // Honeypot - should always be empty
   });
@@ -104,8 +140,8 @@ export function ContactForm() {
       newErrors.phone = 'Please enter a valid phone number';
     }
 
-    if (!formData.subject) {
-      newErrors.subject = 'Please select a subject';
+    if (currentMode === 'house-call' && !formData.availability.trim()) {
+      newErrors.availability = 'Please tell us when you\'re available';
     }
 
     if (!formData.message.trim()) {
@@ -119,7 +155,7 @@ export function ContactForm() {
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -130,6 +166,20 @@ export function ContactForm() {
     }
 
     // Clear submit status when user modifies form
+    if (submitStatus !== 'idle') {
+      setSubmitStatus('idle');
+      setErrorMessage('');
+    }
+  };
+
+  const handleModeChange = (next: ContactFormMode) => {
+    if (next === currentMode) return;
+    setCurrentMode(next);
+    onModeChange?.(next);
+    // Clear stale availability error when leaving house-call mode
+    if (next !== 'house-call' && errors.availability) {
+      setErrors((prev) => ({ ...prev, availability: undefined }));
+    }
     if (submitStatus !== 'idle') {
       setSubmitStatus('idle');
       setErrorMessage('');
@@ -159,6 +209,12 @@ export function ContactForm() {
     const fingerprintSpamScore = getFingerprintSpamScore();
     const simpleFingerprint = getSimpleFingerprint();
 
+    // Prepend availability to the message body for house-call submissions
+    const messageWithAvailability =
+      currentMode === 'house-call' && formData.availability.trim()
+        ? `Availability: ${formData.availability.trim()}\n\n${formData.message}`
+        : formData.message;
+
     try {
       const response = await fetch('/api/contact', {
         method: 'POST',
@@ -166,7 +222,13 @@ export function ContactForm() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...formData,
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          subject: MODE_CONFIG[currentMode].subject,
+          message: messageWithAvailability,
+          website: formData.website,
+          mode: currentMode,
           // Timing data
           _timing: timing,
           // Honeypot fields
@@ -205,8 +267,8 @@ export function ContactForm() {
         if (data.errors && data.errors.length > 0) {
           const newErrors: FormErrors = {};
           data.errors.forEach((err) => {
-            if (err.field in formData) {
-              newErrors[err.field as keyof FormErrors] = err.message;
+            if (err.field === 'name' || err.field === 'email' || err.field === 'phone' || err.field === 'message') {
+              newErrors[err.field] = err.message;
             }
           });
           setErrors(newErrors);
@@ -222,7 +284,7 @@ export function ContactForm() {
         name: '',
         email: '',
         phone: '',
-        subject: '',
+        availability: '',
         message: '',
         website: '',
       });
@@ -241,8 +303,7 @@ export function ContactForm() {
       <CardHeader>
         <CardTitle>Contact Us</CardTitle>
         <CardDescription>
-          Fill out the form below and we&apos;ll get back to you as soon as possible.
-          Or call us at{' '}
+          Pick the option that best matches what you need. Or call us at{' '}
           <a
             href={`tel:${BUSINESS_INFO.phone.replace(/\D/g, '')}`}
             className="font-medium text-primary-600 hover:underline"
@@ -252,6 +313,34 @@ export function ContactForm() {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {/* Mode switcher — three prominent buttons */}
+        <div className="mb-6">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            {MODE_ORDER.map((m) => {
+              const isActive = currentMode === m;
+              return (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => handleModeChange(m)}
+                  aria-pressed={isActive}
+                  disabled={isSubmitting}
+                  className={`px-4 py-3 rounded-brand-md border-2 text-sm sm:text-base font-semibold transition-all duration-200 ${
+                    isActive
+                      ? 'bg-primary-600 text-white border-primary-600 shadow-brand-sm'
+                      : 'bg-white text-gray-700 border-gray-300 hover:border-primary-600 hover:text-primary-600'
+                  } disabled:opacity-60 disabled:cursor-not-allowed`}
+                >
+                  {MODE_CONFIG[m].label}
+                </button>
+              );
+            })}
+          </div>
+          <p className="mt-3 text-center text-sm text-gray-600">
+            {MODE_CONFIG[currentMode].helper}
+          </p>
+        </div>
+
         {submitStatus === 'success' && (
           <div className="mb-6 flex items-center gap-2 rounded-lg bg-green-50 p-4 text-green-800">
             <CheckCircle className="h-5 w-5 flex-shrink-0" />
@@ -350,39 +439,44 @@ export function ContactForm() {
             />
           </div>
 
-          <div className="grid gap-6 sm:grid-cols-2">
-            <Input
-              label="Phone Number"
-              name="phone"
-              type="tel"
-              value={formData.phone}
+          <Input
+            label="Phone Number"
+            name="phone"
+            type="tel"
+            value={formData.phone}
+            onChange={handleChange}
+            error={errors.phone}
+            placeholder="(785) 555-0123"
+            helperText="Optional"
+            disabled={isSubmitting}
+          />
+
+          {currentMode === 'house-call' && (
+            <Textarea
+              label="Best Days & Times"
+              name="availability"
+              value={formData.availability}
               onChange={handleChange}
-              error={errors.phone}
-              placeholder="(785) 555-0123"
-              helperText="Optional"
-              disabled={isSubmitting}
-            />
-            <Select
-              label="Subject"
-              name="subject"
-              value={formData.subject}
-              onChange={handleChange}
-              options={subjectOptions}
-              error={errors.subject}
+              error={errors.availability}
               required
-              placeholder="Select a subject"
+              placeholder="e.g. Monday or Wednesday afternoons, any time after 2pm..."
+              rows={3}
               disabled={isSubmitting}
             />
-          </div>
+          )}
 
           <Textarea
-            label="Message"
+            label={currentMode === 'house-call' ? 'Describe the Issue' : 'Message'}
             name="message"
             value={formData.message}
             onChange={handleChange}
             error={errors.message}
             required
-            placeholder="Tell us about your computer issue or what you're looking for..."
+            placeholder={
+              currentMode === 'house-call'
+                ? "Tell us what's going on with your computer..."
+                : "Tell us about your computer issue or what you're looking for..."
+            }
             rows={5}
             disabled={isSubmitting}
           />

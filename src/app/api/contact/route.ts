@@ -73,7 +73,7 @@ const contactFormSchema = z.object({
     .max(20, 'Phone number must be less than 20 characters')
     .optional()
     .transform((val) => val?.trim() || undefined),
-  subject: z.enum(['General', 'Repair', 'Custom Build', 'Protection Plans', 'Other', 'Schedule a Service Call'], {
+  subject: z.enum(['Schedule a House Call', 'In-Store Service Inquiry', 'General Inquiry'], {
     message: 'Please select a valid subject',
   }),
   message: z
@@ -81,6 +81,8 @@ const contactFormSchema = z.object({
     .min(10, 'Message must be at least 10 characters')
     .max(5000, 'Message must be less than 5000 characters')
     .transform((val) => val.trim()),
+  // Inquiry mode — drives the "Inquiry type" line in the notification email
+  mode: z.enum(['house-call', 'in-store', 'general']).optional(),
   location: z.enum(['Topeka']).optional().default('Topeka'),
   // Honeypot field - should always be empty
   website: z.string().optional(),
@@ -257,13 +259,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Map machine-friendly mode to a human-readable label for the notification
+    const INQUIRY_LABELS: Record<'house-call' | 'in-store' | 'general', string> = {
+      'house-call': 'House Call',
+      'in-store': 'In-Store',
+      general: 'General',
+    };
+    const inquiryLabel = formData.mode ? INQUIRY_LABELS[formData.mode] : null;
+    const escapedMessage = escapeHtml(formData.message);
+    // Prepend inquiry type so the recipient sees at a glance which button was clicked
+    const notificationMessage = inquiryLabel
+      ? `Inquiry type: ${inquiryLabel}\n\n${escapedMessage}`
+      : escapedMessage;
+
     // Sanitize inputs for legitimate submissions
     const sanitizedData = {
       name: escapeHtml(formData.name),
       email: formData.email, // Already validated as email
       phone: formData.phone ? escapeHtml(formData.phone) : undefined,
       subject: formData.subject,
-      message: escapeHtml(formData.message),
+      message: notificationMessage,
       location: formData.location,
     };
 

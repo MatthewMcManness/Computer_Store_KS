@@ -19,6 +19,7 @@ const serviceLinks = [
   { href: '/services/os-installation', label: 'OS Installation' },
   { href: '/services/laptops', label: 'Laptops' },
   { href: '/services/desktops', label: 'Refurbished Desktops' },
+  { href: '/services/printers', label: 'Printers' },
   { href: '/services/diagnostics', label: 'Diagnostics' },
   { href: '/services/virus-removal', label: 'Virus & Malware Removal' },
   { href: '/services/upgrades', label: 'Hardware Upgrades' },

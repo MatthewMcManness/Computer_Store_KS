@@ -79,6 +79,12 @@ const services = [
     icon: '🖱️',
   },
   {
+    href: '/services/printers',
+    title: 'Printers',
+    description: 'New Brother printers for sale plus repair service for Brother and other brands. $50 in-home setup with purchase.',
+    icon: '🖨️',
+  },
+  {
     href: '/services/recycling',
     title: 'Free Electronics Recycling',
     description: 'Drop off old computers, TVs, radios, consoles, and more. Data destruction guaranteed. No cost to you.',

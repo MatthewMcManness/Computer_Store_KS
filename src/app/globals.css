@@ -606,6 +606,28 @@
     animation: silverShine 3s ease-in-out infinite;
   }
 
+  @keyframes innerGlowPulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.7; }
+  }
+
+  .btn-inner-glow::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 70%);
+    pointer-events: none;
+    animation: innerGlowPulse 2s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .btn-inner-glow::after {
+      animation: none;
+      opacity: 0.3;
+    }
+  }
+
   /* ---- Texture Backgrounds ---- */
   /* Circuit board pattern: fine grid lines with blue tint */
   .texture-circuit {

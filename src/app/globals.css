@@ -606,25 +606,32 @@
     animation: silverShine 3s ease-in-out infinite;
   }
 
-  @keyframes innerGlowPulse {
-    0%, 100% { opacity: 0.3; }
-    50% { opacity: 0.7; }
+  @keyframes outerGlowPulse {
+    0%, 100% {
+      box-shadow:
+        0 6px 16px rgba(0, 0, 0, 0.18),
+        0 0 28px rgba(96, 165, 250, 0.55),
+        0 0 56px rgba(96, 165, 250, 0.35);
+    }
+    50% {
+      box-shadow:
+        0 6px 16px rgba(0, 0, 0, 0.18),
+        0 0 48px rgba(96, 165, 250, 0.9),
+        0 0 96px rgba(96, 165, 250, 0.6);
+    }
   }
 
-  .btn-inner-glow::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 70%);
-    pointer-events: none;
-    animation: innerGlowPulse 2s ease-in-out infinite;
+  .btn-outer-glow {
+    animation: outerGlowPulse 2s ease-in-out infinite;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .btn-inner-glow::after {
+    .btn-outer-glow {
       animation: none;
-      opacity: 0.3;
+      box-shadow:
+        0 6px 16px rgba(0, 0, 0, 0.18),
+        0 0 28px rgba(96, 165, 250, 0.55),
+        0 0 56px rgba(96, 165, 250, 0.35);
     }
   }
 

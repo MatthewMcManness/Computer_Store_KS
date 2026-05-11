@@ -20,17 +20,15 @@ export function MobileCallButton() {
           key={loc.name}
           href={`tel:${loc.phone.replace(/\D/g, '')}`}
           className={cn(
-            'btn-inner-glow relative overflow-hidden',
-            'flex flex-1 items-center justify-center',
-            'rounded-[28px] bg-primary-600 px-8 py-7 text-white shadow-lg',
+            'btn-outer-glow',
+            'flex flex-1 items-center justify-center gap-3',
+            'rounded-[28px] bg-primary-600 px-8 py-7 text-white',
             'hover:bg-primary-700 active:scale-95 transition-transform'
           )}
           aria-label={`Call Now at ${loc.phoneFormatted}`}
         >
-          <span className="relative z-[1] flex items-center justify-center gap-3">
-            <Phone className="h-6 w-6" />
-            <span className="font-bold text-xl">Call Now</span>
-          </span>
+          <Phone className="h-6 w-6" />
+          <span className="font-bold text-xl">Call Now</span>
         </a>
       ))}
     </div>

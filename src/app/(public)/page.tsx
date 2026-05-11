@@ -64,7 +64,7 @@ export default function HomePage() {
 
       {/* HOME PAGE HERO SECTION */}
       <section
-        className="hero-overlay hero-clip text-white pt-12 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat md:pt-32"
+        className="hero-overlay hero-clip text-white pt-52 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat md:pt-32"
         style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=1920&q=80)' }}
       >
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[3]">

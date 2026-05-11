@@ -12,48 +12,64 @@ import { useEffect, useRef, useState } from 'react';
 import { ReviewsWidget } from '@/components/reviews/ReviewsWidget';
 
 export default function HomePage() {
-  const plaqueRef = useRef<HTMLDivElement>(null);
-  const [showStickyBadge, setShowStickyBadge] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (!plaqueRef.current) return;
-      setShowStickyBadge(plaqueRef.current.getBoundingClientRect().bottom < 0);
+    const update = () => {
+      const y = window.scrollY;
+      setProgress(Math.min(Math.max(y / 160, 0), 1));
+      rafRef.current = null;
     };
-    handleScroll();
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    const onScroll = () => {
+      if (rafRef.current !== null) return;
+      rafRef.current = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    };
   }, []);
+
+  const lerp = (a: number, b: number) => a + (b - a) * progress;
+  const morphStyle = {
+    paddingLeft: `${lerp(48, 16)}px`,
+    paddingRight: `${lerp(48, 16)}px`,
+    paddingTop: `${lerp(32, 8)}px`,
+    paddingBottom: `${lerp(32, 8)}px`,
+    borderRadius: `${lerp(20, 16)}px`,
+  };
+  const logoMaxWidth = `${lerp(280, 110)}px`;
 
   return (
     <>
       <div
-        className={`fixed top-0 left-0 right-0 z-[1000] p-2 md:hidden transition-all duration-300 ease-out ${
-          showStickyBadge ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full pointer-events-none'
-        }`}
+        className="md:hidden fixed left-2 right-2 top-2 z-[1000] silver-plaque flex items-center justify-center"
+        style={morphStyle}
       >
-        <div className="silver-plaque flex items-center justify-center px-4 py-2 rounded-brand-lg relative">
-          <Link href="/" className="flex items-center">
-            <Image
-              src="/assets/csk-logo.svg"
-              alt="Computer Store Kansas"
-              width={504}
-              height={227}
-              className="silver-plaque-img"
-              style={{ height: '40px', width: 'auto' }}
-            />
-          </Link>
-        </div>
+        <Link href="/" className="flex items-center">
+          <Image
+            src="/assets/csk-logo.svg"
+            alt="Computer Store Kansas"
+            width={504}
+            height={227}
+            priority
+            className="silver-plaque-img block w-full"
+            style={{ maxWidth: logoMaxWidth, height: 'auto' }}
+          />
+        </Link>
       </div>
 
       {/* HOME PAGE HERO SECTION */}
       <section
-        className="hero-overlay hero-clip text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat"
+        className="hero-overlay hero-clip text-white pt-12 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat md:pt-32"
         style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=1920&q=80)' }}
       >
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[3]">
           <div className="flex flex-col items-center">
-            <div ref={plaqueRef} className="silver-plaque flex flex-col items-center px-12 py-8 rounded-[20px] mb-8 relative">
+            <div className="silver-plaque flex flex-col items-center px-12 py-8 rounded-[20px] mb-8 relative max-md:hidden">
               <Image
                 src="/assets/csk-logo.svg"
                 alt="Computer Store Kansas - Expert Computer Repair Since 2003"
@@ -64,7 +80,7 @@ export default function HomePage() {
               />
             </div>
           </div>
-          <h2 className="text-white text-[clamp(2rem,4vw,3rem)] mb-6 font-bold">Your Go-To Technology Center Since 2003</h2>
+          <h2 className="text-white text-[clamp(2rem,4vw,3rem)] mb-6 font-bold max-md:hidden">Your Go-To Technology Center Since 2003</h2>
           <p className="text-[clamp(1.1rem,2vw,1.3rem)] mb-0 max-w-[700px] mx-auto opacity-95">Count on The Computer Store for all your computer service needs. Fast, friendly, and reliable service you can trust.</p>
           <p className="text-[clamp(1.1rem,2vw,1.3rem)] font-bold mt-4 animate-pulse opacity-95">Now we do house calls!</p>
           <Link href="/contact" className="btn-silver mt-6">Schedule a Service Call</Link>

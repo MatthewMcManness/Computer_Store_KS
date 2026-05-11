@@ -14,11 +14,13 @@ import { ReviewsWidget } from '@/components/reviews/ReviewsWidget';
 export default function HomePage() {
   const [progress, setProgress] = useState(0);
   const rafRef = useRef<number | null>(null);
+  const heroRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const update = () => {
       const y = window.scrollY;
-      setProgress(Math.min(Math.max(y / 160, 0), 1));
+      const range = heroRef.current?.offsetHeight ?? 160;
+      setProgress(Math.min(Math.max(y / range, 0), 1));
       rafRef.current = null;
     };
     const onScroll = () => {
@@ -64,6 +66,7 @@ export default function HomePage() {
 
       {/* HOME PAGE HERO SECTION */}
       <section
+        ref={heroRef}
         className="hero-overlay hero-clip text-white pt-52 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat md:pt-32"
         style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=1920&q=80)' }}
       >

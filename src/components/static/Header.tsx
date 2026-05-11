@@ -87,7 +87,7 @@ export function Header() {
   const isServicesActive = pathname?.startsWith('/services') || pathname === '/why-linux' || pathname === '/silver-plan';
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-[1000] p-4 transition-all duration-normal max-md:p-2">
+    <header className="fixed top-0 left-0 right-0 z-[1000] p-4 transition-all duration-normal max-md:hidden">
       <div
         className={`flex justify-between items-center bg-primary-100/85 px-6 py-3 rounded-brand-xl border border-primary-300/40 max-w-[1100px] mx-auto backdrop-blur-[12px] transition-shadow duration-normal max-md:rounded-brand-lg max-md:px-4 max-md:py-2 max-md:max-w-none ${
           isScrolled ? 'shadow-header-scrolled' : 'shadow-header'

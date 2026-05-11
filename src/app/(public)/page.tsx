@@ -8,11 +8,44 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { useEffect, useRef, useState } from 'react';
 import { ReviewsWidget } from '@/components/reviews/ReviewsWidget';
 
 export default function HomePage() {
+  const plaqueRef = useRef<HTMLDivElement>(null);
+  const [showStickyBadge, setShowStickyBadge] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!plaqueRef.current) return;
+      setShowStickyBadge(plaqueRef.current.getBoundingClientRect().bottom < 0);
+    };
+    handleScroll();
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <>
+      <div
+        className={`fixed top-0 left-0 right-0 z-[1000] p-2 md:hidden transition-all duration-300 ease-out ${
+          showStickyBadge ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full pointer-events-none'
+        }`}
+      >
+        <div className="silver-plaque flex items-center justify-center px-4 py-2 rounded-brand-lg relative">
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/assets/csk-logo.svg"
+              alt="Computer Store Kansas"
+              width={504}
+              height={227}
+              className="silver-plaque-img"
+              style={{ height: '40px', width: 'auto' }}
+            />
+          </Link>
+        </div>
+      </div>
+
       {/* HOME PAGE HERO SECTION */}
       <section
         className="hero-overlay hero-clip text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat"
@@ -20,7 +53,7 @@ export default function HomePage() {
       >
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[3]">
           <div className="flex flex-col items-center">
-            <div className="silver-plaque flex flex-col items-center px-12 py-8 rounded-[20px] mb-8 relative">
+            <div ref={plaqueRef} className="silver-plaque flex flex-col items-center px-12 py-8 rounded-[20px] mb-8 relative">
               <Image
                 src="/assets/csk-logo.svg"
                 alt="Computer Store Kansas - Expert Computer Repair Since 2003"

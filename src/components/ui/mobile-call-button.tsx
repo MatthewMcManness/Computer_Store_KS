@@ -42,10 +42,10 @@ export function MobileCallButton() {
             'rounded-full bg-primary-600 px-4 py-3 text-white shadow-lg',
             'hover:bg-primary-700 active:scale-95 transition-all'
           )}
-          aria-label={`Call ${loc.name} at ${loc.phoneFormatted}`}
+          aria-label={`Call Now at ${loc.phoneFormatted}`}
         >
           <Phone className="h-4 w-4" />
-          <span className="font-semibold text-sm">Call {loc.name}</span>
+          <span className="font-semibold text-sm">Call Now</span>
         </a>
       ))}
     </div>

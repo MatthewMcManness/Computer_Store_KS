@@ -159,7 +159,7 @@ export default function HomePage() {
       <ChevronSection
         topShape="v"
         bottomShape="v"
-        className="bg-bg-light py-20"
+        className="texture-terrazzo-blue py-20"
       >
         <ReviewsWidget />
       </ChevronSection>

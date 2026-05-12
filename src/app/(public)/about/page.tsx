@@ -30,6 +30,18 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* FOUNDER STORY SECTION */}
+      <section className="texture-geometric bg-bg-light py-20 relative z-10">
+        <div className="diamond-accent -bottom-[50px] left-[5%] w-[120px] h-[120px]"></div>
+        <div className="w-[90%] max-w-[1200px] mx-auto px-4">
+          <div className="max-w-[800px] mx-auto text-center">
+            <h2 className="mb-6 text-gray-900">Locally Owned Since 2003</h2>
+            <p className="mb-4 leading-[1.8] text-[1.05rem] text-gray-700">Every computer that comes through our doors has a story — family photos, a small business, a student&apos;s future. We treat each one like it matters, because it does. That&apos;s what it means to be your trusted computer repair shop.</p>
+            <p className="italic text-primary-600 mt-6 font-semibold">— Max Beyer, Owner</p>
+          </div>
+        </div>
+      </section>
+
       {/* Company Story Section */}
       <section className="hero-next-section texture-dots bg-gradient-to-br from-[#e8f0fe] to-[#d6e4fd] -mt-20 pt-32 relative z-[1]">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
@@ -40,26 +52,46 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Why Choose Us Section */}
-      <section className="py-20 bg-bg-light">
+      {/* NUMBERED BENEFITS SECTION */}
+      <section className="texture-dots py-20 bg-white">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
-          <h2 className="text-center mb-12 text-gray-900">Why Choose Us?</h2>
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-8 mt-12">
-            <div className="bg-white rounded-brand-lg p-8 shadow-brand-sm transition-all duration-300 border border-bg-dark hover:-translate-y-2 hover:shadow-brand-lg hover:border-primary-100">
-              <h3 className="text-gray-900 text-[1.4rem] mb-4">Reliability</h3>
-              <p className="text-gray-700 text-base leading-relaxed">Count on us for dependable repairs and support you can trust.</p>
+          <h2 className="text-center mb-4">5 Reasons to Choose Computer Store Kansas</h2>
+          <p className="text-center text-gray-500 text-[1.1rem] mb-16 max-w-[700px] mx-auto">Your computer&apos;s an important part of your life—don&apos;t just trust it in the hands of anyone. Here&apos;s why we&apos;re the right choice:</p>
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-12 mt-12">
+            <div className="flex gap-6 p-6 rounded-brand-lg transition-all duration-300 hover:bg-bg-light hover:translate-x-2">
+              <div className="shrink-0 w-[60px] h-[60px] flex items-center justify-center text-2xl font-extrabold text-primary-600 bg-primary-100 rounded-brand-md">01</div>
+              <div>
+                <h3 className="text-[1.3rem] mb-3 text-gray-900">Expertise and Experience</h3>
+                <p className="text-base text-gray-700 leading-relaxed mb-0">Over 20 years of experience diagnosing and fixing computer issues. We continue to expand our knowledge in different types of computer systems, software, and hardware.</p>
+              </div>
             </div>
-            <div className="bg-white rounded-brand-lg p-8 shadow-brand-sm transition-all duration-300 border border-bg-dark hover:-translate-y-2 hover:shadow-brand-lg hover:border-primary-100">
-              <h3 className="text-gray-900 text-[1.4rem] mb-4">Personalized Approach</h3>
-              <p className="text-gray-700 text-base leading-relaxed">Solutions tailored to your unique needs and budget.</p>
+            <div className="flex gap-6 p-6 rounded-brand-lg transition-all duration-300 hover:bg-bg-light hover:translate-x-2">
+              <div className="shrink-0 w-[60px] h-[60px] flex items-center justify-center text-2xl font-extrabold text-primary-600 bg-primary-100 rounded-brand-md">02</div>
+              <div>
+                <h3 className="text-[1.3rem] mb-3 text-gray-900">Fast and Reliable Service</h3>
+                <p className="text-base text-gray-700 leading-relaxed mb-0">Quick response times, efficient processes, and quality assurance to ensure you always have the best service at your fingertips.</p>
+              </div>
             </div>
-            <div className="bg-white rounded-brand-lg p-8 shadow-brand-sm transition-all duration-300 border border-bg-dark hover:-translate-y-2 hover:shadow-brand-lg hover:border-primary-100">
-              <h3 className="text-gray-900 text-[1.4rem] mb-4">Timely Delivery</h3>
-              <p className="text-gray-700 text-base leading-relaxed">Quick turnaround so you&apos;re back up and running fast.</p>
+            <div className="flex gap-6 p-6 rounded-brand-lg transition-all duration-300 hover:bg-bg-light hover:translate-x-2">
+              <div className="shrink-0 w-[60px] h-[60px] flex items-center justify-center text-2xl font-extrabold text-primary-600 bg-primary-100 rounded-brand-md">03</div>
+              <div>
+                <h3 className="text-[1.3rem] mb-3 text-gray-900">Honest, Transparent Pricing</h3>
+                <p className="text-base text-gray-700 leading-relaxed mb-0">No surprises. We provide clear estimates upfront so you know exactly what you&apos;ll be paying before we start any work.</p>
+              </div>
             </div>
-            <div className="bg-white rounded-brand-lg p-8 shadow-brand-sm transition-all duration-300 border border-bg-dark hover:-translate-y-2 hover:shadow-brand-lg hover:border-primary-100">
-              <h3 className="text-gray-900 text-[1.4rem] mb-4">High Standards</h3>
-              <p className="text-gray-700 text-base leading-relaxed">Quality workmanship backed by decades of experience.</p>
+            <div className="flex gap-6 p-6 rounded-brand-lg transition-all duration-300 hover:bg-bg-light hover:translate-x-2">
+              <div className="shrink-0 w-[60px] h-[60px] flex items-center justify-center text-2xl font-extrabold text-primary-600 bg-primary-100 rounded-brand-md">04</div>
+              <div>
+                <h3 className="text-[1.3rem] mb-3 text-gray-900">We Protect Your Data</h3>
+                <p className="text-base text-gray-700 leading-relaxed mb-0">Our first priority is to backup and protect your data in case of hardware failure or accidental deletion during the repair process.</p>
+              </div>
+            </div>
+            <div className="flex gap-6 p-6 rounded-brand-lg transition-all duration-300 hover:bg-bg-light hover:translate-x-2">
+              <div className="shrink-0 w-[60px] h-[60px] flex items-center justify-center text-2xl font-extrabold text-primary-600 bg-primary-100 rounded-brand-md">05</div>
+              <div>
+                <h3 className="text-[1.3rem] mb-3 text-gray-900">Local &amp; Personal</h3>
+                <p className="text-base text-gray-700 leading-relaxed mb-0">As a locally-owned business, we treat every customer like family. You&apos;re not just another ticket—you&apos;re part of our community.</p>
+              </div>
             </div>
           </div>
         </div>

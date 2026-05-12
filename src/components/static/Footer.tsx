@@ -1,12 +1,13 @@
 /**
  * SITE FOOTER - The bottom section on every page.
- * Shows store locations, phone numbers, hours, and credits.
+ * Shows store locations, phone numbers, hours, employee login, and credits.
  *
  * WHEN TO EDIT: When store hours, phone numbers, or addresses change
  * (update constants.ts instead — this file reads from there).
  */
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { LOCATIONS } from '@/lib/constants';
 
 const locationKeys = Object.keys(LOCATIONS) as Array<keyof typeof LOCATIONS>;
@@ -47,6 +48,12 @@ export function Footer() {
             );
           })}
         </div>
+        <Link
+          href="/login"
+          className="text-sm opacity-70 text-primary-500 no-underline transition-colors duration-normal hover:opacity-100 hover:text-white hover:underline"
+        >
+          Employee Login
+        </Link>
         <p className="m-0 opacity-90 text-center">&copy; {new Date().getFullYear()} Computer Store Kansas. All rights reserved.</p>
         <div className="flex items-center justify-center gap-2 mt-0 pt-4 border-t border-white/20 text-sm opacity-80">
           <Image

@@ -5,6 +5,7 @@
  */
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { ChevronSection } from '@/components/static/ChevronSection';
 
 export const metadata: Metadata = {
   title: 'Hardware Upgrades | Computer Store Kansas',
@@ -20,15 +21,15 @@ export default function UpgradesPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="hero-overlay hero-clip text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=1920&q=80)' }}>
+      <ChevronSection bottomShape="v" className="hero-overlay text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=1920&q=80)' }}>
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[3]">
           <h2>Hardware Upgrades</h2>
           <p className="text-[clamp(1.1rem,2vw,1.3rem)] mb-0 max-w-[700px] mx-auto opacity-95">Breathe new life into your computer with the right upgrades.</p>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Main Value Prop */}
-      <section className="texture-circuit hero-next-section -mt-20 pb-20 pt-32 relative z-[1] bg-bg-light">
+      <ChevronSection topShape="v" bottomShape="v" className="texture-circuit py-20 relative bg-bg-light">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <h2 className="text-center mb-12">Upgrade Instead of Replace</h2>
           <p style={{ fontSize: '1.15rem', maxWidth: '800px', margin: '0 auto 2rem' }}>
@@ -42,10 +43,10 @@ export default function UpgradesPage() {
             <p className="text-gray-600 mb-0">Already have the parts you want? Bring them in and we&apos;ll install them. Need help sourcing components? We can get what you need. Either way, we&apos;ll get your upgrade done right.</p>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Popular Upgrades */}
-      <section className="py-20 bg-white">
+      <ChevronSection topShape="v" bottomShape="v" className="py-20 bg-white">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <h2 className="text-center mb-4">Most Popular Upgrades</h2>
           <p className="text-center text-gray-500 text-[1.1rem] mb-16 max-w-[700px] mx-auto">These three upgrades deliver the biggest bang for your buck.</p>
@@ -70,10 +71,10 @@ export default function UpgradesPage() {
             </div>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* All Upgrades */}
-      <section className="texture-dots py-20 bg-bg-light">
+      <ChevronSection topShape="v" bottomShape="v" className="texture-dots py-20 bg-bg-light">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <h2 className="text-center mb-12">What We Upgrade</h2>
           <p className="text-center" style={{ maxWidth: '700px', margin: '0 auto 3rem' }}>
@@ -130,10 +131,10 @@ export default function UpgradesPage() {
             </div>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Laptop Upgrades */}
-      <section className="py-20 bg-white">
+      <ChevronSection topShape="v" bottomShape="v" className="py-20 bg-white">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <h2 className="text-center mb-4">Laptop Upgrades</h2>
           <p className="text-center text-gray-500 text-[1.1rem] mb-16 max-w-[700px] mx-auto">Laptops have limited upgrade options, but the ones available can still make a big difference.</p>
@@ -155,18 +156,18 @@ export default function UpgradesPage() {
             <p className="text-gray-600 mb-0">Bring it in and we&apos;ll take a look. We&apos;ll tell you what&apos;s upgradeable and what would make the most difference for how you use it.</p>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Expert Advice */}
-      <section className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-16 text-center relative overflow-hidden" style={{ background: 'linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%)' }}>
+      <ChevronSection topShape="v" bottomShape="v" className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20 text-center relative overflow-hidden" style={{ background: 'linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%)' }}>
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
           <h2 className="text-white text-[2rem] mb-4">Honest Advice</h2>
           <p className="text-[1.1rem] mb-8 opacity-95">Not every computer is worth upgrading. Sometimes the money is better spent on a new machine. We&apos;ll give you our honest assessment—what upgrades make sense, what your system can support, and whether upgrading is the right choice for your situation.</p>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Pricing */}
-      <section className="py-20 bg-white">
+      <ChevronSection topShape="v" bottomShape="v" className="py-20 bg-white">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <h2 className="text-center mb-4">Pricing</h2>
 
@@ -182,16 +183,16 @@ export default function UpgradesPage() {
             </p>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* CTA */}
-      <section className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-16 text-center relative overflow-hidden">
+      <ChevronSection topShape="v" bottomShape="flat" className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20 text-center relative overflow-hidden">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
           <h2 className="text-white text-[2rem] mb-4">Ready to Upgrade?</h2>
           <p className="text-[1.1rem] mb-8 opacity-95">Bring in your computer and let&apos;s talk about what upgrades would make the biggest difference for you.</p>
           <Link href="/contact" className="inline-block px-8 py-[0.8rem] rounded-brand-md no-underline font-semibold text-base transition-all duration-normal cursor-pointer border-none text-center whitespace-nowrap bg-white text-primary-600 shadow-brand-md hover:-translate-y-0.5 hover:shadow-brand-lg">Upgrade My Computer</Link>
         </div>
-      </section>
+      </ChevronSection>
     </>
   );
 }

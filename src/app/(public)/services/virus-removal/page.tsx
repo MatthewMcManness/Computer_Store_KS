@@ -5,6 +5,7 @@
  */
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { ChevronSection } from '@/components/static/ChevronSection';
 
 export const metadata: Metadata = {
   title: 'Virus & Malware Removal | Computer Store Kansas',
@@ -20,15 +21,15 @@ export default function VirusRemovalPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="hero-overlay hero-clip text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1920&q=80)' }}>
+      <ChevronSection topShape="flat" bottomShape="v" className="hero-overlay text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1920&q=80)' }}>
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[3]">
           <h2>Virus &amp; Malware Removal</h2>
           <p className="text-[clamp(1.1rem,2vw,1.3rem)] mb-0 max-w-[700px] mx-auto opacity-95">Get the junk out and get your computer back.</p>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Main Pricing */}
-      <section className="texture-circuit hero-next-section -mt-20 pb-20 pt-32 relative z-[1] bg-bg-light">
+      <ChevronSection topShape="v" bottomShape="v" className="texture-circuit py-20 relative bg-bg-light">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <h2 className="text-center mb-12">Complete Malware Removal</h2>
           <p style={{ fontSize: '1.15rem', maxWidth: '800px', margin: '0 auto 2rem' }}>
@@ -53,10 +54,10 @@ export default function VirusRemovalPage() {
             </div>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* What We Remove */}
-      <section className="py-20 bg-white">
+      <ChevronSection topShape="v" bottomShape="v" className="py-20 bg-white">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <h2 className="text-center mb-4">What We Remove</h2>
           <p className="text-center text-gray-500 text-[1.1rem] mb-16 max-w-[700px] mx-auto">If it&apos;s malicious or unwanted, we get rid of it.</p>
@@ -111,10 +112,10 @@ export default function VirusRemovalPage() {
             </div>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Severe Infections */}
-      <section className="texture-dots py-20 bg-bg-light">
+      <ChevronSection topShape="v" bottomShape="v" className="texture-dots py-20 bg-bg-light">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <h2 className="text-center mb-12">Severe Infections</h2>
           <p className="text-center" style={{ maxWidth: '700px', margin: '0 auto 3rem' }}>
@@ -138,19 +139,19 @@ export default function VirusRemovalPage() {
             </div>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Protection */}
-      <section className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-16 text-center relative overflow-hidden" style={{ background: 'linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%)' }}>
+      <ChevronSection topShape="v" bottomShape="v" className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20 text-center relative overflow-hidden" style={{ background: 'linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%)' }}>
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
           <h2 className="text-white text-[2rem] mb-4">Stay Protected</h2>
           <p className="text-[1.1rem] mb-8 opacity-95">After cleaning your computer, we&apos;ll recommend protection to help prevent future infections. We offer antivirus software and scam protection tools that we can install for a small fee. Prevention is always easier than cleanup.</p>
           <Link href="/services/antivirus" className="inline-block px-8 py-[0.8rem] rounded-brand-md no-underline font-semibold text-base transition-all duration-normal cursor-pointer border-none text-center whitespace-nowrap bg-white text-primary-600 shadow-brand-md hover:-translate-y-0.5 hover:shadow-brand-lg">Learn About Protection</Link>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Warning Signs */}
-      <section className="py-20 bg-white">
+      <ChevronSection topShape="v" bottomShape="v" className="py-20 bg-white">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <h2 className="text-center mb-4">Signs Your Computer May Be Infected</h2>
 
@@ -186,24 +187,24 @@ export default function VirusRemovalPage() {
             </div>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Turnaround */}
-      <section className="py-12" style={{ background: 'var(--background-light)' }}>
+      <ChevronSection topShape="v" bottomShape="v" className="py-20" style={{ background: 'var(--background-light)' }}>
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 text-center">
           <h3>Turnaround Time</h3>
           <p>Cleaning time varies depending on the severity of infection. Simple infections may be done same-day; complex infections take longer. We&apos;ll give you an estimate when we assess the situation.</p>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* CTA */}
-      <section className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-16 text-center relative overflow-hidden">
+      <ChevronSection topShape="v" bottomShape="flat" className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20 text-center relative overflow-hidden">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
           <h2 className="text-white text-[2rem] mb-4">Think You&apos;re Infected?</h2>
           <p className="text-[1.1rem] mb-8 opacity-95">Don&apos;t wait—the longer malware sits on your system, the more damage it can do. Bring your computer in and let us clean it up.</p>
           <Link href="/contact" className="inline-block px-8 py-[0.8rem] rounded-brand-md no-underline font-semibold text-base transition-all duration-normal cursor-pointer border-none text-center whitespace-nowrap bg-white text-primary-600 shadow-brand-md hover:-translate-y-0.5 hover:shadow-brand-lg">Remove My Virus Now</Link>
         </div>
-      </section>
+      </ChevronSection>
     </>
   );
 }

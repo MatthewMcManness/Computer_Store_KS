@@ -32,17 +32,18 @@ const platinumBadgeStyle = {
   border: '2px solid #d1d5db',
 };
 
-/** Renders the three protection plan cards in a responsive grid. */
+/** Renders the three protection plan cards in a responsive grid.
+ *  The outer section wrapper (background, padding, chevron edges) is the
+ *  caller's responsibility — wrap this in a ChevronSection. */
 export function ProtectionPlansSection() {
   return (
-    <section className="hero-next-section bg-bg-light py-20 -mt-20 pt-32 relative z-[1]">
-      <div className="w-[90%] max-w-[1200px] mx-auto px-4">
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-          gap: '2rem',
-          maxWidth: '1280px',
-          margin: '0 auto',
+    <div className="w-[90%] max-w-[1200px] mx-auto px-4">
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+        gap: '2rem',
+        maxWidth: '1280px',
+        margin: '0 auto',
           padding: '2rem 0'
         }}>
 
@@ -302,7 +303,6 @@ export function ProtectionPlansSection() {
           </div>
 
         </div>
-      </div>
-    </section>
+    </div>
   );
 }

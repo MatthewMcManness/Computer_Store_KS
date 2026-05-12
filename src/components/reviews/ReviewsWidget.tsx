@@ -218,8 +218,7 @@ export function ReviewsWidget({ maxReviews = 6 }: ReviewsWidgetProps) {
   }
 
   return (
-    <section className="py-16 sm:py-8 bg-bg-light">
-      <div className="w-[90%] max-w-[1200px] mx-auto px-4">
+    <div className="w-[90%] max-w-[1200px] mx-auto px-4">
         {/* Header */}
         <div className="flex justify-between items-start mb-8 flex-wrap gap-4 max-md:flex-col max-md:items-start">
           <div className="flex flex-col gap-2">
@@ -308,7 +307,6 @@ export function ReviewsWidget({ maxReviews = 6 }: ReviewsWidgetProps) {
             View All Reviews
           </Link>
         </div>
-      </div>
-    </section>
+    </div>
   );
 }

@@ -11,6 +11,7 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { ReviewsWidget } from '@/components/reviews/ReviewsWidget';
 import { ProtectionPlansSection } from '@/components/static/ProtectionPlansSection';
+import { ChevronSection } from '@/components/static/ChevronSection';
 
 export default function HomePage() {
   const [progress, setProgress] = useState(0);
@@ -66,9 +67,10 @@ export default function HomePage() {
       </div>
 
       {/* HOME PAGE HERO SECTION */}
-      <section
+      <ChevronSection
         ref={heroRef}
-        className="hero-overlay hero-clip text-white pt-52 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat md:pt-32"
+        bottomShape="v"
+        className="hero-overlay text-white pt-52 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat md:pt-32"
         style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=1920&q=80)' }}
       >
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[3]">
@@ -89,10 +91,14 @@ export default function HomePage() {
           <p className="text-[clamp(1.1rem,2vw,1.3rem)] font-bold mt-4 animate-pulse opacity-95">Now we do house calls!</p>
           <Link href="/contact" className="btn-silver mt-6">Schedule a Service Call</Link>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* STATS SECTION */}
-      <section className="hero-next-section-deep bg-gradient-to-br from-bg-light to-white relative overflow-hidden bg-radial-blue -mt-28 pt-40 pb-16 border-t border-b border-bg-dark">
+      <ChevronSection
+        topShape="v"
+        bottomShape="v"
+        className="bg-gradient-to-br from-bg-light to-white relative overflow-hidden bg-radial-blue py-20 border-t border-b border-bg-dark"
+      >
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-12 text-center max-w-[900px] mx-auto">
             <div className="p-6 transition-all duration-300 hover:-translate-y-1 animate-float">
@@ -109,10 +115,14 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* SERVICES OVERVIEW SECTION */}
-      <section className="texture-circuit py-20 bg-bg-light relative overflow-hidden">
+      <ChevronSection
+        topShape="v"
+        bottomShape="v"
+        className="texture-circuit py-20 bg-bg-light relative overflow-hidden"
+      >
         <div className="diamond-accent top-1/2 -right-[60px] w-[180px] h-[180px] !opacity-5 animate-rotate-slow"></div>
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <h2 className="text-center mb-12 text-gray-900">What We Do</h2>
@@ -134,22 +144,38 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* PROTECTION PLANS SECTION */}
-      <ProtectionPlansSection />
+      <ChevronSection
+        topShape="v"
+        bottomShape="v"
+        className="bg-bg-light py-20 relative"
+      >
+        <ProtectionPlansSection />
+      </ChevronSection>
 
       {/* REVIEWS SECTION */}
-      <ReviewsWidget />
+      <ChevronSection
+        topShape="v"
+        bottomShape="v"
+        className="bg-bg-light py-20"
+      >
+        <ReviewsWidget />
+      </ChevronSection>
 
       {/* CALL-TO-ACTION SECTION */}
-      <section className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-16 text-center relative overflow-hidden">
+      <ChevronSection
+        topShape="v"
+        bottomShape="flat"
+        className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20 text-center relative overflow-hidden"
+      >
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
           <h2 className="text-white text-[2rem] mb-4">Ready to Get Started?</h2>
           <p className="text-[1.1rem] mb-8 opacity-95">Contact us today for expert computer services and personalized solutions tailored to your needs.</p>
           <Link href="/contact" className="inline-block px-8 py-4 rounded-brand-md font-semibold text-base transition-all duration-300 cursor-pointer bg-white text-primary-600 shadow-brand-md hover:-translate-y-0.5 hover:shadow-brand-lg">Talk to an Expert</Link>
         </div>
-      </section>
+      </ChevronSection>
     </>
   );
 }

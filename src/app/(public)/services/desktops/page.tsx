@@ -5,6 +5,7 @@
  */
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { ChevronSection } from '@/components/static/ChevronSection';
 
 export const metadata: Metadata = {
   title: 'Refurbished Desktop Computers | Computer Store Kansas',
@@ -20,15 +21,15 @@ export default function DesktopsPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="hero-overlay hero-clip text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1593640408182-31c70c8268f5?w=1920&q=80)' }}>
+      <ChevronSection bottomShape="v" className="hero-overlay text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1593640408182-31c70c8268f5?w=1920&q=80)' }}>
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[3]">
           <h2>Refurbished Desktops</h2>
           <p className="text-[clamp(1.1rem,2vw,1.3rem)] mb-0 max-w-[700px] mx-auto opacity-95">Reliable computers at budget-friendly prices.</p>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Main Value Prop */}
-      <section className="texture-circuit hero-next-section -mt-20 pb-20 pt-32 relative z-[1] bg-bg-light">
+      <ChevronSection topShape="v" bottomShape="v" className="texture-circuit py-20 relative bg-bg-light">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <h2 className="text-center mb-12">Quality Without the Price Tag</h2>
           <p style={{ fontSize: '1.15rem', maxWidth: '800px', margin: '0 auto 2rem' }}>
@@ -53,10 +54,10 @@ export default function DesktopsPage() {
             </div>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Refurbishment Process */}
-      <section className="py-20 bg-white">
+      <ChevronSection topShape="v" bottomShape="v" className="py-20 bg-white">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <h2 className="text-center mb-4">Our Refurbishment Process</h2>
           <p className="text-center text-gray-500 text-[1.1rem] mb-16 max-w-[700px] mx-auto">Every desktop we sell goes through the same rigorous process.</p>
@@ -111,10 +112,10 @@ export default function DesktopsPage() {
             </div>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Warranty */}
-      <section className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-16 text-center relative overflow-hidden" style={{ background: 'linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%)' }}>
+      <ChevronSection topShape="v" bottomShape="v" className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20 text-center relative overflow-hidden" style={{ background: 'linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%)' }}>
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
           <h2 className="text-white text-[2rem] mb-4">Our Warranty</h2>
           <div className="bg-white/10 rounded-brand-lg p-8 mx-auto my-8 max-w-[500px]">
@@ -123,10 +124,10 @@ export default function DesktopsPage() {
             <p className="text-white mb-3 text-[1.1rem] mt-6 pt-4 border-t border-white/20 font-semibold">We stand behind every machine we sell. If something goes wrong, we&apos;ll take care of it.</p>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Who Benefits */}
-      <section className="texture-dots py-20 bg-bg-light">
+      <ChevronSection topShape="v" bottomShape="v" className="texture-dots py-20 bg-bg-light">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <h2 className="text-center mb-12">Who Buys Refurbished?</h2>
           <p className="text-center" style={{ maxWidth: '700px', margin: '0 auto 3rem' }}>
@@ -155,34 +156,34 @@ export default function DesktopsPage() {
             </div>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Gaming Tip */}
-      <section className="py-20 bg-white">
+      <ChevronSection topShape="v" bottomShape="v" className="py-20 bg-white">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <div className="mt-12 p-8 bg-primary-100 rounded-brand-lg border-l-4 border-primary-600">
             <h3 className="text-primary-800 mb-4">Budget Gaming Tip</h3>
             <p className="text-gray-600 mb-0">Looking for an affordable gaming setup? Start with a refurbished desktop that has a decent processor and plenty of RAM, then add a graphics card. You can build a capable gaming machine for a fraction of what a new gaming PC would cost. Ask us which desktops make good gaming candidates.</p>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Custom Build CTA */}
-      <section className="py-12" style={{ background: 'var(--background-light)' }}>
+      <ChevronSection topShape="v" bottomShape="v" className="py-20" style={{ background: 'var(--background-light)' }}>
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 text-center">
           <h3>Want Something New?</h3>
           <p>If you&apos;re looking for a brand-new desktop built to your exact specifications, check out our <Link href="/services/custom-computers" style={{ color: 'var(--primary-blue)', fontWeight: 600 }}>Custom-Built Computers</Link> service.</p>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* CTA */}
-      <section className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-16 text-center relative overflow-hidden">
+      <ChevronSection topShape="v" bottomShape="flat" className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20 text-center relative overflow-hidden">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
           <h2 className="text-white text-[2rem] mb-4">See What&apos;s In Stock</h2>
           <p className="text-[1.1rem] mb-8 opacity-95">Our inventory changes regularly. Stop by to see our current selection of refurbished desktops.</p>
           <Link href="/contact" className="inline-block px-8 py-[0.8rem] rounded-brand-md no-underline font-semibold text-base transition-all duration-normal cursor-pointer border-none text-center whitespace-nowrap bg-white text-primary-600 shadow-brand-md hover:-translate-y-0.5 hover:shadow-brand-lg">Browse Desktops Today</Link>
         </div>
-      </section>
+      </ChevronSection>
     </>
   );
 }

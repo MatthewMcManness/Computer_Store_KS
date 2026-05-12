@@ -5,6 +5,7 @@
  */
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { ChevronSection } from '@/components/static/ChevronSection';
 
 export const metadata: Metadata = {
   title: 'Computer Repair Services in Topeka, KS',
@@ -103,15 +104,15 @@ export default function ServicesPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="hero-overlay hero-clip text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1597673030062-0a0f1a801a31?w=1920&q=80)' }}>
+      <ChevronSection bottomShape="v" className="hero-overlay text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1597673030062-0a0f1a801a31?w=1920&q=80)' }}>
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[3]">
           <h2>Our Services</h2>
           <p className="text-[clamp(1.1rem,2vw,1.3rem)] mb-0 max-w-[700px] mx-auto opacity-95">Comprehensive support for your computers and devices.</p>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Featured Section */}
-      <section className="texture-circuit hero-next-section -mt-20 pb-20 pt-32 relative z-[1] bg-bg-light">
+      <ChevronSection topShape="v" bottomShape="v" className="texture-circuit py-20 relative bg-bg-light">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <h2 className="text-center mb-12">Featured</h2>
           <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-8 mt-12">
@@ -131,10 +132,10 @@ export default function ServicesPage() {
             </Link>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* All Services */}
-      <section className="py-20 bg-white">
+      <ChevronSection topShape="v" bottomShape="v" className="py-20 bg-white">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <h2 className="text-center mb-4">All Services</h2>
           <p className="text-center text-gray-500 text-[1.1rem] mb-16 max-w-[700px] mx-auto">Click any service to learn more about what we offer.</p>
@@ -154,25 +155,25 @@ export default function ServicesPage() {
             ))}
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Not Sure Section */}
-      <section className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-16 text-center relative overflow-hidden" style={{ background: 'linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%)' }}>
+      <ChevronSection topShape="v" bottomShape="v" className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20 text-center relative overflow-hidden" style={{ background: 'linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%)' }}>
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
           <h2 className="text-white text-[2rem] mb-4">Not Sure What You Need?</h2>
           <p className="text-[1.1rem] mb-8 opacity-95">Bring in your computer and we&apos;ll take a look. Our diagnostic fee rolls into the repair cost if you proceed—no pressure, just honest advice.</p>
           <Link href="/services/diagnostics" className="inline-block px-8 py-[0.8rem] rounded-brand-md no-underline font-semibold text-base transition-all duration-normal cursor-pointer border-none text-center whitespace-nowrap bg-white text-primary-600 shadow-brand-md hover:-translate-y-0.5 hover:shadow-brand-lg">Learn About Diagnostics</Link>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Call-to-Action Section */}
-      <section className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-16 text-center relative overflow-hidden">
+      <ChevronSection topShape="v" bottomShape="flat" className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20 text-center relative overflow-hidden">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
           <h2 className="text-white text-[2rem] mb-4">Ready to Get Started?</h2>
           <p className="text-[1.1rem] mb-8 opacity-95">Contact us to discuss your needs or bring your computer in for service.</p>
           <Link href="/contact" className="inline-block px-8 py-[0.8rem] rounded-brand-md no-underline font-semibold text-base transition-all duration-normal cursor-pointer border-none text-center whitespace-nowrap bg-white text-primary-600 shadow-brand-md hover:-translate-y-0.5 hover:shadow-brand-lg">Get Your Free Quote</Link>
         </div>
-      </section>
+      </ChevronSection>
     </>
   );
 }

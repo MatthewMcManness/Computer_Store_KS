@@ -5,6 +5,7 @@
  */
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { ChevronSection } from '@/components/static/ChevronSection';
 
 export const metadata: Metadata = {
   title: 'Windows & Linux Installation Services | Computer Store Kansas',
@@ -20,15 +21,15 @@ export default function OSInstallationPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="hero-overlay hero-clip text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1629654297299-c8506221ca97?w=1920&q=80)' }}>
+      <ChevronSection bottomShape="v" className="hero-overlay text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1629654297299-c8506221ca97?w=1920&q=80)' }}>
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[3]">
           <h2>Operating System Installation</h2>
           <p className="text-[clamp(1.1rem,2vw,1.3rem)] mb-0 max-w-[700px] mx-auto opacity-95">A fresh start for your computer—Windows or Linux.</p>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Windows Section */}
-      <section className="texture-circuit hero-next-section -mt-20 pb-20 pt-32 relative z-[1] bg-bg-light">
+      <ChevronSection topShape="v" bottomShape="v" className="texture-circuit py-20 relative bg-bg-light">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <h2 className="text-center mb-12">Windows Installation</h2>
 
@@ -45,10 +46,10 @@ export default function OSInstallationPage() {
             </ul>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Linux Section */}
-      <section className="py-20 bg-white">
+      <ChevronSection topShape="v" bottomShape="v" className="py-20 bg-white">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <h2 className="text-center mb-4">Linux Installation with Zorin OS</h2>
           <p className="text-center text-gray-500 text-[1.1rem] mb-16 max-w-[700px] mx-auto">The perfect alternative to Windows—especially for older computers that can&apos;t run Windows 11.</p>
@@ -75,19 +76,19 @@ export default function OSInstallationPage() {
             <p className="text-gray-600 mb-0">Zorin OS is designed specifically for people switching from Windows. It looks and feels familiar from the moment you start using it. We customize the layout to match what you&apos;re comfortable with—whether that&apos;s a Windows 7, Windows 10, or even macOS-style desktop.</p>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Windows 11 Alternative Callout */}
-      <section className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-16 text-center relative overflow-hidden" style={{ background: 'linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%)' }}>
+      <ChevronSection topShape="v" bottomShape="v" className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20 text-center relative overflow-hidden" style={{ background: 'linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%)' }}>
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
           <h2 className="text-white text-[2rem] mb-4">Computer Too Old for Windows 11?</h2>
           <p className="text-[1.1rem] mb-8 opacity-95">Microsoft&apos;s strict hardware requirements leave many perfectly good computers behind. Linux breathes new life into older hardware—your computer could run faster than ever, with a modern, secure operating system that receives regular updates.</p>
           <Link href="/why-linux" className="inline-block px-8 py-[0.8rem] rounded-brand-md no-underline font-semibold text-base transition-all duration-normal cursor-pointer border-none text-center whitespace-nowrap bg-white text-primary-600 shadow-brand-md hover:-translate-y-0.5 hover:shadow-brand-lg">Learn More About Linux</Link>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Why Fresh Install */}
-      <section className="py-20 bg-white">
+      <ChevronSection topShape="v" bottomShape="v" className="py-20 bg-white">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <h2 className="text-center mb-4">When Do You Need a Fresh Install?</h2>
           <p className="text-center text-gray-500 text-[1.1rem] mb-16 max-w-[700px] mx-auto">A clean operating system installation solves many common computer problems.</p>
@@ -142,24 +143,24 @@ export default function OSInstallationPage() {
             </div>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Note about data */}
-      <section className="py-12" style={{ background: 'var(--background-light)' }}>
+      <ChevronSection topShape="v" bottomShape="v" className="py-20" style={{ background: 'var(--background-light)' }}>
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 text-center">
           <h3>What About My Files?</h3>
           <p>A fresh install means starting over—your files won&apos;t be on the new system. Need your data transferred? Check out our <Link href="/services/data-services" style={{ color: 'var(--primary-blue)', fontWeight: 600 }}>Data Transfer Services</Link> to move your files to the fresh installation.</p>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* CTA */}
-      <section className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-16 text-center relative overflow-hidden">
+      <ChevronSection topShape="v" className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20 text-center relative overflow-hidden">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
           <h2 className="text-white text-[2rem] mb-4">Ready for a Fresh Start?</h2>
           <p className="text-[1.1rem] mb-8 opacity-95">Bring in your computer and we&apos;ll have it running like new with a clean operating system.</p>
           <Link href="/contact" className="inline-block px-8 py-[0.8rem] rounded-brand-md no-underline font-semibold text-base transition-all duration-normal cursor-pointer border-none text-center whitespace-nowrap bg-white text-primary-600 shadow-brand-md hover:-translate-y-0.5 hover:shadow-brand-lg">Install My OS</Link>
         </div>
-      </section>
+      </ChevronSection>
     </>
   );
 }

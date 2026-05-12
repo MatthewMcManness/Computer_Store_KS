@@ -13,6 +13,11 @@
     --border: 229 229 229;
     --ring: 59 130 246;
     --radius: 0.5rem;
+
+    /* Chevron section system — single source of truth for V-edge geometry.
+       Used by both .cs-top-v (top edge) and .cs-bottom-v (bottom edge) so
+       puzzle-piece joins stay flush across every viewport width. */
+    --chevron-depth: clamp(2rem, 4.5vw, 4.5rem);
   }
 
   .dark {
@@ -129,34 +134,41 @@
     pointer-events: none;
   }
 
-  /* ---- Hero Clip-Path Shapes ---- */
-  /* Pointed bottom on hero section */
-  .hero-clip {
-    clip-path: polygon(0 0, 100% 0, 100% 85%, 50% 100%, 0 85%);
-  }
-
-  /* Section after hero: V-shape top matching hero point */
-  .hero-next-section {
-    clip-path: polygon(0 0, 50% 5rem, 100% 0, 100% 100%, 0 100%);
-  }
-
-  /* Deeper V for home page stats section (taller hero with plaque) */
-  .hero-next-section-deep {
-    clip-path: polygon(0 0, 50% 7rem, 100% 0, 100% 100%, 0 100%);
-  }
-
-  /* ---- Horizontal Diamond Divider ---- */
-  /* Points on left and right sides (hexagonal diamond shape) */
-  .horizontal-diamond {
+  /* ---- Chevron Section System ---- */
+  /* Shared V-edge geometry. Bottom-V on one section + top-V on the next
+     fit flush because both polygons reference the same --chevron-depth.
+     Sections with a top V also pull up by chevron-depth so their notch
+     overlaps the previous section's tail exactly. */
+  .cs-bottom-v {
     clip-path: polygon(
-      0 50%,
-      15% 0,
-      85% 0,
-      100% 50%,
-      85% 100%,
-      15% 100%
+      0 0,
+      100% 0,
+      100% calc(100% - var(--chevron-depth)),
+      50% 100%,
+      0 calc(100% - var(--chevron-depth))
     );
-    padding: 100px 18%;
+  }
+
+  .cs-top-v {
+    clip-path: polygon(
+      0 0,
+      50% var(--chevron-depth),
+      100% 0,
+      100% 100%,
+      0 100%
+    );
+    margin-top: calc(-1 * var(--chevron-depth));
+  }
+
+  .cs-top-v.cs-bottom-v {
+    clip-path: polygon(
+      0 0,
+      50% var(--chevron-depth),
+      100% 0,
+      100% calc(100% - var(--chevron-depth)),
+      50% 100%,
+      0 calc(100% - var(--chevron-depth))
+    );
   }
 
   /* ---- Out-of-Stock Ribbon ---- */

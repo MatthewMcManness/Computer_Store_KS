@@ -5,6 +5,7 @@
  */
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { ChevronSection } from '@/components/static/ChevronSection';
 
 export const metadata: Metadata = {
   title: 'Antivirus & Scam Protection | Computer Store Kansas',
@@ -20,15 +21,15 @@ export default function AntivirusPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="hero-overlay hero-clip text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=1920&q=80)' }}>
+      <ChevronSection bottomShape="v" className="hero-overlay text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=1920&q=80)' }}>
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[3]">
           <h2>Antivirus &amp; Scam Protection</h2>
           <p className="text-[clamp(1.1rem,2vw,1.3rem)] mb-0 max-w-[700px] mx-auto opacity-95">Stay protected. We handle the technical side.</p>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Main Value Prop */}
-      <section className="texture-circuit hero-next-section -mt-20 pb-20 pt-32 relative z-[1] bg-bg-light">
+      <ChevronSection topShape="v" bottomShape="v" className="texture-circuit py-20 relative bg-bg-light">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <h2 className="text-center mb-12">Protection Without the Hassle</h2>
           <p style={{ fontSize: '1.15rem', maxWidth: '800px', margin: '0 auto 2rem' }}>
@@ -54,10 +55,10 @@ export default function AntivirusPage() {
             </div>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Antivirus Section */}
-      <section className="py-20 bg-white">
+      <ChevronSection topShape="v" bottomShape="v" className="py-20 bg-white">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <h2 className="text-center mb-4">Antivirus Protection</h2>
           <p className="text-center text-gray-500 text-[1.1rem] mb-16 max-w-[700px] mx-auto">We recommend and install ESET antivirus—trusted, effective, and lightweight.</p>
@@ -79,10 +80,10 @@ export default function AntivirusPage() {
             </ul>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Scam Protection Section */}
-      <section className="texture-dots py-20 bg-bg-light">
+      <ChevronSection topShape="v" bottomShape="v" className="texture-dots py-20 bg-bg-light">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <h2 className="text-center mb-12">Scam Protection</h2>
           <p className="text-center" style={{ maxWidth: '700px', margin: '0 auto 3rem' }}>
@@ -145,18 +146,18 @@ export default function AntivirusPage() {
             <p className="text-gray-600 mb-0">Unlike antivirus subscriptions, scam protection is a one-time install. Pay once and you&apos;re protected—no yearly renewals to worry about.</p>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Why Both */}
-      <section className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-16 text-center relative overflow-hidden" style={{ background: 'linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%)' }}>
+      <ChevronSection topShape="v" bottomShape="v" className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20 text-center relative overflow-hidden" style={{ background: 'linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%)' }}>
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
           <h2 className="text-white text-[2rem] mb-4">Why You Need Both</h2>
           <p className="text-[1.1rem] mb-8 opacity-95">Antivirus and scam protection work differently. Antivirus catches malicious software trying to infect your computer. Scam protection catches the social engineering tricks that bypass antivirus entirely—fake tech support, phishing emails, fraudulent websites. Together, they cover the full range of threats you face online.</p>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Who Needs This */}
-      <section className="py-20 bg-white">
+      <ChevronSection topShape="v" bottomShape="v" className="py-20 bg-white">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <h2 className="text-center mb-4">Who Benefits Most?</h2>
 
@@ -182,16 +183,16 @@ export default function AntivirusPage() {
             </div>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* CTA */}
-      <section className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-16 text-center relative overflow-hidden">
+      <ChevronSection topShape="v" bottomShape="flat" className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20 text-center relative overflow-hidden">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
           <h2 className="text-white text-[2rem] mb-4">Get Protected</h2>
           <p className="text-[1.1rem] mb-8 opacity-95">Bring in your computer and we&apos;ll set you up with the protection you need. Installation, configuration, and support—all handled.</p>
           <Link href="/contact" className="inline-block px-8 py-[0.8rem] rounded-brand-md no-underline font-semibold text-base transition-all duration-normal cursor-pointer border-none text-center whitespace-nowrap bg-white text-primary-600 shadow-brand-md hover:-translate-y-0.5 hover:shadow-brand-lg">Protect My Computer</Link>
         </div>
-      </section>
+      </ChevronSection>
     </>
   );
 }

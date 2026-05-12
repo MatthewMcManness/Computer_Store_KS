@@ -5,6 +5,7 @@
  */
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { ChevronSection } from '@/components/static/ChevronSection';
 
 export const metadata: Metadata = {
   title: 'Computer Diagnostics | Computer Store Kansas',
@@ -20,15 +21,15 @@ export default function DiagnosticsPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="hero-overlay hero-clip text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1518770660439-4636190af475?w=1920&q=80)' }}>
+      <ChevronSection bottomShape="v" className="hero-overlay text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1518770660439-4636190af475?w=1920&q=80)' }}>
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[3]">
           <h2>Computer Diagnostics</h2>
           <p className="text-[clamp(1.1rem,2vw,1.3rem)] mb-0 max-w-[700px] mx-auto opacity-95">Something wrong? We&apos;ll figure it out.</p>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Main Pricing */}
-      <section className="texture-circuit hero-next-section -mt-20 pb-20 pt-32 relative z-[1] bg-bg-light">
+      <ChevronSection topShape="v" bottomShape="v" className="texture-circuit py-20 relative bg-bg-light">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <h2 className="text-center mb-12">Flat Fee Diagnostics</h2>
           <p style={{ fontSize: '1.15rem', maxWidth: '800px', margin: '0 auto 2rem' }}>
@@ -41,10 +42,10 @@ export default function DiagnosticsPage() {
             <p className="text-gray-600 mb-0">If you proceed with the repair, the diagnostic fee gets applied toward the cost of the repair—you&apos;re not paying twice. Small fixes that don&apos;t require parts are included in the diagnostic fee at no extra charge.</p>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* What We Check */}
-      <section className="py-20 bg-white">
+      <ChevronSection topShape="v" bottomShape="v" className="py-20 bg-white">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <h2 className="text-center mb-4">Comprehensive Testing</h2>
           <p className="text-center text-gray-500 text-[1.1rem] mb-16 max-w-[700px] mx-auto">We check everything to find the root cause of your problem.</p>
@@ -83,10 +84,10 @@ export default function DiagnosticsPage() {
             </div>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Common Problems */}
-      <section className="texture-dots py-20 bg-bg-light">
+      <ChevronSection topShape="v" bottomShape="v" className="texture-dots py-20 bg-bg-light">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <h2 className="text-center mb-12">Common Symptoms We Diagnose</h2>
 
@@ -122,10 +123,10 @@ export default function DiagnosticsPage() {
             </div>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* The Process */}
-      <section className="py-20 bg-white">
+      <ChevronSection topShape="v" bottomShape="v" className="py-20 bg-white">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <h2 className="text-center mb-4">How It Works</h2>
 
@@ -145,24 +146,24 @@ export default function DiagnosticsPage() {
             <p className="text-gray-600 mb-0">We never proceed with repairs that cost extra without contacting you first. After diagnosis, we explain what&apos;s wrong, what your options are, and what each option costs. You make the call.</p>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Turnaround */}
-      <section className="py-12" style={{ background: 'var(--background-light)' }}>
+      <ChevronSection topShape="v" bottomShape="v" className="py-20" style={{ background: 'var(--background-light)' }}>
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 text-center">
           <h3>Turnaround Time</h3>
           <p>Most diagnostics are completed the same day. During busy periods, expect results within 48 hours. We&apos;ll let you know when you drop off if we&apos;re running behind.</p>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* CTA */}
-      <section className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-16 text-center relative overflow-hidden">
+      <ChevronSection topShape="v" bottomShape="flat" className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20 text-center relative overflow-hidden">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
           <h2 className="text-white text-[2rem] mb-4">Let&apos;s Find the Problem</h2>
           <p className="text-[1.1rem] mb-8 opacity-95">Bring in your computer and we&apos;ll get to the bottom of it.</p>
           <Link href="/contact" className="inline-block px-8 py-[0.8rem] rounded-brand-md no-underline font-semibold text-base transition-all duration-normal cursor-pointer border-none text-center whitespace-nowrap bg-white text-primary-600 shadow-brand-md hover:-translate-y-0.5 hover:shadow-brand-lg">Schedule a Diagnosis</Link>
         </div>
-      </section>
+      </ChevronSection>
     </>
   );
 }

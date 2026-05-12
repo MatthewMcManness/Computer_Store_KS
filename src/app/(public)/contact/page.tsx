@@ -7,27 +7,29 @@
  * is in contact-form.tsx; sidebar variants are in contact-with-sidebar.tsx).
  */
 import { ContactWithSidebar } from '@/components/forms/contact-with-sidebar';
+import { ChevronSection } from '@/components/static/ChevronSection';
 
 export default function ContactPage() {
   return (
     <>
       {/* Hero Section */}
-      <section
-        className="hero-overlay hero-clip text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat"
+      <ChevronSection
+        bottomShape="v"
+        className="hero-overlay text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1423666639041-f56000c27a9a?w=1920&q=80)' }}
       >
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[3]">
           <h2 className="text-white text-[clamp(2rem,4vw,3rem)] mb-6 font-bold">Contact Us</h2>
           <p className="text-[clamp(1.1rem,2vw,1.3rem)] mb-0 max-w-[700px] mx-auto opacity-95">Get in touch with Computer Store Kansas - we&apos;re here to help!</p>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Contact Main Content */}
-      <section className="hero-next-section py-20 -mt-20 pt-32 relative z-[1]">
+      <ChevronSection topShape="v" className="py-20 relative">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <ContactWithSidebar />
         </div>
-      </section>
+      </ChevronSection>
     </>
   );
 }

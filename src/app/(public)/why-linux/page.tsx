@@ -5,6 +5,7 @@
  */
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { ChevronSection } from '@/components/static/ChevronSection';
 
 export const metadata: Metadata = {
   title: 'Why Linux? | Computer Store Kansas',
@@ -20,18 +21,19 @@ export default function WhyLinuxPage() {
   return (
     <>
       {/* Hero Section */}
-      <section
-        className="hero-overlay hero-clip text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat"
+      <ChevronSection
+        bottomShape="v"
+        className="hero-overlay text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1629654297299-c8506221ca97?w=1920&q=80)' }}
       >
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[3]">
           <h2 className="text-white text-[clamp(2rem,4vw,3rem)] mb-6 font-bold">Why Linux?</h2>
           <p className="text-[clamp(1.1rem,2vw,1.3rem)] mb-0 max-w-[700px] mx-auto opacity-95">Your computer deserves better. Linux delivers.</p>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Windows 11 Problem */}
-      <section className="hero-next-section texture-circuit py-20 -mt-20 pt-32 relative z-[1]">
+      <ChevronSection topShape="v" bottomShape="v" className="texture-circuit py-20 relative">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <h2 className="text-center mb-12 text-gray-900">The Windows 11 Problem</h2>
           <p className="text-[1.15rem] max-w-[800px] mx-auto mb-8">
@@ -45,10 +47,10 @@ export default function WhyLinuxPage() {
             <p className="text-gray-700 mb-0">After that date, no more security updates. Your computer becomes increasingly vulnerable to malware and attacks. Linux offers a third path: keep your existing hardware, stay secure, and get a faster, cleaner experience than Windows ever gave you.</p>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Key Benefits */}
-      <section className="py-20 bg-white">
+      <ChevronSection topShape="v" bottomShape="v" className="py-20 bg-white">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <h2 className="text-center mb-4">Why People Switch to Linux</h2>
           <p className="text-center text-gray-500 text-[1.1rem] mb-16 max-w-[700px] mx-auto">Real advantages that make a real difference.</p>
@@ -103,10 +105,10 @@ export default function WhyLinuxPage() {
             </div>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* More Reasons */}
-      <section className="texture-dots py-20 bg-bg-light">
+      <ChevronSection topShape="v" bottomShape="v" className="texture-dots py-20 bg-bg-light">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <h2 className="text-center mb-12 text-gray-900">More Reasons to Consider Linux</h2>
 
@@ -142,10 +144,10 @@ export default function WhyLinuxPage() {
             </div>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Common Concerns */}
-      <section className="py-20 bg-white">
+      <ChevronSection topShape="v" bottomShape="v" className="py-20 bg-white">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <h2 className="text-center mb-4">Common Questions</h2>
           <p className="text-center text-gray-500 text-[1.1rem] mb-16 max-w-[700px] mx-auto">Concerns people have before switching—and the answers.</p>
@@ -177,18 +179,18 @@ export default function WhyLinuxPage() {
             </div>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Who Should Consider */}
-      <section className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-16 text-center relative overflow-hidden">
+      <ChevronSection topShape="v" bottomShape="v" className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20 text-center relative overflow-hidden">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
           <h2 className="text-white text-[2rem] mb-4">Is Linux Right for You?</h2>
           <p className="text-[1.1rem] mb-8 opacity-95">Linux is a great choice if you have an older computer that can&apos;t run Windows 11, you&apos;re tired of Windows bloat and forced updates, you want a faster and more private computing experience, you&apos;re budget-conscious and don&apos;t want to pay for new hardware or software, or you&apos;re simply curious about trying something different. Come talk to us—we&apos;ll help you figure out if Linux makes sense for your situation.</p>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* What We Offer */}
-      <section className="py-20 bg-white">
+      <ChevronSection topShape="v" bottomShape="v" className="py-20 bg-white">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <h2 className="text-center mb-12 text-gray-900">How We Help</h2>
 
@@ -214,16 +216,16 @@ export default function WhyLinuxPage() {
             </div>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* CTA */}
-      <section className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-16 text-center relative overflow-hidden">
+      <ChevronSection topShape="v" className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20 text-center relative overflow-hidden">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
           <h2 className="text-white text-[2rem] mb-4">Ready to Try Something Better?</h2>
           <p className="text-[1.1rem] mb-8 opacity-95">Bring in your computer and let&apos;s talk about whether Linux is the right choice for you. No pressure, just honest advice.</p>
           <Link href="/contact" className="inline-block px-8 py-4 rounded-brand-md font-semibold text-base transition-all duration-300 cursor-pointer bg-white text-primary-600 shadow-brand-md hover:-translate-y-0.5 hover:shadow-brand-lg">Let&apos;s Talk</Link>
         </div>
-      </section>
+      </ChevronSection>
     </>
   );
 }

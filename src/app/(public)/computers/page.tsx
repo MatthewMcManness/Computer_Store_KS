@@ -7,6 +7,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
+import { ChevronSection } from '@/components/static/ChevronSection';
 
 export const metadata: Metadata = {
   title: 'Computers for Sale - Laptops, Business PCs & Gaming Rigs',
@@ -36,7 +37,7 @@ export default function ComputersPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="hero-overlay hero-clip text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-gray-900">
+      <ChevronSection bottomShape="v" className="hero-overlay text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-gray-900">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[3]">
           <h2 className="text-white text-[clamp(2rem,4vw,3rem)] mb-6 font-bold">
             Computers for Sale
@@ -45,10 +46,10 @@ export default function ComputersPage() {
             New, refurbished, and custom-built — find the right machine for your needs.
           </p>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Section 1: Laptops — text left, image right */}
-      <section className="hero-next-section texture-dots bg-gradient-to-br from-[#e8f0fe] to-[#d6e4fd] -mt-20 pt-32 pb-20 relative z-[1]">
+      <ChevronSection topShape="v" bottomShape="v" className="texture-dots bg-gradient-to-br from-[#e8f0fe] to-[#d6e4fd] py-20 relative">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
@@ -86,10 +87,10 @@ export default function ComputersPage() {
             </div>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Section 2: Business PCs — image left, text right */}
-      <section className="py-20 bg-white">
+      <ChevronSection topShape="v" bottomShape="v" className="py-20 bg-white">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Image appears second on mobile, first on desktop */}
@@ -127,10 +128,10 @@ export default function ComputersPage() {
             </div>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Section 3: Gaming PCs — text left, image right */}
-      <section className="py-20 bg-gradient-to-br from-gray-900 to-gray-800">
+      <ChevronSection topShape="v" className="py-20 bg-gradient-to-br from-gray-900 to-gray-800">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
@@ -167,7 +168,7 @@ export default function ComputersPage() {
             </div>
           </div>
         </div>
-      </section>
+      </ChevronSection>
     </>
   );
 }

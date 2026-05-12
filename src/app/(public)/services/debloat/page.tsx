@@ -5,6 +5,7 @@
  */
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { ChevronSection } from '@/components/static/ChevronSection';
 
 export const metadata: Metadata = {
   title: 'Windows Debloat Service | Computer Store Kansas',
@@ -20,15 +21,15 @@ export default function DebloatPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="hero-overlay hero-clip text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1920&q=80)' }}>
+      <ChevronSection bottomShape="v" className="hero-overlay text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1920&q=80)' }}>
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[3]">
           <h2>Windows Debloat</h2>
           <p className="text-[clamp(1.1rem,2vw,1.3rem)] mb-0 max-w-[700px] mx-auto opacity-95">Strip out the junk. Keep what matters.</p>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Main Pricing */}
-      <section className="texture-circuit hero-next-section -mt-20 pb-20 pt-32 relative z-[1] bg-bg-light">
+      <ChevronSection topShape="v" bottomShape="v" className="texture-circuit py-20 relative bg-bg-light">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <h2 className="text-center mb-12">Clean Up Your Windows</h2>
           <p style={{ fontSize: '1.15rem', maxWidth: '800px', margin: '0 auto 2rem' }}>
@@ -42,10 +43,10 @@ export default function DebloatPage() {
             <p className="text-gray-600 mb-0">Every computer we sell is debloated before you take it home—no extra charge. You get a clean, fast Windows experience from day one.</p>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* What We Remove */}
-      <section className="py-20 bg-white">
+      <ChevronSection topShape="v" bottomShape="v" className="py-20 bg-white">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <h2 className="text-center mb-4">What We Remove &amp; Optimize</h2>
           <p className="text-center text-gray-500 text-[1.1rem] mb-16 max-w-[700px] mx-auto">A comprehensive cleanup of everything slowing down your Windows experience.</p>
@@ -100,18 +101,18 @@ export default function DebloatPage() {
             </div>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Windows 11 Section */}
-      <section className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-16 text-center relative overflow-hidden" style={{ background: 'linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%)' }}>
+      <ChevronSection topShape="v" bottomShape="v" className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20 text-center relative overflow-hidden" style={{ background: 'linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%)' }}>
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
           <h2 className="text-white text-[2rem] mb-4">Make Windows 11 Work the Way It Should</h2>
           <p className="text-[1.1rem] mb-8 opacity-95">Windows 11 has a reputation for being sluggish and cluttered—but it doesn&apos;t have to be. A proper debloat removes the cruft Microsoft and manufacturers pile on, revealing a faster, cleaner operating system underneath. Your computer will boot quicker, run smoother, and actually respond when you click something.</p>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Debloat vs Virus Removal */}
-      <section className="py-20 bg-white">
+      <ChevronSection topShape="v" bottomShape="v" className="py-20 bg-white">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <h2 className="text-center mb-4">Debloat vs. Virus Removal</h2>
           <p className="text-center text-gray-500 text-[1.1rem] mb-16 max-w-[700px] mx-auto">These are different services for different problems.</p>
@@ -132,10 +133,10 @@ export default function DebloatPage() {
             Not sure which you need? Bring your computer in and we&apos;ll take a look. We&apos;ll tell you honestly what&apos;s going on.
           </p>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Who Needs This */}
-      <section className="texture-dots py-20 bg-bg-light">
+      <ChevronSection topShape="v" bottomShape="v" className="texture-dots py-20 bg-bg-light">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <h2 className="text-center mb-12">Who Benefits from Debloating?</h2>
 
@@ -161,16 +162,16 @@ export default function DebloatPage() {
             </div>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* CTA */}
-      <section className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-16 text-center relative overflow-hidden">
+      <ChevronSection topShape="v" className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20 text-center relative overflow-hidden">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
           <h2 className="text-white text-[2rem] mb-4">Ready for a Cleaner Windows?</h2>
           <p className="text-[1.1rem] mb-8 opacity-95">Bring in your computer and we&apos;ll strip out the bloat. You&apos;ll wonder why you waited so long.</p>
           <Link href="/contact" className="inline-block px-8 py-[0.8rem] rounded-brand-md no-underline font-semibold text-base transition-all duration-normal cursor-pointer border-none text-center whitespace-nowrap bg-white text-primary-600 shadow-brand-md hover:-translate-y-0.5 hover:shadow-brand-lg">Speed Up My PC</Link>
         </div>
-      </section>
+      </ChevronSection>
     </>
   );
 }

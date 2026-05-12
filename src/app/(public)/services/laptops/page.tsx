@@ -5,6 +5,7 @@
  */
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { ChevronSection } from '@/components/static/ChevronSection';
 
 export const metadata: Metadata = {
   title: 'New & Refurbished Laptops | Computer Store Kansas',
@@ -20,15 +21,15 @@ export default function LaptopsPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="hero-overlay hero-clip text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=1920&q=80)' }}>
+      <ChevronSection bottomShape="v" className="hero-overlay text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=1920&q=80)' }}>
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[3]">
           <h2>Laptops</h2>
           <p className="text-[clamp(1.1rem,2vw,1.3rem)] mb-0 max-w-[700px] mx-auto opacity-95">New and refurbished—quality computers for every budget.</p>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* New Laptops Section */}
-      <section className="texture-circuit hero-next-section -mt-20 pb-20 pt-32 relative z-[1] bg-bg-light">
+      <ChevronSection topShape="v" bottomShape="v" className="texture-circuit py-20 relative bg-bg-light">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <h2 className="text-center mb-12">New Laptops</h2>
           <p style={{ fontSize: '1.15rem', maxWidth: '800px', margin: '0 auto 2rem' }}>
@@ -54,10 +55,10 @@ export default function LaptopsPage() {
             </div>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Refurbished Laptops Section */}
-      <section className="py-20 bg-white">
+      <ChevronSection topShape="v" bottomShape="v" className="py-20 bg-white">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <h2 className="text-center mb-4">Refurbished Laptops</h2>
           <p className="text-center text-gray-500 text-[1.1rem] mb-16 max-w-[700px] mx-auto">Quality computers at a fraction of the price—thoroughly tested and ready to work.</p>
@@ -102,10 +103,10 @@ export default function LaptopsPage() {
             </div>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Warranty Info */}
-      <section className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-16 text-center relative overflow-hidden" style={{ background: 'linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%)' }}>
+      <ChevronSection topShape="v" bottomShape="v" className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20 text-center relative overflow-hidden" style={{ background: 'linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%)' }}>
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
           <h2 className="text-white text-[2rem] mb-4">Refurbished Warranty</h2>
           <div className="bg-white/10 rounded-brand-lg p-8 mx-auto my-8 max-w-[500px]">
@@ -114,10 +115,10 @@ export default function LaptopsPage() {
             <p className="text-white mb-3 text-[1.1rem] mt-6 pt-4 border-t border-white/20 font-semibold">We stand behind our refurbished machines. If something goes wrong, we&apos;ll make it right.</p>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Why Buy From Us */}
-      <section className="texture-dots py-20 bg-bg-light">
+      <ChevronSection topShape="v" bottomShape="v" className="texture-dots py-20 bg-bg-light">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <h2 className="text-center mb-12">More Than Just a Sale</h2>
           <p className="text-center" style={{ maxWidth: '700px', margin: '0 auto 3rem' }}>
@@ -141,10 +142,10 @@ export default function LaptopsPage() {
             </div>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* Who We Serve */}
-      <section className="py-20 bg-white">
+      <ChevronSection topShape="v" bottomShape="v" className="py-20 bg-white">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
           <h2 className="text-center mb-4">Laptops for Everyone</h2>
           <p className="text-center text-gray-500 text-[1.1rem] mb-16 max-w-[700px] mx-auto">We help all kinds of customers find the right machine.</p>
@@ -171,16 +172,16 @@ export default function LaptopsPage() {
             </div>
           </div>
         </div>
-      </section>
+      </ChevronSection>
 
       {/* CTA */}
-      <section className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-16 text-center relative overflow-hidden">
+      <ChevronSection topShape="v" bottomShape="flat" className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20 text-center relative overflow-hidden">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
           <h2 className="text-white text-[2rem] mb-4">Find Your Perfect Laptop</h2>
           <p className="text-[1.1rem] mb-8 opacity-95">Stop by to see our current selection, or tell us what you need and we&apos;ll help you find it.</p>
           <Link href="/contact" className="inline-block px-8 py-[0.8rem] rounded-brand-md no-underline font-semibold text-base transition-all duration-normal cursor-pointer border-none text-center whitespace-nowrap bg-white text-primary-600 shadow-brand-md hover:-translate-y-0.5 hover:shadow-brand-lg">Browse Laptops Today</Link>
         </div>
-      </section>
+      </ChevronSection>
     </>
   );
 }

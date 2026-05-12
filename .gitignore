@@ -30,6 +30,3 @@ out/
 
 # Claude Code local settings (user-specific permissions)
 .claude/settings.local.json
-
-# Personal working notes (kept local, not part of the repo)
-TODO.md

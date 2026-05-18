@@ -140,6 +140,7 @@
      Sections with a top V also pull up by chevron-depth so their notch
      overlaps the previous section's tail exactly. */
   .cs-bottom-v {
+    position: relative;
     clip-path: polygon(
       0 0,
       100% 0,
@@ -147,10 +148,14 @@
       50% 100%,
       0 calc(100% - var(--chevron-depth))
     );
+    /* filter: drop-shadow follows the clipped V-tail silhouette, casting
+       a true chevron-shaped shadow downward onto the next section. The
+       z-index cascade below makes each section paint over the following
+       one — without it, the next sibling's background covers the shadow. */
+    filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.35));
   }
 
   .cs-top-v {
-    position: relative;
     clip-path: polygon(
       0 0,
       50% var(--chevron-depth),
@@ -161,33 +166,20 @@
     margin-top: calc(-1 * var(--chevron-depth));
   }
 
-  /* Chevron-shaped shadow band that hugs the V edge, simulating the
-     previous section's V tail casting a shadow onto this section. The
-     parent's V clip-path crops the top edge into a V; this pseudo's own
-     clip-path crops the bottom edge into a parallel V offset down by the
-     band's thickness — yielding a uniform-thickness chevron strip. The
-     vertical gradient fades the band away from the V edge inward. */
-  .cs-top-v::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: calc(var(--chevron-depth) * 1.8);
-    pointer-events: none;
-    background: linear-gradient(
-      to bottom,
-      rgba(0, 0, 0, 0.30),
-      rgba(0, 0, 0, 0)
-    );
-    clip-path: polygon(
-      0 0,
-      100% 0,
-      100% calc(var(--chevron-depth) * 0.8),
-      50% calc(var(--chevron-depth) * 1.8),
-      0 calc(var(--chevron-depth) * 0.8)
-    );
-  }
+  /* Decreasing z-index per DOM-order chevron section so each section's
+     drop-shadow paints on top of the next. Capped at 10 sections — more
+     than any current page uses. Selector matches whichever sections have
+     .cs-bottom-v at each :nth-of-type slot among their <section> siblings. */
+  .cs-bottom-v:nth-of-type(1) { z-index: 10; }
+  .cs-bottom-v:nth-of-type(2) { z-index: 9; }
+  .cs-bottom-v:nth-of-type(3) { z-index: 8; }
+  .cs-bottom-v:nth-of-type(4) { z-index: 7; }
+  .cs-bottom-v:nth-of-type(5) { z-index: 6; }
+  .cs-bottom-v:nth-of-type(6) { z-index: 5; }
+  .cs-bottom-v:nth-of-type(7) { z-index: 4; }
+  .cs-bottom-v:nth-of-type(8) { z-index: 3; }
+  .cs-bottom-v:nth-of-type(9) { z-index: 2; }
+  .cs-bottom-v:nth-of-type(10) { z-index: 1; }
 
   .cs-top-v.cs-bottom-v {
     clip-path: polygon(

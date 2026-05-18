@@ -51,9 +51,25 @@ You will NOT see a "Google Business Profile API" or "My Business v4 API" in the 
 
 ### 2.3 Configure OAuth consent screen
 
-1. Go to https://console.cloud.google.com/apis/credentials/consent
-2. User type: **External**. Click **CREATE**.
-3. App information page:
+**As of mid-2024, Google rolled out a new tabbed consent-screen UI for new Cloud projects.** The steps below cover both layouts. Skim once to see which one you have, then follow that path.
+
+| Old wizard layout | New tabbed layout |
+| --- | --- |
+| Single URL at https://console.cloud.google.com/apis/credentials/consent walks you through "App information → Scopes → Test users → Summary" with a **SAVE AND CONTINUE** button at the bottom of each step. | Left-side or top tabs labelled **Branding / Audience / Data Access / Clients**. Each tab is its own settings page; no wizard. "Scopes" is renamed to **Data Access**. |
+| Use the steps below as numbered (3 → 4 → 5 → 6). | Use the direct URLs in each step below; do them in any order. |
+
+#### New tabbed UI — direct URLs
+
+- **Branding:** https://console.cloud.google.com/auth/branding
+- **Audience** (User type + test users): https://console.cloud.google.com/auth/audience
+- **Data Access** (what used to be Scopes): https://console.cloud.google.com/auth/scopes
+- **Clients** (OAuth Client IDs — covered in §2.4 below): https://console.cloud.google.com/auth/clients
+
+#### Steps
+
+1. Go to https://console.cloud.google.com/apis/credentials/consent (old) or https://console.cloud.google.com/auth/audience (new).
+2. User type: **External**. Click **CREATE** (old) / **SAVE** (new).
+3. App information page (old) / **Branding** tab (new):
    - App name: `Computer Store KS Reviews`
    - User support email: `contact@computerstoreks.com`
    - App logo: skip (optional)
@@ -63,22 +79,22 @@ You will NOT see a "Google Business Profile API" or "My Business v4 API" in the 
    - Authorized domains: click **+ ADD DOMAIN** → enter `computerstoreks.com`
    - Developer contact email: `contact@computerstoreks.com` (or your own preferred address)
    - **SAVE AND CONTINUE**.
-4. Scopes page:
+4. Scopes page (old) / **Data Access** tab (new — https://console.cloud.google.com/auth/scopes):
    - Click **ADD OR REMOVE SCOPES**.
    - In the filter box, type `business.manage`. If it doesn't appear in the list, click **Manually add scopes** at the bottom of the modal and paste: `https://www.googleapis.com/auth/business.manage`. Click **ADD TO TABLE**.
    - Click **UPDATE** at the bottom of the modal.
-   - Back on the Scopes page, the scope should now show as a sensitive scope. Click **SAVE AND CONTINUE**.
-5. Test users page:
+   - Back on the page, the scope should now show as a sensitive scope. Click **SAVE** (new) / **SAVE AND CONTINUE** (old).
+5. Test users page (old) / **Audience** tab → scroll to "Test users" (new):
    - Click **+ ADD USERS**.
    - Add: `contact@computerstoreks.com`
    - (Optional, but recommended) also add your own personal Google email so you can test the OAuth flow yourself.
-   - **SAVE AND CONTINUE**.
-6. Summary page: click **BACK TO DASHBOARD**. Status will be **Testing**. That is the correct end state for this project.
+   - **SAVE** (new) / **SAVE AND CONTINUE** (old).
+6. Summary page (old only): click **BACK TO DASHBOARD**. In both layouts, the publishing status should now show **Testing**. That is the correct end state for this project.
 
 ### 2.4 Create the OAuth 2.0 Client ID
 
-1. Go to https://console.cloud.google.com/apis/credentials
-2. Click **+ CREATE CREDENTIALS** (top of page) → **OAuth client ID**.
+1. Go to https://console.cloud.google.com/apis/credentials (old) or https://console.cloud.google.com/auth/clients (new).
+2. Click **+ CREATE CREDENTIALS** → **OAuth client ID** (old) or **+ CREATE CLIENT** (new).
 3. Application type: **Web application**.
 4. Name: `Computer Store KS Reviews — web client`.
 5. Authorized JavaScript origins → **+ ADD URI**:
@@ -112,7 +128,7 @@ This is the long-pole step. Apply now even if you're not ready to do the code pa
    | Will end users sign in with their own Google accounts? | **No** — only the business's own manager account |
 
 3. Submit the form. Screenshot the confirmation page.
-4. Save the screenshot reference here: *(paste filename or paste confirmation text after submission)*
+4. Save the screenshot reference here: *(Computer Store KS: filed 2026-05-18, screenshot in `~/Pictures/Screenshots/`)*
 
 **Expected response time:** 1–4 weeks based on community reports. Google emails the contact address with approval, denial, or a follow-up question.
 
@@ -270,7 +286,7 @@ Will cover: Server Components, hydration boundaries for pagination, accessibilit
 
 | Date | Where | Error | Cause | Resolution |
 | --- | --- | --- | --- | --- |
-| *(empty — will fill as we hit them)* | | | | |
+| 2026-05-18 | Cloud Console §2.3 | "Cannot find Scopes" — owner stuck on consent screen step | Google rolled out a new tabbed UI for new Cloud projects in 2024; "Scopes" was renamed to **Data Access**, and the multi-page wizard was replaced with independent **Branding / Audience / Data Access / Clients** tabs. | Updated playbook §2.3 with a side-by-side mapping of old and new UI and direct URLs for each new-UI tab. Direct URL for scopes in the new UI: https://console.cloud.google.com/auth/scopes |
 
 ---
 

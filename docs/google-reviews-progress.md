@@ -172,10 +172,11 @@ If we later see issues (e.g., the unlucky-first-visitor latency lands on a high-
 | 1 | Approve the implementation plan above | Matthew | ✅ approved 2026-05-18 |
 | 2 | Approve creation of two Supabase tables | Matthew | ✅ approved 2026-05-18 |
 | 3 | Approve refresh strategy | Matthew | ✅ Option A (lazy) approved 2026-05-18 |
-| 4 | Run Google Cloud Console steps (project, APIs, OAuth consent, Client ID) | Matthew | **NEXT** — instructions in playbook §2 |
-| 5 | File the Business Profile API allowlist request | Matthew | **NEXT** — instructions in playbook §1.5 |
+| 4 | Run Google Cloud Console steps (project, APIs, OAuth consent, Client ID) | Matthew | ✅ done 2026-05-18 (project `computer-store-ks-reviews`) |
+| 5 | File the Business Profile API allowlist request | Matthew | ✅ submitted 2026-05-18 (screenshot in `Pictures/Screenshots`); waiting on Google's approval email (typically 1–4 weeks) |
 | 6 | Run the Supabase SQL migration (two new tables) | Matthew | **NEXT** — SQL in playbook §3 |
-| 7 | Provide Client ID + Client Secret + redirect URI back to Claude for env var values | Matthew | gated by #4 |
+| 7 | Provide Client ID + Client Secret + redirect URI to Claude for env var values | Matthew | ✅ done 2026-05-18 (values written to `.env.local`, gitignored) |
+| 8 | Add Supabase keys to `.env.local` so the OAuth flow works against a real DB locally | Matthew | gated by #6 |
 
 ---
 
@@ -189,6 +190,8 @@ If we later see issues (e.g., the unlucky-first-visitor latency lands on a high-
 | 2026-05-18 | Plan approved. Cron strategy decided (Option A — lazy refresh). |
 | 2026-05-18 | Phase 3 Step 1 instructions handed off to owner (GCP setup + allowlist + Supabase SQL). |
 | 2026-05-18 | Server-side refactor complete: new `src/lib/google-business/` folder (config, oauth, reviews, cache, selection, types-internal, index), three new API routes (oauth/start, oauth/callback, refresh), reviews route rewritten to read from Supabase cache with lazy 24h refresh, types trimmed of Places shapes, `.env.example` updated. Middleware exposes the two public endpoints (reviews + oauth/callback) and protects the admin endpoints. Type-check and build pass; UI components untouched and still serve hardcoded fallbacks until live data is verified. |
+| 2026-05-18 | Owner completed GCP setup §2.1–§2.4 (project `computer-store-ks-reviews`, both APIs enabled, OAuth consent on the new tabbed UI, web Client ID + secret created). Credentials shared via `~/Desktop/TXT.txt`, written into local `.env.local` (gitignored). |
+| 2026-05-18 | Owner filed GBP API allowlist request §2.5. Confirmation screenshot saved to `Pictures/Screenshots`. Now waiting on Google's approval email. |
 
 ---
 

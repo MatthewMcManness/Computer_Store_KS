@@ -57,19 +57,39 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(adminUrl(request, { gbp: 'state_mismatch' }));
   }
 
+  // Step 1: exchange the code for tokens.
+  let tokens;
   try {
-    const tokens = await exchangeCodeForTokens(code);
-    if (!tokens.refresh_token) {
-      // Should not happen with prompt=consent + access_type=offline,
-      // but bail loudly if Google ever decides not to give one.
-      return NextResponse.redirect(adminUrl(request, { gbp: 'no_refresh_token' }));
-    }
-    await storeRefreshToken(tokens.refresh_token, tokens.scope, AUTHORIZED_EMAIL);
-    // Seed the cache so the next visitor doesn't pay the cold-start cost.
-    await forceRefresh();
-    return NextResponse.redirect(adminUrl(request, { gbp: 'connected' }));
+    tokens = await exchangeCodeForTokens(code);
   } catch (err) {
-    console.error('[oauth-callback] failed:', err);
+    console.error('[oauth-callback] token exchange failed:', err);
     return NextResponse.redirect(adminUrl(request, { gbp: 'exchange_failed' }));
   }
+  if (!tokens.refresh_token) {
+    // Should not happen with prompt=consent + access_type=offline.
+    return NextResponse.redirect(adminUrl(request, { gbp: 'no_refresh_token' }));
+  }
+
+  // Step 2: persist the refresh token. Once this succeeds the grant is
+  // recoverable even if the cache seed below fails.
+  try {
+    await storeRefreshToken(tokens.refresh_token, tokens.scope, AUTHORIZED_EMAIL);
+  } catch (err) {
+    console.error('[oauth-callback] storeRefreshToken failed:', err);
+    return NextResponse.redirect(adminUrl(request, { gbp: 'db_failed' }));
+  }
+
+  // Step 3: seed the cache. Failures here are typically the GBP
+  // allowlist not yet clearing — the token is fine and the next
+  // refresh attempt (manual or lazy) will succeed once Google
+  // approves the project. Report as `pending` so the operator can
+  // tell the two cases apart.
+  try {
+    await forceRefresh();
+  } catch (err) {
+    console.error('[oauth-callback] forceRefresh failed (likely allowlist pending):', err);
+    return NextResponse.redirect(adminUrl(request, { gbp: 'pending' }));
+  }
+
+  return NextResponse.redirect(adminUrl(request, { gbp: 'connected' }));
 }

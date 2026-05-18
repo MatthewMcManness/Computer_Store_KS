@@ -287,6 +287,7 @@ Will cover: Server Components, hydration boundaries for pagination, accessibilit
 | Date | Where | Error | Cause | Resolution |
 | --- | --- | --- | --- | --- |
 | 2026-05-18 | Cloud Console §2.3 | "Cannot find Scopes" — owner stuck on consent screen step | Google rolled out a new tabbed UI for new Cloud projects in 2024; "Scopes" was renamed to **Data Access**, and the multi-page wizard was replaced with independent **Branding / Audience / Data Access / Clients** tabs. | Updated playbook §2.3 with a side-by-side mapping of old and new UI and direct URLs for each new-UI tab. Direct URL for scopes in the new UI: https://console.cloud.google.com/auth/scopes |
+| 2026-05-18 | Browser console on `/login` (dev only) | `Uncaught EvalError: Evaluating a string as JavaScript violates the following Content Security Policy directive: script-src 'self' 'unsafe-inline' ...` — the Sign in with Google button appeared to "do nothing" on click. | Project's CSP in `src/middleware.ts` did not allow `'unsafe-eval'`, which Next.js dev mode requires for React Fast Refresh / HMR. Without it, the dev bundle fails to initialize and no client-side JS hydrates, so the button has no onClick handler in practice. | Added `'unsafe-eval'` to `script-src` **only when `process.env.NODE_ENV === 'development'`**. Production CSP unchanged. Pattern is standard for Next.js dev mode. |
 
 ---
 

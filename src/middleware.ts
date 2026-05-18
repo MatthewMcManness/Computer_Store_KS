@@ -49,9 +49,13 @@ function addSecurityHeaders(response: NextResponse): void {
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   response.headers.set('Permissions-Policy', 'geolocation=(), microphone=()');
 
+  // Next.js React Fast Refresh uses eval() in dev mode; production
+  // bundles do not. Only allow 'unsafe-eval' when running locally so
+  // the deployed CSP stays strict.
+  const scriptSrcExtras = process.env.NODE_ENV === 'development' ? " 'unsafe-eval'" : '';
   const csp = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://challenges.cloudflare.com",
+    `script-src 'self' 'unsafe-inline'${scriptSrcExtras} https://www.googletagmanager.com https://www.google-analytics.com https://challenges.cloudflare.com`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob: https://*.supabase.co https://*.supabase.in https://images.unsplash.com https://raw.githubusercontent.com",
     "connect-src 'self' https://*.supabase.co https://*.supabase.in https://www.google-analytics.com https://challenges.cloudflare.com",

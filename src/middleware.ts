@@ -23,6 +23,8 @@ const PUBLIC_ROUTES = new Set([
 const PUBLIC_API_EXACT = new Set([
   '/api/contact',
   '/api/health',
+  '/api/google-business/reviews',
+  '/api/google-business/oauth/callback',
 ]);
 
 // Non-API prefixes that allow all sub-routes

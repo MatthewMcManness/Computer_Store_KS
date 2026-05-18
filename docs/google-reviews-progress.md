@@ -8,9 +8,9 @@
 
 ## Current Phase
 
-**Phase 3 — Owner running setup steps (Google Cloud Console + Supabase migration).**
+**Phase 3 — Code refactor complete, awaiting owner-side credentials + Supabase migration to wire up.**
 
-Plan approved 2026-05-18. Refresh strategy locked: **lazy refresh inside the GET handler** (Option A). No code touched yet. Code refactor begins after Step 1 + Step 2 are complete (owner needs to provide OAuth Client ID + Secret and confirm Supabase tables exist).
+Plan approved 2026-05-18. Refresh strategy locked: **lazy refresh inside the GET handler** (Option A). Server-side refactor landed on `Production` branch as commit `<TBD>` (local only, not pushed). All new code passes `npm run type-check` and `npm run build`. Live UI is still wired to the existing client components and falls back to hardcoded reviews until the OAuth flow completes and the GBP allowlist clears.
 
 ---
 
@@ -188,6 +188,7 @@ If we later see issues (e.g., the unlucky-first-visitor latency lands on a high-
 | 2026-05-18 | Phase 2 implementation plan drafted. |
 | 2026-05-18 | Plan approved. Cron strategy decided (Option A — lazy refresh). |
 | 2026-05-18 | Phase 3 Step 1 instructions handed off to owner (GCP setup + allowlist + Supabase SQL). |
+| 2026-05-18 | Server-side refactor complete: new `src/lib/google-business/` folder (config, oauth, reviews, cache, selection, types-internal, index), three new API routes (oauth/start, oauth/callback, refresh), reviews route rewritten to read from Supabase cache with lazy 24h refresh, types trimmed of Places shapes, `.env.example` updated. Middleware exposes the two public endpoints (reviews + oauth/callback) and protects the admin endpoints. Type-check and build pass; UI components untouched and still serve hardcoded fallbacks until live data is verified. |
 
 ---
 
@@ -209,9 +210,9 @@ If we later see issues (e.g., the unlucky-first-visitor latency lands on a high-
 > If this session ends right now, the next session should do this:
 
 1. Read this file end-to-end.
-2. Read `docs/google-reviews-playbook.md` §1, §2, §3 (the live instructions).
-3. Ask Matthew where he stands on **Open Questions #4, #5, #6** (GCP setup, allowlist filing, Supabase migration). Each is independent and can have its own status.
-4. **If #4 (GCP) is done:** ask Matthew for the Client ID, Client Secret, and the redirect URIs he registered. Add them to the progress doc.
-5. **If #6 (Supabase migration) is done:** confirm by reading `oauth_tokens` and `reviews_cache` tables (e.g., a probe query through the Supabase MCP if available, or asking Matthew to confirm).
-6. **Once all three external steps are done:** begin the code refactor — start with `src/lib/google-business/oauth.ts` and `cache.ts`, since those don't need the GBP allowlist to function. Reviews fetch (`reviews.ts`) can be coded but cannot be tested live until the allowlist clears.
-7. Do NOT touch code until at least one of #4/#5/#6 confirms in progress and Matthew explicitly says "start the refactor."
+2. Read `docs/google-reviews-playbook.md` §1, §2, §3.
+3. Ask Matthew where he stands on **Open Questions #4, #5, #6, #7**.
+4. **If #4 + #6 are done and #7 has Client ID + Secret:** add `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET`, `GOOGLE_OAUTH_REDIRECT_URI=http://localhost:3000/api/google-business/oauth/callback` to local `.env`, run `npm run dev`, log into `/admin`, visit `/api/google-business/oauth/start` to trigger the OAuth flow, and verify the post-callback redirect lands at `/admin?gbp=connected` with the cache populated.
+5. **If #5 (allowlist) is still pending:** the OAuth flow will succeed but `/api/google-business/refresh` will return 502 with a Google API "permission denied" error. Document that in the playbook §9. Don't treat it as a blocker — the code is correct; we're just waiting on Google.
+6. **Once live data is verified on the dev server:** plan and present the Server Component conversion + hardcoded fallback removal. That goes in a separate commit after Matthew confirms the integration works end-to-end.
+7. Do NOT push to Production. All commits are local-only until Matthew explicitly approves a push.

@@ -1,17 +1,19 @@
 /**
- * Type definitions for Google Business Profile integration.
+ * GOOGLE REVIEWS TYPES - Public types shared between server (lib +
+ * API routes) and client (review components). Server-internal shapes
+ * (Google Business Profile API response wire format) live in
+ * src/lib/google-business/types-internal.ts to avoid leaking into the
+ * client bundle.
  *
- * Defines simplified display types used when rendering Google Business
- * data in frontend components.
+ * WHEN TO EDIT: When the rendered review card needs a new field, or
+ * when the API response envelope changes.
  */
 
 /**
  * Simplified review data for frontend display.
  *
- * Transforms complex Google API review format into simpler structure
- * suitable for rendering in React components.
- *
- * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+ * This is the shape every component renders. It is the normalized
+ * output of the GBP API → normalize → cache → API → component path.
  */
 export interface DisplayReview {
   id: string;
@@ -24,4 +26,19 @@ export interface DisplayReview {
     text: string;
     date: string;
   };
+}
+
+/** Aggregate stats about the business's reviews on Google. */
+export interface ReviewsStats {
+  averageRating: number;
+  totalCount: number;
+  fetchedAt?: string;
+}
+
+/** Shape of the row stored in the Supabase `reviews_cache` table. */
+export interface ReviewsCacheRow {
+  id: 1;
+  reviews_raw: DisplayReview[];
+  stats: ReviewsStats;
+  fetched_at: string;
 }

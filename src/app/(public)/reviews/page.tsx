@@ -28,7 +28,7 @@ export default function ReviewsPage() {
         style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1521791136064-7986c2920216?w=1920&q=80)' }}
       >
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[3]">
-          <h2 className="text-white text-[clamp(2rem,4vw,3rem)] mb-6 font-bold">Customer Reviews</h2>
+          <h1 className="text-white text-[clamp(2rem,4vw,3rem)] mb-6 font-bold">Customer Reviews</h1>
           <p className="text-[clamp(1.1rem,2vw,1.3rem)] mb-0 max-w-[700px] mx-auto opacity-95">See what our customers are saying about us.</p>
         </div>
       </ChevronSection>
@@ -49,7 +49,7 @@ export default function ReviewsPage() {
             href="https://g.page/r/CQdWo7o2FwEZEAE/review"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block px-8 py-4 rounded-brand-md font-semibold text-base transition-all duration-300 cursor-pointer bg-white text-primary-600 shadow-brand-md hover:-translate-y-0.5 hover:shadow-brand-lg"
+            className="cta-inverse"
           >
             Leave a Review
           </a>
@@ -63,7 +63,7 @@ export default function ReviewsPage() {
           <h2 className="text-center mb-8 text-gray-900">Ready to Experience Our Service?</h2>
           <p className="max-w-[800px] mx-auto mb-6 text-[1.05rem] leading-[1.8] text-center text-gray-700">Join our satisfied customers. Contact us today for fast, friendly, and affordable computer repair.</p>
           <div className="text-center">
-            <Link href="/contact" className="inline-block px-8 py-4 rounded-brand-md font-semibold text-base transition-all duration-300 cursor-pointer bg-primary-600 text-white shadow-brand-sm hover:bg-primary-800 hover:-translate-y-0.5 hover:shadow-brand-md">Contact Us</Link>
+            <Link href="/contact" className="cta-primary">Contact Us</Link>
           </div>
         </div>
       </ChevronSection>

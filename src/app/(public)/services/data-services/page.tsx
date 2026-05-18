@@ -23,7 +23,7 @@ export default function DataServicesPage() {
       {/* Hero Section */}
       <ChevronSection bottomShape="v" className="hero-overlay text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1920&q=80)' }}>
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[3]">
-          <h2>Data Transfer &amp; Drive Cloning</h2>
+          <h1>Data Transfer &amp; Drive Cloning</h1>
           <p className="text-[clamp(1.1rem,2vw,1.3rem)] mb-0 max-w-[700px] mx-auto opacity-95">Your files, restored exactly where they belong.</p>
         </div>
       </ChevronSection>
@@ -118,7 +118,7 @@ export default function DataServicesPage() {
       </ChevronSection>
 
       {/* Turnaround Note */}
-      <ChevronSection topShape="v" bottomShape="v" className="py-20" style={{ background: 'var(--background-light)' }}>
+      <ChevronSection topShape="v" bottomShape="v" className="py-20 bg-bg-light">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 text-center">
           <h3>Turnaround Time</h3>
           <p>Completion time depends on the size and speed of your drives. Older, slower drives naturally take longer to transfer. We&apos;ll give you an estimate when you drop off your equipment.</p>
@@ -130,7 +130,7 @@ export default function DataServicesPage() {
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
           <h2 className="text-white text-[2rem] mb-4">Ready to Transfer Your Data?</h2>
           <p className="text-[1.1rem] mb-8 opacity-95">Bring in your old and new devices, or just the drives. We&apos;ll take it from there.</p>
-          <Link href="/contact" className="inline-block px-8 py-[0.8rem] rounded-brand-md no-underline font-semibold text-base transition-all duration-normal cursor-pointer border-none text-center whitespace-nowrap bg-white text-primary-600 shadow-brand-md hover:-translate-y-0.5 hover:shadow-brand-lg">Transfer My Data</Link>
+          <Link href="/contact" className="cta-inverse">Transfer My Data</Link>
         </div>
       </ChevronSection>
     </>

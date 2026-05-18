@@ -23,7 +23,7 @@ export default function LaptopsPage() {
       {/* Hero Section */}
       <ChevronSection bottomShape="v" className="hero-overlay text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=1920&q=80)' }}>
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[3]">
-          <h2>Laptops</h2>
+          <h1>Laptops</h1>
           <p className="text-[clamp(1.1rem,2vw,1.3rem)] mb-0 max-w-[700px] mx-auto opacity-95">New and refurbished—quality computers for every budget.</p>
         </div>
       </ChevronSection>
@@ -106,7 +106,7 @@ export default function LaptopsPage() {
       </ChevronSection>
 
       {/* Warranty Info */}
-      <ChevronSection topShape="v" bottomShape="v" className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20 text-center relative overflow-hidden" style={{ background: 'linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%)' }}>
+      <ChevronSection topShape="v" bottomShape="v" className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20 text-center relative overflow-hidden">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
           <h2 className="text-white text-[2rem] mb-4">Refurbished Warranty</h2>
           <div className="bg-white/10 rounded-brand-lg p-8 mx-auto my-8 max-w-[500px]">
@@ -179,7 +179,7 @@ export default function LaptopsPage() {
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
           <h2 className="text-white text-[2rem] mb-4">Find Your Perfect Laptop</h2>
           <p className="text-[1.1rem] mb-8 opacity-95">Stop by to see our current selection, or tell us what you need and we&apos;ll help you find it.</p>
-          <Link href="/contact" className="inline-block px-8 py-[0.8rem] rounded-brand-md no-underline font-semibold text-base transition-all duration-normal cursor-pointer border-none text-center whitespace-nowrap bg-white text-primary-600 shadow-brand-md hover:-translate-y-0.5 hover:shadow-brand-lg">Browse Laptops Today</Link>
+          <Link href="/contact" className="cta-inverse">Browse Laptops Today</Link>
         </div>
       </ChevronSection>
     </>

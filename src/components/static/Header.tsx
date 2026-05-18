@@ -34,25 +34,33 @@ export function Header() {
   const isActive = (path: string) => pathname === path;
   const isServicesActive = pathname?.startsWith('/services') || pathname === '/why-linux' || pathname === '/silver-plan';
 
+  // The homepage has its own mobile header — the scroll-morphing silver
+  // plaque badge that shrinks as the user scrolls past the hero. Suppress
+  // this header on mobile only when we're on the homepage so the two
+  // don't stack. Every other page gets the standard header on mobile too.
+  const hideOnMobile = pathname === '/';
+
   return (
-    <header className="fixed top-0 left-0 right-0 z-[1000] p-4 transition-all duration-normal max-md:hidden">
+    <header
+      className={`fixed top-0 left-0 right-0 z-[1000] p-4 transition-all duration-normal ${
+        hideOnMobile ? 'max-md:hidden' : ''
+      }`}
+    >
       <div
         className={`flex justify-between items-center bg-primary-100/85 px-6 py-3 rounded-brand-xl border border-primary-300/40 max-w-[1100px] mx-auto backdrop-blur-[12px] transition-shadow duration-normal max-md:rounded-brand-lg max-md:px-4 max-md:py-2 max-md:max-w-none ${
           isScrolled ? 'shadow-header-scrolled' : 'shadow-header'
         }`}
       >
-        <h1 className="flex items-center text-[0px] m-0 p-0 transition-transform duration-fast hover:scale-[1.02]">
-          <Link href="/" className="flex items-center">
-            <Image
-              src="/assets/csk-logo.svg"
-              alt="Computer Store Kansas"
-              width={504}
-              height={227}
-              priority
-              style={{ height: '48px', width: 'auto' }}
-            />
-          </Link>
-        </h1>
+        <Link href="/" className="flex items-center transition-transform duration-fast hover:scale-[1.02]" aria-label="Computer Store Kansas — Home">
+          <Image
+            src="/assets/csk-logo.svg"
+            alt="Computer Store Kansas"
+            width={504}
+            height={227}
+            priority
+            style={{ height: '48px', width: 'auto' }}
+          />
+        </Link>
         <button
           type="button"
           className={`hidden max-md:flex bg-transparent border-none text-gray-900 text-[1.75rem] cursor-pointer p-2 w-11 h-11 items-center justify-center rounded-brand-sm transition-all duration-fast hover:bg-bg-light before:content-['\\2630'] ${
@@ -65,7 +73,7 @@ export function Header() {
         />
         <nav>
           <ul
-            className={`list-none flex flex-wrap gap-2 items-center max-md:hidden max-md:flex-col max-md:w-full max-md:bg-white max-md:mt-2 max-md:py-4 max-md:absolute max-md:top-full max-md:left-0 max-md:right-0 max-md:shadow-brand-md ${
+            className={`list-none flex flex-wrap gap-2 items-center max-md:hidden max-md:flex-col max-md:w-[calc(100%-2rem)] max-md:bg-white max-md:mt-2 max-md:py-4 max-md:absolute max-md:top-full max-md:left-4 max-md:right-4 max-md:rounded-brand-md max-md:shadow-brand-md ${
               menuOpen ? 'max-md:!flex' : ''
             }`}
           >

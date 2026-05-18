@@ -106,7 +106,7 @@ export default function ServicesPage() {
       {/* Hero Section */}
       <ChevronSection bottomShape="v" className="hero-overlay text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1597673030062-0a0f1a801a31?w=1920&q=80)' }}>
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[3]">
-          <h2>Our Services</h2>
+          <h1>Our Services</h1>
           <p className="text-[clamp(1.1rem,2vw,1.3rem)] mb-0 max-w-[700px] mx-auto opacity-95">Comprehensive support for your computers and devices.</p>
         </div>
       </ChevronSection>
@@ -158,11 +158,11 @@ export default function ServicesPage() {
       </ChevronSection>
 
       {/* Not Sure Section */}
-      <ChevronSection topShape="v" bottomShape="v" className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20 text-center relative overflow-hidden" style={{ background: 'linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%)' }}>
+      <ChevronSection topShape="v" bottomShape="v" className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20 text-center relative overflow-hidden">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
           <h2 className="text-white text-[2rem] mb-4">Not Sure What You Need?</h2>
           <p className="text-[1.1rem] mb-8 opacity-95">Bring in your computer and we&apos;ll take a look. Our diagnostic fee rolls into the repair cost if you proceed—no pressure, just honest advice.</p>
-          <Link href="/services/diagnostics" className="inline-block px-8 py-[0.8rem] rounded-brand-md no-underline font-semibold text-base transition-all duration-normal cursor-pointer border-none text-center whitespace-nowrap bg-white text-primary-600 shadow-brand-md hover:-translate-y-0.5 hover:shadow-brand-lg">Learn About Diagnostics</Link>
+          <Link href="/services/diagnostics" className="cta-inverse">Learn About Diagnostics</Link>
         </div>
       </ChevronSection>
 
@@ -171,7 +171,7 @@ export default function ServicesPage() {
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
           <h2 className="text-white text-[2rem] mb-4">Ready to Get Started?</h2>
           <p className="text-[1.1rem] mb-8 opacity-95">Contact us to discuss your needs or bring your computer in for service.</p>
-          <Link href="/contact" className="inline-block px-8 py-[0.8rem] rounded-brand-md no-underline font-semibold text-base transition-all duration-normal cursor-pointer border-none text-center whitespace-nowrap bg-white text-primary-600 shadow-brand-md hover:-translate-y-0.5 hover:shadow-brand-lg">Get Your Free Quote</Link>
+          <Link href="/contact" className="cta-inverse">Get Your Free Quote</Link>
         </div>
       </ChevronSection>
     </>

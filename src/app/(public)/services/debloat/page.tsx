@@ -23,7 +23,7 @@ export default function DebloatPage() {
       {/* Hero Section */}
       <ChevronSection bottomShape="v" className="hero-overlay text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1920&q=80)' }}>
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[3]">
-          <h2>Windows Debloat</h2>
+          <h1>Windows Debloat</h1>
           <p className="text-[clamp(1.1rem,2vw,1.3rem)] mb-0 max-w-[700px] mx-auto opacity-95">Strip out the junk. Keep what matters.</p>
         </div>
       </ChevronSection>
@@ -104,7 +104,7 @@ export default function DebloatPage() {
       </ChevronSection>
 
       {/* Windows 11 Section */}
-      <ChevronSection topShape="v" bottomShape="v" className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20 text-center relative overflow-hidden" style={{ background: 'linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%)' }}>
+      <ChevronSection topShape="v" bottomShape="v" className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20 text-center relative overflow-hidden">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
           <h2 className="text-white text-[2rem] mb-4">Make Windows 11 Work the Way It Should</h2>
           <p className="text-[1.1rem] mb-8 opacity-95">Windows 11 has a reputation for being sluggish and cluttered—but it doesn&apos;t have to be. A proper debloat removes the cruft Microsoft and manufacturers pile on, revealing a faster, cleaner operating system underneath. Your computer will boot quicker, run smoother, and actually respond when you click something.</p>
@@ -169,7 +169,7 @@ export default function DebloatPage() {
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
           <h2 className="text-white text-[2rem] mb-4">Ready for a Cleaner Windows?</h2>
           <p className="text-[1.1rem] mb-8 opacity-95">Bring in your computer and we&apos;ll strip out the bloat. You&apos;ll wonder why you waited so long.</p>
-          <Link href="/contact" className="inline-block px-8 py-[0.8rem] rounded-brand-md no-underline font-semibold text-base transition-all duration-normal cursor-pointer border-none text-center whitespace-nowrap bg-white text-primary-600 shadow-brand-md hover:-translate-y-0.5 hover:shadow-brand-lg">Speed Up My PC</Link>
+          <Link href="/contact" className="cta-inverse">Speed Up My PC</Link>
         </div>
       </ChevronSection>
     </>

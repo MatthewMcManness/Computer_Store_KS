@@ -23,7 +23,7 @@ export default function UpgradesPage() {
       {/* Hero Section */}
       <ChevronSection bottomShape="v" className="hero-overlay text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=1920&q=80)' }}>
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[3]">
-          <h2>Hardware Upgrades</h2>
+          <h1>Hardware Upgrades</h1>
           <p className="text-[clamp(1.1rem,2vw,1.3rem)] mb-0 max-w-[700px] mx-auto opacity-95">Breathe new life into your computer with the right upgrades.</p>
         </div>
       </ChevronSection>
@@ -159,7 +159,7 @@ export default function UpgradesPage() {
       </ChevronSection>
 
       {/* Expert Advice */}
-      <ChevronSection topShape="v" bottomShape="v" className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20 text-center relative overflow-hidden" style={{ background: 'linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%)' }}>
+      <ChevronSection topShape="v" bottomShape="v" className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20 text-center relative overflow-hidden">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
           <h2 className="text-white text-[2rem] mb-4">Honest Advice</h2>
           <p className="text-[1.1rem] mb-8 opacity-95">Not every computer is worth upgrading. Sometimes the money is better spent on a new machine. We&apos;ll give you our honest assessment—what upgrades make sense, what your system can support, and whether upgrading is the right choice for your situation.</p>
@@ -190,7 +190,7 @@ export default function UpgradesPage() {
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
           <h2 className="text-white text-[2rem] mb-4">Ready to Upgrade?</h2>
           <p className="text-[1.1rem] mb-8 opacity-95">Bring in your computer and let&apos;s talk about what upgrades would make the biggest difference for you.</p>
-          <Link href="/contact" className="inline-block px-8 py-[0.8rem] rounded-brand-md no-underline font-semibold text-base transition-all duration-normal cursor-pointer border-none text-center whitespace-nowrap bg-white text-primary-600 shadow-brand-md hover:-translate-y-0.5 hover:shadow-brand-lg">Upgrade My Computer</Link>
+          <Link href="/contact" className="cta-inverse">Upgrade My Computer</Link>
         </div>
       </ChevronSection>
     </>

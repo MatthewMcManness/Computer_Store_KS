@@ -27,7 +27,7 @@ export default function AboutPage() {
         style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1920&q=80)' }}
       >
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[3]">
-          <h2 className="text-white text-[clamp(2rem,4vw,3rem)] mb-6 font-bold">About Us</h2>
+          <h1 className="text-white text-[clamp(2rem,4vw,3rem)] mb-6 font-bold">About Us</h1>
           <p className="text-[clamp(1.1rem,2vw,1.3rem)] mb-0 max-w-[700px] mx-auto opacity-95">Who we are and why we love fixing computers.</p>
         </div>
       </ChevronSection>
@@ -120,7 +120,7 @@ export default function AboutPage() {
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
           <h2 className="text-white text-[2rem] mb-4">Ready to Experience the Difference?</h2>
           <p className="text-[1.1rem] mb-8 opacity-95">Contact us today to schedule an appointment or drop by our shop. We look forward to serving you.</p>
-          <Link href="/contact" className="inline-block px-8 py-4 rounded-brand-md font-semibold text-base transition-all duration-300 cursor-pointer bg-white text-primary-600 shadow-brand-md hover:-translate-y-0.5 hover:shadow-brand-lg">Get Your Free Quote</Link>
+          <Link href="/contact" className="cta-inverse">Get Your Free Quote</Link>
         </div>
       </ChevronSection>
     </>

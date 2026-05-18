@@ -23,7 +23,7 @@ export default function VirusRemovalPage() {
       {/* Hero Section */}
       <ChevronSection topShape="flat" bottomShape="v" className="hero-overlay text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1920&q=80)' }}>
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[3]">
-          <h2>Virus &amp; Malware Removal</h2>
+          <h1>Virus &amp; Malware Removal</h1>
           <p className="text-[clamp(1.1rem,2vw,1.3rem)] mb-0 max-w-[700px] mx-auto opacity-95">Get the junk out and get your computer back.</p>
         </div>
       </ChevronSection>
@@ -142,11 +142,11 @@ export default function VirusRemovalPage() {
       </ChevronSection>
 
       {/* Protection */}
-      <ChevronSection topShape="v" bottomShape="v" className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20 text-center relative overflow-hidden" style={{ background: 'linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%)' }}>
+      <ChevronSection topShape="v" bottomShape="v" className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20 text-center relative overflow-hidden">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
           <h2 className="text-white text-[2rem] mb-4">Stay Protected</h2>
           <p className="text-[1.1rem] mb-8 opacity-95">After cleaning your computer, we&apos;ll recommend protection to help prevent future infections. We offer antivirus software and scam protection tools that we can install for a small fee. Prevention is always easier than cleanup.</p>
-          <Link href="/services/antivirus" className="inline-block px-8 py-[0.8rem] rounded-brand-md no-underline font-semibold text-base transition-all duration-normal cursor-pointer border-none text-center whitespace-nowrap bg-white text-primary-600 shadow-brand-md hover:-translate-y-0.5 hover:shadow-brand-lg">Learn About Protection</Link>
+          <Link href="/services/antivirus" className="cta-inverse">Learn About Protection</Link>
         </div>
       </ChevronSection>
 
@@ -190,7 +190,7 @@ export default function VirusRemovalPage() {
       </ChevronSection>
 
       {/* Turnaround */}
-      <ChevronSection topShape="v" bottomShape="v" className="py-20" style={{ background: 'var(--background-light)' }}>
+      <ChevronSection topShape="v" bottomShape="v" className="py-20 bg-bg-light">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 text-center">
           <h3>Turnaround Time</h3>
           <p>Cleaning time varies depending on the severity of infection. Simple infections may be done same-day; complex infections take longer. We&apos;ll give you an estimate when we assess the situation.</p>
@@ -202,7 +202,7 @@ export default function VirusRemovalPage() {
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
           <h2 className="text-white text-[2rem] mb-4">Think You&apos;re Infected?</h2>
           <p className="text-[1.1rem] mb-8 opacity-95">Don&apos;t wait—the longer malware sits on your system, the more damage it can do. Bring your computer in and let us clean it up.</p>
-          <Link href="/contact" className="inline-block px-8 py-[0.8rem] rounded-brand-md no-underline font-semibold text-base transition-all duration-normal cursor-pointer border-none text-center whitespace-nowrap bg-white text-primary-600 shadow-brand-md hover:-translate-y-0.5 hover:shadow-brand-lg">Remove My Virus Now</Link>
+          <Link href="/contact" className="cta-inverse">Remove My Virus Now</Link>
         </div>
       </ChevronSection>
     </>

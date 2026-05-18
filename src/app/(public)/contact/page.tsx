@@ -19,7 +19,7 @@ export default function ContactPage() {
         style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1423666639041-f56000c27a9a?w=1920&q=80)' }}
       >
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[3]">
-          <h2 className="text-white text-[clamp(2rem,4vw,3rem)] mb-6 font-bold">Contact Us</h2>
+          <h1 className="text-white text-[clamp(2rem,4vw,3rem)] mb-6 font-bold">Contact Us</h1>
           <p className="text-[clamp(1.1rem,2vw,1.3rem)] mb-0 max-w-[700px] mx-auto opacity-95">Get in touch with Computer Store Kansas - we&apos;re here to help!</p>
         </div>
       </ChevronSection>

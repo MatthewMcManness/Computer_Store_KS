@@ -39,9 +39,9 @@ export default function ComputersPage() {
       {/* Hero Section */}
       <ChevronSection bottomShape="v" className="hero-overlay text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-gray-900">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[3]">
-          <h2 className="text-white text-[clamp(2rem,4vw,3rem)] mb-6 font-bold">
+          <h1 className="text-white text-[clamp(2rem,4vw,3rem)] mb-6 font-bold">
             Computers for Sale
-          </h2>
+          </h1>
           <p className="text-[clamp(1.1rem,2vw,1.3rem)] mb-0 max-w-[700px] mx-auto opacity-95">
             New, refurbished, and custom-built — find the right machine for your needs.
           </p>
@@ -68,10 +68,7 @@ export default function ComputersPage() {
                 From sleek ultrabooks to powerful workstation laptops, we match you with the
                 right machine for your lifestyle and budget.
               </p>
-              <Link
-                href="/contact"
-                className="inline-block bg-primary-600 text-white font-semibold py-3 px-8 rounded-brand-md hover:bg-primary-800 hover:-translate-y-0.5 transition-all duration-normal shadow-brand-sm hover:shadow-brand-md"
-              >
+              <Link href="/contact" className="cta-primary">
                 Get a Quote
               </Link>
             </div>
@@ -119,10 +116,7 @@ export default function ComputersPage() {
                 Need something specific? We can configure a machine to your exact requirements —
                 and have it ready faster than any big box store.
               </p>
-              <Link
-                href="/contact"
-                className="inline-block bg-primary-600 text-white font-semibold py-3 px-8 rounded-brand-md hover:bg-primary-800 hover:-translate-y-0.5 transition-all duration-normal shadow-brand-sm hover:shadow-brand-md"
-              >
+              <Link href="/contact" className="cta-primary">
                 Get a Quote
               </Link>
             </div>

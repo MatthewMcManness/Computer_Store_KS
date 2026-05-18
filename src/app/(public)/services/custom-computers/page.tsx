@@ -23,7 +23,7 @@ export default function CustomComputersPage() {
       {/* Hero Section */}
       <ChevronSection topShape="flat" bottomShape="v" className="hero-overlay text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=1920&q=80)' }}>
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[3]">
-          <h2>Custom-Built Computers</h2>
+          <h1>Custom-Built Computers</h1>
           <p className="text-[clamp(1.1rem,2vw,1.3rem)] mb-0 max-w-[700px] mx-auto opacity-95">Your vision, expertly built. From gaming rigs to business servers.</p>
         </div>
       </ChevronSection>
@@ -149,7 +149,7 @@ export default function CustomComputersPage() {
       </ChevronSection>
 
       {/* Pricing */}
-      <ChevronSection topShape="v" bottomShape="v" className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20 text-center relative overflow-hidden" style={{ background: 'linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%)' }}>
+      <ChevronSection topShape="v" bottomShape="v" className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20 text-center relative overflow-hidden">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
           <h2 className="text-white text-[2rem] mb-4">Transparent Pricing</h2>
           <p className="text-[1.1rem] mb-8 opacity-95">You pay for the parts plus a flat build labor fee. Windows installation and testing included. No hidden charges, no surprises—contact us for a quote based on your build.</p>
@@ -185,7 +185,7 @@ export default function CustomComputersPage() {
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
           <h2 className="text-white text-[2rem] mb-4">Ready to Build Your Dream Machine?</h2>
           <p className="text-[1.1rem] mb-8 opacity-95">Let&apos;s talk about what you need. Whether you have a detailed spec list or just a general idea, we&apos;ll help you get there.</p>
-          <Link href="/contact" className="inline-block px-8 py-[0.8rem] rounded-brand-md no-underline font-semibold text-base transition-all duration-normal cursor-pointer border-none text-center whitespace-nowrap bg-white text-primary-600 shadow-brand-md hover:-translate-y-0.5 hover:shadow-brand-lg">Start Your Build</Link>
+          <Link href="/contact" className="cta-inverse">Start Your Build</Link>
         </div>
       </ChevronSection>
     </>

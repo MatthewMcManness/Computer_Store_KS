@@ -137,7 +137,7 @@ export function ProtectionPlansSection() {
               </li>
             </ul>
 
-            <Link href="/contact" className="inline-block px-8 py-4 rounded-brand-md font-semibold text-base transition-all duration-300 cursor-pointer bg-primary-600 text-white shadow-brand-sm hover:bg-primary-800 hover:-translate-y-0.5 hover:shadow-brand-md w-full text-center mt-auto">Get Started</Link>
+            <Link href="/contact" className="cta-primary w-full mt-auto">Get Started</Link>
           </div>
 
           {/* Silver Plus Plan Card */}
@@ -221,7 +221,7 @@ export function ProtectionPlansSection() {
               </li>
             </ul>
 
-            <Link href="/contact" className="inline-block px-8 py-4 rounded-brand-md font-semibold text-base transition-all duration-300 cursor-pointer bg-primary-600 text-white shadow-brand-sm hover:bg-primary-800 hover:-translate-y-0.5 hover:shadow-brand-md w-full text-center mt-auto">Get Started</Link>
+            <Link href="/contact" className="cta-primary w-full mt-auto">Get Started</Link>
           </div>
 
           {/* Platinum Plan Card */}
@@ -299,7 +299,7 @@ export function ProtectionPlansSection() {
               </li>
             </ul>
 
-            <Link href="/contact" className="inline-block px-8 py-4 rounded-brand-md font-semibold text-base transition-all duration-300 cursor-pointer bg-primary-600 text-white shadow-brand-sm hover:bg-primary-800 hover:-translate-y-0.5 hover:shadow-brand-md w-full text-center mt-auto">Get Started</Link>
+            <Link href="/contact" className="cta-primary w-full mt-auto">Get Started</Link>
           </div>
 
         </div>

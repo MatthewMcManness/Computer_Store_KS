@@ -27,7 +27,7 @@ export default function WhyLinuxPage() {
         style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1629654297299-c8506221ca97?w=1920&q=80)' }}
       >
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[3]">
-          <h2 className="text-white text-[clamp(2rem,4vw,3rem)] mb-6 font-bold">Why Linux?</h2>
+          <h1 className="text-white text-[clamp(2rem,4vw,3rem)] mb-6 font-bold">Why Linux?</h1>
           <p className="text-[clamp(1.1rem,2vw,1.3rem)] mb-0 max-w-[700px] mx-auto opacity-95">Your computer deserves better. Linux delivers.</p>
         </div>
       </ChevronSection>
@@ -223,7 +223,7 @@ export default function WhyLinuxPage() {
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
           <h2 className="text-white text-[2rem] mb-4">Ready to Try Something Better?</h2>
           <p className="text-[1.1rem] mb-8 opacity-95">Bring in your computer and let&apos;s talk about whether Linux is the right choice for you. No pressure, just honest advice.</p>
-          <Link href="/contact" className="inline-block px-8 py-4 rounded-brand-md font-semibold text-base transition-all duration-300 cursor-pointer bg-white text-primary-600 shadow-brand-md hover:-translate-y-0.5 hover:shadow-brand-lg">Let&apos;s Talk</Link>
+          <Link href="/contact" className="cta-inverse">Let&apos;s Talk</Link>
         </div>
       </ChevronSection>
     </>

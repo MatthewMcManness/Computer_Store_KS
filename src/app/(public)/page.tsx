@@ -86,7 +86,7 @@ export default function HomePage() {
               />
             </div>
           </div>
-          <h2 className="text-white text-[clamp(2rem,4vw,3rem)] mb-6 font-bold max-md:hidden">Your Go-To Technology Center Since 2003</h2>
+          <h1 className="text-white text-[clamp(2rem,4vw,3rem)] mb-6 font-bold max-md:hidden">Your Go-To Technology Center Since 2003</h1>
           <p className="text-[clamp(1.1rem,2vw,1.3rem)] mb-0 max-w-[700px] mx-auto opacity-95">Count on The Computer Store for all your computer service needs. Fast, friendly, and reliable service you can trust.</p>
           <p className="text-[clamp(1.1rem,2vw,1.3rem)] font-bold mt-4 animate-pulse opacity-95">Now we do house calls!</p>
           <Link href="/contact" className="btn-silver mt-6">Schedule a Service Call</Link>
@@ -173,7 +173,7 @@ export default function HomePage() {
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
           <h2 className="text-white text-[2rem] mb-4">Ready to Get Started?</h2>
           <p className="text-[1.1rem] mb-8 opacity-95">Contact us today for expert computer services and personalized solutions tailored to your needs.</p>
-          <Link href="/contact" className="inline-block px-8 py-4 rounded-brand-md font-semibold text-base transition-all duration-300 cursor-pointer bg-white text-primary-600 shadow-brand-md hover:-translate-y-0.5 hover:shadow-brand-lg">Talk to an Expert</Link>
+          <Link href="/contact" className="cta-inverse">Talk to an Expert</Link>
         </div>
       </ChevronSection>
     </>

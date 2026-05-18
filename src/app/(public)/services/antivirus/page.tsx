@@ -23,7 +23,7 @@ export default function AntivirusPage() {
       {/* Hero Section */}
       <ChevronSection bottomShape="v" className="hero-overlay text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=1920&q=80)' }}>
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[3]">
-          <h2>Antivirus &amp; Scam Protection</h2>
+          <h1>Antivirus &amp; Scam Protection</h1>
           <p className="text-[clamp(1.1rem,2vw,1.3rem)] mb-0 max-w-[700px] mx-auto opacity-95">Stay protected. We handle the technical side.</p>
         </div>
       </ChevronSection>
@@ -149,7 +149,7 @@ export default function AntivirusPage() {
       </ChevronSection>
 
       {/* Why Both */}
-      <ChevronSection topShape="v" bottomShape="v" className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20 text-center relative overflow-hidden" style={{ background: 'linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%)' }}>
+      <ChevronSection topShape="v" bottomShape="v" className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20 text-center relative overflow-hidden">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
           <h2 className="text-white text-[2rem] mb-4">Why You Need Both</h2>
           <p className="text-[1.1rem] mb-8 opacity-95">Antivirus and scam protection work differently. Antivirus catches malicious software trying to infect your computer. Scam protection catches the social engineering tricks that bypass antivirus entirely—fake tech support, phishing emails, fraudulent websites. Together, they cover the full range of threats you face online.</p>
@@ -190,7 +190,7 @@ export default function AntivirusPage() {
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
           <h2 className="text-white text-[2rem] mb-4">Get Protected</h2>
           <p className="text-[1.1rem] mb-8 opacity-95">Bring in your computer and we&apos;ll set you up with the protection you need. Installation, configuration, and support—all handled.</p>
-          <Link href="/contact" className="inline-block px-8 py-[0.8rem] rounded-brand-md no-underline font-semibold text-base transition-all duration-normal cursor-pointer border-none text-center whitespace-nowrap bg-white text-primary-600 shadow-brand-md hover:-translate-y-0.5 hover:shadow-brand-lg">Protect My Computer</Link>
+          <Link href="/contact" className="cta-inverse">Protect My Computer</Link>
         </div>
       </ChevronSection>
     </>

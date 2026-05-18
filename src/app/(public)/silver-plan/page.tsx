@@ -44,7 +44,7 @@ export default function ProtectionPlansPage() {
         <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
           <h2 className="text-white text-[2rem] mb-4">Questions About Our Plans?</h2>
           <p className="text-[1.1rem] mb-8 opacity-95">Contact us to find the right protection plan for your needs.</p>
-          <Link href="/contact" className="inline-block px-8 py-4 rounded-brand-md font-semibold text-base transition-all duration-300 cursor-pointer bg-white text-primary-600 shadow-brand-md hover:-translate-y-0.5 hover:shadow-brand-lg">Contact Us</Link>
+          <Link href="/contact" className="cta-inverse">Contact Us</Link>
         </div>
       </ChevronSection>
     </>

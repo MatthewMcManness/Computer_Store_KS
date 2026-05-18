@@ -418,3 +418,59 @@ Currently `mobile-call-button.tsx` uses `btn-outer-glow` keyframes (`globals.css
 - `ProtectionPlansSection.tsx` is fully inline styles in apparent violation of CLAUDE.md (line: "All styling is Tailwind — no CSS modules, no separate stylesheets"). The audit treats this as a polish issue (A9, D12).
 
 — End of audit —
+
+---
+
+## Progress log
+
+### Batch 1 — Completed and deployed 2026-05-18 (commit `56720f8`)
+Items D1, D2, D3, D4 from Section D.
+
+- **D1 — Dead CSS-var sweep.** Removed 16 inline `var(--primary-blue)` and
+  `var(--background-light)` references. Two link `style={{ color: ... }}`
+  references converted to Tailwind classes. Pure cleanup, no visual change.
+- **D2 — Hero `<h2>` → `<h1>` on 19 pages.** Removed the duplicate hidden
+  `<h1>` wrapper around the Header logo (now a plain `<Link>` with
+  `aria-label`). One H1 per page, SEO/a11y compliant.
+- **D3 — Mobile nav on non-homepage routes.** Header now renders on mobile
+  for every page except `/` (which keeps its scroll-morph silver-plaque
+  badge). Hamburger dropdown rounded + aligned to header pill.
+- **D4 — Two CTA component classes.** `.cta-primary` and `.cta-inverse`
+  defined in `globals.css`; ~28 page CTAs swept to use them. Heights
+  standardized (`py-4`). Silver hero button (`.btn-silver`) intentionally
+  preserved.
+
+### Recommended Batch 2 (pre-approved direction, not yet started)
+Items D5, D9, D6 — all high-impact, low-risk, no visual regressions
+expected on the happy path.
+
+- **D5 — Shadow-scale trim.** Replace the 13 box-shadow tokens with 3
+  (`elev-1` / `elev-2` / `elev-3`). Sweep usages. Delete the 10 unused
+  legacy tokens (`shadow-blue-glow`, `shadow-purple-glow`, etc.).
+- **D9 — Extract `<FeatureCard>` and `<NumberedRow>` components.** Replace
+  the 93 duplicated card blocks and ~30 numbered rows. Pure refactor —
+  HTML output unchanged.
+- **D6 — Shrink utility-page heros.** `/contact` and `/reviews` go from
+  `pt-32 pb-48` to `pt-24 pb-24`. Mobile-only momentum gain (~200px less
+  scroll before the form/reviews appear).
+
+### Items queued after Batch 2
+Refer to Section D for full text. Higher-risk or more visually involved:
+- D7 — Section-end "Next:" leading-line cues
+- D8 — Reduce mid-page CTA visual mass (`py-12` + lighter gradient)
+- D10 — Staggered diagonal stats grid on mobile
+- D11 — Featured pill + top-bar on Custom PCs service card
+- D12 — Rewrite `ProtectionPlansSection` to Tailwind-only
+- D13 — Resolve the body-font fight (`next/font/google` vs system stack)
+- D14 — Hide floating Call Now when bottom CTA enters viewport
+- D15 — Downward chevron hint in homepage hero on mobile
+
+### Token additions still queued (Section E)
+- E1 — `elev-1/2/3` shadow tokens (will land with D5)
+- E2 — `section-sm` / `section` / `section-lg` padding scale
+- E3 — `.gradient-momentum` utility
+- E4 — already partially done — `.cta-primary` and `.cta-inverse` exist;
+  consider promoting to use E1 once D5 lands
+- E5 — `.h-hero` / `.h-section` / `.h-card` heading utilities
+- E6 — `--call-glow-color` / `--silver-shine-stops` CSS vars
+

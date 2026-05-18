@@ -8,9 +8,9 @@
 
 ## Current Phase
 
-**Phase 3 — Code refactor complete, awaiting owner-side credentials + Supabase migration to wire up.**
+**Phase 3 — Live in production, blocked on Google's GBP API allowlist approval email.**
 
-Plan approved 2026-05-18. Refresh strategy locked: **lazy refresh inside the GET handler** (Option A). Server-side refactor landed on `Production` branch as commit `<TBD>` (local only, not pushed). All new code passes `npm run type-check` and `npm run build`. Live UI is still wired to the existing client components and falls back to hardcoded reviews until the OAuth flow completes and the GBP allowlist clears.
+OAuth grant is stored in Supabase. Reviews cache is empty (Google returned 429 on first `accounts.list` call — the policy gate for not-yet-allowlisted projects). When Google's approval email arrives, the operator runs one POST to `/api/google-business/refresh` and the cache populates with real reviews. UI still serves the hardcoded fallback reviewer names until that moment, by design.
 
 ---
 
@@ -193,6 +193,11 @@ If we later see issues (e.g., the unlucky-first-visitor latency lands on a high-
 | 2026-05-18 | Owner completed GCP setup §2.1–§2.4 (project `computer-store-ks-reviews`, both APIs enabled, OAuth consent on the new tabbed UI, web Client ID + secret created). Credentials shared via `~/Desktop/TXT.txt`, written into local `.env.local` (gitignored). |
 | 2026-05-18 | Owner filed GBP API allowlist request §2.5. Confirmation screenshot saved to `Pictures/Screenshots`. Now waiting on Google's approval email. |
 | 2026-05-18 | Owner applied Supabase migration §3. Tables `oauth_tokens` and `reviews_cache` now exist. Cache row id=1 seeded with empty array + `'epoch'` fetched_at, ready for first refresh. |
+| 2026-05-18 | All code shipped to `Production` branch. Commits in order: `f77a375` (GBP refactor), `5da0495` (dev-only CSP fix), `d054fe3` (playbook log), `f5c47fe` (callback error split), `f6cb693` (playbook log), `755d2f5` (write-review URL fix). |
+| 2026-05-18 | Render env vars set by owner: `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET`, `GOOGLE_OAUTH_REDIRECT_URI=https://computerstoreks.com/api/google-business/oauth/callback`. Production `/api/google-business/reviews` now returns 502 `upstream` instead of 503 `not_configured`, confirming env vars are live. |
+| 2026-05-18 | Owner ran OAuth connect flow on production. Result: `?gbp=pending`. Token exchange + Supabase write succeeded; only the cache-seed `accounts.list` call hit Google's allowlist gate (429). Refresh token is stored in `oauth_tokens` and ready for use once Google approves. |
+| 2026-05-18 | Write-review CTA on homepage + `/reviews` page swapped from `g.page/r/{cid}/review` (unreliable on mobile) to `https://search.google.com/local/writereview?placeid=ChIJ_3VvYaECv4cRiKpMrSEiMiQ`. Place ID stored in `BUSINESS_INFO.googlePlaceId`; review URL in `BUSINESS_INFO.socialMedia.googleReview`. |
+| 2026-05-18 | **End of day handoff:** everything that can be done before Google's approval is done. Site is live and stable. Hardcoded fallback reviews still showing (intentional). Local dev server stopped. |
 
 ---
 
@@ -214,9 +219,19 @@ If we later see issues (e.g., the unlucky-first-visitor latency lands on a high-
 > If this session ends right now, the next session should do this:
 
 1. Read this file end-to-end.
-2. Read `docs/google-reviews-playbook.md` §1, §2, §3.
-3. Ask Matthew where he stands on **Open Questions #4, #5, #6, #7**.
-4. **If #4 + #6 are done and #7 has Client ID + Secret:** add `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET`, `GOOGLE_OAUTH_REDIRECT_URI=http://localhost:3000/api/google-business/oauth/callback` to local `.env`, run `npm run dev`, log into `/admin`, visit `/api/google-business/oauth/start` to trigger the OAuth flow, and verify the post-callback redirect lands at `/admin?gbp=connected` with the cache populated.
-5. **If #5 (allowlist) is still pending:** the OAuth flow will succeed but `/api/google-business/refresh` will return 502 with a Google API "permission denied" error. Document that in the playbook §9. Don't treat it as a blocker — the code is correct; we're just waiting on Google.
-6. **Once live data is verified on the dev server:** plan and present the Server Component conversion + hardcoded fallback removal. That goes in a separate commit after Matthew confirms the integration works end-to-end.
-7. Do NOT push to Production. All commits are local-only until Matthew explicitly approves a push.
+2. Read `docs/google-reviews-playbook.md` §9 (errors list — useful diagnostic history).
+3. Ask Matthew: has Google's GBP API allowlist approval email arrived yet?
+4. **If yes — approval received:**
+   - In a browser tab logged into `/admin` on production, open dev tools console and run:
+     ```js
+     fetch('/api/google-business/refresh', {method: 'POST'})
+       .then(r => r.json()).then(console.log)
+     ```
+   - Should return `{"success":true,"data":{"reviewCount":<N>,"stats":{...}}}` with a real review count.
+   - Then probe https://computerstoreks.com/api/google-business/reviews — should now return real reviews instead of 502.
+   - Verify the homepage `<ReviewsWidget />` and `/reviews` page now show real customer names and review text (not the hardcoded `Kristina Jones` / `Matt Thompson` set).
+   - **Then plan + execute Phase 4:** convert `ReviewsWidget` and `ReviewsDisplay` to Server Components, remove the hardcoded fallback reviewer-name lists from both files (per the owner's explicit instruction back in Phase 0). Separate commit.
+5. **If no — still waiting:**
+   - Nothing to do code-side. Confirm everything is healthy by probing https://computerstoreks.com/api/google-business/reviews — it should keep returning 502 `upstream`. That's fine; means OAuth is set up correctly and we're still waiting on Google.
+   - If the owner wants belt-and-suspenders, this is the moment to layer in Option B (UptimeRobot daily ping to `/api/google-business/refresh`) — but only after Google approves and the lazy refresh path is proven working.
+6. Do NOT touch the GBP code until the approval email lands. Don't speculatively retry the OAuth flow either — the grant is already saved; another consent screen just upserts the same row.

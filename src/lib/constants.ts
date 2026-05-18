@@ -84,9 +84,17 @@ export const BUSINESS_INFO = {
     saturday: { open: '10:00', close: '14:00', closed: false },
     sunday: { open: '', close: '', closed: true },
   },
+  // Google Place ID — looked up via the official Place ID Finder.
+  // Used to build the cross-device-reliable write-review URL below.
+  googlePlaceId: 'ChIJ_3VvYaECv4cRiKpMrSEiMiQ',
   socialMedia: {
     facebook: 'https://facebook.com/computerstoreks',
     google: 'https://g.page/computerstoreks',
+    // Direct link to the write-review form. Works reliably on mobile
+    // and desktop; unlike `g.page/r/{cid}/review` which often lands
+    // on the business listing instead of the review form on phones.
+    googleReview:
+      'https://search.google.com/local/writereview?placeid=ChIJ_3VvYaECv4cRiKpMrSEiMiQ',
   },
   geo: {
     latitude: 39.0312,

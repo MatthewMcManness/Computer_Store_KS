@@ -7,6 +7,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ReviewsDisplay } from '@/components/reviews/ReviewsDisplay';
 import { ChevronSection } from '@/components/static/ChevronSection';
+import { BUSINESS_INFO } from '@/lib/constants';
 
 export const metadata: Metadata = {
   title: 'Customer Reviews - Computer Store Kansas',
@@ -46,7 +47,7 @@ export default function ReviewsPage() {
           <h2 className="text-white text-[2rem] mb-4">Had a Great Experience?</h2>
           <p className="text-[1.1rem] mb-8 opacity-95">We&apos;d love to hear from you! Leave us a review on Google.</p>
           <a
-            href="https://g.page/r/CQdWo7o2FwEZEAE/review"
+            href={BUSINESS_INFO.socialMedia.googleReview}
             target="_blank"
             rel="noopener noreferrer"
             className="cta-inverse"

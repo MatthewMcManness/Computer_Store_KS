@@ -10,6 +10,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
+import { BUSINESS_INFO } from '@/lib/constants';
 import type { DisplayReview } from '@/types/google-business';
 
 // Fallback reviews when API is not configured
@@ -231,7 +232,7 @@ export function ReviewsWidget({ maxReviews = 6 }: ReviewsWidgetProps) {
             </div>
           </div>
           <a
-            href="https://g.page/r/CQdWo7o2FwEZEAE/review"
+            href={BUSINESS_INFO.socialMedia.googleReview}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-block py-3 px-6 bg-primary-600 text-white border-none rounded-brand-sm font-semibold text-base no-underline cursor-pointer transition-colors duration-normal hover:bg-primary-800"

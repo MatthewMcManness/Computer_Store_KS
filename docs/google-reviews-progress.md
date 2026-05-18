@@ -8,9 +8,9 @@
 
 ## Current Phase
 
-**Phase 2 — Implementation plan drafted, awaiting owner approval.**
+**Phase 3 — Owner running setup steps (Google Cloud Console + Supabase migration).**
 
-No code has been changed since the original Places API stub. Both `docs/google-reviews-progress.md` and `docs/google-reviews-playbook.md` exist as the durable handoff.
+Plan approved 2026-05-18. Refresh strategy locked: **lazy refresh inside the GET handler** (Option A). No code touched yet. Code refactor begins after Step 1 + Step 2 are complete (owner needs to provide OAuth Client ID + Secret and confirm Supabase tables exist).
 
 ---
 
@@ -22,6 +22,7 @@ No code has been changed since the original Places API stub. Both `docs/google-r
 | GBP access level | `contact@computerstoreks.com` is a **manager** on the shop's Google Business Profile | OAuth flow will work — no need to ask the actual owner for credential handoff. |
 | Hardcoded fallback reviews (`Kristina Jones`, etc.) | **Remove only after** live integration is confirmed working | Currently shown to all site visitors. Misrepresentation risk acknowledged; removal scheduled for after Phase 3 verification. |
 | API surface | **Fully migrate to GBP API** | Drop Places API entirely. Existing `src/lib/google-business.ts` will be refactored / split. |
+| Refresh strategy | **Option A — lazy refresh inside the GET handler** | No cron, no external scheduler. First visitor after cache age > 24h triggers the Google fetch. ~1–3s latency for that one visitor; everyone else gets instant cached response. Zero dependency on PC, GitHub, UptimeRobot, or Render cron. Belt-and-suspenders Option B (UptimeRobot daily ping) can be added later in ~60 seconds if needed. |
 
 ---
 
@@ -137,9 +138,15 @@ Old `src/lib/google-business.ts` → deleted. Old Places types in `src/types/goo
 - `ReviewsWidget.tsx` — split into `ReviewsWidget.server.tsx` (data fetch) + `ReviewsWidgetCarousel.tsx` (`'use client'` for the prev/next pagination only).
 - `ReviewsDisplay.tsx` — Server Component; pagination inside `/reviews` page can be query-param-driven (`?page=2`) so no client interactivity is needed at all.
 
-#### Step 7 — Cache refresh strategy
-- **Render cron job** (`render.yaml`): once daily at 03:00 America/Chicago → `POST /api/google-business/refresh` with bearer token from env var. Render free tier supports cron jobs separate from the web service.
-- If owner prefers no cron: fall back to "refresh on cache age > 24h" lazy refresh inside the GET handler (cheaper but inconsistent for first visitor each day).
+#### Step 7 — Cache refresh strategy *(decided: lazy refresh)*
+
+`GET /api/google-business/reviews` reads the `reviews_cache` row. If `fetched_at` is older than 24 hours, the handler fetches fresh data from Google, writes the new cache row, and returns the fresh data. Otherwise it returns cached data immediately.
+
+No external scheduler. The cost is ~1–3 seconds of latency for one visitor per day (the first one to hit after the 24h boundary). For Computer Store KS's traffic, this is invisible.
+
+If we later see issues (e.g., the unlucky-first-visitor latency lands on a high-value moment), we layer in UptimeRobot Option B — a daily HTTPS ping to `/api/google-business/refresh` at 3 AM Central — which moves the latency off the visitor path entirely. That add-on is ~60 seconds of setup and zero code change.
+
+**Burst-protection consideration:** if two visitors happen to land within the same millisecond and both see stale cache, both will try to refresh. For this site's traffic that is essentially impossible, so we ignore it in v1. If it ever becomes an issue, add a `refreshing_until timestamptz` column to `reviews_cache` and gate refreshes on `now() > refreshing_until`.
 
 #### Step 8 — Testing checklist (Phase 3 exit gate)
 - [ ] OAuth flow completes end-to-end with manager account.
@@ -162,10 +169,13 @@ Old `src/lib/google-business.ts` → deleted. Old Places types in `src/types/goo
 
 | # | Item | Owner | Status |
 | --- | --- | --- | --- |
-| 1 | Approve the implementation plan above | Matthew | **OPEN** |
-| 2 | Run Google Cloud Console steps + file allowlist request | Matthew | not started — gated by #1 |
-| 3 | Approve creation of two new Supabase tables | Matthew | not started — gated by #1 |
-| 4 | Provide bearer token value for cron refresh route (or accept generated UUID) | Matthew | not started |
+| 1 | Approve the implementation plan above | Matthew | ✅ approved 2026-05-18 |
+| 2 | Approve creation of two Supabase tables | Matthew | ✅ approved 2026-05-18 |
+| 3 | Approve refresh strategy | Matthew | ✅ Option A (lazy) approved 2026-05-18 |
+| 4 | Run Google Cloud Console steps (project, APIs, OAuth consent, Client ID) | Matthew | **NEXT** — instructions in playbook §2 |
+| 5 | File the Business Profile API allowlist request | Matthew | **NEXT** — instructions in playbook §1.5 |
+| 6 | Run the Supabase SQL migration (two new tables) | Matthew | **NEXT** — SQL in playbook §3 |
+| 7 | Provide Client ID + Client Secret + redirect URI back to Claude for env var values | Matthew | gated by #4 |
 
 ---
 
@@ -176,6 +186,8 @@ Old `src/lib/google-business.ts` → deleted. Old Places types in `src/types/goo
 | 2026-05-18 | Phase 0 audit complete. Confirmed: GBP API path, manager-level access, full migration. |
 | 2026-05-18 | Phase 1 progress + playbook docs created. |
 | 2026-05-18 | Phase 2 implementation plan drafted. |
+| 2026-05-18 | Plan approved. Cron strategy decided (Option A — lazy refresh). |
+| 2026-05-18 | Phase 3 Step 1 instructions handed off to owner (GCP setup + allowlist + Supabase SQL). |
 
 ---
 
@@ -188,6 +200,7 @@ Old `src/lib/google-business.ts` → deleted. Old Places types in `src/types/goo
 | 2026-05-18 | Cache in Supabase, not in-memory | Render free tier cold-starts kill in-memory state. Supabase row gives durable, single-roundtrip cache. |
 | 2026-05-18 | Server Components for both reviews UIs | Reviews end up in SSR HTML → SEO benefit + faster paint. Pagination can be query-param-based, removing the need for client state. |
 | 2026-05-18 | Deterministic day-seeded rotation | Cheap, no DB write needed each request, reviewers see variety without staleness. |
+| 2026-05-18 | Option A (lazy refresh) over cron-based refresh | Owner concern: PC must not be in the loop (laptop may be wiped). Lazy refresh runs entirely inside the existing Next.js app on Render. No new services, no new accounts, no PC dependency. Trades ~1–3s latency for one visitor per day, which is acceptable at this traffic level. |
 
 ---
 
@@ -196,8 +209,9 @@ Old `src/lib/google-business.ts` → deleted. Old Places types in `src/types/goo
 > If this session ends right now, the next session should do this:
 
 1. Read this file end-to-end.
-2. Read `docs/google-reviews-playbook.md` for any gotchas already captured.
-3. Check whether Matthew has answered Open Question #1 (plan approval) in the latest conversation.
-4. **If approved:** start Phase 3 Step 1 by providing Matthew the click-by-click Google Cloud Console + allowlist application instructions (drawn from playbook §1 + §2).
-5. **If not approved:** answer Matthew's feedback on the plan, revise the plan in this doc, re-present.
-6. Do NOT touch code until plan approval lands.
+2. Read `docs/google-reviews-playbook.md` §1, §2, §3 (the live instructions).
+3. Ask Matthew where he stands on **Open Questions #4, #5, #6** (GCP setup, allowlist filing, Supabase migration). Each is independent and can have its own status.
+4. **If #4 (GCP) is done:** ask Matthew for the Client ID, Client Secret, and the redirect URIs he registered. Add them to the progress doc.
+5. **If #6 (Supabase migration) is done:** confirm by reading `oauth_tokens` and `reviews_cache` tables (e.g., a probe query through the Supabase MCP if available, or asking Matthew to confirm).
+6. **Once all three external steps are done:** begin the code refactor — start with `src/lib/google-business/oauth.ts` and `cache.ts`, since those don't need the GBP allowlist to function. Reviews fetch (`reviews.ts`) can be coded but cannot be tested live until the allowlist clears.
+7. Do NOT touch code until at least one of #4/#5/#6 confirms in progress and Matthew explicitly says "start the refactor."

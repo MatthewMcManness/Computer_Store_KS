@@ -15,7 +15,7 @@ const locationKeys = Object.keys(LOCATIONS) as Array<keyof typeof LOCATIONS>;
 /** Renders the site footer with store locations, hours, and credits. */
 export function Footer() {
   return (
-    <footer className="bg-gray-900 text-white text-center py-8 text-sm">
+    <footer className="bg-gray-900 text-white text-center pt-8 pb-32 md:pb-8 text-sm">
       <div className="flex flex-col items-center gap-4 w-[90%] max-w-[1200px] mx-auto px-4">
         <div className="flex justify-center mb-4 max-[600px]:flex-col max-[600px]:items-center max-[600px]:gap-6">
           {locationKeys.map((key, i) => {

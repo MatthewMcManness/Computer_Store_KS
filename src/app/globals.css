@@ -150,6 +150,7 @@
   }
 
   .cs-top-v {
+    position: relative;
     clip-path: polygon(
       0 0,
       50% var(--chevron-depth),
@@ -158,11 +159,34 @@
       0 100%
     );
     margin-top: calc(-1 * var(--chevron-depth));
-    /* Inset depth cue just below the V notch — reads as the previous
-       section's chevron edge casting a soft shadow onto this one. The
-       clip-path naturally hides the part above the notch line. */
-    box-shadow: inset 0 calc(var(--chevron-depth) * 1.2)
-      calc(var(--chevron-depth) * 0.55) rgba(0, 0, 0, 0.18);
+  }
+
+  /* Chevron-shaped shadow band that hugs the V edge, simulating the
+     previous section's V tail casting a shadow onto this section. The
+     parent's V clip-path crops the top edge into a V; this pseudo's own
+     clip-path crops the bottom edge into a parallel V offset down by the
+     band's thickness — yielding a uniform-thickness chevron strip. The
+     vertical gradient fades the band away from the V edge inward. */
+  .cs-top-v::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: calc(var(--chevron-depth) * 1.8);
+    pointer-events: none;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.30),
+      rgba(0, 0, 0, 0)
+    );
+    clip-path: polygon(
+      0 0,
+      100% 0,
+      100% calc(var(--chevron-depth) * 0.8),
+      50% calc(var(--chevron-depth) * 1.8),
+      0 calc(var(--chevron-depth) * 0.8)
+    );
   }
 
   .cs-top-v.cs-bottom-v {

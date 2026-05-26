@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Computer Store KS — Editorial / Magazine</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --blue-600:#2563eb; --blue-700:#1d4ed8; --blue-800:#1e40af; --blue-500:#3b82f6;
+    --blue-50:#eff6ff; --blue-100:#dbeafe;
+    --ink:#0a0a0a; --muted:#737373;
+    --bg:#f8f9fb; --panel:#f0f2f5;
+    --green:#10b981; --green-d:#059669;
+  }
+  html,body{background:#fafaf7;color:var(--ink);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  .serif{font-family:'Instrument Serif',Georgia,serif;font-weight:400;letter-spacing:-.01em}
+  .italic-serif{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-weight:400}
+  .num{font-feature-settings:"tnum","ss01";font-variant-numeric:tabular-nums}
+  .rule{height:1px;background:var(--ink);opacity:.9}
+  .hair{height:1px;background:rgba(10,10,10,.15)}
+  .leader{flex:1;border-bottom:1.5px dotted rgba(10,10,10,.35);margin:0 .9rem;transform:translateY(-.35em)}
+  .smcaps{text-transform:uppercase;letter-spacing:.18em;font-weight:600;font-size:11px}
+  .smcaps-lg{text-transform:uppercase;letter-spacing:.22em;font-weight:600;font-size:12px}
+  .underline-blue{box-shadow:inset 0 -.35em 0 var(--blue-100)}
+  /* photo placeholders */
+  .photo{background-size:cover;background-position:center;background-color:#e7e5e0}
+  .ph-hero{background-image:url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1600&q=80')}
+  .ph-bench{background-image:url('https://images.unsplash.com/photo-1597852074816-d933c7d2b988?auto=format&fit=crop&w=1200&q=80')}
+  .ph-pc{background-image:url('https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&w=1200&q=80')}
+  .ph-laptop{background-image:url('https://images.unsplash.com/photo-1611078489935-0cb964de46d6?auto=format&fit=crop&w=1200&q=80')}
+  .ph-shop{background-image:url('https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?auto=format&fit=crop&w=1200&q=80')}
+  /* link arrow */
+  .a-link{display:inline-flex;align-items:baseline;gap:.45rem;border-bottom:1px solid currentColor;padding-bottom:2px}
+  .a-link:hover{color:var(--blue-700)}
+  /* drop cap */
+  .dropcap::first-letter{font-family:'Instrument Serif',serif;font-size:5.5em;line-height:.82;float:left;padding:.08em .15em 0 0;color:var(--blue-700)}
+  /* responsive note */
+  @media (max-width:640px){ .serif-hero{font-size:14vw !important;line-height:.95 !important} }
+</style>
+</head>
+<body class="text-[15px] leading-relaxed">
+
+<!-- =================== HEADER COMMENT BOX =================== -->
+<aside class="sticky top-0 z-50 bg-[#0a0a0a] text-white text-[12.5px]">
+  <div class="max-w-[1280px] mx-auto px-6 py-2.5 grid grid-cols-12 gap-4 items-start">
+    <div class="col-span-12 md:col-span-3 flex items-center gap-3">
+      <span class="smcaps text-[var(--blue-500)]">Direction 01</span>
+      <span class="serif text-2xl leading-none">Editorial</span>
+    </div>
+    <div class="col-span-12 md:col-span-4 text-white/80"><span class="italic-serif text-[15px]">"A confident, typographic local business — the New Yorker of computer shops."</span></div>
+    <div class="col-span-6 md:col-span-3 text-white/70"><span class="smcaps text-white/50 block mb-1">3 moves</span>Asymmetric 12-col · Oversized italic serif H1 · Table-of-contents service index w/ leader dots</div>
+    <div class="col-span-6 md:col-span-2 text-white/70"><span class="smcaps text-white/50 block mb-1">Translates to</span>About, Team bios, Service detail, Blog/Knowledge base</div>
+  </div>
+</aside>
+
+<!-- =================== NAV =================== -->
+<header class="border-b border-black/10">
+  <div class="max-w-[1280px] mx-auto px-6 py-5 flex items-center justify-between">
+    <a href="#" class="flex items-center gap-3">
+      <img src="csk-logo.svg" alt="Computer Store KS" class="h-9">
+    </a>
+    <nav class="hidden md:flex items-center gap-9 text-[14px]">
+      <a href="#services" class="hover:text-[var(--blue-700)]">Services</a>
+      <a href="#pcs" class="hover:text-[var(--blue-700)]">In-Store PCs</a>
+      <a href="#why" class="hover:text-[var(--blue-700)]">Why us</a>
+      <a href="#" class="hover:text-[var(--blue-700)]">Journal</a>
+      <a href="#" class="hover:text-[var(--blue-700)]">Visit</a>
+    </nav>
+    <a href="tel:7855550199" class="hidden md:inline-flex items-center gap-2 text-[14px] font-medium">
+      <span class="w-1.5 h-1.5 rounded-full bg-[var(--green)] inline-block"></span>
+      Open · (785) 555-0199
+    </a>
+    <button class="md:hidden text-2xl leading-none">≡</button>
+  </div>
+</header>
+
+<!-- =================== HERO =================== -->
+<section class="border-b border-black/10">
+  <div class="max-w-[1280px] mx-auto px-6 pt-10 md:pt-14 pb-16 md:pb-24">
+    <!-- masthead row -->
+    <div class="flex items-baseline justify-between mb-10 md:mb-14">
+      <div class="smcaps-lg">Vol. 18 · Topeka, Kansas · Established 2007</div>
+      <div class="smcaps-lg hidden md:block">Issue No. 037 — May 2026</div>
+    </div>
+
+    <div class="grid grid-cols-12 gap-6 md:gap-10">
+      <!-- Left: huge serif headline (col 1-7) -->
+      <div class="col-span-12 md:col-span-7">
+        <div class="smcaps text-[var(--blue-700)] mb-6">A field guide to fixing what's broken</div>
+        <h1 class="serif serif-hero text-[88px] md:text-[128px] leading-[.92] tracking-[-.02em]">
+          Your computer<br>
+          <span class="italic-serif">is not</span> a<br>
+          mystery.<span class="text-[var(--blue-700)]">_</span>
+        </h1>
+        <p class="mt-10 max-w-[46ch] text-[17px] text-[var(--ink)]/80 leading-[1.55] dropcap">
+          For nineteen years we have repaired, rebuilt, and refused to throw away
+          the machines that the rest of Topeka was told to replace. We open the case.
+          We write down what we find. We tell you the truth, then we fix it — usually
+          the same day, almost always for under two hundred dollars.
+        </p>
+        <div class="mt-9 flex flex-wrap items-center gap-5">
+          <a href="#services" class="inline-flex items-center gap-3 bg-[var(--ink)] text-white px-6 py-3.5 text-[14px] font-medium hover:bg-[var(--blue-700)] transition">
+            Book a diagnostic — $39 <span>→</span>
+          </a>
+          <a href="#pcs" class="a-link text-[14px] font-medium">Read this week's bench notes</a>
+        </div>
+      </div>
+
+      <!-- Right: photo + caption + sidebar (col 8-12) -->
+      <aside class="col-span-12 md:col-span-5">
+        <div class="ph-hero photo aspect-[4/5] w-full"></div>
+        <p class="mt-3 text-[12.5px] text-[var(--muted)] italic-serif">Fig. 01 — A 2019 ThinkPad with a failed NVMe, photographed minutes before recovery. Bench 3, Tuesday.</p>
+
+        <div class="hair my-7"></div>
+
+        <div class="grid grid-cols-2 gap-x-6 gap-y-5">
+          <div>
+            <div class="serif text-[40px] leading-none num">19</div>
+            <div class="text-[12.5px] text-[var(--muted)] mt-1">Years on Wanamaker Rd</div>
+          </div>
+          <div>
+            <div class="serif text-[40px] leading-none num">4.9<span class="text-[var(--muted)] text-[20px] align-top">★</span></div>
+            <div class="text-[12.5px] text-[var(--muted)] mt-1">Google, 612 reviews</div>
+          </div>
+          <div>
+            <div class="serif text-[40px] leading-none num">94<span class="text-[var(--muted)] text-[20px]">%</span></div>
+            <div class="text-[12.5px] text-[var(--muted)] mt-1">Repairs finished same day</div>
+          </div>
+          <div>
+            <div class="serif text-[40px] leading-none num">$0</div>
+            <div class="text-[12.5px] text-[var(--muted)] mt-1">Quote with no commitment</div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- =================== SERVICES — TABLE OF CONTENTS (the risk) =================== -->
+<section id="services" class="border-b border-black/10 bg-[#fafaf7]">
+  <div class="max-w-[1280px] mx-auto px-6 py-20 md:py-28">
+    <div class="grid grid-cols-12 gap-6 md:gap-10 items-end mb-10 md:mb-16">
+      <div class="col-span-12 md:col-span-7">
+        <div class="smcaps text-[var(--blue-700)] mb-4">§ 01 — Services</div>
+        <h2 class="serif text-[56px] md:text-[88px] leading-[.95] tracking-[-.02em]">
+          What we work on,<br><span class="italic-serif">in order</span> of how often you ask.
+        </h2>
+      </div>
+      <div class="col-span-12 md:col-span-4 md:col-start-9 text-[15px] text-[var(--ink)]/80">
+        Every job opens with a written diagnostic. You get a fixed price before we touch
+        the machine — and a one-page invoice that names every part by manufacturer and SKU.
+      </div>
+    </div>
+
+    <!-- table of contents — leader dotted -->
+    <ol class="border-t border-black/80">
+      <!-- row template -->
+      <li class="grid grid-cols-12 items-baseline gap-4 py-6 border-b border-black/15 group hover:bg-white transition">
+        <div class="col-span-1 num text-[var(--muted)] text-[14px]">01</div>
+        <div class="col-span-11 md:col-span-5 flex items-baseline">
+          <span class="serif text-[34px] md:text-[44px] leading-none underline-blue">Laptop repair</span>
+        </div>
+        <div class="hidden md:flex col-span-4 items-baseline text-[var(--muted)] text-[13.5px]">
+          Screens, hinges, keyboards, batteries, liquid damage
+        </div>
+        <div class="col-span-6 md:col-span-1 num text-[15px]">from $89</div>
+        <div class="col-span-6 md:col-span-1 text-right text-[13px] text-[var(--muted)]">same-day →</div>
+      </li>
+
+      <li class="grid grid-cols-12 items-baseline gap-4 py-6 border-b border-black/15 group hover:bg-white transition">
+        <div class="col-span-1 num text-[var(--muted)] text-[14px]">02</div>
+        <div class="col-span-11 md:col-span-5"><span class="serif text-[34px] md:text-[44px] leading-none">Desktop repair</span></div>
+        <div class="hidden md:flex col-span-4 text-[var(--muted)] text-[13.5px]">PSU swaps, mobo diagnostics, thermal paste, cable mgmt</div>
+        <div class="col-span-6 md:col-span-1 num text-[15px]">from $69</div>
+        <div class="col-span-6 md:col-span-1 text-right text-[13px] text-[var(--muted)]">24–48h →</div>
+      </li>
+
+      <li class="grid grid-cols-12 items-baseline gap-4 py-6 border-b border-black/15 group hover:bg-white transition">
+        <div class="col-span-1 num text-[var(--muted)] text-[14px]">03</div>
+        <div class="col-span-11 md:col-span-5"><span class="serif text-[34px] md:text-[44px] leading-none">Virus &amp; malware removal</span></div>
+        <div class="hidden md:flex col-span-4 text-[var(--muted)] text-[13.5px]">Full triage, password reset, family training included</div>
+        <div class="col-span-6 md:col-span-1 num text-[15px]">$119 flat</div>
+        <div class="col-span-6 md:col-span-1 text-right text-[13px] text-[var(--muted)]">same-day →</div>
+      </li>
+
+      <li class="grid grid-cols-12 items-baseline gap-4 py-6 border-b border-black/15 group hover:bg-white transition">
+        <div class="col-span-1 num text-[var(--muted)] text-[14px]">04</div>
+        <div class="col-span-11 md:col-span-5"><span class="serif text-[34px] md:text-[44px] leading-none italic-serif">Data recovery</span></div>
+        <div class="hidden md:flex col-span-4 text-[var(--muted)] text-[13.5px]">Clicked drives, dropped SSDs, accidental formats — Class 100 partner lab</div>
+        <div class="col-span-6 md:col-span-1 num text-[15px]">from $249</div>
+        <div class="col-span-6 md:col-span-1 text-right text-[13px] text-[var(--muted)]">3–7 days →</div>
+      </li>
+
+      <li class="grid grid-cols-12 items-baseline gap-4 py-6 border-b border-black/15 group hover:bg-white transition">
+        <div class="col-span-1 num text-[var(--muted)] text-[14px]">05</div>
+        <div class="col-span-11 md:col-span-5"><span class="serif text-[34px] md:text-[44px] leading-none">Custom PC builds</span></div>
+        <div class="hidden md:flex col-span-4 text-[var(--muted)] text-[13.5px]">Spec'd with you in person · stress-tested 24 hrs before pickup</div>
+        <div class="col-span-6 md:col-span-1 num text-[15px]">from $899</div>
+        <div class="col-span-6 md:col-span-1 text-right text-[13px] text-[var(--muted)]">10–14 days →</div>
+      </li>
+
+      <li class="grid grid-cols-12 items-baseline gap-4 py-6 border-b border-black/15 group hover:bg-white transition">
+        <div class="col-span-1 num text-[var(--muted)] text-[14px]">06</div>
+        <div class="col-span-11 md:col-span-5"><span class="serif text-[34px] md:text-[44px] leading-none">Linux installs</span></div>
+        <div class="hidden md:flex col-span-4 text-[var(--muted)] text-[13.5px]">Mint, Fedora, Pop!_OS — dual-boot or migration from Windows</div>
+        <div class="col-span-6 md:col-span-1 num text-[15px]">$89</div>
+        <div class="col-span-6 md:col-span-1 text-right text-[13px] text-[var(--muted)]">same-day →</div>
+      </li>
+
+      <li class="grid grid-cols-12 items-baseline gap-4 py-6 group hover:bg-white transition">
+        <div class="col-span-1 num text-[var(--muted)] text-[14px]">07</div>
+        <div class="col-span-11 md:col-span-5"><span class="serif text-[34px] md:text-[44px] leading-none">Hardware upgrades</span></div>
+        <div class="hidden md:flex col-span-4 text-[var(--muted)] text-[13.5px]">RAM, SSD, GPU, CPU — old machines made new again</div>
+        <div class="col-span-6 md:col-span-1 num text-[15px]">from $49</div>
+        <div class="col-span-6 md:col-span-1 text-right text-[13px] text-[var(--muted)]">same-day →</div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- =================== IN-STORE PCS PREVIEW (asymmetric) =================== -->
+<section id="pcs" class="border-b border-black/10">
+  <div class="max-w-[1280px] mx-auto px-6 py-20 md:py-28">
+    <div class="grid grid-cols-12 gap-6 md:gap-10 mb-10 md:mb-14">
+      <div class="col-span-12 md:col-span-6">
+        <div class="smcaps text-[var(--blue-700)] mb-4">§ 02 — From the showroom floor</div>
+        <h2 class="serif text-[52px] md:text-[80px] leading-[.95] tracking-[-.02em]">
+          Three machines<br>
+          we built <span class="italic-serif">this week.</span>
+        </h2>
+      </div>
+      <div class="col-span-12 md:col-span-5 md:col-start-8 self-end text-[15px] text-[var(--ink)]/80">
+        Every PC on the wall was assembled in the back room, photographed at sunset
+        through the front window, and burned-in for a full day before its tag went up.
+        <a href="#" class="a-link mt-3 inline-flex">See all 14 in stock</a>
+      </div>
+    </div>
+
+    <!-- 12-col asymmetric grid: 1 large left + 2 stacked right + 1 wide bottom -->
+    <div class="grid grid-cols-12 gap-6 md:gap-8">
+      <!-- big card left -->
+      <article class="col-span-12 md:col-span-7 group">
+        <div class="ph-pc photo aspect-[4/3] w-full"></div>
+        <div class="mt-5 flex items-start justify-between gap-6">
+          <div>
+            <div class="smcaps text-[var(--blue-700)] mb-1">Editor's pick</div>
+            <h3 class="serif text-[40px] md:text-[52px] leading-none">The Kaw <span class="italic-serif">— a workhorse</span></h3>
+            <p class="mt-3 text-[14.5px] text-[var(--muted)] max-w-[52ch]">Ryzen 7 7700 · 32GB DDR5 · RTX 4070 · 2TB NVMe · Fractal North case in oak. Quiet enough for a home office, fast enough for After Effects.</p>
+          </div>
+          <div class="text-right shrink-0">
+            <div class="serif text-[44px] leading-none num">$1,649</div>
+            <div class="text-[12px] text-[var(--muted)] num mt-1">or $137/mo · 0% APR</div>
+          </div>
+        </div>
+      </article>
+
+      <!-- two small right -->
+      <div class="col-span-12 md:col-span-5 grid grid-cols-1 gap-6 md:gap-8">
+        <article class="group">
+          <div class="ph-laptop photo aspect-[16/10] w-full"></div>
+          <div class="mt-4 flex items-baseline justify-between gap-4">
+            <div>
+              <h3 class="serif text-[28px] leading-none">The Topekan</h3>
+              <p class="text-[13px] text-[var(--muted)] mt-1.5">Refurb ThinkPad T14 · i7 · 16GB · 90-day warranty</p>
+            </div>
+            <div class="serif num text-[26px]">$489</div>
+          </div>
+        </article>
+        <article class="group">
+          <div class="ph-bench photo aspect-[16/10] w-full"></div>
+          <div class="mt-4 flex items-baseline justify-between gap-4">
+            <div>
+              <h3 class="serif text-[28px] leading-none">The Quiet One</h3>
+              <p class="text-[13px] text-[var(--muted)] mt-1.5">Mini ITX · Ryzen 5 · 16GB · fanless · perfect HTPC</p>
+            </div>
+            <div class="serif num text-[26px]">$729</div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== WHY US — PULL QUOTE + COLUMNS =================== -->
+<section id="why" class="border-b border-black/10 bg-[#f0f2f5]">
+  <div class="max-w-[1280px] mx-auto px-6 py-20 md:py-28">
+    <div class="grid grid-cols-12 gap-6 md:gap-10">
+      <div class="col-span-12 md:col-span-5">
+        <div class="smcaps text-[var(--blue-700)] mb-6">§ 03 — Why us</div>
+        <blockquote class="serif text-[44px] md:text-[60px] leading-[1] tracking-[-.02em]">
+          <span class="italic-serif text-[var(--blue-700)]">"</span>They told me my hard
+          drive was dead. CSK pulled <span class="italic-serif">eleven years</span> of
+          photos off it in a weekend.<span class="italic-serif text-[var(--blue-700)]">"</span>
+        </blockquote>
+        <div class="mt-7 flex items-center gap-3">
+          <div class="w-11 h-11 rounded-full bg-[var(--blue-100)] flex items-center justify-center text-[var(--blue-700)] font-semibold">DR</div>
+          <div>
+            <div class="font-semibold text-[14px]">Dana R.</div>
+            <div class="text-[12.5px] text-[var(--muted)]">College Hill · customer since 2019</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-span-12 md:col-span-6 md:col-start-7 grid grid-cols-2 gap-x-8 gap-y-10">
+        <div>
+          <div class="serif text-[44px] leading-none">No-fix,<br><span class="italic-serif">no fee.</span></div>
+          <p class="text-[14px] text-[var(--ink)]/80 mt-3 leading-[1.6]">If we can't repair it, you don't pay the labor. We've held to this since 2007 and we are not breaking the streak now.</p>
+        </div>
+        <div>
+          <div class="serif text-[44px] leading-none">90-day<br><span class="italic-serif">warranty.</span></div>
+          <p class="text-[14px] text-[var(--ink)]/80 mt-3 leading-[1.6]">Every repair and every refurb is covered for ninety days, parts and labor, no asterisks.</p>
+        </div>
+        <div>
+          <div class="serif text-[44px] leading-none">Local<br><span class="italic-serif">technicians.</span></div>
+          <p class="text-[14px] text-[var(--ink)]/80 mt-3 leading-[1.6]">Four full-time techs. One of them lives within a mile of the shop. They are not a call center.</p>
+        </div>
+        <div>
+          <div class="serif text-[44px] leading-none">Honest<br><span class="italic-serif">paperwork.</span></div>
+          <p class="text-[14px] text-[var(--ink)]/80 mt-3 leading-[1.6]">A one-page invoice. Every part named. Every hour accounted for. You take the receipt home and it makes sense.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== CTA =================== -->
+<section class="bg-white">
+  <div class="max-w-[1280px] mx-auto px-6 py-24 md:py-36">
+    <div class="grid grid-cols-12 gap-6 md:gap-10 items-end">
+      <div class="col-span-12 md:col-span-8">
+        <div class="smcaps text-[var(--blue-700)] mb-6">§ 04 — Visit</div>
+        <h2 class="serif text-[64px] md:text-[112px] leading-[.92] tracking-[-.025em]">
+          Bring it in.<br>
+          <span class="italic-serif text-[var(--blue-700)]">We'll take a look.</span>
+        </h2>
+        <p class="mt-8 text-[17px] max-w-[44ch] text-[var(--ink)]/80">
+          Walk-ins welcome between 9 and 6, Monday through Saturday.
+          Drop your machine at the front desk and we'll write up a diagnostic
+          before you finish your coffee at Pizagel's next door.
+        </p>
+        <div class="mt-10 flex flex-wrap gap-4">
+          <a href="#" class="inline-flex items-center gap-3 bg-[var(--ink)] text-white px-7 py-4 text-[14px] font-medium hover:bg-[var(--blue-700)] transition">Book a drop-off <span>→</span></a>
+          <a href="tel:7855550199" class="inline-flex items-center gap-3 border border-[var(--ink)] px-7 py-4 text-[14px] font-medium hover:bg-[var(--ink)] hover:text-white transition">Call (785) 555-0199</a>
+        </div>
+      </div>
+      <aside class="col-span-12 md:col-span-4 md:col-start-9 text-[14px] leading-[1.7]">
+        <div class="hair mb-5"></div>
+        <div class="smcaps text-[var(--muted)] mb-3">The shop</div>
+        <p>2110 SW Wanamaker Rd, Suite C<br>Topeka, KS 66614</p>
+        <div class="smcaps text-[var(--muted)] mt-6 mb-3">Hours</div>
+        <p>Mon–Fri · 9 am – 6 pm<br>Sat · 10 am – 4 pm<br>Sun · closed</p>
+        <div class="smcaps text-[var(--muted)] mt-6 mb-3">After hours</div>
+        <p>Locker drop-off in the vestibule.<br>Text a photo to (785) 555-0199 and we'll quote in the morning.</p>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- =================== FOOTER =================== -->
+<footer class="bg-[#0a0a0a] text-white">
+  <div class="max-w-[1280px] mx-auto px-6 py-14 grid grid-cols-12 gap-8 text-[13.5px]">
+    <div class="col-span-12 md:col-span-4">
+      <div class="serif text-[34px] leading-none">Computer Store <span class="italic-serif">KS</span></div>
+      <p class="text-white/60 mt-4 max-w-sm">A small, independent computer repair shop in Topeka, Kansas. Open six days a week since 2007.</p>
+    </div>
+    <div class="col-span-6 md:col-span-2">
+      <div class="smcaps text-white/40 mb-3">Services</div>
+      <ul class="space-y-2 text-white/85">
+        <li>Laptop repair</li><li>Desktop repair</li><li>Data recovery</li><li>Custom builds</li>
+      </ul>
+    </div>
+    <div class="col-span-6 md:col-span-2">
+      <div class="smcaps text-white/40 mb-3">Shop</div>
+      <ul class="space-y-2 text-white/85">
+        <li>In-store PCs</li><li>Refurbished</li><li>Parts &amp; accessories</li><li>Gift cards</li>
+      </ul>
+    </div>
+    <div class="col-span-12 md:col-span-4">
+      <div class="smcaps text-white/40 mb-3">Newsletter — The Bench Notes</div>
+      <p class="text-white/70 mb-4">One short letter per month: a strange repair, a quiet build, and one tip you can use at home.</p>
+      <form class="flex gap-0">
+        <input type="email" placeholder="you@kansas.com" class="bg-transparent border border-white/30 px-4 py-3 flex-1 text-white placeholder-white/40 focus:outline-none focus:border-white">
+        <button class="bg-white text-black px-5 font-medium">Subscribe</button>
+      </form>
+    </div>
+  </div>
+  <div class="border-t border-white/10">
+    <div class="max-w-[1280px] mx-auto px-6 py-5 flex flex-wrap justify-between text-[12px] text-white/45">
+      <div>© 2026 Computer Store KS · 2110 SW Wanamaker Rd, Topeka</div>
+      <div>Set in Instrument Serif &amp; Inter</div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

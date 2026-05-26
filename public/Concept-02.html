@@ -1,0 +1,651 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Computer Store KS — Technical / Workshop</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --blue-600:#2563eb; --blue-700:#1d4ed8; --blue-800:#1e40af; --blue-500:#3b82f6;
+    --blue-50:#eff6ff; --blue-100:#dbeafe;
+    --ink:#0a0a0a; --muted:#737373;
+    --bg:#f8f9fb; --panel:#f0f2f5;
+    --green:#10b981; --green-d:#059669;
+    --gold:#b8860b;
+  }
+  html,body{background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  .mono{font-family:'IBM Plex Mono',ui-monospace,monospace;font-feature-settings:"ss01","ss02"}
+  .num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+  /* engineering grid background */
+  .grid-bg{
+    background-image:
+      linear-gradient(rgba(37,99,235,.06) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(37,99,235,.06) 1px,transparent 1px);
+    background-size:32px 32px;
+    background-position:-1px -1px;
+  }
+  .dot-bg{
+    background-image:radial-gradient(rgba(10,10,10,.18) 1px,transparent 1px);
+    background-size:14px 14px;
+  }
+  /* corner crop marks */
+  .crop{position:relative}
+  .crop::before,.crop::after,.crop>i::before,.crop>i::after{
+    content:"";position:absolute;width:10px;height:10px;border:1.5px solid var(--ink);
+  }
+  .crop::before{top:-1px;left:-1px;border-right:none;border-bottom:none}
+  .crop::after{top:-1px;right:-1px;border-left:none;border-bottom:none}
+  .crop>i{position:absolute;inset:0;pointer-events:none}
+  .crop>i::before{bottom:-1px;left:-1px;border-right:none;border-top:none}
+  .crop>i::after{bottom:-1px;right:-1px;border-left:none;border-top:none}
+  /* blueprint section header */
+  .schem-rule{
+    display:flex;align-items:center;gap:1rem;font-family:'IBM Plex Mono',monospace;
+    font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);
+  }
+  .schem-rule::before,.schem-rule::after{content:"";flex:1;height:1px;background:rgba(10,10,10,.3)}
+  /* terminal */
+  .term{background:#0a0a0a;color:#e7e5e0;font-family:'IBM Plex Mono',monospace;font-size:13px;line-height:1.65;border-radius:6px;overflow:hidden}
+  .term-hd{background:#1a1a1a;color:#9aa0a6;padding:.5rem .9rem;font-size:11px;letter-spacing:.12em;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #2a2a2a}
+  .led{width:8px;height:8px;border-radius:50%;display:inline-block}
+  .blink{animation:blink 1.2s steps(2) infinite}
+  @keyframes blink{50%{opacity:.25}}
+  /* product placeholders */
+  .photo{background-size:cover;background-position:center;background-color:#0a0a0a}
+  .ph-bench{background-image:url('https://images.unsplash.com/photo-1591488320449-011701bb6704?auto=format&fit=crop&w=1400&q=80')}
+  .ph-board{background-image:url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1400&q=80')}
+  .ph-pc{background-image:url('https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&w=1200&q=80')}
+  .ph-laptop{background-image:url('https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=1200&q=80')}
+  .ph-server{background-image:url('https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=1200&q=80')}
+  /* spec block */
+  .spec-row{display:grid;grid-template-columns:88px 1fr auto;gap:1rem;padding:.75rem 0;border-top:1px dashed rgba(10,10,10,.2);align-items:baseline}
+  .spec-row:first-child{border-top:1px solid var(--ink)}
+  .pill{display:inline-flex;align-items:center;gap:.4rem;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.08em;padding:3px 8px;border:1px solid var(--ink);text-transform:uppercase}
+  .pill-blue{border-color:var(--blue-700);color:var(--blue-700);background:#fff}
+  .pill-green{border-color:var(--green-d);color:var(--green-d);background:#fff}
+  .badge-iso{border:1.5px solid var(--ink);padding:.6rem .8rem;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;display:flex;flex-direction:column;align-items:flex-start;gap:.15rem;background:#fff}
+  .h-disp{font-weight:700;letter-spacing:-.02em;line-height:.95}
+  .btn-primary{background:var(--ink);color:#fff;font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.05em;padding:.85rem 1.4rem;display:inline-flex;align-items:center;gap:.7rem}
+  .btn-primary:hover{background:var(--blue-700)}
+  .btn-ghost{border:1px solid var(--ink);font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.05em;padding:.8rem 1.4rem;display:inline-flex;align-items:center;gap:.7rem}
+  .btn-ghost:hover{background:var(--ink);color:#fff}
+  .tick{color:var(--green-d)}
+</style>
+</head>
+<body class="text-[14.5px] leading-[1.55]">
+
+<!-- =================== HEADER COMMENT BOX =================== -->
+<aside class="sticky top-0 z-50 bg-[#0a0a0a] text-white">
+  <div class="max-w-[1320px] mx-auto px-6 py-2.5 grid grid-cols-12 gap-4 items-start text-[12.5px]">
+    <div class="col-span-12 md:col-span-3 flex items-center gap-3">
+      <span class="mono text-[var(--blue-500)] text-[11px] tracking-[.15em]">DIRECTION_02</span>
+      <span class="font-bold text-[18px]">Technical / Workshop</span>
+    </div>
+    <div class="col-span-12 md:col-span-4 text-white/80 mono text-[12px]">&gt; "The shop floor, on the screen. Trustworthy through craft, not polish."</div>
+    <div class="col-span-6 md:col-span-3 text-white/70"><span class="mono text-[10px] tracking-[.18em] text-white/45 block mb-1">3_MOVES</span>Engineering-grid bg · Live bench-queue widget · Spec-sheet service rows w/ part SKUs</div>
+    <div class="col-span-6 md:col-span-2 text-white/70"><span class="mono text-[10px] tracking-[.18em] text-white/45 block mb-1">SCALES_TO</span>Service detail · Ticket status · Quote PDF · Parts catalog</div>
+  </div>
+</aside>
+
+<!-- =================== NAV =================== -->
+<header class="bg-white border-b-2 border-[var(--ink)]">
+  <div class="max-w-[1320px] mx-auto px-6 py-4 flex items-center justify-between gap-6">
+    <div class="flex items-center gap-5">
+      <img src="csk-logo.svg" alt="Computer Store KS" class="h-9">
+      <div class="hidden md:block mono text-[11px] tracking-[.16em] text-[var(--muted)] border-l border-[var(--ink)]/30 pl-5">
+        REV. 2026.05 · BENCH-NOTES.SH<br>
+        <span class="text-[var(--green-d)]">●</span> SYSTEM ONLINE
+      </div>
+    </div>
+    <nav class="hidden md:flex items-center gap-7 mono text-[12.5px] tracking-[.06em]">
+      <a href="#services" class="hover:text-[var(--blue-700)]">/services</a>
+      <a href="#pcs" class="hover:text-[var(--blue-700)]">/in-store-pcs</a>
+      <a href="#trust" class="hover:text-[var(--blue-700)]">/trust</a>
+      <a href="#" class="hover:text-[var(--blue-700)]">/ticket-lookup</a>
+      <a href="#" class="hover:text-[var(--blue-700)]">/visit</a>
+    </nav>
+    <a href="tel:7855550199" class="hidden md:inline-flex btn-primary">CALL_785.555.0199</a>
+  </div>
+</header>
+
+<!-- =================== HERO =================== -->
+<section class="bg-[var(--bg)] grid-bg border-b border-[var(--ink)]/15">
+  <div class="max-w-[1320px] mx-auto px-6 pt-10 pb-20">
+    <!-- masthead/coordinate row -->
+    <div class="flex flex-wrap items-center justify-between gap-3 mono text-[11px] tracking-[.16em] text-[var(--muted)] mb-12">
+      <div>FILE: HOMEPAGE/INDEX.HTML &nbsp;·&nbsp; ZONE: TOPEKA-66614 &nbsp;·&nbsp; LAT 39.0473, LON −95.6752</div>
+      <div>BENCH UPTIME: 6,937 DAYS &nbsp;·&nbsp; <span class="text-[var(--green-d)]">●</span> ACCEPTING WALK-INS</div>
+    </div>
+
+    <div class="grid grid-cols-12 gap-8">
+      <!-- left content -->
+      <div class="col-span-12 lg:col-span-7">
+        <div class="mono text-[11px] tracking-[.18em] text-[var(--blue-700)] mb-5">
+          ┌── REPAIR · BUILD · RECOVER ── EST. 2007 ──┐
+        </div>
+        <h1 class="h-disp text-[64px] md:text-[92px]">
+          We open<br>the case.<br>
+          <span class="text-[var(--blue-700)]">We write<br>down what<br>we find.</span>
+        </h1>
+        <p class="mt-8 mono text-[13.5px] text-[var(--ink)]/85 max-w-[58ch] leading-[1.65]">
+          A real workshop in Topeka, Kansas. Four full-time technicians, six benches,
+          eighteen-thousand parts in the back. Every job ships with a one-page report
+          naming every component touched, by manufacturer and SKU. <span class="text-[var(--blue-700)]">No guesswork. No upsell.</span>
+        </p>
+        <div class="mt-9 flex flex-wrap gap-3">
+          <a href="#services" class="btn-primary">$ book-diagnostic &nbsp;<span class="mono text-[var(--blue-500)]">— $39</span></a>
+          <a href="#" class="btn-ghost">$ track --ticket=#____</a>
+        </div>
+
+        <!-- 4 ISO/cert badges -->
+        <div class="mt-12 grid grid-cols-2 md:grid-cols-4 gap-3 max-w-[640px]">
+          <div class="badge-iso">
+            <span class="text-[var(--blue-700)] font-semibold">ISO/IEC</span>
+            <span>27001 · Data</span>
+            <span class="text-[var(--muted)] normal-case tracking-normal text-[10.5px] mt-1">Information security</span>
+          </div>
+          <div class="badge-iso">
+            <span class="text-[var(--blue-700)] font-semibold">R2v3</span>
+            <span>Certified Recycler</span>
+            <span class="text-[var(--muted)] normal-case tracking-normal text-[10.5px] mt-1">Responsible e-waste</span>
+          </div>
+          <div class="badge-iso">
+            <span class="text-[var(--blue-700)] font-semibold">CompTIA</span>
+            <span>A+ / Net+</span>
+            <span class="text-[var(--muted)] normal-case tracking-normal text-[10.5px] mt-1">All techs, current</span>
+          </div>
+          <div class="badge-iso">
+            <span class="text-[var(--blue-700)] font-semibold">ESD-S20</span>
+            <span>Grounded Bench</span>
+            <span class="text-[var(--muted)] normal-case tracking-normal text-[10.5px] mt-1">Static-safe handling</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- right column: live bench queue terminal + photo -->
+      <aside class="col-span-12 lg:col-span-5">
+        <div class="crop bg-white border border-[var(--ink)]"><i></i>
+          <div class="ph-board photo aspect-[5/4]"></div>
+          <div class="px-4 py-3 border-t border-[var(--ink)]/15 mono text-[11px] tracking-[.1em] text-[var(--muted)] flex justify-between">
+            <span>FIG. A — BENCH 03 · 14:22 CDT</span><span>F/8 · 1/60s</span>
+          </div>
+        </div>
+
+        <!-- terminal — the opinionated risk -->
+        <div class="term mt-5">
+          <div class="term-hd">
+            <span>CSK://bench-queue --live</span>
+            <span class="flex items-center gap-2"><span class="led bg-[#10b981] blink"></span>STREAMING</span>
+          </div>
+          <div class="px-4 py-3">
+            <div class="text-[#9aa0a6]">$ ./queue.sh --today</div>
+            <div class="mt-1.5">Loaded <span class="text-white">8 active tickets</span>, est. wait <span class="text-[#10b981]">~42 min</span>.</div>
+            <div class="mt-3 grid grid-cols-[auto_1fr_auto] gap-x-3 gap-y-1.5 text-[12.5px]">
+              <span class="text-[#10b981]">#5841</span><span>MacBook Air · liquid · diag</span><span class="text-[#9aa0a6]">14:08</span>
+              <span class="text-[#10b981]">#5842</span><span>Dell XPS 13 · battery swap</span><span class="text-[#9aa0a6]">14:15</span>
+              <span class="text-[#ffd700]">#5843</span><span>Custom build · burn-in hr 19/24</span><span class="text-[#9aa0a6]">13:50</span>
+              <span class="text-[#10b981]">#5844</span><span>Acer · 1TB SSD upgrade</span><span class="text-[#9aa0a6]">14:21</span>
+              <span class="text-[#dc2626]">#5845</span><span>WD Blue · clicking · clone</span><span class="text-[#9aa0a6]">12:30</span>
+              <span class="text-[#10b981]">#5846</span><span>ThinkPad T480 · keyboard</span><span class="text-[#9aa0a6]">14:01</span>
+            </div>
+            <div class="mt-3 text-[#9aa0a6]">$ <span class="blink">▍</span></div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- =================== SERVICES — SPEC SHEET =================== -->
+<section id="services" class="bg-white border-b border-[var(--ink)]/15">
+  <div class="max-w-[1320px] mx-auto px-6 py-20">
+    <div class="schem-rule mb-3"><span>§ 01 / SERVICE_CATALOG</span></div>
+
+    <div class="grid grid-cols-12 gap-8 mb-12">
+      <div class="col-span-12 md:col-span-8">
+        <h2 class="h-disp text-[44px] md:text-[64px]">
+          Seven things we do<br>
+          <span class="text-[var(--blue-700)]">every single weekday.</span>
+        </h2>
+      </div>
+      <div class="col-span-12 md:col-span-4 self-end mono text-[12.5px] text-[var(--muted)] leading-[1.7]">
+        Each service quoted as a fixed price before work begins. Parts at our cost +15%.
+        Labor billed in quarter-hour blocks. All numbers below include both.
+      </div>
+    </div>
+
+    <!-- Spec-sheet styled service list. 2 cols on large -->
+    <div class="grid md:grid-cols-2 gap-x-12 gap-y-2">
+      <!-- service card -->
+      <article class="py-7 border-t-2 border-[var(--ink)]">
+        <div class="flex items-start justify-between gap-6">
+          <div>
+            <div class="mono text-[11px] tracking-[.18em] text-[var(--muted)]">SVC-001 · TIER A</div>
+            <h3 class="text-[28px] font-bold tracking-[-.01em] mt-1">Laptop repair</h3>
+            <p class="text-[13.5px] text-[var(--ink)]/80 mt-2 max-w-[44ch]">Screens, hinges, keyboards, batteries, liquid-damage triage. We carry common screens for Dell, HP, Lenovo, Apple in stock.</p>
+          </div>
+          <div class="text-right shrink-0">
+            <div class="mono text-[11px] tracking-[.16em] text-[var(--muted)]">FROM</div>
+            <div class="text-[30px] font-bold num">$89</div>
+          </div>
+        </div>
+        <div class="mt-4 flex flex-wrap gap-2">
+          <span class="pill pill-green">● same-day</span>
+          <span class="pill">90-day warranty</span>
+          <span class="pill pill-blue">walk-in OK</span>
+        </div>
+      </article>
+
+      <article class="py-7 border-t-2 border-[var(--ink)]">
+        <div class="flex items-start justify-between gap-6">
+          <div>
+            <div class="mono text-[11px] tracking-[.18em] text-[var(--muted)]">SVC-002 · TIER A</div>
+            <h3 class="text-[28px] font-bold tracking-[-.01em] mt-1">Desktop repair</h3>
+            <p class="text-[13.5px] text-[var(--ink)]/80 mt-2 max-w-[44ch]">Power-supply swaps, motherboard diagnostics, thermal repaste, cable rework, dust removal. Yes, even your 2014 tower.</p>
+          </div>
+          <div class="text-right shrink-0">
+            <div class="mono text-[11px] tracking-[.16em] text-[var(--muted)]">FROM</div>
+            <div class="text-[30px] font-bold num">$69</div>
+          </div>
+        </div>
+        <div class="mt-4 flex flex-wrap gap-2">
+          <span class="pill pill-green">● 24–48h</span>
+          <span class="pill">90-day warranty</span>
+        </div>
+      </article>
+
+      <article class="py-7 border-t-2 border-[var(--ink)]">
+        <div class="flex items-start justify-between gap-6">
+          <div>
+            <div class="mono text-[11px] tracking-[.18em] text-[var(--muted)]">SVC-003 · TIER B</div>
+            <h3 class="text-[28px] font-bold tracking-[-.01em] mt-1">Virus &amp; malware removal</h3>
+            <p class="text-[13.5px] text-[var(--ink)]/80 mt-2 max-w-[44ch]">Full triage, credential reset, browser cleanup. We sit with you afterward for 20 minutes and teach you the three things that keep it from coming back.</p>
+          </div>
+          <div class="text-right shrink-0">
+            <div class="mono text-[11px] tracking-[.16em] text-[var(--muted)]">FLAT</div>
+            <div class="text-[30px] font-bold num">$119</div>
+          </div>
+        </div>
+        <div class="mt-4 flex flex-wrap gap-2">
+          <span class="pill pill-green">● same-day</span>
+          <span class="pill">includes training</span>
+        </div>
+      </article>
+
+      <article class="py-7 border-t-2 border-[var(--ink)]">
+        <div class="flex items-start justify-between gap-6">
+          <div>
+            <div class="mono text-[11px] tracking-[.18em] text-[var(--muted)]">SVC-004 · TIER C</div>
+            <h3 class="text-[28px] font-bold tracking-[-.01em] mt-1">Data recovery</h3>
+            <p class="text-[13.5px] text-[var(--ink)]/80 mt-2 max-w-[44ch]">Failed HDDs, dropped SSDs, accidental formats. In-house imaging; Class-100 cleanroom for platter-level work via partner lab in KC.</p>
+          </div>
+          <div class="text-right shrink-0">
+            <div class="mono text-[11px] tracking-[.16em] text-[var(--muted)]">FROM</div>
+            <div class="text-[30px] font-bold num">$249</div>
+          </div>
+        </div>
+        <div class="mt-4 flex flex-wrap gap-2">
+          <span class="pill">no-data, no-fee</span>
+          <span class="pill pill-blue">free evaluation</span>
+        </div>
+      </article>
+
+      <article class="py-7 border-t-2 border-[var(--ink)]">
+        <div class="flex items-start justify-between gap-6">
+          <div>
+            <div class="mono text-[11px] tracking-[.18em] text-[var(--muted)]">SVC-005 · TIER B</div>
+            <h3 class="text-[28px] font-bold tracking-[-.01em] mt-1">Custom PC builds</h3>
+            <p class="text-[13.5px] text-[var(--ink)]/80 mt-2 max-w-[44ch]">A 30-minute spec session with a tech. Parts ordered at cost +15%. 24-hour burn-in with stress logs handed to you on a USB.</p>
+          </div>
+          <div class="text-right shrink-0">
+            <div class="mono text-[11px] tracking-[.16em] text-[var(--muted)]">FROM</div>
+            <div class="text-[30px] font-bold num">$899</div>
+          </div>
+        </div>
+        <div class="mt-4 flex flex-wrap gap-2">
+          <span class="pill">10–14 days</span>
+          <span class="pill pill-blue">includes burn-in log</span>
+        </div>
+      </article>
+
+      <article class="py-7 border-t-2 border-[var(--ink)]">
+        <div class="flex items-start justify-between gap-6">
+          <div>
+            <div class="mono text-[11px] tracking-[.18em] text-[var(--muted)]">SVC-006 · TIER A</div>
+            <h3 class="text-[28px] font-bold tracking-[-.01em] mt-1">Linux installs</h3>
+            <p class="text-[13.5px] text-[var(--ink)]/80 mt-2 max-w-[44ch]">Mint, Fedora, Pop!_OS, Debian. Dual-boot setups, full migrations from Windows, or breathing life into a 12-year-old laptop.</p>
+          </div>
+          <div class="text-right shrink-0">
+            <div class="mono text-[11px] tracking-[.16em] text-[var(--muted)]">FLAT</div>
+            <div class="text-[30px] font-bold num">$89</div>
+          </div>
+        </div>
+        <div class="mt-4 flex flex-wrap gap-2">
+          <span class="pill pill-green">● same-day</span>
+          <span class="pill">free distro consult</span>
+        </div>
+      </article>
+
+      <article class="py-7 border-t-2 border-[var(--ink)] md:col-span-2">
+        <div class="flex items-start justify-between gap-6">
+          <div>
+            <div class="mono text-[11px] tracking-[.18em] text-[var(--muted)]">SVC-007 · TIER A</div>
+            <h3 class="text-[28px] font-bold tracking-[-.01em] mt-1">Hardware upgrades</h3>
+            <p class="text-[13.5px] text-[var(--ink)]/80 mt-2 max-w-[44ch]">RAM, SSD, GPU, CPU swaps. Bring your machine in for a free 10-minute look — we'll tell you whether upgrading is worth more than just replacing.</p>
+          </div>
+          <div class="text-right shrink-0">
+            <div class="mono text-[11px] tracking-[.16em] text-[var(--muted)]">FROM</div>
+            <div class="text-[30px] font-bold num">$49</div>
+          </div>
+        </div>
+        <div class="mt-4 flex flex-wrap gap-2">
+          <span class="pill pill-green">● same-day</span>
+          <span class="pill">honest "don't upgrade" advice</span>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- =================== IN-STORE PCS — TECHNICAL SPEC CARDS =================== -->
+<section id="pcs" class="bg-[var(--panel)] dot-bg border-b border-[var(--ink)]/15">
+  <div class="max-w-[1320px] mx-auto px-6 py-20">
+    <div class="schem-rule mb-3"><span>§ 02 / SHOWROOM_INVENTORY</span></div>
+    <div class="grid grid-cols-12 gap-8 mb-12 items-end">
+      <div class="col-span-12 md:col-span-8">
+        <h2 class="h-disp text-[44px] md:text-[64px]">
+          Built on the bench.<br>
+          <span class="text-[var(--blue-700)]">Logged, stressed, signed.</span>
+        </h2>
+      </div>
+      <div class="col-span-12 md:col-span-4 mono text-[12.5px] text-[var(--muted)]">
+        Each machine ships with the burn-in log PDF, parts manifest, and the tech's
+        initials. <a href="#" class="text-[var(--ink)] underline underline-offset-4">View full inventory (14) →</a>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6">
+      <!-- card 1 -->
+      <article class="bg-white border border-[var(--ink)] flex flex-col">
+        <div class="ph-pc photo aspect-[5/4]"></div>
+        <div class="p-5 flex-1 flex flex-col">
+          <div class="flex items-center justify-between mono text-[11px] tracking-[.14em] text-[var(--muted)]">
+            <span>UNIT-2026-118 · BUILD_07</span>
+            <span class="text-[var(--green-d)]">● IN STOCK</span>
+          </div>
+          <h3 class="text-[22px] font-bold mt-2">The Kaw <span class="text-[var(--muted)] font-normal text-[14px]">— workhorse</span></h3>
+          <div class="mt-4 mono text-[12.5px] leading-[1.85]">
+            <div class="flex justify-between"><span class="text-[var(--muted)]">CPU</span><span>Ryzen 7 7700</span></div>
+            <div class="flex justify-between"><span class="text-[var(--muted)]">GPU</span><span>RTX 4070 12GB</span></div>
+            <div class="flex justify-between"><span class="text-[var(--muted)]">RAM</span><span>32 GB DDR5-6000</span></div>
+            <div class="flex justify-between"><span class="text-[var(--muted)]">SSD</span><span>2 TB NVMe Gen4</span></div>
+            <div class="flex justify-between"><span class="text-[var(--muted)]">PSU</span><span>750W Gold</span></div>
+            <div class="flex justify-between"><span class="text-[var(--muted)]">BURN-IN</span><span class="text-[var(--green-d)]">24h · pass</span></div>
+          </div>
+          <div class="mt-5 flex items-end justify-between border-t border-[var(--ink)]/15 pt-4">
+            <div>
+              <div class="mono text-[11px] tracking-[.14em] text-[var(--muted)]">PRICE</div>
+              <div class="text-[28px] font-bold num">$1,649</div>
+            </div>
+            <a href="#" class="btn-primary text-[12px] !py-2.5 !px-3.5">$ reserve →</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- card 2 -->
+      <article class="bg-white border border-[var(--ink)] flex flex-col">
+        <div class="ph-laptop photo aspect-[5/4]"></div>
+        <div class="p-5 flex-1 flex flex-col">
+          <div class="flex items-center justify-between mono text-[11px] tracking-[.14em] text-[var(--muted)]">
+            <span>UNIT-2026-094 · REFURB_22</span>
+            <span class="text-[var(--green-d)]">● IN STOCK · 3</span>
+          </div>
+          <h3 class="text-[22px] font-bold mt-2">The Topekan <span class="text-[var(--muted)] font-normal text-[14px]">— refurb</span></h3>
+          <div class="mt-4 mono text-[12.5px] leading-[1.85]">
+            <div class="flex justify-between"><span class="text-[var(--muted)]">MODEL</span><span>Lenovo T14 Gen 3</span></div>
+            <div class="flex justify-between"><span class="text-[var(--muted)]">CPU</span><span>Intel i7-1255U</span></div>
+            <div class="flex justify-between"><span class="text-[var(--muted)]">RAM</span><span>16 GB DDR4</span></div>
+            <div class="flex justify-between"><span class="text-[var(--muted)]">SSD</span><span>512 GB NVMe</span></div>
+            <div class="flex justify-between"><span class="text-[var(--muted)]">BATTERY</span><span>92% health</span></div>
+            <div class="flex justify-between"><span class="text-[var(--muted)]">GRADE</span><span>A · light wear</span></div>
+          </div>
+          <div class="mt-5 flex items-end justify-between border-t border-[var(--ink)]/15 pt-4">
+            <div>
+              <div class="mono text-[11px] tracking-[.14em] text-[var(--muted)]">PRICE</div>
+              <div class="text-[28px] font-bold num">$489</div>
+            </div>
+            <a href="#" class="btn-primary text-[12px] !py-2.5 !px-3.5">$ reserve →</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- card 3 -->
+      <article class="bg-white border border-[var(--ink)] flex flex-col">
+        <div class="ph-server photo aspect-[5/4]"></div>
+        <div class="p-5 flex-1 flex flex-col">
+          <div class="flex items-center justify-between mono text-[11px] tracking-[.14em] text-[var(--muted)]">
+            <span>UNIT-2026-121 · BUILD_03</span>
+            <span class="text-[#b8860b]">● LAST ONE</span>
+          </div>
+          <h3 class="text-[22px] font-bold mt-2">The Quiet One <span class="text-[var(--muted)] font-normal text-[14px]">— mini ITX</span></h3>
+          <div class="mt-4 mono text-[12.5px] leading-[1.85]">
+            <div class="flex justify-between"><span class="text-[var(--muted)]">CPU</span><span>Ryzen 5 8500G</span></div>
+            <div class="flex justify-between"><span class="text-[var(--muted)]">RAM</span><span>16 GB DDR5</span></div>
+            <div class="flex justify-between"><span class="text-[var(--muted)]">SSD</span><span>1 TB NVMe</span></div>
+            <div class="flex justify-between"><span class="text-[var(--muted)]">CASE</span><span>Fractal Terra (graphite)</span></div>
+            <div class="flex justify-between"><span class="text-[var(--muted)]">DBA</span><span>18 dB at idle</span></div>
+            <div class="flex justify-between"><span class="text-[var(--muted)]">BURN-IN</span><span class="text-[var(--green-d)]">24h · pass</span></div>
+          </div>
+          <div class="mt-5 flex items-end justify-between border-t border-[var(--ink)]/15 pt-4">
+            <div>
+              <div class="mono text-[11px] tracking-[.14em] text-[var(--muted)]">PRICE</div>
+              <div class="text-[28px] font-bold num">$729</div>
+            </div>
+            <a href="#" class="btn-primary text-[12px] !py-2.5 !px-3.5">$ reserve →</a>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- =================== TRUST / WHY US =================== -->
+<section id="trust" class="bg-white border-b border-[var(--ink)]/15">
+  <div class="max-w-[1320px] mx-auto px-6 py-20">
+    <div class="schem-rule mb-3"><span>§ 03 / WHY_TRUST_US</span></div>
+    <div class="grid grid-cols-12 gap-10">
+      <div class="col-span-12 md:col-span-5">
+        <h2 class="h-disp text-[44px] md:text-[60px]">
+          We document<br>
+          <span class="text-[var(--blue-700)]">every keystroke.</span>
+        </h2>
+        <p class="mt-6 text-[15px] text-[var(--ink)]/80 max-w-[42ch]">
+          A computer shop is a small museum of other peoples' lives — tax returns,
+          dissertations, photos of grandparents. We treat your drive like evidence.
+        </p>
+
+        <!-- The opinionated risk: anatomical-style annotated diagram -->
+        <div class="mt-10 relative border border-[var(--ink)]/30 bg-[var(--bg)] aspect-[4/3] grid-bg">
+          <!-- center "machine" -->
+          <div class="absolute inset-10 border-2 border-[var(--ink)] bg-white flex items-center justify-center">
+            <div class="text-center">
+              <div class="mono text-[10px] tracking-[.18em] text-[var(--muted)]">YOUR MACHINE</div>
+              <div class="text-[34px] font-bold mt-1">▭</div>
+              <div class="mono text-[11px] tracking-[.12em] text-[var(--muted)] mt-1">ON OUR BENCH</div>
+            </div>
+          </div>
+          <!-- annotations -->
+          <div class="absolute top-2 left-2 mono text-[10.5px] tracking-[.1em]">
+            <span class="text-[var(--blue-700)]">①</span> ESD-grounded
+          </div>
+          <div class="absolute top-2 right-2 mono text-[10.5px] tracking-[.1em] text-right">
+            <span class="text-[var(--blue-700)]">②</span> Photographed<br>on intake
+          </div>
+          <div class="absolute bottom-2 left-2 mono text-[10.5px] tracking-[.1em]">
+            <span class="text-[var(--blue-700)]">③</span> Drive cloned<br>before any work
+          </div>
+          <div class="absolute bottom-2 right-2 mono text-[10.5px] tracking-[.1em] text-right">
+            <span class="text-[var(--blue-700)]">④</span> Logged at<br>every checkpoint
+          </div>
+        </div>
+      </div>
+
+      <div class="col-span-12 md:col-span-7 md:col-start-7">
+        <!-- spec rows -->
+        <div class="border-2 border-[var(--ink)] bg-white">
+          <div class="px-5 py-3 border-b border-[var(--ink)] flex justify-between mono text-[11px] tracking-[.14em]">
+            <span>CSK / OPERATING_STANDARDS · 2026</span>
+            <span class="text-[var(--green-d)]">● CURRENT</span>
+          </div>
+          <div class="p-5">
+            <div class="spec-row">
+              <span class="mono text-[12px] text-[var(--muted)]">P.01</span>
+              <div>
+                <div class="font-semibold">No-fix, no-fee labor policy</div>
+                <div class="text-[13px] text-[var(--ink)]/75 mt-0.5">If we can't repair it, you pay $0. Parts ordered with your written approval are billed at cost.</div>
+              </div>
+              <span class="tick mono text-[14px]">✓</span>
+            </div>
+            <div class="spec-row">
+              <span class="mono text-[12px] text-[var(--muted)]">P.02</span>
+              <div>
+                <div class="font-semibold">Written diagnostic before work begins</div>
+                <div class="text-[13px] text-[var(--ink)]/75 mt-0.5">$39, applied to any repair you approve. You see the findings before you commit.</div>
+              </div>
+              <span class="tick mono text-[14px]">✓</span>
+            </div>
+            <div class="spec-row">
+              <span class="mono text-[12px] text-[var(--muted)]">P.03</span>
+              <div>
+                <div class="font-semibold">90-day warranty on parts &amp; labor</div>
+                <div class="text-[13px] text-[var(--ink)]/75 mt-0.5">If the same fault recurs in 90 days, we redo the work. No paperwork at the counter — we have it in the system.</div>
+              </div>
+              <span class="tick mono text-[14px]">✓</span>
+            </div>
+            <div class="spec-row">
+              <span class="mono text-[12px] text-[var(--muted)]">P.04</span>
+              <div>
+                <div class="font-semibold">Local techs only · no offshoring</div>
+                <div class="text-[13px] text-[var(--ink)]/75 mt-0.5">Four full-time technicians: Marcus, Priya, Jose, Anna. You'll meet the one working on your machine.</div>
+              </div>
+              <span class="tick mono text-[14px]">✓</span>
+            </div>
+            <div class="spec-row">
+              <span class="mono text-[12px] text-[var(--muted)]">P.05</span>
+              <div>
+                <div class="font-semibold">Single-page invoice · parts by SKU</div>
+                <div class="text-[13px] text-[var(--ink)]/75 mt-0.5">No surprise add-ons. The bottom line on the quote is the bottom line on the bill.</div>
+              </div>
+              <span class="tick mono text-[14px]">✓</span>
+            </div>
+            <div class="spec-row">
+              <span class="mono text-[12px] text-[var(--muted)]">P.06</span>
+              <div>
+                <div class="font-semibold">R2v3 e-waste recycling</div>
+                <div class="text-[13px] text-[var(--ink)]/75 mt-0.5">Drop off any old machine for free. Drives are wiped with NIST 800-88 and you take home a certificate.</div>
+              </div>
+              <span class="tick mono text-[14px]">✓</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 grid grid-cols-3 border border-[var(--ink)] bg-white text-center">
+          <div class="p-5 border-r border-[var(--ink)]/30">
+            <div class="text-[36px] font-bold num">19</div>
+            <div class="mono text-[10.5px] tracking-[.16em] text-[var(--muted)] mt-1">YRS · ON_WANAMAKER</div>
+          </div>
+          <div class="p-5 border-r border-[var(--ink)]/30">
+            <div class="text-[36px] font-bold num">4.9<span class="text-[var(--gold)] text-[20px]">★</span></div>
+            <div class="mono text-[10.5px] tracking-[.16em] text-[var(--muted)] mt-1">GOOGLE · 612 REV</div>
+          </div>
+          <div class="p-5">
+            <div class="text-[36px] font-bold num">94%</div>
+            <div class="mono text-[10.5px] tracking-[.16em] text-[var(--muted)] mt-1">SAME-DAY · TURN</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== CTA =================== -->
+<section class="bg-[var(--ink)] text-white">
+  <div class="max-w-[1320px] mx-auto px-6 py-20 grid grid-cols-12 gap-10 items-center">
+    <div class="col-span-12 md:col-span-7">
+      <div class="mono text-[11px] tracking-[.18em] text-[var(--blue-500)] mb-5">┌── BOOK_DIAGNOSTIC ──┐</div>
+      <h2 class="h-disp text-[44px] md:text-[72px]">
+        Drop it on the bench.<br>
+        <span class="text-[var(--blue-500)]">We'll quote in writing.</span>
+      </h2>
+      <p class="mt-6 mono text-[13.5px] text-white/75 max-w-[60ch]">
+        $ csk book --diagnostic --walk-in &nbsp;&nbsp; <span class="text-white/45"># or call (785) 555-0199</span><br>
+        $ csk track --ticket=#____ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="text-white/45"># SMS updates on every status change</span>
+      </p>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a href="#" class="bg-white text-[var(--ink)] mono text-[13px] px-5 py-3.5 hover:bg-[var(--blue-500)] hover:text-white">$ book-diagnostic — $39</a>
+        <a href="#" class="border border-white/40 mono text-[13px] px-5 py-3.5 hover:bg-white hover:text-[var(--ink)]">$ get-directions</a>
+      </div>
+    </div>
+    <aside class="col-span-12 md:col-span-5 md:col-start-9">
+      <div class="border border-white/25 p-6">
+        <div class="mono text-[11px] tracking-[.18em] text-white/60 mb-4">THE_SHOP</div>
+        <div class="text-[20px] font-semibold">2110 SW Wanamaker Rd, Suite C</div>
+        <div class="text-white/70 mt-1">Topeka, KS 66614</div>
+
+        <div class="mono text-[11px] tracking-[.18em] text-white/60 mt-6 mb-3">HOURS · CDT</div>
+        <div class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 mono text-[12.5px]">
+          <span class="text-white/60">MON–FRI</span><span>09:00 – 18:00</span>
+          <span class="text-white/60">SAT</span><span>10:00 – 16:00</span>
+          <span class="text-white/60">SUN</span><span class="text-white/45">— closed</span>
+        </div>
+
+        <div class="mt-6 flex items-center gap-3 text-[13px]">
+          <span class="led bg-[var(--green)] blink"></span>
+          <span class="mono">CURRENT: 6 tech available · 8 in queue</span>
+        </div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- =================== FOOTER =================== -->
+<footer class="bg-[#0a0a0a] text-white border-t border-white/10">
+  <div class="max-w-[1320px] mx-auto px-6 py-12 grid grid-cols-12 gap-8 text-[13px]">
+    <div class="col-span-12 md:col-span-4">
+      <img src="csk-logo.svg" alt="" class="h-9 invert brightness-200" style="filter:brightness(0) invert(1)">
+      <p class="text-white/55 mt-4 max-w-sm mono text-[12px] leading-[1.8]">
+        # Computer Store KS<br># Independent repair workshop<br># Topeka, Kansas · since 2007
+      </p>
+    </div>
+    <div class="col-span-6 md:col-span-2">
+      <div class="mono text-[11px] tracking-[.16em] text-white/45 mb-3">/services</div>
+      <ul class="space-y-1.5 text-white/85"><li>Laptop repair</li><li>Desktop repair</li><li>Virus removal</li><li>Data recovery</li><li>Custom builds</li><li>Linux installs</li><li>Upgrades</li></ul>
+    </div>
+    <div class="col-span-6 md:col-span-2">
+      <div class="mono text-[11px] tracking-[.16em] text-white/45 mb-3">/shop</div>
+      <ul class="space-y-1.5 text-white/85"><li>In-store PCs</li><li>Refurbished</li><li>Parts</li><li>Gift cards</li></ul>
+    </div>
+    <div class="col-span-12 md:col-span-4">
+      <div class="mono text-[11px] tracking-[.16em] text-white/45 mb-3">/status</div>
+      <div class="mono text-[12.5px] leading-[1.9]">
+        <div><span class="text-[var(--green)]">●</span> queue.api · 99.98%</div>
+        <div><span class="text-[var(--green)]">●</span> ticket.lookup · 99.99%</div>
+        <div><span class="text-[var(--green)]">●</span> bench.cameras · online</div>
+        <div class="text-white/55 mt-2"># last incident: 2024-03-11 (1h 22m)</div>
+      </div>
+    </div>
+  </div>
+  <div class="border-t border-white/10">
+    <div class="max-w-[1320px] mx-auto px-6 py-4 flex flex-wrap justify-between mono text-[11px] tracking-[.1em] text-white/45">
+      <div>© 2026 COMPUTER STORE KS · ALL RIGHTS RESERVED</div>
+      <div>BUILD 2026.05 · IBM_PLEX_SANS · IBM_PLEX_MONO</div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

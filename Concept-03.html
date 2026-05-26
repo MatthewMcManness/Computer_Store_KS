@@ -1,0 +1,574 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Computer Store KS — Soft &amp; Warm Local Business</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Caveat:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --blue-600:#2563eb; --blue-700:#1d4ed8; --blue-500:#3b82f6;
+    --blue-50:#eff6ff; --blue-100:#dbeafe;
+    --ink:#0a0a0a; --muted:#737373;
+    --bg:#fbfaf6; /* warm cream */
+    --paper:#fffdf7;
+    --green:#10b981; --green-d:#059669;
+  }
+  html,body{background:var(--bg);color:#1c1d21;font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  .display{font-family:'Bricolage Grotesque','Inter',sans-serif;font-variation-settings:"opsz" 80;letter-spacing:-.03em;line-height:.97}
+  .hand{font-family:'Caveat',cursive;font-weight:600}
+  .num{font-variant-numeric:tabular-nums}
+  /* organic blob shapes */
+  .blob-1{border-radius:64% 36% 58% 42% / 52% 60% 40% 48%}
+  .blob-2{border-radius:42% 58% 38% 62% / 60% 44% 56% 40%}
+  .blob-3{border-radius:50% 50% 60% 40% / 55% 45% 55% 45%}
+  /* warm photo placeholders */
+  .photo{background-size:cover;background-position:center;background-color:#e9e3d8}
+  .ph-shop{background-image:url('https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=1600&q=80')}
+  .ph-bench{background-image:url('https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=1200&q=80')}
+  .ph-staff1{background-image:url('https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=600&q=80')}
+  .ph-staff2{background-image:url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80')}
+  .ph-staff3{background-image:url('https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=600&q=80')}
+  .ph-staff4{background-image:url('https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=600&q=80')}
+  .ph-pc{background-image:url('https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&w=1200&q=80')}
+  .ph-laptop{background-image:url('https://images.unsplash.com/photo-1611078489935-0cb964de46d6?auto=format&fit=crop&w=1200&q=80')}
+  .ph-neighborhood{background-image:url('https://images.unsplash.com/photo-1519181245277-cffeb31da2e3?auto=format&fit=crop&w=1200&q=80')}
+  /* pencil underline */
+  .pencil{background-image:linear-gradient(transparent 80%, var(--blue-100) 80%, var(--blue-100) 100%);padding:0 .15em}
+  .scribble{display:inline-block;transform:rotate(-2deg)}
+  /* soft button */
+  .btn-soft{display:inline-flex;align-items:center;gap:.6rem;border-radius:9999px;padding:.95rem 1.6rem;font-weight:600;font-size:15px;transition:transform .15s ease, background .2s ease}
+  .btn-soft:hover{transform:translateY(-1px)}
+  /* sticky-note */
+  .sticky{background:#fff7d6;border-radius:6px;box-shadow:0 6px 18px -8px rgba(0,0,0,.15), 0 1px 0 rgba(0,0,0,.04);transform:rotate(-2.2deg);font-family:'Caveat',cursive;font-weight:600}
+  /* circles bg */
+  .circles{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+</style>
+</head>
+<body class="text-[16px] leading-[1.6]">
+
+<!-- =================== HEADER COMMENT BOX =================== -->
+<aside class="sticky top-0 z-50 bg-[#0a0a0a] text-white text-[12.5px]">
+  <div class="max-w-[1280px] mx-auto px-6 py-2.5 grid grid-cols-12 gap-4 items-start">
+    <div class="col-span-12 md:col-span-3 flex items-center gap-3">
+      <span class="text-[11px] tracking-[.15em] uppercase text-[var(--blue-500)] font-semibold">Direction 03</span>
+      <span class="font-semibold text-[17px]">Soft &amp; Warm Local</span>
+    </div>
+    <div class="col-span-12 md:col-span-4 text-white/80 hand text-[16px]">"Your neighbor who happens to fix computers."</div>
+    <div class="col-span-6 md:col-span-3 text-white/70"><span class="block mb-1 text-[10px] tracking-[.18em] uppercase text-white/45">3 moves</span>Cream/light-blue palette · Organic blob photo masks · "Meet your tech" cards w/ hand-drawn map of Topeka</div>
+    <div class="col-span-6 md:col-span-2 text-white/70"><span class="block mb-1 text-[10px] tracking-[.18em] uppercase text-white/45">Translates to</span>About, Team, Testimonials, Community, Blog, Visit</div>
+  </div>
+</aside>
+
+<!-- =================== NAV =================== -->
+<header class="relative">
+  <div class="max-w-[1280px] mx-auto px-6 py-6 flex items-center justify-between">
+    <a href="#" class="flex items-center gap-3">
+      <img src="csk-logo.svg" alt="Computer Store KS" class="h-10">
+    </a>
+    <nav class="hidden md:flex items-center gap-8 text-[15px] font-medium">
+      <a href="#services" class="hover:text-[var(--blue-700)]">Services</a>
+      <a href="#pcs" class="hover:text-[var(--blue-700)]">In-store PCs</a>
+      <a href="#why" class="hover:text-[var(--blue-700)]">Meet the team</a>
+      <a href="#" class="hover:text-[var(--blue-700)]">Stories</a>
+      <a href="#" class="hover:text-[var(--blue-700)]">Visit</a>
+    </nav>
+    <div class="hidden md:flex items-center gap-3">
+      <span class="inline-flex items-center gap-2 text-[14px] text-[var(--green-d)] font-medium">
+        <span class="w-2 h-2 rounded-full bg-[var(--green)]"></span> Open — back at 6pm
+      </span>
+      <a href="tel:7855550199" class="btn-soft bg-[var(--blue-600)] text-white hover:bg-[var(--blue-700)]">Say hi · (785) 555-0199</a>
+    </div>
+  </div>
+</header>
+
+<!-- =================== HERO =================== -->
+<section class="relative overflow-hidden">
+  <!-- decorative blue blobs -->
+  <div class="circles" aria-hidden="true">
+    <div class="absolute -top-24 -right-32 w-[520px] h-[520px] blob-1 bg-[var(--blue-50)]"></div>
+    <div class="absolute top-72 -left-32 w-[360px] h-[360px] blob-2 bg-[var(--blue-100)]/60"></div>
+  </div>
+
+  <div class="relative max-w-[1280px] mx-auto px-6 pt-8 pb-24">
+    <div class="grid grid-cols-12 gap-8 items-center">
+      <div class="col-span-12 md:col-span-7">
+        <span class="inline-flex items-center gap-2 bg-white text-[var(--blue-700)] rounded-full px-4 py-1.5 text-[13px] font-semibold shadow-sm ring-1 ring-[var(--blue-100)]">
+          <span>👋</span> Howdy from Wanamaker Road
+        </span>
+        <h1 class="display text-[68px] md:text-[104px] mt-7">
+          The computer
+          <span class="hand text-[var(--blue-600)] text-[80px] md:text-[120px] block -mt-2">people</span>
+          your neighbors<br>
+          <span class="pencil">already trust.</span>
+        </h1>
+        <p class="mt-8 text-[19px] text-[#3a3b40] max-w-[52ch] leading-[1.55]">
+          We're a small computer shop in Topeka. Four technicians, one very good dog,
+          and nineteen years of fixing the machines that keep your family running —
+          honestly, kindly, and almost always by Friday.
+        </p>
+        <div class="mt-9 flex flex-wrap items-center gap-4">
+          <a href="#services" class="btn-soft bg-[var(--blue-600)] text-white hover:bg-[var(--blue-700)]">
+            Book a free look <span aria-hidden>→</span>
+          </a>
+          <a href="#why" class="btn-soft bg-white ring-1 ring-[var(--ink)]/10 hover:ring-[var(--ink)]/30">
+            Meet your tech
+          </a>
+          <span class="hand text-[18px] text-[var(--blue-700)] -ml-1">↖ start here :)</span>
+        </div>
+
+        <div class="mt-12 flex flex-wrap gap-6 text-[14px] text-[#3a3b40]">
+          <div class="flex items-center gap-2"><span class="text-[var(--green-d)] text-lg">✓</span> No-fix, no-fee</div>
+          <div class="flex items-center gap-2"><span class="text-[var(--green-d)] text-lg">✓</span> Plain-English quotes</div>
+          <div class="flex items-center gap-2"><span class="text-[var(--green-d)] text-lg">✓</span> Same-day on most repairs</div>
+          <div class="flex items-center gap-2"><span class="text-[var(--green-d)] text-lg">✓</span> 90-day warranty</div>
+        </div>
+      </div>
+
+      <!-- right: organic photo collage -->
+      <div class="col-span-12 md:col-span-5 relative">
+        <!-- main blob photo -->
+        <div class="ph-shop photo blob-1 w-full aspect-[5/6]"></div>
+        <!-- small overlapping photo -->
+        <div class="ph-staff1 photo blob-3 absolute -bottom-8 -left-6 w-44 h-44 ring-8 ring-[var(--bg)]"></div>
+        <!-- sticky note -->
+        <div class="sticky absolute -top-2 -left-6 md:-left-10 px-5 py-4 text-[18px] max-w-[200px] leading-[1.15]">
+          back<br>by 4 — Marcus
+          <div class="text-[12px] font-sans font-normal text-[var(--muted)] mt-1 -rotate-1">
+            (free coffee in the lobby)
+          </div>
+        </div>
+        <!-- stat pill -->
+        <div class="absolute -right-2 top-12 bg-white rounded-2xl shadow-lg px-5 py-4 ring-1 ring-[var(--blue-100)]">
+          <div class="flex items-center gap-3">
+            <div class="display text-[34px] num leading-none text-[var(--blue-700)]">4.9</div>
+            <div class="text-[13px] leading-tight">
+              <div class="text-yellow-500">★★★★★</div>
+              <div class="text-[var(--muted)]">612 Google reviews</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== SERVICES =================== -->
+<section id="services" class="bg-[var(--blue-50)]">
+  <div class="max-w-[1280px] mx-auto px-6 py-24">
+    <div class="grid grid-cols-12 gap-8 mb-12">
+      <div class="col-span-12 md:col-span-7">
+        <span class="hand text-[var(--blue-700)] text-[22px]">— things we fix —</span>
+        <h2 class="display text-[44px] md:text-[64px] mt-2">
+          Bring it in,<br>
+          <span class="text-[var(--blue-700)]">we'll figure it out together.</span>
+        </h2>
+      </div>
+      <div class="col-span-12 md:col-span-4 md:col-start-9 self-end text-[16px] text-[#3a3b40]">
+        Not sure what's wrong? Just bring it in. Diagnostics are <span class="font-semibold">$39 and credited back</span> if you go ahead with the fix.
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-5">
+      <!-- service card -->
+      <article class="bg-white rounded-3xl p-7 hover:shadow-xl hover:-translate-y-1 transition ring-1 ring-[var(--blue-100)]/60">
+        <div class="w-14 h-14 rounded-2xl bg-[var(--blue-100)] flex items-center justify-center text-[26px]">💻</div>
+        <h3 class="display text-[28px] mt-5">Laptop repair</h3>
+        <p class="mt-2 text-[15px] text-[#3a3b40]">Cracked screens, dead batteries, sticky keys, the lid that won't close anymore. Most done the same day.</p>
+        <div class="mt-5 flex items-center justify-between">
+          <span class="text-[var(--blue-700)] font-semibold">from $89</span>
+          <span class="text-[13px] text-[var(--muted)]">same-day</span>
+        </div>
+      </article>
+      <article class="bg-white rounded-3xl p-7 hover:shadow-xl hover:-translate-y-1 transition ring-1 ring-[var(--blue-100)]/60">
+        <div class="w-14 h-14 rounded-2xl bg-[var(--blue-100)] flex items-center justify-center text-[26px]">🖥️</div>
+        <h3 class="display text-[28px] mt-5">Desktop repair</h3>
+        <p class="mt-2 text-[15px] text-[#3a3b40]">Won't turn on? Blue screen? Smells funny? We open it up, clean it out, and tell you what we found.</p>
+        <div class="mt-5 flex items-center justify-between">
+          <span class="text-[var(--blue-700)] font-semibold">from $69</span>
+          <span class="text-[13px] text-[var(--muted)]">24–48h</span>
+        </div>
+      </article>
+      <article class="bg-white rounded-3xl p-7 hover:shadow-xl hover:-translate-y-1 transition ring-1 ring-[var(--blue-100)]/60">
+        <div class="w-14 h-14 rounded-2xl bg-[var(--blue-100)] flex items-center justify-center text-[26px]">🛡️</div>
+        <h3 class="display text-[28px] mt-5">Virus cleanup</h3>
+        <p class="mt-2 text-[15px] text-[#3a3b40]">Pop-ups, ransom screens, weird emails to your kids. We clean it up and show you what to watch for next time.</p>
+        <div class="mt-5 flex items-center justify-between">
+          <span class="text-[var(--blue-700)] font-semibold">$119 flat</span>
+          <span class="text-[13px] text-[var(--muted)]">same-day</span>
+        </div>
+      </article>
+      <article class="bg-white rounded-3xl p-7 hover:shadow-xl hover:-translate-y-1 transition ring-1 ring-[var(--blue-100)]/60">
+        <div class="w-14 h-14 rounded-2xl bg-[var(--blue-100)] flex items-center justify-center text-[26px]">💾</div>
+        <h3 class="display text-[28px] mt-5">Data recovery</h3>
+        <p class="mt-2 text-[15px] text-[#3a3b40]">Dropped your drive? Twenty years of photos on a dead hard disk? Bring it. We've gotten back more than you'd think.</p>
+        <div class="mt-5 flex items-center justify-between">
+          <span class="text-[var(--blue-700)] font-semibold">from $249</span>
+          <span class="text-[13px] text-[var(--muted)]">no-data, no-fee</span>
+        </div>
+      </article>
+      <article class="bg-white rounded-3xl p-7 hover:shadow-xl hover:-translate-y-1 transition ring-1 ring-[var(--blue-100)]/60">
+        <div class="w-14 h-14 rounded-2xl bg-[var(--blue-100)] flex items-center justify-center text-[26px]">🛠️</div>
+        <h3 class="display text-[28px] mt-5">Custom builds</h3>
+        <p class="mt-2 text-[15px] text-[#3a3b40]">Tell us what you'll use it for — Sims, streaming, AutoCAD, your kid's first gaming rig — we'll spec it with you and build it here.</p>
+        <div class="mt-5 flex items-center justify-between">
+          <span class="text-[var(--blue-700)] font-semibold">from $899</span>
+          <span class="text-[13px] text-[var(--muted)]">10–14 days</span>
+        </div>
+      </article>
+      <article class="bg-white rounded-3xl p-7 hover:shadow-xl hover:-translate-y-1 transition ring-1 ring-[var(--blue-100)]/60">
+        <div class="w-14 h-14 rounded-2xl bg-[var(--blue-100)] flex items-center justify-center text-[26px]">🐧</div>
+        <h3 class="display text-[28px] mt-5">Linux installs</h3>
+        <p class="mt-2 text-[15px] text-[#3a3b40]">Old laptop too slow for Windows 11? Linux Mint or Pop!_OS turns it back into a perfectly good machine for years.</p>
+        <div class="mt-5 flex items-center justify-between">
+          <span class="text-[var(--blue-700)] font-semibold">$89</span>
+          <span class="text-[13px] text-[var(--muted)]">same-day</span>
+        </div>
+      </article>
+      <article class="bg-white rounded-3xl p-7 hover:shadow-xl hover:-translate-y-1 transition ring-1 ring-[var(--blue-100)]/60 md:col-span-2">
+        <div class="flex items-start gap-5">
+          <div class="w-14 h-14 rounded-2xl bg-[var(--blue-100)] flex items-center justify-center text-[26px] shrink-0">⬆️</div>
+          <div class="flex-1">
+            <h3 class="display text-[28px]">Upgrades — make your old laptop fast again</h3>
+            <p class="mt-2 text-[15px] text-[#3a3b40] max-w-[60ch]">SSD, RAM, GPU, CPU swaps. A $79 SSD can turn a "ready for the trash" laptop into the fastest computer in the house. We'll tell you honestly whether it's worth it.</p>
+          </div>
+          <div class="text-right shrink-0">
+            <div class="text-[var(--blue-700)] font-semibold">from $49</div>
+            <div class="text-[13px] text-[var(--muted)]">same-day</div>
+          </div>
+        </div>
+      </article>
+      <article class="bg-[var(--blue-700)] text-white rounded-3xl p-7 hover:shadow-xl hover:-translate-y-1 transition flex flex-col justify-between">
+        <div>
+          <span class="hand text-[var(--blue-100)] text-[20px]">don't see it?</span>
+          <h3 class="display text-[28px] mt-2">Just ask.</h3>
+          <p class="mt-2 text-[15px] text-white/85">Phones, printers, projectors, that one cable. If it plugs in, we've probably fixed it.</p>
+        </div>
+        <a href="#" class="btn-soft bg-white text-[var(--blue-700)] mt-6 self-start">Ask us anything →</a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- =================== MEET THE TEAM (the risk) =================== -->
+<section id="why" class="bg-[var(--bg)]">
+  <div class="max-w-[1280px] mx-auto px-6 py-24">
+    <div class="grid grid-cols-12 gap-8 mb-14">
+      <div class="col-span-12 md:col-span-7">
+        <span class="hand text-[var(--blue-700)] text-[22px]">— who you'll meet —</span>
+        <h2 class="display text-[44px] md:text-[64px] mt-2">
+          A real shop,<br>
+          <span class="text-[var(--blue-700)]">with real people</span> in it.
+        </h2>
+        <p class="mt-5 text-[17px] text-[#3a3b40] max-w-[58ch]">
+          When you call, a person picks up. When you walk in, one of us walks over.
+          When you get your machine back, the tech who fixed it shakes your hand.
+          That's it. That's the whole pitch.
+        </p>
+      </div>
+      <div class="col-span-12 md:col-span-5 self-end">
+        <!-- hand-drawn-feel neighborhood map -->
+        <div class="relative rounded-3xl bg-[var(--blue-50)] aspect-[5/3] overflow-hidden ring-1 ring-[var(--blue-100)]">
+          <svg viewBox="0 0 500 300" class="absolute inset-0 w-full h-full">
+            <!-- roads -->
+            <path d="M -20 200 Q 100 180 250 210 T 520 220" stroke="#3b82f6" stroke-width="14" fill="none" opacity=".25" stroke-linecap="round"/>
+            <path d="M 220 -20 Q 230 90 250 160 T 280 320" stroke="#3b82f6" stroke-width="14" fill="none" opacity=".25" stroke-linecap="round"/>
+            <path d="M 60 60 Q 180 110 320 80 T 540 60" stroke="#3b82f6" stroke-width="8" fill="none" opacity=".18" stroke-linecap="round" stroke-dasharray="2 6"/>
+            <!-- shop pin -->
+            <circle cx="248" cy="200" r="10" fill="#2563eb"/>
+            <circle cx="248" cy="200" r="22" fill="#2563eb" opacity=".18"/>
+            <text x="265" y="195" font-family="Caveat" font-size="22" font-weight="700" fill="#1d4ed8">our shop ☆</text>
+            <!-- labels -->
+            <text x="40" y="50" font-family="Caveat" font-size="18" fill="#737373">Wanamaker Rd →</text>
+            <text x="290" y="50" font-family="Caveat" font-size="18" fill="#737373">to West Ridge Mall</text>
+            <text x="90" y="270" font-family="Caveat" font-size="18" fill="#737373">Washburn campus ↙</text>
+            <text x="370" y="270" font-family="Caveat" font-size="18" fill="#737373">SW 21st St →</text>
+            <text x="380" y="160" font-family="Caveat" font-size="16" fill="#737373">Pizagel's (lunch!)</text>
+            <circle cx="360" cy="150" r="5" fill="#737373"/>
+            <!-- coffee cup detail -->
+            <text x="155" y="160" font-family="Caveat" font-size="16" fill="#737373">PT's Coffee</text>
+            <circle cx="190" cy="170" r="5" fill="#737373"/>
+          </svg>
+        </div>
+        <p class="hand text-center text-[var(--muted)] mt-3 text-[18px]">— 4 minutes from Washburn, 6 from downtown —</p>
+      </div>
+    </div>
+
+    <!-- staff cards -->
+    <div class="grid md:grid-cols-4 gap-6">
+      <article class="bg-white rounded-3xl overflow-hidden ring-1 ring-[var(--blue-100)]/70 hover:shadow-xl transition">
+        <div class="ph-staff1 photo aspect-[4/5]"></div>
+        <div class="p-5">
+          <div class="hand text-[var(--blue-700)] text-[18px]">since 2009</div>
+          <h3 class="display text-[26px]">Marcus J.</h3>
+          <div class="text-[13px] text-[var(--muted)] mt-0.5">Owner · senior tech</div>
+          <p class="mt-3 text-[14px] text-[#3a3b40] leading-[1.55]">
+            Favorite repair: <span class="font-semibold">a 2003 iBook that survived a flood.</span><br>
+            Off the clock: smoker recipes, Royals games.
+          </p>
+        </div>
+      </article>
+      <article class="bg-white rounded-3xl overflow-hidden ring-1 ring-[var(--blue-100)]/70 hover:shadow-xl transition">
+        <div class="ph-staff2 photo aspect-[4/5]"></div>
+        <div class="p-5">
+          <div class="hand text-[var(--blue-700)] text-[18px]">since 2017</div>
+          <h3 class="display text-[26px]">Priya S.</h3>
+          <div class="text-[13px] text-[var(--muted)] mt-0.5">Data recovery lead</div>
+          <p class="mt-3 text-[14px] text-[#3a3b40] leading-[1.55]">
+            Favorite repair: <span class="font-semibold">recovering a wedding video off a dropped phone.</span><br>
+            Off the clock: trail running at Lake Shawnee.
+          </p>
+        </div>
+      </article>
+      <article class="bg-white rounded-3xl overflow-hidden ring-1 ring-[var(--blue-100)]/70 hover:shadow-xl transition">
+        <div class="ph-staff3 photo aspect-[4/5]"></div>
+        <div class="p-5">
+          <div class="hand text-[var(--blue-700)] text-[18px]">since 2020</div>
+          <h3 class="display text-[26px]">Jose M.</h3>
+          <div class="text-[13px] text-[var(--muted)] mt-0.5">Custom builds &amp; gaming</div>
+          <p class="mt-3 text-[14px] text-[#3a3b40] leading-[1.55]">
+            Favorite repair: <span class="font-semibold">building his daughter's first PC.</span><br>
+            Off the clock: cooking, &amp; speed-running Hollow Knight.
+          </p>
+        </div>
+      </article>
+      <article class="bg-white rounded-3xl overflow-hidden ring-1 ring-[var(--blue-100)]/70 hover:shadow-xl transition">
+        <div class="ph-staff4 photo aspect-[4/5]"></div>
+        <div class="p-5">
+          <div class="hand text-[var(--blue-700)] text-[18px]">since 2022</div>
+          <h3 class="display text-[26px]">Anna T.</h3>
+          <div class="text-[13px] text-[var(--muted)] mt-0.5">Linux &amp; small biz support</div>
+          <p class="mt-3 text-[14px] text-[#3a3b40] leading-[1.55]">
+            Favorite repair: <span class="font-semibold">turning a "dead" laptop into a working one with Mint.</span><br>
+            Off the clock: ceramics, Topeka Roller Derby.
+          </p>
+        </div>
+      </article>
+    </div>
+
+    <!-- shop dog -->
+    <div class="mt-8 grid md:grid-cols-12 gap-6 items-center bg-[var(--blue-100)]/50 rounded-3xl p-6 md:p-8">
+      <div class="md:col-span-2 flex justify-center">
+        <div class="w-24 h-24 blob-2 bg-[#d9b885] flex items-center justify-center text-[44px]">🐕</div>
+      </div>
+      <div class="md:col-span-7">
+        <div class="hand text-[var(--blue-700)] text-[20px]">and last but not least…</div>
+        <h3 class="display text-[34px]">Biscuit</h3>
+        <p class="text-[15px] text-[#3a3b40] mt-1">Shop dog since 2018. Hypoallergenic. Gives unsolicited opinions on cable management. Naps in the sunbeam between 2 and 3.</p>
+      </div>
+      <div class="md:col-span-3 text-center md:text-right">
+        <div class="hand text-[var(--blue-700)] text-[18px]">treats welcome</div>
+        <div class="text-[14px] text-[var(--muted)] mt-1">(ask Marcus first)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== IN-STORE PCS =================== -->
+<section id="pcs" class="bg-white">
+  <div class="max-w-[1280px] mx-auto px-6 py-24">
+    <div class="grid grid-cols-12 gap-8 mb-12 items-end">
+      <div class="col-span-12 md:col-span-7">
+        <span class="hand text-[var(--blue-700)] text-[22px]">— our showroom —</span>
+        <h2 class="display text-[44px] md:text-[64px] mt-2">
+          A few machines<br>
+          <span class="text-[var(--blue-700)]">we made on Tuesday.</span>
+        </h2>
+      </div>
+      <div class="col-span-12 md:col-span-4 md:col-start-9 text-[16px] text-[#3a3b40]">
+        Every PC on the wall was built right here in the back room. Try them out
+        before you buy — keyboards, screens, even sound. <a href="#" class="text-[var(--blue-700)] font-semibold underline underline-offset-4">See all 14 →</a>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6">
+      <article class="rounded-3xl bg-[var(--blue-50)] overflow-hidden hover:shadow-xl hover:-translate-y-1 transition group">
+        <div class="ph-pc photo aspect-[5/4]"></div>
+        <div class="p-6">
+          <div class="flex items-center gap-2 text-[12px] font-semibold">
+            <span class="bg-[var(--green)]/15 text-[var(--green-d)] rounded-full px-2.5 py-1">In stock</span>
+            <span class="text-[var(--muted)]">Built by Jose</span>
+          </div>
+          <h3 class="display text-[28px] mt-3">The Kaw</h3>
+          <p class="text-[14.5px] text-[#3a3b40] mt-1.5">Ryzen 7 · 32GB · RTX 4070 · 2TB. Quiet, fast, gorgeous wood case.</p>
+          <div class="mt-5 flex items-end justify-between">
+            <div>
+              <div class="display num text-[34px] leading-none">$1,649</div>
+              <div class="text-[12.5px] text-[var(--muted)] mt-1">or $137/mo · 0% APR · 12mo</div>
+            </div>
+            <a href="#" class="btn-soft bg-[var(--blue-600)] text-white text-[14px] !py-2.5 !px-4">View →</a>
+          </div>
+        </div>
+      </article>
+      <article class="rounded-3xl bg-[var(--blue-50)] overflow-hidden hover:shadow-xl hover:-translate-y-1 transition group">
+        <div class="ph-laptop photo aspect-[5/4]"></div>
+        <div class="p-6">
+          <div class="flex items-center gap-2 text-[12px] font-semibold">
+            <span class="bg-[var(--green)]/15 text-[var(--green-d)] rounded-full px-2.5 py-1">3 in stock</span>
+            <span class="text-[var(--muted)]">Refurb by Priya</span>
+          </div>
+          <h3 class="display text-[28px] mt-3">The Topekan</h3>
+          <p class="text-[14.5px] text-[#3a3b40] mt-1.5">ThinkPad T14 · i7 · 16GB · 512GB. 92% battery. New keyboard.</p>
+          <div class="mt-5 flex items-end justify-between">
+            <div>
+              <div class="display num text-[34px] leading-none">$489</div>
+              <div class="text-[12.5px] text-[var(--muted)] mt-1">90-day warranty</div>
+            </div>
+            <a href="#" class="btn-soft bg-[var(--blue-600)] text-white text-[14px] !py-2.5 !px-4">View →</a>
+          </div>
+        </div>
+      </article>
+      <article class="rounded-3xl bg-[var(--blue-50)] overflow-hidden hover:shadow-xl hover:-translate-y-1 transition group">
+        <div class="ph-bench photo aspect-[5/4]"></div>
+        <div class="p-6">
+          <div class="flex items-center gap-2 text-[12px] font-semibold">
+            <span class="bg-[#fcd34d]/30 text-[#92400e] rounded-full px-2.5 py-1">Last one</span>
+            <span class="text-[var(--muted)]">Built by Marcus</span>
+          </div>
+          <h3 class="display text-[28px] mt-3">The Quiet One</h3>
+          <p class="text-[14.5px] text-[#3a3b40] mt-1.5">Mini ITX · Ryzen 5 · 16GB. Whisper-quiet · perfect family computer.</p>
+          <div class="mt-5 flex items-end justify-between">
+            <div>
+              <div class="display num text-[34px] leading-none">$729</div>
+              <div class="text-[12.5px] text-[var(--muted)] mt-1">also: makes a great HTPC</div>
+            </div>
+            <a href="#" class="btn-soft bg-[var(--blue-600)] text-white text-[14px] !py-2.5 !px-4">View →</a>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- =================== TESTIMONIALS =================== -->
+<section class="bg-[var(--blue-50)]">
+  <div class="max-w-[1280px] mx-auto px-6 py-24">
+    <div class="mb-12">
+      <span class="hand text-[var(--blue-700)] text-[22px]">— what neighbors say —</span>
+      <h2 class="display text-[44px] md:text-[60px] mt-2 max-w-[20ch]">
+        We're <span class="text-[var(--blue-700)]">not perfect.</span> But people keep coming back.
+      </h2>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-5">
+      <article class="bg-white rounded-3xl p-7 ring-1 ring-[var(--blue-100)]/60">
+        <div class="text-yellow-500 text-lg">★★★★★</div>
+        <p class="display text-[22px] mt-3 leading-[1.2]">"Marcus pulled <span class="pencil">eleven years of photos</span> off a hard drive Best Buy said was toast."</p>
+        <div class="mt-5 flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-[var(--blue-100)] flex items-center justify-center text-[var(--blue-700)] font-bold">DR</div>
+          <div>
+            <div class="text-[14px] font-semibold">Dana R.</div>
+            <div class="text-[12.5px] text-[var(--muted)]">College Hill · since 2019</div>
+          </div>
+        </div>
+      </article>
+      <article class="bg-white rounded-3xl p-7 ring-1 ring-[var(--blue-100)]/60">
+        <div class="text-yellow-500 text-lg">★★★★★</div>
+        <p class="display text-[22px] mt-3 leading-[1.2]">"Quoted me $69. Charged me <span class="pencil">$69.</span> What a concept."</p>
+        <div class="mt-5 flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-[var(--blue-100)] flex items-center justify-center text-[var(--blue-700)] font-bold">TF</div>
+          <div>
+            <div class="text-[14px] font-semibold">Tom F.</div>
+            <div class="text-[12.5px] text-[var(--muted)]">Westboro · since 2022</div>
+          </div>
+        </div>
+      </article>
+      <article class="bg-white rounded-3xl p-7 ring-1 ring-[var(--blue-100)]/60">
+        <div class="text-yellow-500 text-lg">★★★★★</div>
+        <p class="display text-[22px] mt-3 leading-[1.2]">"They built my son's <span class="pencil">first gaming PC</span> with him. He's still talking about it."</p>
+        <div class="mt-5 flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-[var(--blue-100)] flex items-center justify-center text-[var(--blue-700)] font-bold">RM</div>
+          <div>
+            <div class="text-[14px] font-semibold">Renee M.</div>
+            <div class="text-[12.5px] text-[var(--muted)]">Auburn · since 2023</div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- =================== CTA =================== -->
+<section class="bg-[var(--bg)] relative overflow-hidden">
+  <div class="absolute -bottom-32 -right-24 w-[460px] h-[460px] blob-2 bg-[var(--blue-100)]/70" aria-hidden></div>
+  <div class="absolute -top-16 -left-16 w-[260px] h-[260px] blob-3 bg-[var(--blue-50)]" aria-hidden></div>
+
+  <div class="relative max-w-[1280px] mx-auto px-6 py-28">
+    <div class="grid grid-cols-12 gap-8 items-center">
+      <div class="col-span-12 md:col-span-7">
+        <span class="hand text-[var(--blue-700)] text-[22px]">— stop by —</span>
+        <h2 class="display text-[58px] md:text-[96px] mt-2">
+          Come on by.<br>
+          <span class="text-[var(--blue-700)]">There's coffee.</span>
+        </h2>
+        <p class="mt-7 text-[18px] text-[#3a3b40] max-w-[48ch]">
+          Walk-ins welcome from 9 to 6. We'll write up a free quote while you wait —
+          usually faster than the line at PT's next door.
+        </p>
+        <div class="mt-9 flex flex-wrap gap-4">
+          <a href="#" class="btn-soft bg-[var(--blue-600)] text-white hover:bg-[var(--blue-700)]">Book a drop-off →</a>
+          <a href="tel:7855550199" class="btn-soft bg-white ring-1 ring-[var(--ink)]/10">Call (785) 555-0199</a>
+        </div>
+      </div>
+
+      <aside class="col-span-12 md:col-span-5">
+        <div class="bg-white rounded-3xl p-8 ring-1 ring-[var(--blue-100)] shadow-sm">
+          <div class="hand text-[var(--blue-700)] text-[22px]">find us</div>
+          <div class="display text-[28px] mt-1">2110 SW Wanamaker Rd<br>Suite C, Topeka</div>
+
+          <div class="mt-6 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-[15px]">
+            <span class="text-[var(--muted)]">Mon–Fri</span><span>9 am – 6 pm</span>
+            <span class="text-[var(--muted)]">Saturday</span><span>10 am – 4 pm</span>
+            <span class="text-[var(--muted)]">Sunday</span><span class="text-[var(--muted)]">closed (Biscuit's day off)</span>
+          </div>
+
+          <div class="mt-6 pt-6 border-t border-[var(--blue-100)] text-[14px] text-[#3a3b40]">
+            <div class="font-semibold mb-1">Can't make it during the day?</div>
+            Text a photo of the problem to <span class="text-[var(--blue-700)] font-semibold">(785) 555-0199</span> — we'll quote in the morning, and there's an after-hours drop locker in the vestibule.
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- =================== FOOTER =================== -->
+<footer class="bg-[var(--blue-700)] text-white">
+  <div class="max-w-[1280px] mx-auto px-6 py-14 grid grid-cols-12 gap-8">
+    <div class="col-span-12 md:col-span-5">
+      <img src="csk-logo.svg" alt="" class="h-10" style="filter:brightness(0) invert(1)">
+      <p class="display text-[26px] mt-5 leading-[1.1] max-w-[24ch]">
+        A small computer shop on Wanamaker Road.
+      </p>
+      <p class="hand text-[var(--blue-100)] text-[20px] mt-2">— since 2007 —</p>
+    </div>
+    <div class="col-span-6 md:col-span-2">
+      <div class="font-semibold text-white/90 mb-3">Services</div>
+      <ul class="space-y-1.5 text-white/80 text-[14px]"><li>Laptop repair</li><li>Desktop repair</li><li>Virus cleanup</li><li>Data recovery</li><li>Custom builds</li><li>Linux installs</li></ul>
+    </div>
+    <div class="col-span-6 md:col-span-2">
+      <div class="font-semibold text-white/90 mb-3">The shop</div>
+      <ul class="space-y-1.5 text-white/80 text-[14px]"><li>About us</li><li>The team</li><li>Visit</li><li>Stories</li><li>Gift cards</li></ul>
+    </div>
+    <div class="col-span-12 md:col-span-3">
+      <div class="font-semibold text-white/90 mb-3">Stay in touch</div>
+      <p class="text-white/75 text-[14px] mb-4">One short letter a month. Tips, a strange repair, the dog.</p>
+      <form class="flex bg-white rounded-full p-1">
+        <input type="email" placeholder="your email" class="flex-1 bg-transparent text-[var(--ink)] placeholder-[var(--muted)] px-4 py-2 focus:outline-none">
+        <button class="rounded-full bg-[var(--ink)] text-white px-5 font-medium text-[14px]">Send</button>
+      </form>
+    </div>
+  </div>
+  <div class="border-t border-white/15">
+    <div class="max-w-[1280px] mx-auto px-6 py-5 flex flex-wrap justify-between text-[12.5px] text-white/65">
+      <div>© 2026 Computer Store KS · 2110 SW Wanamaker Rd, Topeka</div>
+      <div class="hand text-[16px]">made with care in Kansas</div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

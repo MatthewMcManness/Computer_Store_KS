@@ -125,8 +125,8 @@ const STYLES = `
 @keyframes c05via{0%,100%{opacity:.5;}50%{opacity:1;}}
 @media (min-width:768px){.c05-root .hero__floor{width:150%;height:78%;}}
 .c05-root .hero__mark{position:absolute;z-index:0;top:9%;right:-54px;width:220px;pointer-events:none;}
-.c05-root .hero__mark img{width:100%;filter:brightness(0) invert(1) drop-shadow(0 0 26px rgba(96,165,250,.55));opacity:.42;animation:c05mark 7s var(--ease-standard) infinite;}
-@media (min-width:768px){.c05-root .hero__mark{right:3%;top:14%;width:440px;}.c05-root .hero__mark img{opacity:.85;}}
+.c05-root .hero__mark img{width:100%;filter:brightness(1.15) saturate(1.12) drop-shadow(0 0 26px rgba(96,165,250,.55)) drop-shadow(0 0 9px rgba(147,197,253,.5));opacity:.55;animation:c05mark 7s var(--ease-standard) infinite;}
+@media (min-width:768px){.c05-root .hero__mark{right:3%;top:14%;width:440px;}.c05-root .hero__mark img{opacity:.92;}}
 @keyframes c05mark{0%,100%{transform:translateY(0);}50%{transform:translateY(-14px);}}
 .c05-root .hero__motes{position:absolute;inset:0;z-index:0;pointer-events:none;}
 .c05-root .mote{position:absolute;border-radius:50%;background:radial-gradient(circle,#93c5fd 0%,rgba(59,130,246,0) 70%);}
@@ -155,6 +155,8 @@ const STYLES = `
 @media (min-width:980px){.c05-root .svc-grid{grid-template-columns:repeat(3,1fr);}}
 .c05-root .svc-card{position:relative;overflow:hidden;background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius-brand-lg);padding:26px 22px 24px;transition:transform var(--duration-normal) var(--ease-out),box-shadow var(--duration-normal),border-color var(--duration-normal);}
 .c05-root .svc-card:hover{transform:translateY(-5px);box-shadow:0 16px 40px rgba(37,99,235,.16);border-color:rgba(59,130,246,.4);}
+.c05-root .svc-card__circ{position:absolute;top:-20px;right:-20px;width:130px;height:130px;opacity:.07;transition:opacity var(--duration-normal);pointer-events:none;}
+.c05-root .svc-card:hover .svc-card__circ{opacity:.18;}
 .c05-root .svc-icon{display:inline-flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:var(--radius-brand-md);background:linear-gradient(135deg,var(--primary-50),#fff);border:1px solid var(--primary-100);color:var(--primary-600);margin-bottom:16px;position:relative;z-index:1;}
 .c05-root .svc-icon svg{width:26px;height:26px;}
 .c05-root .svc-card h3{font-size:1.2rem;font-weight:700;position:relative;z-index:1;}
@@ -241,6 +243,14 @@ const STYLES = `
 .c05-root .footer-bottom{position:relative;margin-top:36px;padding-top:22px;border-top:1px solid rgba(255,255,255,.12);display:flex;flex-direction:column;gap:8px;align-items:center;text-align:center;color:#8b9bbb;font-size:.85rem;}
 @media (min-width:700px){.c05-root .footer-bottom{flex-direction:row;justify-content:space-between;text-align:left;}}
 
+.c05-root .band__circ{position:absolute;inset:0;opacity:.12;pointer-events:none;-webkit-mask-image:linear-gradient(180deg,transparent,#000 30%,#000 70%,transparent);mask-image:linear-gradient(180deg,transparent,#000 30%,#000 70%,transparent);}
+.c05-root .band__circ img{width:100%;height:100%;object-fit:cover;}
+.c05-root .plans__circ{position:absolute;inset:0;z-index:0;opacity:.08;pointer-events:none;-webkit-mask-image:radial-gradient(120% 90% at 50% 0%,#000 35%,transparent 78%);mask-image:radial-gradient(120% 90% at 50% 0%,#000 35%,transparent 78%);}
+.c05-root .plans__circ img{width:100%;height:100%;object-fit:cover;}
+.c05-root .cta__circ{position:absolute;inset:0;opacity:.16;pointer-events:none;-webkit-mask-image:radial-gradient(120% 120% at 50% 0%,#000 40%,transparent 80%);mask-image:radial-gradient(120% 120% at 50% 0%,#000 40%,transparent 80%);}
+.c05-root .cta__circ img{width:100%;height:100%;object-fit:cover;}
+.c05-root .site-footer__circ{position:absolute;inset:0;opacity:.08;pointer-events:none;}
+.c05-root .site-footer__circ img{width:100%;height:100%;object-fit:cover;}
 .c05-root .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s var(--ease-out),transform .7s var(--ease-out);}
 .c05-root .reveal.is-in{opacity:1;transform:none;}
 @media (prefers-reduced-motion:reduce){.c05-root .reveal{opacity:1;transform:none;transition:none;}.c05-root .hero__floor,.c05-root .plan__badge{animation:none;}}
@@ -377,36 +387,42 @@ export default function Concept05() {
             </div>
             <div className="svc-grid">
               <article className="svc-card reveal">
+                <img className="svc-card__circ" src="/assets/circuit-accent-blue.svg" alt="" />
                 <span className="svc-icon"><ShieldCheck /></span>
                 <h3>Virus &amp; Malware Removal</h3>
                 <p>Deep-clean infections and lock your system back down &mdash; plan members save 50% on every removal.</p>
                 <a className="svc-card__link" href="/services/virus-removal">Learn more <ArrowRight /></a>
               </article>
               <article className="svc-card reveal">
+                <img className="svc-card__circ" src="/assets/circuit-accent-blue.svg" alt="" />
                 <span className="svc-icon"><Wrench /></span>
                 <h3>Repair &amp; Tune-Up</h3>
                 <p>Hardware fixes, speed-ups, and straight-talk diagnostics for any laptop or desktop.</p>
                 <a className="svc-card__link" href="/services/diagnostics">Learn more <ArrowRight /></a>
               </article>
               <article className="svc-card reveal">
+                <img className="svc-card__circ" src="/assets/circuit-accent-blue.svg" alt="" />
                 <span className="svc-icon"><Cpu /></span>
                 <h3>Custom PC Builds</h3>
                 <p>Custom desktops and gaming rigs, built and tested in-house to your budget and spec.</p>
                 <a className="svc-card__link" href="/services/custom-computers">Learn more <ArrowRight /></a>
               </article>
               <article className="svc-card reveal">
+                <img className="svc-card__circ" src="/assets/circuit-accent-blue.svg" alt="" />
                 <span className="svc-icon"><HardDrive /></span>
                 <h3>Data Recovery</h3>
                 <p>Failed drive? We rescue photos, documents, and business files when hardware gives out.</p>
                 <a className="svc-card__link" href="/services/data-services">Learn more <ArrowRight /></a>
               </article>
               <article className="svc-card reveal">
+                <img className="svc-card__circ" src="/assets/circuit-accent-blue.svg" alt="" />
                 <span className="svc-icon"><House /></span>
                 <h3>House Calls</h3>
                 <p>Can&rsquo;t make it in? We&rsquo;ll come to your home or office &mdash; Silver members get priority.</p>
                 <a className="svc-card__link" href="/contact">Learn more <ArrowRight /></a>
               </article>
               <article className="svc-card reveal">
+                <img className="svc-card__circ" src="/assets/circuit-accent-blue.svg" alt="" />
                 <span className="svc-icon"><Terminal /></span>
                 <h3>Why Linux?</h3>
                 <p>Breathe new life into older hardware with a fast, secure, no-bloat Linux setup.</p>
@@ -417,6 +433,7 @@ export default function Concept05() {
         </section>
 
         <section className="band section" id="why">
+          <div className="band__circ"><img src="/assets/circuit-field-blue.svg" alt="" /></div>
           <div className="wrap" style={{ position: 'relative' }}>
             <div className="section__head reveal">
               <span className="eyebrow eyebrow--light">Why Computer Store KS</span>
@@ -453,18 +470,21 @@ export default function Concept05() {
             </div>
             <div className="svc-grid">
               <article className="svc-card reveal">
+                <img className="svc-card__circ" src="/assets/circuit-accent-blue.svg" alt="" />
                 <span className="svc-icon"><Cpu /></span>
                 <h3>Gaming Pro Desktop</h3>
                 <p>RTX 4060 Ti &middot; Intel i7-12700K &middot; 32GB DDR4 &middot; 1TB NVMe SSD</p>
                 <a className="svc-card__link" href="/computers">View build <ArrowRight /></a>
               </article>
               <article className="svc-card reveal">
+                <img className="svc-card__circ" src="/assets/circuit-accent-blue.svg" alt="" />
                 <span className="svc-icon"><Laptop /></span>
                 <h3>Refurb Business Laptop</h3>
                 <p>15.6&quot; &middot; Intel i5 &middot; 16GB DDR4 &middot; 512GB SSD &middot; 3-mo parts warranty</p>
                 <a className="svc-card__link" href="/computers">View build <ArrowRight /></a>
               </article>
               <article className="svc-card reveal">
+                <img className="svc-card__circ" src="/assets/circuit-accent-blue.svg" alt="" />
                 <span className="svc-icon"><Monitor /></span>
                 <h3>Everyday Home Desktop</h3>
                 <p>Custom build &middot; Ryzen 5 &middot; 16GB &middot; 1TB SSD &middot; 1-year warranty</p>
@@ -475,6 +495,7 @@ export default function Concept05() {
         </section>
 
         <section className="section plans-section" id="plans">
+          <div className="plans__circ"><img src="/assets/circuit-field-blue.svg" alt="" /></div>
           <div className="wrap">
             <div className="section__head reveal" style={{ marginInline: 'auto', textAlign: 'center' }}>
               <span className="eyebrow" style={{ justifyContent: 'center' }}>Protection plans</span>
@@ -556,6 +577,7 @@ export default function Concept05() {
         </section>
 
         <section className="cta section" id="contact">
+          <div className="cta__circ"><img src="/assets/circuit-field-slate.svg" alt="" /></div>
           <div className="wrap">
             <h2>Something broken? Let&rsquo;s fix it today.</h2>
             <p>Book a repair, schedule a house call, or just ask a question &mdash; we usually reply within 24 hours.</p>
@@ -568,6 +590,7 @@ export default function Concept05() {
       </main>
 
       <footer className="site-footer">
+        <div className="site-footer__circ"><img src="/assets/circuit-field-blue.svg" alt="" /></div>
         <div className="wrap">
           <div className="footer-grid">
             <div className="footer-brand">

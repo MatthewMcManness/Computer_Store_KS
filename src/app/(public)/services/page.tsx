@@ -5,6 +5,23 @@
  */
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import {
+  ScanSearch,
+  Bug,
+  HardDriveDownload,
+  MonitorDown,
+  Cpu,
+  Gauge,
+  ShieldCheck,
+  Computer,
+  Laptop,
+  Monitor,
+  Printer,
+  Recycle,
+  BadgeCheck,
+  ArrowRight,
+  type LucideIcon,
+} from 'lucide-react';
 import { ChevronSection } from '@/components/static/ChevronSection';
 
 export const metadata: Metadata = {
@@ -17,85 +34,119 @@ export const metadata: Metadata = {
   },
 };
 
-const services = [
+interface Service {
+  href: string;
+  title: string;
+  description: string;
+  Icon: LucideIcon;
+  featured?: boolean;
+  silver?: boolean;
+}
+
+/** The three flagship services, surfaced in the Featured section up top. */
+const featuredServices: { href: string; title: string; description: string; Icon: LucideIcon; cta: string }[] = [
+  {
+    href: '/services/custom-computers',
+    title: 'Custom-Built PCs',
+    description: 'Your vision, expertly built. Gaming rigs, workstations, and servers assembled with quality parts and clean cable management. Free lifetime diagnostics on every build.',
+    Icon: Computer,
+    cta: 'Build Yours',
+  },
+  {
+    href: '/silver-plan',
+    title: 'Protection Plans',
+    description: 'Bronze, Silver, and Gold plans bundle antivirus, repair discounts, and priority service into ongoing peace of mind for your computer.',
+    Icon: BadgeCheck,
+    cta: 'Compare Plans',
+  },
+  {
+    href: '/services/recycling',
+    title: 'Free Electronics Recycling',
+    description: 'Drop off old computers, TVs, consoles, and more at no cost. Guaranteed data destruction and responsible disposal that keeps e-waste out of the landfill.',
+    Icon: Recycle,
+    cta: 'Learn More',
+  },
+];
+
+const services: Service[] = [
   {
     href: '/services/diagnostics',
     title: 'Diagnostics',
     description: 'Thorough troubleshooting to identify issues quickly and accurately. Diagnostic fee rolls into the repair cost.',
-    icon: '🔍',
+    Icon: ScanSearch,
   },
   {
     href: '/services/virus-removal',
     title: 'Virus & Malware Removal',
     description: 'Complete removal of viruses, malware, spyware, and rootkits. Your computer returned clean and protected.',
-    icon: '🛡️',
+    Icon: Bug,
   },
   {
     href: '/services/data-services',
     title: 'Data Transfer & Cloning',
     description: 'Move your files, settings, and programs to a new computer. Drive cloning and data recovery available.',
-    icon: '💾',
+    Icon: HardDriveDownload,
   },
   {
     href: '/services/os-installation',
     title: 'OS Installation',
     description: 'Fresh Windows or Linux installation. Dual-boot setups available. Windows license included.',
-    icon: '💻',
+    Icon: MonitorDown,
   },
   {
     href: '/services/upgrades',
     title: 'Hardware Upgrades',
     description: 'RAM, SSD, graphics cards, processors, and more. Breathe new life into your existing computer.',
-    icon: '⚡',
+    Icon: Cpu,
   },
   {
     href: '/services/debloat',
     title: 'Windows Debloat',
     description: 'Remove bloatware and optimize Windows for speed. Free on all computers purchased from us.',
-    icon: '🧹',
+    Icon: Gauge,
   },
   {
     href: '/services/antivirus',
     title: 'Antivirus & Protection',
     description: 'Professional antivirus software installation and scam protection to keep you safe online.',
-    icon: '🔒',
+    Icon: ShieldCheck,
   },
   {
     href: '/services/custom-computers',
     title: 'Custom-Built PCs',
     description: 'Gaming rigs, workstations, home offices, and servers. Quality parts, expert assembly, free lifetime diagnostics.',
-    icon: '🖥️',
+    Icon: Computer,
     featured: true,
   },
   {
     href: '/services/laptops',
     title: 'Laptops',
     description: 'New Asus and Lenovo laptops, plus quality refurbished options. Custom orders available.',
-    icon: '💼',
+    Icon: Laptop,
   },
   {
     href: '/services/desktops',
     title: 'Refurbished Desktops',
     description: 'Quality refurbished desktop computers. Cleaned, tested, and ready to work for years to come.',
-    icon: '🖱️',
+    Icon: Monitor,
   },
   {
     href: '/services/printers',
     title: 'Printers',
     description: 'New Brother printers for sale plus repair service for Brother and other brands. $50 in-home setup with purchase.',
-    icon: '🖨️',
+    Icon: Printer,
   },
   {
     href: '/services/recycling',
     title: 'Free Electronics Recycling',
     description: 'Drop off old computers, TVs, radios, consoles, and more. Data destruction guaranteed. No cost to you.',
-    icon: '♻️',
+    Icon: Recycle,
   },
   {
     href: '/silver-plan',
     title: 'Protection Plans',
     description: 'Bronze, Silver, and Gold protection plans with antivirus, discounts on repairs, priority service, and peace of mind.',
-    icon: '🛡️',
+    Icon: BadgeCheck,
     silver: true,
   },
 ];
@@ -114,22 +165,23 @@ export default function ServicesPage() {
       {/* Featured Section */}
       <ChevronSection topShape="v" bottomShape="v" className="texture-circuit py-20 relative bg-bg-light">
         <div className="w-[90%] max-w-[1200px] mx-auto px-4">
-          <h2 className="text-center mb-12">Featured</h2>
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-8 mt-12">
-            <Link href="/services/custom-computers" className="no-underline text-inherit block">
-              <div className="bg-white rounded-brand-lg p-8 shadow-brand-sm border border-bg-dark transition-all duration-normal hover:-translate-y-2 hover:shadow-brand-lg hover:border-primary-100 cursor-pointer">
-                <h3>🖥️ Custom-Built PCs</h3>
-                <p>Your vision, expertly built. Gaming rigs, workstations, servers—we build it all with quality parts and clean cable management. Free lifetime diagnostics on every build.</p>
-                <span className="text-primary-600 font-semibold text-sm inline-flex items-center gap-1 mt-auto">Learn More →</span>
-              </div>
-            </Link>
-            <Link href="/why-linux" className="no-underline text-inherit block">
-              <div className="bg-white rounded-brand-lg p-8 shadow-brand-sm border border-bg-dark transition-all duration-normal hover:-translate-y-2 hover:shadow-brand-lg hover:border-primary-100 cursor-pointer">
-                <h3>🐧 Why Linux?</h3>
-                <p>Windows 10 support ends October 2025. Your computer doesn&apos;t have to become obsolete. Linux runs faster, stays secure, and respects your privacy.</p>
-                <span className="text-primary-600 font-semibold text-sm inline-flex items-center gap-1 mt-auto">Discover Linux →</span>
-              </div>
-            </Link>
+          <h2 className="text-center mb-4">Featured Services</h2>
+          <p className="text-center text-gray-500 text-[1.1rem] mb-12 max-w-[700px] mx-auto">The work our customers come back for, again and again.</p>
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-8">
+            {featuredServices.map((service) => (
+              <Link key={service.href} href={service.href} className="group no-underline text-inherit block">
+                <div className="h-full bg-white rounded-brand-lg p-8 shadow-brand-sm border border-bg-dark flex flex-col transition-all duration-normal hover:-translate-y-2 hover:shadow-brand-lg hover:border-primary-300">
+                  <span className="inline-flex items-center justify-center w-14 h-14 rounded-brand-md bg-primary-600 text-white mb-5">
+                    <service.Icon className="w-7 h-7" strokeWidth={1.5} aria-hidden="true" />
+                  </span>
+                  <h3 className="text-[1.35rem] text-gray-900 mb-3 leading-tight">{service.title}</h3>
+                  <p className="text-gray-600 leading-relaxed mb-6 flex-1">{service.description}</p>
+                  <span className="text-primary-600 font-semibold text-sm inline-flex items-center gap-1.5 mt-auto transition-all duration-fast group-hover:gap-2.5">
+                    {service.cta} <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                  </span>
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
       </ChevronSection>
@@ -143,14 +195,16 @@ export default function ServicesPage() {
           <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-6 mt-8">
             {services.map((service) => (
               <Link
-                key={service.href}
+                key={service.title}
                 href={service.href}
-                className={`service-card-bar flex flex-col bg-white rounded-brand-lg p-7 shadow-brand-md transition-all duration-normal no-underline text-inherit border-2 border-transparent relative overflow-hidden hover:-translate-y-1 hover:shadow-brand-lg hover:border-primary-300 ${(service as { featured?: boolean }).featured ? 'featured border-primary-600 bg-[linear-gradient(135deg,white_0%,rgba(37,99,235,0.03)_100%)]' : ''} ${(service as { silver?: boolean }).silver ? 'service-card-silver' : ''}`}
+                className={`group service-card-bar flex flex-col bg-white rounded-brand-lg p-7 shadow-brand-md transition-all duration-normal no-underline text-inherit border-2 border-transparent relative overflow-hidden hover:-translate-y-1 hover:shadow-brand-lg hover:border-primary-300 ${service.featured ? 'featured border-primary-600 bg-[linear-gradient(135deg,white_0%,rgba(37,99,235,0.03)_100%)]' : ''} ${service.silver ? 'service-card-silver' : ''}`}
               >
-                <span className="text-[2.5rem] mb-4 block">{service.icon}</span>
+                <span className="inline-flex items-center justify-center w-14 h-14 rounded-brand-md bg-primary-100 text-primary-600 mb-4">
+                  <service.Icon className="w-7 h-7" strokeWidth={1.5} aria-hidden="true" />
+                </span>
                 <h3 className="text-[1.25rem] text-gray-900 mb-3 leading-tight">{service.title}</h3>
                 <p className="text-[0.95rem] text-gray-600 leading-relaxed mb-4 flex-1">{service.description}</p>
-                <span className="text-primary-600 font-semibold text-sm inline-flex items-center gap-1 mt-auto transition-all duration-fast hover:gap-2">View Details →</span>
+                <span className="text-primary-600 font-semibold text-sm inline-flex items-center gap-1.5 mt-auto transition-all duration-fast group-hover:gap-2.5">View Details <ArrowRight className="w-4 h-4" aria-hidden="true" /></span>
               </Link>
             ))}
           </div>

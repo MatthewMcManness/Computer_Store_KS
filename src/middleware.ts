@@ -57,7 +57,7 @@ function addSecurityHeaders(response: NextResponse): void {
     "default-src 'self'",
     `script-src 'self' 'unsafe-inline'${scriptSrcExtras} https://www.googletagmanager.com https://www.google-analytics.com https://challenges.cloudflare.com`,
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob: https://*.supabase.co https://*.supabase.in https://images.unsplash.com https://raw.githubusercontent.com",
+    "img-src 'self' data: blob: https://*.supabase.co https://*.supabase.in https://images.unsplash.com https://raw.githubusercontent.com https://*.googleusercontent.com",
     "connect-src 'self' https://*.supabase.co https://*.supabase.in https://www.google-analytics.com https://challenges.cloudflare.com",
     "frame-src https://challenges.cloudflare.com https://www.google.com https://cmc-td.com https://cmcengage.com",
     "font-src 'self'",

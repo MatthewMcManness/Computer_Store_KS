@@ -13,52 +13,6 @@ import Link from 'next/link';
 import { BUSINESS_INFO } from '@/lib/constants';
 import type { DisplayReview } from '@/types/google-business';
 
-// Fallback reviews when API is not configured
-const fallbackReviews: DisplayReview[] = [
-  {
-    id: '1',
-    authorName: 'Kristina Jones',
-    rating: 5,
-    text: "Signing up for a Computer Protection Plan from The Computer Store was the best decision I've made in years. My computer has never run better!",
-    date: '2024-11-15T00:00:00Z',
-  },
-  {
-    id: '2',
-    authorName: 'Matt Thompson',
-    rating: 5,
-    text: "Not only did The Computer Store fix my problem a lot faster than the big box store, they did so at just under half the cost. Highly recommend!",
-    date: '2024-10-28T00:00:00Z',
-  },
-  {
-    id: '3',
-    authorName: 'Andrew Davis',
-    rating: 5,
-    text: "The technician managed to recover all my data from a failed hard drive. Saved me a lot of headache and money — thank you Computer Store!",
-    date: '2024-09-22T00:00:00Z',
-  },
-  {
-    id: '4',
-    authorName: 'Sarah Mitchell',
-    rating: 5,
-    text: 'Excellent service! They fixed my laptop the same day I brought it in. Very professional and reasonably priced.',
-    date: '2024-08-15T00:00:00Z',
-  },
-  {
-    id: '5',
-    authorName: 'David Kim',
-    rating: 5,
-    text: 'Quick turnaround on my desktop repair. Fair prices and friendly staff. Will definitely come back.',
-    date: '2024-07-10T00:00:00Z',
-  },
-  {
-    id: '6',
-    authorName: 'Jennifer Roberts',
-    rating: 5,
-    text: 'The team really knows their stuff. Fixed a virus issue that another shop couldn\'t figure out. Great local business!',
-    date: '2024-06-05T00:00:00Z',
-  },
-];
-
 /**
  * Renders a row of star icons representing a rating out of 5.
  *
@@ -155,10 +109,10 @@ interface ReviewsWidgetProps {
  * @version 1.1.0 - 2026-03-20T00:00:00Z - Converted from CSS Modules to Tailwind
  */
 export function ReviewsWidget({ maxReviews = 6 }: ReviewsWidgetProps) {
-  const [reviews, setReviews] = useState<DisplayReview[]>(fallbackReviews.slice(0, maxReviews));
-  const [stats, setStats] = useState({ averageRating: 5.0, totalCount: fallbackReviews.length });
+  const [reviews, setReviews] = useState<DisplayReview[]>([]);
+  const [stats, setStats] = useState({ averageRating: 0, totalCount: 0 });
   const [currentPage, setCurrentPage] = useState(0);
-  const [isFromGoogle, setIsFromGoogle] = useState(false);
+  const [loading, setLoading] = useState(true);
   const reviewsPerPage = 3;
 
   useEffect(() => {
@@ -178,11 +132,12 @@ export function ReviewsWidget({ maxReviews = 6 }: ReviewsWidgetProps) {
               averageRating: result.data.stats.averageRating,
               totalCount: result.data.stats.totalCount,
             });
-            setIsFromGoogle(true);
           }
         }
       } catch {
-        // API unavailable; continue with fallback reviews
+        // API unavailable; the widget hides itself rather than show fake reviews
+      } finally {
+        setLoading(false);
       }
     }
 
@@ -218,6 +173,11 @@ export function ReviewsWidget({ maxReviews = 6 }: ReviewsWidgetProps) {
     return 'hidden lg:flex';
   }
 
+  // Once loaded, if there are no reviews to show (e.g. the API is briefly
+  // unavailable) hide the whole section rather than render an empty shell
+  // or any fabricated content.
+  if (!loading && reviews.length === 0) return null;
+
   return (
     <div className="w-[90%] max-w-[1200px] mx-auto px-4">
         {/* Header */}
@@ -225,10 +185,16 @@ export function ReviewsWidget({ maxReviews = 6 }: ReviewsWidgetProps) {
           <div className="flex flex-col gap-2">
             <h2 className="text-[1.75rem] max-md:text-2xl font-bold text-gray-900 m-0">Our Google Reviews</h2>
             <div className="flex items-center gap-3">
-              <StarRating rating={Math.round(stats.averageRating)} />
-              <span className="text-gray-700 text-base">
-                {stats.averageRating.toFixed(1)} rating of {stats.totalCount} reviews
-              </span>
+              {loading ? (
+                <span className="w-48 h-6 rounded bg-gray-200 animate-pulse" />
+              ) : (
+                <>
+                  <StarRating rating={Math.round(stats.averageRating)} />
+                  <span className="text-gray-700 text-base">
+                    {stats.averageRating.toFixed(1)} rating of {stats.totalCount} reviews
+                  </span>
+                </>
+              )}
             </div>
           </div>
           <a
@@ -242,6 +208,21 @@ export function ReviewsWidget({ maxReviews = 6 }: ReviewsWidgetProps) {
         </div>
 
         {/* Reviews Cards */}
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                className={`${getCardVisibilityClass(i)} bg-white rounded-brand-md py-8 px-6 flex-col items-center shadow-brand-md animate-pulse`}
+              >
+                <div className="w-16 h-16 rounded-full bg-gray-200 mb-4" />
+                <div className="w-24 h-4 rounded bg-gray-200 mb-2" />
+                <div className="w-16 h-3 rounded bg-gray-200 mb-4" />
+                <div className="w-full h-20 rounded bg-gray-200" />
+              </div>
+            ))}
+          </div>
+        ) : (
         <div className="relative flex items-center gap-4">
           {totalPages > 1 && (
             <button
@@ -298,6 +279,7 @@ export function ReviewsWidget({ maxReviews = 6 }: ReviewsWidgetProps) {
             </button>
           )}
         </div>
+        )}
 
         {/* View All Link */}
         <div className="text-center mt-8">

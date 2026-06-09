@@ -8,9 +8,22 @@
 
 ## Current Phase
 
-**Phase 3 — Live in production, blocked on Google's GBP API allowlist approval email.**
+**Phase 4 — LIVE. Real Google reviews flowing end-to-end.**
 
-OAuth grant is stored in Supabase. Reviews cache is empty (Google returned 429 on first `accounts.list` call — the policy gate for not-yet-allowlisted projects). When Google's approval email arrives, the operator runs one POST to `/api/google-business/refresh` and the cache populates with real reviews. UI still serves the hardcoded fallback reviewer names until that moment, by design.
+Google approved the GBP API allowlist (email received 2026-06-09). Enabling the
+legacy `mybusiness.googleapis.com` API in the Cloud Console cleared the final
+`403 SERVICE_DISABLED` error, and a `POST /api/google-business/refresh` populated
+the cache with real 5-star reviews (Anthony Esquivel, Sean Kelley, etc.).
+`/api/google-business/reviews` now returns live data instead of `502`.
+
+Phase 4 cleanup shipped 2026-06-09: hardcoded fallback reviewer names removed from
+both `ReviewsWidget` and `ReviewsDisplay` (replaced with loading skeletons + a
+neutral Google CTA), and the CSP `img-src` now allows `*.googleusercontent.com`
+so reviewer profile photos render instead of falling back to alt text.
+
+Separately, `/api/health` was made `force-dynamic` (commit `cd713bb`) — it was
+statically cached, so the Supabase keep-alive query never ran in prod and the
+free-tier DB auto-paused after 7 days, breaking logins. Now fixed.
 
 ---
 

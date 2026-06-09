@@ -9,6 +9,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { BUSINESS_INFO } from '@/lib/constants';
 import type { DisplayReview } from '@/types/google-business';
 
 interface ReviewsData {
@@ -25,7 +26,7 @@ interface ReviewsData {
  * @param rating - Integer rating from 1 to 5
  * @returns Star rating element with aria label for accessibility
  *
- * @called_by ReviewCard, FallbackReviews, ReviewsDisplay
+ * @called_by ReviewCard, ReviewsDisplay
  *
  * @version 1.0.0 - 2025-06-01T00:00:00Z - Initial implementation
  * @version 1.1.0 - 2026-03-20T00:00:00Z - Migrated from CSS Modules to Tailwind
@@ -71,7 +72,7 @@ function formatDate(dateString: string): string {
  * @returns Review card element
  *
  * @functions_called StarRating, formatDate
- * @called_by FallbackReviews, ReviewsDisplay
+ * @called_by ReviewsDisplay
  *
  * @version 1.0.0 - 2025-06-01T00:00:00Z - Initial implementation
  * @version 1.1.0 - 2026-03-20T00:00:00Z - Migrated from CSS Modules to Tailwind
@@ -149,130 +150,39 @@ function ReviewsSkeleton() {
 }
 
 /**
- * Renders static fallback reviews when the Google Business API is not configured.
+ * Fetches and displays live Google Business reviews with a loading skeleton.
  *
- * Displays hardcoded 5-star reviews to ensure the reviews section always has content.
- *
- * @returns Fallback reviews layout with stats header and review cards
- *
- * @functions_called StarRating, ReviewCard
- * @called_by ReviewsDisplay
- *
- * @version 1.0.0 - 2025-06-01T00:00:00Z - Initial implementation
- * @version 1.1.0 - 2026-03-20T00:00:00Z - Migrated from CSS Modules to Tailwind
- */
-function FallbackReviews() {
-  // Static fallback reviews when API is not configured
-  const fallbackReviews: DisplayReview[] = [
-    {
-      id: '1',
-      authorName: 'Sarah M.',
-      rating: 5,
-      text: 'Excellent service! They fixed my laptop the same day I brought it in. Very professional and reasonably priced.',
-      date: '2024-11-15T00:00:00Z',
-    },
-    {
-      id: '2',
-      authorName: 'Mike T.',
-      rating: 5,
-      text: 'Been going here for years. Always honest about what needs to be done and what doesn\'t. Highly recommend!',
-      date: '2024-10-28T00:00:00Z',
-    },
-    {
-      id: '3',
-      authorName: 'Jennifer R.',
-      rating: 5,
-      text: 'Great customer service. They explained everything in terms I could understand and my computer runs like new.',
-      date: '2024-10-10T00:00:00Z',
-    },
-    {
-      id: '4',
-      authorName: 'David K.',
-      rating: 5,
-      text: 'Quick turnaround on my desktop repair. Fair prices and friendly staff. Will definitely come back.',
-      date: '2024-09-22T00:00:00Z',
-    },
-    {
-      id: '5',
-      authorName: 'Lisa H.',
-      rating: 5,
-      text: 'The team here really knows their stuff. Fixed a virus issue that another shop couldn\'t figure out.',
-      date: '2024-09-05T00:00:00Z',
-    },
-    {
-      id: '6',
-      authorName: 'Robert J.',
-      rating: 5,
-      text: 'Trustworthy and reliable. They\'ve been serving Topeka for 20 years for good reason!',
-      date: '2024-08-18T00:00:00Z',
-    },
-  ];
-
-  return (
-    <>
-      <div className="text-center mb-12 pb-8 border-b border-bg-dark">
-        <div className="flex items-center justify-center gap-4 mb-2">
-          <span className="text-5xl max-md:text-4xl font-bold text-gray-900">5.0</span>
-          <StarRating rating={5} />
-        </div>
-        <p className="text-gray-500 m-0">Based on customer feedback</p>
-        <p className="text-gray-500 text-sm mt-2">
-          <em>Connect your Google Business Profile to display live reviews</em>
-        </p>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-[repeat(auto-fill,minmax(350px,1fr))] gap-6">
-        {fallbackReviews.map((review) => (
-          <ReviewCard key={review.id} review={review} />
-        ))}
-      </div>
-    </>
-  );
-}
-
-/**
- * Fetches and displays Google Business reviews with loading skeleton and fallback states.
- *
- * On mount, fetches reviews from the internal API. Shows a skeleton loader while fetching,
- * falls back to static reviews if the API is not configured (503) or on error, and renders
- * live review data with aggregate stats when available.
+ * On mount, fetches reviews from the internal API. Shows a skeleton loader
+ * while fetching, and renders live review data with aggregate stats when
+ * available. If the API is ever unavailable it shows a neutral link to the
+ * shop's Google listing rather than any fabricated review content.
  *
  * @returns Reviews display with stats header and review card grid
  *
  * @sideEffects
  * - Fetches from /api/google-business/reviews on mount
  *
- * @functions_called StarRating, ReviewCard, ReviewsSkeleton, FallbackReviews
+ * @functions_called StarRating, ReviewCard, ReviewsSkeleton
  * @called_by ReviewsPage (src/app/(public)/reviews/page.tsx)
  *
  * @version 1.0.0 - 2025-06-01T00:00:00Z - Initial implementation
  * @version 1.1.0 - 2026-03-20T00:00:00Z - Migrated from CSS Modules to Tailwind
+ * @version 2.0.0 - 2026-06-09T00:00:00Z - Removed hardcoded fallback reviews; live data only
  */
 export function ReviewsDisplay() {
   const [data, setData] = useState<ReviewsData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [useFallback, setUseFallback] = useState(false);
 
   useEffect(() => {
     async function fetchReviews() {
       try {
         const response = await fetch('/api/google-business/reviews');
         const result = await response.json();
-
-        if (!result.success) {
-          // If not configured, use fallback
-          if (response.status === 503) {
-            setUseFallback(true);
-          } else {
-            setError(result.error || 'Failed to load reviews');
-          }
-          return;
+        if (result.success) {
+          setData(result.data);
         }
-
-        setData(result.data);
       } catch (err) {
         console.error('Error fetching reviews:', err);
-        setUseFallback(true);
       } finally {
         setLoading(false);
       }
@@ -285,15 +195,18 @@ export function ReviewsDisplay() {
     return <ReviewsSkeleton />;
   }
 
-  if (useFallback || error) {
-    return <FallbackReviews />;
-  }
-
   if (!data || data.reviews.length === 0) {
     return (
       <div className="text-center p-12 text-gray-500">
-        <h3 className="text-gray-900 mb-2">No Reviews Yet</h3>
-        <p>Be the first to leave a review!</p>
+        <p className="mb-4">See all our customer reviews on Google.</p>
+        <a
+          href={BUSINESS_INFO.socialMedia.google}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block py-3 px-6 border-2 border-primary-600 text-primary-600 rounded-brand-sm font-semibold no-underline transition-all duration-normal hover:bg-primary-600 hover:text-white"
+        >
+          Read our Google reviews
+        </a>
       </div>
     );
   }

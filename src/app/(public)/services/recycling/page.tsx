@@ -41,7 +41,7 @@ export default function RecyclingPage() {
 
             <div className="bg-white rounded-brand-lg p-8 shadow-brand-sm border border-bg-dark transition-all duration-normal hover:-translate-y-2 hover:shadow-brand-lg hover:border-primary-100">
               <h3>TVs &amp; Monitors</h3>
-              <p>CRT televisions, flat screens, computer monitors of all types. Even that heavy old tube TV you&apos;ve been meaning to get rid of.</p>
+              <p>Flat-screen TVs and computer monitors of all types and sizes. Please note: we can no longer accept CRT or tube TVs.</p>
             </div>
 
             <div className="bg-white rounded-brand-lg p-8 shadow-brand-sm border border-bg-dark transition-all duration-normal hover:-translate-y-2 hover:shadow-brand-lg hover:border-primary-100">

@@ -9,14 +9,13 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { isAuthenticated } from '@/lib/supabase-auth';
 import { getActiveSlides, getAllSlides, createSlide } from '@/lib/slideshow';
-import { isSupabaseConfigured, isSupabaseAdminConfigured } from '@/lib/supabase';
+import { isDbConfigured } from '@/lib/db';
 import type { CreateSlideInput } from '@/types/slideshow';
 
 export async function GET(request: NextRequest) {
   try {
-    if (!isSupabaseConfigured()) {
+    if (!isDbConfigured()) {
       return NextResponse.json(
         { success: false, error: 'Database not configured' },
         { status: 503 }
@@ -27,13 +26,6 @@ export async function GET(request: NextRequest) {
     const isAdmin = searchParams.get('admin') === 'true';
 
     if (isAdmin) {
-      const authenticated = await isAuthenticated();
-      if (!authenticated) {
-        return NextResponse.json(
-          { success: false, error: 'Unauthorized' },
-          { status: 401 }
-        );
-      }
       const slides = await getAllSlides();
       return NextResponse.json({ success: true, data: slides });
     }
@@ -51,17 +43,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const authenticated = await isAuthenticated();
-    if (!authenticated) {
+    if (!isDbConfigured()) {
       return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    if (!isSupabaseAdminConfigured()) {
-      return NextResponse.json(
-        { success: false, error: 'Database admin not configured' },
+        { success: false, error: 'Database not configured' },
         { status: 503 }
       );
     }

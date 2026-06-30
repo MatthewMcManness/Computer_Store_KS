@@ -8,23 +8,14 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { isAuthenticated } from '@/lib/supabase-auth';
 import { getArchivedSlides, hardDeleteSlide } from '@/lib/slideshow';
-import { isSupabaseAdminConfigured } from '@/lib/supabase';
+import { isDbConfigured } from '@/lib/db';
 
 export async function GET() {
   try {
-    const authenticated = await isAuthenticated();
-    if (!authenticated) {
+    if (!isDbConfigured()) {
       return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    if (!isSupabaseAdminConfigured()) {
-      return NextResponse.json(
-        { success: false, error: 'Database admin not configured' },
+        { success: false, error: 'Database not configured' },
         { status: 503 }
       );
     }
@@ -42,17 +33,9 @@ export async function GET() {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const authenticated = await isAuthenticated();
-    if (!authenticated) {
+    if (!isDbConfigured()) {
       return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    if (!isSupabaseAdminConfigured()) {
-      return NextResponse.json(
-        { success: false, error: 'Database admin not configured' },
+        { success: false, error: 'Database not configured' },
         { status: 503 }
       );
     }

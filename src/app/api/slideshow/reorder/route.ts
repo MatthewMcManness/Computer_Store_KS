@@ -8,23 +8,14 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { isAuthenticated } from '@/lib/supabase-auth';
 import { reorderSlides } from '@/lib/slideshow';
-import { isSupabaseAdminConfigured } from '@/lib/supabase';
+import { isDbConfigured } from '@/lib/db';
 
 export async function POST(request: NextRequest) {
   try {
-    const authenticated = await isAuthenticated();
-    if (!authenticated) {
+    if (!isDbConfigured()) {
       return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    if (!isSupabaseAdminConfigured()) {
-      return NextResponse.json(
-        { success: false, error: 'Database admin not configured' },
+        { success: false, error: 'Database not configured' },
         { status: 503 }
       );
     }

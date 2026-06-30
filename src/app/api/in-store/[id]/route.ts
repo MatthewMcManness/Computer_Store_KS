@@ -9,7 +9,6 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { isAuthenticated } from '@/lib/supabase-auth';
 import {
   getComputerById,
   getComputerByIdAdmin,
@@ -17,10 +16,7 @@ import {
   deleteComputer,
   parsePrice,
 } from '@/lib/gallery';
-import {
-  isSupabaseConfigured,
-  isSupabaseAdminConfigured,
-} from '@/lib/supabase';
+import { isDbConfigured } from '@/lib/db';
 import type { GallerySpec } from '@/types/gallery';
 
 // GET /api/in-store/[id] - Get single computer
@@ -29,7 +25,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    if (!isSupabaseConfigured()) {
+    if (!isDbConfigured()) {
       return NextResponse.json(
         { success: false, error: 'Database not configured' },
         { status: 503 }
@@ -47,19 +43,12 @@ export async function GET(
       );
     }
 
-    // Check if admin mode requested
+    // Check if admin mode requested (admin access is gated at the edge)
     const { searchParams } = new URL(request.url);
     const isAdmin = searchParams.get('admin') === 'true';
 
     let computer;
     if (isAdmin) {
-      const authenticated = await isAuthenticated();
-      if (!authenticated) {
-        return NextResponse.json(
-          { success: false, error: 'Unauthorized' },
-          { status: 401 }
-        );
-      }
       computer = await getComputerByIdAdmin(id);
     } else {
       computer = await getComputerById(id);
@@ -91,18 +80,9 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    // Check authentication
-    const authenticated = await isAuthenticated();
-    if (!authenticated) {
+    if (!isDbConfigured()) {
       return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    if (!isSupabaseAdminConfigured()) {
-      return NextResponse.json(
-        { success: false, error: 'Database admin not configured' },
+        { success: false, error: 'Database not configured' },
         { status: 503 }
       );
     }
@@ -166,18 +146,9 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    // Check authentication
-    const authenticated = await isAuthenticated();
-    if (!authenticated) {
+    if (!isDbConfigured()) {
       return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    if (!isSupabaseAdminConfigured()) {
-      return NextResponse.json(
-        { success: false, error: 'Database admin not configured' },
+        { success: false, error: 'Database not configured' },
         { status: 503 }
       );
     }

@@ -614,7 +614,7 @@ export default function Concept05() {
                 <a href={`tel:${PHONE_TEL}`}>{PHONE_FMT}</a>
                 <p>Mon&ndash;Fri 10am&ndash;6pm<br />Sat 10am&ndash;2pm &middot; Sun Closed</p>
               </div>
-              <a href="/login">Employee Login</a>
+              <a href="/admin">Employee Login</a>
             </div>
           </div>
           <div className="footer-bottom">

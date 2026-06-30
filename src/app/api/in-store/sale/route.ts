@@ -5,25 +5,21 @@
  * WHEN TO EDIT: When changing how sales are activated or what sale data is returned.
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { isAuthenticated } from '@/lib/supabase-auth';
 import {
   getActiveSale,
   getAvailableSales,
   setActiveSale,
   getAvailableSalesAdmin,
 } from '@/lib/gallery';
-import {
-  isSupabaseConfigured,
-  isSupabaseAdminConfigured,
-} from '@/lib/supabase';
+import { isDbConfigured } from '@/lib/db';
 import { AVAILABLE_SALES } from '@/types/gallery';
 import type { SaleType } from '@/types/gallery';
 
 // GET /api/in-store/sale - Get current sale setting
 export async function GET() {
   try {
-    if (!isSupabaseConfigured()) {
-      // Fallback to static config if Supabase not configured
+    if (!isDbConfigured()) {
+      // Fallback to static config if the database is not configured
       return NextResponse.json({
         success: true,
         data: {
@@ -73,18 +69,9 @@ export async function GET() {
 // POST /api/in-store/sale - Update global sale setting
 export async function POST(request: NextRequest) {
   try {
-    // Check authentication
-    const authenticated = await isAuthenticated();
-    if (!authenticated) {
+    if (!isDbConfigured()) {
       return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    if (!isSupabaseAdminConfigured()) {
-      return NextResponse.json(
-        { success: false, error: 'Database admin not configured' },
+        { success: false, error: 'Database not configured' },
         { status: 503 }
       );
     }

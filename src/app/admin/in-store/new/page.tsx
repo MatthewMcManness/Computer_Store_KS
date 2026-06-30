@@ -3,19 +3,11 @@
  *
  * WHEN TO EDIT: When changing what info is collected for new computers.
  */
-import { redirect } from 'next/navigation';
-import { isAuthenticated } from '@/lib/supabase-auth';
 import { ComputerForm } from '@/components/admin';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 
 export default async function AddComputerPage() {
-  // Check authentication
-  const authenticated = await isAuthenticated();
-  if (!authenticated) {
-    redirect('/login');
-  }
-
   return (
     <div>
       {/* Header */}

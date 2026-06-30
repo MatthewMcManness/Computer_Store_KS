@@ -16,19 +16,21 @@ import { useDarkMode } from '@/hooks/useDarkMode';
  * @returns {JSX.Element} Sticky header component
  *
  * @sideEffects
- * - Calls POST /api/auth/logout and redirects to /login on logout
+ * - Redirects to the Cloudflare Access logout endpoint on logout
  *
  * @functions_called useDarkMode
  * @called_by AdminShell
  *
  * @version 4.0.0 - 2026-04-06T00:00:00Z - Simplified: logo + dark mode + logout only
+ * @version 5.0.0 - 2026-06-30T00:00:00Z - Logout clears the Cloudflare Access session
  */
 export function AdminHeader() {
   const { isDark, toggle } = useDarkMode();
 
-  const handleLogout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
-    window.location.href = '/login';
+  const handleLogout = () => {
+    // Auth is handled by Cloudflare Access at the edge; clearing the
+    // Access session is the logout.
+    window.location.href = '/cdn-cgi/access/logout';
   };
 
   return (

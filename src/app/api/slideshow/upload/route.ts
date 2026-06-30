@@ -1,29 +1,32 @@
 /**
- * SLIDESHOW IMAGE UPLOAD API - Accepts an image file and stores it in Supabase Storage.
- * Returns the public URL to use when creating an image slide.
+ * SLIDESHOW IMAGE UPLOAD API - Accepts an image file and stores it on the
+ * local uploads volume. Returns the same-origin URL to use when creating
+ * an image slide.
  *
  * POST /api/slideshow/upload - Admin: upload a PNG/JPG/WEBP image.
  * Accepts multipart/form-data with a 'file' field.
  * Returns { imageUrl: string }.
  *
- * WHEN TO EDIT: When changing allowed file types, size limits, or storage bucket.
+ * WHEN TO EDIT: When changing allowed file types, size limits, or where
+ * uploaded images are written.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { isAuthenticated } from '@/lib/supabase-auth';
-import { supabaseAdmin, isSupabaseAdminConfigured } from '@/lib/supabase';
+import { writeFile, mkdir } from 'node:fs/promises';
+import { join } from 'node:path';
 
 // ─── UPLOAD PIPELINE ────────────────────────────────────────────
-//   1. Validate auth - admin only
-//   2. Parse multipart form data, get the file
-//   3. Validate file type (PNG, JPG, WEBP) and size (max 10MB)
-//   4. Generate a unique filename using timestamp + random UUID
-//   5. Upload raw buffer to Supabase Storage 'slideshow-images' bucket
-//   6. Get the public URL and return it
+//   1. Parse multipart form data, get the file (admin access is gated at the edge)
+//   2. Validate file type (PNG, JPG, WEBP) and size (max 10MB)
+//   3. Generate a unique filename using timestamp + random UUID
+//   4. Write the raw buffer to the uploads volume (UPLOADS_DIR)
+//   5. Return the same-origin /uploads/<filename> URL
 //
 //   The caller (admin new slide form) then uses this URL when
 //   calling POST /api/slideshow to create the slide record.
 // ────────────────────────────────────────────────────────────────
+
+const UPLOADS_DIR = process.env.UPLOADS_DIR || '/data/uploads';
 
 const ALLOWED_TYPES: Record<string, string> = {
   'image/png': 'png',
@@ -36,21 +39,6 @@ const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
 
 export async function POST(request: NextRequest) {
   try {
-    const authenticated = await isAuthenticated();
-    if (!authenticated) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    if (!isSupabaseAdminConfigured() || !supabaseAdmin) {
-      return NextResponse.json(
-        { success: false, error: 'Database admin not configured' },
-        { status: 503 }
-      );
-    }
-
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
 
@@ -78,34 +66,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate unique filename
+    // Generate unique filename and write to the uploads volume
     const fileName = `${Date.now()}-${crypto.randomUUID()}.${extension}`;
-
-    // Upload to Supabase Storage
+    await mkdir(UPLOADS_DIR, { recursive: true });
     const buffer = Buffer.from(await file.arrayBuffer());
-    const { error: uploadError } = await supabaseAdmin.storage
-      .from('slideshow-images')
-      .upload(fileName, buffer, {
-        contentType: file.type,
-        upsert: false,
-      });
-
-    if (uploadError) {
-      console.error('Supabase storage upload error:', uploadError);
-      return NextResponse.json(
-        { success: false, error: 'Failed to upload image' },
-        { status: 500 }
-      );
-    }
-
-    // Get the public URL
-    const { data: urlData } = supabaseAdmin.storage
-      .from('slideshow-images')
-      .getPublicUrl(fileName);
+    await writeFile(join(UPLOADS_DIR, fileName), buffer);
 
     return NextResponse.json({
       success: true,
-      imageUrl: urlData.publicUrl,
+      imageUrl: `/uploads/${fileName}`,
     });
   } catch (error) {
     console.error('Error uploading slide image:', error);

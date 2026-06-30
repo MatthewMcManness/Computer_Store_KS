@@ -5,9 +5,8 @@
  * WHEN TO EDIT: When changing the archive list or permanent delete behavior.
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { isAuthenticated } from '@/lib/supabase-auth';
 import { getArchivedComputers, hardDeleteComputer } from '@/lib/gallery';
-import { isSupabaseAdminConfigured } from '@/lib/supabase';
+import { isDbConfigured } from '@/lib/db';
 
 /**
  * Gets all archived (soft-deleted) computers.
@@ -27,18 +26,9 @@ import { isSupabaseAdminConfigured } from '@/lib/supabase';
  */
 export async function GET(request: NextRequest) {
   try {
-    // Check authentication
-    const authenticated = await isAuthenticated();
-    if (!authenticated) {
+    if (!isDbConfigured()) {
       return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    if (!isSupabaseAdminConfigured()) {
-      return NextResponse.json(
-        { success: false, error: 'Database admin not configured' },
+        { success: false, error: 'Database not configured' },
         { status: 503 }
       );
     }
@@ -85,18 +75,9 @@ export async function GET(request: NextRequest) {
  */
 export async function DELETE(request: NextRequest) {
   try {
-    // Check authentication
-    const authenticated = await isAuthenticated();
-    if (!authenticated) {
+    if (!isDbConfigured()) {
       return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    if (!isSupabaseAdminConfigured()) {
-      return NextResponse.json(
-        { success: false, error: 'Database admin not configured' },
+        { success: false, error: 'Database not configured' },
         { status: 503 }
       );
     }

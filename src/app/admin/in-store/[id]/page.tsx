@@ -4,11 +4,10 @@
  *
  * WHEN TO EDIT: When changing the edit form behavior.
  */
-import { redirect, notFound } from 'next/navigation';
-import { isAuthenticated } from '@/lib/supabase-auth';
+import { notFound } from 'next/navigation';
 import { ComputerForm } from '@/components/admin';
 import { getComputerByIdAdmin } from '@/lib/gallery';
-import { isSupabaseAdminConfigured } from '@/lib/supabase';
+import { isDbConfigured } from '@/lib/db';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 
@@ -17,12 +16,6 @@ export default async function EditComputerPage({
 }: {
   params: { id: string };
 }) {
-  // Check authentication
-  const authenticated = await isAuthenticated();
-  if (!authenticated) {
-    redirect('/login');
-  }
-
   const { id } = params;
 
   // Validate UUID format
@@ -31,7 +24,7 @@ export default async function EditComputerPage({
     notFound();
   }
 
-  if (!isSupabaseAdminConfigured()) {
+  if (!isDbConfigured()) {
     return (
       <div className="rounded-xl bg-red-50 dark:bg-red-900/20 p-6">
         <p className="text-red-700 dark:text-red-400">Database not configured. Please check your environment variables.</p>

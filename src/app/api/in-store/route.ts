@@ -9,43 +9,32 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { isAuthenticated } from '@/lib/supabase-auth';
 import {
   getComputers,
   getAllComputers,
   createComputer,
   parsePrice,
 } from '@/lib/gallery';
-import {
-  isSupabaseConfigured,
-  isSupabaseAdminConfigured,
-} from '@/lib/supabase';
+import { isDbConfigured } from '@/lib/db';
 import type { GallerySpec } from '@/types/gallery';
 
 // GET /api/in-store - Get all computers
 export async function GET(request: NextRequest) {
   try {
-    if (!isSupabaseConfigured()) {
+    if (!isDbConfigured()) {
       return NextResponse.json(
         { success: false, error: 'Database not configured' },
         { status: 503 }
       );
     }
 
-    // Check if admin mode requested
+    // Check if admin mode requested (admin access is gated at the edge)
     const { searchParams } = new URL(request.url);
     const isAdmin = searchParams.get('admin') === 'true';
     const includeInactive = searchParams.get('includeInactive') === 'true';
 
     let computers;
     if (isAdmin) {
-      const authenticated = await isAuthenticated();
-      if (!authenticated) {
-        return NextResponse.json(
-          { success: false, error: 'Unauthorized' },
-          { status: 401 }
-        );
-      }
       computers = await getAllComputers({ includeInactive });
     } else {
       computers = await getComputers();
@@ -67,18 +56,9 @@ export async function GET(request: NextRequest) {
 // POST /api/in-store - Add new computer
 export async function POST(request: NextRequest) {
   try {
-    // Check authentication
-    const authenticated = await isAuthenticated();
-    if (!authenticated) {
+    if (!isDbConfigured()) {
       return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    if (!isSupabaseAdminConfigured()) {
-      return NextResponse.json(
-        { success: false, error: 'Database admin not configured' },
+        { success: false, error: 'Database not configured' },
         { status: 503 }
       );
     }

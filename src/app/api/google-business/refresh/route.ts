@@ -9,21 +9,12 @@
  */
 
 import { NextResponse } from 'next/server';
-import { isAuthenticated } from '@/lib/supabase-auth';
 import { forceRefresh, isGoogleBusinessConfigured } from '@/lib/google-business';
 
 export const dynamic = 'force-dynamic';
 
 /** POST /api/google-business/refresh — force-refresh the cache. */
 export async function POST() {
-  const authenticated = await isAuthenticated();
-  if (!authenticated) {
-    return NextResponse.json(
-      { success: false, error: 'Unauthorized' },
-      { status: 401 },
-    );
-  }
-
   if (!isGoogleBusinessConfigured()) {
     return NextResponse.json(
       { success: false, error: 'not_configured' },

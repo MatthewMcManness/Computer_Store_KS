@@ -4,8 +4,6 @@
  *
  * WHEN TO EDIT: When adding new admin features or changing the dashboard layout.
  */
-import { redirect } from 'next/navigation';
-import { isAuthenticated } from '@/lib/supabase-auth';
 import Link from 'next/link';
 import NextImage from 'next/image';
 import { Monitor, Presentation } from 'lucide-react';
@@ -13,23 +11,17 @@ import { Monitor, Presentation } from 'lucide-react';
 /**
  * Admin dashboard landing page with quick-access cards.
  *
+ * Access to /admin is gated at the edge by Cloudflare Access, so this
+ * page no longer performs an in-app auth check.
+ *
  * @returns Admin dashboard page with tool cards
  *
- * @sideEffects
- * - Checks authentication and redirects to login if not authenticated
- *
- * @functions_called isAuthenticated
  * @called_by Next.js App Router
  *
  * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
+ * @version 2.0.0 - 2026-06-30T00:00:00Z - Auth moved to Cloudflare Access at the edge
  */
 export default async function AdminDashboardPage() {
-  // Check authentication
-  const authenticated = await isAuthenticated();
-  if (!authenticated) {
-    redirect('/login');
-  }
-
   return (
     <div>
       {/* Header */}

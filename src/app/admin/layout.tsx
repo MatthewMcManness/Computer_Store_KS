@@ -1,13 +1,12 @@
 /**
- * ADMIN LAYOUT - Wraps all /admin pages with the sidebar navigation
- * and checks that the user is logged in. If not authenticated,
- * redirects to /login.
+ * ADMIN LAYOUT - Wraps all /admin pages with the sidebar navigation.
+ * Access to /admin is gated at the edge by Cloudflare Access, so the
+ * layout no longer performs an in-app auth check.
  *
  * WHEN TO EDIT: When changing the admin sidebar, navigation structure,
  * or admin-specific CSS.
  */
 
-import { isAuthenticated } from '@/lib/supabase-auth';
 import { AdminShell } from '@/components/admin';
 import './admin.css';
 
@@ -27,21 +26,11 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Check if user is authenticated
-  const authenticated = await isAuthenticated();
-
   return (
     <div className="admin-layout">
-      {authenticated ? (
-        <AdminShell>
-          {children}
-        </AdminShell>
-      ) : (
-        // For unauthenticated users (login page), render without shell
-        <main className="min-h-screen bg-gray-50 dark:bg-gray-950">
-          {children}
-        </main>
-      )}
+      <AdminShell>
+        {children}
+      </AdminShell>
     </div>
   );
 }

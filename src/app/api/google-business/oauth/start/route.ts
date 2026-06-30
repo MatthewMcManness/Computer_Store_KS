@@ -11,7 +11,6 @@
 import { randomBytes } from 'crypto';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { isAuthenticated } from '@/lib/supabase-auth';
 import { buildAuthUrl, isGoogleBusinessConfigured } from '@/lib/google-business';
 
 export const dynamic = 'force-dynamic';
@@ -21,14 +20,6 @@ const STATE_TTL_SECONDS = 10 * 60;
 
 /** GET /api/google-business/oauth/start — redirects to Google consent. */
 export async function GET() {
-  const authenticated = await isAuthenticated();
-  if (!authenticated) {
-    return NextResponse.json(
-      { success: false, error: 'Unauthorized' },
-      { status: 401 },
-    );
-  }
-
   if (!isGoogleBusinessConfigured()) {
     return NextResponse.json(
       { success: false, error: 'not_configured' },

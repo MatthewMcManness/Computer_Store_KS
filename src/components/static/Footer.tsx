@@ -49,7 +49,7 @@ export function Footer() {
           })}
         </div>
         <Link
-          href="/login"
+          href="/admin"
           className="text-sm opacity-70 text-primary-500 no-underline transition-colors duration-normal hover:opacity-100 hover:text-white hover:underline"
         >
           Employee Login

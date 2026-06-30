@@ -5,9 +5,8 @@
  * WHEN TO EDIT: When changing stock adjustment rules (e.g., minimum stock).
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { isAuthenticated } from '@/lib/supabase-auth';
 import { updateStockQuantity } from '@/lib/gallery';
-import { isSupabaseAdminConfigured } from '@/lib/supabase';
+import { isDbConfigured } from '@/lib/db';
 
 /**
  * Adjusts stock quantity for a computer by a delta value.
@@ -45,18 +44,9 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
-    // Check authentication
-    const authenticated = await isAuthenticated();
-    if (!authenticated) {
+    if (!isDbConfigured()) {
       return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    if (!isSupabaseAdminConfigured()) {
-      return NextResponse.json(
-        { success: false, error: 'Database admin not configured' },
+        { success: false, error: 'Database not configured' },
         { status: 503 }
       );
     }

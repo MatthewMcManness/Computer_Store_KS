@@ -11,7 +11,7 @@ const KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (!URL || !KEY) throw new Error('Missing Supabase env');
 const H = { apikey: KEY, Authorization: `Bearer ${KEY}` };
 const TABLES = ['slideshow_slides','gallery_computers','gallery_sales','oauth_tokens','reviews_cache'];
-const BUCKET = 'slideshow-images';
+const BUCKETS = ['slideshow-images','gallery-images'];
 
 await mkdir('db/export/uploads', { recursive: true });
 
@@ -23,18 +23,23 @@ for (const t of TABLES) {
   console.log(`exported ${t}: ${rows.length} rows`);
 }
 
-// List then download every storage object so images survive the move.
-const list = await fetch(`${URL}/storage/v1/object/list/${BUCKET}`, {
-  method: 'POST', headers: { ...H, 'Content-Type': 'application/json' },
-  body: JSON.stringify({ prefix: '', limit: 1000, sortBy: { column: 'name', order: 'asc' } }),
-});
-if (!list.ok) throw new Error(`storage list: ${list.status} ${await list.text()}`);
-const objects = await list.json();
-for (const o of objects) {
-  if (!o.name) continue;
-  const dl = await fetch(`${URL}/storage/v1/object/public/${BUCKET}/${o.name}`, { headers: H });
-  if (!dl.ok) { console.warn(`skip ${o.name}: ${dl.status}`); continue; }
-  await pipeline(Readable.fromWeb(dl.body), createWriteStream(`db/export/uploads/${o.name}`));
-  console.log(`downloaded ${o.name}`);
+// List then download every storage object from each bucket so images survive the move.
+for (const BUCKET of BUCKETS) {
+  const list = await fetch(`${URL}/storage/v1/object/list/${BUCKET}`, {
+    method: 'POST', headers: { ...H, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prefix: '', limit: 1000, sortBy: { column: 'name', order: 'asc' } }),
+  });
+  if (!list.ok) throw new Error(`storage list ${BUCKET}: ${list.status} ${await list.text()}`);
+  const objects = await list.json();
+  let n = 0;
+  for (const o of objects) {
+    if (!o.name) continue;
+    const dl = await fetch(`${URL}/storage/v1/object/public/${BUCKET}/${o.name}`, { headers: H });
+    if (!dl.ok) { console.warn(`skip ${BUCKET}/${o.name}: ${dl.status}`); continue; }
+    await pipeline(Readable.fromWeb(dl.body), createWriteStream(`db/export/uploads/${o.name}`));
+    n++;
+    console.log(`downloaded ${BUCKET}/${o.name}`);
+  }
+  console.log(`bucket ${BUCKET}: ${n} objects`);
 }
 console.log('export complete');

@@ -4,7 +4,7 @@
  *
  * WHEN TO EDIT: When changing how slides are stored, queried, or ordered.
  */
-import { query, isDbConfigured } from './db';
+import { query, isDbConfigured, withTransaction } from './db';
 import type {
   SlideshowSlide,
   SlideshowSlideDB,
@@ -219,12 +219,14 @@ export async function reorderSlides(orderedIds: string[]): Promise<boolean> {
   if (!isDbConfigured()) return false;
 
   try {
-    for (let index = 0; index < orderedIds.length; index++) {
-      await query(
-        `update slideshow_slides set sort_order = $1, updated_at = now() where id = $2`,
-        [index, orderedIds[index]],
-      );
-    }
+    await withTransaction(async (client) => {
+      for (let index = 0; index < orderedIds.length; index++) {
+        await client.query(
+          `update slideshow_slides set sort_order = $1, updated_at = now() where id = $2`,
+          [index, orderedIds[index]],
+        );
+      }
+    });
     return true;
   } catch (error) {
     console.error('Error reordering slides', error);

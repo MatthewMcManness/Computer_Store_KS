@@ -34,7 +34,7 @@ export interface CacheReadResult {
 /** Read the single cache row. Returns null if the row does not exist. */
 async function readCacheRow(): Promise<ReviewsCacheRow | null> {
   const rows = await query<ReviewsCacheRow>(
-    `select id, reviews_raw, stats, fetched_at from reviews_cache where id = 1 limit 1`,
+    `select id, reviews_raw, stats, fetched_at::text as fetched_at from reviews_cache where id = 1 limit 1`,
   );
   return rows[0] ?? null;
 }

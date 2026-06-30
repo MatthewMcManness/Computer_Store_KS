@@ -59,6 +59,9 @@ export interface GalleryComputerDB {
   type: 'desktop' | 'laptop';
   category: 'refurbished' | 'custom' | 'new';
   price: number;
+  image_url: string | null;
+  thumbnail_url: string | null;
+  location_id: string | null;
   specs: GallerySpec[];
   is_active: boolean;
   sort_order: number;

@@ -4,7 +4,7 @@
  *
  * WHEN TO EDIT: When changing how computers are stored, queried, or how sale pricing is calculated.
  */
-import { query, isDbConfigured } from './db';
+import { query, isDbConfigured, withTransaction } from './db';
 import type {
   GalleryComputer,
   GalleryComputerDB,
@@ -509,16 +509,15 @@ export async function setActiveSale(saleType: string): Promise<GallerySale | nul
   if (!isDbConfigured()) return null;
 
   try {
-    // Deactivate all sales first
-    await query(`update gallery_sales set is_active = false where sale_type <> ''`);
-
-    // Activate the specified sale
-    const rows = await query<GallerySale>(
-      `update gallery_sales set is_active = true where sale_type = $1 returning *`,
-      [saleType],
-    );
-
-    return rows[0] ?? null;
+    return await withTransaction(async (client) => {
+      // Deactivate all sales first, then activate the specified one, atomically.
+      await client.query(`update gallery_sales set is_active = false where sale_type <> ''`);
+      const res = await client.query<GallerySale>(
+        `update gallery_sales set is_active = true where sale_type = $1 returning *`,
+        [saleType],
+      );
+      return res.rows[0] ?? null;
+    });
   } catch (error) {
     console.error('Error setting active sale:', error);
     return null;

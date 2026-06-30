@@ -47,7 +47,7 @@ export default function SlideshowManagerPage() {
 
   async function loadSlides() {
     try {
-      const response = await fetch('/api/slideshow?admin=true');
+      const response = await fetch('/api/slideshow/all');
       const result = await response.json();
       if (result.success) {
         setSlides(result.data);

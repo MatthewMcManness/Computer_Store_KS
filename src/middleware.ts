@@ -18,12 +18,8 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || '';
 // the RWS operator.
 const ADMIN_EMAILS = new Set([AUTHORIZED_EMAIL, 'owner@resilientwebsolutions.com']);
 
-const PUBLIC_ROUTES = new Set([
-  '/', '/about', '/contact',
-  '/reviews', '/services', '/silver-plan', '/why-linux', '/shop',
-]);
-
-// Exact API paths that are public (no sub-route access)
+// Exact API paths that are public (no sub-route access). Every other
+// /api/* path is protected.
 const PUBLIC_API_EXACT = new Set([
   '/api/contact',
   '/api/health',
@@ -31,10 +27,10 @@ const PUBLIC_API_EXACT = new Set([
   '/api/google-business/oauth/callback',
 ]);
 
-// Non-API prefixes that allow all sub-routes
-const PUBLIC_PREFIXES = [
-  '/services/', '/_next/', '/assets/', '/public/',
-];
+// API paths that are public for GET only (reads). Writes stay protected.
+// The in-store slideshow TV is unattended (no login) and reads the active
+// slide set from GET /api/slideshow, which returns active-only.
+const PUBLIC_API_GET = new Set(['/api/slideshow']);
 
 /**
  * Add security headers to a response.
@@ -70,38 +66,43 @@ function addSecurityHeaders(response: NextResponse): void {
   response.headers.set('Content-Security-Policy', csp);
 }
 
-function isPublicRoute(pathname: string): boolean {
-  if (PUBLIC_ROUTES.has(pathname)) return true;
-  if (PUBLIC_API_EXACT.has(pathname)) return true;
-  return PUBLIC_PREFIXES.some((prefix) => pathname.startsWith(prefix));
-}
-
 /**
- * Middleware for security headers, public route bypass, and admin auth.
+ * Middleware for security headers and admin/API auth.
  *
- * Auth model: Cloudflare Access gates `/admin/*` and the protected `/api/*`
- * surface at the edge. This middleware re-verifies the `Cf-Access-Jwt-Assertion`
- * header for defense-in-depth. When `CF_ACCESS_TEAM_DOMAIN` is unset (local
- * dev / build), the Access check falls open so the app still runs.
+ * Gating model: enforce auth ONLY on protected paths (`/admin/*` and any
+ * non-public `/api/*`); every other path (public pages, `/uploads/*`,
+ * static assets) passes through with security headers. Cloudflare Access
+ * gates these protected paths at the edge; this middleware re-verifies the
+ * `Cf-Access-Jwt-Assertion` header for defense-in-depth. When
+ * `CF_ACCESS_TEAM_DOMAIN` is unset (local dev / build), the Access check
+ * falls open so the app still runs.
  *
  * @param request - Incoming Next.js request
  * @returns NextResponse - continues, or 401/redirect based on Access state
  *
  * @sideEffects Verifies the Access JWT, sets security headers, may redirect
- * @functions_called addSecurityHeaders, isPublicRoute, verifyAccessJwt
+ * @functions_called addSecurityHeaders, verifyAccessJwt
  * @called_by Next.js runtime
  *
  * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
  * @version 2.0.0 - 2026-03-20T00:00:00Z - Rewritten for single-user Google OAuth model
  * @version 3.0.0 - 2026-06-30T00:00:00Z - Replace Supabase auth with Cloudflare Access (edge) + JWT
+ * @version 3.1.0 - 2026-06-30T00:00:00Z - Gate only admin + non-public API; pass everything else through
  */
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const response = NextResponse.next({ request: { headers: request.headers } });
   addSecurityHeaders(response);
 
-  // Public pages pass through without any auth check.
-  if (isPublicRoute(pathname)) return response;
+  // Determine whether this path is protected. Only /admin/* and non-public
+  // /api/* require auth; everything else (public pages, /uploads, static)
+  // passes straight through.
+  const isAdmin = pathname === '/admin' || pathname.startsWith('/admin/');
+  const isApi = pathname.startsWith('/api/');
+  const isPublicApi = PUBLIC_API_EXACT.has(pathname)
+    || (request.method === 'GET' && PUBLIC_API_GET.has(pathname));
+  const protectedPath = isAdmin || (isApi && !isPublicApi);
+  if (!protectedPath) return response;
 
   // Local/dev (or any environment without Access configured): fall open so
   // builds and local runs work. The edge enforces auth in production.
@@ -110,7 +111,7 @@ export async function middleware(request: NextRequest) {
   // Protected path: require a valid Access JWT for an allowed admin email.
   const email = await verifyAccessJwt(request.headers.get('Cf-Access-Jwt-Assertion'));
   if (!email || !ADMIN_EMAILS.has(email)) {
-    if (pathname.startsWith('/api/')) {
+    if (isApi) {
       return new NextResponse(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json' },
@@ -124,5 +125,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|assets|public|games).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|assets|public|games|uploads).*)'],
 };

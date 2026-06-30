@@ -1,19 +1,24 @@
 /**
  * SLIDESHOW API - List active slides and create new slides.
  *
- * GET /api/slideshow          - Public: returns all active slides in order.
- * GET /api/slideshow?admin=true - Admin: returns all non-archived slides.
- * POST /api/slideshow         - Admin only: creates a new slide.
+ * GET /api/slideshow  - Public: returns ONLY active, non-archived slides in
+ *                       order. This is the unattended in-store TV display set,
+ *                       so it must never return inactive/admin-only slides.
+ *                       Admin (all non-archived) lives at GET /api/slideshow/all.
+ * POST /api/slideshow - Admin only: creates a new slide.
  *
  * WHEN TO EDIT: When changing how slides are listed or created.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getActiveSlides, getAllSlides, createSlide } from '@/lib/slideshow';
+import { getActiveSlides, createSlide } from '@/lib/slideshow';
 import { isDbConfigured } from '@/lib/db';
 import type { CreateSlideInput } from '@/types/slideshow';
 
-export async function GET(request: NextRequest) {
+// Always run per-request so the in-store TV display gets live slides.
+export const dynamic = 'force-dynamic';
+
+export async function GET() {
   try {
     if (!isDbConfigured()) {
       return NextResponse.json(
@@ -22,14 +27,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const { searchParams } = new URL(request.url);
-    const isAdmin = searchParams.get('admin') === 'true';
-
-    if (isAdmin) {
-      const slides = await getAllSlides();
-      return NextResponse.json({ success: true, data: slides });
-    }
-
+    // Public read path: active, non-archived slides only.
     const slides = await getActiveSlides();
     return NextResponse.json({ success: true, data: slides });
   } catch (error) {

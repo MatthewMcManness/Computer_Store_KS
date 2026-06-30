@@ -1,6 +1,6 @@
 /**
  * GBP CACHE - Reads and writes the single-row `reviews_cache` table
- * in Supabase. Orchestrates the lazy-refresh flow: if the cached row
+ * in Postgres. Orchestrates the lazy-refresh flow: if the cached row
  * is older than CACHE_TTL_MS, mint a fresh access token, re-pull from
  * Google, and write the new row. Returns whatever the cache currently
  * holds otherwise.
@@ -8,10 +8,10 @@
  * WHEN TO EDIT: When the cache TTL changes, when the cache schema
  * changes, or when the refresh-on-failure policy changes.
  *
- * SERVER-ONLY: Uses the Supabase service-role client.
+ * SERVER-ONLY: Uses the Postgres connection pool.
  */
 
-import { supabaseAdmin } from '@/lib/supabase';
+import { query } from '@/lib/db';
 import type {
   DisplayReview,
   ReviewsCacheRow,
@@ -33,18 +33,10 @@ export interface CacheReadResult {
 
 /** Read the single cache row. Returns null if the row does not exist. */
 async function readCacheRow(): Promise<ReviewsCacheRow | null> {
-  if (!supabaseAdmin) {
-    throw new Error('Supabase admin client not configured');
-  }
-  const { data, error } = await supabaseAdmin
-    .from('reviews_cache')
-    .select('id, reviews_raw, stats, fetched_at')
-    .eq('id', 1)
-    .maybeSingle();
-  if (error) {
-    throw new Error(`Failed to read reviews_cache: ${error.message}`);
-  }
-  return (data as ReviewsCacheRow | null) ?? null;
+  const rows = await query<ReviewsCacheRow>(
+    `select id, reviews_raw, stats, fetched_at from reviews_cache where id = 1 limit 1`,
+  );
+  return rows[0] ?? null;
 }
 
 /** Overwrite the cache row with fresh data. */
@@ -52,24 +44,14 @@ async function writeCacheRow(
   reviews: DisplayReview[],
   stats: ReviewsStats,
 ): Promise<string> {
-  if (!supabaseAdmin) {
-    throw new Error('Supabase admin client not configured');
-  }
   const fetchedAt = new Date().toISOString();
-  const { error } = await supabaseAdmin
-    .from('reviews_cache')
-    .upsert(
-      {
-        id: 1,
-        reviews_raw: reviews,
-        stats,
-        fetched_at: fetchedAt,
-      },
-      { onConflict: 'id' },
-    );
-  if (error) {
-    throw new Error(`Failed to write reviews_cache: ${error.message}`);
-  }
+  await query(
+    `insert into reviews_cache (id, reviews_raw, stats, fetched_at)
+     values (1, $1::jsonb, $2::jsonb, $3)
+     on conflict (id) do update set
+       reviews_raw = excluded.reviews_raw, stats = excluded.stats, fetched_at = excluded.fetched_at`,
+    [JSON.stringify(reviews), JSON.stringify(stats), fetchedAt],
+  );
   return fetchedAt;
 }
 

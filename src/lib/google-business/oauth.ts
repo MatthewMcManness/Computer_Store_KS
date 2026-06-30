@@ -2,16 +2,16 @@
  * GBP OAUTH - All Google OAuth 2.0 logic for the Business Profile
  * integration. Builds the consent URL, exchanges authorization codes
  * for tokens, refreshes access tokens, and reads/writes the long-lived
- * refresh token from the Supabase `oauth_tokens` table.
+ * refresh token from the Postgres `oauth_tokens` table.
  *
  * WHEN TO EDIT: When changing OAuth scopes, switching to a new auth
  * flow, or changing where the refresh token is stored.
  *
- * SERVER-ONLY: Reads OAuth client secret + Supabase service role key.
+ * SERVER-ONLY: Reads OAuth client secret and the database connection.
  * Never import from a Client Component.
  */
 
-import { supabaseAdmin } from '@/lib/supabase';
+import { query } from '@/lib/db';
 import {
   GOOGLE_OAUTH_AUTH_URL,
   GOOGLE_OAUTH_CLIENT_ID,
@@ -24,7 +24,7 @@ import {
 } from './config';
 import type { GoogleTokenResponse } from './types-internal';
 
-/** Shape of a stored OAuth grant row returned from Supabase. */
+/** Shape of a stored OAuth grant row returned from the database. */
 export interface StoredOAuthGrant {
   refresh_token: string;
   scope: string;
@@ -117,7 +117,7 @@ export async function refreshAccessToken(refreshToken: string): Promise<GoogleTo
 }
 
 /**
- * Persist a refresh token in Supabase. Upserts on the unique `provider`
+ * Persist a refresh token in Postgres. Upserts on the unique `provider`
  * column so running the OAuth flow again simply replaces the old grant.
  */
 export async function storeRefreshToken(
@@ -125,38 +125,21 @@ export async function storeRefreshToken(
   scope: string,
   accountEmail: string | null,
 ): Promise<void> {
-  if (!supabaseAdmin) {
-    throw new Error('Supabase admin client not configured');
-  }
-  const { error } = await supabaseAdmin
-    .from('oauth_tokens')
-    .upsert(
-      {
-        provider: OAUTH_PROVIDER,
-        refresh_token: refreshToken,
-        scope,
-        account_email: accountEmail,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: 'provider' },
-    );
-  if (error) {
-    throw new Error(`Failed to store refresh token: ${error.message}`);
-  }
+  await query(
+    `insert into oauth_tokens (provider, refresh_token, scope, account_email, updated_at)
+     values ($1, $2, $3, $4, now())
+     on conflict (provider) do update set
+       refresh_token = excluded.refresh_token, scope = excluded.scope,
+       account_email = excluded.account_email, updated_at = now()`,
+    [OAUTH_PROVIDER, refreshToken, scope, accountEmail],
+  );
 }
 
 /** Read the stored Google refresh token, or null if no grant exists yet. */
 export async function getStoredRefreshToken(): Promise<StoredOAuthGrant | null> {
-  if (!supabaseAdmin) {
-    throw new Error('Supabase admin client not configured');
-  }
-  const { data, error } = await supabaseAdmin
-    .from('oauth_tokens')
-    .select('refresh_token, scope, account_email')
-    .eq('provider', OAUTH_PROVIDER)
-    .maybeSingle();
-  if (error) {
-    throw new Error(`Failed to read refresh token: ${error.message}`);
-  }
-  return (data as StoredOAuthGrant | null) ?? null;
+  const rows = await query<StoredOAuthGrant>(
+    `select refresh_token, scope, account_email from oauth_tokens where provider = $1 limit 1`,
+    [OAUTH_PROVIDER],
+  );
+  return rows[0] ?? null;
 }

@@ -1,6 +1,7 @@
 /**
  * SECURITY GATEKEEPER - Runs before every page request. Adds security
- * headers and checks if the visitor is allowed to see admin pages.
+ * headers and enforces Cloudflare Access on admin pages and protected
+ * API routes (defense-in-depth behind the edge).
  *
  * WHEN TO EDIT: When adding new public pages, changing which pages
  * require login, or updating security headers.
@@ -8,15 +9,18 @@
 
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
+import { verifyAccessJwt } from '@/lib/access-jwt';
 import { AUTHORIZED_EMAIL } from '@/lib/constants';
 
-const ALLOWED_EMAIL = AUTHORIZED_EMAIL;
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || '';
+
+// Emails allowed through the edge Access policy. The store employee plus
+// the RWS operator.
+const ADMIN_EMAILS = new Set([AUTHORIZED_EMAIL, 'owner@resilientwebsolutions.com']);
 
 const PUBLIC_ROUTES = new Set([
   '/', '/about', '/contact',
-  '/reviews', '/services', '/silver-plan', '/why-linux', '/login', '/shop',
+  '/reviews', '/services', '/silver-plan', '/why-linux', '/shop',
 ]);
 
 // Exact API paths that are public (no sub-route access)
@@ -29,7 +33,7 @@ const PUBLIC_API_EXACT = new Set([
 
 // Non-API prefixes that allow all sub-routes
 const PUBLIC_PREFIXES = [
-  '/services/', '/auth/callback', '/_next/', '/assets/', '/public/',
+  '/services/', '/_next/', '/assets/', '/public/',
 ];
 
 /**
@@ -42,6 +46,7 @@ const PUBLIC_PREFIXES = [
  *
  * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
  * @version 2.0.0 - 2026-03-20T00:00:00Z - Simplified for single-user auth rewrite
+ * @version 3.0.0 - 2026-06-30T00:00:00Z - Drop Supabase hosts from CSP (self-hosted)
  */
 function addSecurityHeaders(response: NextResponse): void {
   response.headers.set('X-Content-Type-Options', 'nosniff');
@@ -57,8 +62,8 @@ function addSecurityHeaders(response: NextResponse): void {
     "default-src 'self'",
     `script-src 'self' 'unsafe-inline'${scriptSrcExtras} https://www.googletagmanager.com https://www.google-analytics.com https://challenges.cloudflare.com`,
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob: https://*.supabase.co https://*.supabase.in https://images.unsplash.com https://raw.githubusercontent.com https://*.googleusercontent.com",
-    "connect-src 'self' https://*.supabase.co https://*.supabase.in https://www.google-analytics.com https://challenges.cloudflare.com",
+    "img-src 'self' data: blob: https://images.unsplash.com https://raw.githubusercontent.com https://*.googleusercontent.com",
+    "connect-src 'self' https://www.google-analytics.com https://challenges.cloudflare.com",
     "frame-src https://challenges.cloudflare.com https://www.google.com https://cmc-td.com https://cmcengage.com",
     "font-src 'self'",
   ].join('; ');
@@ -74,102 +79,45 @@ function isPublicRoute(pathname: string): boolean {
 /**
  * Middleware for security headers, public route bypass, and admin auth.
  *
- * Auth model: one Google OAuth user (contact@computerstoreks.com).
- * Public routes pass through with security headers only. Admin routes
- * require a valid Supabase session with the allowed email. Authenticated
- * users on /login are redirected to /admin.
+ * Auth model: Cloudflare Access gates `/admin/*` and the protected `/api/*`
+ * surface at the edge. This middleware re-verifies the `Cf-Access-Jwt-Assertion`
+ * header for defense-in-depth. When `CF_ACCESS_TEAM_DOMAIN` is unset (local
+ * dev / build), the Access check falls open so the app still runs.
  *
  * @param request - Incoming Next.js request
- * @returns NextResponse - continues, or redirects based on auth state
+ * @returns NextResponse - continues, or 401/redirect based on Access state
  *
- * @sideEffects Queries Supabase auth, reads/sets cookies, may redirect
- * @functions_called addSecurityHeaders, isPublicRoute, createServerClient, supabase.auth.getUser
+ * @sideEffects Verifies the Access JWT, sets security headers, may redirect
+ * @functions_called addSecurityHeaders, isPublicRoute, verifyAccessJwt
  * @called_by Next.js runtime
  *
  * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
  * @version 2.0.0 - 2026-03-20T00:00:00Z - Rewritten for single-user Google OAuth model
+ * @version 3.0.0 - 2026-06-30T00:00:00Z - Replace Supabase auth with Cloudflare Access (edge) + JWT
  */
 export async function middleware(request: NextRequest) {
-  // ─── AUTH FLOW OVERVIEW ─────────────────────────────────────────────
-  // This is the main gatekeeper for the entire site. Every request
-  // passes through here. The logic works like this:
-  //
-  //   1. Add security headers to EVERY response (CSP, X-Frame-Options, etc.)
-  //   2. If the page is public (home, about, services, etc.) → let it through
-  //   3. If the page is protected (admin, non-public API) → check auth:
-  //      a. Read the Supabase session cookie from the browser
-  //      b. Ask Supabase: "who is this user?"
-  //      c. If their email is contact@computerstoreks.com → allow access
-  //      d. If not logged in → redirect to /login
-  //      e. If logged in as wrong email → redirect to /login?error=unauthorized
-  //
-  // The login itself happens via Google OAuth:
-  //   /login page → "Sign in with Google" button → Google consent screen
-  //   → Google redirects to /auth/callback → callback route checks email
-  //   → if authorized, session cookie is set → redirect to /admin
-  //
-  // Only ONE email (contact@computerstoreks.com) is allowed. This is
-  // defined in constants.ts as AUTHORIZED_EMAIL.
-  // ────────────────────────────────────────────────────────────────────
-
   const { pathname } = request.nextUrl;
   const response = NextResponse.next({ request: { headers: request.headers } });
   addSecurityHeaders(response);
 
-  // Step 2: Public pages pass through without any auth check
-  if (isPublicRoute(pathname) && pathname !== '/login') return response;
+  // Public pages pass through without any auth check.
+  if (isPublicRoute(pathname)) return response;
 
-  // If Supabase isn't configured, can't check auth — let everything through
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!supabaseUrl || !supabaseAnonKey) return response;
+  // Local/dev (or any environment without Access configured): fall open so
+  // builds and local runs work. The edge enforces auth in production.
+  if (!process.env.CF_ACCESS_TEAM_DOMAIN) return response;
 
-  // Step 3a: Create a Supabase client that reads auth cookies from the request
-  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
-    cookies: {
-      getAll: () => request.cookies.getAll(),
-      setAll: (cookiesToSet) => {
-        cookiesToSet.forEach(({ name, value, options }) => {
-          request.cookies.set(name, value);
-          response.cookies.set(name, value, options);
-        });
-      },
-    },
-  });
-
-  // Step 3b: Ask Supabase "who is this user?" based on their cookie
-  const { data: { user } } = await supabase.auth.getUser();
-
-  // Step 3c-e: Protect non-public API routes
-  if (pathname.startsWith('/api/') && !isPublicRoute(pathname)) {
-    if (!user || user.email !== ALLOWED_EMAIL) {
+  // Protected path: require a valid Access JWT for an allowed admin email.
+  const email = await verifyAccessJwt(request.headers.get('Cf-Access-Jwt-Assertion'));
+  if (!email || !ADMIN_EMAILS.has(email)) {
+    if (pathname.startsWith('/api/')) {
       return new NextResponse(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       });
     }
-  }
-
-  // If already logged in and visiting /login, skip straight to admin
-  if (pathname === '/login') {
-    if (user?.email === ALLOWED_EMAIL) {
-      return NextResponse.redirect(new URL('/admin', SITE_URL || request.url));
-    }
-    return response;
-  }
-
-  // Protected /admin/* routes — must be logged in as the authorized email
-  if (pathname.startsWith('/admin')) {
-    if (!user) {
-      const loginUrl = new URL('/login', SITE_URL || request.url);
-      loginUrl.searchParams.set('returnTo', pathname);
-      return NextResponse.redirect(loginUrl);
-    }
-    if (user.email !== ALLOWED_EMAIL) {
-      const loginUrl = new URL('/login', SITE_URL || request.url);
-      loginUrl.searchParams.set('error', 'unauthorized');
-      return NextResponse.redirect(loginUrl);
-    }
+    // No in-app login page anymore; Cloudflare Access handles the login UI.
+    return NextResponse.redirect(new URL('/', SITE_URL || request.url));
   }
 
   return response;

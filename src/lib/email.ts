@@ -1,5 +1,9 @@
 /**
- * Email utility functions using Resend API
+ * Email utility functions — sends via the CSKS n8n contact webhook.
+ *
+ * The webhook POSTs to n8n, which validates the shared secret and sends the
+ * email FROM no-reply@computerstoreks.com via the store's Google Workspace.
+ * This module never touches email credentials directly.
  */
 
 interface EmailOptions {
@@ -12,52 +16,55 @@ interface EmailOptions {
 
 interface EmailResult {
   success: boolean;
-  id?: string;
   error?: string;
 }
 
-const RESEND_API_URL = 'https://api.resend.com/emails';
-
 /**
- * Send an email via Resend API.
+ * Send an email via the CSKS n8n contact webhook.
  *
- * This is the internal helper that all other email functions in this file use.
- * It builds the request, calls the Resend API, and returns a success/failure
- * result so callers don't have to deal with HTTP details themselves.
+ * POSTs a JSON payload to CSKS_CONTACT_WEBHOOK_URL.  The n8n workflow
+ * validates CSKS_CONTACT_WEBHOOK_SECRET and delivers the message through
+ * Google Workspace.  Returns { success: false } without throwing if the
+ * environment variables are missing.
  */
 async function sendEmail(options: EmailOptions): Promise<EmailResult> {
-  const RESEND_API_KEY = process.env.RESEND_API_KEY;
+  const webhookUrl = process.env.CSKS_CONTACT_WEBHOOK_URL;
+  const secret = process.env.CSKS_CONTACT_WEBHOOK_SECRET;
 
-  if (!RESEND_API_KEY) {
-    console.warn('RESEND_API_KEY not configured, skipping email');
-    return { success: false, error: 'Email service not configured' };
+  if (!webhookUrl || !secret) {
+    console.warn('CSKS_CONTACT_WEBHOOK_URL or CSKS_CONTACT_WEBHOOK_SECRET not configured, skipping email');
+    return { success: false, error: 'contact webhook not configured' };
   }
 
   try {
-    const response = await fetch(RESEND_API_URL, {
+    const payload: Record<string, unknown> = {
+      secret,
+      fromName: 'Computer Store Kansas',
+      to: options.to,
+      subject: options.subject,
+      html: options.html,
+      text: options.text,
+    };
+
+    if (options.replyTo) {
+      payload.replyTo = options.replyTo;
+    }
+
+    const response = await fetch(webhookUrl, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${RESEND_API_KEY}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        from: 'Computer Store Kansas <contact@computerstoreks.com>',
-        to: Array.isArray(options.to) ? options.to : [options.to],
-        subject: options.subject,
-        html: options.html,
-        text: options.text,
-        reply_to: options.replyTo,
-      }),
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
       const errorData = await response.text();
-      console.error('Resend API error:', errorData);
+      console.error('Contact webhook error:', errorData);
       return { success: false, error: errorData };
     }
 
-    const data = await response.json();
-    return { success: true, id: data.id };
+    return { success: true };
   } catch (error) {
     console.error('Email send error:', error);
     return { success: false, error: String(error) };
@@ -278,5 +285,6 @@ https://computerstoreks.com
     subject: 'Thank you for contacting Computer Store Kansas',
     html,
     text,
+    replyTo: 'contact@computerstoreks.com',
   });
 }

@@ -12,6 +12,7 @@
     "clean": "rm -rf .next out node_modules"
   },
   "devDependencies": {
+    "dotenv": "^17.4.2",
     "qrcode": "^1.5.4"
   },
   "dependencies": {

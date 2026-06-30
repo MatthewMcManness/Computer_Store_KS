@@ -30,3 +30,4 @@ out/
 
 # Claude Code local settings (user-specific permissions)
 .claude/settings.local.json
+db/export/

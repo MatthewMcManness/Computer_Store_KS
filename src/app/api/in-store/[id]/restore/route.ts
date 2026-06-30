@@ -8,6 +8,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { restoreComputer } from '@/lib/gallery';
 import { isDbConfigured } from '@/lib/db';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * Restores an archived (soft-deleted) computer to active status.
  *

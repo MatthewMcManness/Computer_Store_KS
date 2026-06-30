@@ -8,6 +8,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { updateStockQuantity } from '@/lib/gallery';
 import { isDbConfigured } from '@/lib/db';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * Adjusts stock quantity for a computer by a delta value.
  *

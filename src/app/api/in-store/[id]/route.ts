@@ -19,6 +19,8 @@ import {
 import { isDbConfigured } from '@/lib/db';
 import type { GallerySpec } from '@/types/gallery';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/in-store/[id] - Get single computer
 export async function GET(
   request: NextRequest,

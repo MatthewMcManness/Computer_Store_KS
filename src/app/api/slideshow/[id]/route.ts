@@ -11,6 +11,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { updateSlide, archiveSlide } from '@/lib/slideshow';
 import { isDbConfigured } from '@/lib/db';
 
+export const dynamic = 'force-dynamic';
+
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }

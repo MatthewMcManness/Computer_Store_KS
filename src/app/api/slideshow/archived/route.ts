@@ -11,6 +11,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getArchivedSlides, hardDeleteSlide } from '@/lib/slideshow';
 import { isDbConfigured } from '@/lib/db';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     if (!isDbConfigured()) {

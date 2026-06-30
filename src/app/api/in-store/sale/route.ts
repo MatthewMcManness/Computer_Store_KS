@@ -15,6 +15,8 @@ import { isDbConfigured } from '@/lib/db';
 import { AVAILABLE_SALES } from '@/types/gallery';
 import type { SaleType } from '@/types/gallery';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/in-store/sale - Get current sale setting
 export async function GET() {
   try {

@@ -8,6 +8,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getArchivedComputers, hardDeleteComputer } from '@/lib/gallery';
 import { isDbConfigured } from '@/lib/db';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * Gets all archived (soft-deleted) computers.
  *

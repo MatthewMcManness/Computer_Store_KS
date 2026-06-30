@@ -4,7 +4,7 @@
  *
  * WHEN TO EDIT: When changing how computers are stored, queried, or how sale pricing is calculated.
  */
-import { supabase, supabaseAdmin } from './supabase';
+import { query, isDbConfigured } from './db';
 import type {
   GalleryComputer,
   GalleryComputerDB,
@@ -70,12 +70,16 @@ function applySalePricing(
   computer: GalleryComputerDB,
   activeSale: GallerySale | null
 ): GalleryComputer {
+  // `price` is a numeric column; node-postgres returns it as a string,
+  // so coerce to a number before any formatting or arithmetic.
+  const priceNumber = Number(computer.price);
+
   const baseComputer: GalleryComputer = {
     id: computer.id,
     name: computer.name,
     type: computer.type,
     category: computer.category,
-    price: formatPrice(computer.price),
+    price: formatPrice(priceNumber),
     specs: computer.specs || [],
     stockQuantity: computer.stock_quantity ?? 1,
     isActive: computer.is_active,
@@ -91,7 +95,7 @@ function applySalePricing(
     activeSale.discount_percent > 0 &&
     activeSale.applies_to.includes(computer.category)
   ) {
-    const originalPrice = computer.price;
+    const originalPrice = priceNumber;
     const salePrice = originalPrice * (1 - activeSale.discount_percent / 100);
 
     baseComputer.blackFriday = {
@@ -113,88 +117,74 @@ function applySalePricing(
  * Get the currently active sale
  */
 export async function getActiveSale(): Promise<GallerySale | null> {
-  if (!supabase) return null;
+  if (!isDbConfigured()) return null;
 
-  const { data, error } = await supabase
-    .from('gallery_sales')
-    .select('*')
-    .eq('is_active', true)
-    .single();
-
-  if (error) {
+  try {
+    const rows = await query<GallerySale>(
+      `select * from gallery_sales where is_active = true limit 1`,
+    );
+    return rows[0] ?? null;
+  } catch {
     // No active sale or error - return null
     return null;
   }
-
-  return data;
 }
 
 /**
  * Get all available sales
  */
 export async function getAvailableSales(): Promise<GallerySale[]> {
-  if (!supabase) return [];
+  if (!isDbConfigured()) return [];
 
-  const { data, error } = await supabase
-    .from('gallery_sales')
-    .select('*')
-    .order('sale_type');
-
-  if (error) {
+  try {
+    return await query<GallerySale>(`select * from gallery_sales order by sale_type`);
+  } catch (error) {
     console.error('Error fetching available sales:', error);
     return [];
   }
-
-  return data || [];
 }
 
 /**
  * Get all active computers with sale pricing applied (Public)
  */
 export async function getComputers(): Promise<GalleryComputer[]> {
-  if (!supabase) return [];
+  if (!isDbConfigured()) return [];
 
   // Get active sale first
   const activeSale = await getActiveSale();
 
-  const { data, error } = await supabase
-    .from('gallery_computers')
-    .select('*')
-    .eq('is_active', true)
-    .order('sort_order')
-    .order('created_at', { ascending: false });
-
-  if (error) {
+  try {
+    const rows = await query<GalleryComputerDB>(
+      `select * from gallery_computers
+       where is_active = true
+       order by sort_order, created_at desc`,
+    );
+    return rows.map((computer) => applySalePricing(computer, activeSale));
+  } catch (error) {
     console.error('Error fetching computers:', error);
     return [];
   }
-
-  // Apply sale pricing to each computer
-  return (data || []).map((computer) => applySalePricing(computer, activeSale));
 }
 
 /**
  * Get a single computer by ID (Public)
  */
 export async function getComputerById(id: string): Promise<GalleryComputer | null> {
-  if (!supabase) return null;
+  if (!isDbConfigured()) return null;
 
   // Get active sale first
   const activeSale = await getActiveSale();
 
-  const { data, error } = await supabase
-    .from('gallery_computers')
-    .select('*')
-    .eq('id', id)
-    .eq('is_active', true)
-    .single();
-
-  if (error) {
+  try {
+    const rows = await query<GalleryComputerDB>(
+      `select * from gallery_computers where id = $1 and is_active = true limit 1`,
+      [id],
+    );
+    return rows[0] ? applySalePricing(rows[0], activeSale) : null;
+  } catch (error) {
     console.error('Error fetching computer by ID:', error);
     return null;
   }
-
-  return applySalePricing(data, activeSale);
 }
 
 // =============================================================================
@@ -205,72 +195,62 @@ export async function getComputerById(id: string): Promise<GalleryComputer | nul
  * Get all computers including inactive (Admin)
  */
 export async function getAllComputers(options: { includeInactive?: boolean } = {}): Promise<GalleryComputer[]> {
-  if (!supabaseAdmin) return [];
+  if (!isDbConfigured()) return [];
 
   const { includeInactive = false } = options;
 
   // Get active sale first
   const activeSale = await getActiveSaleAdmin();
 
-  let query = supabaseAdmin
-    .from('gallery_computers')
-    .select('*');
-
-  if (!includeInactive) {
-    query = query.eq('is_active', true);
-  }
-
-  const { data, error } = await query
-    .order('sort_order')
-    .order('created_at', { ascending: false });
-
-  if (error) {
+  try {
+    const rows = includeInactive
+      ? await query<GalleryComputerDB>(
+          `select * from gallery_computers order by sort_order, created_at desc`,
+        )
+      : await query<GalleryComputerDB>(
+          `select * from gallery_computers where is_active = true order by sort_order, created_at desc`,
+        );
+    return rows.map((computer) => applySalePricing(computer, activeSale));
+  } catch (error) {
     console.error('Error fetching all computers:', error);
     return [];
   }
-
-  return (data || []).map((computer) => applySalePricing(computer, activeSale));
 }
 
 /**
  * Get active sale (Admin - bypasses RLS)
  */
 export async function getActiveSaleAdmin(): Promise<GallerySale | null> {
-  if (!supabaseAdmin) return null;
+  if (!isDbConfigured()) return null;
 
-  const { data, error } = await supabaseAdmin
-    .from('gallery_sales')
-    .select('*')
-    .eq('is_active', true)
-    .single();
-
-  if (error) {
+  try {
+    const rows = await query<GallerySale>(
+      `select * from gallery_sales where is_active = true limit 1`,
+    );
+    return rows[0] ?? null;
+  } catch {
     return null;
   }
-
-  return data;
 }
 
 /**
  * Get a single computer by ID including inactive (Admin)
  */
 export async function getComputerByIdAdmin(id: string): Promise<GalleryComputer | null> {
-  if (!supabaseAdmin) return null;
+  if (!isDbConfigured()) return null;
 
   const activeSale = await getActiveSaleAdmin();
 
-  const { data, error } = await supabaseAdmin
-    .from('gallery_computers')
-    .select('*')
-    .eq('id', id)
-    .single();
-
-  if (error) {
+  try {
+    const rows = await query<GalleryComputerDB>(
+      `select * from gallery_computers where id = $1 limit 1`,
+      [id],
+    );
+    return rows[0] ? applySalePricing(rows[0], activeSale) : null;
+  } catch (error) {
     console.error('Error fetching computer by ID (admin):', error);
     return null;
   }
-
-  return applySalePricing(data, activeSale);
 }
 
 /**
@@ -279,29 +259,32 @@ export async function getComputerByIdAdmin(id: string): Promise<GalleryComputer 
  * with any active sale pricing applied.
  */
 export async function createComputer(input: CreateComputerInput): Promise<GalleryComputer | null> {
-  if (!supabaseAdmin) return null;
+  if (!isDbConfigured()) return null;
 
-  const { data, error } = await supabaseAdmin
-    .from('gallery_computers')
-    .insert({
-      name: input.name,
-      type: input.type,
-      category: input.category,
-      price: input.price,
-      specs: input.specs || [],
-      sort_order: input.sort_order || 0,
-      stock_quantity: input.stock_quantity ?? 1,
-    })
-    .select()
-    .single();
+  try {
+    const rows = await query<GalleryComputerDB>(
+      `insert into gallery_computers (name, type, category, price, specs, sort_order, stock_quantity)
+       values ($1, $2, $3, $4, $5::jsonb, $6, $7)
+       returning *`,
+      [
+        input.name,
+        input.type,
+        input.category,
+        input.price,
+        JSON.stringify(input.specs || []),
+        input.sort_order || 0,
+        input.stock_quantity ?? 1,
+      ],
+    );
 
-  if (error) {
+    if (!rows[0]) return null;
+
+    const activeSale = await getActiveSaleAdmin();
+    return applySalePricing(rows[0], activeSale);
+  } catch (error) {
     console.error('Error creating computer:', error);
     return null;
   }
-
-  const activeSale = await getActiveSaleAdmin();
-  return applySalePricing(data, activeSale);
 }
 
 /**
@@ -313,22 +296,46 @@ export async function updateComputer(
   id: string,
   input: UpdateComputerInput
 ): Promise<GalleryComputer | null> {
-  if (!supabaseAdmin) return null;
+  if (!isDbConfigured()) return null;
 
-  const { data, error } = await supabaseAdmin
-    .from('gallery_computers')
-    .update(input)
-    .eq('id', id)
-    .select()
-    .single();
+  try {
+    const sets: string[] = [];
+    const params: unknown[] = [];
+    const add = (col: string, value: unknown, cast = '') => {
+      params.push(value);
+      sets.push(`${col} = $${params.length}${cast}`);
+    };
 
-  if (error) {
+    if (input.name !== undefined) add('name', input.name);
+    if (input.type !== undefined) add('type', input.type);
+    if (input.category !== undefined) add('category', input.category);
+    if (input.price !== undefined) add('price', input.price);
+    if (input.specs !== undefined) add('specs', JSON.stringify(input.specs), '::jsonb');
+    if (input.is_active !== undefined) add('is_active', input.is_active);
+    if (input.sort_order !== undefined) add('sort_order', input.sort_order);
+    if (input.stock_quantity !== undefined) add('stock_quantity', input.stock_quantity);
+
+    if (sets.length === 0) {
+      // Nothing to update; return current row.
+      return getComputerByIdAdmin(id);
+    }
+
+    sets.push('updated_at = now()');
+    params.push(id);
+
+    const rows = await query<GalleryComputerDB>(
+      `update gallery_computers set ${sets.join(', ')} where id = $${params.length} returning *`,
+      params,
+    );
+
+    if (!rows[0]) return null;
+
+    const activeSale = await getActiveSaleAdmin();
+    return applySalePricing(rows[0], activeSale);
+  } catch (error) {
     console.error('Error updating computer:', error);
     return null;
   }
-
-  const activeSale = await getActiveSaleAdmin();
-  return applySalePricing(data, activeSale);
 }
 
 /**
@@ -343,29 +350,26 @@ export async function updateComputer(
  * - Updates is_active to false in database
  * - Sets archived_at timestamp
  *
- * @functions_called supabaseAdmin.from
  * @called_by DELETE /api/in-store/[id]
  *
  * @version 1.0.0 - 2026-01-11T15:21:39Z - Initial implementation
  * @version 1.1.0 - 2026-01-15T00:00:00Z - Added archived_at timestamp
  */
 export async function deleteComputer(id: string): Promise<boolean> {
-  if (!supabaseAdmin) return false;
+  if (!isDbConfigured()) return false;
 
-  const { error } = await supabaseAdmin
-    .from('gallery_computers')
-    .update({
-      is_active: false,
-      archived_at: new Date().toISOString(),
-    })
-    .eq('id', id);
-
-  if (error) {
+  try {
+    await query(
+      `update gallery_computers
+       set is_active = false, archived_at = now()
+       where id = $1`,
+      [id],
+    );
+    return true;
+  } catch (error) {
     console.error('Error deleting computer:', error);
     return false;
   }
-
-  return true;
 }
 
 /**
@@ -374,19 +378,15 @@ export async function deleteComputer(id: string): Promise<boolean> {
  * Used by admins to remove entries that should never be restored.
  */
 export async function hardDeleteComputer(id: string): Promise<boolean> {
-  if (!supabaseAdmin) return false;
+  if (!isDbConfigured()) return false;
 
-  const { error } = await supabaseAdmin
-    .from('gallery_computers')
-    .delete()
-    .eq('id', id);
-
-  if (error) {
+  try {
+    await query(`delete from gallery_computers where id = $1`, [id]);
+    return true;
+  } catch (error) {
     console.error('Error hard deleting computer:', error);
     return false;
   }
-
-  return true;
 }
 
 /**
@@ -404,7 +404,6 @@ export async function hardDeleteComputer(id: string): Promise<boolean> {
  * @sideEffects
  * - Updates stock_quantity in database
  *
- * @functions_called supabaseAdmin.from, getComputerByIdAdmin
  * @called_by PATCH /api/in-store/[id]/stock
  *
  * @version 1.0.0 - 2026-01-15T00:00:00Z - Initial implementation
@@ -413,7 +412,7 @@ export async function updateStockQuantity(
   id: string,
   delta: number
 ): Promise<GalleryComputer | null> {
-  if (!supabaseAdmin) return null;
+  if (!isDbConfigured()) return null;
 
   // First get current stock
   const current = await getComputerByIdAdmin(id);
@@ -421,20 +420,20 @@ export async function updateStockQuantity(
 
   const newStock = Math.max(0, current.stockQuantity + delta);
 
-  const { data, error } = await supabaseAdmin
-    .from('gallery_computers')
-    .update({ stock_quantity: newStock })
-    .eq('id', id)
-    .select()
-    .single();
+  try {
+    const rows = await query<GalleryComputerDB>(
+      `update gallery_computers set stock_quantity = $1 where id = $2 returning *`,
+      [newStock, id],
+    );
 
-  if (error) {
+    if (!rows[0]) return null;
+
+    const activeSale = await getActiveSaleAdmin();
+    return applySalePricing(rows[0], activeSale);
+  } catch (error) {
     console.error('Error updating stock quantity:', error);
     return null;
   }
-
-  const activeSale = await getActiveSaleAdmin();
-  return applySalePricing(data, activeSale);
 }
 
 /**
@@ -444,28 +443,24 @@ export async function updateStockQuantity(
  *
  * @returns Array of archived computers
  *
- * @functions_called supabaseAdmin.from, applySalePricing
  * @called_by GET /api/in-store/archived
  *
  * @version 1.0.0 - 2026-01-15T00:00:00Z - Initial implementation
  */
 export async function getArchivedComputers(): Promise<GalleryComputer[]> {
-  if (!supabaseAdmin) return [];
+  if (!isDbConfigured()) return [];
 
   const activeSale = await getActiveSaleAdmin();
 
-  const { data, error } = await supabaseAdmin
-    .from('gallery_computers')
-    .select('*')
-    .eq('is_active', false)
-    .order('archived_at', { ascending: false });
-
-  if (error) {
+  try {
+    const rows = await query<GalleryComputerDB>(
+      `select * from gallery_computers where is_active = false order by archived_at desc`,
+    );
+    return rows.map((computer) => applySalePricing(computer, activeSale));
+  } catch (error) {
     console.error('Error fetching archived computers:', error);
     return [];
   }
-
-  return (data || []).map((computer) => applySalePricing(computer, activeSale));
 }
 
 /**
@@ -480,31 +475,30 @@ export async function getArchivedComputers(): Promise<GalleryComputer[]> {
  * - Updates is_active to true in database
  * - Clears archived_at timestamp
  *
- * @functions_called supabaseAdmin.from, applySalePricing
  * @called_by POST /api/in-store/[id]/restore
  *
  * @version 1.0.0 - 2026-01-15T00:00:00Z - Initial implementation
  */
 export async function restoreComputer(id: string): Promise<GalleryComputer | null> {
-  if (!supabaseAdmin) return null;
+  if (!isDbConfigured()) return null;
 
-  const { data, error } = await supabaseAdmin
-    .from('gallery_computers')
-    .update({
-      is_active: true,
-      archived_at: null,
-    })
-    .eq('id', id)
-    .select()
-    .single();
+  try {
+    const rows = await query<GalleryComputerDB>(
+      `update gallery_computers
+       set is_active = true, archived_at = null
+       where id = $1
+       returning *`,
+      [id],
+    );
 
-  if (error) {
+    if (!rows[0]) return null;
+
+    const activeSale = await getActiveSaleAdmin();
+    return applySalePricing(rows[0], activeSale);
+  } catch (error) {
     console.error('Error restoring computer:', error);
     return null;
   }
-
-  const activeSale = await getActiveSaleAdmin();
-  return applySalePricing(data, activeSale);
 }
 
 /**
@@ -512,45 +506,35 @@ export async function restoreComputer(id: string): Promise<GalleryComputer | nul
  * Deactivates all other sales and activates the specified one
  */
 export async function setActiveSale(saleType: string): Promise<GallerySale | null> {
-  if (!supabaseAdmin) return null;
+  if (!isDbConfigured()) return null;
 
-  // Deactivate all sales first
-  await supabaseAdmin
-    .from('gallery_sales')
-    .update({ is_active: false })
-    .neq('sale_type', '');
+  try {
+    // Deactivate all sales first
+    await query(`update gallery_sales set is_active = false where sale_type <> ''`);
 
-  // Activate the specified sale
-  const { data, error } = await supabaseAdmin
-    .from('gallery_sales')
-    .update({ is_active: true })
-    .eq('sale_type', saleType)
-    .select()
-    .single();
+    // Activate the specified sale
+    const rows = await query<GallerySale>(
+      `update gallery_sales set is_active = true where sale_type = $1 returning *`,
+      [saleType],
+    );
 
-  if (error) {
+    return rows[0] ?? null;
+  } catch (error) {
     console.error('Error setting active sale:', error);
     return null;
   }
-
-  return data;
 }
 
 /**
  * Get all available sales (Admin)
  */
 export async function getAvailableSalesAdmin(): Promise<GallerySale[]> {
-  if (!supabaseAdmin) return [];
+  if (!isDbConfigured()) return [];
 
-  const { data, error } = await supabaseAdmin
-    .from('gallery_sales')
-    .select('*')
-    .order('sale_type');
-
-  if (error) {
+  try {
+    return await query<GallerySale>(`select * from gallery_sales order by sale_type`);
+  } catch (error) {
     console.error('Error fetching available sales (admin):', error);
     return [];
   }
-
-  return data || [];
 }

@@ -1,0 +1,28 @@
+name = "csks-failover"
+main = "src/index.js"
+compatibility_date = "2024-11-01"
+account_id = "742adba7b242b60930d34f8cafe0c230"
+
+# PRIMARY: Dokploy app reached via the Worker-safe subdomain (not on the Worker's own routes).
+#          Create primary.computerstoreks.com as a DNS CNAME to the tunnel at cutover.
+# BACKUP:  Cloudflare Pages holding page (csks-holding project, created at cutover).
+[vars]
+PRIMARY = "https://primary.computerstoreks.com"
+BACKUP  = "https://csks-holding.pages.dev"
+
+# KV circuit-breaker namespace.
+# BEFORE deploying: run `npx wrangler@latest kv namespace create CSKS_FAILOVER_KV`
+# and replace the placeholder id below with the printed namespace id.
+[[kv_namespaces]]
+binding = "FAILOVER_KV"
+id = "PLACEHOLDER_REPLACE_WITH_REAL_KV_NAMESPACE_ID"
+
+# Routes are commented out here so the Worker can be deployed and tested before
+# it intercepts live traffic. Uncomment both at cutover, then redeploy.
+# [[routes]]
+# pattern = "computerstoreks.com/*"
+# zone_name = "computerstoreks.com"
+#
+# [[routes]]
+# pattern = "www.computerstoreks.com/*"
+# zone_name = "computerstoreks.com"

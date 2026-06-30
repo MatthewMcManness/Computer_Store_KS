@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Computer Store Kansas - Be Back Shortly</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --blue-600: #2563eb;
+      --blue-700: #1d4ed8;
+      --blue-800: #1e40af;
+      --blue-900: #1e3a8a;
+      --blue-50:  #eff6ff;
+      --gray-50:  #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-500: #6b7280;
+      --gray-700: #374151;
+      --gray-900: #111827;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, sans-serif;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--gray-50);
+      color: var(--gray-900);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ---- Header ---- */
+    .site-header {
+      background-color: var(--blue-800);
+      padding: 1rem 1.5rem;
+    }
+
+    .site-header .inner {
+      max-width: 48rem;
+      margin: 0 auto;
+    }
+
+    .site-header .store-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: -0.01em;
+    }
+
+    .site-header .tagline {
+      font-size: 0.8125rem;
+      color: rgba(255, 255, 255, 0.75);
+      margin-top: 0.125rem;
+    }
+
+    /* ---- Main ---- */
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      padding: 3rem 1.5rem;
+    }
+
+    .card {
+      background: #ffffff;
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 2.5rem 2rem;
+      max-width: 42rem;
+      margin: 0 auto;
+      width: 100%;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07);
+    }
+
+    .status-badge {
+      display: inline-block;
+      background: var(--blue-50);
+      color: var(--blue-800);
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      margin-bottom: 1.25rem;
+    }
+
+    .card h1 {
+      font-size: clamp(1.5rem, 1.2rem + 1.5vw, 2rem);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      color: var(--gray-900);
+      margin-bottom: 0.875rem;
+    }
+
+    .card p {
+      font-size: 1rem;
+      line-height: 1.65;
+      color: var(--gray-700);
+      margin-bottom: 1rem;
+    }
+
+    .card p:last-of-type {
+      margin-bottom: 1.75rem;
+    }
+
+    /* ---- CTA phone button ---- */
+    .btn-phone {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background-color: var(--blue-600);
+      color: #ffffff;
+      text-decoration: none;
+      font-size: 1.125rem;
+      font-weight: 700;
+      padding: 0.875rem 1.75rem;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+      transition: background-color 0.15s ease;
+    }
+
+    .btn-phone:hover {
+      background-color: var(--blue-700);
+      text-decoration: none;
+    }
+
+    .btn-phone:active {
+      background-color: var(--blue-800);
+    }
+
+    /* Phone icon (inline SVG, no external request) */
+    .btn-phone svg {
+      width: 1.125rem;
+      height: 1.125rem;
+      flex-shrink: 0;
+    }
+
+    /* ---- Info grid ---- */
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      border-top: 1px solid var(--gray-200);
+      padding-top: 1.5rem;
+    }
+
+    .info-block {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .info-label {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--gray-500);
+    }
+
+    .info-value {
+      font-size: 0.9375rem;
+      color: var(--gray-700);
+      line-height: 1.5;
+    }
+
+    .info-value a {
+      color: var(--blue-600);
+      text-decoration: none;
+    }
+
+    .info-value a:hover {
+      text-decoration: underline;
+    }
+
+    /* ---- Footer ---- */
+    .site-footer {
+      background-color: var(--gray-900);
+      color: rgba(255, 255, 255, 0.55);
+      text-align: center;
+      font-size: 0.8125rem;
+      padding: 1rem 1.5rem;
+    }
+
+    /* ---- Responsive ---- */
+    @media (max-width: 480px) {
+      .card {
+        padding: 2rem 1.25rem;
+      }
+
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .btn-phone {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="inner">
+      <div class="store-name">Computer Store Kansas</div>
+      <div class="tagline">Quality computers and expert repairs since 2003</div>
+    </div>
+  </header>
+
+  <main>
+    <div class="card">
+      <div class="status-badge">Temporarily Offline</div>
+
+      <h1>Our website is down for a moment.</h1>
+
+      <p>We are aware of the issue and working to restore the site. It will be back shortly.</p>
+
+      <p>The store is open and ready to help. Call us directly for sales, repairs, or any questions.</p>
+
+      <a href="tel:+17852673223" class="btn-phone">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5 19.79 19.79 0 0 1 1.59 4.9 2 2 0 0 1 3.56 2.73h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 10.4a16 16 0 0 0 5.67 5.67l.82-.82a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21 17.6z"/>
+        </svg>
+        (785) 267-3223
+      </a>
+
+      <div class="info-grid">
+        <div class="info-block">
+          <div class="info-label">Hours</div>
+          <div class="info-value">
+            Mon to Fri: 10am to 6pm<br>
+            Saturday: 10am to 2pm<br>
+            Sunday: Closed
+          </div>
+        </div>
+        <div class="info-block">
+          <div class="info-label">Address</div>
+          <div class="info-value">
+            <a href="https://maps.google.com/?q=2008+SW+Gage+Blvd,+Topeka,+KS+66604" target="_blank" rel="noopener">
+              2008 SW Gage Blvd<br>
+              Topeka, KS 66604
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    Computer Store Kansas, 2008 SW Gage Blvd, Topeka, KS 66604
+  </footer>
+
+</body>
+</html>

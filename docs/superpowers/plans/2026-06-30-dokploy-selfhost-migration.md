@@ -786,31 +786,42 @@ Expected: health 200, homepage 200.
 
 ---
 
-## Phase 7 - Cloudflare zone for computerstoreks.com (Matthew NS swap)
+## Phase 7 - Cloudflare zones for both domains (Matthew NS swap)
 
-**Highest-risk step: email records.** Replicate every existing record before the swap.
+Two domains move to Cloudflare: `computerstoreks.com` (the live site) and `thecomputerstore.com` (redirects to the main site). Both are registered at Squarespace under the store account; only the nameservers change, the store keeps ownership.
 
-### Task 7.1: Enumerate current DNS exhaustively
+**Highest-risk step: email and DNS records.** Replicate every existing record on BOTH domains before either swap. **DNSSEC must be OFF at Squarespace on a domain before its nameserver swap**, or that domain fails to resolve (hard outage). Cloudflare's setup screen flags it; if flagged, Matthew disables DNSSEC in Squarespace for that domain first.
 
-- [ ] **Step 1:** From the Google Cloud DNS authoritative servers, dump every record type:
+### Task 7.1: Enumerate current DNS exhaustively (both domains)
+
+- [ ] **Step 1:** For EACH domain, dump every record type from its authoritative nameservers:
 
 ```bash
-for t in A AAAA CNAME MX TXT SRV NS CAA; do echo "== $t =="; dig +nocmd +noall +answer $t computerstoreks.com @ns-cloud-e1.googledomains.com; done
-dig +nocmd +noall +answer TXT _dmarc.computerstoreks.com @ns-cloud-e1.googledomains.com
-dig +nocmd +noall +answer CNAME www.computerstoreks.com @ns-cloud-e1.googledomains.com
-for s in google default selector1 selector2 resend; do dig +short TXT ${s}._domainkey.computerstoreks.com @ns-cloud-e1.googledomains.com; done
+for DOMAIN in computerstoreks.com thecomputerstore.com; do
+  echo "############ $DOMAIN ############"
+  NS=$(dig +short NS $DOMAIN | head -1)
+  for t in A AAAA CNAME MX TXT SRV NS CAA; do echo "== $t =="; dig +nocmd +noall +answer $t $DOMAIN @"$NS"; done
+  dig +nocmd +noall +answer TXT _dmarc.$DOMAIN @"$NS"
+  dig +nocmd +noall +answer CNAME www.$DOMAIN @"$NS"
+  for s in google default selector1 selector2 resend; do echo "$s._domainkey:"; dig +short TXT ${s}._domainkey.$DOMAIN @"$NS"; done
+done
 ```
-Record everything, especially MX, SPF (`v=spf1`), DKIM (`*._domainkey`), DMARC (`_dmarc`), and any verification TXT.
+Record everything per domain, especially MX, SPF (`v=spf1`), DKIM (`*._domainkey`), DMARC (`_dmarc`), and any verification TXT. `thecomputerstore.com` may carry its own mail or verification records: capture them too.
 
-### Task 7.2: Create the zone and pre-load records
+### Task 7.2: Create both zones and pre-load records
 
-- [ ] **Step 1:** Add `computerstoreks.com` to the RWS Cloudflare account (`POST /zones`). Capture the two assigned nameservers.
-- [ ] **Step 2:** Recreate every non-Render record from Task 7.1 in the new zone (MX, all TXT/SPF/DKIM/DMARC, CAA, any subdomains), **proxy OFF (grey cloud) for MX and mail-related hosts**. Do NOT yet create the apex/www records that point at hosting: leave apex/www pointing at Render via the records you copy, so the live site keeps serving until cutover. (If Resend DKIM records exist, they can be dropped since Resend is being removed, but only after confirming no other mail flow depends on them; when in doubt, copy them and prune post-cutover.)
-- [ ] **Step 3:** Verify the new zone serves the email records before the swap: `dig MX computerstoreks.com @<new-cf-nameserver>` returns the same MX as today.
+- [ ] **Step 1:** Add BOTH `computerstoreks.com` and `thecomputerstore.com` to the RWS Cloudflare account (`POST /zones` each). Capture each zone's two assigned nameservers.
+- [ ] **Step 2:** In each zone, recreate every record from Task 7.1 (MX, all TXT/SPF/DKIM/DMARC, CAA, subdomains), **proxy OFF (grey cloud) for MX and mail-related hosts**. For `computerstoreks.com`, do NOT yet create apex/www hosting records that point away from Render: copy them as-is so the live site keeps serving until cutover. (Resend DKIM can be dropped since Resend is being removed, but only after confirming no other mail flow depends on it; when in doubt copy and prune post-cutover.)
+- [ ] **Step 3:** Verify each new zone serves its email records before the swap: `dig MX <domain> @<new-cf-nameserver>` matches today.
 
-### Task 7.3: Matthew swaps nameservers
+### Task 7.3: Redirect thecomputerstore.com to the main site
 
-- [ ] **Step 1:** Hand Matthew the two Cloudflare nameservers. He updates them at the registrar (Squarespace, `contact@computerstoreks.com`). **Checkpoint:** wait for `dig NS computerstoreks.com` to return the Cloudflare nameservers and for Cloudflare to mark the zone Active. Email continues flowing because the records were pre-loaded. The site still serves from Render (apex/www records unchanged).
+- [ ] **Step 1:** In the `thecomputerstore.com` zone, create a proxied DNS record for apex and `www` (placeholder `A @ 192.0.2.1` proxied, and `CNAME www` to `@` proxied) so a Redirect Rule has a hostname to attach to. No origin is needed.
+- [ ] **Step 2:** Add a Cloudflare Redirect Rule (Rules, then Redirect Rules) on the zone: when hostname is `thecomputerstore.com` or `www.thecomputerstore.com`, 301 to `https://computerstoreks.com` plus the original path and query (preserve `http.request.uri.path` and the query string). Verify after the swap: `curl -sI https://thecomputerstore.com/some/path` returns a 301 to the matching path on `computerstoreks.com`.
+
+### Task 7.4: Matthew swaps nameservers (both domains)
+
+- [ ] **Step 1:** For each domain, check DNSSEC in Squarespace; if enabled, Matthew disables it first. Hand Matthew the two Cloudflare nameservers per domain. He updates them at Squarespace (store account, `contact@computerstoreks.com`). **Checkpoint:** wait until `dig NS <domain>` returns the Cloudflare nameservers and Cloudflare marks each zone Active. Email keeps flowing because records were pre-loaded; `computerstoreks.com` still serves from Render (apex/www unchanged) until Phase 8.
 
 ---
 

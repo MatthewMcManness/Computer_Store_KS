@@ -101,7 +101,7 @@ export default function NewSlidePage() {
         ...(slideType === 'html' ? { content: htmlContent } : { image_url: imageUrl }),
       };
 
-      const response = await fetch('/api/slideshow', {
+      const response = await fetch('/api/slideshow/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(slidePayload),

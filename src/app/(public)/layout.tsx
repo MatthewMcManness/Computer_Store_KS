@@ -21,7 +21,7 @@ export default function PublicLayout({
   return (
     <>
       <Script
-        src="https://www.googletagmanager.com/gtag/js?id=G-EQ3ML3VTCZ"
+        src="https://www.googletagmanager.com/gtag/js?id=G-KYW0GKH15W"
         strategy="afterInteractive"
       />
       <Script id="google-analytics" strategy="afterInteractive">
@@ -29,7 +29,7 @@ export default function PublicLayout({
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
-          gtag('config', 'G-EQ3ML3VTCZ');
+          gtag('config', 'G-KYW0GKH15W');
         `}
       </Script>
       <Header />

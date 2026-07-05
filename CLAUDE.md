@@ -2,16 +2,14 @@
 
 > Think carefully and implement the most concise solution that changes as little code as possible.
 
-> **Self-host migration (2026-06-30):** moved off Supabase/Resend/Render to self-hosted Postgres + local volume + Cloudflare Access + n8n email on Dokploy. Production DNS cutover pending.
->
-> **PENDING:** Matthew to confirm any other abandoned features to scrub from docs.
+> **Self-host migration COMPLETE (cut over 2026-07-05):** moved off Supabase/Resend/Render to self-hosted Postgres + local volume + Cloudflare Access + n8n email on Dokploy. computerstoreks.com now serves from the local Dokploy server via the `csks-prod` Cloudflare tunnel; the domain is on Cloudflare. Render + Supabase kept briefly as rollback, then decommissioned.
 
 ## Project Overview
 
 Computer Store KS is the website for a computer repair shop in Topeka, Kansas.
 
 **Live Site:** https://computerstoreks.com
-**Hosting:** Local Dokploy server (behind the RWS Cloudflare tunnel); migrating off Render, production DNS cutover pending. Monitoring via Uptime Kuma.
+**Hosting:** Local Dokploy server (managed app `csks-app` / `csks-prod-whpiwp`, behind the `csks-prod` Cloudflare tunnel) since the 2026-07-05 cutover. Render is gone. Monitoring via Uptime Kuma.
 **Database:** Self-hosted PostgreSQL, accessed via a `pg` connection pool in `src/lib/db.ts`. Five tables.
 **Auth:** Cloudflare Access at the edge. Authorized emails: `contact@computerstoreks.com`, `owner@resilientwebsolutions.com`.
 
@@ -130,9 +128,9 @@ npm ci && npm run build  # Clean production build, test before deploying
 
 ## Git & Deployment
 
-> **Deployment is being finalized at the Dokploy cutover (in progress as of 2026-06-30).** The site is moving off Render onto the local Dokploy server behind the RWS Cloudflare tunnel, with Uptime Kuma monitoring. The exact Dokploy deploy steps are not finalized here yet. Do not assume the push-to-Render flow still deploys. `.claude/rules/branch-operations.md` still documents the old Render workflow and will be updated once the Dokploy process is locked in.
+> **Live on Dokploy since the 2026-07-05 cutover.** Full, current deploy steps are in `.claude/rules/branch-operations.md`. Short version: push to the `mirror` repo (`m318m972/computer-store-ks-mirror`, branch `migrate-dokploy-selfhost`), then trigger the Dokploy deploy (`application.deploy`, applicationId `4Vo5XO4DlcFTu25HpFjxb`). A GitHub push alone does NOT deploy. There is no push-to-Render flow anymore.
 
-General workflow (still valid): work on a branch, test locally, get explicit user approval before pushing.
+General workflow: work on the branch, test locally, get explicit user approval before deploying.
 
 ```bash
 npm run dev                    # Test at http://localhost:3000
@@ -147,17 +145,17 @@ git commit -m "feat: description"
 
 **Commit convention:** `feat:`, `fix:`, `refactor:`, `docs:`, `chore:`, `test:`
 
-### Deploy target (Dokploy, being finalized)
-- **Hosting:** local Dokploy server, reached through the RWS Cloudflare tunnel.
+### Deploy target (Dokploy)
+- **Hosting:** local Dokploy server (managed app `csks-app` / `csks-prod-whpiwp`, applicationId `4Vo5XO4DlcFTu25HpFjxb`), reached through the `csks-prod` Cloudflare tunnel.
 - **Monitoring:** Uptime Kuma (replaces UptimeRobot).
 - **Health check:** `/api/health`.
 - **Node.js 22.**
 
 ### Deploy Checklist
 1. `npm run dev`, test at http://localhost:3000
-2. Share localhost link with user, get approval
+2. Get approval
 3. `npm run build` passes
-4. Deploy via the finalized Dokploy process (TBD at cutover)
+4. Push to `mirror` (branch `migrate-dokploy-selfhost`), then trigger `application.deploy` for applicationId `4Vo5XO4DlcFTu25HpFjxb`
 5. Verify `/api/health` on live site
 
 ## Reference Docs

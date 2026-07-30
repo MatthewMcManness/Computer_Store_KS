@@ -16,7 +16,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import type { SlideshowSlide } from '@/types/slideshow';
 
-const SLIDE_DURATION_MS = 10000; // 10 seconds per slide
+const SLIDE_DURATION_MS = 15000; // 15 seconds per slide
 const SLIDE_W = 1920;            // Authored slide width, must match slide HTML
 const SLIDE_H = 1080;            // Authored slide height, must match slide HTML
 

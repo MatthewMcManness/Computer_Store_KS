@@ -1,10 +1,15 @@
 /**
  * SLIDESHOW DISPLAY - Full-screen in-store slideshow for TV/monitor display.
- * Rotates through slides every 10 seconds with a progress bar and dot indicators.
+ * Rotates through active slides every 10 seconds with no on-screen chrome.
  * Designed to run unattended on a display in the store.
  *
- * WHEN TO EDIT: When changing rotation timing, progress bar styling,
- * or the overall display layout.
+ * Slides are authored at a fixed 1920x1080. Rendering them into a
+ * viewport-sized box clips them on any panel whose browser viewport is
+ * smaller (a 720p display shows roughly the top-left two thirds and looks
+ * "zoomed in"). So the slide is rendered at its true authored size and
+ * scaled to fit, letterboxing on any aspect ratio that is not 16:9.
+ *
+ * WHEN TO EDIT: When changing rotation timing or the overall display layout.
  */
 'use client';
 
@@ -12,7 +17,8 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import type { SlideshowSlide } from '@/types/slideshow';
 
 const SLIDE_DURATION_MS = 10000; // 10 seconds per slide
-const PROGRESS_TICK_MS = 50;     // Progress bar update frequency
+const SLIDE_W = 1920;            // Authored slide width, must match slide HTML
+const SLIDE_H = 1080;            // Authored slide height, must match slide HTML
 
 /**
  * Full-screen slideshow display page.
@@ -21,12 +27,24 @@ const PROGRESS_TICK_MS = 50;     // Progress bar update frequency
 export default function SlideshowPage() {
   const [slides, setSlides] = useState<SlideshowSlide[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [progress, setProgress] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [scale, setScale] = useState(1);
 
   const slideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const progressTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const startTimeRef = useRef<number>(0);
+
+  // Scale the fixed-size slide to fit whatever panel this is running on
+  useEffect(() => {
+    const fit = () =>
+      setScale(Math.min(window.innerWidth / SLIDE_W, window.innerHeight / SLIDE_H));
+
+    fit();
+    window.addEventListener('resize', fit);
+    window.addEventListener('orientationchange', fit);
+    return () => {
+      window.removeEventListener('resize', fit);
+      window.removeEventListener('orientationchange', fit);
+    };
+  }, []);
 
   // Load slides on mount
   useEffect(() => {
@@ -46,38 +64,17 @@ export default function SlideshowPage() {
     setCurrentIndex((prev) => (prev + 1) % slides.length);
   }, [slides.length]);
 
-  // Start timers whenever currentIndex or slides change
+  // Restart the rotation timer whenever currentIndex or slides change
   useEffect(() => {
     if (slides.length === 0) return;
 
-    // Clear any running timers
     if (slideTimerRef.current) clearTimeout(slideTimerRef.current);
-    if (progressTimerRef.current) clearInterval(progressTimerRef.current);
-
-    // Reset progress
-    setProgress(0);
-    startTimeRef.current = Date.now();
-
-    // Smooth progress bar (updates every 50ms)
-    progressTimerRef.current = setInterval(() => {
-      const elapsed = Date.now() - startTimeRef.current;
-      setProgress(Math.min((elapsed / SLIDE_DURATION_MS) * 100, 100));
-    }, PROGRESS_TICK_MS);
-
-    // Auto-advance after full duration
     slideTimerRef.current = setTimeout(advance, SLIDE_DURATION_MS);
 
     return () => {
       if (slideTimerRef.current) clearTimeout(slideTimerRef.current);
-      if (progressTimerRef.current) clearInterval(progressTimerRef.current);
     };
   }, [currentIndex, slides.length, advance]);
-
-  // Jump to a specific slide when clicking a dot
-  const goToSlide = (index: number) => {
-    if (index === currentIndex) return;
-    setCurrentIndex(index);
-  };
 
   // ── Loading state ────────────────────────────────────────────
   if (isLoading) {
@@ -107,10 +104,20 @@ export default function SlideshowPage() {
         html, body { margin: 0; padding: 0; background: #000; overflow: hidden; }
       `}</style>
 
-      <div className="fixed inset-0 bg-black flex flex-col">
-
-        {/* ── Slide content area ───────────────────────────────── */}
-        <div className="flex-1 relative overflow-hidden">
+      {/* Full-bleed slide content, no progress bar and no dot indicators.
+          The inner box stays at the authored 1920x1080 and is scaled to fit. */}
+      <div className="fixed inset-0 bg-black overflow-hidden">
+        <div
+          style={{
+            position: 'absolute',
+            left: '50%',
+            top: '50%',
+            width: SLIDE_W,
+            height: SLIDE_H,
+            transform: `translate(-50%, -50%) scale(${scale})`,
+            transformOrigin: 'center center',
+          }}
+        >
           {currentSlide.type === 'image' ? (
             // Image slide — fills area, maintains aspect ratio
             // eslint-disable-next-line @next/next/no-img-element
@@ -121,7 +128,7 @@ export default function SlideshowPage() {
               className="w-full h-full object-contain"
             />
           ) : (
-            // HTML slide — sandboxed iframe, full size
+            // HTML slide — sandboxed iframe at authored size
             <iframe
               key={currentSlide.id}
               srcDoc={currentSlide.content!}
@@ -130,38 +137,6 @@ export default function SlideshowPage() {
               title={currentSlide.title}
             />
           )}
-        </div>
-
-        {/* ── Bottom control bar ───────────────────────────────── */}
-        <div className="flex-none bg-gradient-to-t from-black to-black/80 px-8 pt-4 pb-5">
-
-          {/* Progress bar track */}
-          <div className="h-1 bg-white/15 rounded-full overflow-hidden mb-4">
-            <div
-              className="h-full bg-white/80 rounded-full"
-              style={{
-                width: `${progress}%`,
-                transition: `width ${PROGRESS_TICK_MS}ms linear`,
-              }}
-            />
-          </div>
-
-          {/* Dot indicators */}
-          <div className="flex items-center justify-center gap-2.5">
-            {slides.map((slide, i) => (
-              <button
-                key={slide.id}
-                onClick={() => goToSlide(i)}
-                aria-label={`Go to slide ${i + 1}: ${slide.title}`}
-                className={`rounded-full transition-all duration-300 cursor-pointer ${
-                  i === currentIndex
-                    ? 'w-7 h-2.5 bg-white'
-                    : 'w-2.5 h-2.5 bg-white/35 hover:bg-white/55'
-                }`}
-              />
-            ))}
-          </div>
-
         </div>
       </div>
     </>

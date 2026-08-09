@@ -15,14 +15,12 @@ BACKUP  = "https://csks-holding.pages.dev"
 # and replace the placeholder id below with the printed namespace id.
 [[kv_namespaces]]
 binding = "FAILOVER_KV"
-id = "PLACEHOLDER_REPLACE_WITH_REAL_KV_NAMESPACE_ID"
+id = "1f77ec36bee64e868ba801c562382895"
 
-# Routes are commented out here so the Worker can be deployed and tested before
-# it intercepts live traffic. Uncomment both at cutover, then redeploy.
-# [[routes]]
-# pattern = "computerstoreks.com/*"
-# zone_name = "computerstoreks.com"
-#
-# [[routes]]
-# pattern = "www.computerstoreks.com/*"
-# zone_name = "computerstoreks.com"
+[[routes]]
+pattern = "computerstoreks.com/*"
+zone_name = "computerstoreks.com"
+
+[[routes]]
+pattern = "www.computerstoreks.com/*"
+zone_name = "computerstoreks.com"

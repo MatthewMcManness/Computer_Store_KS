@@ -1,232 +1,231 @@
 /**
- * REVIEWS DISPLAY - Shows customer reviews on the /reviews page with
- * star ratings and review text.
+ * REVIEWS DISPLAY - The /reviews page body: real cached Google reviews
+ * rendered as an editorial quote column with hairline rules. Shows the
+ * aggregate rating the integration returns, never an invented number.
  *
- * WHEN TO EDIT: When changing how reviews are displayed or adding new
- * review sources.
+ * Server Component. The cache read lives in loadCachedReviews(), which
+ * the reviews page calls so its hero lede can match the state of the
+ * column below it: the page must never promise reviews that are not
+ * there. This component brings its own Section wrapper and picks the
+ * rhythm per state: standard for the quote column, compact for the
+ * empty state so no dead band opens beneath it.
+ *
+ * The empty state is a designed composition, not a fallback row: the
+ * Google listing lockup under a strong hairline, left-aligned like every
+ * other band, with exactly one action, since the page's primary CTA
+ * ("write a review") already sits a screen above in the hero. It is
+ * exported because the homepage proof band renders the same component
+ * for the same state.
+ *
+ * WHEN TO EDIT: When changing how reviews look on the reviews page.
+ * Data comes from the google-business cache; do not add other sources.
  */
 
-'use client';
-
-import { useEffect, useState } from 'react';
+import { cache } from 'react';
+import Link from 'next/link';
 import { BUSINESS_INFO } from '@/lib/constants';
-import type { DisplayReview } from '@/types/google-business';
+import { Section } from '@/components/ui/section';
+import { Eyebrow } from '@/components/ui/eyebrow';
+import { StarRating, formatReviewDate } from './star-rating';
+import { cn } from '@/lib/cn';
+import {
+  isGoogleBusinessConfigured,
+  refreshIfStale,
+  selectReviews,
+} from '@/lib/google-business';
+import type { DisplayReview, ReviewsStats } from '@/types/google-business';
 
-interface ReviewsData {
-  reviews: DisplayReview[];
-  stats: {
-    averageRating: number;
-    totalCount: number;
-  };
-}
+/** How many cached reviews the quote column shows at most. */
+const DISPLAY_COUNT = 24;
 
-/**
- * Renders a star rating display using filled/empty star characters.
- *
- * @param rating - Integer rating from 1 to 5
- * @returns Star rating element with aria label for accessibility
- *
- * @called_by ReviewCard, ReviewsDisplay
- *
- * @version 1.0.0 - 2025-06-01T00:00:00Z - Initial implementation
- * @version 1.1.0 - 2026-03-20T00:00:00Z - Migrated from CSS Modules to Tailwind
- */
-function StarRating({ rating }: { rating: number }) {
+const QUIET_LINK =
+  'inline-flex min-h-[44px] items-center py-2 font-semibold text-brand-deep underline ' +
+  'decoration-line-strong underline-offset-4 transition-colors duration-fast ease-brand ' +
+  'hover:decoration-brand-deep';
+
+/** Width/offset variations so the quote column reads editorial, never templated. */
+const ROW_VARIANTS = ['max-w-[60ch]', 'max-w-[52ch] md:ml-14', 'max-w-[56ch] md:ml-7'] as const;
+
+/** One review as a hairline-ruled quote row with the reviewer's name and real rating. */
+function ReviewRow({ review, index }: { review: DisplayReview; index: number }) {
   return (
-    <div className="flex gap-0.5 text-2xl" aria-label={`${rating} out of 5 stars`}>
-      {[1, 2, 3, 4, 5].map((star) => (
-        <span
-          key={star}
-          className={star <= rating ? 'text-yellow-400' : 'text-gray-300'}
-        >
-          ★
-        </span>
-      ))}
-    </div>
+    <li className="border-t border-line py-9 first:border-t-0 first:pt-0">
+      <figure className={cn('m-0', ROW_VARIANTS[index % ROW_VARIANTS.length])}>
+        {review.text && (
+          <blockquote className="m-0 text-lg leading-relaxed text-body">
+            {review.text}
+          </blockquote>
+        )}
+        <figcaption className={cn('flex flex-wrap items-baseline gap-x-4 gap-y-1', review.text && 'mt-4')}>
+          <span className="font-bold text-ink">{review.authorName}</span>
+          <StarRating rating={review.rating} />
+          <span className="text-sm tabular-nums text-muted">{formatReviewDate(review.date)}</span>
+        </figcaption>
+        {review.reply && (
+          <div className="mt-5 border-l border-line-strong pl-5">
+            <p className="text-eyebrow uppercase text-muted">
+              Reply from the shop
+              <span className="ml-3 normal-case tracking-normal tabular-nums">{formatReviewDate(review.reply.date)}</span>
+            </p>
+            <p className="mt-2 text-sm leading-relaxed text-body">{review.reply.text}</p>
+          </div>
+        )}
+      </figure>
+    </li>
   );
 }
 
 /**
- * Formats an ISO date string into a human-readable US English date.
+ * The designed empty state, in two variants because the same block must
+ * not be rendered verbatim on two pages.
  *
- * @param dateString - ISO 8601 date string
- * @returns Formatted date string (e.g., "January 15, 2024")
+ * 'page' is what /reviews shows when nothing is cached: one measure,
+ * eyebrow directly above the h2 so the label labels something, and one
+ * action. No address block, because a reviews page restating the street
+ * address is the visit band's job and the footer's, not this one's.
  *
- * @called_by ReviewCard
+ * 'home' is the homepage proof band: the same fact, composed as a band
+ * with its actions on a hairline foot, and carrying the in-site route to
+ * /reviews, which is otherwise reachable only from the footer.
  *
- * @version 1.0.0 - 2025-06-01T00:00:00Z - Initial implementation
+ * No star row and no count is drawn in either variant. The aggregate
+ * only exists when the cache holds reviews, and this is the state where
+ * it does not, so any number here would be invented.
  */
-function formatDate(dateString: string): string {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-}
-
-/**
- * Displays a single customer review card with author info, rating, text, and optional owner reply.
- *
- * @param review - The review data to display
- * @returns Review card element
- *
- * @functions_called StarRating, formatDate
- * @called_by ReviewsDisplay
- *
- * @version 1.0.0 - 2025-06-01T00:00:00Z - Initial implementation
- * @version 1.1.0 - 2026-03-20T00:00:00Z - Migrated from CSS Modules to Tailwind
- */
-function ReviewCard({ review }: { review: DisplayReview }) {
-  return (
-    <div className="bg-white border border-bg-dark rounded-brand-md p-6 transition-shadow duration-normal hover:shadow-brand-md">
-      <div className="flex justify-between items-start mb-4 flex-wrap gap-2 max-md:flex-col">
-        <div className="flex items-center gap-3">
-          {review.authorPhoto ? (
-            <img
-              src={review.authorPhoto}
-              alt={review.authorName}
-              className="w-10 h-10 rounded-full object-cover"
-            />
-          ) : (
-            <div className="w-10 h-10 rounded-full bg-primary-600 text-white flex items-center justify-center font-semibold text-lg">
-              {review.authorName.charAt(0).toUpperCase()}
-            </div>
-          )}
-          <div>
-            <div className="font-semibold text-gray-900">{review.authorName}</div>
-            <div className="text-sm text-gray-500">{formatDate(review.date)}</div>
-          </div>
-        </div>
-        <StarRating rating={review.rating} />
-      </div>
-      {review.text && <p className="text-gray-700 leading-relaxed m-0">{review.text}</p>}
-      {review.reply && (
-        <div className="mt-4 p-4 bg-bg-light rounded-brand-sm border-l-[3px] border-l-primary-600">
-          <div className="flex justify-between items-center mb-2 flex-wrap gap-2">
-            <strong className="text-gray-900 text-sm">Response from owner</strong>
-            <span className="text-xs text-gray-500">{formatDate(review.reply.date)}</span>
-          </div>
-          <p className="m-0 text-[0.9rem] text-gray-700">{review.reply.text}</p>
-        </div>
-      )}
-    </div>
+export function ReviewsEmptyState({
+  headingId = 'google-listing-heading',
+  variant = 'page',
+}: {
+  /** Heading id for the band's aria-labelledby, unique per page */
+  headingId?: string;
+  /** Which surface is rendering this state */
+  variant?: 'page' | 'home';
+}) {
+  const listingLink = (
+    <a
+      href={BUSINESS_INFO.socialMedia.google}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={QUIET_LINK}
+    >
+      Read our Google reviews
+      <span className="sr-only"> (opens in a new tab)</span>
+    </a>
   );
-}
 
-/**
- * Renders a skeleton loading state for the reviews section with shimmer animation.
- *
- * @returns Skeleton placeholder elements mimicking the reviews layout
- *
- * @called_by ReviewsDisplay
- *
- * @version 1.0.0 - 2025-06-01T00:00:00Z - Initial implementation
- * @version 1.1.0 - 2026-03-20T00:00:00Z - Migrated from CSS Modules to Tailwind
- */
-function ReviewsSkeleton() {
-  return (
-    <div className="animate-pulse">
-      <div className="flex flex-col items-center gap-2 mb-8 pb-8 border-b border-bg-dark">
-        <div className="w-[120px] h-[48px] rounded bg-gradient-to-r from-bg-dark via-bg-light to-bg-dark bg-[length:200%_100%] animate-bf-shimmer" />
-        <div className="w-[150px] h-[24px] rounded bg-gradient-to-r from-bg-dark via-bg-light to-bg-dark bg-[length:200%_100%] animate-bf-shimmer" />
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-[repeat(auto-fill,minmax(350px,1fr))] gap-6">
-        {[1, 2, 3, 4, 5, 6].map((i) => (
-          <div key={i} className="bg-white border border-bg-dark rounded-brand-md p-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-bg-dark via-bg-light to-bg-dark bg-[length:200%_100%] animate-bf-shimmer" />
-              <div>
-                <div className="w-[100px] h-4 rounded bg-gradient-to-r from-bg-dark via-bg-light to-bg-dark bg-[length:200%_100%] animate-bf-shimmer" />
-                <div className="w-20 h-3 rounded bg-gradient-to-r from-bg-dark via-bg-light to-bg-dark bg-[length:200%_100%] animate-bf-shimmer mt-1" />
-              </div>
-            </div>
-            <div className="w-full h-[60px] rounded bg-gradient-to-r from-bg-dark via-bg-light to-bg-dark bg-[length:200%_100%] animate-bf-shimmer mt-4" />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/**
- * Fetches and displays live Google Business reviews with a loading skeleton.
- *
- * On mount, fetches reviews from the internal API. Shows a skeleton loader
- * while fetching, and renders live review data with aggregate stats when
- * available. If the API is ever unavailable it shows a neutral link to the
- * shop's Google listing rather than any fabricated review content.
- *
- * @returns Reviews display with stats header and review card grid
- *
- * @sideEffects
- * - Fetches from /api/google-business/reviews on mount
- *
- * @functions_called StarRating, ReviewCard, ReviewsSkeleton
- * @called_by ReviewsPage (src/app/(public)/reviews/page.tsx)
- *
- * @version 1.0.0 - 2025-06-01T00:00:00Z - Initial implementation
- * @version 1.1.0 - 2026-03-20T00:00:00Z - Migrated from CSS Modules to Tailwind
- * @version 2.0.0 - 2026-06-09T00:00:00Z - Removed hardcoded fallback reviews; live data only
- */
-export function ReviewsDisplay() {
-  const [data, setData] = useState<ReviewsData | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchReviews() {
-      try {
-        const response = await fetch('/api/google-business/reviews');
-        const result = await response.json();
-        if (result.success) {
-          setData(result.data);
-        }
-      } catch (err) {
-        console.error('Error fetching reviews:', err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchReviews();
-  }, []);
-
-  if (loading) {
-    return <ReviewsSkeleton />;
-  }
-
-  if (!data || data.reviews.length === 0) {
+  if (variant === 'home') {
     return (
-      <div className="text-center p-12 text-gray-500">
-        <p className="mb-4">See all our customer reviews on Google.</p>
-        <a
-          href={BUSINESS_INFO.socialMedia.google}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-block py-3 px-6 border-2 border-primary-600 text-primary-600 rounded-brand-sm font-semibold no-underline transition-all duration-normal hover:bg-primary-600 hover:text-white"
-        >
-          Read our Google reviews
-        </a>
-      </div>
+      <Section tone="page" rhythm="standard" aria-labelledby={headingId}>
+        <Eyebrow>Google reviews</Eyebrow>
+        <h2 id={headingId} className="mt-4 max-w-[20ch]">
+          What customers tell Google
+        </h2>
+        <p className="mt-6 max-w-measure text-lede text-body">
+          Our reviews live on our Google listing, written by the people we
+          did the work for. Read them there, in their own words.
+        </p>
+        {/* The hairline foot spans the container, so something has to
+            live at BOTH ends of it. With all three links packed left,
+            the right half of a 1088px rule underlined nothing. The ask
+            sits right; the two ways to read sit left. */}
+        <div className="mt-8 flex flex-wrap items-center justify-between gap-x-10 gap-y-2 border-t border-line pt-4">
+          <div className="flex flex-wrap items-center gap-x-10 gap-y-2">
+            {listingLink}
+            <Link href="/reviews" className={QUIET_LINK}>
+              Our reviews page
+            </Link>
+          </div>
+          <a
+            href={BUSINESS_INFO.socialMedia.googleReview}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={QUIET_LINK}
+          >
+            Write a review
+            <span className="sr-only"> (opens in a new tab)</span>
+          </a>
+        </div>
+      </Section>
     );
   }
 
   return (
-    <>
-      <div className="text-center mb-12 pb-8 border-b border-bg-dark">
-        <div className="flex items-center justify-center gap-4 mb-2">
-          <span className="text-5xl max-md:text-4xl font-bold text-gray-900">{data.stats.averageRating.toFixed(1)}</span>
-          <StarRating rating={Math.round(data.stats.averageRating)} />
-        </div>
-        <p className="text-gray-500 m-0">
-          Based on {data.stats.totalCount} Google {data.stats.totalCount === 1 ? 'review' : 'reviews'}
+    <Section tone="page" rhythm="compact">
+      <div className="max-w-[46rem]">
+        <Eyebrow>Where they live</Eyebrow>
+        <h2 id={headingId} className="mt-4 max-w-[20ch]">
+          Read them at the source
+        </h2>
+        <p className="mt-6 max-w-measure text-lede text-body">
+          Every review of the shop sits on our Google listing, in the
+          reviewers&apos; own words. Nothing is reprinted here, so open the
+          listing and read the lot.
         </p>
+        <div className="mt-6">{listingLink}</div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-[repeat(auto-fill,minmax(350px,1fr))] gap-6">
-        {data.reviews.map((review) => (
-          <ReviewCard key={review.id} review={review} />
+    </Section>
+  );
+}
+
+/**
+ * Reads the cached reviews server-side; null means there is nothing
+ * cached and the page should say so. The reviews page calls this too,
+ * so its hero lede can match the state of the column below it.
+ *
+ * Wrapped in React cache() because /reviews now reads it twice per
+ * request, once in generateMetadata and once in the page body, and the
+ * description and the column must not disagree about state.
+ */
+export const loadCachedReviews = cache(async function loadCachedReviews(): Promise<{
+  reviews: DisplayReview[];
+  stats: ReviewsStats;
+} | null> {
+  if (!isGoogleBusinessConfigured()) return null;
+  try {
+    const result = await refreshIfStale();
+    const reviews = selectReviews(result.reviews, { count: DISPLAY_COUNT });
+    if (reviews.length === 0) return null;
+    return { reviews, stats: result.stats };
+  } catch {
+    // Cache unavailable (e.g. local dev without the DB): show the
+    // designed Google-listing panel instead of a broken column.
+    return null;
+  }
+})
+
+/**
+ * Renders the editorial quote column from the server-side reviews cache,
+ * or the designed Google-listing empty state when nothing is cached.
+ * No review content is ever invented.
+ */
+export async function ReviewsDisplay({
+  data,
+}: {
+  /** Pre-loaded cache result, so the page and this column agree on state */
+  data: { reviews: DisplayReview[]; stats: ReviewsStats } | null;
+}) {
+  if (!data) {
+    return <ReviewsEmptyState headingId="reviews-listing-heading" />;
+  }
+
+  return (
+    <Section tone="page" rhythm="standard">
+      {/* Aggregate header: only the numbers the integration returns */}
+      <div className="flex flex-wrap items-baseline gap-x-5 gap-y-2 border-b border-line pb-8">
+        <span className="text-stamp tabular-nums text-ink">{data.stats.averageRating.toFixed(1)}</span>
+        <div>
+          <StarRating rating={Math.round(data.stats.averageRating)} className="text-xl" />
+          <p className="mt-1 text-sm tabular-nums text-muted">
+            From {data.stats.totalCount} Google {data.stats.totalCount === 1 ? 'review' : 'reviews'}
+          </p>
+        </div>
+      </div>
+
+      <ul className="m-0 mt-2 list-none p-0">
+        {data.reviews.map((review, index) => (
+          <ReviewRow key={review.id} review={review} index={index} />
         ))}
-      </div>
-    </>
+      </ul>
+    </Section>
   );
 }

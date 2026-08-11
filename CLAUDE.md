@@ -109,7 +109,7 @@ See `.env.example` for the documented template. **Never commit real keys.**
 npm install              # Install dependencies
 npm run dev              # Dev server at localhost:3000
 npm run build            # Production build (same command the Dokploy Dockerfile build runs)
-npm run lint             # ESLint
+npm run lint             # ESLint — NOT currently runnable: no .eslintrc and eslint/eslint-config-next are not installed. Fix out of band (add devDeps + .eslintrc.json); use type-check as the gate meanwhile
 npm run type-check       # TypeScript strict mode check
 npm ci && npm run build  # Clean production build, test before deploying
 ```

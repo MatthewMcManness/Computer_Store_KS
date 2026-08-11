@@ -1,52 +1,120 @@
 /**
- * PROTECTION PLANS PAGE - Describes the Silver Plan and other protection plan
- * options for customers.
+ * SILVER PLAN PAGE - The flagship product page for the shop's revenue
+ * backbone. Plaque hero, hairline coverage list, who it is for
+ * (businesses first), business IT beyond the plan, how to start, and
+ * the navy call CTA band.
  *
- * WHEN TO EDIT: When updating plan details, pricing, or descriptions.
+ * WHEN TO EDIT: When plan coverage, audience copy, or the start process
+ * changes. Coverage items live in src/components/silver/coverage-list.tsx.
  */
+
 import type { Metadata } from 'next';
-import Link from 'next/link';
-import { ProtectionPlansSection } from '@/components/static/ProtectionPlansSection';
-import { ChevronSection } from '@/components/static/ChevronSection';
+import Image from 'next/image';
+import { BUSINESS_INFO } from '@/lib/constants';
+import { Section, BenchFrame } from '@/components/ui';
+import { PlanHero } from '@/components/silver/plan-hero';
+import { CoverageList } from '@/components/silver/coverage-list';
+import { CTABand } from '@/components/pages/cta-band';
+import { pageMetadata } from '@/components/seo/site-meta';
+import { SilverPlanSchema } from '@/components/seo/silver-plan-schema';
 
-export const metadata: Metadata = {
-  title: 'Protection Plans - Silver & Silver Plus',
-  description: 'Computer protection plans starting at $24.99/month. Silver Plan for home users, Silver Plus for businesses. Antivirus, discounts on repairs, remote support, and more.',
-  openGraph: {
-    title: 'Computer Protection Plans - Silver & Silver Plus',
-    description: 'Comprehensive computer protection plans for home and business. Antivirus, repair discounts, remote support, and peace of mind.',
-    url: 'https://computerstoreks.com/silver-plan',
-  },
-};
+export const metadata: Metadata = pageMetadata({
+  title: 'The Silver Plan, Computer Protection in Topeka, KS',
+  description: `The Silver plan bundles antivirus, repair discounts, remote support hours, and priority scheduling for Topeka homes and businesses. Call ${BUSINESS_INFO.phoneFormatted} to set it up.`,
+  path: '/silver-plan',
+  shareTitle: 'The Silver Plan',
+  shareDescription:
+    'Antivirus, repair discounts, remote support hours, and priority scheduling in one monthly plan from a real Topeka shop.',
+});
 
-export default function ProtectionPlansPage() {
+export default function SilverPlanPage() {
   return (
     <>
-      {/* Hero Section */}
-      <ChevronSection
-        bottomShape="v"
-        className="hero-overlay text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=1920&q=80)' }}
+      <SilverPlanSchema />
+      <PlanHero />
+      <CoverageList />
+
+      {/* Who it is for: businesses first, individuals second.
+          The wash ground is load-bearing. This band and the coverage
+          list above it used to share one background, so the only thing
+          marking the seam was a hairline stranded in 236px of white.
+          The band change carries the transition now, and the page reads
+          wash, white, wash, white, surface down its length. */}
+      <Section tone="wash" rhythm="standard" aria-labelledby="who-heading">
+        <h2 id="who-heading">Who it is for</h2>
+        <div className="mt-10 grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
+          <div>
+            <h3>Businesses that cannot afford a down machine</h3>
+            <p className="mt-4 max-w-[58ch]">
+              Picture an emergency animal clinic. If the front desk computer
+              goes down, scheduling, records, and payments go down with it.
+              The Silver plan exists for that kind of business: every
+              workstation covered, remote support hours already in place,
+              and priority scheduling when something breaks.
+            </p>
+          </div>
+          <div>
+            <h3>Homes and home offices</h3>
+            <p className="mt-4 max-w-[52ch]">
+              If one computer holds your banking, photos, and email, the
+              plan covers it the same way: antivirus handled, half off house
+              calls, and free diagnostics whenever something feels off.
+            </p>
+          </div>
+        </div>
+      </Section>
+
+      {/* Business IT beyond the plan */}
+      <Section
+        tone="page"
+        rhythm="standard"
+        aria-labelledby="beyond-heading"
+        containerClassName="grid items-center gap-12 lg:grid-cols-[1.05fr_1fr] lg:gap-16"
       >
-        <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[3]">
-          <h1 className="flex flex-col items-center text-white text-[clamp(2.5rem,5vw,4rem)] font-bold leading-tight tracking-tight mb-4">Protection Plans</h1>
-          <p className="text-[clamp(1.1rem,2vw,1.3rem)] mb-0 max-w-[700px] mx-auto opacity-95">Comprehensive computer care for home and business</p>
+        <div>
+          <h2 id="beyond-heading" className="max-w-[22ch]">
+            Business IT beyond the plan
+          </h2>
+          <p className="mt-6 max-w-[58ch]">
+            When your business needs more than coverage, we do the work too:
+            service calls at your office, house calls, and full IT resets
+            with new machines set up and ready. Businesses that want deeper
+            coverage can ask about Silver Plus when they call, with more
+            remote support hours, business-grade antivirus, and reduced
+            service call rates.
+          </p>
         </div>
-      </ChevronSection>
+        {/* The marquee on the day it read HOUSE CALL PC REPAIR, which is
+            the line this band is about. Square crop, shipped at the
+            source's own resolution and capped to that width so it is
+            never displayed larger than it really is. */}
+        <BenchFrame
+          caption="The marquee out at the street"
+          className="mx-auto w-full max-w-md lg:mx-0 lg:max-w-[38rem]"
+        >
+          <Image
+            src="/assets/house-call-sign.jpg"
+            alt={`The ${BUSINESS_INFO.name} sign at the street, with a marquee reading house call PC repair`}
+            width={620}
+            height={620}
+            sizes="(min-width: 1024px) 38rem, (min-width: 640px) 28rem, 100vw"
+            className="block h-auto w-full"
+          />
+        </BenchFrame>
+      </Section>
 
-      {/* Plans Section */}
-      <ChevronSection topShape="v" bottomShape="v" className="bg-bg-light py-20 relative">
-        <ProtectionPlansSection />
-      </ChevronSection>
-
-      {/* Call-to-Action Section */}
-      <ChevronSection topShape="v" className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20 text-center relative overflow-hidden">
-        <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
-          <h2 className="text-white text-[2rem] mb-4">Questions About Our Plans?</h2>
-          <p className="text-[1.1rem] mb-8 opacity-95">Contact us to find the right protection plan for your needs.</p>
-          <Link href="/contact" className="cta-inverse">Contact Us</Link>
-        </div>
-      </ChevronSection>
+      {/* The "How to start" band was deleted: it held an h2 and three
+          lines, left the whole right half empty, and the CTABand
+          directly beneath it made the same point again in one sentence.
+          Its one useful fact (it is a single phone call, we set it up
+          from our end) now lives in the CTABand line below. */}
+      <CTABand
+        layout="split"
+        headingId="silver-cta-heading"
+        title="Start with a phone call"
+        line="Tell us what machines you run. We answer your questions, set the plan up from our end, and you are covered. The whole thing is one phone call."
+        secondaryLabel="Or send a message"
+      />
     </>
   );
 }

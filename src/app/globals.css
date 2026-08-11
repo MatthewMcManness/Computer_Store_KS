@@ -2,22 +2,88 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ================================================================
+   GLOBAL STYLES - 2026-08 redesign ("The Service Counter").
+
+   Two audiences share this file:
+   1. The PUBLIC site: everything scoped under `.site` (the wrapper div
+      rendered by src/app/(public)/layout.tsx) plus the component classes
+      below. Colors are OKLCH custom properties; their hex mirrors live
+      as semantic tokens in tailwind.config.js.
+   2. The ADMIN panel + SLIDESHOW: rely only on the unscoped base rules
+      (body font, heading margins, paragraph sizing) and the legacy
+      --background/--foreground/--card/--border/--ring/--radius vars.
+      Do not change those without checking src/app/admin and
+      src/app/slideshow.
+   ================================================================ */
+
 @layer base {
   :root {
-    --background: 255 255 255;
-    --foreground: 10 10 10;
-    --card: 255 255 255;
-    --card-foreground: 10 10 10;
-    --muted: 245 245 245;
-    --muted-foreground: 115 115 115;
-    --border: 229 229 229;
-    --ring: 59 130 246;
+    /* ── Legacy vars (admin-era ui components + Tailwind rounded-lg/md/sm).
+         Values retinted toward the brand hue for the redesign; the admin
+         panel styles itself with gray-* utilities and does not read these. ── */
+    --background: 251 252 254;
+    --foreground: 18 22 43;
+    --card: 251 252 254;
+    --card-foreground: 18 22 43;
+    --border: 219 223 236;
+    --ring: 8 99 253;
     --radius: 0.5rem;
 
-    /* Chevron section system — single source of truth for V-edge geometry.
-       Used by both .cs-top-v (top edge) and .cs-bottom-v (bottom edge) so
-       puzzle-piece joins stay flush across every viewport width. */
-    --chevron-depth: clamp(2rem, 4.5vw, 4.5rem);
+    /* ── 2026-08 brand tokens (OKLCH). Hex mirrors in tailwind.config.js. ── */
+    --brand: oklch(55.7% 0.241 261.4);        /* #0863fd */
+    --brand-navy: oklch(29.5% 0.174 266.6);   /* #0a1481 */
+    --brand-deep: oklch(45% 0.205 262.2);     /* #0546c4 */
+    --tint: oklch(95.1% 0.023 264.5);         /* #e7efff */
+    --wash: oklch(97.5% 0.011 264.5);         /* #f3f7ff */
+    --accent: oklch(79.8% 0.164 82.7);        /* #f0b100 */
+    --accent-ink: oklch(54.1% 0.111 87.7);    /* #8a6a00 */
+    --bg: oklch(99.1% 0.003 264.5);           /* #fbfcfe */
+    --surface: oklch(97% 0.007 268.5);        /* #f3f5fa */
+    --ink: oklch(20.8% 0.042 274);            /* #12162b */
+    --body: oklch(37.7% 0.044 273.7);         /* #3a4059 */
+    --muted: oklch(52.8% 0.045 272.3);        /* #626a86 */
+    --line: oklch(90.4% 0.018 272.3);         /* #dbdfec */
+    --line-strong: oklch(83.7% 0.029 272.5);  /* #c3c9dd */
+    /* Form-control boundary. `--line` and `--line-strong` are decorative
+       hairlines and sit below 3:1 on purpose; an input's border is the
+       only thing identifying it as an input, so WCAG 1.4.11 applies and
+       it gets its own token. Measured 3.25:1 on --bg, 3.06:1 on
+       --surface, 3.11:1 on --wash. Mirrored as `line-control` in
+       tailwind.config.js — change both together. */
+    --line-control: oklch(64.4% 0.035 272.5); /* #868ca3 */
+    /* Plaque metal. Tinted a few points toward the brand hue at very low
+       chroma rather than the pure neutral greys the live site used, so
+       the nameplate sits in the same light as every other surface here
+       and never introduces a second, warmer grey family. Three stops
+       only: the six-stop gradient smeared into visible bands with a
+       diagonal seam at anything above nameplate scale. */
+    --plaque-hi: oklch(95.5% 0.004 264.5);    /* was #f0f0f0 */
+    --plaque-mid: oklch(88.5% 0.006 264.5);
+    --plaque-lo: oklch(80.8% 0.008 264.5);    /* was #c0c0c0 */
+    /* No --plaque-edge / --plaque-bevel any more. They existed to draw
+       the plate's inset highlight and its milled groove ring, and both
+       lighting cues were removed when the plaque was flattened (see
+       .silver-plaque below). The plate's edge is a plain --line-strong
+       hairline now. */
+    --plaque-face: linear-gradient(
+      165deg,
+      var(--plaque-hi) 0%,
+      var(--plaque-mid) 52%,
+      var(--plaque-lo) 100%
+    );
+    /* The nameplate face. Half the range of --plaque-face and no dark
+       stop: on a near-white header bar the full three-stop metal reads
+       as a beveled control rather than as a printed plate. The photo
+       frame (.plaque-frame) keeps the deeper face; it is a 3px edge, not
+       a field, and it needs the contrast to register at all. */
+    --plaque-face-soft: linear-gradient(
+      165deg,
+      var(--plaque-hi) 0%,
+      var(--plaque-mid) 100%
+    );
+    --danger: oklch(45.7% 0.156 11.6);        /* #9a2140 — cool crimson, 7.1:1 on --danger-surface */
+    --danger-surface: oklch(96% 0.015 356.6); /* #fbeef2 */
   }
 
   .dark {
@@ -25,17 +91,16 @@
     --foreground: 250 250 250;
     --card: 23 23 23;
     --card-foreground: 250 250 250;
-    --muted: 38 38 38;
-    --muted-foreground: 163 163 163;
     --border: 38 38 38;
     --ring: 96 165 250;
   }
-}
 
-@layer base {
   * {
     border-color: rgb(var(--border));
   }
+
+  /* Unscoped base rules: the admin panel and slideshow depend on these
+     exactly as they are. The public site overrides them under .site. */
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
     background-color: rgb(var(--background));
@@ -69,516 +134,229 @@
     font-size: 1.05rem;
     line-height: 1.7;
   }
-}
 
-/* ================================================
-   COMPONENT CLASSES
-   Complex multi-property styles from static-styles.css
-   that cannot be expressed as single Tailwind utilities.
-   Used alongside Tailwind classes in public page components.
-   ================================================ */
-
-@layer components {
-  /* ---- Silver Plaque Effect ---- */
-  /* Metallic gradient plaque used in hero sections for the logo */
-  .silver-plaque {
-    background: linear-gradient(165deg, #f0f0f0 0%, #d8d8d8 20%, #e8e8e8 40%, #c0c0c0 60%, #d0d0d0 80%, #e0e0e0 100%);
-    box-shadow:
-      0 8px 32px rgba(0, 0, 0, 0.3),
-      inset 0 2px 4px rgba(255, 255, 255, 0.8),
-      inset 0 -2px 4px rgba(0, 0, 0, 0.1);
-    border: 2px solid rgba(255, 255, 255, 0.4);
+  /* ── Public shell (.site): typography, color, focus. Scoped so the
+       admin panel keeps rendering exactly as before. ── */
+  .site {
+    font-family: var(--font-archivo), system-ui, sans-serif;
+    background-color: var(--bg);
+    color: var(--body);
   }
-
-  /* Inner border for plaque depth */
-  .silver-plaque::before {
-    content: '';
-    position: absolute;
-    top: 4px;
-    left: 4px;
-    right: 4px;
-    bottom: 4px;
-    border-radius: 16px;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    pointer-events: none;
+  /* Element defaults use :where() so their specificity stays (0,1,0):
+     high enough to beat the unscoped admin base rules above, low enough
+     that any Tailwind text utility (text-eyebrow, text-lede, text-lg...)
+     on the element still wins. */
+  .site :where(h1), .site :where(h2), .site :where(h3), .site :where(h4) {
+    color: var(--ink);
+    margin-bottom: 0; /* spacing is explicit via utilities, never implicit */
   }
+  /* The h1 default is the SERVICE DETAIL size. Pages that outrank a
+     service page set their own step explicitly: text-display on the four
+     top-level pages, text-display-xl on the homepage. Mirrors of the
+     tailwind.config.js fontSize entries — change both together.
 
-  /* Carved logo effect for images inside plaque */
-  .silver-plaque-img {
-    filter: drop-shadow(1px 1px 0 rgba(255,255,255,0.5)) drop-shadow(-1px -1px 0 rgba(0,0,0,0.15));
-  }
-
-  /* ---- Hero Blue Gradient Overlay ---- */
-  /* Blue gradient overlay for hero sections with background images */
-  .hero-overlay::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(37, 99, 235, 0.88) 0%, rgba(30, 64, 175, 0.92) 100%);
-    pointer-events: none;
-  }
-
-  /* Subtle radial pattern on hero overlay */
-  .hero-overlay::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
-                      radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
-    pointer-events: none;
-  }
-
-  /* ---- Chevron Section System ---- */
-  /* Shared V-edge geometry. Bottom-V on one section + top-V on the next
-     fit flush because both polygons reference the same --chevron-depth.
-     Sections with a top V also pull up by chevron-depth so their notch
-     overlaps the previous section's tail exactly. */
-  .cs-bottom-v {
-    position: relative;
-    clip-path: polygon(
-      0 0,
-      100% 0,
-      100% calc(100% - var(--chevron-depth)),
-      50% 100%,
-      0 calc(100% - var(--chevron-depth))
-    );
-    /* filter: drop-shadow follows the clipped V-tail silhouette, casting
-       a true chevron-shaped shadow downward onto the next section. The
-       z-index cascade below makes each section paint over the following
-       one — without it, the next sibling's background covers the shadow. */
-    filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.35));
-  }
-
-  .cs-top-v {
-    clip-path: polygon(
-      0 0,
-      50% var(--chevron-depth),
-      100% 0,
-      100% 100%,
-      0 100%
-    );
-    margin-top: calc(-1 * var(--chevron-depth));
-  }
-
-  /* Decreasing z-index per DOM-order chevron section so each section's
-     drop-shadow paints on top of the next. Capped at 10 sections — more
-     than any current page uses. Selector matches whichever sections have
-     .cs-bottom-v at each :nth-of-type slot among their <section> siblings. */
-  .cs-bottom-v:nth-of-type(1) { z-index: 10; }
-  .cs-bottom-v:nth-of-type(2) { z-index: 9; }
-  .cs-bottom-v:nth-of-type(3) { z-index: 8; }
-  .cs-bottom-v:nth-of-type(4) { z-index: 7; }
-  .cs-bottom-v:nth-of-type(5) { z-index: 6; }
-  .cs-bottom-v:nth-of-type(6) { z-index: 5; }
-  .cs-bottom-v:nth-of-type(7) { z-index: 4; }
-  .cs-bottom-v:nth-of-type(8) { z-index: 3; }
-  .cs-bottom-v:nth-of-type(9) { z-index: 2; }
-  .cs-bottom-v:nth-of-type(10) { z-index: 1; }
-
-  .cs-top-v.cs-bottom-v {
-    clip-path: polygon(
-      0 0,
-      50% var(--chevron-depth),
-      100% 0,
-      100% calc(100% - var(--chevron-depth)),
-      50% 100%,
-      0 calc(100% - var(--chevron-depth))
-    );
-  }
-
-  /* Added to a child of any section that has a top-V — pushes content
-     down by chevron-depth so the at-center visible space above the title
-     matches the at-center space below the content (where the V tail
-     extends past the corner level). */
-  .cs-clearance-top {
-    padding-top: var(--chevron-depth);
-  }
-
-  /* ---- Out-of-Stock Ribbon ---- */
-  /* Diagonal caution-tape style overlay on product images */
-  .out-of-stock-ribbon {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 5;
-    overflow: hidden;
-    pointer-events: none;
-  }
-
-  /* The diagonal ribbon band */
-  .out-of-stock-ribbon::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 150%;
-    height: 70px;
-    background: rgba(220, 38, 38, 0.80);
-    transform: translate(-50%, -50%) rotate(-20deg);
-    box-shadow:
-      0 4px 20px rgba(0, 0, 0, 0.4),
-      inset 0 2px 0 rgba(255, 255, 255, 0.1),
-      inset 0 -2px 0 rgba(0, 0, 0, 0.2);
-  }
-
-  /* Knockout/cutout text on the out-of-stock ribbon */
-  .out-of-stock-text {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) rotate(-20deg);
-    font-size: 1.6rem;
+     `word-spacing` is the tracking put back onto the space character
+     only: negative letter-spacing shrinks the space along with every
+     other gap, and at display sizes that collapsed word gaps to ~0.14em
+     so adjacent words read as one. The per-step values live in
+     DISPLAY_WORD_SPACING in tailwind.config.js; these are the element
+     defaults for headings that carry no explicit type-step class. */
+  .site :where(h1) {
+    font-size: clamp(2rem, 1.4rem + 2.6vw, 2.75rem);
     font-weight: 900;
-    letter-spacing: 6px;
-    text-transform: uppercase;
-    white-space: nowrap;
-    color: transparent;
-    -webkit-text-stroke: 2px rgba(255, 255, 255, 0.85);
-    text-shadow:
-      0 0 20px rgba(0, 0, 0, 0.3),
-      0 2px 4px rgba(0, 0, 0, 0.5);
-    paint-order: stroke fill;
+    letter-spacing: -0.03em;
+    word-spacing: 0.09em;
+    line-height: 1.05;
+  }
+  .site :where(h2) {
+    font-size: clamp(1.75rem, 1.15rem + 2.4vw, 2.25rem);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    word-spacing: 0.08em;
+    line-height: 1.1;
+  }
+  .site :where(h3) {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    word-spacing: 0.06em;
+    line-height: 1.2;
+  }
+  .site :where(h4) {
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+  .site :where(p) {
+    margin-bottom: 0;
+    font-size: 1rem;
+    line-height: 1.65;
+  }
+  .site ::selection {
+    background-color: var(--tint);
+    color: var(--ink);
+  }
+  /* The focus signature: a 2px brand ring at 3px offset and nothing
+     else. No border-radius here — browsers already follow the focused
+     element's own radius, and setting it would flatten rounded controls
+     (the mobile call pill worst of all).
+
+     On navy fields the brand blue only clears ~2.9:1 against the ground,
+     so anything inside a navy surface switches the ring to the light
+     tint token, which holds 3:1 against both the navy and a white or
+     brand-blue button face it may sit next to. */
+  .site :focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 3px;
+  }
+  .site .bg-brand-navy :focus-visible,
+  .site .bg-brand-navy:focus-visible {
+    outline-color: var(--tint);
   }
 
-  /* Fallback for browsers without text-stroke support */
-  @supports not (-webkit-text-stroke: 1px white) {
-    .out-of-stock-text {
-      color: rgba(255, 255, 255, 0.15);
-      text-shadow:
-        -2px -2px 0 rgba(255, 255, 255, 0.7),
-        2px -2px 0 rgba(255, 255, 255, 0.7),
-        -2px 2px 0 rgba(255, 255, 255, 0.7),
-        2px 2px 0 rgba(255, 255, 255, 0.7),
-        0 0 20px rgba(0, 0, 0, 0.5);
+  /* Everything instant when the visitor asks for reduced motion. */
+  @media (prefers-reduced-motion: reduce) {
+    .site *,
+    .site *::before,
+    .site *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
     }
   }
+}
 
-  /* ---- Black Friday Badge ---- */
-  /* Shimmer animation badge for Black Friday sales */
-  .badge-black-friday {
-    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 50%, #dc2626 100%);
-    background-size: 200% 100%;
-    color: white;
-    animation: bf-shimmer 2s ease-in-out infinite;
-    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
+@layer components {
+  /* ---- Skip link ---- */
+  /* First element in tab order (rendered by the public layout). Hidden
+     off-screen until keyboard focus lands on it. */
+  .skip-link {
+    position: fixed;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 2000;
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    background: var(--brand-navy);
+    color: var(--bg);
+    font-weight: 600;
+    text-decoration: none;
+    transform: translateY(-300%);
+  }
+  .skip-link:focus-visible {
+    transform: none;
+    outline: 2px solid var(--brand);
+    outline-offset: 3px;
   }
 
-  /* Black Friday corner ribbon on product cards */
-  .bf-ribbon-corner {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100px;
-    height: 100px;
-    overflow: hidden;
-    z-index: 3;
-    pointer-events: none;
+  /* ---- Silver plaque (signature moment 1) ---- */
+  /* A PRINTED nameplate, not a machined control. Matthew locked the
+     silver plaque as a brand-continuity element, so the plate stays; the
+     three-dimensional cues that made it read as a button are gone.
+
+     WHAT WAS REMOVED, AND WHY. The plate carried a three-stop metal
+     face, a drop shadow, an inset highlight/bevel pair and a milled
+     groove ring one hairline inboard of the edge. Every one of those is
+     a lighting cue, and lighting cues on a small rounded rectangle mean
+     one thing to a reader: press me. At 62px on a near-white header bar
+     it read as a Web-2.0 chrome button, and the same treatment at 320px
+     on the Silver plan hero read as a large, obviously clickable pill
+     that does nothing. A design director sees that in the first two
+     seconds.
+
+     WHAT IS LEFT: a shallow two-stop silver ground and one hairline
+     edge. The plate still reads as metal because the tint and the
+     machined edge say so, and it now sits flat on the page like
+     something printed rather than something fitted.
+
+     Both sanctioned instances (the header logo badge and the Silver plan
+     name treatment) use exactly this. Do not put the shadow, the groove
+     or the inset highlights back on either one. */
+  .silver-plaque {
+    background: var(--plaque-face-soft);
+    border: 1px solid var(--line-strong);
   }
 
-  .bf-ribbon-corner::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 150%;
-    height: 25px;
-    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-    transform: rotate(-45deg) translateY(-10px) translateX(-35px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  /* The Silver plan name treatment: navy lettering ON the plate. The
+     letterpress text-shadow went with the rest of the lighting; embossed
+     type was the last thing making the plate read as a control. */
+  .silver-plaque-text {
+    color: var(--brand-navy);
   }
 
-  /* ---- Card Enhanced Shimmer ---- */
-  /* Shine-across hover effect for cards */
-  .card-enhanced::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.5s ease;
+  /* ---- Bench frame silver edge (signature moment 4) ---- */
+  /* The locked plaque gradient as a thin machined border around every
+     real photo (BenchFrame component). Quiet: 3px edge, low shadow. */
+  .plaque-frame {
+    padding: 3px;
+    background: var(--plaque-face);
+    box-shadow: 0 1px 3px rgba(10, 20, 129, 0.14);
   }
 
-  .card-enhanced:hover::before {
-    left: 100%;
+  /* ---- Machined edge (footer only) ---- */
+  /* The plaque gradient drawn as a full-width machined hairline. This is
+     NOT the section separator: section transitions are the circuit
+     divider (signature moment 2), rebuilt in ui/plaque-rule.tsx. This
+     edge exists for exactly one job — seating the navy footer under the
+     light closing band — so the plaque gradient stops appearing four
+     different ways on a single page. Rendered by <PlaqueRule
+     variant="edge" />; nothing else may use it. */
+  .plaque-rule {
+    height: 3px;
+    background: linear-gradient(
+      90deg,
+      var(--plaque-hi) 0%,
+      var(--plaque-lo) 46%,
+      var(--plaque-hi) 100%
+    );
   }
 
-  /* ---- Silver Nav Button Shimmer ---- */
-  /* Shine effect for the Silver Plan navigation button */
-  .nav-silver-shimmer::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
-    transition: left 0.5s ease;
+  /* ---- Bench grade (photo tone layer) ---- */
+  /* A last unifying whisper over every real store photo. The exposure,
+     white balance, green-logo taming, and saturation now live baked into
+     the art-directed derivatives in public/assets, so this layer stays
+     very light: any more and it undoes the shadow lift those files were
+     graded for. Applied by BenchFrame; never used on illustrations. */
+  .bench-grade {
+    position: relative;
   }
-
-  .nav-silver-shimmer:hover::before {
-    left: 100%;
-  }
-
-  /* ---- Modern Card Gradient Border ---- */
-  /* Gradient border effect for service cards (transparent to blue gradient) */
-  .card-gradient-border {
-    border: 2px solid transparent;
-    background: linear-gradient(white, white) padding-box,
-                linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(37, 99, 235, 0.3)) border-box;
-  }
-
-  .card-gradient-border:hover {
-    background: linear-gradient(white, white) padding-box,
-                linear-gradient(135deg, #2563eb, #3b82f6) border-box;
-  }
-
-  /* ---- Service Card Top Bar ---- */
-  /* Blue gradient bar at top of service cards, hidden until hover */
-  .service-card-bar::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #2563eb, #3b82f6);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-
-  .service-card-bar:hover::before,
-  .service-card-bar.featured::before {
-    opacity: 1;
-  }
-
-  /* ---- Silver Service Card ---- */
-  /* Silver gradient styling for Silver Plan service cards */
-  .service-card-silver {
-    border-color: #a8a8a8;
-    background: linear-gradient(145deg, #f8f8f8 0%, #e8e8e8 50%, #f0f0f0 100%);
-  }
-
-  .service-card-silver::before {
-    background: linear-gradient(90deg, #c0c0c0, #e8e8e8, #c0c0c0);
-    opacity: 1;
-  }
-
-  .service-card-silver:hover {
-    border-color: #909090;
-    box-shadow: 0 8px 30px rgba(128, 128, 128, 0.3);
-  }
-
-  /* ---- Gallery Image Inner Shadow ---- */
-  /* Subtle inset shadow on gallery card images for depth */
-  .gallery-image-shadow::after {
+  .bench-grade::after {
     content: '';
     position: absolute;
     inset: 0;
-    box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.1);
-    pointer-events: none;
-    z-index: 1;
-  }
-
-  /* ---- Savings Badge Gradient ---- */
-  .savings-badge {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
-  }
-
-  /* ---- Current Price Gradient Text ---- */
-  .price-gradient-text {
-    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  /* ---- Category Tag Gradients ---- */
-  .category-custom-gradient {
-    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-  }
-
-  .category-refurbished-gradient {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  }
-
-  .category-new-gradient {
-    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-  }
-
-  .type-desktop-gradient {
-    background: linear-gradient(135deg, #475569 0%, #334155 100%);
-  }
-
-  .type-laptop-gradient {
-    background: linear-gradient(135deg, #64748b 0%, #475569 100%);
-  }
-
-  /* ---- Filter Button Active Gradient ---- */
-  .filter-btn-active-gradient {
-    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-  }
-
-  /* ---- Dropdown Link Variants ---- */
-  /* Featured (Custom PCs) dropdown with left border accent */
-  .dropdown-featured {
-    background: linear-gradient(145deg, #f0f7ff 0%, #e0f0ff 100%);
-    border-left: 3px solid #2563eb;
-  }
-
-  .dropdown-featured:hover {
-    background: linear-gradient(145deg, #e0f0ff 0%, #d0e8ff 100%);
-  }
-
-  /* Linux dropdown link styling */
-  .dropdown-linux {
-    background: linear-gradient(145deg, #fff5e6 0%, #ffe8cc 100%);
-    border-left: 3px solid #f5a623;
-  }
-
-  .dropdown-linux:hover {
-    background: linear-gradient(145deg, #ffe8cc 0%, #ffd9a8 100%);
-    border-left-color: #e09000;
-  }
-
-  /* Silver dropdown link styling */
-  .dropdown-silver {
-    background: linear-gradient(145deg, #f0f0f0 0%, #e0e0e0 100%);
-    border-left: 3px solid #c0c0c0;
-  }
-
-  .dropdown-silver:hover {
-    background: linear-gradient(145deg, #e8e8e8 0%, #d8d8d8 100%);
-    border-left-color: #a0a0a0;
-  }
-
-  /* Free/Recycling dropdown link styling */
-  .dropdown-free {
-    background: linear-gradient(145deg, #e8f5e9 0%, #c8e6c9 100%);
-    border-left: 3px solid #4caf50;
-  }
-
-  .dropdown-free:hover {
-    background: linear-gradient(145deg, #c8e6c9 0%, #a5d6a7 100%);
-    border-left-color: #388e3c;
-  }
-
-  /* ---- CTA Section Radial Overlay ---- */
-  .cta-overlay::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+    background: var(--brand-navy);
+    mix-blend-mode: multiply;
+    opacity: 0.035;
     pointer-events: none;
   }
-
-  /* ---- Footer Location Silver Label ---- */
-  .footer-silver-label {
-    background: linear-gradient(180deg, #e8e8e8 0%, #b0b0b0 40%, #d4d4d4 60%, #a0a0a0 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+  .bench-grade img {
+    filter: saturate(0.96) contrast(1.02);
   }
 
-  /* ---- Standard CTAs ---- */
-  /* Two canonical CTA button variants used across the public site:
-       - .cta-primary: blue button on light backgrounds (in-flow CTAs)
-       - .cta-inverse: white button on blue CTA sections (end-of-section pulls)
-     The silver button below (.btn-silver) is reserved for the homepage hero
-     and the contact-page protection-plans CTA — both deliberately
-     metallic-themed moments. */
-  .cta-primary {
-    @apply inline-flex items-center justify-center px-8 py-4 rounded-brand-md font-semibold text-base
-           bg-primary-600 text-white shadow-brand-sm no-underline cursor-pointer
-           transition-all duration-normal
-           hover:bg-primary-800 hover:-translate-y-0.5 hover:shadow-brand-md;
-  }
-
-  .cta-inverse {
-    @apply inline-flex items-center justify-center px-8 py-4 rounded-brand-md font-semibold text-base
-           bg-white text-primary-600 shadow-brand-md no-underline cursor-pointer
-           transition-all duration-normal
-           hover:-translate-y-0.5 hover:shadow-brand-lg;
-  }
-
-  /* ---- Silver Button ---- */
-  /* Metallic silver CTA button used on hero sections */
-  .btn-silver {
-    display: inline-block;
-    padding: 1rem 2rem;
-    border-radius: 12px;
-    font-weight: 600;
-    font-size: 1rem;
-    color: #333;
-    background: linear-gradient(135deg, #f0f0f0 0%, #c8c8c8 40%, #e8e8e8 100%);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255,255,255,0.8);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  /* ---- Circuit field (navy hero only) ---- */
+  /* The full circuit texture at 5% opacity. Allowed ONLY inside the
+     navy homepage hero; section transitions elsewhere use the
+     PlaqueRule component, never this texture. */
+  .hero-circuit-field {
     position: relative;
-    overflow: hidden;
+    isolation: isolate;
   }
-
-  .btn-silver::before {
+  .hero-circuit-field::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
-    transition: left 0.5s ease;
-  }
-
-  .btn-silver:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(128, 128, 128, 0.4), inset 0 1px 0 rgba(255,255,255,0.8);
-  }
-
-  .btn-silver:hover::before {
-    left: 100%;
-  }
-
-  /* ---- Feature List Checkmark ---- */
-  .feature-list-check::before {
-    content: "\2713";
-    position: absolute;
-    left: 0;
-    color: #10b981;
-    font-weight: 700;
-    font-size: 1.1rem;
+    inset: 0;
+    background-image: url('/assets/circuit-field-blue.svg');
+    background-size: 900px auto;
+    background-repeat: repeat;
+    opacity: 0.05;
+    pointer-events: none;
+    z-index: -1;
   }
 }
 
-/* ================================================
-   UTILITY CLASSES
-   Single-property or simple pattern utilities that
-   extend Tailwind's built-in utility system.
-   ================================================ */
-
 @layer utilities {
-  /* Grid pattern background */
-  .bg-grid-pattern {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(0 0 0 / 0.04)'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e");
-  }
-
-  /* Smooth scroll */
-  .scroll-smooth {
-    scroll-behavior: smooth;
-  }
-
-  /* Animation utilities */
+  /* Entrance helpers kept for admin-era markup that references them. */
   .animate-in {
     animation-duration: 150ms;
     animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
@@ -611,225 +389,5 @@
       opacity: 1;
       transform: scale(1);
     }
-  }
-
-  /* Silver Plan animations */
-  @keyframes silverShine {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 50% 50%; }
-    100% { background-position: 0% 50%; }
-  }
-
-  @keyframes goldBorder {
-    0% {
-      border-color: #ffd700;
-      box-shadow: 0 0 20px rgba(255, 215, 0, 0.4), 0 0 40px rgba(255, 215, 0, 0.2), inset 0 0 10px rgba(255, 215, 0, 0.1);
-    }
-    50% {
-      border-color: #daa520;
-      box-shadow: 0 0 30px rgba(255, 215, 0, 0.6), 0 0 60px rgba(218, 165, 32, 0.3), inset 0 0 15px rgba(255, 215, 0, 0.15);
-    }
-    100% {
-      border-color: #ffd700;
-      box-shadow: 0 0 20px rgba(255, 215, 0, 0.4), 0 0 40px rgba(255, 215, 0, 0.2), inset 0 0 10px rgba(255, 215, 0, 0.1);
-    }
-  }
-
-  .gold-text {
-    color: #b8860b !important;
-    -webkit-text-fill-color: #b8860b !important;
-  }
-
-  .silver-plus-card {
-    border: 2px solid #a0a0a0;
-  }
-
-  .gold-glow-badge {
-    border: 2px solid #b8860b !important;
-    animation: goldBadgeGlow 3s ease-in-out infinite;
-  }
-
-  @keyframes goldBadgeGlow {
-    0% {
-      border-color: #b8860b;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2), 0 0 15px rgba(184, 134, 11, 0.6), 0 0 30px rgba(184, 134, 11, 0.4), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.1);
-    }
-    50% {
-      border-color: #996515;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2), 0 0 25px rgba(184, 134, 11, 0.8), 0 0 50px rgba(153, 101, 21, 0.6), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.1);
-    }
-    100% {
-      border-color: #b8860b;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2), 0 0 15px rgba(184, 134, 11, 0.6), 0 0 30px rgba(184, 134, 11, 0.4), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.1);
-    }
-  }
-
-  .animate-silver-shine {
-    animation: silverShine 3s ease-in-out infinite;
-  }
-
-  @keyframes outerGlowPulse {
-    0%, 100% {
-      box-shadow:
-        0 6px 16px rgba(0, 0, 0, 0.18),
-        0 0 28px rgba(96, 165, 250, 0.55),
-        0 0 56px rgba(96, 165, 250, 0.35);
-    }
-    50% {
-      box-shadow:
-        0 6px 16px rgba(0, 0, 0, 0.18),
-        0 0 48px rgba(96, 165, 250, 0.9),
-        0 0 96px rgba(96, 165, 250, 0.6);
-    }
-  }
-
-  .btn-outer-glow {
-    animation: outerGlowPulse 2s ease-in-out infinite;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .btn-outer-glow {
-      animation: none;
-      box-shadow:
-        0 6px 16px rgba(0, 0, 0, 0.18),
-        0 0 28px rgba(96, 165, 250, 0.55),
-        0 0 56px rgba(96, 165, 250, 0.35);
-    }
-  }
-
-  /* ---- Texture Backgrounds ---- */
-  /* Circuit board pattern: fine grid lines with blue tint */
-  .texture-circuit {
-    position: relative;
-    background-color: #f8f9fb;
-  }
-
-  .texture-circuit::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image:
-      repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(37, 99, 235, 0.03) 2px, rgba(37, 99, 235, 0.03) 4px),
-      repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(37, 99, 235, 0.03) 2px, rgba(37, 99, 235, 0.03) 4px);
-    background-size: 40px 40px;
-    opacity: 0.5;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .texture-circuit > * {
-    position: relative;
-    z-index: 1;
-  }
-
-  /* Geometric crosshatch pattern: diagonal crossing lines */
-  .texture-geometric {
-    position: relative;
-    background-color: white;
-  }
-
-  .texture-geometric::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image:
-      linear-gradient(30deg, transparent 48%, rgba(37, 99, 235, 0.03) 49%, rgba(37, 99, 235, 0.03) 51%, transparent 52%),
-      linear-gradient(-30deg, transparent 48%, rgba(37, 99, 235, 0.03) 49%, rgba(37, 99, 235, 0.03) 51%, transparent 52%);
-    background-size: 60px 60px;
-    opacity: 0.6;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .texture-geometric > * {
-    position: relative;
-    z-index: 1;
-  }
-
-  /* Dot matrix pattern: small repeating dots */
-  .texture-dots {
-    position: relative;
-  }
-
-  .texture-dots::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: radial-gradient(circle, rgba(37, 99, 235, 0.05) 1px, transparent 1px);
-    background-size: 20px 20px;
-    opacity: 0.8;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .texture-dots > * {
-    position: relative;
-    z-index: 1;
-  }
-
-  /* Terrazzo pebbles in brand blues (re-tinted from catalog #71 cream/orange) */
-  .texture-terrazzo-blue {
-    position: relative;
-    background-color: #f8f9fb;
-  }
-
-  .texture-terrazzo-blue::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><polygon points='20,30 35,22 42,38 28,46' fill='%232563eb'/><polygon points='80,55 96,52 100,72 88,75' fill='%2394a3b8'/><polygon points='130,30 148,38 142,52 128,46' fill='%2393c5fd'/><polygon points='25,100 42,95 48,115 30,118' fill='%2394a3b8'/><polygon points='80,120 98,118 104,138 88,142' fill='%2393c5fd'/><polygon points='140,90 156,88 162,105 148,108' fill='%232563eb'/><polygon points='140,140 158,142 154,160 145,158' fill='%2394a3b8'/><polygon points='55,150 70,148 76,166 60,170' fill='%232563eb'/><polygon points='110,75 124,72 128,86 114,90' fill='%2393c5fd'/><polygon points='160,55 172,58 168,72 158,70' fill='%2394a3b8'/></svg>");
-    background-size: 180px 180px;
-    background-repeat: repeat;
-    opacity: 0.5;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .texture-terrazzo-blue > * {
-    position: relative;
-    z-index: 1;
-  }
-
-  /* ---- Diamond Decorative Accent ---- */
-  /* Rotated square decorative element, positioned absolutely */
-  .diamond-accent {
-    width: 100px;
-    height: 100px;
-    background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
-    transform: rotate(45deg);
-    position: absolute;
-    opacity: 0.1;
-    z-index: 0;
-  }
-
-  /* ---- Radial Gradient Overlay ---- */
-  /* Subtle blue radial dots for modern section backgrounds */
-  .bg-radial-blue {
-    background-image:
-      radial-gradient(circle at 20% 50%, rgba(37, 99, 235, 0.05) 0%, transparent 50%),
-      radial-gradient(circle at 80% 80%, rgba(37, 99, 235, 0.05) 0%, transparent 50%);
-  }
-
-  /* ---- Plaque Text Style ---- */
-  /* Embossed text for silver plaque subtitle */
-  .plaque-text {
-    color: #444;
-    font-weight: 700;
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    text-shadow: 1px 1px 0 rgba(255,255,255,0.6);
   }
 }

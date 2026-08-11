@@ -133,7 +133,21 @@ export const LOCATIONS: Record<LocationKey, {
       'Sunday: Closed',
     ],
     geo: { latitude: 39.0312, longitude: -95.7068 },
-    mapsEmbed: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3096.8876!2d-95.7028!3d39.0365!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x87bf02d8d9a9ed57%3A0x8a8a8a8a8a8a8a8a!2s2008%20SW%20Gage%20Blvd%2C%20Topeka%2C%20KS%2066604!5e0!3m2!1sen!2sus!4v1701417600000',
+    /*
+     * The `!1s` segment is the map feature id, and it must be the REAL
+     * one. The previous value carried a placeholder second half
+     * (0x8a8a8a...), so Google could not resolve the place and painted
+     * an unstyled "Place info couldn't load" card over the top-left of
+     * the map on every visit to /contact, inside a designed photo frame.
+     *
+     * The value below is derived from `googlePlaceId` above: base64url
+     * decode the ChIJ... string and read the two little-endian fixed64
+     * fields out of the protobuf. Regenerate it the same way (or from
+     * Share > Embed a map on the Google Business listing) if the
+     * listing is ever recreated. Verified rendering: the place card
+     * resolves and the pin is labelled.
+     */
+    mapsEmbed: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3096.8876!2d-95.7068!3d39.0312!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x87bf02a1616f75ff%3A0x24322221ad4caa88!2sComputer%20Store%20Kansas!5e0!3m2!1sen!2sus!4v1701417600000',
   },
 } as const;
 

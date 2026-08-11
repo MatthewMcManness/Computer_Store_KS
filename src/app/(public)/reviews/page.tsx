@@ -1,73 +1,80 @@
 /**
- * REVIEWS PAGE - Displays customer reviews and testimonials.
+ * REVIEWS PAGE - Real cached Google reviews as an editorial quote
+ * column, with a prominent write-a-review link and a closing call CTA.
+ * Nothing on this page is invented; the empty state points to Google.
  *
- * WHEN TO EDIT: When changing how reviews are shown.
+ * WHEN TO EDIT: When changing the reviews page layout. The review
+ * rendering itself lives in src/components/reviews/ReviewsDisplay.tsx.
  */
+
 import type { Metadata } from 'next';
-import Link from 'next/link';
-import { ReviewsDisplay } from '@/components/reviews/ReviewsDisplay';
-import { ChevronSection } from '@/components/static/ChevronSection';
+import { Section } from '@/components/ui/section';
+import { Eyebrow } from '@/components/ui/eyebrow';
+import { CTALink } from '@/components/ui/cta-link';
+import { ReviewsDisplay, loadCachedReviews } from '@/components/reviews/ReviewsDisplay';
+import { CTABand } from '@/components/pages/cta-band';
 import { BUSINESS_INFO } from '@/lib/constants';
+import { pageMetadata } from '@/components/seo/site-meta';
 
-export const metadata: Metadata = {
-  title: 'Customer Reviews - Computer Store Kansas',
-  description: 'Read what our customers say about Computer Store Kansas. Trusted computer repair services in Topeka since 2003 with 5-star reviews.',
-  openGraph: {
-    title: 'Customer Reviews - Computer Store Kansas',
-    description: 'See why Topeka trusts us for computer repair. Read authentic customer reviews.',
-    url: 'https://computerstoreks.com/reviews',
-  },
-};
+/**
+ * The description has to match what the page actually shows. With
+ * nothing cached, the page is a pointer to the Google listing, so a
+ * snippet promising reviews would be a promise the page does not keep.
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  const data = await loadCachedReviews();
+  const description = data
+    ? `Read real Google reviews of ${BUSINESS_INFO.name}, the in-house computer repair shop at ${BUSINESS_INFO.addressLine1} in ${BUSINESS_INFO.city}.`
+    : `Every review of ${BUSINESS_INFO.name} lives on our Google listing. Call the shop at ${BUSINESS_INFO.phoneFormatted}, or read them at the source.`;
 
-export default function ReviewsPage() {
+  return pageMetadata({
+    title: 'Reviews, What Topeka Says',
+    description,
+    path: '/reviews',
+    shareTitle: 'Reviews of the shop',
+  });
+}
+
+/* Re-render hourly so the server-read reviews cache stays fresh. */
+export const revalidate = 3600;
+
+export default async function ReviewsPage() {
+  /* Loaded here so the hero lede matches what is actually below it. An
+     unconditional "these reviews come straight from our Google listing"
+     over an empty column promises something the page does not deliver. */
+  const data = await loadCachedReviews();
+
   return (
     <>
-      {/* Hero Section */}
-      <ChevronSection
-        bottomShape="v"
-        className="hero-overlay text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1521791136064-7986c2920216?w=1920&q=80)' }}
-      >
-        <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[3]">
-          <h1 className="text-white text-[clamp(2rem,4vw,3rem)] mb-6 font-bold">Customer Reviews</h1>
-          <p className="text-[clamp(1.1rem,2vw,1.3rem)] mb-0 max-w-[700px] mx-auto opacity-95">See what our customers are saying about us.</p>
+      {/* Hero: centered, unlike the left-aligned interior heroes; one
+          write-a-review CTA for the whole page lives here */}
+      <Section tone="wash" rhythm="hero" containerClassName="text-center">
+        <Eyebrow>Google reviews</Eyebrow>
+        <h1 className="mx-auto mt-4 max-w-[18ch]">What Topeka says</h1>
+        <p className="mx-auto mt-6 max-w-[52ch] text-lg">
+          {/* In the empty state the band below carries the where, so the
+              hero carries only the ask. Stating the Google listing twice
+              in one viewport read as two authors who had not met. */}
+          {data
+            ? 'These reviews come straight from our Google listing, written by customers. If we have done work for you, a short review helps the next person decide.'
+            : 'If we have done work for you, a short review helps the next person decide. It takes about a minute.'}
+        </p>
+        <div className="mt-8 flex justify-center">
+          <CTALink href={BUSINESS_INFO.socialMedia.googleReview} variant="primary">
+            Write a review
+          </CTALink>
         </div>
-      </ChevronSection>
+      </Section>
 
-      {/* Reviews Section */}
-      <ChevronSection topShape="v" bottomShape="v" className="py-20 bg-bg-light relative">
-        <div className="w-[90%] max-w-[1200px] mx-auto px-4">
-          <ReviewsDisplay />
-        </div>
-      </ChevronSection>
+      {/* The quote column (or the designed Google-listing panel when the
+          cache is empty). ReviewsDisplay brings its own Section and sets
+          the rhythm per state, so the rule-to-content gap stays tight. */}
+      <ReviewsDisplay data={data} />
 
-      {/* Leave Review CTA */}
-      <ChevronSection topShape="v" bottomShape="v" className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20 text-center relative overflow-hidden">
-        <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
-          <h2 className="text-white text-[2rem] mb-4">Had a Great Experience?</h2>
-          <p className="text-[1.1rem] mb-8 opacity-95">We&apos;d love to hear from you! Leave us a review on Google.</p>
-          <a
-            href={BUSINESS_INFO.socialMedia.googleReview}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="cta-inverse"
-          >
-            Leave a Review
-          </a>
-        </div>
-      </ChevronSection>
-
-      {/* Contact CTA */}
-      <ChevronSection topShape="v" className="texture-dots bg-gradient-to-br from-[#e8f0fe] to-[#d6e4fd] py-20 relative overflow-hidden">
-        <div className="diamond-accent -bottom-[50px] left-[5%] w-[120px] h-[120px]"></div>
-        <div className="w-[90%] max-w-[1200px] mx-auto px-4">
-          <h2 className="text-center mb-8 text-gray-900">Ready to Experience Our Service?</h2>
-          <p className="max-w-[800px] mx-auto mb-6 text-[1.05rem] leading-[1.8] text-center text-gray-700">Join our satisfied customers. Contact us today for fast, friendly, and affordable computer repair.</p>
-          <div className="text-center">
-            <Link href="/contact" className="cta-primary">Contact Us</Link>
-          </div>
-        </div>
-      </ChevronSection>
+      <CTABand
+        title="Ready when your machine is"
+        line="Call the shop and tell us what is going on. The $50 diagnostic applies toward your repair."
+      />
     </>
   );
 }

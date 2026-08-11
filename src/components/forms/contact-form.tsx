@@ -1,26 +1,24 @@
 /**
  * CONTACT FORM - Mode-switching form customers use to send messages.
- * Three prominent buttons at the top pick the inquiry type:
+ * Three segmented buttons at the top pick the inquiry type:
  *   - house-call: scheduled appointment, shows the Availability field
- *   - in-store: walk-in, first-come-first-serve (Silver/Silver+ priority)
+ *   - in-store: walk-in, first-come-first-serve (Silver / Silver Plus priority)
  *   - general: questions, callbacks, email replies
  * Includes spam protection (honeypots, Turnstile CAPTCHA, timing checks)
  * and posts to /api/contact with the selected mode.
  *
  * WHEN TO EDIT: When changing form fields, modes, validation rules, or
- * the spam protection strategy.
+ * the spam protection strategy. Field styling lives in the small Field
+ * helpers at the bottom of this file.
  */
 
 'use client';
 
 import * as React from 'react';
 import { Turnstile } from '@marsidev/react-turnstile';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { BUSINESS_INFO } from '@/lib/constants';
 import { Send, CheckCircle, AlertCircle, Clock } from 'lucide-react';
+import { cn } from '@/lib/cn';
 import { useBotProtection } from '@/hooks/useBotProtection';
 import { useInteractionTracking } from '@/hooks/useInteractionTracking';
 import { useFingerprint, getSimpleFingerprint } from '@/hooks/useFingerprint';
@@ -65,17 +63,17 @@ const MODE_CONFIG: Record<ContactFormMode, { subject: string; label: string; hel
   'house-call': {
     subject: 'Schedule a House Call',
     label: 'We come to you',
-    helper: 'Scheduled house call — tell us when you\'re available below.',
+    helper: 'Scheduled house call. Tell us when you are available below.',
   },
   'in-store': {
     subject: 'In-Store Service Inquiry',
     label: 'You come to us',
-    helper: 'Walk in any time during business hours. Silver and Silver+ members get priority service.',
+    helper: 'Walk in any time during business hours. Silver and Silver Plus members get priority service.',
   },
   general: {
     subject: 'General Inquiry',
     label: 'General question',
-    helper: 'Ask anything — questions, callbacks, email replies.',
+    helper: 'Questions, callbacks, email replies. Ask anything.',
   },
 };
 
@@ -98,7 +96,7 @@ export function ContactForm({ mode = 'general', onModeChange }: ContactFormProps
   const [currentMode, setCurrentMode] = React.useState<ContactFormMode>(mode);
 
   // Notify parent of the initial mode on mount so it can sync its own state
-  // (e.g. swap a sidebar) even when its default differs from ours.
+  // even when its default differs from ours.
   const onModeChangeRef = React.useRef(onModeChange);
   React.useEffect(() => {
     onModeChangeRef.current = onModeChange;
@@ -299,215 +297,311 @@ export function ContactForm({ mode = 'general', onModeChange }: ContactFormProps
   };
 
   return (
-    <Card className="mx-auto max-w-2xl">
-      <CardHeader>
-        <CardTitle>Contact Us</CardTitle>
-        <CardDescription>
-          Pick the option that best matches what you need. Or call us at{' '}
-          <a
-            href={`tel:${BUSINESS_INFO.phone.replace(/\D/g, '')}`}
-            className="font-medium text-primary-600 hover:underline"
-          >
-            {BUSINESS_INFO.phoneFormatted}
-          </a>
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        {/* Mode switcher — three prominent buttons */}
-        <div className="mb-6">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            {MODE_ORDER.map((m) => {
-              const isActive = currentMode === m;
-              return (
-                <button
-                  key={m}
-                  type="button"
-                  onClick={() => handleModeChange(m)}
-                  aria-pressed={isActive}
-                  disabled={isSubmitting}
-                  className={`px-4 py-3 rounded-brand-md border-2 text-sm sm:text-base font-semibold transition-all duration-200 ${
-                    isActive
-                      ? 'bg-primary-600 text-white border-primary-600 shadow-brand-sm'
-                      : 'bg-white text-gray-700 border-gray-300 hover:border-primary-600 hover:text-primary-600'
-                  } disabled:opacity-60 disabled:cursor-not-allowed`}
-                >
-                  {MODE_CONFIG[m].label}
-                </button>
-              );
-            })}
-          </div>
-          <p className="mt-3 text-center text-sm text-gray-600">
-            {MODE_CONFIG[currentMode].helper}
-          </p>
-        </div>
+    <div>
+      {/* Mode switcher: segmented control, one choice active */}
+      <p id="contact-mode-label" className="text-eyebrow uppercase text-muted">
+        Pick what fits
+      </p>
+      <div
+        role="group"
+        aria-labelledby="contact-mode-label"
+        className="mt-3 grid grid-cols-1 gap-1 rounded-lg border border-line-control bg-surface p-1 sm:grid-cols-3"
+      >
+        {MODE_ORDER.map((m) => {
+          const isActive = currentMode === m;
+          return (
+            <button
+              key={m}
+              type="button"
+              onClick={() => handleModeChange(m)}
+              aria-pressed={isActive}
+              disabled={isSubmitting}
+              className={cn(
+                'min-h-[44px] rounded-md px-3 py-2.5 font-semibold transition-colors duration-fast ease-brand',
+                isActive ? 'bg-brand text-page' : 'text-body hover:bg-tint hover:text-brand-deep',
+                'disabled:cursor-not-allowed disabled:opacity-60'
+              )}
+            >
+              {MODE_CONFIG[m].label}
+            </button>
+          );
+        })}
+      </div>
+      <p className="mt-3 max-w-[65ch] text-sm text-muted">{MODE_CONFIG[currentMode].helper}</p>
 
+      {/* Status region: announced politely to assistive tech */}
+      <div aria-live="polite">
         {submitStatus === 'success' && (
-          <div className="mb-6 flex items-center gap-2 rounded-lg bg-green-50 p-4 text-green-800">
-            <CheckCircle className="h-5 w-5 flex-shrink-0" />
+          <div className="mt-6 flex items-start gap-3 rounded-lg bg-tint p-4 text-brand-deep">
+            <CheckCircle className="mt-0.5 h-5 w-5 flex-shrink-0" aria-hidden="true" />
             <div>
-              <p className="font-medium">Message sent successfully!</p>
-              <p className="text-sm">Thank you for contacting us. We&apos;ll get back to you within 24 hours.</p>
+              <p className="font-bold">Message sent.</p>
+              <p className="mt-0.5 text-sm">
+                Thanks. We will get back to you soon. If it cannot wait, call the shop.
+              </p>
             </div>
           </div>
         )}
 
         {submitStatus === 'error' && (
-          <div className="mb-6 flex items-center gap-2 rounded-lg bg-red-50 p-4 text-red-800">
-            <AlertCircle className="h-5 w-5 flex-shrink-0" />
+          <div className="mt-6 flex items-start gap-3 rounded-lg bg-danger-surface p-4 text-danger">
+            <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0" aria-hidden="true" />
             <div>
-              <p className="font-medium">Unable to send message</p>
-              <p className="text-sm">{errorMessage || 'Please try again or call us directly.'}</p>
+              <p className="font-bold">The message did not send</p>
+              <p className="mt-0.5 text-sm">{errorMessage || 'Please try again, or call us directly.'}</p>
             </div>
           </div>
         )}
 
         {submitStatus === 'rate-limited' && (
-          <div className="mb-6 flex items-center gap-2 rounded-lg bg-yellow-50 p-4 text-yellow-800">
-            <Clock className="h-5 w-5 flex-shrink-0" />
+          <div className="mt-6 flex items-start gap-3 rounded-lg bg-surface p-4 text-body">
+            <Clock className="mt-0.5 h-5 w-5 flex-shrink-0" aria-hidden="true" />
             <div>
-              <p className="font-medium">Please wait a moment</p>
-              <p className="text-sm">{errorMessage}</p>
+              <p className="font-bold text-ink">Please wait a moment</p>
+              <p className="mt-0.5 text-sm">{errorMessage}</p>
             </div>
           </div>
         )}
+      </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6" noValidate>
-          {/* Honeypot field - hidden from users, filled by bots */}
-          <div className="absolute left-[-9999px] opacity-0" aria-hidden="true">
-            <Input
-              label="Website"
-              name="website"
-              value={formData.website}
-              onChange={handleChange}
-              tabIndex={-1}
-              autoComplete="off"
-            />
-          </div>
+      <form onSubmit={handleSubmit} className="mt-8 space-y-6" noValidate>
+        {/* Honeypot field - hidden from users, filled by bots */}
+        <div className="absolute left-[-9999px] opacity-0" aria-hidden="true">
+          <label htmlFor="contact-website">Website</label>
+          <input
+            type="text"
+            id="contact-website"
+            name="website"
+            value={formData.website}
+            onChange={handleChange}
+            tabIndex={-1}
+            autoComplete="off"
+          />
+        </div>
 
-          {/* Additional honeypot fields */}
-          <div aria-hidden="true" className="absolute -left-[9999px] -top-[9999px]">
-            <input
-              type="email"
-              name="_hp_email2"
-              value={honeypots._hp_email2}
-              onChange={(e) => setHoneypots(h => ({...h, _hp_email2: e.target.value}))}
-              tabIndex={-1}
-              autoComplete="off"
-            />
-            <input
-              type="tel"
-              name="_hp_phone_confirm"
-              value={honeypots._hp_phone_confirm}
-              onChange={(e) => setHoneypots(h => ({...h, _hp_phone_confirm: e.target.value}))}
-              tabIndex={-1}
-              autoComplete="off"
-            />
-            <input
-              type="url"
-              name="_hp_url"
-              value={honeypots._hp_url}
-              onChange={(e) => setHoneypots(h => ({...h, _hp_url: e.target.value}))}
-              tabIndex={-1}
-              autoComplete="off"
-            />
-          </div>
-
-          {/* Timing field */}
-          <input type="hidden" name="_timing" value={timing} />
-
-          <div className="grid gap-6 sm:grid-cols-2">
-            <Input
-              label="Full Name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              error={errors.name}
-              required
-              placeholder="John Doe"
-              disabled={isSubmitting}
-            />
-            <Input
-              label="Email"
-              name="email"
-              type="email"
-              value={formData.email}
-              onChange={handleChange}
-              error={errors.email}
-              required
-              placeholder="john@example.com"
-              disabled={isSubmitting}
-            />
-          </div>
-
-          <Input
-            label="Phone Number"
-            name="phone"
+        {/* Additional honeypot fields */}
+        <div aria-hidden="true" className="absolute -left-[9999px] -top-[9999px]">
+          <input
+            type="email"
+            name="_hp_email2"
+            value={honeypots._hp_email2}
+            onChange={(e) => setHoneypots(h => ({...h, _hp_email2: e.target.value}))}
+            tabIndex={-1}
+            autoComplete="off"
+          />
+          <input
             type="tel"
-            value={formData.phone}
-            onChange={handleChange}
-            error={errors.phone}
-            placeholder="(785) 555-0123"
-            helperText="Optional"
-            disabled={isSubmitting}
+            name="_hp_phone_confirm"
+            value={honeypots._hp_phone_confirm}
+            onChange={(e) => setHoneypots(h => ({...h, _hp_phone_confirm: e.target.value}))}
+            tabIndex={-1}
+            autoComplete="off"
           />
+          <input
+            type="url"
+            name="_hp_url"
+            value={honeypots._hp_url}
+            onChange={(e) => setHoneypots(h => ({...h, _hp_url: e.target.value}))}
+            tabIndex={-1}
+            autoComplete="off"
+          />
+        </div>
 
-          {currentMode === 'house-call' && (
-            <Textarea
-              label="Best Days & Times"
-              name="availability"
-              value={formData.availability}
-              onChange={handleChange}
-              error={errors.availability}
-              required
-              placeholder="e.g. Monday or Wednesday afternoons, any time after 2pm..."
-              rows={3}
-              disabled={isSubmitting}
-            />
-          )}
+        {/* Timing field */}
+        <input type="hidden" name="_timing" value={timing} />
 
-          <Textarea
-            label={currentMode === 'house-call' ? 'Describe the Issue' : 'Message'}
-            name="message"
-            value={formData.message}
+        <div className="grid gap-6 sm:grid-cols-2">
+          <Field
+            id="contact-name"
+            label="Full Name"
+            name="name"
+            value={formData.name}
             onChange={handleChange}
-            error={errors.message}
+            error={errors.name}
             required
-            placeholder={
-              currentMode === 'house-call'
-                ? "Tell us what's going on with your computer..."
-                : "Tell us about your computer issue or what you're looking for..."
-            }
-            rows={5}
+            placeholder="Your name"
             disabled={isSubmitting}
           />
-
-          {/* Cloudflare Turnstile - Managed CAPTCHA */}
-          <div className="flex justify-center">
-            <Turnstile
-              siteKey={TURNSTILE_SITE_KEY}
-              onSuccess={(token) => setTurnstileToken(token)}
-              onError={() => setTurnstileToken('')}
-              onExpire={() => setTurnstileToken('')}
-              options={{
-                theme: 'light',
-                size: 'normal',
-              }}
-            />
-          </div>
-
-          <Button
-            type="submit"
-            variant="primary"
-            size="lg"
-            className="w-full"
-            isLoading={isSubmitting}
-            rightIcon={!isSubmitting ? <Send className="h-4 w-4" /> : undefined}
+          <Field
+            id="contact-email"
+            label="Email"
+            name="email"
+            type="email"
+            value={formData.email}
+            onChange={handleChange}
+            error={errors.email}
+            required
+            placeholder="you@example.com"
             disabled={isSubmitting}
-          >
-            {isSubmitting ? 'Sending...' : 'Send Message'}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+          />
+        </div>
+
+        <Field
+          id="contact-phone"
+          label="Phone Number"
+          name="phone"
+          type="tel"
+          value={formData.phone}
+          onChange={handleChange}
+          error={errors.phone}
+          placeholder="(785) 555-0123"
+          disabled={isSubmitting}
+        />
+
+        {currentMode === 'house-call' && (
+          <Field
+            id="contact-availability"
+            label="Best Days & Times"
+            name="availability"
+            value={formData.availability}
+            onChange={handleChange}
+            error={errors.availability}
+            required
+            helperText="For example: Monday or Wednesday afternoons, any time after 2pm."
+            multiline
+            rows={3}
+            disabled={isSubmitting}
+          />
+        )}
+
+        <Field
+          id="contact-message"
+          label={currentMode === 'house-call' ? 'Describe the Issue' : 'Message'}
+          name="message"
+          value={formData.message}
+          onChange={handleChange}
+          error={errors.message}
+          required
+          placeholder={
+            currentMode === 'house-call'
+              ? 'Tell us what is going on with your computer'
+              : 'Tell us about your computer issue or what you are looking for'
+          }
+          multiline
+          rows={5}
+          disabled={isSubmitting}
+        />
+
+        {/* Cloudflare Turnstile - Managed CAPTCHA. The widget renders at
+            a fixed 300px, so the wrapper has to be allowed to scroll
+            rather than force the whole form column wider than a 320px
+            viewport. Widget props are untouched. */}
+        <div className="flex max-w-full justify-start overflow-x-auto">
+          <Turnstile
+            siteKey={TURNSTILE_SITE_KEY}
+            onSuccess={(token) => setTurnstileToken(token)}
+            onError={() => setTurnstileToken('')}
+            onExpire={() => setTurnstileToken('')}
+            options={{
+              theme: 'light',
+              size: 'normal',
+            }}
+          />
+        </div>
+
+        <Button
+          type="submit"
+          className="w-full min-h-[48px] rounded-lg font-bold"
+          isLoading={isSubmitting}
+          rightIcon={!isSubmitting ? <Send className="h-4 w-4" aria-hidden="true" /> : undefined}
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? 'Sending...' : 'Send Message'}
+        </Button>
+      </form>
+    </div>
+  );
+}
+
+/* ─── Field presentation ─────────────────────────────────────────────
+   Brand-styled label + input/textarea rows. Purely visual: names,
+   values, and validation all flow through the props unchanged. */
+
+interface FieldProps {
+  id: string;
+  label: string;
+  name: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  error?: string;
+  helperText?: string;
+  type?: string;
+  placeholder?: string;
+  required?: boolean;
+  disabled?: boolean;
+  multiline?: boolean;
+  rows?: number;
+}
+
+const FIELD_CLASSES =
+  'block w-full rounded-lg border bg-page px-4 py-3 text-base text-ink ' +
+  'placeholder:text-muted transition-colors duration-fast ease-brand ' +
+  'disabled:cursor-not-allowed disabled:opacity-60';
+
+/** Renders one labeled form field with error and helper text wired for assistive tech. */
+function Field({
+  id,
+  label,
+  name,
+  value,
+  onChange,
+  error,
+  helperText,
+  type = 'text',
+  placeholder,
+  required,
+  disabled,
+  multiline = false,
+  rows,
+}: FieldProps) {
+  const describedBy = error ? `${id}-error` : helperText ? `${id}-helper` : undefined;
+  const borderClass = error ? 'border-danger' : 'border-line-control';
+
+  return (
+    <div className="w-full">
+      <label htmlFor={id} className="mb-2 flex items-baseline justify-between gap-3 text-sm font-semibold text-ink">
+        <span>{label}</span>
+        {!required && <span className="text-xs font-medium uppercase tracking-wide text-muted">Optional</span>}
+      </label>
+      {multiline ? (
+        <textarea
+          id={id}
+          name={name}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          required={required}
+          disabled={disabled}
+          rows={rows}
+          aria-invalid={error ? 'true' : 'false'}
+          aria-describedby={describedBy}
+          className={cn(FIELD_CLASSES, borderClass, 'min-h-[96px] resize-y')}
+        />
+      ) : (
+        <input
+          id={id}
+          name={name}
+          type={type}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          required={required}
+          disabled={disabled}
+          aria-invalid={error ? 'true' : 'false'}
+          aria-describedby={describedBy}
+          className={cn(FIELD_CLASSES, borderClass, 'h-12', type === 'tel' && 'tabular-nums')}
+        />
+      )}
+      {error && (
+        <p id={`${id}-error`} role="alert" className="mt-2 text-sm font-medium text-danger">
+          {error}
+        </p>
+      )}
+      {helperText && !error && (
+        <p id={`${id}-helper`} className="mt-2 text-sm text-muted">
+          {helperText}
+        </p>
+      )}
+    </div>
   );
 }

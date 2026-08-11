@@ -6,3 +6,5 @@
  */
 
 export { LocalBusinessSchema } from './json-ld';
+export { SilverPlanSchema } from './silver-plan-schema';
+export { SITE_DESCRIPTION, OG_IMAGE, ogTitle, pageMetadata } from './site-meta';

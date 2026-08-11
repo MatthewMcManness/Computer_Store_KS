@@ -28,6 +28,16 @@ desktop.ini
 .next/
 out/
 
+# TypeScript incremental build cache. Tracked historically by mistake;
+# it still needs `git rm --cached tsconfig.tsbuildinfo` once to drop it
+# from the index. Never stage it in a code commit.
+*.tsbuildinfo
+
 # Claude Code local settings (user-specific permissions)
 .claude/settings.local.json
 db/export/
+
+# QA screenshots dropped at the repo root by browser tooling. Site code
+# only lives here; captures belong in the scratchpad, not in the repo.
+/*.png
+/*.jpg

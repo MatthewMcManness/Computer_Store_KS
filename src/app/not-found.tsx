@@ -1,52 +1,66 @@
-// Simple server-side not-found page without client components
+/**
+ * NOT FOUND PAGE - The branded 404. Renders inside the root layout
+ * (outside the public shell), so it assembles its own `.site` shell:
+ * skip link, the real Header and Footer, and the mobile call button,
+ * keeping global navigation and click-to-call on dead links. Plain and
+ * useful: one sentence, links back to home, services, and contact, and
+ * the phone number. The plaque rule is the only decoration.
+ *
+ * WHEN TO EDIT: When changing the 404 copy or where it points people.
+ */
+
+import type { Metadata } from 'next';
+import { Header } from '@/components/static/Header';
+import { Footer } from '@/components/static/Footer';
+import { MobileCallButton } from '@/components/ui/mobile-call-button';
+import { Eyebrow } from '@/components/ui/eyebrow';
+import { PlaqueRule } from '@/components/ui/plaque-rule';
+import { CTALink } from '@/components/ui/cta-link';
+import { PhoneLink } from '@/components/ui/phone-link';
+import { BUSINESS_INFO } from '@/lib/constants';
+
+export const metadata: Metadata = {
+  // The root layout template appends the site name; a bare title here
+  // avoids "… | Computer Store Kansas | Computer Store Kansas".
+  title: 'Page not found',
+};
+
 export default function NotFound() {
   return (
-    <html lang="en">
-      <body style={{ margin: 0, fontFamily: 'system-ui, sans-serif' }}>
-        <div style={{
-          minHeight: '100vh',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '2rem',
-          textAlign: 'center'
-        }}>
-          <h1 style={{ fontSize: '6rem', fontWeight: 'bold', color: '#0366d6', margin: 0 }}>404</h1>
-          <h2 style={{ fontSize: '1.5rem', marginTop: '1rem', color: '#333' }}>Page Not Found</h2>
-          <p style={{ marginTop: '1rem', color: '#666' }}>
-            Sorry, we could not find the page you are looking for.
+    <div className="site flex min-h-screen flex-col bg-page font-sans">
+      <a href="#main" className="skip-link">
+        Skip to content
+      </a>
+      <Header />
+      {/* tabindex="-1" for the same reason as the public shell: the skip
+          link has to move focus, not just hint at it. */}
+      <main id="main" tabIndex={-1} className="flex flex-1 items-center">
+        <div className="mx-auto w-full max-w-6xl px-5 py-24 sm:px-8">
+          <Eyebrow>{BUSINESS_INFO.name}</Eyebrow>
+          <h1 className="mt-4">That page is not here</h1>
+          <p className="mt-5 max-w-measure text-lg">
+            The link may be old, or the address was mistyped. Everything the shop offers
+            is one click or one call away.
           </p>
-          <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem' }}>
-            <a
-              href="/"
-              style={{
-                padding: '0.75rem 1.5rem',
-                backgroundColor: '#0366d6',
-                color: 'white',
-                textDecoration: 'none',
-                borderRadius: '6px',
-                fontWeight: 'bold'
-              }}
-            >
-              Go Home
-            </a>
-            <a
-              href="/contact"
-              style={{
-                padding: '0.75rem 1.5rem',
-                border: '2px solid #0366d6',
-                color: '#0366d6',
-                textDecoration: 'none',
-                borderRadius: '6px',
-                fontWeight: 'bold'
-              }}
-            >
-              Contact Us
-            </a>
+          <PlaqueRule width="full" className="my-10" />
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-4">
+            <CTALink href="/" variant="primary">
+              Back to the homepage
+            </CTALink>
+            <CTALink href="/services" variant="quiet">
+              What we fix
+            </CTALink>
+            <CTALink href="/contact" variant="quiet">
+              Contact the shop
+            </CTALink>
+          </div>
+          <div className="mt-10">
+            <PhoneLink variant="inline" />
           </div>
         </div>
-      </body>
-    </html>
+      </main>
+      <Footer />
+      <MobileCallButton />
+    </div>
   );
 }

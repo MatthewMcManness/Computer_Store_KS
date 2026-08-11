@@ -1,71 +1,49 @@
 /**
- * BUTTON - Reusable button component with variants (primary, secondary, danger) and loading state.
+ * BUTTON - The submit control for the contact form, and nothing else.
  *
- * WHEN TO EDIT: When adding button styles or changing button behavior.
+ * This used to ship six class-variance-authority variants and four
+ * sizes. Five of the variants pointed at admin-era tokens that are not
+ * part of the redesign system (bg-secondary, bg-background,
+ * bg-destructive), and every one of them had zero consumers: the public
+ * site's links use CTALink and PhoneLink, so the only real button on
+ * the site is the form's submit. The variants were deleted for the same
+ * reason Badge, Card, Input, Textarea, Select and Skeleton were, and
+ * with the last variant gone the cva wrapper went with them. Per-form
+ * adjustments ride on `className`.
+ *
+ * WHEN TO EDIT: When the form's submit button changes. If a second kind
+ * of button ever appears, build it here as a real second component
+ * rather than reintroducing a variant matrix for one caller.
  */
 'use client';
 
 import * as React from 'react';
-import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/cn';
 import { Loader2 } from 'lucide-react';
 
-const buttonVariants = cva(
-  'inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
-  {
-    variants: {
-      variant: {
-        primary:
-          'bg-primary-600 text-white hover:bg-primary-700 active:bg-primary-800',
-        secondary:
-          'bg-secondary text-secondary-foreground hover:bg-secondary/80',
-        outline:
-          'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
-        ghost: 'hover:bg-accent hover:text-accent-foreground',
-        destructive:
-          'bg-destructive text-destructive-foreground hover:bg-destructive/90',
-        link: 'text-primary-600 underline-offset-4 hover:underline',
-      },
-      size: {
-        sm: 'h-9 px-3 text-xs',
-        md: 'h-10 px-4 py-2',
-        lg: 'h-11 px-8 text-base',
-        icon: 'h-10 w-10',
-      },
-    },
-    defaultVariants: {
-      variant: 'primary',
-      size: 'md',
-    },
-  }
-);
+/**
+ * No focus overrides: the `.site :focus-visible` rule (2px brand
+ * outline, 3px offset) is the one focus signature for every public
+ * control.
+ */
+const BUTTON_CLASS =
+  'inline-flex min-h-[44px] items-center justify-center rounded-md bg-brand px-8 py-2 text-base ' +
+  'font-medium text-page transition-colors duration-normal ease-brand hover:bg-brand-deep ' +
+  'active:bg-brand-deep disabled:pointer-events-none disabled:opacity-50';
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  /** Swaps the leading icon for a spinner and disables the control */
   isLoading?: boolean;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  (
-    {
-      className,
-      variant,
-      size,
-      isLoading,
-      leftIcon,
-      rightIcon,
-      children,
-      disabled,
-      ...props
-    },
-    ref
-  ) => {
+  ({ className, isLoading, leftIcon, rightIcon, children, disabled, ...props }, ref) => {
     return (
       <button
-        className={cn(buttonVariants({ variant, size, className }))}
+        className={cn(BUTTON_CLASS, className)}
         ref={ref}
         disabled={disabled || isLoading}
         {...props}
@@ -84,4 +62,4 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
 Button.displayName = 'Button';
 
-export { Button, buttonVariants };
+export { Button };

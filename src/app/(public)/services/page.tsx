@@ -1,233 +1,218 @@
 /**
- * SERVICES HUB - Overview page listing all services the store offers, with links to detail pages.
+ * SERVICES HUB - The /services index page. States the shop's pricing
+ * policy up front ($50 diagnostic, fixed prices where they exist), gives
+ * business IT and the Silver plan top billing, then lists every service
+ * as grouped editorial rows linking to the detail pages.
  *
- * WHEN TO EDIT: When updating the description, pricing, or details for this service.
+ * WHEN TO EDIT: To change the page intro or the business band, edit
+ * here. Row names and one-line descriptions live in
+ * src/components/services/service-content.ts. To add a service, add it
+ * there and to SERVICE_GROUPS.
  */
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import {
-  ScanSearch,
-  Bug,
-  HardDriveDownload,
-  MonitorDown,
-  Cpu,
-  Gauge,
-  ShieldCheck,
-  Computer,
-  Laptop,
-  Monitor,
-  Printer,
-  Recycle,
-  BadgeCheck,
-  ArrowRight,
-  type LucideIcon,
-} from 'lucide-react';
-import { ChevronSection } from '@/components/static/ChevronSection';
+import { ArrowRight } from 'lucide-react';
+import { Section, Eyebrow, PhoneLink, PriceStamp, PlaqueRule } from '@/components/ui';
+import { CTABand } from '@/components/pages/cta-band';
+import { SERVICES, SERVICE_GROUPS } from '@/components/services/service-content';
+import { BUSINESS_INFO } from '@/lib/constants';
+import { pageMetadata } from '@/components/seo/site-meta';
 
-export const metadata: Metadata = {
+/* The description says what this page HOLDS, not what it prices. Only
+   one fixed price is documented today, so the old "pricing stated up
+   front: a $50 diagnostic..." snippet promised a price list the index
+   does not carry. It describes the pricing POLICY instead, which the
+   page does state in full, and it goes back to naming prices the day
+   the blowout, repaste, and cooler-install numbers ship. */
+export const metadata: Metadata = pageMetadata({
   title: 'Computer Repair Services in Topeka, KS',
-  description: 'Computer repair services in Topeka, KS - diagnostics, virus removal, hardware upgrades, data services, OS installation, and custom PC builds. Professional computer service since 2003.',
-  openGraph: {
-    title: 'Computer Repair Services - Computer Store Kansas',
-    description: 'Professional computer repair services in Topeka: diagnostics, virus removal, hardware upgrades, data services, and custom builds.',
-    url: 'https://computerstoreks.com/services',
-  },
-};
-
-interface Service {
-  href: string;
-  title: string;
-  description: string;
-  Icon: LucideIcon;
-  featured?: boolean;
-  silver?: boolean;
-}
-
-/** The three flagship services, surfaced in the Featured section up top. */
-const featuredServices: { href: string; title: string; description: string; Icon: LucideIcon; cta: string }[] = [
-  {
-    href: '/services/custom-computers',
-    title: 'Custom-Built PCs',
-    description: 'Your vision, expertly built. Gaming rigs, workstations, and servers assembled with quality parts and clean cable management. Free lifetime diagnostics on every build.',
-    Icon: Computer,
-    cta: 'Build Yours',
-  },
-  {
-    href: '/silver-plan',
-    title: 'Protection Plans',
-    description: 'Bronze, Silver, and Gold plans bundle antivirus, repair discounts, and priority service into ongoing peace of mind for your computer.',
-    Icon: BadgeCheck,
-    cta: 'Compare Plans',
-  },
-  {
-    href: '/services/recycling',
-    title: 'Free Electronics Recycling',
-    description: 'Drop off old computers, TVs, consoles, and more at no cost. Guaranteed data destruction and responsible disposal that keeps e-waste out of the landfill.',
-    Icon: Recycle,
-    cta: 'Learn More',
-  },
-];
-
-const services: Service[] = [
-  {
-    href: '/services/diagnostics',
-    title: 'Diagnostics',
-    description: 'Thorough troubleshooting to identify issues quickly and accurately. Diagnostic fee rolls into the repair cost.',
-    Icon: ScanSearch,
-  },
-  {
-    href: '/services/virus-removal',
-    title: 'Virus & Malware Removal',
-    description: 'Complete removal of viruses, malware, spyware, and rootkits. Your computer returned clean and protected.',
-    Icon: Bug,
-  },
-  {
-    href: '/services/data-services',
-    title: 'Data Transfer & Cloning',
-    description: 'Move your files, settings, and programs to a new computer. Drive cloning and data recovery available.',
-    Icon: HardDriveDownload,
-  },
-  {
-    href: '/services/os-installation',
-    title: 'OS Installation',
-    description: 'Fresh Windows or Linux installation. Dual-boot setups available. Windows license included.',
-    Icon: MonitorDown,
-  },
-  {
-    href: '/services/upgrades',
-    title: 'Hardware Upgrades',
-    description: 'RAM, SSD, graphics cards, processors, and more. Breathe new life into your existing computer.',
-    Icon: Cpu,
-  },
-  {
-    href: '/services/debloat',
-    title: 'Windows Debloat',
-    description: 'Remove bloatware and optimize Windows for speed. Free on all computers purchased from us.',
-    Icon: Gauge,
-  },
-  {
-    href: '/services/antivirus',
-    title: 'Antivirus & Protection',
-    description: 'Professional antivirus software installation and scam protection to keep you safe online.',
-    Icon: ShieldCheck,
-  },
-  {
-    href: '/services/custom-computers',
-    title: 'Custom-Built PCs',
-    description: 'Gaming rigs, workstations, home offices, and servers. Quality parts, expert assembly, free lifetime diagnostics.',
-    Icon: Computer,
-    featured: true,
-  },
-  {
-    href: '/services/laptops',
-    title: 'Laptops',
-    description: 'New Asus and Lenovo laptops, plus quality refurbished options. Custom orders available.',
-    Icon: Laptop,
-  },
-  {
-    href: '/services/desktops',
-    title: 'Refurbished Desktops',
-    description: 'Quality refurbished desktop computers. Cleaned, tested, and ready to work for years to come.',
-    Icon: Monitor,
-  },
-  {
-    href: '/services/printers',
-    title: 'Printers',
-    description: 'New Brother printers for sale plus repair service for Brother and other brands. $50 in-home setup with purchase.',
-    Icon: Printer,
-  },
-  {
-    href: '/services/recycling',
-    title: 'Free Electronics Recycling',
-    description: 'Drop off old computers, TVs, radios, consoles, and more. Data destruction guaranteed. No cost to you.',
-    Icon: Recycle,
-  },
-  {
-    href: '/silver-plan',
-    title: 'Protection Plans',
-    description: 'Bronze, Silver, and Gold protection plans with antivirus, discounts on repairs, priority service, and peace of mind.',
-    Icon: BadgeCheck,
-    silver: true,
-  },
-];
+  description: `Computer repair, upgrades, data services, custom builds, and business IT in ${BUSINESS_INFO.city}, ${BUSINESS_INFO.state}. Every repair starts with a $50 diagnostic that applies toward the work, and everything else is quoted before we start. In-house since ${BUSINESS_INFO.founded}.`,
+  path: '/services',
+  shareTitle: 'Computer Repair Services',
+  shareDescription: `Repairs, upgrades, data services, and custom builds in ${BUSINESS_INFO.city}. The $50 diagnostic applies toward your repair.`,
+});
 
 export default function ServicesPage() {
   return (
     <>
-      {/* Hero Section */}
-      <ChevronSection bottomShape="v" className="hero-overlay text-white pt-32 pb-48 text-center relative overflow-visible z-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1597673030062-0a0f1a801a31?w=1920&q=80)' }}>
-        <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[3]">
-          <h1>Our Services</h1>
-          <p className="text-[clamp(1.1rem,2vw,1.3rem)] mb-0 max-w-[700px] mx-auto opacity-95">Comprehensive support for your computers and devices.</p>
-        </div>
-      </ChevronSection>
-
-      {/* Featured Section */}
-      <ChevronSection topShape="v" bottomShape="v" className="texture-circuit py-20 relative bg-bg-light">
-        <div className="w-[90%] max-w-[1200px] mx-auto px-4">
-          <h2 className="text-center mb-4">Featured Services</h2>
-          <p className="text-center text-gray-500 text-[1.1rem] mb-12 max-w-[700px] mx-auto">The work our customers come back for, again and again.</p>
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-8">
-            {featuredServices.map((service) => (
-              <Link key={service.href} href={service.href} className="group no-underline text-inherit block">
-                <div className="h-full bg-white rounded-brand-lg p-8 shadow-brand-sm border border-bg-dark flex flex-col transition-all duration-normal hover:-translate-y-2 hover:shadow-brand-lg hover:border-primary-300">
-                  <span className="inline-flex items-center justify-center w-14 h-14 rounded-brand-md bg-primary-600 text-white mb-5">
-                    <service.Icon className="w-7 h-7" strokeWidth={1.5} aria-hidden="true" />
+      {/* ── Hero: no right column at all. This is the index page, so the
+             headline runs the full container as a masthead and the band
+             resolves into the category list rather than leaving half a
+             viewport empty beside a measured paragraph. No CTA pair
+             either: the whole page is the call to action. ── */}
+      {/* The hero rhythm is cut short on purpose. At the standard hero
+          padding this band closed with roughly 95px of empty page under
+          the index column before the navy band, on top of the height
+          the two columns already differ by, and the masthead read as a
+          composition that had run out of content. */}
+      <Section tone="page" rhythm="hero-tight">
+        <Eyebrow>Services and pricing</Eyebrow>
+        {/* The headline promises what this page delivers. Exactly one
+            fixed price is documented today (the $50 diagnostic), so the
+            old "what it costs up front" line wrote a cheque the index
+            could not cash. Restore it once Max confirms the blowout,
+            repaste, and cooler-install prices and those rows ship. */}
+        <h1 className="mt-5 max-w-[24ch] text-display">
+          What we fix, and how pricing works
+        </h1>
+        <div className="mt-10 grid gap-x-16 gap-y-8 border-t border-line pt-8 md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
+          {/* The flat-rate jobs are named now. Saying only "jobs that
+              are always the same" left a visitor to guess which ones,
+              and the home page then labelled one of them, blowout
+              cleaning, as quoted after diagnosis. The mechanism is
+              stated here; the numbers are a phone call until Max
+              confirms them, and they drop into this sentence when he
+              does. */}
+          <p className="max-w-measure text-lede text-body">
+            Every repair starts with a $50 diagnostic, and the whole fee applies toward
+            the work. Standard jobs like a blowout cleaning, a thermal repaste, or a
+            cooler install run at a flat rate, so call and we will tell you the number.
+            Everything else gets quoted after diagnosis, before anything happens to your
+            machine.
+          </p>
+          {/* The category index, in the hero. It fills the half viewport
+              that used to sit empty and it does real work: the page is
+              long, and this says what is on it before the scroll. */}
+          <div>
+            <p className="text-eyebrow uppercase text-muted">On this page</p>
+            <ul className="mt-3 border-t border-line">
+              {SERVICE_GROUPS.map((group) => (
+                <li
+                  key={group.label}
+                  className="flex items-baseline justify-between gap-6 border-b border-line py-2.5"
+                >
+                  <span className="font-semibold text-ink">{group.label}</span>
+                  <span className="text-sm tabular-nums text-muted">
+                    {group.slugs.length}
                   </span>
-                  <h3 className="text-[1.35rem] text-gray-900 mb-3 leading-tight">{service.title}</h3>
-                  <p className="text-gray-600 leading-relaxed mb-6 flex-1">{service.description}</p>
-                  <span className="text-primary-600 font-semibold text-sm inline-flex items-center gap-1.5 mt-auto transition-all duration-fast group-hover:gap-2.5">
-                    {service.cta} <ArrowRight className="w-4 h-4" aria-hidden="true" />
-                  </span>
-                </div>
-              </Link>
-            ))}
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
-      </ChevronSection>
+      </Section>
 
-      {/* All Services */}
-      <ChevronSection topShape="v" bottomShape="v" className="py-20 bg-white">
-        <div className="w-[90%] max-w-[1200px] mx-auto px-4">
-          <h2 className="text-center mb-4">All Services</h2>
-          <p className="text-center text-gray-500 text-[1.1rem] mb-16 max-w-[700px] mx-auto">Click any service to learn more about what we offer.</p>
-
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-6 mt-8">
-            {services.map((service) => (
-              <Link
-                key={service.title}
-                href={service.href}
-                className={`group service-card-bar flex flex-col bg-white rounded-brand-lg p-7 shadow-brand-md transition-all duration-normal no-underline text-inherit border-2 border-transparent relative overflow-hidden hover:-translate-y-1 hover:shadow-brand-lg hover:border-primary-300 ${service.featured ? 'featured border-primary-600 bg-[linear-gradient(135deg,white_0%,rgba(37,99,235,0.03)_100%)]' : ''} ${service.silver ? 'service-card-silver' : ''}`}
-              >
-                <span className="inline-flex items-center justify-center w-14 h-14 rounded-brand-md bg-primary-100 text-primary-600 mb-4">
-                  <service.Icon className="w-7 h-7" strokeWidth={1.5} aria-hidden="true" />
-                </span>
-                <h3 className="text-[1.25rem] text-gray-900 mb-3 leading-tight">{service.title}</h3>
-                <p className="text-[0.95rem] text-gray-600 leading-relaxed mb-4 flex-1">{service.description}</p>
-                <span className="text-primary-600 font-semibold text-sm inline-flex items-center gap-1.5 mt-auto transition-all duration-fast group-hover:gap-2.5">View Details <ArrowRight className="w-4 h-4" aria-hidden="true" /></span>
-              </Link>
-            ))}
+      {/* ── Business IT and the Silver plan get top billing ── */}
+      <Section tone="navy" rhythm="standard" aria-labelledby="services-business">
+        <Eyebrow onNavy>For businesses</Eyebrow>
+        <h2 id="services-business" className="mt-4 max-w-[24ch] text-page">
+          The Silver plan and full IT support
+        </h2>
+        <div className="mt-10 grid gap-x-16 gap-y-10 lg:grid-cols-12">
+          <div className="lg:col-span-5">
+            <h3 className="text-lg text-page">The Silver plan</h3>
+            <p className="mt-3 max-w-measure text-tint/90">
+              Our recurring protection plan: ongoing coverage and priority service for the machines
+              you count on, from a shop that already knows them when something goes wrong. It fits a
+              single home computer or a whole office.
+            </p>
+          </div>
+          {/* This heading used to read "Service calls and house calls",
+              word for word the same as the index row further down the
+              page, and the two descriptions were the same sentence at
+              two lengths. It was the only duplicate heading on the
+              site. The band keeps the business framing; the index row
+              keeps the service name. */}
+          <div className="lg:col-span-7">
+            <h3 className="text-lg text-page">On-site work and full IT resets</h3>
+            <p className="mt-3 max-w-measure text-tint/90">
+              We come to your office or your house, sort out the machines, the printers, and the
+              connections between them, and set the place up so it stays working. For a business
+              that can run all the way to a full reset.
+            </p>
           </div>
         </div>
-      </ChevronSection>
-
-      {/* Not Sure Section */}
-      <ChevronSection topShape="v" bottomShape="v" className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20 text-center relative overflow-hidden">
-        <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
-          <h2 className="text-white text-[2rem] mb-4">Not Sure What You Need?</h2>
-          <p className="text-[1.1rem] mb-8 opacity-95">Bring in your computer and we&apos;ll take a look. Our diagnostic fee rolls into the repair cost if you proceed—no pressure, just honest advice.</p>
-          <Link href="/services/diagnostics" className="cta-inverse">Learn About Diagnostics</Link>
+        {/* Both business lines link out to a page of their own. On-site
+            work is revenue priority #2 and used to have no indexable
+            destination at all, so its link sits here beside the plan's. */}
+        <div className="mt-10 flex flex-wrap items-center gap-x-5 gap-y-3">
+          <PhoneLink variant="inverse" label="Call" />
+          <Link
+            href="/silver-plan"
+            className="inline-flex min-h-[44px] items-center px-1 py-2 font-semibold text-tint underline decoration-tint/40 underline-offset-4 transition-colors duration-normal ease-brand hover:decoration-tint"
+          >
+            See the Silver plan
+          </Link>
+          <Link
+            href="/services/service-calls"
+            className="inline-flex min-h-[44px] items-center px-1 py-2 font-semibold text-tint underline decoration-tint/40 underline-offset-4 transition-colors duration-normal ease-brand hover:decoration-tint"
+          >
+            How service calls work
+          </Link>
         </div>
-      </ChevronSection>
+      </Section>
 
-      {/* Call-to-Action Section */}
-      <ChevronSection topShape="v" bottomShape="flat" className="cta-overlay bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20 text-center relative overflow-hidden">
-        <div className="w-[90%] max-w-[1200px] mx-auto px-4 relative z-[1]">
-          <h2 className="text-white text-[2rem] mb-4">Ready to Get Started?</h2>
-          <p className="text-[1.1rem] mb-8 opacity-95">Contact us to discuss your needs or bring your computer in for service.</p>
-          <Link href="/contact" className="cta-inverse">Get Your Free Quote</Link>
+      {/* ── The full index: grouped editorial rows, no card grid ── */}
+      <Section tone="page" rhythm="generous" aria-labelledby="services-index">
+        <h2 id="services-index">Every service, listed plainly</h2>
+        {/* EVERY CATEGORY BOUNDARY IS TREATED THE SAME WAY: spacing, and
+            the eyebrow that opens the next group. The circuit rule used
+            to fire at one of the four boundaries (between Software and
+            Builds and data) and nowhere else, which made a signature
+            moment look like it had been dropped at random: the
+            Repair-to-Software boundary is exactly the same kind of seam
+            and got nothing. The rule moved to the one real structural
+            break on this page, the end of the index, where it closes the
+            band on its own continuous ground the way the homepage
+            business band closes. */}
+        <div className="mt-12 space-y-16">
+          {SERVICE_GROUPS.map((group) => (
+            <div key={group.label}>
+              <Eyebrow>{group.label}</Eyebrow>
+              <ul className="mt-5 border-t border-line">
+                {group.slugs.map((slug) => {
+                  const service = SERVICES[slug];
+                  const stamp = slug === 'diagnostics' ? service.cost.stamp : undefined;
+                  return (
+                    <li key={slug} className="border-b border-line">
+                      {/* The row's affordance lives in a right-aligned
+                          cell, so every hairline terminates in a real
+                          element instead of running a third of the
+                          container into nothing fourteen times down the
+                          page. The price stamp, where a row has one,
+                          sits in that same cell above the arrow. */}
+                      <Link
+                        href={`/services/${slug}`}
+                        className="group grid items-start gap-x-8 gap-y-3 px-2 py-6 no-underline transition-colors duration-fast ease-brand hover:bg-tint sm:grid-cols-[minmax(0,1fr)_auto] sm:px-4"
+                      >
+                        <span className="block">
+                          <h3 className="text-ink transition-colors duration-fast ease-brand group-hover:text-brand-deep">
+                            {service.name}
+                          </h3>
+                          <span className="mt-1.5 block max-w-measure text-body">
+                            {service.indexLine}
+                          </span>
+                        </span>
+                        <span className="flex items-center gap-5 sm:justify-end sm:self-center">
+                          {stamp && (
+                            <PriceStamp
+                              amount={stamp.amount}
+                              caption="applies toward your repair"
+                              size="sm"
+                            />
+                          )}
+                          <ArrowRight
+                            aria-hidden="true"
+                            className="h-5 w-5 shrink-0 text-brand transition-transform duration-normal ease-brand group-hover:translate-x-1.5"
+                          />
+                        </span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
         </div>
-      </ChevronSection>
+        <PlaqueRule width="full" className="mt-16" />
+      </Section>
+
+      {/* ── Call-first closing band ── */}
+      <CTABand
+        headingId="services-cta"
+        title="Start with the diagnostic"
+        line="If you are not sure what the machine needs, bring it in. The $50 diagnostic gets you a plain answer and a real price before any work happens."
+      />
     </>
   );
 }

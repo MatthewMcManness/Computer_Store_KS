@@ -1,14 +1,21 @@
 /**
- * JSON-LD STRUCTURED DATA - Generates LocalBusiness schema markup so
- * search engines understand the store's name, address, hours, and
- * services.
+ * JSON-LD STRUCTURED DATA - The ComputerStore schema for the whole site:
+ * the store's name, address, hours, and the services it sells. Rendered
+ * once from the public layout, so it appears on every public route.
  *
- * WHEN TO EDIT: When business info changes (hours, services, address)
- * or when adding new schema types (e.g., Product, FAQ).
+ * NO aggregateRating AND NO review, ever. The shop has real Google
+ * reviews but no sanctioned rating figure to publish, and self-serving
+ * rating markup is both a fabrication and a manual-action risk. The
+ * reviews the site does show render as page content on /reviews.
+ *
+ * WHEN TO EDIT: When business info changes (hours, address) or when the
+ * shop adds or drops a service line. The serviceType array below must
+ * stay in agreement with docs/profile/services.md and src/app/sitemap.ts.
  */
 
 import * as React from 'react';
 import { BUSINESS_INFO } from '@/lib/constants';
+import { SITE_DESCRIPTION } from './site-meta';
 
 interface LocalBusinessSchemaProps {
   additionalData?: Record<string, unknown>;
@@ -21,7 +28,7 @@ export function LocalBusinessSchema({ additionalData }: LocalBusinessSchemaProps
     '@id': BUSINESS_INFO.website,
     name: BUSINESS_INFO.name,
     alternateName: BUSINESS_INFO.shortName,
-    description: `${BUSINESS_INFO.name} offers quality refurbished computers, expert repair services, and exceptional customer support in Topeka, Kansas.`,
+    description: SITE_DESCRIPTION,
     url: BUSINESS_INFO.website,
     telephone: BUSINESS_INFO.phone,
     email: BUSINESS_INFO.email,
@@ -67,13 +74,29 @@ export function LocalBusinessSchema({ additionalData }: LocalBusinessSchemaProps
       },
       geoRadius: '50000',
     },
+    /* IN REVENUE ORDER, and it must stay that way. This list is what a
+       search engine or an answer engine reads as "what this business
+       does", and it shipped for years as the old site's order, which
+       named neither the recurring plan nor on-site business IT. Those
+       are lines #1 and #2 in docs/profile/services.md, they lead the
+       home page, they lead /services, and the sitemap already ranks
+       them. Keep this array, the sitemap priorities, and that document
+       in agreement. Every entry maps to a real page on the site. */
     serviceType: [
-      'Computer Repair',
-      'Laptop Repair',
-      'Virus Removal',
-      'Data Recovery',
-      'Hardware Upgrades',
-      'Computer Sales',
+      'Computer Protection Plan',
+      'On-Site Computer and IT Support',
+      'Custom Computer Building',
+      'Laptop Repair and Sales',
+      'Desktop Repair and Refurbished Computer Sales',
+      'Computer Diagnostics',
+      'Virus and Malware Removal',
+      'Computer Hardware Upgrades',
+      'Data Transfer and Recovery',
+      'Operating System Installation',
+      'Windows Optimization and Debloat',
+      'Antivirus Installation and Scam Protection',
+      'Printer Repair and Sales',
+      'Electronics Recycling',
     ],
     ...additionalData,
   };

@@ -5,8 +5,19 @@
  * WHEN TO EDIT: When you want to block search engines from certain pages.
  */
 import type { MetadataRoute } from 'next';
+import { IS_PRODUCTION_HOST } from '@/components/seo/site-meta';
 
 export default function robots(): MetadataRoute.Robots {
+  /* Preview deploys (csks-staging.*) serve the same pages as the live
+     site. Left indexable they compete with computerstoreks.com as
+     duplicate content, so every non-production host refuses all
+     crawlers and publishes no sitemap. */
+  if (!IS_PRODUCTION_HOST) {
+    return {
+      rules: [{ userAgent: '*', disallow: '/' }],
+    };
+  }
+
   return {
     rules: [
       {

@@ -16,7 +16,7 @@ import type { Metadata } from 'next';
 import { Archivo } from 'next/font/google';
 import './globals.css';
 import { BUSINESS_INFO } from '@/lib/constants';
-import { SITE_DESCRIPTION, OG_IMAGE } from '@/components/seo/site-meta';
+import { SITE_DESCRIPTION, OG_IMAGE, IS_PRODUCTION_HOST } from '@/components/seo/site-meta';
 
 /** Archivo variable font: the single blocky sans family for the public site. */
 const archivo = Archivo({
@@ -72,17 +72,23 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
   },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
-  },
+  /* Preview deploys serve the same pages as the live site, so they ship
+     noindex here as well as in robots.ts. robots.txt alone is only a
+     request; the meta tag is what keeps a preview out of the index when
+     a crawler reaches it by a link. */
+  robots: IS_PRODUCTION_HOST
+    ? {
+        index: true,
+        follow: true,
+        googleBot: {
+          index: true,
+          follow: true,
+          'max-video-preview': -1,
+          'max-image-preview': 'large',
+          'max-snippet': -1,
+        },
+      }
+    : { index: false, follow: false, googleBot: { index: false, follow: false } },
 };
 
 export default function RootLayout({

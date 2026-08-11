@@ -15,6 +15,23 @@
 import type { Metadata } from 'next';
 import { BUSINESS_INFO } from '@/lib/constants';
 
+/** The public production origin. Canonicals and the sitemap always use it. */
+export const PRODUCTION_URL = 'https://computerstoreks.com';
+
+/**
+ * Where this build is actually served from. Set per deploy target via
+ * NEXT_PUBLIC_SITE_URL, which the staging preview points at its own
+ * hostname.
+ */
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || PRODUCTION_URL;
+
+/**
+ * False on every preview deploy. Guards indexing: a preview serves the
+ * same pages as the live site, so it must refuse crawlers rather than
+ * compete with computerstoreks.com as duplicate content.
+ */
+export const IS_PRODUCTION_HOST = SITE_URL === PRODUCTION_URL;
+
 /** The site-wide description: same string in the meta tag and the JSON-LD. */
 export const SITE_DESCRIPTION =
   `${BUSINESS_INFO.name} repairs, builds, and sells computers at ` +

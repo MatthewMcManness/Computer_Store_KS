@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { ChevronSection } from '@/components/static/ChevronSection';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/computers' },
   title: 'Computers for Sale - Laptops, Business PCs & Gaming Rigs',
   description:
     'Shop new and refurbished laptops, business desktops, and custom-built gaming PCs in Topeka, KS. Built and tested by local experts at Computer Store Kansas.',

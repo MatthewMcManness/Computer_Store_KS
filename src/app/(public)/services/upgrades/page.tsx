@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { ChevronSection } from '@/components/static/ChevronSection';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/services/upgrades' },
   title: 'Hardware Upgrades | Computer Store Kansas',
   description: 'Computer hardware upgrades in Topeka, KS. RAM, SSD, graphics cards, CPU, and more. Expert advice on what upgrades will make the biggest difference for your system.',
   openGraph: {

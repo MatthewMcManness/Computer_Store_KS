@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { ChevronSection } from '@/components/static/ChevronSection';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/about' },
   title: 'About Us - Locally Owned Since 2003',
   description: "Learn about Computer Store Kansas - Topeka's oldest locally owned computer repair shop since 2003. Meet our team and discover why customers trust us for computer services.",
   openGraph: {

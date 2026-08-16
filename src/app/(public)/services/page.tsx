@@ -25,6 +25,7 @@ import {
 import { ChevronSection } from '@/components/static/ChevronSection';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/services' },
   title: 'Computer Repair Services in Topeka, KS',
   description: 'Computer repair services in Topeka, KS - diagnostics, virus removal, hardware upgrades, data services, OS installation, and custom PC builds. Professional computer service since 2003.',
   openGraph: {

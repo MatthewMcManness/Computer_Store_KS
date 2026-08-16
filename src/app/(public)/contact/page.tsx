@@ -6,8 +6,13 @@
  * WHEN TO EDIT: When changing the contact page hero or layout (form logic
  * is in contact-form.tsx; sidebar variants are in contact-with-sidebar.tsx).
  */
+import type { Metadata } from 'next';
 import { ContactWithSidebar } from '@/components/forms/contact-with-sidebar';
 import { ChevronSection } from '@/components/static/ChevronSection';
+
+export const metadata: Metadata = {
+  alternates: { canonical: '/contact' },
+};
 
 export default function ContactPage() {
   return (

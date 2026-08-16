@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { ChevronSection } from '@/components/static/ChevronSection';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/services/debloat' },
   title: 'Windows Debloat Service | Computer Store Kansas',
   description: 'Windows debloat service in Topeka, KS. Remove bloatware, disable unnecessary startup programs, and make Windows 11 run the way it should.',
   openGraph: {

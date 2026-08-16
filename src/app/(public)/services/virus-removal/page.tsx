@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { ChevronSection } from '@/components/static/ChevronSection';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/services/virus-removal' },
   title: 'Virus & Malware Removal | Computer Store Kansas',
   description: 'Professional virus and malware removal in Topeka, KS. Complete cleaning to remove viruses, spyware, adware, and get your computer running clean again.',
   openGraph: {

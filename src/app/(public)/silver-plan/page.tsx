@@ -10,6 +10,7 @@ import { ProtectionPlansSection } from '@/components/static/ProtectionPlansSecti
 import { ChevronSection } from '@/components/static/ChevronSection';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/silver-plan' },
   title: 'Protection Plans - Silver & Silver Plus',
   description: 'Computer protection plans starting at $24.99/month. Silver Plan for home users, Silver Plus for businesses. Antivirus, discounts on repairs, remote support, and more.',
   openGraph: {

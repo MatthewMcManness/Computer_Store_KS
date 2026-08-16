@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { ChevronSection } from '@/components/static/ChevronSection';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/services/data-services' },
   title: 'Data Transfer & Drive Cloning Services | Computer Store Kansas',
   description: 'Professional data transfer and drive cloning services in Topeka, KS. PC-to-PC transfers, drive clones, and data recovery from failing drives.',
   openGraph: {

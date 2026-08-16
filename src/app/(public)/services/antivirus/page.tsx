@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { ChevronSection } from '@/components/static/ChevronSection';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/services/antivirus' },
   title: 'Antivirus & Scam Protection | Computer Store Kansas',
   description: 'Antivirus and scam protection services in Topeka, KS. We install, configure, and manage your security software so you never have to deal with technical support.',
   openGraph: {

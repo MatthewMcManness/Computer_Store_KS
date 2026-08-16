@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { ChevronSection } from '@/components/static/ChevronSection';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/why-linux' },
   title: 'Why Linux? | Computer Store Kansas',
   description: 'Discover why Linux is the smart choice for your computer. Runs on older hardware, more secure, no bloatware, completely free, and respects your privacy.',
   openGraph: {

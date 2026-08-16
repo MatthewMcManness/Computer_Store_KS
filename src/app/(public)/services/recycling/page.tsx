@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { ChevronSection } from '@/components/static/ChevronSection';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/services/recycling' },
   title: 'Free Electronics Recycling | Computer Store Kansas',
   description: 'Free electronics recycling in Topeka, KS. Drop off old computers, TVs, radios, consoles, and more. Data destruction guaranteed. Responsible e-waste disposal.',
   openGraph: {

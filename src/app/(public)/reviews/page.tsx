@@ -10,6 +10,7 @@ import { ChevronSection } from '@/components/static/ChevronSection';
 import { BUSINESS_INFO } from '@/lib/constants';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/reviews' },
   title: 'Customer Reviews - Computer Store Kansas',
   description: 'Read what our customers say about Computer Store Kansas. Trusted computer repair services in Topeka since 2003 with 5-star reviews.',
   openGraph: {

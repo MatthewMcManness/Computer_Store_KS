@@ -5,6 +5,12 @@
  * WHEN TO EDIT: When updating the shop intro text or TDMyshop embed URL.
  */
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  alternates: { canonical: '/shop' },
+};
+
 export default function ShopPage() {
   return (
     <>

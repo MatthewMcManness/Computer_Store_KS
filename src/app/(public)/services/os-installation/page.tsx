@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { ChevronSection } from '@/components/static/ChevronSection';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/services/os-installation' },
   title: 'Windows & Linux Installation Services | Computer Store Kansas',
   description: 'Professional Windows and Linux installation in Topeka, KS. Fresh OS installs, dual-boot setups, and Zorin OS for older hardware. License included with Windows installs.',
   openGraph: {

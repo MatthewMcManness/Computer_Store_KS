@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { ChevronSection } from '@/components/static/ChevronSection';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/services/diagnostics' },
   title: 'Computer Diagnostics | Computer Store Kansas',
   description: 'Professional computer diagnostics in Topeka, KS. Flat fee to find out what\'s wrong. Hardware and software troubleshooting, usually same-day results.',
   openGraph: {

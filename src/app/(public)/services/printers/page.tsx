@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { ChevronSection } from '@/components/static/ChevronSection';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/services/printers' },
   title: 'Printer Sales & Repair | Computer Store Kansas',
   description: 'New Brother printer sales and printer repair in Topeka, KS. We sell Brother printers exclusively and repair Brother and other brands. $50 in-home setup with purchase.',
   openGraph: {

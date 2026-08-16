@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { ChevronSection } from '@/components/static/ChevronSection';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/services/laptops' },
   title: 'New & Refurbished Laptops | Computer Store Kansas',
   description: 'New and refurbished laptops in Topeka, KS. Quality Asus and Lenovo laptops, thoroughly tested refurbished units, and expert help choosing the right computer.',
   openGraph: {

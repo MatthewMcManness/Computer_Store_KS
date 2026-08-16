@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { ChevronSection } from '@/components/static/ChevronSection';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/services/custom-computers' },
   title: 'Custom-Built Computers | Computer Store Kansas',
   description: 'Custom-built PCs in Topeka, KS. Gaming rigs, workstations, home offices, servers, and more. Expert consultation, quality parts, and professional assembly.',
   openGraph: {

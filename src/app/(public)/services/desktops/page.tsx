@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { ChevronSection } from '@/components/static/ChevronSection';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/services/desktops' },
   title: 'Refurbished Desktop Computers | Computer Store Kansas',
   description: 'Quality refurbished desktop computers in Topeka, KS. Thoroughly tested, professionally refurbished, and priced for any budget. Great for home, office, or gaming.',
   openGraph: {

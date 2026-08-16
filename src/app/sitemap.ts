@@ -18,6 +18,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     'diagnostics',
     'laptops',
     'os-installation',
+    'printers',
     'recycling',
     'upgrades',
     'virus-removal',
@@ -35,6 +36,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly' as const,
       priority: 0.7,
     })),
+    { url: `${BASE_URL}/shop`, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${BASE_URL}/silver-plan`, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${BASE_URL}/why-linux`, changeFrequency: 'monthly', priority: 0.6 },
   ];
